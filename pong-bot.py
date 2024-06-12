@@ -8,6 +8,7 @@ from pubsub import pub
 
 trap_list = ("ping","ack","testing") #A list of strings to trap and respond to
 help_message = "PongBot, here for you like a friend who is not. Try: ping@foo"
+RESPOND_BY_DM_ONLY = True # Set to True to respond messages via DM only (keeps the channel clean)
 
 try:
     interface = meshtastic.serial_interface.SerialInterface()
@@ -43,8 +44,6 @@ def onReceive(packet, interface):
             message_string = message_bytes.decode('utf-8')
             if packet.get('channel'):
                 channel_number = packet['channel']
-            else:
-                channel_number = 0 # Default channel, for override DEBUG
             
             message_from_id = packet['from']
             
@@ -52,13 +51,20 @@ def onReceive(packet, interface):
             if packet['to'] == myNodeNum:
                 if messageTrap(message_string):
                     print(f"Received DM: {message_string} on Channel: {channel_number} From: {message_from_id}")
+                    # respond with a direct message
                     send_message(auto_response(message_string),channel_number,message_from_id)
-                else: #return help
+                else: 
+                    #respond with help
                     send_message(help_message,channel_number,message_from_id)
             else:
                 if messageTrap(message_string):
                     print(f"Received On Channel {channel_number}: {message_string} From: {message_from_id}")
-                    send_message(auto_response(message_string),channel_number,message_from_id)
+                    if RESPOND_BY_DM_ONLY:
+                        # respond to channel message via direct message to keep the channel clean
+                        send_message(auto_response(message_string),channel_number,message_from_id)
+                    else:
+                        # or respond to channel message on the channel itself
+                        send_message(auto_response(message_string),channel_number,0)
                 else:
                     print(f"System: Ignoring incoming channel {channel_number}: {message_string} From: {message_from_id}")
                 
@@ -74,12 +80,15 @@ def messageTrap(msg):
     return False
         
 def send_message(message,ch,nodeid):
-    interface.sendText(
-        text=message,
-        channelIndex=ch,
-        destinationId=nodeid,
-        )
-    print (f"System: Sending: {message} on Channel: {ch} To: {nodeid}")
+    if nodeid == 0:
+        #Send to channel
+        interface.sendText(text=message,channelIndex=ch)
+        print (f"System: Sending: {message} on Channel: {ch}")
+    else:
+        #Send to DM
+        print (f"System: Sending: {message} To: {nodeid}")
+        interface.sendText(text=message,channelIndex=ch,destinationId=nodeid)
+
 
 pub.subscribe(onReceive, 'meshtastic.receive')
 print ("\nMeshtastic Autoresponder PONG Bot\n")
