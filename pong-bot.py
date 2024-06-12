@@ -21,7 +21,7 @@ def auto_response(message):
     try:
         message_list=message.split("@")
         query_data=message_list[1]
-        print(f"System: parsed command {query_data}")
+        # print(f"System: parsed command {query_data}")
         message_to_send="Pong, and copy " + query_data
     except Exception:
         message_to_send="Pong"
