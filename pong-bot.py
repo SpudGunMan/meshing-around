@@ -80,9 +80,9 @@ def send_message(message,ch,nodeid):
         destinationId=nodeid,
         )
     print (f"System: Sending: {message} on Channel: {ch} To: {nodeid}")
-    
+
 pub.subscribe(onReceive, 'meshtastic.receive')
-print ("Meshtastic Autoresponder PONG Bot\n")
+print ("\nMeshtastic Autoresponder PONG Bot\n")
 print (f"System: Autoresponder Started for device {myNodeNum}")
 
 while True:
