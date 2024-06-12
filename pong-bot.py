@@ -6,7 +6,7 @@
 import meshtastic.serial_interface # requirements pip install meshtastic
 from pubsub import pub
 
-trap_list = ("ping","testing") #A list of strings to trap and respond to
+trap_list = ("ping","ack","testing") #A list of strings to trap and respond to
 help_message = "PongBot, here for you like a friend who is not. Try: ping@foo"
 
 try:
@@ -18,13 +18,20 @@ except Exception as e:
     exit()
 
 def auto_response(message):
-    try:
-        message_list=message.split("@")
-        query_data=message_list[1]
-        # print(f"System: parsed command {query_data}")
-        bot_response="Pong, and copy " + query_data
-    except Exception:
-        bot_response="Pong"
+    #Auto response to messages
+    if "ping" in message.lower():
+        #Check if the user added @foo to the message
+        if "@" in message:
+            bot_response = "PONG, and copy: " + message.split("@")[1]
+        else:
+            bot_response = "PONG"
+    elif "ack" in message.lower():
+        bot_response = "ACK-ACK!"
+    elif "testing" in message.lower():
+        bot_response = "Testing 1,2,3"
+    else:
+        bot_response = "I'm sorry, I'm afraid I can't do that."
+    
     return bot_response
     
 def onReceive(packet, interface):
