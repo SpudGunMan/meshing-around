@@ -22,7 +22,7 @@ def auto_response(message):
         message_list=message.split("@")
         query_data=message_list[1]
         print(f"System: parsed command {query_data}")
-        message_to_send="Pong and copy "+ query_data
+        message_to_send="Pong, and copy "+ query_data
     except Exception:
         message_to_send="Pong"
     return message_to_send
@@ -50,7 +50,7 @@ def onReceive(packet, interface):
                     send_message(help_message,channel_number,message_from_id)
             else:
                 if messageTrap(message_string):
-                    print(f"Received On Channel: {message_string} on Channel: {channel_number} From: {message_from_id}")
+                    print(f"Received On Channel {channel_number}: {message_string} From: {message_from_id}")
                     send_message(auto_response(message_string),channel_number,message_from_id)
                 else:
                     print("System: Received message not for us")
