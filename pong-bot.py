@@ -35,7 +35,7 @@ def auto_response(message):
     return bot_response
     
 def onReceive(packet, interface):
-    channel_number = 0 # Default channel, for override DEBUG
+    channel_number = 0
     message_from_id = 0
     try:
         if 'decoded' in packet and packet['decoded']['portnum'] == 'TEXT_MESSAGE_APP':
@@ -48,7 +48,7 @@ def onReceive(packet, interface):
             
             message_from_id = packet['from']
             
-            # If the packet is a DM respond to it, otherwise validate its a message for us
+            # If the packet is a DM (Direct Message) respond to it, otherwise validate its a message for us
             if packet['to'] == myNodeNum:
                 if messageTrap(message_string):
                     print(f"Received DM: {message_string} on Channel: {channel_number} From: {message_from_id}")
@@ -60,7 +60,7 @@ def onReceive(packet, interface):
                     print(f"Received On Channel {channel_number}: {message_string} From: {message_from_id}")
                     send_message(auto_response(message_string),channel_number,message_from_id)
                 else:
-                    print("System: Received message not for us")
+                    print(f"System: Ignoring incoming channel {channel_number}: {message_string} From: {message_from_id}")
                 
     except KeyError as e:
         print(f"System: Error processing packet: {e}")
@@ -71,7 +71,6 @@ def messageTrap(msg):
         for t in trap_list:
             if t.lower() in m.lower():
                 return True
-                break
     return False
         
 def send_message(message,ch,nodeid):
@@ -79,7 +78,7 @@ def send_message(message,ch,nodeid):
         text=message,
         channelIndex=ch,
         destinationId=nodeid,
-    )
+        )
     print (f"System: Sending: {message} on Channel: {ch} To: {nodeid}")
     
 pub.subscribe(onReceive, 'meshtastic.receive')
