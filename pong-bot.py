@@ -3,15 +3,21 @@
 # forked from https://github.com/pdxlocations/Meshtastic-Python-Examples/autoresponder.py project
 # K7MHI Kelly Keeton 2024
 
-import meshtastic.serial_interface # requirements pip install meshtastic
 from pubsub import pub
+import meshtastic.serial_interface # requirements pip install meshtastic
+#import meshtastic.tcp_interface
+#import meshtastic.ble_interface
+
+interface = meshtastic.serial_interface.SerialInterface() #serial interface
+#interface=meshtastic.tcp_interface.TCPInterface(hostname="192.168.0.1") # IP of your device
+#interface=meshtastic.ble_interface.BLEInterface("AA:BB:CC:DD:EE:FF") # BLE interface
+
 
 trap_list = ("ping","ack","testing") #A list of strings to trap and respond to
 help_message = "PongBot, here for you like a friend who is not. Try: ping@foo"
 RESPOND_BY_DM_ONLY = True # Set to True to respond messages via DM only (keeps the channel clean)
 
 try:
-    interface = meshtastic.serial_interface.SerialInterface()
     myinfo = interface.getMyNodeInfo()
     myNodeNum = myinfo['num']
 except Exception as e:
