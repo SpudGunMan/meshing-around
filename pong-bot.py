@@ -22,13 +22,13 @@ def auto_response(message):
         message_list=message.split("@")
         query_data=message_list[1]
         # print(f"System: parsed command {query_data}")
-        message_to_send="Pong, and copy " + query_data
+        bot_response="Pong, and copy " + query_data
     except Exception:
-        message_to_send="Pong"
-    return message_to_send
+        bot_response="Pong"
+    return bot_response
     
 def onReceive(packet, interface):
-    channel_number = 0
+    channel_number = 0 # Default channel, for override DEBUG
     message_from_id = 0
     try:
         if 'decoded' in packet and packet['decoded']['portnum'] == 'TEXT_MESSAGE_APP':
@@ -37,7 +37,7 @@ def onReceive(packet, interface):
             if packet.get('channel'):
                 channel_number = packet['channel']
             else:
-                channel_number = 0
+                channel_number = 0 # Default channel, for override DEBUG
             
             message_from_id = packet['from']
             
