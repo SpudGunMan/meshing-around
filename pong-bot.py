@@ -14,7 +14,7 @@ try:
     myinfo = interface.getMyNodeInfo()
     myNodeNum = myinfo['num']
 except Exception as e:
-    print(f"System: Critical Error script abort{e}")
+    print(f"System: Critical Error script abort. {e}")
     exit()
 
 def auto_response(message):
