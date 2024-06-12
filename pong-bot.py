@@ -7,7 +7,7 @@ import meshtastic.serial_interface # requirements pip install meshtastic
 from pubsub import pub
 
 trap_list = ("ping","testing") #A list of strings to trap and respond to
-help_message = "PongBot, here for you like a friend who is not. Try ping@foo"
+help_message = "PongBot, here for you like a friend who is not. Try: ping@foo"
 
 try:
     interface = meshtastic.serial_interface.SerialInterface()
