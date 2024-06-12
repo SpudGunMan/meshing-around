@@ -18,16 +18,16 @@ except Exception as e:
     print(f"System: Critical Error script abort. {e}")
     exit()
 
-def auto_response(message):
+def auto_response(message,snr,rssi):
     #Auto response to messages
     if "ping" in message.lower():
         #Check if the user added @foo to the message
         if "@" in message:
             bot_response = "PONG, and copy: " + message.split("@")[1]
         else:
-            bot_response = "PONG"
+            bot_response = "PONG" + f" SNR: {snr} RSSI: {rssi}"
     elif "ack" in message.lower():
-        bot_response = "ACK-ACK!"
+        bot_response = "ACK-ACK!" + f" SNR: {snr} RSSI: {rssi}"
     elif "testing" in message.lower():
         bot_response = "Testing 1,2,3"
     else:
@@ -38,6 +38,8 @@ def auto_response(message):
 def onReceive(packet, interface):
     channel_number = 0
     message_from_id = 0
+    snr = 0
+    rssi = 0
     try:
         if 'decoded' in packet and packet['decoded']['portnum'] == 'TEXT_MESSAGE_APP':
             message_bytes = packet['decoded']['payload']
@@ -46,13 +48,15 @@ def onReceive(packet, interface):
                 channel_number = packet['channel']
             
             message_from_id = packet['from']
+            snr = packet['rxSnr']
+            rssi = packet['rxRssi']
             
             # If the packet is a DM (Direct Message) respond to it, otherwise validate its a message for us
             if packet['to'] == myNodeNum:
                 if messageTrap(message_string):
                     print(f"Received DM: {message_string} on Channel: {channel_number} From: {message_from_id}")
                     # respond with a direct message
-                    send_message(auto_response(message_string),channel_number,message_from_id)
+                    send_message(auto_response(message_string,snr,rssi),channel_number,message_from_id)
                 else: 
                     #respond with help
                     send_message(help_message,channel_number,message_from_id)
@@ -61,10 +65,10 @@ def onReceive(packet, interface):
                     print(f"Received On Channel {channel_number}: {message_string} From: {message_from_id}")
                     if RESPOND_BY_DM_ONLY:
                         # respond to channel message via direct message to keep the channel clean
-                        send_message(auto_response(message_string),channel_number,message_from_id)
+                        send_message(auto_response(message_string,snr,rssi),channel_number,message_from_id)
                     else:
                         # or respond to channel message on the channel itself
-                        send_message(auto_response(message_string),channel_number,0)
+                        send_message(auto_response(message_string,snr,rssi),channel_number,0)
                 else:
                     print(f"System: Ignoring incoming channel {channel_number}: {message_string} From: {message_from_id}")
                 
