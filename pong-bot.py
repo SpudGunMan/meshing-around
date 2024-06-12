@@ -2,16 +2,18 @@
 # Meshtastic Autoresponder PONG Bot
 # forked from https://github.com/pdxlocations/Meshtastic-Python-Examples/autoresponder.py project
 # K7MHI Kelly Keeton 2024
+# requirements `pip install -U meshtastic` to install the library
 
 from pubsub import pub
-import meshtastic.serial_interface # requirements pip install meshtastic
+
+# Uncomment the interface you want to use depending on your device connection
+import meshtastic.serial_interface
 #import meshtastic.tcp_interface
 #import meshtastic.ble_interface
 
 interface = meshtastic.serial_interface.SerialInterface() #serial interface
 #interface=meshtastic.tcp_interface.TCPInterface(hostname="192.168.0.1") # IP of your device
 #interface=meshtastic.ble_interface.BLEInterface("AA:BB:CC:DD:EE:FF") # BLE interface
-
 
 trap_list = ("ping","ack","testing") #A list of strings to trap and respond to
 help_message = "PongBot, here for you like a friend who is not. Try: ping@foo"
