@@ -10,12 +10,14 @@ import meshtastic.serial_interface
 import meshtastic.tcp_interface
 import meshtastic.ble_interface
 
+from solarconditions import * # from the spudgunman/meshing-around repo
+
 # Uncomment the interface you want to use depending on your device connection
 interface = meshtastic.serial_interface.SerialInterface() #serial interface
 #interface=meshtastic.tcp_interface.TCPInterface(hostname="192.168.0.1") # IP of your device
 #interface=meshtastic.ble_interface.BLEInterface("AA:BB:CC:DD:EE:FF") # BLE interface
 
-trap_list = ("ping","ack","testing","pong") #A list of strings to trap and respond to
+trap_list = ("ping","ack","testing","pong","sun","solar","hfcond") #A list of strings to trap and respond to
 help_message = "PongBot, here for you like a friend who is not. Try: ping@foo"
 RESPOND_BY_DM_ONLY = True # Set to True to respond messages via DM only (keeps the channel clean)
 
@@ -40,6 +42,12 @@ def auto_response(message,snr,rssi):
         bot_response = "Testing 1,2,3"
     elif "pong" in message.lower():
         bot_response = "PING!!"
+    elif "sun" in message.lower():
+        bot_response = "Sunrise: " + get_sunrise_sunset()[0] + "\nSunset: " + get_sunrise_sunset()[1]
+    elif "hfcond" in message.lower():
+        bot_response = hf_band_conditions()
+    elif "solar" in message.lower():
+        bot_response = drap_xray_conditions()
     else:
         bot_response = "I'm sorry, I'm afraid I can't do that."
     
