@@ -6,12 +6,11 @@
 
 import signal
 from pubsub import pub
+import meshtastic.serial_interface
+import meshtastic.tcp_interface
+import meshtastic.ble_interface
 
 # Uncomment the interface you want to use depending on your device connection
-import meshtastic.serial_interface
-#import meshtastic.tcp_interface
-#import meshtastic.ble_interface
-
 interface = meshtastic.serial_interface.SerialInterface() #serial interface
 #interface=meshtastic.tcp_interface.TCPInterface(hostname="192.168.0.1") # IP of your device
 #interface=meshtastic.ble_interface.BLEInterface("AA:BB:CC:DD:EE:FF") # BLE interface
