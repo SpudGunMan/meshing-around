@@ -11,10 +11,6 @@ Little bot which will trap keywords like ping and respond on a DM with pong. The
  Currently config modifications is edit to code. Be sure to uncomment the approprate interface combo for your method (serial/BLEW/TCP). Only one at a time is supported to a single node at a time.
  ```
 # Uncomment the interface you want to use depending on your device connection
-import meshtastic.serial_interface
-#import meshtastic.tcp_interface
-#import meshtastic.ble_interface
-
 interface = meshtastic.serial_interface.SerialInterface() #serial interface
 #interface=meshtastic.tcp_interface.TCPInterface(hostname="192.168.0.1") # IP of your device
 #interface=meshtastic.ble_interface.BLEInterface("AA:BB:CC:DD:EE:FF") # BLE interface
