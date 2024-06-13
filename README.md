@@ -42,3 +42,8 @@ pip install requests
 pip install datetime
 pip install python-dateutil
 ```
+
+# Reconition
+Used ideas and snippets from other responder bots want to call them out!
+ - https://github.com/Murturtle/MeshLink
+ - https://github.com/pdxlocations/Meshtastic-Python-Examples
