@@ -53,7 +53,7 @@ def auto_response(message,snr,rssi):
             bot_response = MOTD
     elif "sun" in message.lower():
         suntime = get_sunrise_sunset()
-        bot_response = "Sunrise: " + suntime()[0] + "\nSunset: " + suntime()[1]
+        bot_response = "Sunrise: " + suntime[0] + "\nSunset: " + suntime[1]
     elif "hfcond" in message.lower():
         bot_response = hf_band_conditions()
     elif "solar" in message.lower():
