@@ -2,6 +2,7 @@
 Random Mesh Scripts
 
 - requires meshtastic python tools `pip install meshtastic`
+- optional solar needs `pip install suntime`
 
 ## pong-bot.sh
 ![alt text](pong-bot.jpg "Example Use")
