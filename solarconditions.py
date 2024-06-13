@@ -1,3 +1,6 @@
+# helper functions to get HF band conditions, DRAP X-ray flux, and sunrise/sunset times
+# some code from https://github.com/Murturtle/MeshLink
+
 import requests # pip install requests
 import xml.dom.minidom
 from datetime import datetime # pip install datetime
