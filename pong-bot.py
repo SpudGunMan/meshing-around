@@ -4,6 +4,7 @@
 # K7MHI Kelly Keeton 2024
 # requirements `pip install -U meshtastic` to install the library
 
+import signal
 from pubsub import pub
 
 # Uncomment the interface you want to use depending on your device connection
@@ -101,10 +102,15 @@ def send_message(message,ch,nodeid):
         print (f"System: Sending: {message} To: {nodeid}")
         interface.sendText(text=message,channelIndex=ch,destinationId=nodeid)
 
+def handler(signum, frame):
+    print("\nSystem: Closing Autoresponder")
+    interface.close()
+    exit (0)
 
 pub.subscribe(onReceive, 'meshtastic.receive')
-print ("\nMeshtastic Autoresponder PONG Bot\n")
+print ("\nMeshtastic Autoresponder PONG Bot CTL+C to exit\n")
 print (f"System: Autoresponder Started for device {myNodeNum}")
 
 while True:
+    signal.signal(signal.SIGINT, handler)
     pass
