@@ -16,9 +16,10 @@ interface = meshtastic.serial_interface.SerialInterface() #serial interface
 #interface=meshtastic.tcp_interface.TCPInterface(hostname="192.168.0.1") # IP of your device
 #interface=meshtastic.ble_interface.BLEInterface("AA:BB:CC:DD:EE:FF") # BLE interface
 
-trap_list = ("ping","ack","testing","pong","sun","solar","hfcond") #A list of strings to trap and respond to
-help_message = "PongBot, here for you like a friend who is not. Try: ping@foo"
+trap_list = ("ping","ack","testing","pong","motd","sun","solar","hfcond") #A list of strings to trap and respond to
+help_message = "PongBot, here for you like a friend who is not. Try: ping @foo"
 RESPOND_BY_DM_ONLY = True # Set to True to respond messages via DM only (keeps the channel clean)
+MOTD = "We are at campsite 123 look for firewood!" # Message of the Day
 
 try:
     myinfo = interface.getMyNodeInfo()
@@ -41,6 +42,15 @@ def auto_response(message,snr,rssi):
         bot_response = "Testing 1,2,3"
     elif "pong" in message.lower():
         bot_response = "PING!!"
+    elif "motd" in message.lower():
+        #check if the user wants to set the motd by using $
+        if "$" in message:
+            motd = message.split("$")[1]
+            global MOTD
+            MOTD = motd
+            bot_response = "MOTD Set to: " + MOTD
+        else:
+            bot_response = MOTD
     elif "sun" in message.lower():
         bot_response = "Sunrise: " + get_sunrise_sunset()[0] + "\nSunset: " + get_sunrise_sunset()[1]
     elif "hfcond" in message.lower():
