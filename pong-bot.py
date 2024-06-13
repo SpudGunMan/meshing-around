@@ -101,7 +101,7 @@ def send_message(message,ch,nodeid):
         print (f"System: Sending: {message} To: {nodeid}")
         interface.sendText(text=message,channelIndex=ch,destinationId=nodeid)
 
-def handler(signum, frame):
+def exit_handler(signum, frame):
     print("\nSystem: Closing Autoresponder")
     interface.close()
     exit (0)
@@ -111,5 +111,5 @@ print ("\nMeshtastic Autoresponder PONG Bot CTL+C to exit\n")
 print (f"System: Autoresponder Started for device {myNodeNum}")
 
 while True:
-    signal.signal(signal.SIGINT, handler)
+    signal.signal(signal.SIGINT, exit_handler)
     pass
