@@ -87,7 +87,7 @@ def messageTrap(msg):
     message_list=msg.split(" ")
     for m in message_list:
         for t in trap_list:
-            if t.lower() in m.lower():
+            if t.lower() == m.lower():
                 return True
     return False
         
