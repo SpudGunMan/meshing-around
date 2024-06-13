@@ -2,11 +2,10 @@
 # Meshtastic Autoresponder PONG Bot
 # forked from https://github.com/pdxlocations/Meshtastic-Python-Examples/autoresponder.py project
 # K7MHI Kelly Keeton 2024
-# requirements `pip install -U meshtastic` to install the library
 
-import signal
-from pubsub import pub
-import meshtastic.serial_interface
+import signal # for catching CTL+C
+from pubsub import pub # pip install pubsub
+import meshtastic.serial_interface #pip install meshtastic
 import meshtastic.tcp_interface
 import meshtastic.ble_interface
 
