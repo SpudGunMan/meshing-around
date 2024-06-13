@@ -14,7 +14,7 @@ LONGITUDE = -123.0
 
 def hf_band_conditions():
     hf_cond = ""
-    band_cond = requests.get("https://www.hamqsl.com/solarxml.php")
+    band_cond = requests.get("https://www.hamqsl.com/solarxml.php", timeout=5)
     if(band_cond.ok):
         solarxml = xml.dom.minidom.parseString(band_cond.text)
         for i in solarxml.getElementsByTagName("band"):
@@ -26,7 +26,7 @@ def hf_band_conditions():
 
 def drap_xray_conditions():
     drap_cond = ""
-    drap_cond = requests.get("https://services.swpc.noaa.gov/text/drap_global_frequencies.txt")
+    drap_cond = requests.get("https://services.swpc.noaa.gov/text/drap_global_frequencies.txt", timeout=5)
     if(drap_cond.ok):
         drap_list = drap_cond.text.split('\n')
         x_filter = '#  X-RAY Message :'
@@ -34,7 +34,7 @@ def drap_xray_conditions():
             if x_filter in line:
                 xray_flux = line.split(": ")[1]
     else:
-        hf_cond += "error fetching"
+        xray_flux += "error fetching"
     return xray_flux
 
 def get_sunrise_sunset():
