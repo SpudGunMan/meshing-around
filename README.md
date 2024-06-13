@@ -27,6 +27,11 @@ It is recomended to leave this setting as default `True` to keep the channel cle
 ```
 RESPOND_BY_DM_ONLY = True # Set to True to respond messages via DM only (keeps the channel clean)
  ```
+ Solar Data needs the LAT LONG for your area on the [solarconditions.py](solarconditions.py)
+```
+LATITUDE = 48.50
+LONGITUDE = -123.0
+```
 
 # requirements
 ```
