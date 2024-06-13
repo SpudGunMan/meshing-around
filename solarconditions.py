@@ -1,5 +1,6 @@
 # helper functions to get HF band conditions, DRAP X-ray flux, and sunrise/sunset times
 # some code from https://github.com/Murturtle/MeshLink
+# K7MHI Kelly Keeton 2024
 
 import requests # pip install requests
 import xml.dom.minidom
