@@ -17,10 +17,11 @@ interface = meshtastic.serial_interface.SerialInterface() #serial interface
 #interface=meshtastic.ble_interface.BLEInterface("AA:BB:CC:DD:EE:FF") # BLE interface
 
 trap_list = ("ping","ack","testing","pong","motd","help","sun","solar","hfcond") #A list of strings to trap and respond to
-welcome_message = "PongBot, here for you like a friend who is not. Try sending: ping @foo  or: motd"
+welcome_message = "PongBot, here for you like a friend who is not. Try sending: ping @foo  or, help"
 help_message = "Commands are: ping, ack, motd, sun, solar, hfcond"
 RESPOND_BY_DM_ONLY = True # Set to True to respond messages via DM only (keeps the channel clean)
-MOTD = "We are at campsite 123 look for firewood!" # Message of the Day
+MOTD = "Thanks for using PongBOT! Have a good day!" # Message of the Day
+log_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 try:
     myinfo = interface.getMyNodeInfo()
@@ -85,16 +86,16 @@ def onReceive(packet, interface):
             # If the packet is a DM (Direct Message) respond to it, otherwise validate its a message for us
             if packet['to'] == myNodeNum:
                 if messageTrap(message_string):
-                    print(f"Received DM: {message_string} on Channel: {channel_number} From: {message_from_id}")
+                    print(f"{log_timestamp} Received DM: {message_string} on Channel: {channel_number} From: {message_from_id}")
                     # respond with a direct message
                     send_message(auto_response(message_string,snr,rssi),channel_number,message_from_id)
                 else: 
                     #respond with welcome message
-                    print(f"Ignoring DM: {message_string} From: {message_from_id}")
+                    print(f"{log_timestamp} Ignoring DM: {message_string} From: {message_from_id}")
                     send_message(welcome_message,channel_number,message_from_id)
             else:
                 if messageTrap(message_string):
-                    print(f"Received On Channel {channel_number}: {message_string} From: {message_from_id}")
+                    print(f"{log_timestamp} Received On Channel {channel_number}: {message_string} From: {message_from_id}")
                     if RESPOND_BY_DM_ONLY:
                         # respond to channel message via direct message to keep the channel clean
                         send_message(auto_response(message_string,snr,rssi),channel_number,message_from_id)
@@ -102,7 +103,7 @@ def onReceive(packet, interface):
                         # or respond to channel message on the channel itself
                         send_message(auto_response(message_string,snr,rssi),channel_number,0)
                 else:
-                    print(f"System: Ignoring incoming channel {channel_number}: {message_string} From: {message_from_id}")
+                    print(f"{log_timestamp} System: Ignoring incoming channel {channel_number}: {message_string} From: {message_from_id}")
                 
     except KeyError as e:
         print(f"System: Error processing packet: {e}")
@@ -119,10 +120,10 @@ def send_message(message,ch,nodeid):
     if nodeid == 0:
         #Send to channel
         interface.sendText(text=message,channelIndex=ch)
-        print (f"System: Sending: {message} on Channel: {ch}")
+        print (f"{log_timestamp} System: Sending: {message} on Channel: {ch}")
     else:
         #Send to DM
-        print (f"System: Sending: {message} To: {nodeid}")
+        print (f"{log_timestamp} System: Sending: {message} To: {nodeid}")
         interface.sendText(text=message,channelIndex=ch,destinationId=nodeid)
 
 def exit_handler(signum, frame):
@@ -130,8 +131,8 @@ def exit_handler(signum, frame):
     interface.close()
     exit (0)
 
-pub.subscribe(onReceive, 'meshtastic.receive')
 print ("\nMeshtastic Autoresponder PONG Bot CTL+C to exit\n")
+pub.subscribe(onReceive, 'meshtastic.receive')
 print (f"System: Autoresponder Started for device {myNodeNum}")
 
 while True:
