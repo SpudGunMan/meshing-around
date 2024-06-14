@@ -21,7 +21,6 @@ welcome_message = "PongBot, here for you like a friend who is not. Try sending: 
 help_message = "Commands are: ping, ack, motd, sun, solar, hfcond"
 RESPOND_BY_DM_ONLY = True # Set to True to respond messages via DM only (keeps the channel clean)
 MOTD = "Thanks for using PongBOT! Have a good day!" # Message of the Day
-log_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 try:
     myinfo = interface.getMyNodeInfo()
@@ -66,6 +65,9 @@ def auto_response(message,snr,rssi):
         bot_response = "I'm sorry, I'm afraid I can't do that."
     
     return bot_response
+
+def log_timestamp():
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
 def onReceive(packet, interface):
     channel_number = 0
@@ -86,16 +88,16 @@ def onReceive(packet, interface):
             # If the packet is a DM (Direct Message) respond to it, otherwise validate its a message for us
             if packet['to'] == myNodeNum:
                 if messageTrap(message_string):
-                    print(f"{log_timestamp} Received DM: {message_string} on Channel: {channel_number} From: {message_from_id}")
+                    print(f"{log_timestamp()} Received DM: {message_string} on Channel: {channel_number} From: {message_from_id}")
                     # respond with a direct message
                     send_message(auto_response(message_string,snr,rssi),channel_number,message_from_id)
                 else: 
                     #respond with welcome message
-                    print(f"{log_timestamp} Ignoring DM: {message_string} From: {message_from_id}")
+                    print(f"{log_timestamp()} Ignoring DM: {message_string} From: {message_from_id}")
                     send_message(welcome_message,channel_number,message_from_id)
             else:
                 if messageTrap(message_string):
-                    print(f"{log_timestamp} Received On Channel {channel_number}: {message_string} From: {message_from_id}")
+                    print(f"{log_timestamp()} Received On Channel {channel_number}: {message_string} From: {message_from_id}")
                     if RESPOND_BY_DM_ONLY:
                         # respond to channel message via direct message to keep the channel clean
                         send_message(auto_response(message_string,snr,rssi),channel_number,message_from_id)
@@ -103,7 +105,7 @@ def onReceive(packet, interface):
                         # or respond to channel message on the channel itself
                         send_message(auto_response(message_string,snr,rssi),channel_number,0)
                 else:
-                    print(f"{log_timestamp} System: Ignoring incoming channel {channel_number}: {message_string} From: {message_from_id}")
+                    print(f"{log_timestamp()} System: Ignoring incoming channel {channel_number}: {message_string} From: {message_from_id}")
                 
     except KeyError as e:
         print(f"System: Error processing packet: {e}")
@@ -120,10 +122,10 @@ def send_message(message,ch,nodeid):
     if nodeid == 0:
         #Send to channel
         interface.sendText(text=message,channelIndex=ch)
-        print (f"{log_timestamp} System: Sending: {message} on Channel: {ch}")
+        print (f"{log_timestamp()} System: Sending: {message} on Channel: {ch}")
     else:
         #Send to DM
-        print (f"{log_timestamp} System: Sending: {message} To: {nodeid}")
+        print (f"{log_timestamp()} System: Sending: {message} To: {nodeid}")
         interface.sendText(text=message,channelIndex=ch,destinationId=nodeid)
 
 def exit_handler(signum, frame):
