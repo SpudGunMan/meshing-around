@@ -16,8 +16,9 @@ interface = meshtastic.serial_interface.SerialInterface() #serial interface
 #interface=meshtastic.tcp_interface.TCPInterface(hostname="192.168.0.1") # IP of your device
 #interface=meshtastic.ble_interface.BLEInterface("AA:BB:CC:DD:EE:FF") # BLE interface
 
-trap_list = ("ping","ack","testing","pong","motd","sun","solar","hfcond") #A list of strings to trap and respond to
-help_message = "PongBot, here for you like a friend who is not. Try: ping @foo"
+trap_list = ("ping","ack","testing","pong","motd","help","sun","solar","hfcond") #A list of strings to trap and respond to
+welcome_message = "PongBot, here for you like a friend who is not. Try sending: ping @foo  or: motd"
+help_message = "Commands are: ping, ack, motd, sun, solar, hfcond"
 RESPOND_BY_DM_ONLY = True # Set to True to respond messages via DM only (keeps the channel clean)
 MOTD = "We are at campsite 123 look for firewood!" # Message of the Day
 
@@ -51,6 +52,8 @@ def auto_response(message,snr,rssi):
             bot_response = "MOTD Set to: " + MOTD
         else:
             bot_response = MOTD
+    elif "help" in message.lower():
+        bot_response = help_message
     elif "sun" in message.lower():
         suntime = get_sunrise_sunset()
         bot_response = "Sunrise: " + suntime[0] + "\nSunset: " + suntime[1]
@@ -86,8 +89,9 @@ def onReceive(packet, interface):
                     # respond with a direct message
                     send_message(auto_response(message_string,snr,rssi),channel_number,message_from_id)
                 else: 
-                    #respond with help
-                    send_message(help_message,channel_number,message_from_id)
+                    #respond with welcome message
+                    print(f"Ignoring DM: {message_string} From: {message_from_id}")
+                    send_message(welcome_message,channel_number,message_from_id)
             else:
                 if messageTrap(message_string):
                     print(f"Received On Channel {channel_number}: {message_string} From: {message_from_id}")
