@@ -79,7 +79,6 @@ def log_timestamp():
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
 def onReceive(packet, interface):
-    channel_number = 0
     message_from_id = 0
     snr = 0
     rssi = 0
@@ -87,19 +86,31 @@ def onReceive(packet, interface):
         if 'decoded' in packet and packet['decoded']['portnum'] == 'TEXT_MESSAGE_APP':
             message_bytes = packet['decoded']['payload']
             message_string = message_bytes.decode('utf-8')
-            if packet.get('channel'):
-                channel_number = packet['channel']
-            
             message_from_id = packet['from']
             snr = packet['rxSnr']
             rssi = packet['rxRssi']
-            hop_limit = packet['hopLimit']
-            hop_start = packet['hopStart']
+
+            if packet.get('channel'):
+                channel_number = packet['channel']
+            else:
+                channel_number = 0
             
+            if packet.get('hopLimit'):
+                hop_limit = packet['hopLimit']
+            else:
+                hop_limit = 0
+            
+            if packet.get('hopStart'):
+                hop_start = packet['hopStart']
+            else:
+                hop_start = 0
+                
+            # set hop to Direct if the message was sent directly otherwise set the hop count
             if hop_start == hop_limit:
                 hop = "Direct"
             else:
-                hop = "Relayed"
+                hop_count = hop_start - hop_limit
+                hop = f"{hop_count} hops"
             
             # If the packet is a DM (Direct Message) respond to it, otherwise validate its a message for us
             if packet['to'] == myNodeNum:
@@ -125,6 +136,7 @@ def onReceive(packet, interface):
                 
     except KeyError as e:
         print(f"System: Error processing packet: {e}")
+        print(packet) # print the packet for debugging
         
 def messageTrap(msg):
     message_list=msg.split(" ")
