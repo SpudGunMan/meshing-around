@@ -29,16 +29,25 @@ except Exception as e:
     print(f"System: Critical Error script abort. {e}")
     exit()
 
-def auto_response(message,snr,rssi):
+def auto_response(message,snr,rssi,hop):
     #Auto response to messages
     if "ping" in message.lower():
         #Check if the user added @foo to the message
         if "@" in message:
-            bot_response = "PONG, and copy: " + message.split("@")[1]
+            if hop == "Direct":
+                bot_response = "PONG, " + f"SNR:{snr} RSSI:{rssi}" + " and copy: " + message.split("@")[1]
+            else:
+                bot_response = "PONG, " + hop + " and copy: " + message.split("@")[1]
         else:
-            bot_response = "PONG" + f" SNR: {snr} RSSI: {rssi}"
+            if hop == "Direct":
+                bot_response = "PONG, " + f"SNR:{snr} RSSI:{rssi}"
+            else:
+                bot_response = "PONG, " + hop
     elif "ack" in message.lower():
-        bot_response = "ACK-ACK!" + f" SNR: {snr} RSSI: {rssi}"
+        if hop == "Direct":
+            bot_response = "ACK-ACK! " + f"SNR:{snr} RSSI:{rssi}"
+        else:
+            bot_response = "ACK-ACK! " + hop
     elif "testing" in message.lower():
         bot_response = "Testing 1,2,3"
     elif "pong" in message.lower():
@@ -84,13 +93,20 @@ def onReceive(packet, interface):
             message_from_id = packet['from']
             snr = packet['rxSnr']
             rssi = packet['rxRssi']
+            hop_limit = packet['hopLimit']
+            hop_start = packet['hopStart']
+            
+            if hop_start == hop_limit:
+                hop = "Direct"
+            else:
+                hop = "Relayed"
             
             # If the packet is a DM (Direct Message) respond to it, otherwise validate its a message for us
             if packet['to'] == myNodeNum:
                 if messageTrap(message_string):
                     print(f"{log_timestamp()} Received DM: {message_string} on Channel: {channel_number} From: {message_from_id}")
                     # respond with a direct message
-                    send_message(auto_response(message_string,snr,rssi),channel_number,message_from_id)
+                    send_message(auto_response(message_string,snr,rssi,hop),channel_number,message_from_id)
                 else: 
                     #respond with welcome message
                     print(f"{log_timestamp()} Ignoring DM: {message_string} From: {message_from_id}")
@@ -100,7 +116,7 @@ def onReceive(packet, interface):
                     print(f"{log_timestamp()} Received On Channel {channel_number}: {message_string} From: {message_from_id}")
                     if RESPOND_BY_DM_ONLY:
                         # respond to channel message via direct message to keep the channel clean
-                        send_message(auto_response(message_string,snr,rssi),channel_number,message_from_id)
+                        send_message(auto_response(message_string,snr,rssi,hop),channel_number,message_from_id)
                     else:
                         # or respond to channel message on the channel itself
                         send_message(auto_response(message_string,snr,rssi),channel_number,0)
