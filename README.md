@@ -42,14 +42,14 @@ LONGITUDE = -123.0
 ```
 pip install meshtastic
 pip install pubsub
+pip install datetime
 ```
 
-meshbot enhancments
+mesh-bot enhancments
 
 ```
 pip install suntime
 pip install requests
-pip install datetime
 pip install python-dateutil
 ```
 
