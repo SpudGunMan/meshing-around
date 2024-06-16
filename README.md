@@ -9,6 +9,11 @@ Little bot which will trap keywords like ping and respond on a DM with pong. The
 other features
 - MOTD with ability to set remotely
   - `motd` or `motd $New Message Of the day`
+
+## mesh-bot.sh
+
+ alternate bot, adds internet and other telemetry data which goes beyond just ping
+
 - Various solar details
   - `sun` returns the sunrise and set for the day
   - `solar` gives an idea of the x-ray flux
@@ -37,6 +42,11 @@ LONGITUDE = -123.0
 ```
 pip install meshtastic
 pip install pubsub
+```
+
+meshbot enhancments
+
+```
 pip install suntime
 pip install requests
 pip install datetime
