@@ -20,7 +20,7 @@ other features
   - `hfcond` returns a table of HF solar conditions
 
  ### Configurations
- Currently config modifications is edit to code. Be sure to uncomment the appropriate interface for your method (serial/BLEW/TCP). Only one at a time is supported to a single node at a time.
+ Currently config modifications is edit to code. Be sure to uncomment the appropriate interface for your method (serial/BLE/TCP). Only one at a time is supported to a single node at a time.
  ```
 # Uncomment the interface you want to use depending on your device connection
 interface = meshtastic.serial_interface.SerialInterface() #serial interface
