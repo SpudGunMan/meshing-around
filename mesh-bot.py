@@ -69,7 +69,7 @@ def auto_response(message,snr,rssi,hop):
     elif "hfcond" in message.lower():
         bot_response = hf_band_conditions()
     elif "solar" in message.lower():
-        bot_response = drap_xray_conditions()
+        bot_response = drap_xray_conditions() + "\n" + solar_conditions()
     else:
         bot_response = "I'm sorry, I'm afraid I can't do that."
     
