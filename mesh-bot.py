@@ -81,7 +81,7 @@ def auto_response(message,snr,rssi,hop,message_from_id):
     elif "whereami" in message.lower():
         location = get_node_location(message_from_id)
         print (f"Using Reported Location: {location}")
-        where = where_am_i(location[0],location[1])
+        where = where_am_i(str(location[0]),str(location[1]))
         bot_response = where
     else:
         bot_response = "I'm sorry, I'm afraid I can't do that."
