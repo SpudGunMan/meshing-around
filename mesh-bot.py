@@ -30,7 +30,7 @@ except Exception as e:
     print(f"System: Critical Error script abort. {e}")
     exit()
 
-def auto_response(message,snr,rssi,hop):
+def auto_response(message,snr,rssi,hop,message_from_id):
     #Auto response to messages
     if "ping" in message.lower():
         #Check if the user added @foo to the message
@@ -65,7 +65,11 @@ def auto_response(message,snr,rssi,hop):
     elif "help" in message.lower():
         bot_response = help_message
     elif "sun" in message.lower():
-        suntime = get_sunrise_sunset()
+        location = get_node_location(message_from_id)
+        lat = location[0]
+        lon = location[1]
+        print (f"Using Reported Location: {location}")
+        suntime = get_sunrise_sunset(lat,lon)
         bot_response = "Sunrise: " + suntime[0] + "\nSunset: " + suntime[1]
     elif "hfcond" in message.lower():
         bot_response = hf_band_conditions()
@@ -132,20 +136,20 @@ def onReceive(packet, interface):
                 if messageTrap(message_string):
                     print(f"{log_timestamp()} Received DM: {message_string} on Channel: {channel_number} From: {get_name_from_number(message_from_id)}")
                     # respond with a direct message
-                    send_message(auto_response(message_string,snr,rssi,hop),channel_number,message_from_id)
+                    send_message(auto_response(message_string,snr,rssi,hop,message_from_id),channel_number,message_from_id)
                 else: 
                     #respond with welcome message
                     print(f"{log_timestamp()} Ignoring DM: {message_string} From: {get_name_from_number(message_from_id)}")
-                    send_message(welcome_message,channel_number,message_from_id)
+                    send_message(welcome_message,channel_number,message_from_id,message_from_id)
             else:
                 if messageTrap(message_string):
                     print(f"{log_timestamp()} Received On Channel {channel_number}: {message_string} From: {get_name_from_number(message_from_id)}")
                     if RESPOND_BY_DM_ONLY:
                         # respond to channel message via direct message to keep the channel clean
-                        send_message(auto_response(message_string,snr,rssi,hop),channel_number,message_from_id)
+                        send_message(auto_response(message_string,snr,rssi,hop,message_from_id),channel_number,message_from_id)
                     else:
                         # or respond to channel message on the channel itself
-                        send_message(auto_response(message_string,snr,rssi),channel_number,0)
+                        send_message(auto_response(message_string,snr,rssi,message_from_id),channel_number,0)
                 else:
                     print(f"{log_timestamp()} System: Ignoring incoming channel {channel_number}: {message_string} From: {get_name_from_number(message_from_id)}")
                 
@@ -205,6 +209,23 @@ def get_node_list():
     else:
         node_list.append("Nothing heard")
         return node_list
+    
+def get_node_location(number):
+    print (f"Looking for location of {get_name_from_number(number)}")
+    if interface.nodes:
+        for node in interface.nodes.values():
+            if number == node['num']:
+                if 'position' in node:
+                    latitude = node['position']['latitude']
+                    longitude = node['position']['longitude']
+                    print (f"System: location data for {number} is {latitude},{longitude}")
+                    position = [latitude,longitude]
+                    return position
+                else:
+                    print (f"{log_timestamp()} System: No location data for {number}")
+                return [0,0]
+    else:
+        return [0,0]
         
 def send_message(message,ch,nodeid):
     if nodeid == 0:

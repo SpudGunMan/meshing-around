@@ -55,8 +55,12 @@ def drap_xray_conditions():
         xray_flux += "error fetching"
     return xray_flux
 
-def get_sunrise_sunset():
-    sun = Sun(LATITUDE, LONGITUDE)
+def get_sunrise_sunset(lat=0, lon=0):
+    if lat != 0 and lon != 0:
+        sun = Sun(lat, lon)
+    else:
+        sun = Sun(LATITUDE, LONGITUDE)
+        
     to_zone = tz.tzlocal()
     today_sr = sun.get_sunrise_time(datetime.now())
     today_ss = sun.get_sunset_time(datetime.now())
