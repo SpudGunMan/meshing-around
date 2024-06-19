@@ -191,7 +191,8 @@ def get_node_list():
                 node_name = get_name_from_number(node['num'])
             if node['lastHeard']:
                 last_heard = node['lastHeard']
-            node_list.append((node_name,last_heard))
+            item = (node_name,last_heard)
+            node_list.append(item)
         
         print (node_list)
 
