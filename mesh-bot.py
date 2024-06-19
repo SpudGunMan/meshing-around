@@ -97,34 +97,36 @@ def onReceive(packet, interface):
                 channel_number = packet['channel']
             else:
                 channel_number = 0
-            
-            if packet.get('hopLimit'):
-                hop_limit = packet['hopLimit']
-            else:
-                hop_limit = 0
-            
-            if packet.get('hopStart'):
-                hop_start = packet['hopStart']
-            else:
-                hop_start = 0
+        
             
             # check if the packet has a hop count flag use it
             if packet.get('hopsAway'):
                 hop_away = packet['hopsAway']
             else:
+                # if the packet does not have a hop count try other methods
                 hop_away = 0
-                
-            # set hop to Direct if the message was sent directly otherwise set the hop count
-            if hop_start == hop_limit:
-                hop = "Direct"
-            else:
-                if hop_away > 0:
-                    hop_count = hop_away
-                    print (f"Using hopsAway: {hop_count}")
+                if packet.get('hopLimit'):
+                    hop_limit = packet['hopLimit']
                 else:
-                    hop_count = hop_start - hop_limit
-                    print (f"calculated hop count: {hop_start} - {hop_limit} = {hop_count}")
-                hop = f"{hop_count} hops"
+                    hop_limit = 0
+                
+                if packet.get('hopStart'):
+                    hop_start = packet['hopStart']
+                else:
+                    hop_start = 0
+
+                if hop_start == hop_limit:
+                    hop = "Direct"
+                else:
+                    # set hop to Direct if the message was sent directly otherwise set the hop count
+                    if hop_away > 0:
+                        hop_count = hop_away
+                        print (f"Using hopsAway: {hop_count}")
+                    else:
+                        hop_count = hop_start - hop_limit
+                        print (f"calculated hop count: {hop_start} - {hop_limit} = {hop_count}")
+
+                    hop = f"{hop_count} hops"
             
             # If the packet is a DM (Direct Message) respond to it, otherwise validate its a message for us
             if packet['to'] == myNodeNum:
