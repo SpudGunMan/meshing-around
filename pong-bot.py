@@ -16,9 +16,9 @@ interface = meshtastic.serial_interface.SerialInterface() #serial interface
 #interface=meshtastic.tcp_interface.TCPInterface(hostname="192.168.0.1") # IP of your device
 #interface=meshtastic.ble_interface.BLEInterface("AA:BB:CC:DD:EE:FF") # BLE interface
 
-trap_list = ("ping","ack","testing","pong","motd","help") #A list of strings to trap and respond to
+trap_list = ("ping","ack","testing","pong","motd","help","lheard") #A list of strings to trap and respond to
 welcome_message = "PongBot, here for you like a friend who is not. Try sending: ping @foo  or, help"
-help_message = "Commands are: ping, ack, motd, help. Use 'motd $foo' to set MOTD."
+help_message = "Commands are: ping, ack, motd, lheard. Use 'motd $foo' to set MOTD."
 RESPOND_BY_DM_ONLY = True # Set to True to respond messages via DM only (keeps the channel clean)
 MOTD = "Thanks for using PongBOT! Have a good day!" # Message of the Day
 
@@ -63,6 +63,8 @@ def auto_response(message,snr,rssi,hop):
             bot_response = MOTD
     elif "help" in message.lower():
         bot_response = help_message
+    elif "lheard" in message.lower():
+        bot_response = "Last 5 nodes heard: " + str(get_node_list())
     else:
         bot_response = "I'm sorry, I'm afraid I can't do that."
     
@@ -97,27 +99,38 @@ def onReceive(packet, interface):
                 hop_start = packet['hopStart']
             else:
                 hop_start = 0
+            
+            # check if the packet has a hop count flag use it
+            if packet.get('hopsAway'):
+                hop_away = packet['hopsAway']
+            else:
+                hop_away = 0
                 
             # set hop to Direct if the message was sent directly otherwise set the hop count
             if hop_start == hop_limit:
                 hop = "Direct"
             else:
-                hop_count = hop_start - hop_limit
+                if hop_away > 0:
+                    hop_count = hop_away
+                    print (f"Using hopsAway: {hop_count}")
+                else:
+                    hop_count = hop_start - hop_limit
+                    print (f"calculated hop count: {hop_start} - {hop_limit} = {hop_count}")
                 hop = f"{hop_count} hops"
             
             # If the packet is a DM (Direct Message) respond to it, otherwise validate its a message for us
             if packet['to'] == myNodeNum:
                 if messageTrap(message_string):
-                    print(f"{log_timestamp()} Received DM: {message_string} on Channel: {channel_number} From: {message_from_id}")
+                    print(f"{log_timestamp()} Received DM: {message_string} on Channel: {channel_number} From: {get_name_from_number(message_from_id)}")
                     # respond with a direct message
                     send_message(auto_response(message_string,snr,rssi,hop),channel_number,message_from_id)
                 else: 
                     #respond with welcome message
-                    print(f"{log_timestamp()} Ignoring DM: {message_string} From: {message_from_id}")
+                    print(f"{log_timestamp()} Ignoring DM: {message_string} From: {get_name_from_number(message_from_id)}")
                     send_message(welcome_message,channel_number,message_from_id)
             else:
                 if messageTrap(message_string):
-                    print(f"{log_timestamp()} Received On Channel {channel_number}: {message_string} From: {message_from_id}")
+                    print(f"{log_timestamp()} Received On Channel {channel_number}: {message_string} From: {get_name_from_number(message_from_id)}")
                     if RESPOND_BY_DM_ONLY:
                         # respond to channel message via direct message to keep the channel clean
                         send_message(auto_response(message_string,snr,rssi,hop),channel_number,message_from_id)
@@ -125,7 +138,7 @@ def onReceive(packet, interface):
                         # or respond to channel message on the channel itself
                         send_message(auto_response(message_string,snr,rssi),channel_number,0)
                 else:
-                    print(f"{log_timestamp()} System: Ignoring incoming channel {channel_number}: {message_string} From: {message_from_id}")
+                    print(f"{log_timestamp()} System: Ignoring incoming channel {channel_number}: {message_string} From: {get_name_from_number(message_from_id)}")
                 
     except KeyError as e:
         print(f"System: Error processing packet: {e}")
@@ -138,6 +151,50 @@ def messageTrap(msg):
             if t.lower() == m.lower():
                 return True
     return False
+
+def decimal_to_hex(decimal_number):
+    return f"!{decimal_number:08x}"
+
+def get_name_from_number(number, type='long'):
+    name = ""
+    for node in interface.nodes.values():
+        if number == node['num']:
+            if type == 'long':
+                name = node['user']['longName']
+                return name
+            elif type == 'short':
+                name = node['user']['shortName']
+                return name
+            else:
+                pass
+        else:
+            name =  str(decimal_to_hex(number))  # If long name not found, use the ID as string
+    return name
+
+def get_node_list():
+    node_list = []
+    if interface.nodes:
+        for node in interface.nodes.values():
+            #ignore own
+            if node['num'] != myNodeNum:
+                node_name = get_name_from_number(node['num'])
+
+                try:
+                    last_heard = node['lastHeard']
+                except Exception as e:
+                    last_heard = 0
+                
+                item = (node_name,last_heard)
+                node_list.append(item)
+        
+        node_list.sort(key=lambda x: x[1], reverse=True)
+        #print (f"Node List: {node_list[:5]}\n")
+        #return only the last 5 nodes
+        nice_node_list = [x[0] for x in node_list[:5]]
+        return nice_node_list
+    else:
+        node_list.append("Nothing heard")
+        return node_list
         
 def send_message(message,ch,nodeid):
     if nodeid == 0:
@@ -146,7 +203,7 @@ def send_message(message,ch,nodeid):
         print (f"{log_timestamp()} System: Sending: {message} on Channel: {ch}")
     else:
         #Send to DM
-        print (f"{log_timestamp()} System: Sending: {message} To: {nodeid}")
+        print (f"{log_timestamp()} System: Sending: {message} To: {get_name_from_number(nodeid)}")
         interface.sendText(text=message,channelIndex=ch,destinationId=nodeid)
 
 def exit_handler(signum, frame):
@@ -156,7 +213,7 @@ def exit_handler(signum, frame):
 
 print ("\nMeshtastic Autoresponder PONG Bot CTL+C to exit\n")
 pub.subscribe(onReceive, 'meshtastic.receive')
-print (f"System: Autoresponder Started for device {myNodeNum}")
+print (f"System: Autoresponder Started for device {get_name_from_number(myNodeNum)}")
 
 while True:
     signal.signal(signal.SIGINT, exit_handler)
