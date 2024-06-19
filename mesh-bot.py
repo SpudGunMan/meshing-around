@@ -193,7 +193,7 @@ def get_node_list():
             if node['lastHeard']:
                 last_heard = node['lastHeard']
             item = (node_name,last_heard)
-            node_list.append(item)
+            node_list += [item]
         
         #sort by last heard
         node_list.sort(key=lambda x: x[1], reverse=True)
