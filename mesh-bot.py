@@ -9,7 +9,6 @@ import meshtastic.serial_interface #pip install meshtastic
 import meshtastic.tcp_interface
 import meshtastic.ble_interface
 from datetime import datetime
-import time
 
 from solarconditions import * # from the spudgunman/meshing-around repo
 
@@ -185,22 +184,24 @@ def get_node_list():
     node_list = []
     node_name = ""
     last_heard = ""
-    #pause for a second
-    time.sleep(2)
-    if interface.nodes:
-        for node in interface.nodes.values():
-            #ignore own
-            if node['num'] != myNodeNum:
-                node_name = get_name_from_number(node['num'])
-            if node['lastHeard'] != None:
-                last_heard = node['lastHeard']
-            item = (node_name,last_heard)
-        
-        #return only the last 5 nodes
-        return node_list[:5]
-    else:
-        node_list.append("Nothing heard")
-        return node_list
+    try:
+        if interface.nodes:
+            for node in interface.nodes.values():
+                #ignore own
+                if node['num'] != myNodeNum:
+                    node_name = get_name_from_number(node['num'])
+                if node['lastHeard'] != None:
+                    last_heard = node['lastHeard']
+                item = (node_name,last_heard)
+            
+            #return only the last 5 nodes
+            return node_list[:5]
+        else:
+            node_list.append("Nothing heard")
+            return node_list
+    except Exception as e:
+        print(f"System: Error getting node list: {e}")
+        return "node_list_error"
         
 def send_message(message,ch,nodeid):
     if nodeid == 0:
