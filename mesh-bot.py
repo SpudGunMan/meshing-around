@@ -190,8 +190,7 @@ def get_node_list():
                 if name != "":
                     node_name = get_name_from_number(node['num'])
                 else:
-                    continue
-            
+                    node_name = "Unknown"
             try:
                 last_heard = node['lastHeard']
             except Exception as e:
