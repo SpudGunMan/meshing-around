@@ -186,15 +186,13 @@ def get_node_list():
         for node in interface.nodes.values():
             #ignore own
             if node['num'] != myNodeNum:
-                name = get_name_from_number(node['num'])
-                if name != "":
-                    node_name = get_name_from_number(node['num'])
-                else:
-                    node_name = "Unknown"
+                node_name = get_name_from_number(node['num'])
+
             try:
                 last_heard = node['lastHeard']
             except Exception as e:
                 last_heard = 0
+            
             item = (node_name,last_heard)
             node_list.append(item)
         
