@@ -199,7 +199,8 @@ def get_node_list():
         node_list.sort(key=lambda x: x[1], reverse=True)
 
         #return only the last 5 nodes
-        return node_list[:5]
+        nice_node_list = [x[0] for x in node_list[:5]]
+        return nice_node_list[:5]
     else:
         node_list.append("Nothing heard")
         return node_list
