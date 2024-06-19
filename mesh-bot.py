@@ -187,7 +187,8 @@ def get_node_list():
         #sort by last heard
         node_list.sort(key=lambda x: x[1], reverse=True)
         #return only the last 5 nodes 0 value is the name ignore last heard
-        node_list = [x[0] for x in node_list[:5]]
+        #node_list = [x[0] for x in node_list[:5]]
+        print(node_list)
         return node_list
     else:
         node_list.append("Nothing heard")
