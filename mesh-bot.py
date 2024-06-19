@@ -190,7 +190,7 @@ def get_node_list():
             #ignore own
             if node['num'] != myNodeNum:
                 node_name = get_name_from_number(node['num'])
-            if node['lastHeard']:
+            if node['lastHeard'] != None:
                 last_heard = node['lastHeard']
             item = (node_name,last_heard)
         
