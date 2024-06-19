@@ -172,15 +172,16 @@ def get_node_list():
     node_list = []
     if interface.nodes:
         for node in interface.nodes.values():
-            #limit list to the last 5 nodes, and ignore own
+            #ignore own
             if node['num'] != myNodeNum:
-                #only get recent lastHeard nodes unix timestamp
-                if node['lastHeard'] > (datetime.now().timestamp() - 500):
-                    node_list.append(get_name_from_number(node['num']))
+                node_list.append(get_name_from_number(node['num']))
 
-            
-            if len(node_list) > 5:
-                break
+        #sort the list by lastHeard
+        node_list.sort(key=lambda x: x['lastHeard'], reverse=True)
+        #return only the last 5 nodes
+        return node_list[:5]
+    else:
+        node_list.append("Nothing heard")
     return node_list
         
 def send_message(message,ch,nodeid):
