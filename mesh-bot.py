@@ -197,7 +197,7 @@ def get_node_list():
                 node_list.append(item)
         
         node_list.sort(key=lambda x: x[1], reverse=True)
-        print (f"Node List: {node_list[:5]}\n")
+        #print (f"Node List: {node_list[:5]}\n")
         #return only the last 5 nodes
         nice_node_list = [x[0] for x in node_list[:5]]
         return nice_node_list
@@ -222,7 +222,7 @@ def exit_handler(signum, frame):
 
 print ("\nMeshtastic Autoresponder PONG Bot CTL+C to exit\n")
 pub.subscribe(onReceive, 'meshtastic.receive')
-print (f"System: Autoresponder Started for device {myNodeNum}")
+print (f"System: Autoresponder Started for device {get_name_from_number(myNodeNum)}")
 
 while True:
     signal.signal(signal.SIGINT, exit_handler)
