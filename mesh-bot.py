@@ -19,7 +19,7 @@ interface = meshtastic.serial_interface.SerialInterface() #serial interface
 
 trap_list = ("ping","ack","testing","pong","motd","help","sun","solar","hfcond","lheard") #A list of strings to trap and respond to
 welcome_message = "MeshBot, here for you like a friend who is not. Try sending: ping @foo  or, help"
-help_message = "Commands are: ping, ack, motd, sun, solar, hfcond, lheard. Use 'motd $foo' to set MOTD."
+help_message = "Commands are: ping, ack, motd, sun, solar, hfcond, Lheard. Use 'motd $foo' to set MOTD."
 RESPOND_BY_DM_ONLY = True # Set to True to respond messages via DM only (keeps the channel clean)
 MOTD = "Thanks for using PongBOT! Have a good day!" # Message of the Day
 
@@ -97,33 +97,34 @@ def onReceive(packet, interface):
                 channel_number = packet['channel']
             else:
                 channel_number = 0
-            
-            if packet.get('hopLimit'):
-                hop_limit = packet['hopLimit']
-            else:
-                hop_limit = 0
-            
-            if packet.get('hopStart'):
-                hop_start = packet['hopStart']
-            else:
-                hop_start = 0
-            
+        
             # check if the packet has a hop count flag use it
             if packet.get('hopsAway'):
                 hop_away = packet['hopsAway']
             else:
+                # if the packet does not have a hop count try other methods
                 hop_away = 0
+                if packet.get('hopLimit'):
+                    hop_limit = packet['hopLimit']
+                else:
+                    hop_limit = 0
                 
-            # set hop to Direct if the message was sent directly otherwise set the hop count
+                if packet.get('hopStart'):
+                    hop_start = packet['hopStart']
+                else:
+                    hop_start = 0
+
             if hop_start == hop_limit:
                 hop = "Direct"
             else:
+                # set hop to Direct if the message was sent directly otherwise set the hop count
                 if hop_away > 0:
                     hop_count = hop_away
                     print (f"Using hopsAway: {hop_count}")
                 else:
                     hop_count = hop_start - hop_limit
                     print (f"calculated hop count: {hop_start} - {hop_limit} = {hop_count}")
+
                 hop = f"{hop_count} hops"
             
             # If the packet is a DM (Direct Message) respond to it, otherwise validate its a message for us
