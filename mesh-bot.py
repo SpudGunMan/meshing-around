@@ -217,9 +217,10 @@ def get_node_location(number):
             if number == node['num']:
                 if 'position' in node:
                     print (f"DEBUG: {node['position']}")
-                    for data in node['position']:
-                        print (f"DEBUG: {data}")
-                    print (f"{log_timestamp()} System: Using location data for {number}")
+                    latitude = node['position']['latitude']
+                    longitude = node['position']['longitude']
+                    print (f"location data for {number} is {latitude},{longitude}")
+                    #position = [latitude,longitude]
                     position = [0,0]
                     return position
                 else:
