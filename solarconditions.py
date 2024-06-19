@@ -4,7 +4,6 @@
 
 import requests # pip install requests
 import xml.dom.minidom
-from datetime import datetime # pip install datetime
 from datetime import timedelta
 from dateutil import tz # pip install python-dateutil
 from suntime import Sun, SunTimeException # pip install suntime
