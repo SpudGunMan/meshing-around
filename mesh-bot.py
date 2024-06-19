@@ -183,7 +183,8 @@ def get_node_list():
         for node in interface.nodes.values():
             #ignore own
             if node['num'] != myNodeNum:
-                node_list.append([get_name_from_number(node['num']),node['lastHeard']])
+                #append the name and the lastHeard value
+                node_list.append((get_name_from_number(node['num']),node['lastHeard']))
         node_list.sort(key=lambda x: x[1],reverse=True)
         
 
