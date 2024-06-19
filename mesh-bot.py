@@ -129,16 +129,16 @@ def onReceive(packet, interface):
             # If the packet is a DM (Direct Message) respond to it, otherwise validate its a message for us
             if packet['to'] == myNodeNum:
                 if messageTrap(message_string):
-                    print(f"{log_timestamp()} Received DM: {message_string} on Channel: {channel_number} From: {message_from_id}")
+                    print(f"{log_timestamp()} Received DM: {message_string} on Channel: {channel_number} From: {get_name_from_number(message_from_id)}")
                     # respond with a direct message
                     send_message(auto_response(message_string,snr,rssi,hop),channel_number,message_from_id)
                 else: 
                     #respond with welcome message
-                    print(f"{log_timestamp()} Ignoring DM: {message_string} From: {message_from_id}")
+                    print(f"{log_timestamp()} Ignoring DM: {message_string} From: {get_name_from_number(message_from_id)}")
                     send_message(welcome_message,channel_number,message_from_id)
             else:
                 if messageTrap(message_string):
-                    print(f"{log_timestamp()} Received On Channel {channel_number}: {message_string} From: {message_from_id}")
+                    print(f"{log_timestamp()} Received On Channel {channel_number}: {message_string} From: {get_name_from_number(message_from_id)}")
                     if RESPOND_BY_DM_ONLY:
                         # respond to channel message via direct message to keep the channel clean
                         send_message(auto_response(message_string,snr,rssi,hop),channel_number,message_from_id)
@@ -146,7 +146,7 @@ def onReceive(packet, interface):
                         # or respond to channel message on the channel itself
                         send_message(auto_response(message_string,snr,rssi),channel_number,0)
                 else:
-                    print(f"{log_timestamp()} System: Ignoring incoming channel {channel_number}: {message_string} From: {message_from_id}")
+                    print(f"{log_timestamp()} System: Ignoring incoming channel {channel_number}: {message_string} From: {get_name_from_number(message_from_id)}")
                 
     except KeyError as e:
         print(f"System: Error processing packet: {e}")
@@ -212,7 +212,7 @@ def send_message(message,ch,nodeid):
         print (f"{log_timestamp()} System: Sending: {message} on Channel: {ch}")
     else:
         #Send to DM
-        print (f"{log_timestamp()} System: Sending: {message} To: {nodeid}")
+        print (f"{log_timestamp()} System: Sending: {message} To: {get_name_from_number(nodeid)}")
         interface.sendText(text=message,channelIndex=ch,destinationId=nodeid)
 
 def exit_handler(signum, frame):
