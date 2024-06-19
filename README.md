@@ -17,6 +17,7 @@ other features
 
 - Various solar details
   - `sun` returns the sunrise and set for the day
+    - uses the locaton of the node if known
   - `solar` gives an idea of the x-ray flux
   - `hfcond` returns a table of HF solar conditions
 
@@ -33,7 +34,7 @@ It is recomended to leave this setting as default `True` to keep the channel cle
 ```
 RESPOND_BY_DM_ONLY = True # Set to True to respond messages via DM only (keeps the channel clean)
  ```
- Solar Data needs the LAT LONG for your area on the [solarconditions.py](solarconditions.py)
+ Solar Data needs the LAT LONG for your area on the [solarconditions.py](solarconditions.py) used for when node has no location in the db
 ```
 LATITUDE = 48.50
 LONGITUDE = -123.0
