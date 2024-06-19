@@ -9,6 +9,7 @@ import meshtastic.serial_interface #pip install meshtastic
 import meshtastic.tcp_interface
 import meshtastic.ble_interface
 from datetime import datetime
+import time
 
 from solarconditions import * # from the spudgunman/meshing-around repo
 
@@ -184,7 +185,8 @@ def get_node_list():
     node_list = []
     node_name = ""
     last_heard = ""
-
+    #pause for a second
+    time.sleep(2)
     if interface.nodes:
         for node in interface.nodes.values():
             #ignore own
