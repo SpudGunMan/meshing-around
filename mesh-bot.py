@@ -149,14 +149,33 @@ def messageTrap(msg):
                 return True
     return False
 
+def decimal_to_hex(decimal_number):
+    return f"!{decimal_number:08x}"
+
+def get_name_from_number(number, type='long'):
+    name = ""
+    for node in interface.nodes.values():
+        if number == node['num']:
+            if type == 'long':
+                name = node['user']['longName']
+                return name
+            elif type == 'short':
+                name = node['user']['shortName']
+                return name
+            else:
+                pass
+        else:
+            name =  str(decimal_to_hex(number))  # If long name not found, use the ID as string
+    return name
+
 def get_node_list():
     node_list = []
     if interface.nodes:
        
         for node in interface.nodes.values():
             #limit list to the last 5 nodes
-            node_list.append(node['num'])
-            if len(node_list) > 5:
+            node_list.append(get_name_from_number(node['num']))
+            if len(node_list) > 4:
                 break
     return node_list
         
