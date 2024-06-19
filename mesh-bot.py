@@ -8,6 +8,7 @@ from pubsub import pub # pip install pubsub
 import meshtastic.serial_interface #pip install meshtastic
 import meshtastic.tcp_interface
 import meshtastic.ble_interface
+from datetime import datetime
 
 from solarconditions import * # from the spudgunman/meshing-around repo
 
