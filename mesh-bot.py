@@ -107,12 +107,21 @@ def onReceive(packet, interface):
                 hop_start = packet['hopStart']
             else:
                 hop_start = 0
+            
+            # check if the packet has a hop count flag use it
+            if packet.get('hopsAway'):
+                hop_away = packet['hopsAway']
                 
             # set hop to Direct if the message was sent directly otherwise set the hop count
             if hop_start == hop_limit:
                 hop = "Direct"
             else:
-                hop_count = hop_start - hop_limit
+                if hop_away:
+                    hop_count = hop_away
+                    print (f"Using hopsAway: {hop_count}")
+                else:
+                    hop_count = hop_start - hop_limit
+                    print (f"calculated hop count: {hop_start} - {hop_limit} = {hop_count}")
                 hop = f"{hop_count} hops"
             
             # If the packet is a DM (Direct Message) respond to it, otherwise validate its a message for us
