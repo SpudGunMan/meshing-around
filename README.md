@@ -20,6 +20,7 @@ other features
     - uses the locaton of the node if known
   - `solar` gives an idea of the x-ray flux
   - `hfcond` returns a table of HF solar conditions
+  - `whereami` returns the address of location of sender if known
 
  ### Configurations
  Currently config modifications is edit to code. Be sure to uncomment the appropriate interface for your method (serial/BLE/TCP). Only one at a time is supported to a single node at a time.
