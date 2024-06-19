@@ -130,10 +130,9 @@ def onReceive(packet, interface):
                 # set hop to Direct if the message was sent directly otherwise set the hop count
                 if hop_away > 0:
                     hop_count = hop_away
-                    print (f"Using hopsAway: {hop_count}")
                 else:
                     hop_count = hop_start - hop_limit
-                    print (f"calculated hop count: {hop_start} - {hop_limit} = {hop_count}")
+                    #print (f"calculated hop count: {hop_start} - {hop_limit} = {hop_count}")
 
                 hop = f"{hop_count} hops"
             
