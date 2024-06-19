@@ -181,17 +181,20 @@ def get_name_from_number(number, type='long'):
 
 def get_node_list():
     node_list = []
+    node_name = ""
+    last_heard = ""
+
     if interface.nodes:
         for node in interface.nodes.values():
             #ignore own
             if node['num'] != myNodeNum:
-                if node['lastHeard']:
-                    node_name = get_name_from_number(node['num'])
-                    last_heard = node['lastHeard']
+                node_name = get_name_from_number(node['num'])
+            if node['lastHeard']:
+                last_heard = node['lastHeard']
                 
-                print (f"Node: {node_name} Last Heard: {last_heard}")
+            print (f"Node: {node_name} Last Heard: {last_heard}")
 
-        node_list.sort(key=lambda x: x[1], reverse=True)
+        #node_list.sort(key=lambda x: x[1], reverse=True)
         
 
         #return only the last 5 nodes
