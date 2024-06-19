@@ -111,12 +111,14 @@ def onReceive(packet, interface):
             # check if the packet has a hop count flag use it
             if packet.get('hopsAway'):
                 hop_away = packet['hopsAway']
+            else:
+                hop_away = 0
                 
             # set hop to Direct if the message was sent directly otherwise set the hop count
             if hop_start == hop_limit:
                 hop = "Direct"
             else:
-                if hop_away:
+                if hop_away > 0:
                     hop_count = hop_away
                     print (f"Using hopsAway: {hop_count}")
                 else:
