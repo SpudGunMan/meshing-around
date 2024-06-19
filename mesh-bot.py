@@ -184,24 +184,24 @@ def get_node_list():
     node_list = []
     node_name = ""
     last_heard = ""
-    try:
-        if interface.nodes:
-            for node in interface.nodes.values():
-                #ignore own
-                if node['num'] != myNodeNum:
-                    node_name = get_name_from_number(node['num'])
+    if interface.nodes:
+        for node in interface.nodes.values():
+            #ignore own
+            if node['num'] != myNodeNum:
+                node_name = get_name_from_number(node['num'])
+            try:
                 if node['lastHeard'] != None:
                     last_heard = node['lastHeard']
-                item = (node_name,last_heard)
-            
-            #return only the last 5 nodes
-            return node_list[:5]
-        else:
-            node_list.append("Nothing heard")
-            return node_list
-    except Exception as e:
-        print(f"System: Error getting node list: {e}")
-        return "node_list_error"
+            except:
+                print(f"System: Error getting node list: {e}")
+                last_heard = 0
+            item = (node_name,last_heard)
+        
+        #return only the last 5 nodes
+        return node_list[:5]
+    else:
+        node_list.append("Nothing heard")
+        return node_list
         
 def send_message(message,ch,nodeid):
     if nodeid == 0:
