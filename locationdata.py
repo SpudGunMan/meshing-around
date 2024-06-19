@@ -26,6 +26,6 @@ def where_am_i(lat=0, lon=0):
     if 'country' in address:
         whereIam += " " + address['country']
 
-    whereIam += "Grid: " + mh.to_maiden(str(lat), str(lon))
+    whereIam += "Grid: " + mh.to_maiden(lat, lon, precision=4)
     
     return whereIam
