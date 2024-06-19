@@ -191,8 +191,9 @@ def get_node_list():
                 node_name = get_name_from_number(node['num'])
             if node['lastHeard']:
                 last_heard = node['lastHeard']
-                
-            print (f"Node: {node_name} Last Heard: {last_heard}")
+            node_list.append((node_name,last_heard))
+        
+        print (node_list)
 
         #node_list.sort(key=lambda x: x[1], reverse=True)
         
