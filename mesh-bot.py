@@ -9,6 +9,8 @@ import meshtastic.serial_interface #pip install meshtastic
 import meshtastic.tcp_interface
 import meshtastic.ble_interface
 from datetime import datetime
+import sys
+
 
 from solarconditions import * # from the spudgunman/meshing-around repo
 
@@ -150,6 +152,8 @@ def onReceive(packet, interface):
                 
     except KeyError as e:
         print(f"System: Error processing packet: {e}")
+        #get line number of error
+        print(sys.exc_info()[-1].tb_lineno)
         print(packet) # print the packet for debugging
         print("END of packet \n")
         
