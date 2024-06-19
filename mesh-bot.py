@@ -186,7 +186,10 @@ def get_node_list():
             #ignore own
             if node['num'] != myNodeNum:
                 #append the name and the lastHeard value
-                node_list.append((get_name_from_number(node['num']),node['lastHeard']))
+                node_name = get_name_from_number(node['num'])
+                last_heard = node['lastHeard']
+                node_list.append((node_name,last_heard))
+                
         node_list.sort(key=lambda x: x[1],reverse=True)
         
 
