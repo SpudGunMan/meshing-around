@@ -189,12 +189,13 @@ def get_node_list():
             #ignore own
             if node['num'] != myNodeNum:
                 node_name = get_name_from_number(node['num'])
+            
             try:
                 last_heard = node['lastHeard']
             except Exception as e:
-                print(f"System: Error getting node list: {e}")
                 last_heard = 0
             item = (node_name,last_heard)
+            node_list.append(item)
         
         #return only the last 5 nodes
         return node_list[:5]
