@@ -9,15 +9,5 @@ def where_am_i(lat=0, lon=0):
     
     location = geolocator.reverse(lat+","+lon)
     address = location.raw['address']
-    
-    # traverse the data
-    city = address.get('city', '')
-    state = address.get('state', '')
-    country = address.get('country', '')
-    zipcode = address.get('postcode')
-    print('City : ', city)
-    print('State : ', state)
-    print('Country : ', country)
-    print('Zip Code : ', zipcode)
 
-    return location
+    return address
