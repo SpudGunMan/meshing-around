@@ -189,6 +189,8 @@ def get_node_list():
                 name = get_name_from_number(node['num'])
                 if name != "":
                     node_name = get_name_from_number(node['num'])
+                else:
+                    continue
             
             try:
                 last_heard = node['lastHeard']
@@ -198,7 +200,7 @@ def get_node_list():
             node_list.append(item)
         
         node_list.sort(key=lambda x: x[1], reverse=True)
-        
+
         #return only the last 5 nodes
         return node_list[:5]
     else:
