@@ -17,7 +17,7 @@ interface = meshtastic.serial_interface.SerialInterface() #serial interface
 #interface=meshtastic.tcp_interface.TCPInterface(hostname="192.168.0.1") # IP of your device
 #interface=meshtastic.ble_interface.BLEInterface("AA:BB:CC:DD:EE:FF") # BLE interface
 
-trap_list = ("ping","ack","testing","pong","motd","help","sun","solar","hfcond") #A list of strings to trap and respond to
+trap_list = ("ping","ack","testing","pong","motd","help","sun","solar","hfcond","lheard") #A list of strings to trap and respond to
 welcome_message = "MeshBot, here for you like a friend who is not. Try sending: ping @foo  or, help"
 help_message = "Commands are: ping, ack, motd, sun, solar, hfcond. Use 'motd $foo' to set MOTD."
 RESPOND_BY_DM_ONLY = True # Set to True to respond messages via DM only (keeps the channel clean)
@@ -71,6 +71,8 @@ def auto_response(message,snr,rssi,hop):
         bot_response = hf_band_conditions()
     elif "solar" in message.lower():
         bot_response = drap_xray_conditions() + "\n" + solar_conditions()
+    elif "lheard" in message.lower():
+        bot_response = "Last 5 nodes heard: " + str(get_node_list())
     else:
         bot_response = "I'm sorry, I'm afraid I can't do that."
     
@@ -146,6 +148,17 @@ def messageTrap(msg):
             if t.lower() == m.lower():
                 return True
     return False
+
+def get_node_list():
+    node_list = []
+    if interface.nodes:
+       
+        for node in interface.nodes.values():
+            #limit list to the last 5 nodes
+            node_list.append(node['num'])
+            if len(node_list) > 5:
+                break
+    return node_list
         
 def send_message(message,ch,nodeid):
     if nodeid == 0:
