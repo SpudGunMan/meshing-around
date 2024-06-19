@@ -2,6 +2,7 @@
 # K7MHI Kelly Keeton 2024
 
 from geopy.geocoders import Nominatim # pip install geopy
+import maidenhead as mh # pip install maidenhead
 
 def where_am_i(lat=0, lon=0):
     whereIam = ""
@@ -24,5 +25,7 @@ def where_am_i(lat=0, lon=0):
         whereIam += " " + address['county']
     if 'country' in address:
         whereIam += " " + address['country']
+
+    whereIam += "Grid: " + mh.to_maiden(lat, lon)
     
     return whereIam
