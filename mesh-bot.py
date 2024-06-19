@@ -183,13 +183,10 @@ def get_node_list():
         for node in interface.nodes.values():
             #ignore own
             if node['num'] != myNodeNum:
-                node_list.append(get_name_from_number(node['num'])),node['lastHeard']
-        #sort by last heard
-        node_list.sort(key=lambda x: x[1], reverse=True)
-        #return only the last 5 nodes 0 value is the name ignore last heard
-        #node_list = [x[0] for x in node_list[:5]]
-        print(node_list)
-        return node_list
+                node_list.append(get_name_from_number(node['num']))
+                
+        #return only the last 5 nodes
+        return node_list[:5]
     else:
         node_list.append("Nothing heard")
     return node_list
