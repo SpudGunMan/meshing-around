@@ -216,7 +216,7 @@ def get_node_location(number):
         for node in interface.nodes.values():
             if number == node['num']:
                 print (node)
-                if 'latitudeI' in node:
+                if 'latitude' in node:
                     lat = node['latitude']
                     lon = node['longitude']
                     position = (lat,lon)
