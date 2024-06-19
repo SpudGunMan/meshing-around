@@ -151,6 +151,7 @@ def onReceive(packet, interface):
     except KeyError as e:
         print(f"System: Error processing packet: {e}")
         print(packet) # print the packet for debugging
+        print("END of packet \n")
         
 def messageTrap(msg):
     message_list=msg.split(" ")
@@ -194,10 +195,9 @@ def get_node_list():
             item = (node_name,last_heard)
             node_list.append(item)
         
+        #sort by last heard
+        node_list.sort(key=lambda x: x[1], reverse=True)
         print (node_list)
-
-        #node_list.sort(key=lambda x: x[1], reverse=True)
-        
 
         #return only the last 5 nodes
         return node_list[:5]
