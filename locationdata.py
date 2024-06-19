@@ -9,5 +9,6 @@ def where_am_i(lat=0, lon=0):
     
     location = geolocator.reverse(lat+","+lon)
     address = location.raw['address']
+    whereIam = address['house_number'] + " " + address['road'] + ", " + address['city'] + ", " + address['state'] + " " + address['postcode']
 
-    return address
+    return whereIam
