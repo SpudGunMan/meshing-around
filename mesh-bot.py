@@ -9,8 +9,6 @@ import meshtastic.serial_interface #pip install meshtastic
 import meshtastic.tcp_interface
 import meshtastic.ble_interface
 from datetime import datetime
-import sys
-
 
 from solarconditions import * # from the spudgunman/meshing-around repo
 
@@ -74,8 +72,7 @@ def auto_response(message,snr,rssi,hop):
     elif "solar" in message.lower():
         bot_response = drap_xray_conditions() + "\n" + solar_conditions()
     elif "lheard" in message.lower():
-        get_node_list()
-        bot_response = "Last 5 nodes heard: " #+ str(get_node_list())
+        bot_response = "Last 5 nodes heard: " + str(get_node_list())
     else:
         bot_response = "I'm sorry, I'm afraid I can't do that."
     
@@ -153,8 +150,6 @@ def onReceive(packet, interface):
                 
     except KeyError as e:
         print(f"System: Error processing packet: {e}")
-        #get line number of error
-        print(sys.exc_info()[-1].tb_lineno)
         print(packet) # print the packet for debugging
         print("END of packet \n")
         
@@ -198,17 +193,12 @@ def get_node_list():
             if node['lastHeard']:
                 last_heard = node['lastHeard']
             item = (node_name,last_heard)
-            node_list += [item]
         
-        #sort by last heard
-        node_list.sort(key=lambda x: x[1], reverse=True)
-        print (node_list)
-
         #return only the last 5 nodes
         return node_list[:5]
     else:
         node_list.append("Nothing heard")
-    return node_list
+        return node_list
         
 def send_message(message,ch,nodeid):
     if nodeid == 0:
