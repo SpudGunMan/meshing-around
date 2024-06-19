@@ -190,9 +190,8 @@ def get_node_list():
             if node['num'] != myNodeNum:
                 node_name = get_name_from_number(node['num'])
             try:
-                if node['lastHeard'] != None:
-                    last_heard = node['lastHeard']
-            except:
+                last_heard = node['lastHeard']
+            except Exception as e:
                 print(f"System: Error getting node list: {e}")
                 last_heard = 0
             item = (node_name,last_heard)
