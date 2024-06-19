@@ -146,7 +146,7 @@ def onReceive(packet, interface):
                 else: 
                     #respond with welcome message
                     print(f"{log_timestamp()} Ignoring DM: {message_string} From: {get_name_from_number(message_from_id)}")
-                    send_message(welcome_message,channel_number,message_from_id,message_from_id)
+                    send_message(welcome_message,channel_number,message_from_id)
             else:
                 if messageTrap(message_string):
                     print(f"{log_timestamp()} Received On Channel {channel_number}: {message_string} From: {get_name_from_number(message_from_id)}")
