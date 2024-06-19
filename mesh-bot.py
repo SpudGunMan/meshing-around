@@ -185,13 +185,13 @@ def get_node_list():
         for node in interface.nodes.values():
             #ignore own
             if node['num'] != myNodeNum:
-                #append the name and the lastHeard value
-                node_name = get_name_from_number(node['num'])
-                last_heard = node['lastHeard']
+                if node['lastHeard']:
+                    node_name = get_name_from_number(node['num'])
+                    last_heard = node['lastHeard']
+                
                 print (f"Node: {node_name} Last Heard: {last_heard}")
 
-        #sort matrix by lastHeard
-        #node_list.sort(key=lambda x: x[1], reverse=True)
+        node_list.sort(key=lambda x: x[1], reverse=True)
         
 
         #return only the last 5 nodes
