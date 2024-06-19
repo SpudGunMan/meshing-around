@@ -171,11 +171,13 @@ def get_name_from_number(number, type='long'):
 def get_node_list():
     node_list = []
     if interface.nodes:
-       
         for node in interface.nodes.values():
             #limit list to the last 5 nodes, and ignore own
             if node['num'] != myNodeNum:
-                node_list.append(get_name_from_number(node['num']))
+                #only get recent lastHeard nodes unix timestamp
+                if node['lastHeard'] > (datetime.now().timestamp() - 500):
+                    node_list.append(get_name_from_number(node['num']))
+
             
             if len(node_list) > 5:
                 break
