@@ -211,6 +211,7 @@ def get_node_list():
         return node_list
     
 def get_node_location(number):
+    print (f"Looking for location of {get_name_from_number(number)}")
     for node in interface.nodes.values():
         if number == node['num']:
             if 'latitudeI' in node:
