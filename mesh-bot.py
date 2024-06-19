@@ -216,10 +216,11 @@ def get_node_location(number):
         for node in interface.nodes.values():
             if number == node['num']:
                 print (node)
-                if 'latitude' in node:
-                    lat = node['position']['latitude']
-                    lon = node['position']['longitude']
-                    position = (lat,lon)
+                if 'position' in node:
+                    print (node['position'])
+                    #lat = node['position']['latitude']
+                    #lon = node['position']['longitude']
+                    #position = (lat,lon)
                     print (f"{log_timestamp()} System: Found location data for {number}")
                     return position
                 else:
