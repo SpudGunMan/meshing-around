@@ -20,7 +20,7 @@ interface = meshtastic.serial_interface.SerialInterface() #serial interface
 
 trap_list = ("ping","ack","testing","pong","motd","help","sun","solar","hfcond","lheard","whereami") #A list of strings to trap and respond to
 welcome_message = "MeshBot, here for you like a friend who is not. Try sending: ping @foo  or, help"
-help_message = "Commands are: ping, ack, motd, sun, solar, hfcond, Lheard. Use 'motd $foo' to set MOTD."
+help_message = "Commands are: ping, ack, motd, sun, solar, hfcond, Lheard, whereami"
 RESPOND_BY_DM_ONLY = True # Set to True to respond messages via DM only (keeps the channel clean)
 MOTD = "Thanks for using PongBOT! Have a good day!" # Message of the Day
 
