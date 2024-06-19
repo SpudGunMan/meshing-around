@@ -54,6 +54,8 @@ mesh-bot enhancments
 pip install suntime
 pip install requests
 pip install python-dateutil
+pip install geopy
+pip install maidenhead
 ```
 
 # Recognition
