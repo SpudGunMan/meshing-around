@@ -173,9 +173,11 @@ def get_node_list():
     if interface.nodes:
        
         for node in interface.nodes.values():
-            #limit list to the last 5 nodes
-            node_list.append(get_name_from_number(node['num']))
-            if len(node_list) > 4:
+            #limit list to the last 5 nodes, and ignore own node at 0
+            if node['num'] != 0:
+                node_list.append(get_name_from_number(node['num']))
+            
+            if len(node_list) > 5:
                 break
     return node_list
         
