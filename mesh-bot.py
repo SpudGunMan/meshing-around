@@ -188,9 +188,10 @@ def get_node_list():
                 #append the name and the lastHeard value
                 node_name = get_name_from_number(node['num'])
                 last_heard = node['lastHeard']
-                node_list.append((node_name,last_heard))
-                
-        node_list.sort(key=lambda x: x[1],reverse=True)
+                node_list.append([node_name,last_heard])
+
+        #sort matrix by lastHeard
+        node_list.sort(key=lambda x: x[1], reverse=True)
         
 
         #return only the last 5 nodes
