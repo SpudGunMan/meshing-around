@@ -34,8 +34,8 @@ def where_am_i(lat=0, lon=0):
 
 def get_tide(lat=0, lon=0):
     station_id = ""
-    if lat == 0 and lon == 0:
-        return "no location data"
+    if int(lat) == 0 and int(lon) == 0:
+        return "error: no location data"
     station_lookup_url = "https://api.tidesandcurrents.noaa.gov/mdapi/prod/webapi/tidepredstations.json?lat=" + str(lat) + "&lon=" + str(lon) + "&radius=50"
     station_data = requests.get(station_lookup_url, timeout=5)
     if(station_data.ok):
