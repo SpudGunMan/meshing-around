@@ -72,3 +72,34 @@ def get_tide(lat=0, lon=0):
                  
     else:
         return "error fetching tide data"
+    
+def get_weather(lat=0, lon=0):
+    weather = ""
+    if float(lat) == 0 and float(lon) == 0:
+        return "no location data: does your device have GPS?"
+    weather_url = "https://forecast.weather.gov/MapClick.php?FcstType=text&lat=" + str(lat) + "&lon=" + str(lon)
+    weather_data = requests.get(weather_url, timeout=5)
+    if(weather_data.ok):
+        soup = bs.BeautifulSoup(weather_data.text, 'html.parser')
+        table = soup.find('div', id="detailed-forecast-body")
+        #get rows
+        rows = table.find_all('div', class_='row row-odd row-forecast')
+        #extract data from rows
+        for row in rows:
+            #shrink the text
+            line = row.text.replace("Monday", "Mon").replace("Tuesday", "Tue").replace("Wednesday", "Wed").replace("Thursday", "Thu").replace("Friday", "Fri").replace("Saturday", "Sat").replace("Sunday", "Sun")
+            line = line.replace("northwest", "NW").replace("northeast", "NE").replace("southwest", "SW").replace("southeast", "SE")
+            line = line.replace("north", "N").replace("south", "S").replace("east", "E").replace("west", "W")
+            line = line.replace("Northwest", "NW").replace("Northeast", "NE").replace("Southwest", "SW").replace("Southeast", "SE")
+            line = line.replace("North", "N").replace("South", "S").replace("East", "E").replace("West", "W")
+            line = line.replace("precipitation", "precip").replace("showers", "shwrs").replace("thunderstorms", "t-storms")
+            #only grab a few days of weather
+            if len(weather.split("\n")) < 4:
+                weather += line + "\n"
+        #trim off last newline
+        weather = weather[:-1]
+    
+        return weather
+
+    else:
+        return "error fetching weather data"
