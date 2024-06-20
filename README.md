@@ -60,6 +60,7 @@ pip install requests
 pip install geopy
 pip install maidenhead
 pip install beautifulsoup4
+pip install dadjokes
 ```
 
 # Recognition

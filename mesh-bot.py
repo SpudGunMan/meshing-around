@@ -11,18 +11,22 @@ from datetime import datetime
 
 from solarconditions import * # from the spudgunman/meshing-around repo
 from locationdata import * # from the spudgunman/meshing-around repo
+from bbstools import * # from the spudgunman/meshing-around repo
 
 # Uncomment the interface you want to use depending on your device connection
 interface = meshtastic.serial_interface.SerialInterface() #serial interface
 #interface=meshtastic.tcp_interface.TCPInterface(hostname="192.168.0.1") # IP of your device
 #interface=meshtastic.ble_interface.BLEInterface("AA:BB:CC:DD:EE:FF") # BLE interface
 
-trap_list = ("ping","ack","testing","pong","motd","help","sun","solar","hfcond","lheard","whereami","tide","moon","wx") #A list of strings to trap and respond to
+#A list of strings to trap and respond to
+trap_list = ("ping","ack","testing","pong","motd","help","sun","solar","hfcond","lheard","whereami","tide","moon","wx","joke")
+
 welcome_message = "MeshBot, here for you like a friend who is not. Try sending: ping @foo  or, help"
 help_message = "Commands are: ping, ack, motd, sun, solar, hfcond, Lheard, whereami, tide, moon, wx"
-RESPOND_BY_DM_ONLY = True # Set to True to respond messages via DM only (keeps the channel clean)
 MOTD = "Thanks for using PongBOT! Have a good day!" # Message of the Day
+RESPOND_BY_DM_ONLY = True # Set to True to respond messages via DM only (keeps the channel clean)
 
+#Get the node number of the device, check if the device is connected
 try:
     myinfo = interface.getMyNodeInfo()
     myNodeNum = myinfo['num']
@@ -89,6 +93,8 @@ def auto_response(message,snr,rssi,hop,message_from_id):
         location = get_node_location(message_from_id)
         weather = get_weather(str(location[0]),str(location[1]))
         bot_response = weather
+    elif "joke" in message.lower():
+        bot_response = tell_joke()
     else:
         bot_response = "I'm sorry, I'm afraid I can't do that."
     
@@ -98,6 +104,12 @@ def log_timestamp():
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
 def onReceive(packet, interface):
+    # receive a packet and process it, main instruction loop
+
+    # print the packet for debugging
+    #print("Packet Received")
+    #print(packet) # print the packet for debugging
+    #print("END of packet \n")
     message_from_id = 0
     snr = 0
     rssi = 0
@@ -170,6 +182,7 @@ def onReceive(packet, interface):
         print("END of packet \n")
         
 def messageTrap(msg):
+    #Check if the message contains a trap word
     message_list=msg.split(" ")
     for m in message_list:
         for t in trap_list:
@@ -197,6 +210,7 @@ def get_name_from_number(number, type='long'):
     return name
 
 def get_node_list():
+    #checks nodeDB on device and returns a list of the last 5 nodes heard
     node_list = []
     if interface.nodes:
         for node in interface.nodes.values():
@@ -222,6 +236,7 @@ def get_node_list():
         return node_list
     
 def get_node_location(number):
+    #Get the location of a node by its number from nodeDB on device
     latitude = 0
     longitude = 0
     position = [0,0]
@@ -262,5 +277,8 @@ pub.subscribe(onReceive, 'meshtastic.receive')
 print (f"System: Autoresponder Started for device {get_name_from_number(myNodeNum)}")
 
 while True:
+    # Catch CTL+C to exit
     signal.signal(signal.SIGINT, exit_handler)
     pass
+
+# EOF
