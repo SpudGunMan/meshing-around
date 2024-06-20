@@ -18,9 +18,9 @@ interface = meshtastic.serial_interface.SerialInterface() #serial interface
 #interface=meshtastic.tcp_interface.TCPInterface(hostname="192.168.0.1") # IP of your device
 #interface=meshtastic.ble_interface.BLEInterface("AA:BB:CC:DD:EE:FF") # BLE interface
 
-trap_list = ("ping","ack","testing","pong","motd","help","sun","solar","hfcond","lheard","whereami") #A list of strings to trap and respond to
+trap_list = ("ping","ack","testing","pong","motd","help","sun","solar","hfcond","lheard","whereami","tide") #A list of strings to trap and respond to
 welcome_message = "MeshBot, here for you like a friend who is not. Try sending: ping @foo  or, help"
-help_message = "Commands are: ping, ack, motd, sun, solar, hfcond, Lheard, whereami"
+help_message = "Commands are: ping, ack, motd, sun, solar, hfcond, Lheard, whereami, tide"
 RESPOND_BY_DM_ONLY = True # Set to True to respond messages via DM only (keeps the channel clean)
 MOTD = "Thanks for using PongBOT! Have a good day!" # Message of the Day
 
@@ -83,6 +83,11 @@ def auto_response(message,snr,rssi,hop,message_from_id):
         print (f"Using Reported Location: {location}")
         where = where_am_i(str(location[0]),str(location[1]))
         bot_response = where
+    elif "tide" in message.lower():
+        location = get_node_location(message_from_id)
+        print (f"Using Reported Location: {location}")
+        tide = get_tide(str(location[0]),str(location[1]))
+        bot_response = tide
     else:
         bot_response = "I'm sorry, I'm afraid I can't do that."
     
