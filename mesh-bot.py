@@ -258,7 +258,7 @@ def exit_handler(signum, frame):
     interface.close()
     exit (0)
 
-print ("\nMeshtastic Autoresponder PONG Bot CTL+C to exit\n")
+print ("\nMeshtastic Autoresponder MESH Bot CTL+C to exit\n")
 pub.subscribe(onReceive, 'meshtastic.receive')
 print (f"System: Autoresponder Started for device {get_name_from_number(myNodeNum)}")
 
