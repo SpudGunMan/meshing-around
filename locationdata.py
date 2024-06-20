@@ -94,10 +94,13 @@ def get_weather(lat=0, lon=0):
             line = line.replace("North", "N").replace("South", "S").replace("East", "E").replace("West", "W")
             line = line.replace("precipitation", "precip").replace("showers", "shwrs").replace("thunderstorms", "t-storms")
             #only grab a few days of weather
-            if len(weather.split("\n")) < 4:
+            if len(weather.split("\n")) < 3:
                 weather += line + "\n"
         #trim off last newline
         weather = weather[:-1]
+        #trim to 200 characters
+        if len(weather) > 200:
+            weather = weather[:200]
     
         return weather
 
