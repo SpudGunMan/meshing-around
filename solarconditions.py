@@ -112,12 +112,10 @@ def get_moon(lat=0, lon=0):
     moon_table['illumination'] = moon.phase
     moon_table['azimuth'] = moon.az
     moon_table['altitude'] = moon.alt
-    # distance from earth in km
-    moon_table['earth_distance'] = moon.earth_distance * ephem.meters_per_au / 1000
-    moon_table['rise_time'] = ephem.localtime(obs.next_rising(moon)).strftime('%a %d %I:%M')
-    moon_table['set_time'] = ephem.localtime(obs.next_rising(moon)).strftime('%a %d %I:%M')
-    moon_table['next_full_moon'] = ephem.localtime(obs.next_rising(moon)).strftime('%a %d %I:%M')
-    moon_table['next_new_moon'] = ephem.localtime(obs.next_rising(moon)).strftime('%a %d %I:%M')
+    moon_table['rise_time'] = ephem.localtime(obs.next_rising(moon))
+    moon_table['set_time'] = ephem.localtime(obs.next_rising(moon))
+    moon_table['next_full_moon'] = ephem.localtime(obs.next_rising(moon))
+    moon_table['next_new_moon'] = ephem.localtime(obs.next_rising(moon))
 
     moon_data = f"Moon Rise:" + moon_table['rise_time'] + " Set:" + moon_table['set_time'] + "\nMoon Phase:" \
         + moon_table['phase'] + " @:" + str('{0:.2f}'.format(moon_table['illumination'])) + "%" \
