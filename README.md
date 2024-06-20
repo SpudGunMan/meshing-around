@@ -22,6 +22,7 @@ other features
   - `hfcond` returns a table of HF solar conditions
   - `whereami` returns the address of location of sender if known
   - `tide` returns the local tides (NOAA data source)
+  - `wx` returns local weather forcast (NOAA data source)
 
  ### Configurations
  Currently config modifications is edit to code. Be sure to uncomment the appropriate interface for your method (serial/BLE/TCP). Only one at a time is supported to a single node at a time.
