@@ -241,11 +241,11 @@ def get_node_location(number):
 def send_message(message,ch,nodeid):
     if nodeid == 0:
         #Send to channel
+        print (f"{log_timestamp()} System: Sending: {message} \nTo: Channel:{ch}\n")
         interface.sendText(text=message,channelIndex=ch)
-        print (f"{log_timestamp()} System: Sending: {message} on Channel: {ch}\n")
     else:
         #Send to DM
-        print (f"{log_timestamp()} System: Sending: {message} To: {get_name_from_number(nodeid)}\n")
+        print (f"{log_timestamp()} System: Sending: {message} \nTo: {get_name_from_number(nodeid)}\n")
         interface.sendText(text=message,channelIndex=ch,destinationId=nodeid)
 
 def exit_handler(signum, frame):
