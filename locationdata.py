@@ -3,6 +3,7 @@
 
 from geopy.geocoders import Nominatim # pip install geopy
 import maidenhead as mh # pip install maidenhead
+import requests # pip install requests
 
 def where_am_i(lat=0, lon=0):
     whereIam = ""
@@ -29,3 +30,15 @@ def where_am_i(lat=0, lon=0):
     whereIam += " Grid:" + grid
     
     return whereIam
+
+def get_tide(lat=0, lon=0):
+    station_lookup_url = "https://api.tidesandcurrents.noaa.gov/mdapi/prod/webapi/stations.json?lat=" + lat + "&lon=" + lon + "&radius=30"
+    station_data = requests.get(station_lookup_url, timeout=5)
+    if(station_data.ok):
+        station_json = station_data.json()
+        print(station_json)
+        station_id = station_json['stationList'][0]['stationId']
+    else:
+        return "error fetching station data"
+
+    return "tide data"
