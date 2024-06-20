@@ -99,8 +99,8 @@ def get_sun(lat=0, lon=0):
     sun_table['transit_time'] = obs.next_transit(sun).datetime().strftime('%a %d %I:%M')
     sun_table['direction'] = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'][round(sun.az / (2 * ephem.pi / 8)) % 8]
 
-    sun_data = f"Sun Rise:" + sun_table['rise_time'] + " Set:" + sun_table['set_time'] + "\nSun Azimuth:" + str(sun_table['azimuth']) \
-        + "\nSun Altitude:" + str(sun_table['altitude']) + "\nSun Direction:" + sun_table['direction']
+    sun_data = f"Next Sun Rise:" + sun_table['rise_time'] + " Set:" + sun_table['set_time']  \
+       + "\nSun Azimuth:" + str(sun_table['azimuth']) + " Altitude:" + str(sun_table['altitude']) + "Heading: " + sun_table['direction']
     return sun_data
 
 def get_moon(lat=0, lon=0):
