@@ -8,6 +8,7 @@ from datetime import timedelta
 from dateutil import tz # pip install python-dateutil
 from suntime import Sun, SunTimeException # pip install suntime
 from datetime import datetime
+import ephem # pip install pyephem
 
 LATITUDE = 48.50
 LONGITUDE = -123.0
@@ -68,3 +69,73 @@ def get_sunrise_sunset(lat=0, lon=0):
         today_ss = today_ss + timedelta(1)
     todaysun = [today_sr.astimezone(to_zone).strftime('%a %d %I:%M'), today_ss.astimezone(to_zone).strftime('%a %d %I:%M')]
     return todaysun
+
+def get_sun(lat=0, lon=0):
+    obs = ephem.Observer()
+    obs.date = datetime.now()
+    sun = ephem.Sun()
+    if lat != 0 and lon != 0:
+        obs.lat = str(lat)
+        obs.lon = str(lon)
+    else:
+        obs.lat = str(LATITUDE)
+        obs.lon = str(LONGITUDE)
+
+    sun.compute(obs)
+    sun_table = {}
+    sun_table['azimuth'] = sun.az
+    sun_table['altitude'] = sun.alt
+    sun_table['ra'] = sun.ra
+    sun_table['dec'] = sun.dec
+    # distance from earth in km
+    sun_table['earth_distance'] = sun.earth_distance * ephem.meters_per_au / 1000
+    sun_table['parallactic_angle'] = sun.parallactic_angle()
+    # get the next rise and set times
+    local_sunrise = ephem.localtime(obs.next_rising(sun)).strftime('%a %d %I:%M')
+    local_sunset = ephem.localtime(obs.next_setting(sun)).strftime('%a %d %I:%M')
+    sun_table['rise_time'] = local_sunrise
+    sun_table['set_time'] = local_sunset
+
+    sun_table['transit_time'] = obs.next_transit(sun).datetime().strftime('%a %d %I:%M')
+    sun_table['direction'] = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'][round(sun.az / (2 * ephem.pi / 8)) % 8]
+
+    sun_data = f"Sun Rise:" + sun_table['rise_time'] + " Set:" + sun_table['set_time'] + "\nSun Azimuth:" + str(sun_table['azimuth']) \
+        + "\nSun Altitude:" + str(sun_table['altitude']) + "\nSun Direction:" + sun_table['direction']
+    return sun_data
+
+def get_moon(lat=0, lon=0):
+    obs = ephem.Observer()
+    moon = ephem.Moon()
+    if lat != 0 and lon != 0:
+        obs.lat = str(lat)
+        obs.lon = str(lon)
+    else:
+        obs.lat = str(LATITUDE)
+        obs.lon = str(LONGITUDE)
+    
+    obs.date = datetime.now()
+    moon.compute(obs)
+    moon_table = {}
+    moon_phase = ['New Moon', 'Waxing Crescent', 'First Quarter', 'Waxing Gibbous', 'Full Moon', 'Waning Gibbous', 'Last Quarter', 'Waning Crescent'][round(moon.phase / (2 * ephem.pi) * 8) % 8]
+    moon_table['phase'] = moon_phase
+    moon_table['illumination'] = moon.phase
+    moon_table['azimuth'] = moon.az
+    moon_table['altitude'] = moon.alt
+    moon_table['ra'] = moon.ra
+    moon_table['dec'] = moon.dec
+    # distance from earth in km
+    moon_table['earth_distance'] = moon.earth_distance * ephem.meters_per_au / 1000
+    moon_table['parallactic_angle'] = moon.parallactic_angle()
+    moon_table['rise_time'] = obs.next_rising(moon).datetime().strftime('%Y-%m-%d %H:%M:%S')
+    moon_table['set_time'] = obs.next_setting(moon).datetime().strftime('%Y-%m-%d %H:%M:%S')
+    moon_table['transit_time'] = obs.next_transit(moon).datetime().strftime('%Y-%m-%d %H:%M:%S')
+    moon_table['direction'] = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'][round(moon.az / (2 * ephem.pi / 8)) % 8]
+    moon_table['next_full_moon'] = ephem.localtime(ephem.next_full_moon(obs.date)).strftime('%Y-%m-%d %H:%M:%S')
+    moon_table['next_new_moon'] = ephem.localtime(ephem.next_new_moon(obs.date)).strftime('%Y-%m-%d %H:%M:%S')
+
+    moon_data = f"Moon Rise:" + moon_table['rise_time'] + " Set:" + moon_table['set_time'] + "\nMoon Phase:" \
+        + moon_table['phase'] + " @:" + str('{0:.2f}'.format(moon_table['illumination'])) + "%" + "\nMoon Azimuth:" + str(moon_table['azimuth']) \
+        + "\nMoon Altitude:" + str(moon_table['altitude']) + "\nMoon Direction:" + moon_table['direction'] \
+        + "\nNext Full Moon:" + moon_table['next_full_moon'] + "\nNext New Moon:" + moon_table['next_new_moon']
+    
+    return moon_data
