@@ -16,7 +16,7 @@ other features
  alternate bot, adds internet and other telemetry data which goes beyond just ping
 
 - Various solar details
-  - `sun` returns the sunrise and set for the day
+  - `sun` and `moon` return info on rise and set local time
     - uses the locaton of the node if known
   - `solar` gives an idea of the x-ray flux
   - `hfcond` returns a table of HF solar conditions
