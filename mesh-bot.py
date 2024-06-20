@@ -231,8 +231,9 @@ def get_node_location(number):
                     return position
                 else:
                     print (f"{log_timestamp()} System: No location data for {number}")
-                return [0,0]
+                    return [0,0]
     else:
+        print (f"{log_timestamp()} System: No nodes found")
         return [0,0]
         
 def send_message(message,ch,nodeid):
