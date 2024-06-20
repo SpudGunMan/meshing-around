@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-# Meshtastic Autoresponder PONG Bot
-# forked from https://github.com/pdxlocations/Meshtastic-Python-Examples/autoresponder.py project
+# Meshtastic Autoresponder MESH Bot
 # K7MHI Kelly Keeton 2024
 
 import signal # for catching CTL+C
