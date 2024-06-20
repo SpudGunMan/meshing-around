@@ -219,6 +219,9 @@ def get_node_list():
         return node_list
     
 def get_node_location(number):
+    latitude = 0
+    longitude = 0
+    position = [0,0]
     print (f"Looking for location of {get_name_from_number(number)}")
     if interface.nodes:
         for node in interface.nodes.values():
@@ -231,10 +234,10 @@ def get_node_location(number):
                     return position
                 else:
                     print (f"{log_timestamp()} System: No location data for {number}")
-                    return [0,0]
+                    return position
     else:
         print (f"{log_timestamp()} System: No nodes found")
-        return [0,0]
+        return position
         
 def send_message(message,ch,nodeid):
     if nodeid == 0:
