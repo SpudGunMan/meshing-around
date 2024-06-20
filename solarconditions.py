@@ -91,7 +91,7 @@ def get_sun(lat=0, lon=0):
     local_sunset = ephem.localtime(obs.next_setting(sun))
     sun_table['rise_time'] = local_sunrise.strftime('%a %d %I:%M')
     sun_table['set_time'] = local_sunset.strftime('%a %d %I:%M')
-    sun_data = f"Next Sun Rise: " + sun_table['rise_time'] + "\nSet: " + sun_table['set_time']
+    sun_data = f"Sun Rise: " + sun_table['rise_time'] + "\nSet: " + sun_table['set_time']
     return sun_data
 
 def get_moon(lat=0, lon=0):
