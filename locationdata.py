@@ -61,6 +61,8 @@ def get_tide(lat=0, lon=0):
         tide_string = ""
         for data in tide_data:
             tide_string += data + "\n"
+        #trim off last newline
+        tide_string = tide_string[:-1]
         return tide_string
                  
     else:
