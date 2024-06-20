@@ -1,0 +1,8 @@
+meshtastic
+pubsub
+datetime
+pyephem
+requests
+geopy
+maidenhead
+beautifulsoup4
