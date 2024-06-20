@@ -6,6 +6,7 @@ import requests # pip install requests
 import xml.dom.minidom
 from datetime import datetime
 import ephem # pip install pyephem
+from datetime import timedelta
 
 LATITUDE = 48.50
 LONGITUDE = -123.0
@@ -89,6 +90,9 @@ def get_sun(lat=0, lon=0):
     local_sunset = ephem.localtime(obs.next_setting(sun))
     sun_table['rise_time'] = local_sunrise.strftime('%a %d %I:%M')
     sun_table['set_time'] = local_sunset.strftime('%a %d %I:%M')
+    #if sunset is before sunrise, then it's tomorrow
+    if local_sunset < local_sunrise:
+        local_sunset = local_sunset + timedelta(1)
     sun_data = f"Sun Rise: " + sun_table['rise_time'] + "\nSet: " + sun_table['set_time']
     return sun_data
 
