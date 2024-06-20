@@ -112,7 +112,7 @@ def get_moon(lat=0, lon=0):
     moon_table['illumination'] = moon.phase
     moon_table['azimuth'] = moon.az
     moon_table['altitude'] = moon.alt
-    
+
     local_moonrise = ephem.localtime(obs.next_rising(moon))
     local_moonset = ephem.localtime(obs.next_setting(moon))
     moon_table['rise_time'] = local_moonrise.strftime('%a %d %I:%M')
@@ -125,7 +125,6 @@ def get_moon(lat=0, lon=0):
 
     moon_data = f"Moon Rise:" + moon_table['rise_time'] + " Set:" + moon_table['set_time'] + "\nMoon Phase:" \
         + moon_table['phase'] + " @:" + str('{0:.2f}'.format(moon_table['illumination'])) + "%" \
-        + "\nMoon Azimuth:" + str(moon_table['azimuth']) + "\nMoon Altitude:" + str(moon_table['altitude']) \
         + "\nNext Full Moon:" + moon_table['next_full_moon'] + "\nNext New Moon:" + moon_table['next_new_moon']
     
     return moon_data
