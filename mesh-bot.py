@@ -222,7 +222,6 @@ def get_node_location(number):
     latitude = 0
     longitude = 0
     position = [0,0]
-    print (f"Looking for location of {get_name_from_number(number)}")
     if interface.nodes:
         for node in interface.nodes.values():
             if number == node['num']:
@@ -243,10 +242,10 @@ def send_message(message,ch,nodeid):
     if nodeid == 0:
         #Send to channel
         interface.sendText(text=message,channelIndex=ch)
-        print (f"{log_timestamp()} System: Sending: {message} on Channel: {ch}")
+        print (f"{log_timestamp()} System: Sending: {message} on Channel: {ch}\n")
     else:
         #Send to DM
-        print (f"{log_timestamp()} System: Sending: {message} To: {get_name_from_number(nodeid)}")
+        print (f"{log_timestamp()} System: Sending: {message} To: {get_name_from_number(nodeid)}\n")
         interface.sendText(text=message,channelIndex=ch,destinationId=nodeid)
 
 def exit_handler(signum, frame):
