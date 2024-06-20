@@ -239,13 +239,14 @@ def get_node_location(number):
         return position
         
 def send_message(message,ch,nodeid):
+    message_for_log = message.replace("\n", "")
     if nodeid == 0:
         #Send to channel
-        print (f"{log_timestamp()} System: Sending: {message.replace("\n", "")} To: Channel:{ch}")
+        print (f"{log_timestamp()} System: Sending: {message_for_log} To: Channel:{ch}")
         interface.sendText(text=message,channelIndex=ch)
     else:
         #Send to DM
-        print (f"{log_timestamp()} System: Sending: {message.replace("\n", "")} To: {get_name_from_number(nodeid)}")
+        print (f"{log_timestamp()} System: Sending: {message_for_log} To: {get_name_from_number(nodeid)}")
         interface.sendText(text=message,channelIndex=ch,destinationId=nodeid)
 
 def exit_handler(signum, frame):
