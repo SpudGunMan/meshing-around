@@ -79,17 +79,14 @@ def auto_response(message,snr,rssi,hop,message_from_id):
         bot_response = "Last 5 nodes heard: " + str(get_node_list())
     elif "whereami" in message.lower():
         location = get_node_location(message_from_id)
-        print (f"Using Reported Location: {location}")
         where = where_am_i(str(location[0]),str(location[1]))
         bot_response = where
     elif "tide" in message.lower():
         location = get_node_location(message_from_id)
-        print (f"Using Reported Location: {location}")
         tide = get_tide(str(location[0]),str(location[1]))
         bot_response = tide
     elif "moon" in message.lower():
         location = get_node_location(message_from_id)
-        print (f"Using Reported Location: {location}")
         moon = get_moon(str(location[0]),str(location[1]))
         bot_response = moon
     else:
