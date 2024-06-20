@@ -92,7 +92,8 @@ def get_sun(lat=0, lon=0):
     sun_table['set_time'] = local_sunset.strftime('%a %d %I:%M')
     #if sunset is before sunrise, then it's tomorrow
     if local_sunset < local_sunrise:
-        local_sunset = local_sunset + timedelta(1)
+        local_sunset = ephem.localtime(obs.next_setting(sun)) + timedelta(1)
+        sun_table['set_time'] = local_sunset.strftime('%a %d %I:%M')
     sun_data = f"Sun Rise: " + sun_table['rise_time'] + "\nSet: " + sun_table['set_time']
     return sun_data
 
