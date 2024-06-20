@@ -8,6 +8,8 @@ import bs4 as bs # pip install beautifulsoup4
 
 def where_am_i(lat=0, lon=0):
     whereIam = ""
+    if int(lat) == 0 and int(lon) == 0:
+        return "no location data: does your device have GPS?"
     # initialize Nominatim API
     geolocator = Nominatim(user_agent="mesh-bot")
     
@@ -35,7 +37,7 @@ def where_am_i(lat=0, lon=0):
 def get_tide(lat=0, lon=0):
     station_id = ""
     if int(lat) == 0 and int(lon) == 0:
-        return "error: no location data"
+        return "no location data: does your device have GPS?"
     station_lookup_url = "https://api.tidesandcurrents.noaa.gov/mdapi/prod/webapi/tidepredstations.json?lat=" + str(lat) + "&lon=" + str(lon) + "&radius=50"
     station_data = requests.get(station_lookup_url, timeout=5)
     if(station_data.ok):
