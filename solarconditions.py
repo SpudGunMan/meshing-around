@@ -118,8 +118,8 @@ def get_moon(lat=0, lon=0):
 
     local_next_full_moon = ephem.localtime(ephem.next_full_moon((obs.date)))
     local_next_new_moon = ephem.localtime(ephem.next_new_moon((obs.date)))
-    moon_table['next_full_moon'] = local_next_full_moon.strftime('%a %d %I:%M')
-    moon_table['next_new_moon'] = local_next_new_moon.strftime('%a %d %I:%M')
+    moon_table['next_full_moon'] = local_next_full_moon.strftime('%a %m %d %I:%M')
+    moon_table['next_new_moon'] = local_next_new_moon.strftime('%a %m %d %I:%M')
 
     moon_data = f"Moon Rise:" + moon_table['rise_time'] + " Set:" + moon_table['set_time'] + "\nMoon Phase:" \
         + moon_table['phase'] + " @:" + str('{0:.2f}'.format(moon_table['illumination'])) + "%" \
