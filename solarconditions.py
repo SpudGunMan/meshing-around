@@ -4,8 +4,6 @@
 
 import requests # pip install requests
 import xml.dom.minidom
-from datetime import timedelta
-from dateutil import tz # pip install python-dateutil
 from datetime import datetime
 import ephem # pip install pyephem
 
