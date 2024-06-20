@@ -44,6 +44,8 @@ LONGITUDE = -123.0
 ```
 
 # requirements
+can also be installed with `pip install -r requirements.txt`
+
 ```
 pip install meshtastic
 pip install pubsub
