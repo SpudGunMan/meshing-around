@@ -52,7 +52,7 @@ pip install datetime
 mesh-bot enhancments
 
 ```
-pip install suntime
+pip install pyephem
 pip install requests
 pip install python-dateutil
 pip install geopy
