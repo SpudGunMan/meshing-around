@@ -82,10 +82,12 @@ def get_weather(lat=0, lon=0):
     if(weather_data.ok):
         soup = bs.BeautifulSoup(weather_data.text, 'html.parser')
         table = soup.find('div', id="detailed-forecast-body")
-        #get rows
-        rows = table.find_all('div', class_='row row-odd row-forecast')
+        #get night rows
+        night_rows = table.find_all('div', class_='row row-odd row-forecast')
+        #get day rows
+        day_rows += table.find_all('div', class_='row row-even row-forecast')
         #extract data from rows
-        for row in rows:
+        for row in day_rows:
             #shrink the text
             line = row.text.replace("Monday", "Mon").replace("Tuesday", "Tue").replace("Wednesday", "Wed").replace("Thursday", "Thu").replace("Friday", "Fri").replace("Saturday", "Sat").replace("Sunday", "Sun")
             line = line.replace("northwest", "NW").replace("northeast", "NE").replace("southwest", "SW").replace("southeast", "SE")
