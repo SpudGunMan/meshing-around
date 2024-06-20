@@ -4,6 +4,7 @@
 from geopy.geocoders import Nominatim # pip install geopy
 import maidenhead as mh # pip install maidenhead
 import requests # pip install requests
+import bs4 as bs # pip install beautifulsoup4
 
 def where_am_i(lat=0, lon=0):
     whereIam = ""
@@ -32,13 +33,35 @@ def where_am_i(lat=0, lon=0):
     return whereIam
 
 def get_tide(lat=0, lon=0):
-    station_lookup_url = "https://api.tidesandcurrents.noaa.gov/mdapi/prod/webapi/stations.json?lat=" + lat + "&lon=" + lon + "&radius=30"
+    station_lookup_url = "https://api.tidesandcurrents.noaa.gov/mdapi/prod/webapi/tidepredstations.json?lat=" + str(lat) + "&lon=" + str(lon) + "&radius=50"
     station_data = requests.get(station_lookup_url, timeout=5)
     if(station_data.ok):
         station_json = station_data.json()
-        print(station_json)
+        #get first station id in 50 mile radius
         station_id = station_json['stationList'][0]['stationId']
-    else:
-        return "error fetching station data"
 
-    return "tide data"
+    station_url="https://tidesandcurrents.noaa.gov/noaatidepredictions.html?id="+station_id
+    station_data = requests.get(station_url, timeout=5)
+    if(station_data.ok):
+        #extract table class="table table-condensed"
+        soup = bs.BeautifulSoup(station_data.text, 'html.parser')
+        table = soup.find('table', class_='table table-condensed')
+
+        #extract rows
+        rows = table.find_all('tr')
+        #extract data from rows
+        tide_data = []
+        for row in rows:
+            row_text = ""
+            cols = row.find_all('td')
+            for col in cols:
+                row_text += col.text + " "
+            tide_data.append(row_text)
+        # format tide data into a string
+        tide_string = ""
+        for data in tide_data:
+            tide_string += data + "\n"
+        return tide_string
+                 
+    else:
+        return "error fetching tide data"
