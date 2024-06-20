@@ -82,10 +82,9 @@ def get_weather(lat=0, lon=0):
     if(weather_data.ok):
         soup = bs.BeautifulSoup(weather_data.text, 'html.parser')
         table = soup.find('div', id="detailed-forecast-body")
-        #get night rows
-        rows = table.find_all('div', class_='row row-odd row-forecast')
-        #get day rows
-        rows += table.find_all('div', class_='row row-even row-forecast')
+        #get rows
+        rows = table.find_all('div', class_="row")
+        
         #extract data from rows
         for row in rows:
             #shrink the text
@@ -96,15 +95,17 @@ def get_weather(lat=0, lon=0):
             line = line.replace("North", "N").replace("South", "S").replace("East", "E").replace("West", "W")
             line = line.replace("precipitation", "precip").replace("showers", "shwrs").replace("thunderstorms", "t-storms")
             #only grab a few days of weather
-            if len(weather.split("\n")) < 3:
+            if len(weather.split("\n")) < 4:
                 weather += line + "\n"
         #trim off last newline
         weather = weather[:-1]
-        #trim to 200 characters
+        #trim to 200 characters and trim to the last space
         if len(weather) > 200:
             weather = weather[:200]
+            weather = weather[:weather.rfind(" ")]
     
         return weather
 
     else:
         return "error fetching weather data"
+    
