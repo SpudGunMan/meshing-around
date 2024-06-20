@@ -56,6 +56,7 @@ pip install requests
 pip install python-dateutil
 pip install geopy
 pip install maidenhead
+pip install beautifulsoup4
 ```
 
 # Recognition
