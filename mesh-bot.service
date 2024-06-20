@@ -1,0 +1,16 @@
+
+[Unit]
+Description=MESH-BOT
+
+[Service]
+ExecStart=/usr/bin/python /usr/local/meshing-around/mesh-bot.py
+
+# Disable Python's buffering of STDOUT and STDERR, so that output from the
+# service shows up immediately in systemd's logs
+Environment=PYTHONUNBUFFERED=1
+
+Restart=on-failure
+Type=notify
+
+[Install]
+WantedBy=default.target
