@@ -257,15 +257,18 @@ def get_node_location(number):
         return position
         
 def send_message(message,ch,nodeid):
-    message_for_log = message.replace("\n", "")
-    if nodeid == 0:
-        #Send to channel
-        print (f"{log_timestamp()} System: Sending: {message_for_log} To: Channel:{ch}")
-        interface.sendText(text=message,channelIndex=ch)
-    else:
-        #Send to DM
-        print (f"{log_timestamp()} System: Sending: {message_for_log} To: {get_name_from_number(nodeid)}")
-        interface.sendText(text=message,channelIndex=ch,destinationId=nodeid)
+    #if message over 180 characters, split it into multiple messages
+    if len(message) > 180:
+        message_list = [message[i:i+180] for i in range(0, len(message), 180)]
+        for m in message_list:
+            if nodeid == 0:
+                #Send to channel
+                print (f"{log_timestamp()} System: Sending: {m} To: Channel:{ch}")
+                interface.sendText(text=m,channelIndex=ch)
+            else:
+                #Send to DM
+                print (f"{log_timestamp()} System: Sending: {m} To: {get_name_from_number(nodeid)}")
+                interface.sendText(text=m,channelIndex=ch,destinationId=nodeid)
 
 def exit_handler(signum, frame):
     print("\nSystem: Closing Autoresponder")
