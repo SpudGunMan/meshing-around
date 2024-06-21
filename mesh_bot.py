@@ -13,6 +13,8 @@ from solarconditions import * # from the spudgunman/meshing-around repo
 from locationdata import * # from the spudgunman/meshing-around repo
 from bbstools import * # from the spudgunman/meshing-around repo
 
+from log_timestamp import *
+
 # Uncomment the interface you want to use depending on your device connection
 interface = meshtastic.serial_interface.SerialInterface() #serial interface
 #interface=meshtastic.tcp_interface.TCPInterface(hostname="192.168.0.1") # IP of your device
@@ -99,9 +101,6 @@ def auto_response(message,snr,rssi,hop,message_from_id):
         bot_response = "I'm sorry, I'm afraid I can't do that."
     
     return bot_response
-
-def log_timestamp():
-    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
 def onReceive(packet, interface):
     # receive a packet and process it, main instruction loop

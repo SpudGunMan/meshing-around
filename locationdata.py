@@ -5,6 +5,7 @@ from geopy.geocoders import Nominatim # pip install geopy
 import maidenhead as mh # pip install maidenhead
 import requests # pip install requests
 import bs4 as bs # pip install beautifulsoup4
+from log_timestamp import *
 
 def where_am_i(lat=0, lon=0):
     whereIam = ""
