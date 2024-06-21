@@ -15,20 +15,8 @@ def where_am_i(lat=0, lon=0):
     
     location = geolocator.reverse(lat+","+lon)
     address = location.raw['address']
-    if 'house_number' in address:
-        whereIam += address['house_number'] + " "
-    if 'road' in address:
-        whereIam += address['road'] + ", "
-    if 'city' in address:
-        whereIam += address['city'] + ", "
-    if 'state' in address:
-        whereIam += address['state'] + " "
-    if 'postcode' in address:
-        whereIam += address['postcode']
-    if 'county' in address:
-        whereIam += " " + address['county']
-    if 'country' in address:
-        whereIam += " " + address['country']
+    address_components = ['house_number', 'road', 'city', 'state', 'postcode', 'county', 'country']
+    whereIam += ' '.join([address.get(component, '') for component in address_components if component in address])
     grid = mh.to_maiden(float(lat), float(lon))
     whereIam += " Grid:" + grid
     
