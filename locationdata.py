@@ -94,36 +94,45 @@ def get_weather(lat=0, lon=0):
     
     #extract data from rows
     for index, row in enumerate(rows):
-        #shrink the text
-        line = row.text.replace("Monday", "Mon") \
-                        .replace("Tuesday", "Tue") \
-                        .replace("Wednesday", "Wed") \
-                        .replace("Thursday", "Thu") \
-                        .replace("Friday", "Fri") \
-                        .replace("Saturday", "Sat") \
-                        .replace("Sunday", "Sun") \
-                        .replace("northwest", "NW") \
-                        .replace("northeast", "NE") \
-                        .replace("southwest", "SW") \
-                        .replace("southeast", "SE") \
-                        .replace("north", "N") \
-                        .replace("south", "S") \
-                        .replace("east", "E") \
-                        .replace("west", "W") \
-                        .replace("Northwest", "NW") \
-                        .replace("Northeast", "NE") \
-                        .replace("Southwest", "SW") \
-                        .replace("Southeast", "SE") \
-                        .replace("North", "N") \
-                        .replace("South", "S") \
-                        .replace("East", "E") \
-                        .replace("West", "W") \
-                        .replace("precipitation", "precip") \
-                        .replace("showers", "shwrs") \
-                        .replace("thunderstorms", "t-storms") \
-                        .replace("Today", "Today: ") \
-                        .replace("Tonight", "Tonight: ") \
-                        .replace("This Afternoon", "Afternoon: ")
+        # shrink the text
+        # Define a dictionary to map the long form to the short form
+        replace_dict = {
+            "Monday": "Mon",
+            "Tuesday": "Tue",
+            "Wednesday": "Wed",
+            "Thursday": "Thu",
+            "Friday": "Fri",
+            "Saturday": "Sat",
+            "Sunday": "Sun",
+            "northwest": "NW",
+            "northeast": "NE",
+            "southwest": "SW",
+            "southeast": "SE",
+            "north": "N",
+            "south": "S",
+            "east": "E",
+            "west": "W",
+            "Northwest": "NW",
+            "Northeast": "NE",
+            "Southwest": "SW",
+            "Southeast": "SE",
+            "North": "N",
+            "South": "S",
+            "East": "E",
+            "West": "W",
+            "precipitation": "precip",
+            "showers": "shwrs",
+            "thunderstorms": "t-storms",
+            "Today": "Today: ",
+            "Tonight": "Tonight: ",
+            "This Afternoon": "Afternoon: "
+        }
+
+        line = row.text
+        # Iterate over the dictionary and replace the long form with the short form
+        for long_form, short_form in replace_dict.items():
+            line = line.replace(long_form, short_form)
+
         #only grab a few days of weather
         
         weather += line + "\n"
