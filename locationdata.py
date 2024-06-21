@@ -7,6 +7,8 @@ import requests # pip install requests
 import bs4 as bs # pip install beautifulsoup4
 from log import *
 
+TIMEOUT_DURATION = 10
+
 def where_am_i(lat=0, lon=0):
     whereIam = ""
     if float(lat) == 0 and float(lon) == 0:
@@ -33,7 +35,7 @@ def get_tide(lat=0, lon=0):
     print(f"{log_timestamp()} station_lookup_url: {station_lookup_url}")
     
     try:
-        station_data = requests.get(station_lookup_url, timeout=10)
+        station_data = requests.get(station_lookup_url, timeout=TIMEOUT_DURATION)
         if(station_data.ok):
             station_json = station_data.json()
         else:
@@ -43,35 +45,37 @@ def get_tide(lat=0, lon=0):
 
     station_id = station_json['stationList'][0]['stationId']
     
-
-    station_url="https://tidesandcurrents.noaa.gov/noaatidepredictions.html?id="+station_id
+    station_url="https://tidesandcurrents.noaa.gov/noaatidepredictions.html?id=" + station_id
     print(f"{log_timestamp()} station_url: {station_url}")
-    station_data = requests.get(station_url, timeout=10)
-    if(station_data.ok):
-        #extract table class="table table-condensed"
-        soup = bs.BeautifulSoup(station_data.text, 'html.parser')
-        table = soup.find('table', class_='table table-condensed')
-
-        #extract rows
-        rows = table.find_all('tr')
-        #extract data from rows
-        tide_data = []
-        for row in rows:
-            row_text = ""
-            cols = row.find_all('td')
-            for col in cols:
-                row_text += col.text + " "
-            tide_data.append(row_text)
-        # format tide data into a string
-        tide_string = ""
-        for data in tide_data:
-            tide_string += data + "\n"
-        #trim off last newline
-        tide_string = tide_string[:-1]
-        return tide_string
-                 
-    else:
+    
+    try:
+        station_data = requests.get(station_url, timeout=TIMEOUT_DURATION)
+        if(not station_data.ok):
+            return "error fetching tide data"
+    except (requests.exceptions.RequestException):
         return "error fetching tide data"
+    
+    #extract table class="table table-condensed"
+    soup = bs.BeautifulSoup(station_data.text, 'html.parser')
+    table = soup.find('table', class_='table table-condensed')
+
+    #extract rows
+    rows = table.find_all('tr')
+    #extract data from rows
+    tide_data = []
+    for row in rows:
+        row_text = ""
+        cols = row.find_all('td')
+        for col in cols:
+            row_text += col.text + " "
+        tide_data.append(row_text)
+    # format tide data into a string
+    tide_string = ""
+    for data in tide_data:
+        tide_string += data + "\n"
+    #trim off last newline
+    tide_string = tide_string[:-1]
+    return tide_string
     
 def get_weather(lat=0, lon=0):
     weather = ""
@@ -81,7 +85,7 @@ def get_weather(lat=0, lon=0):
     print(f"{log_timestamp()} weather_url: {weather_url}")
 
     try:
-        weather_data = requests.get(weather_url, timeout=10)
+        weather_data = requests.get(weather_url, timeout=TIMEOUT_DURATION)
         if(not weather_data.ok):
             return "error fetching weather data"
     except (requests.exceptions.RequestException):
