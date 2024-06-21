@@ -39,14 +39,16 @@ def get_tide(lat=0, lon=0):
     if float(lat) == 0 and float(lon) == 0:
         return "no location data: does your device have GPS?"
     station_lookup_url = "https://api.tidesandcurrents.noaa.gov/mdapi/prod/webapi/tidepredstations.json?lat=" + str(lat) + "&lon=" + str(lon) + "&radius=50"
-    station_data = requests.get(station_lookup_url, timeout=5)
+    station_data = requests.get(station_lookup_url, timeout=10)
     if(station_data.ok):
         station_json = station_data.json()
         #get first station id in 50 mile radius
         station_id = station_json['stationList'][0]['stationId']
+    else:
+        return "error fetching station data"
 
     station_url="https://tidesandcurrents.noaa.gov/noaatidepredictions.html?id="+station_id
-    station_data = requests.get(station_url, timeout=5)
+    station_data = requests.get(station_url, timeout=10)
     if(station_data.ok):
         #extract table class="table table-condensed"
         soup = bs.BeautifulSoup(station_data.text, 'html.parser')
@@ -78,7 +80,7 @@ def get_weather(lat=0, lon=0):
     if float(lat) == 0 and float(lon) == 0:
         return "no location data: does your device have GPS?"
     weather_url = "https://forecast.weather.gov/MapClick.php?FcstType=text&lat=" + str(lat) + "&lon=" + str(lon)
-    weather_data = requests.get(weather_url, timeout=5)
+    weather_data = requests.get(weather_url, timeout=10)
     if(weather_data.ok):
         soup = bs.BeautifulSoup(weather_data.text, 'html.parser')
         table = soup.find('div', id="detailed-forecast-body")
