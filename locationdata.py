@@ -14,10 +14,11 @@ def where_am_i(lat=0, lon=0):
     # initialize Nominatim API
     geolocator = Nominatim(user_agent="mesh-bot")
     
-    location = geolocator.reverse(lat+","+lon)
+    location = geolocator.reverse(lat + "," + lon)
     address = location.raw['address']
     address_components = ['house_number', 'road', 'city', 'state', 'postcode', 'county', 'country']
-    whereIam += ' '.join([address.get(component, '') for component in address_components if component in address])
+    whereIam += ' '.join([address.get(component, ', ') for component in address_components if component in address])
+
     grid = mh.to_maiden(float(lat), float(lon))
     whereIam += " Grid:" + grid
     
@@ -27,15 +28,21 @@ def get_tide(lat=0, lon=0):
     station_id = ""
     if float(lat) == 0 and float(lon) == 0:
         return "no location data: does your device have GPS?"
+    
     station_lookup_url = "https://api.tidesandcurrents.noaa.gov/mdapi/prod/webapi/tidepredstations.json?lat=" + str(lat) + "&lon=" + str(lon) + "&radius=50"
     print(f"{log_timestamp()} station_lookup_url: {station_lookup_url}")
-    station_data = requests.get(station_lookup_url, timeout=10)
-    if(station_data.ok):
-        station_json = station_data.json()
-        #get first station id in 50 mile radius
-        station_id = station_json['stationList'][0]['stationId']
-    else:
+    
+    try:
+        station_data = requests.get(station_lookup_url, timeout=10)
+        if(station_data.ok):
+            station_json = station_data.json()
+        else:
+            return "error fetching station data"
+    except (requests.exceptions.RequestException, json.JSONDecodeError):
         return "error fetching station data"
+
+    station_id = station_json['stationList'][0]['stationId']
+    
 
     station_url="https://tidesandcurrents.noaa.gov/noaatidepredictions.html?id="+station_id
     print(f"{log_timestamp()} station_url: {station_url}")
@@ -72,59 +79,61 @@ def get_weather(lat=0, lon=0):
         return "no location data: does your device have GPS?"
     weather_url = "https://forecast.weather.gov/MapClick.php?FcstType=text&lat=" + str(lat) + "&lon=" + str(lon)
     print(f"{log_timestamp()} weather_url: {weather_url}")
-    weather_data = requests.get(weather_url, timeout=10)
-    if(weather_data.ok):
-        soup = bs.BeautifulSoup(weather_data.text, 'html.parser')
-        table = soup.find('div', id="detailed-forecast-body")
-        #get rows
-        rows = table.find_all('div', class_="row")
-        
-        #extract data from rows
-        lines_added = 0
-        for row in rows:
-            #shrink the text
-            line = row.text.replace("Monday", "Mon") \
-                           .replace("Tuesday", "Tue") \
-                           .replace("Wednesday", "Wed") \
-                           .replace("Thursday", "Thu") \
-                           .replace("Friday", "Fri") \
-                           .replace("Saturday", "Sat") \
-                           .replace("Sunday", "Sun") \
-                           .replace("northwest", "NW") \
-                           .replace("northeast", "NE") \
-                           .replace("southwest", "SW") \
-                           .replace("southeast", "SE") \
-                           .replace("north", "N") \
-                           .replace("south", "S") \
-                           .replace("east", "E") \
-                           .replace("west", "W") \
-                           .replace("Northwest", "NW") \
-                           .replace("Northeast", "NE") \
-                           .replace("Southwest", "SW") \
-                           .replace("Southeast", "SE") \
-                           .replace("North", "N") \
-                           .replace("South", "S") \
-                           .replace("East", "E") \
-                           .replace("West", "W") \
-                           .replace("precipitation", "precip") \
-                           .replace("showers", "shwrs") \
-                           .replace("thunderstorms", "t-storms") \
-                           .replace("Today", "Today: ") \
-                           .replace("Tonight", "Tonight: ") \
-                           .replace("This Afternoon", "Afternoon: ")
-            #only grab a few days of weather
-            
-            weather += line + "\n"
-            lines_added += 1
-            
-            if lines_added > 1:
-                break
-            
-        #trim off last newline
-        weather = weather[:-1]
-    
-        return weather
 
-    else:
+    try:
+        weather_data = requests.get(weather_url, timeout=10)
+        if(not weather_data.ok):
+            return "error fetching weather data"
+    except (requests.exceptions.RequestException):
         return "error fetching weather data"
+
+    soup = bs.BeautifulSoup(weather_data.text, 'html.parser')
+    table = soup.find('div', id="detailed-forecast-body")
+    #get rows
+    rows = table.find_all('div', class_="row")
     
+    #extract data from rows
+    lines_added = 0
+    for row in rows:
+        #shrink the text
+        line = row.text.replace("Monday", "Mon") \
+                        .replace("Tuesday", "Tue") \
+                        .replace("Wednesday", "Wed") \
+                        .replace("Thursday", "Thu") \
+                        .replace("Friday", "Fri") \
+                        .replace("Saturday", "Sat") \
+                        .replace("Sunday", "Sun") \
+                        .replace("northwest", "NW") \
+                        .replace("northeast", "NE") \
+                        .replace("southwest", "SW") \
+                        .replace("southeast", "SE") \
+                        .replace("north", "N") \
+                        .replace("south", "S") \
+                        .replace("east", "E") \
+                        .replace("west", "W") \
+                        .replace("Northwest", "NW") \
+                        .replace("Northeast", "NE") \
+                        .replace("Southwest", "SW") \
+                        .replace("Southeast", "SE") \
+                        .replace("North", "N") \
+                        .replace("South", "S") \
+                        .replace("East", "E") \
+                        .replace("West", "W") \
+                        .replace("precipitation", "precip") \
+                        .replace("showers", "shwrs") \
+                        .replace("thunderstorms", "t-storms") \
+                        .replace("Today", "Today: ") \
+                        .replace("Tonight", "Tonight: ") \
+                        .replace("This Afternoon", "Afternoon: ")
+        #only grab a few days of weather
+        
+        weather += line + "\n"
+        lines_added += 1
+        
+        if lines_added > 1:
+            break
+        
+    #trim off last newline
+    weather = weather[:-1]
+
+    return weather
