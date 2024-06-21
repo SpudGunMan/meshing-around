@@ -99,10 +99,6 @@ def get_weather(lat=0, lon=0):
                 weather += line + "\n"
         #trim off last newline
         weather = weather[:-1]
-        #trim to 200 characters and trim to the last space
-        if len(weather) > 200:
-            weather = weather[:200]
-            weather = weather[:weather.rfind(" ")]
     
         return weather
 
