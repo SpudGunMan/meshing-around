@@ -259,7 +259,20 @@ def get_node_location(number):
 def send_message(message,ch,nodeid):
     #if message over 160 characters, split it into multiple messages
     if len(message) > 160:
-        message_list = [message[i:i+160] for i in range(0, len(message), 160)]
+        #message_list = [message[i:i+160] for i in range(0, len(message), 160)]
+        # smarter word split
+        split_message = message.split()
+        line = ''
+        split_len = 160
+        message_list = []
+        for word in split_message:
+            if len(line+word)<split_len:
+                line += word + ' '
+            else:
+                message_list.append(line)
+                line = word + ' '
+        message_list.append(line) #needed add contents of the last 'line' into the list
+
         for m in message_list:
             if nodeid == 0:
                 #Send to channel
@@ -269,7 +282,7 @@ def send_message(message,ch,nodeid):
                 #Send to DM
                 print (f"{log_timestamp()} System: Sending Multi-Chunk: {m} To: {get_name_from_number(nodeid)}")
                 interface.sendText(text=m,channelIndex=ch,destinationId=nodeid)
-    else:
+    else: #message is less than 160 characters
         if nodeid == 0:
             #Send to channel
             print (f"{log_timestamp()} System: Sending: {message} To: Channel:{ch}")
