@@ -257,9 +257,9 @@ def get_node_location(number):
         return position
         
 def send_message(message,ch,nodeid):
-    #if message over 180 characters, split it into multiple messages
-    if len(message) > 180:
-        message_list = [message[i:i+180] for i in range(0, len(message), 180)]
+    #if message over 160 characters, split it into multiple messages
+    if len(message) > 160:
+        message_list = [message[i:i+160] for i in range(0, len(message), 160)]
         for m in message_list:
             if nodeid == 0:
                 #Send to channel
