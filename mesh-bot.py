@@ -269,6 +269,15 @@ def send_message(message,ch,nodeid):
                 #Send to DM
                 print (f"{log_timestamp()} System: Sending: {m} To: {get_name_from_number(nodeid)}")
                 interface.sendText(text=m,channelIndex=ch,destinationId=nodeid)
+    else:
+        if nodeid == 0:
+            #Send to channel
+            print (f"{log_timestamp()} System: Sending: {message} To: Channel:{ch}")
+            interface.sendText(text=message,channelIndex=ch)
+        else:
+            #Send to DM
+            print (f"{log_timestamp()} System: Sending: {message} To: {get_name_from_number(nodeid)}")
+            interface.sendText(text=message,channelIndex=ch,destinationId=nodeid)
 
 def exit_handler(signum, frame):
     print("\nSystem: Closing Autoresponder")
