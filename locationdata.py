@@ -105,7 +105,7 @@ def get_weather(lat=0, lon=0):
                            .replace("showers", "shwrs") \
                            .replace("thunderstorms", "t-storms")
             #only grab a few days of weather
-            if len(weather.split("\n")) < 4:
+            if len(weather.split("\n")) < 2:
                 weather += line + "\n"
         #trim off last newline
         weather = weather[:-1]
