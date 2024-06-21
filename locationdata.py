@@ -137,7 +137,7 @@ def get_weather(lat=0, lon=0):
         
         weather += line + "\n"
         
-        if index > 1:
+        if index > 0:
             break
         
     #trim off last newline
