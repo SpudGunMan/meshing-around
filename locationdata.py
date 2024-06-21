@@ -93,7 +93,6 @@ def get_weather(lat=0, lon=0):
     rows = table.find_all('div', class_="row")
     
     #extract data from rows
-    lines_added = 0
     for row in rows:
         #shrink the text
         line = row.text.replace("Monday", "Mon") \
@@ -128,9 +127,8 @@ def get_weather(lat=0, lon=0):
         #only grab a few days of weather
         
         weather += line + "\n"
-        lines_added += 1
         
-        if lines_added > 1:
+        if index > 1:
             break
         
     #trim off last newline
