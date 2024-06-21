@@ -88,12 +88,32 @@ def get_weather(lat=0, lon=0):
         #extract data from rows
         for row in rows:
             #shrink the text
-            line = row.text.replace("Monday", "Mon").replace("Tuesday", "Tue").replace("Wednesday", "Wed").replace("Thursday", "Thu").replace("Friday", "Fri").replace("Saturday", "Sat").replace("Sunday", "Sun")
-            line = line.replace("northwest", "NW").replace("northeast", "NE").replace("southwest", "SW").replace("southeast", "SE")
-            line = line.replace("north", "N").replace("south", "S").replace("east", "E").replace("west", "W")
-            line = line.replace("Northwest", "NW").replace("Northeast", "NE").replace("Southwest", "SW").replace("Southeast", "SE")
-            line = line.replace("North", "N").replace("South", "S").replace("East", "E").replace("West", "W")
-            line = line.replace("precipitation", "precip").replace("showers", "shwrs").replace("thunderstorms", "t-storms")
+            line = row.text.replace("Monday", "Mon") \
+                           .replace("Tuesday", "Tue") \
+                           .replace("Wednesday", "Wed") \
+                           .replace("Thursday", "Thu") \
+                           .replace("Friday", "Fri") \
+                           .replace("Saturday", "Sat") \
+                           .replace("Sunday", "Sun") \
+                           .replace("northwest", "NW") \
+                           .replace("northeast", "NE") \
+                           .replace("southwest", "SW") \
+                           .replace("southeast", "SE") \
+                           .replace("north", "N") \
+                           .replace("south", "S") \
+                           .replace("east", "E") \
+                           .replace("west", "W") \
+                           .replace("Northwest", "NW") \
+                           .replace("Northeast", "NE") \
+                           .replace("Southwest", "SW") \
+                           .replace("Southeast", "SE") \
+                           .replace("North", "N") \
+                           .replace("South", "S") \
+                           .replace("East", "E") \
+                           .replace("West", "W") \
+                           .replace("precipitation", "precip") \
+                           .replace("showers", "shwrs") \
+                           .replace("thunderstorms", "t-storms")
             #only grab a few days of weather
             if len(weather.split("\n")) < 4:
                 weather += line + "\n"
