@@ -10,7 +10,7 @@ After=network.target
 WorkingDirectory=/home/dabures/
 User=dabures
 Type=simple
-ExecStart=python3 /home/dabures/meshing-around/mesh-bot.py
+ExecStart=python3 /home/dabures/meshing-around/mesh_bot.py
 Restart=always
 # Disable Python's buffering of STDOUT and STDERR, so that output from the
 # service shows up immediately in systemd's logs
