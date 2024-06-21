@@ -109,7 +109,7 @@ def get_weather(lat=0, lon=0):
                            .replace("showers", "shwrs") \
                            .replace("thunderstorms", "t-storms") \
                            .replace("Today", "Today: ") \
-                           .replace("Tonight", "Tonight: ")
+                           .replace("Tonight", "Tonight: ") \
                            .replace("This Afternoon", "Afternoon: ")
             #only grab a few days of weather
             if len(weather.split("\n")) < 3:
