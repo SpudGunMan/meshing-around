@@ -13,7 +13,7 @@ from solarconditions import * # from the spudgunman/meshing-around repo
 from locationdata import * # from the spudgunman/meshing-around repo
 from bbstools import * # from the spudgunman/meshing-around repo
 
-from log_timestamp import *
+from log import *
 
 # Uncomment the interface you want to use depending on your device connection
 interface = meshtastic.serial_interface.SerialInterface() #serial interface
