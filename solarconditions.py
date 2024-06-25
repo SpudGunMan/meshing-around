@@ -85,7 +85,7 @@ def get_sun(lat=0, lon=0):
     if local_sunset < local_sunrise:
         local_sunset = ephem.localtime(obs.next_setting(sun)) + timedelta(1)
         sun_table['set_time'] = local_sunset.strftime('%a %d %I:%M')
-    sun_data = f"Sun Rise: " + sun_table['rise_time'] + "\nSet: " + sun_table['set_time']
+    sun_data = "Sun Rise: " + sun_table['rise_time'] + "\nSet: " + sun_table['set_time']
     return sun_data
 
 def get_moon(lat=0, lon=0):
@@ -119,7 +119,7 @@ def get_moon(lat=0, lon=0):
     moon_table['next_full_moon'] = local_next_full_moon.strftime('%a %b %d %I:%M%p')
     moon_table['next_new_moon'] = local_next_new_moon.strftime('%a %b %d %I:%M%p')
 
-    moon_data = f"Moon Rise:" + moon_table['rise_time'] + "\nSet:" + moon_table['set_time'] + \
+    moon_data = "Moon Rise:" + moon_table['rise_time'] + "\nSet:" + moon_table['set_time'] + \
         "\nPhase:" + moon_table['phase'] + " @:" + str('{0:.2f}'.format(moon_table['illumination'])) + "%" \
         + "\nFull Moon:" + moon_table['next_full_moon'] + "\nNew Moon:" + moon_table['next_new_moon']
     
