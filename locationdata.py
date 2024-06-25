@@ -71,7 +71,7 @@ def get_weather(lat=0, lon=0):
     if float(lat) == 0 and float(lon) == 0:
         return "no location data: does your device have GPS?"
     weather_url = "https://forecast.weather.gov/MapClick.php?FcstType=text&lat=" + str(lat) + "&lon=" + str(lon)
-    weather_data = requests.get(weather_url, URL_TIMEOUT=10)
+    weather_data = requests.get(weather_url, timeout=URL_TIMEOUT)
     if(weather_data.ok):
         soup = bs.BeautifulSoup(weather_data.text, 'html.parser')
         table = soup.find('div', id="detailed-forecast-body")
