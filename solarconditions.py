@@ -8,12 +8,15 @@ from datetime import datetime
 import ephem # pip install pyephem
 from datetime import timedelta
 
+# default location for solar conditions if none is provided
 LATITUDE = 48.50
 LONGITUDE = -123.0
 
+URL_TIMEOUT = 10 # wait time for URL requests
+
 def hf_band_conditions():
     hf_cond = ""
-    band_cond = requests.get("https://www.hamqsl.com/solarxml.php", timeout=5)
+    band_cond = requests.get("https://www.hamqsl.com/solarxml.php", timeout=URL_TIMEOUT)
     if(band_cond.ok):
         solarxml = xml.dom.minidom.parseString(band_cond.text)
         for i in solarxml.getElementsByTagName("band"):
@@ -26,7 +29,7 @@ def hf_band_conditions():
 def solar_conditions():
     solar_cond = ""
     # get the solar conditions from the xml at "https://www.hamqsl.com/solarxml.php"
-    solar_cond = requests.get("https://www.hamqsl.com/solarxml.php", timeout=5)
+    solar_cond = requests.get("https://www.hamqsl.com/solarxml.php", timeout=URL_TIMEOUT)
     if(solar_cond.ok):
         solar_xml = xml.dom.minidom.parseString(solar_cond.text)
         for i in solar_xml.getElementsByTagName("solardata"):
@@ -43,7 +46,7 @@ def solar_conditions():
 
 def drap_xray_conditions():
     drap_cond = ""
-    drap_cond = requests.get("https://services.swpc.noaa.gov/text/drap_global_frequencies.txt", timeout=5)
+    drap_cond = requests.get("https://services.swpc.noaa.gov/text/drap_global_frequencies.txt", timeout=URL_TIMEOUT)
     if(drap_cond.ok):
         drap_list = drap_cond.text.split('\n')
         x_filter = '#  X-RAY Message :'

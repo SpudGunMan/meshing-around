@@ -34,7 +34,7 @@ except Exception as e:
     print(f"System: Critical Error script abort. {e}")
     exit()
 
-def auto_response(message,snr,rssi,hop,message_from_id):
+def auto_response(message, snr, rssi, hop, message_from_id):
     #Auto response to messages
     if "ping" in message.lower():
         #Check if the user added @foo to the message
@@ -256,7 +256,7 @@ def get_node_location(number):
         print (f"{log_timestamp()} System: No nodes found")
         return position
         
-def send_message(message,ch,nodeid):
+def send_message(message, ch, nodeid):
     #if message over 160 characters, split it into multiple messages
     if len(message) > 160:
         #message_list = [message[i:i+160] for i in range(0, len(message), 160)]

@@ -28,7 +28,7 @@ except Exception as e:
     print(f"System: Critical Error script abort. {e}")
     exit()
 
-def auto_response(message,snr,rssi,hop):
+def auto_response(message, snr, rssi, hop):
     #Auto response to messages
     if "ping" in message.lower():
         #Check if the user added @foo to the message
@@ -195,7 +195,7 @@ def get_node_list():
         node_list.append("Nothing heard")
         return node_list
         
-def send_message(message,ch,nodeid):
+def send_message(message, ch, nodeid):
     if nodeid == 0:
         #Send to channel
         interface.sendText(text=message,channelIndex=ch)
