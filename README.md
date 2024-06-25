@@ -67,3 +67,5 @@ pip install dadjokes
 Used ideas and snippets from other responder bots want to call them out!
  - https://github.com/Murturtle/MeshLink
  - https://github.com/pdxlocations/Meshtastic-Python-Examples
+
+GitHub user https://github.com/PiDiBi
