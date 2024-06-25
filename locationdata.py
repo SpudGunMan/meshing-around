@@ -8,11 +8,13 @@ import bs4 as bs # pip install beautifulsoup4
 from log import *
 
 TIMEOUT_DURATION = 10
+NO_DATA_NOGPS = "no location data: does your device have GPS?"
+ERROR_FETCHING_DATA = "error fetching data"
 
 def where_am_i(lat=0, lon=0):
     whereIam = ""
     if float(lat) == 0 and float(lon) == 0:
-        return "no location data: does your device have GPS?"
+        return NO_DATA_NOGPS
     # initialize Nominatim API
     geolocator = Nominatim(user_agent="mesh-bot")
     
@@ -29,7 +31,7 @@ def where_am_i(lat=0, lon=0):
 def get_tide(lat=0, lon=0):
     station_id = ""
     if float(lat) == 0 and float(lon) == 0:
-        return "no location data: does your device have GPS?"
+        return NO_DATA_NOGPS
     
     station_lookup_url = "https://api.tidesandcurrents.noaa.gov/mdapi/prod/webapi/tidepredstations.json?lat=" + str(lat) + "&lon=" + str(lon) + "&radius=50"
     print(f"{log_timestamp()} station_lookup_url: {station_lookup_url}")
@@ -39,9 +41,9 @@ def get_tide(lat=0, lon=0):
         if(station_data.ok):
             station_json = station_data.json()
         else:
-            return "error fetching station data"
+            return ERROR_FETCHING_DATA
     except (requests.exceptions.RequestException, json.JSONDecodeError):
-        return "error fetching station data"
+        return ERROR_FETCHING_DATA
 
     station_id = station_json['stationList'][0]['stationId']
     
@@ -51,9 +53,9 @@ def get_tide(lat=0, lon=0):
     try:
         station_data = requests.get(station_url, timeout=TIMEOUT_DURATION)
         if(not station_data.ok):
-            return "error fetching tide data"
+            return ERROR_FETCHING_DATA
     except (requests.exceptions.RequestException):
-        return "error fetching tide data"
+        return ERROR_FETCHING_DATA
     
     #extract table class="table table-condensed"
     soup = bs.BeautifulSoup(station_data.text, 'html.parser')
@@ -80,16 +82,16 @@ def get_tide(lat=0, lon=0):
 def get_weather(lat=0, lon=0):
     weather = ""
     if float(lat) == 0 and float(lon) == 0:
-        return "no location data: does your device have GPS?"
+        return NO_DATA_NOGPS
     weather_url = "https://forecast.weather.gov/MapClick.php?FcstType=text&lat=" + str(lat) + "&lon=" + str(lon)
     print(f"{log_timestamp()} weather_url: {weather_url}")
 
     try:
         weather_data = requests.get(weather_url, timeout=TIMEOUT_DURATION)
         if(not weather_data.ok):
-            return "error fetching weather data"
+            return ERROR_FETCHING_DATA
     except (requests.exceptions.RequestException):
-        return "error fetching weather data"
+        return ERROR_FETCHING_DATA
 
     soup = bs.BeautifulSoup(weather_data.text, 'html.parser')
     table = soup.find('div', id="detailed-forecast-body")
