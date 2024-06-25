@@ -93,11 +93,11 @@ def auto_response(message,snr,rssi,hop,message_from_id):
         bot_response = moon
     elif "wx" in message.lower():
         location = get_node_location(message_from_id)
-        weather = get_weather(str(location[0]),str(location[1]), 0)
+        weather = get_weather(str(location[0]),str(location[1]), str(0))
         bot_response = weather
     elif "wxc" in message.lower():
         location = get_node_location(message_from_id)
-        weather = get_weather(str(location[0]),str(location[1]), 1)
+        weather = get_weather(str(location[0]),str(location[1]), str(1))
         bot_response = weather
     elif "joke" in message.lower():
         bot_response = tell_joke()
