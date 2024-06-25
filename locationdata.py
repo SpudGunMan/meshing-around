@@ -93,6 +93,10 @@ def get_weather(lat=0, lon=0):
 
     soup = bs.BeautifulSoup(weather_data.text, 'html.parser')
     table = soup.find('div', id="detailed-forecast-body")
+    
+    if table is None:
+        return "no weather data found on NOAA for your location"
+
     #get rows
     rows = table.find_all('div', class_="row")
     
@@ -101,13 +105,13 @@ def get_weather(lat=0, lon=0):
         # shrink the text
         # Define a dictionary to map the long form to the short form
         replace_dict = {
-            "Monday": "Mon",
-            "Tuesday": "Tue",
-            "Wednesday": "Wed",
-            "Thursday": "Thu",
-            "Friday": "Fri",
-            "Saturday": "Sat",
-            "Sunday": "Sun",
+            "Monday": "Mon: ",
+            "Tuesday": "Tue: ",
+            "Wednesday": "Wed: ",
+            "Thursday": "Thu: ",
+            "Friday": "Fri: ",
+            "Saturday": "Sat: ",
+            "Sunday": "Sun: ",
             "northwest": "NW",
             "northeast": "NE",
             "southwest": "SW",
