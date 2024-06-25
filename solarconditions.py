@@ -15,6 +15,7 @@ LONGITUDE = -123.0
 URL_TIMEOUT = 10 # wait time for URL requests
 
 def hf_band_conditions():
+    # ham radio HF band conditions
     hf_cond = ""
     band_cond = requests.get("https://www.hamqsl.com/solarxml.php", timeout=URL_TIMEOUT)
     if(band_cond.ok):
@@ -27,8 +28,8 @@ def hf_band_conditions():
     return hf_cond
 
 def solar_conditions():
+    # radio related solar conditions from hamsql.com
     solar_cond = ""
-    # get the solar conditions from the xml at "https://www.hamqsl.com/solarxml.php"
     solar_cond = requests.get("https://www.hamqsl.com/solarxml.php", timeout=URL_TIMEOUT)
     if(solar_cond.ok):
         solar_xml = xml.dom.minidom.parseString(solar_cond.text)
@@ -45,6 +46,7 @@ def solar_conditions():
     return solar_cond
 
 def drap_xray_conditions():
+    # DRAP X-ray flux conditions, from NOAA direct
     drap_cond = ""
     drap_cond = requests.get("https://services.swpc.noaa.gov/text/drap_global_frequencies.txt", timeout=URL_TIMEOUT)
     if(drap_cond.ok):
@@ -58,6 +60,7 @@ def drap_xray_conditions():
     return xray_flux
 
 def get_sun(lat=0, lon=0):
+    # get sunrise and sunset times using callers location or default
     obs = ephem.Observer()
     obs.date = datetime.now()
     sun = ephem.Sun()
@@ -86,6 +89,8 @@ def get_sun(lat=0, lon=0):
     return sun_data
 
 def get_moon(lat=0, lon=0):
+    # get moon phase and rise/set times using callers location or default
+    # the phase calculation mght not be accurate (followup later)
     obs = ephem.Observer()
     moon = ephem.Moon()
     if lat != 0 and lon != 0:

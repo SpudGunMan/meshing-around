@@ -73,6 +73,12 @@ def log_timestamp():
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
 def onReceive(packet, interface):
+    # receive a packet and process it, main instruction loop
+
+    # print the packet for debugging
+    #print("Packet Received")
+    #print(packet) # print the packet for debugging
+    #print("END of packet \n")
     message_from_id = 0
     snr = 0
     rssi = 0
