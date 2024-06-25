@@ -63,7 +63,7 @@ def auto_response(message, snr, rssi, hop):
     elif "help" in message.lower():
         bot_response = help_message
     elif "lheard" in message.lower():
-        bot_response = "Last 5 nodes heard: " + str(get_node_list())
+        bot_response = "Last 5 nodes heard:\n" + str(get_node_list())
     else:
         bot_response = "I'm sorry, I'm afraid I can't do that."
     
@@ -178,36 +178,68 @@ def get_name_from_number(number, type='long'):
 
 def get_node_list():
     node_list = []
+    short_node_list = []
     if interface.nodes:
         for node in interface.nodes.values():
             #ignore own
             if node['num'] != myNodeNum:
                 node_name = get_name_from_number(node['num'])
+                snr = node.get('snr', 0)
 
                 # issue where lastHeard is not always present
                 last_heard = node.get('lastHeard', 0)
                 
-                item = (node_name,last_heard)
+                #make a list of nodes with last heard time and SNR
+                item = (node_name, last_heard, snr)
                 node_list.append(item)
         
         node_list.sort(key=lambda x: x[1], reverse=True)
         #print (f"Node List: {node_list[:5]}\n")
-        #return only the last 5 nodes
-        nice_node_list = [x[0] for x in node_list[:5]]
-        return nice_node_list
+
+        # make a nice list for the user
+        for x in node_list[:5]:
+            short_node_list.append(f"{x[0]} SNR:{x[2]}")
+
+        return "\n".join(short_node_list)
+    
     else:
-        node_list.append("Nothing heard")
-        return node_list
+        return "Error Processing Node List"
         
 def send_message(message, ch, nodeid):
-    if nodeid == 0:
-        #Send to channel
-        interface.sendText(text=message,channelIndex=ch)
-        print (f"{log_timestamp()} System: Sending: {message} on Channel: {ch}")
-    else:
-        #Send to DM
-        print (f"{log_timestamp()} System: Sending: {message} To: {get_name_from_number(nodeid)}")
-        interface.sendText(text=message,channelIndex=ch,destinationId=nodeid)
+    #if message over 160 characters, split it into multiple messages
+    if len(message) > 160:
+        #message_list = [message[i:i+160] for i in range(0, len(message), 160)]
+        # smarter word split
+        split_message = message.split()
+        line = ''
+        split_len = 160
+        message_list = []
+        for word in split_message:
+            if len(line+word)<split_len:
+                line += word + ' '
+            else:
+                message_list.append(line)
+                line = word + ' '
+        message_list.append(line) #needed add contents of the last 'line' into the list
+
+        for m in message_list:
+            if nodeid == 0:
+                #Send to channel
+                print (f"{log_timestamp()} System: Sending Multi-Chunk: {m} To: Channel:{ch}")
+                interface.sendText(text=m, channelIndex=ch)
+            else:
+                #Send to DM
+                print (f"{log_timestamp()} System: Sending Multi-Chunk: {m} To: {get_name_from_number(nodeid)}")
+                interface.sendText(text=m,channelIndex=ch, destinationId=nodeid)
+    else: #message is less than 160 characters
+        if nodeid == 0:
+            #Send to channel
+            print (f"{log_timestamp()} System: Sending: {message} To: Channel:{ch}")
+            interface.sendText(text=message, channelIndex=ch)
+        else:
+            #Send to DM
+            print (f"{log_timestamp()} System: Sending: {message} To: {get_name_from_number(nodeid)}")
+            interface.sendText(text=message, channelIndex=ch, destinationId=nodeid)
 
 def exit_handler(signum, frame):
     print("\nSystem: Closing Autoresponder")
