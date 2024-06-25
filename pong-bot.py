@@ -184,10 +184,8 @@ def get_node_list():
             if node['num'] != myNodeNum:
                 node_name = get_name_from_number(node['num'])
 
-                try:
-                    last_heard = node['lastHeard']
-                except Exception as e:
-                    last_heard = 0
+                # issue where lastHeard is not always present
+                last_heard = node.get('lastHeard', 0)
                 
                 item = (node_name,last_heard)
                 node_list.append(item)
