@@ -39,7 +39,7 @@ def get_tide(lat=0, lon=0):
         return "error fetching station data"
 
     station_url = "https://tidesandcurrents.noaa.gov/noaatidepredictions.html?id=" + station_id
-    station_data = requests.get(station_url, URL_TIMEOUT=10)
+    station_data = requests.get(station_url, timeout=URL_TIMEOUT=10)
     if(station_data.ok):
         #extract table class="table table-condensed"
         soup = bs.BeautifulSoup(station_data.text, 'html.parser')
