@@ -7,6 +7,7 @@ import requests # pip install requests
 import bs4 as bs # pip install beautifulsoup4
 
 URL_TIMEOUT = 10 # wait time for URL requests
+DAYS_OF_WEATHER = 4 # weather forecast days, the first two rows are today and tonight
 
 def where_am_i(lat=0, lon=0):
     whereIam = ""
@@ -93,6 +94,7 @@ def get_weather(lat=0, lon=0):
                            .replace("Today", "Today ") \
                            .replace("Tonight", "Tonight ") \
                            .replace("Tomorrow", "Tomorrow ") \
+                           .replace("This Afternoon", "Afternoon ") \
                            .replace("northwest", "NW") \
                            .replace("northeast", "NE") \
                            .replace("southwest", "SW") \
@@ -113,7 +115,7 @@ def get_weather(lat=0, lon=0):
                            .replace("showers", "shwrs") \
                            .replace("thunderstorms", "t-storms")
             #only grab a few days of weather
-            if len(weather.split("\n")) < 4:
+            if len(weather.split("\n")) < DAYS_OF_WEATHER:
                 weather += line + "\n"
         #trim off last newline
         weather = weather[:-1]
