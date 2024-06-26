@@ -29,7 +29,7 @@ trap_list = trap_list + trap_list_conditions
 trap_list = trap_list + trap_list_bbs
 
 welcome_message = "MeshBot, here for you like a friend who is not. Try sending: ping @foo  or, help"
-help_message = "Commands are: " + ", ".join(trap_list, ', ')
+help_message = "Commands are: " + ", ".join(trap_list)
 MOTD = "Thanks for using PongBOT! Have a good day!" # Message of the Day
 RESPOND_BY_DM_ONLY = True # Set to True to respond messages via DM only (keeps the channel clean)
 
