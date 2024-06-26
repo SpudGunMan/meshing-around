@@ -12,16 +12,21 @@ from datetime import datetime
 
 from solarconditions import * # from the spudgunman/meshing-around repo
 from locationdata import * # from the spudgunman/meshing-around repo
-from bbstools import * # from the spudgunman/meshing-around repo
+from bbstools import *
+from solarconditions import trap_list_conditions # from the spudgunman/meshing-around repo
 
 # Uncomment the interface you want to use depending on your device connection
 interface = meshtastic.serial_interface.SerialInterface() #serial interface
 #interface=meshtastic.tcp_interface.TCPInterface(hostname="192.168.0.1") # IP of your device
 #interface=meshtastic.ble_interface.BLEInterface("AA:BB:CC:DD:EE:FF") # BLE interface
 
-#A list of strings to trap and respond to
-trap_list = ("ping", "ack", "testing", "pong", "motd", "help", "sun", "solar", "hfcond", "lheard", "sitrep", \
-             "whereami", "tide", "moon", "wx", "wxc", "joke", "bbslist", "bbspost", "bbsread", "bbsdelete", "bbshelp")
+# A basic list of strings to trap and respond to
+trap_list = ("ping", "ack", "testing", "pong", "motd", "help",  "lheard", "sitrep", "joke")
+
+# join all lists, comment out unwanted funtionality, defined in corresponding files/modules
+trap_list = trap_list + trap_list_location
+trap_list = trap_list + trap_list_conditions
+trap_list = trap_list + trap_list_bbs
 
 welcome_message = "MeshBot, here for you like a friend who is not. Try sending: ping @foo  or, help"
 help_message = "Commands are: ack, hfcond, joke, Lheard, moon, motd, ping, solar, sun, tide, whereami, wx, bbshelp"

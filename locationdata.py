@@ -13,6 +13,8 @@ DAYS_OF_WEATHER = 2 # weather forecast days, the first two rows are today and to
 NO_DATA_NOGPS = "no location data: does your device have GPS?"
 ERROR_FETCHING_DATA = "error fetching data"
 
+trap_list_location = ("whereami", "tide", "moon", "wx", "wxc")
+
 def where_am_i(lat=0, lon=0):
     whereIam = ""
     if float(lat) == 0 and float(lon) == 0:
@@ -157,3 +159,4 @@ def replace_weather(row):
         line = line.replace(key, value)
                     
     return line
+

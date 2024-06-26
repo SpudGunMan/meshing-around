@@ -3,6 +3,8 @@
 
 from dadjokes import Dadjoke # pip install dadjokes
 
+trap_list_bbs = ("bbslist", "bbspost", "bbsread", "bbsdelete", "bbshelp")
+
 # global message list, later we will use a database on disk
 bbs_messages = [[1, "Welcome to meshBBS", "Welcome to the BBS, please post a message!"]]
 
@@ -54,6 +56,4 @@ def bbs_read_message(messageID = 0):
         return f"Msg #{message[0]}\nMsg Body: {message[2]}"
     else:
         return "Please specify a message number to read."
-
-
 
