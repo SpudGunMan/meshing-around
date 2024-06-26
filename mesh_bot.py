@@ -11,6 +11,7 @@ import meshtastic.ble_interface
 from datetime import datetime
 from dadjokes import Dadjoke # pip install dadjokes
 
+# Import all the functions from the modules in the repo if you want to use them otherwise make waffles #
 from solarconditions import * # from the spudgunman/meshing-around repo
 from locationdata import * # from the spudgunman/meshing-around repo
 from bbstools import * # from the spudgunman/meshing-around repo
@@ -24,9 +25,9 @@ interface = meshtastic.serial_interface.SerialInterface() #serial interface
 trap_list = ("ping", "ack", "testing", "pong", "motd", "help",  "lheard", "sitrep", "joke")
 
 # join all lists, comment out unwanted funtionality, defined in corresponding files/modules
-trap_list = trap_list + trap_list_location
-trap_list = trap_list + trap_list_conditions
-trap_list = trap_list + trap_list_bbs
+trap_list = trap_list + trap_list_location # items tide, whereami, wxc, wx
+trap_list = trap_list + trap_list_solarconditions # items hfcond, solar, sun, moon
+trap_list = trap_list + trap_list_bbs # items bbslist, bbspost, bbsread, bbsdelete
 
 welcome_message = "MeshBot, here for you like a friend who is not. Try sending: ping @foo  or, help"
 help_message = "Commands are: " + ", ".join(trap_list)
