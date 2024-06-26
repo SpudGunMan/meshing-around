@@ -23,7 +23,7 @@ trap_list = ("ping","ack","testing","pong","motd","help","sun","solar","hfcond",
              "whereami","tide","moon","wx","joke","bbslist","bbspost","bbsread","bbsdelete","bbshelp")
 
 welcome_message = "MeshBot, here for you like a friend who is not. Try sending: ping @foo  or, help"
-help_message = "Commands are: ack, hfcond, joke, Lheard, moon, motd, ping, solar, sun, tide, whereami, wx"
+help_message = "Commands are: ack, hfcond, joke, Lheard, moon, motd, ping, solar, sun, tide, whereami, wx, bbshelp"
 MOTD = "Thanks for using PongBOT! Have a good day!" # Message of the Day
 RESPOND_BY_DM_ONLY = True # Set to True to respond messages via DM only (keeps the channel clean)
 
@@ -67,6 +67,8 @@ def auto_response(message, snr, rssi, hop, message_from_id):
             bot_response = "MOTD Set to: " + MOTD
         else:
             bot_response = MOTD
+    elif "bbshelp" in message.lower():
+        bot_response = bbs_help()
     elif "help" in message.lower():
         bot_response = help_message
     elif "sun" in message.lower():
@@ -126,8 +128,6 @@ def auto_response(message, snr, rssi, hop, message_from_id):
             bot_response = bbs_delete_message(messageID)
         else:
             bot_response = "Please add a message number ex: bbsdelete #14"
-    elif "bbshelp" in message.lower():
-        bot_response = bbs_help()
     else:
         bot_response = "I'm sorry, I'm afraid I can't do that."
     
