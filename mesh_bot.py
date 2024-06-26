@@ -9,6 +9,7 @@ import meshtastic.serial_interface #pip install meshtastic
 import meshtastic.tcp_interface
 import meshtastic.ble_interface
 from datetime import datetime
+from dadjokes import Dadjoke # pip install dadjokes
 
 from solarconditions import * # from the spudgunman/meshing-around repo
 from locationdata import * # from the spudgunman/meshing-around repo
@@ -234,6 +235,11 @@ def messageTrap(msg):
             if t.lower() == m.lower():
                 return True
     return False
+
+def tell_joke():
+    # tell a dad joke, does it need an explanationn :)
+    dadjoke = Dadjoke()
+    return dadjoke.joke
 
 def decimal_to_hex(decimal_number):
     return f"!{decimal_number:08x}"

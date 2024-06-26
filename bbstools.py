@@ -1,21 +1,13 @@
 # helper functions for various BBS messaging tasks
 # K7MHI Kelly Keeton 2024
 
-from dadjokes import Dadjoke # pip install dadjokes
 import pickle # pip install pickle
 import os
-
 
 trap_list_bbs = ("bbslist", "bbspost", "bbsread", "bbsdelete", "bbshelp")
 
 # global message list, later we will use a database on disk
 bbs_messages = []
-
-
-def tell_joke():
-    # tell a dad joke, does it need an explanationn :)
-    dadjoke = Dadjoke()
-    return dadjoke.joke
 
 def load_bbsdb():
     global bbs_messages
