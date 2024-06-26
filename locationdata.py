@@ -111,34 +111,40 @@ def get_weather(lat=0, lon=0, unit=0):
     return weather
 
 def replace_weather(row):
-    line = row.replace("Monday", "Mon ") \
-                        .replace("Tuesday", "Tue ") \
-                        .replace("Wednesday", "Wed ") \
-                        .replace("Thursday", "Thu ") \
-                        .replace("Friday", "Fri ") \
-                        .replace("Saturday", "Sat ") \
-                        .replace("Today", "Today ") \
-                        .replace("Tonight", "Tonight ") \
-                        .replace("Tomorrow", "Tomorrow ") \
-                        .replace("This Afternoon", "Afternoon ") \
-                        .replace("northwest", "NW") \
-                        .replace("northeast", "NE") \
-                        .replace("southwest", "SW") \
-                        .replace("southeast", "SE") \
-                        .replace("north", "N") \
-                        .replace("south", "S") \
-                        .replace("east", "E") \
-                        .replace("west", "W") \
-                        .replace("Northwest", "NW") \
-                        .replace("Northeast", "NE") \
-                        .replace("Southwest", "SW") \
-                        .replace("Southeast", "SE") \
-                        .replace("North", "N") \
-                        .replace("South", "S") \
-                        .replace("East", "E") \
-                        .replace("West", "W") \
-                        .replace("precipitation", "precip") \
-                        .replace("showers", "shwrs") \
-                        .replace("thunderstorms", "t-storms")
+    replacements = {
+        "Monday": "Mon ",
+        "Tuesday": "Tue ",
+        "Wednesday": "Wed ",
+        "Thursday": "Thu ",
+        "Friday": "Fri ",
+        "Saturday": "Sat ",
+        "Today": "Today ",
+        "Tonight": "Tonight ",
+        "Tomorrow": "Tomorrow ",
+        "This Afternoon": "Afternoon ",
+        "northwest": "NW",
+        "northeast": "NE",
+        "southwest": "SW",
+        "southeast": "SE",
+        "north": "N",
+        "south": "S",
+        "east": "E",
+        "west": "W",
+        "Northwest": "NW",
+        "Northeast": "NE",
+        "Southwest": "SW",
+        "Southeast": "SE",
+        "North": "N",
+        "South": "S",
+        "East": "E",
+        "West": "W",
+        "precipitation": "precip",
+        "showers": "shwrs",
+        "thunderstorms": "t-storms"
+    }
+
+    line = row
+    for key, value in replacements.items():
+        line = line.replace(key, value)
                     
     return line
