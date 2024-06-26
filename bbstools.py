@@ -5,8 +5,12 @@ from dadjokes import Dadjoke # pip install dadjokes
 import pickle # pip install pickle
 import os
 
-# global message list
+
+trap_list_bbs = ("bbslist", "bbspost", "bbsread", "bbsdelete", "bbshelp")
+
+# global message list, later we will use a database on disk
 bbs_messages = []
+
 
 def tell_joke():
     # tell a dad joke, does it need an explanationn :)
@@ -76,6 +80,7 @@ def bbs_read_message(messageID = 0):
         return f"Msg #{message[0]}\nMsg Body: {message[2]}"
     else:
         return "Please specify a message number to read."
+
 
 #initialize the bbsdb
 load_bbsdb()

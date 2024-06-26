@@ -14,6 +14,8 @@ LONGITUDE = -123.0
 
 URL_TIMEOUT = 10 # wait time for URL requests
 
+trap_list_conditions = ("sun", "solar", "hfcond")
+
 def hf_band_conditions():
     # ham radio HF band conditions
     hf_cond = ""
