@@ -7,9 +7,8 @@ Random Mesh Scripts for BBS activities for use with Meshtastic nodes
 Little bot which will trap keywords like ping and respond on a DM with pong. The script will also monitor the group channels for keywords to trap on. you can also `Ping @Data to Echo` as a example for further processing.
 
 other features
-- MOTD with ability to set remotely
-  - `motd` or `motd $New Message Of the day`
-  - `lheard` returns the last 5 heard nodes, can also use `sitrep`
+- `motd` or to set the message `motd $New Message Of the day`
+- `lheard` returns the last 5 heard nodes with SNR, can also use `sitrep`
 
 ## mesh-bot.sh
 
