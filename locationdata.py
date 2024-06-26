@@ -15,14 +15,14 @@ def where_am_i(lat=0, lon=0):
         return "no location data: does your device have GPS?"
     # initialize Nominatim API
     geolocator = Nominatim(user_agent="mesh-bot")
-    
-    location = geolocator.reverse(lat+","+lon)
+
+    location = geolocator.reverse(lat + ", " + lon)
     address = location.raw['address']
     address_components = ['house_number', 'road', 'city', 'state', 'postcode', 'county', 'country']
     whereIam += ' '.join([address.get(component, '') for component in address_components if component in address])
     grid = mh.to_maiden(float(lat), float(lon))
-    whereIam += " Grid:" + grid
-    
+    whereIam += " Grid: " + grid
+
     return whereIam
 
 def get_tide(lat=0, lon=0):
