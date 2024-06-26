@@ -103,7 +103,6 @@ def get_weather(lat=0, lon=0, unit=0):
         # shrink the text
         line = replace_weather(row.text)
         # only grab a few days of weather
-        print(f"weather: {index}")
         weather += line + "\n"
         if index >= DAYS_OF_WEATHER-1:
             break
