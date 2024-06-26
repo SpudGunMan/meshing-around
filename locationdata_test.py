@@ -11,7 +11,26 @@ class TestGetWeather(unittest.TestCase):
         print(f"weather: {weather}")
         self.assertNotEqual(weather, NO_DATA_NOGPS)
         self.assertNotEqual(weather, ERROR_FETCHING_DATA)
-
+        # test replacement works
+        self.assertNotIn(weather, "Sunday")
+        self.assertNotIn(weather, "Monday")
+        self.assertNotIn(weather, "Tuesday")
+        self.assertNotIn(weather, "Wednesday")
+        self.assertNotIn(weather, "Thursday")
+        self.assertNotIn(weather, "Friday")
+        self.assertNotIn(weather, "Saturday")
+        self.assertNotIn(weather, "northwest")
+        self.assertNotIn(weather, "northeast")
+        self.assertNotIn(weather, "southwest")
+        self.assertNotIn(weather, "southeast")
+        self.assertNotIn(weather, "north")
+        self.assertNotIn(weather, "south")
+        self.assertNotIn(weather, "east")
+        self.assertNotIn(weather, "west")
+        self.assertNotIn(weather, "precipitation")
+        self.assertNotIn(weather, "showers")
+        self.assertNotIn(weather, "thunderstorms")
+        
     def test_get_weather_with_invalid_coordinates(self):
         # Test with invalid coordinates
         lat = 0
