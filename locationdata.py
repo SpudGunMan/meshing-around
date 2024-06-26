@@ -8,7 +8,7 @@ import requests # pip install requests
 import bs4 as bs # pip install beautifulsoup4
 
 URL_TIMEOUT = 10 # wait time for URL requests
-DAYS_OF_WEATHER = 2 # weather forecast days, the first two rows are today and tonight
+DAYS_OF_WEATHER = 4 # weather forecast days, the first two rows are today and tonight
 # unified error messages to be able to test them from tests
 NO_DATA_NOGPS = "no location data: does your device have GPS?"
 ERROR_FETCHING_DATA = "error fetching data"
