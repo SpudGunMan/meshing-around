@@ -15,7 +15,7 @@ interface = meshtastic.serial_interface.SerialInterface() #serial interface
 #interface=meshtastic.tcp_interface.TCPInterface(hostname="192.168.0.1") # IP of your device
 #interface=meshtastic.ble_interface.BLEInterface("AA:BB:CC:DD:EE:FF") # BLE interface
 
-trap_list = ("ping","ack","testing","pong","motd","help","lheard","sitrep") #A list of strings to trap and respond to
+trap_list = ("ping", "ack", "testing", "pong", "motd", "help", "lheard", "sitrep") #A list of strings to trap and respond to
 welcome_message = "PongBot, here for you like a friend who is not. Try sending: ping @foo  or, help"
 help_message = "Commands are: ping, ack, motd, Lheard. Use 'motd $foo' to set MOTD."
 RESPOND_BY_DM_ONLY = True # Set to True to respond messages via DM only (keeps the channel clean)
