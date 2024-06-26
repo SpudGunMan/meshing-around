@@ -43,6 +43,9 @@ def get_tide(lat=0, lon=0):
     except (requests.exceptions.RequestException, json.JSONDecodeError):
         return ERROR_FETCHING_DATA
 
+    if station_id is None:
+            return "no tide station found"
+    
     station_id = station_json['stationList'][0]['stationId']
 
     station_url = "https://tidesandcurrents.noaa.gov/noaatidepredictions.html?id=" + station_id
