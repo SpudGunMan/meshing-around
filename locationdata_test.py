@@ -3,9 +3,6 @@ from locationdata import *
 
 class TestGetWeather(unittest.TestCase):
     
-    NO_DATA_NOGPS = "no location data: does your device have GPS?"
-    ERROR_FETCHING_DATA = "error fetching data"
-
     def test_get_weather_with_valid_coordinates(self):
         # Test with valid coordinates
         lat = "37.7749"
@@ -29,9 +26,9 @@ class TestGetWeather(unittest.TestCase):
         lon = "-122.4194"
         location = where_am_i(lat, lon)
         print(f"location: {location}")
-        self.assertEqual(location, "South Van Ness Avenue San Francisco California 94103 United States Grid:CM87ss")
+        self.assertEqual(location, "South Van Ness Avenue San Francisco California 94103 United States Grid: CM87ss")
         self.assertNotEqual(location, NO_DATA_NOGPS)
-        self.assertNotEqual(location, ERROR_FETCHING_DATA
+        self.assertNotEqual(location, ERROR_FETCHING_DATA)
 
     def test_get_tide_with_valid_coordinates(self):
         # Test with valid coordinates
@@ -40,7 +37,7 @@ class TestGetWeather(unittest.TestCase):
         tide = get_tide(lat, lon)
         print(f"tide: {tide}")
         self.assertNotEqual(tide, NO_DATA_NOGPS)
-        self.assertNotEqual(tide, ERROR_FETCHING_DATA
+        self.assertNotEqual(tide, ERROR_FETCHING_DATA)
         
 
 if __name__ == '__main__':
