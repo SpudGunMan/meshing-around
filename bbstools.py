@@ -13,7 +13,7 @@ def tell_joke():
 
 def bbs_help():
     # help message
-    return "Commands: 'bbslist', 'bbspost $subject #message', 'bbsread #', 'bbsdelete #'"
+    return "BBS Commands:\n'bbslist'\n'bbspost $subject #message'\n'bbsread #'\n'bbsdelete #'"
 
 def bbs_list_messages():
     #print (f"System: raw bbs_messages: {bbs_messages}")
