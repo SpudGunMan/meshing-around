@@ -67,6 +67,7 @@ pip install geopy
 pip install maidenhead
 pip install beautifulsoup4
 pip install dadjokes
+pip install pickle
 ```
 
 dev enhancments if using visual studio

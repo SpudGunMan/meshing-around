@@ -348,6 +348,11 @@ def send_message(message, ch, nodeid):
 def exit_handler(signum, frame):
     print("\nSystem: Closing Autoresponder")
     interface.close()
+    print("System: Interface Closed")
+    print("Saving BBS Messages")
+    save_bbsdb()
+    print("System: BBS Messages Saved")
+    print("System: Exiting")
     exit (0)
 
 print ("\nMeshtastic Autoresponder MESH Bot CTL+C to exit\n")
