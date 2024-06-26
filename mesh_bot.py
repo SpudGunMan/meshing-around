@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, time
 from log import *
 
 #!/usr/bin/env python3
@@ -40,8 +40,9 @@ except Exception as e:
 
 
 def auto_response(message, snr, rssi, hop, message_from_id):
+    message = message.lower()
     # Auto response to messages
-    if "ping" in message.lower():
+    if "ping" in message:
         # Check if the user added @foo to the message
         if "@" in message:
             if hop == "Direct":
@@ -53,16 +54,16 @@ def auto_response(message, snr, rssi, hop, message_from_id):
                 bot_response = "PONG, " + f"SNR:{snr} RSSI:{rssi}"
             else:
                 bot_response = "PONG, " + hop
-    elif "ack" in message.lower():
+    elif "ack" in message:
         if hop == "Direct":
             bot_response = "ACK-ACK! " + f"SNR:{snr} RSSI:{rssi}"
         else:
             bot_response = "ACK-ACK! " + hop
-    elif "testing" in message.lower():
+    elif "testing" in message:
         bot_response = "Testing 1,2,3"
-    elif "pong" in message.lower():
+    elif "pong" in message:
         bot_response = "PING!!"
-    elif "motd" in message.lower():
+    elif "motd" in message:
         # check if the user wants to set the motd by using $
         if "$" in message:
             motd = message.split("$")[1]
@@ -71,38 +72,38 @@ def auto_response(message, snr, rssi, hop, message_from_id):
             bot_response = "MOTD Set to: " + MOTD
         else:
             bot_response = MOTD
-    elif "help" in message.lower():
+    elif "help" in message:
         bot_response = help_message
-    elif "sun" in message.lower():
+    elif "sun" in message:
         location = get_node_location(message_from_id)
         bot_response = get_sun(str(location[0]), str(location[1]))
-    elif "hfcond" in message.lower():
+    elif "hfcond" in message:
         bot_response = hf_band_conditions()
-    elif "solar" in message.lower():
+    elif "solar" in message:
         bot_response = drap_xray_conditions() + "\n" + solar_conditions()
-    elif "lheard" in message.lower():
+    elif "lheard" in message:
         bot_response = "lheard: " + str(get_node_list())
-    elif "whereami" in message.lower():
+    elif "whereami" in message:
         location = get_node_location(message_from_id)
         where = where_am_i(str(location[0]), str(location[1]))
         bot_response = where
-    elif "tide" in message.lower():
+    elif "tide" in message:
         location = get_node_location(message_from_id)
         tide = get_tide(str(location[0]), str(location[1]))
         bot_response = tide
-    elif "moon" in message.lower():
+    elif "moon" in message:
         location = get_node_location(message_from_id)
         moon = get_moon(str(location[0]), str(location[1]))
         bot_response = moon
-    elif "wxc" in message.lower():
+    elif "wxc" in message:
         location = get_node_location(message_from_id)
         weather = get_weather(str(location[0]), str(location[1]), str(1))
         bot_response = weather
-    elif "wx" in message.lower():
+    elif "wx" in message:
         location = get_node_location(message_from_id)
         weather = get_weather(str(location[0]), str(location[1]), str(0))
         bot_response = weather
-    elif "joke" in message.lower():
+    elif "joke" in message:
         bot_response = tell_joke()
     else:
         bot_response = "I'm sorry, I'm afraid I can't do that."
@@ -227,30 +228,33 @@ def get_name_from_number(number, type='long'):
 
 
 def get_node_list():
-    # checks nodeDB on device and returns a list of the last 5 nodes heard
     node_list = []
+    short_node_list = []
     if interface.nodes:
         for node in interface.nodes.values():
             # ignore own
             if node['num'] != myNodeNum:
                 node_name = get_name_from_number(node['num'])
+                snr = node.get('snr', 0)
 
-                try:
-                    last_heard = node['lastHeard']
-                except Exception as e:
-                    last_heard = 0
-
-                item = (node_name, last_heard)
+                # issue where lastHeard is not always present
+                last_heard = node.get('lastHeard', 0)
+                
+                # make a list of nodes with last heard time and SNR
+                item = (node_name, last_heard, snr)
                 node_list.append(item)
-
+        
         node_list.sort(key=lambda x: x[1], reverse=True)
-        # print (f"Node List: {node_list[:5]}\n")
-        # return only the last 5 nodes
-        nice_node_list = [x[0] for x in node_list[:5]]
-        return nice_node_list
+        #print (f"Node List: {node_list[:5]}\n")
+
+        # make a nice list for the user
+        for x in node_list[:5]:
+            short_node_list.append(f"{x[0]} SNR:{x[2]}")
+
+        return "\n".join(short_node_list)
+    
     else:
-        node_list.append("Nothing heard")
-        return node_list
+        return "Error Processing Node List"
 
 
 def get_node_location(number):
@@ -301,6 +305,10 @@ def send_message(message, ch, nodeid):
                 # Send to DM
                 print(f"{log_timestamp()} System: Sending Multi-Chunk: {m} To: {get_name_from_number(nodeid)}")
                 interface.sendText(text=m, channelIndex=ch, destinationId=nodeid)
+            # wait a 500ms to avoid message collision except after last message
+            if message_list.index(m) < len(message_list) - 1:
+                time.sleep(0.5)
+            
     else:  # message is less than 160 characters
         if nodeid == 0:
             # Send to channel
