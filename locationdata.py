@@ -33,7 +33,7 @@ def get_tide(lat=0, lon=0):
     station_data = requests.get(station_lookup_url, timeout=URL_TIMEOUT)
     if(station_data.ok):
         station_json = station_data.json()
-        #get first station id in 50 mile radius
+        # get first station id in 50 mile radius
         station_id = station_json['stationList'][0]['stationId']
     else:
         return "error fetching station data"
@@ -41,13 +41,13 @@ def get_tide(lat=0, lon=0):
     station_url = "https://tidesandcurrents.noaa.gov/noaatidepredictions.html?id=" + station_id
     station_data = requests.get(station_url, timeout=URL_TIMEOUT)
     if(station_data.ok):
-        #extract table class="table table-condensed"
+        # extract table class="table table-condensed"
         soup = bs.BeautifulSoup(station_data.text, 'html.parser')
         table = soup.find('table', class_='table table-condensed')
 
-        #extract rows
+        # extract rows
         rows = table.find_all('tr')
-        #extract data from rows
+        # extract data from rows
         tide_data = []
         for row in rows:
             row_text = ""
@@ -59,7 +59,7 @@ def get_tide(lat=0, lon=0):
         tide_string = ""
         for data in tide_data:
             tide_string += data + "\n"
-        #trim off last newline
+        # trim off last newline
         tide_string = tide_string[:-1]
         return tide_string
                  
@@ -79,12 +79,12 @@ def get_weather(lat=0, lon=0):
         if table is None:
             return "no weather data found on NOAA for your location"
         else:
-            #get rows
+            # get rows
             rows = table.find_all('div', class_="row")
         
-        #extract data from rows
+        # extract data from rows
         for row in rows:
-            #shrink the text
+            # shrink the text
             line = row.text.replace("Monday", "Mon ") \
                            .replace("Tuesday", "Tue ") \
                            .replace("Wednesday", "Wed ") \
@@ -114,10 +114,10 @@ def get_weather(lat=0, lon=0):
                            .replace("precipitation", "precip") \
                            .replace("showers", "shwrs") \
                            .replace("thunderstorms", "t-storms")
-            #only grab a few days of weather
+            # only grab a few days of weather
             if len(weather.split("\n")) < DAYS_OF_WEATHER:
                 weather += line + "\n"
-        #trim off last newline
+        # trim off last newline
         weather = weather[:-1]
     
         return weather

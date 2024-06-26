@@ -29,9 +29,9 @@ except Exception as e:
     exit()
 
 def auto_response(message, snr, rssi, hop):
-    #Auto response to messages
+    # Auto response to messages
     if "ping" in message.lower():
-        #Check if the user added @foo to the message
+        # Check if the user added @foo to the message
         if "@" in message:
             if hop == "Direct":
                 bot_response = "PONG, " + f"SNR:{snr} RSSI:{rssi}" + " and copy: " + message.split("@")[1]
@@ -52,7 +52,7 @@ def auto_response(message, snr, rssi, hop):
     elif "pong" in message.lower():
         bot_response = "PING!!"
     elif "motd" in message.lower():
-        #check if the user wants to set the motd by using $
+        # check if the user wants to set the motd by using $
         if "$" in message:
             motd = message.split("$")[1]
             global MOTD
@@ -130,7 +130,7 @@ def onReceive(packet, interface):
                     # respond with a direct message
                     send_message(auto_response(message_string,snr,rssi,hop),channel_number,message_from_id)
                 else: 
-                    #respond with welcome message
+                    # respond with welcome message
                     print(f"{log_timestamp()} Ignoring DM: {message_string} From: {get_name_from_number(message_from_id)}")
                     send_message(welcome_message,channel_number,message_from_id)
             else:
@@ -189,7 +189,7 @@ def get_node_list():
                 # issue where lastHeard is not always present
                 last_heard = node.get('lastHeard', 0)
                 
-                #make a list of nodes with last heard time and SNR
+                # make a list of nodes with last heard time and SNR
                 item = (node_name, last_heard, snr)
                 node_list.append(item)
         
@@ -206,7 +206,7 @@ def get_node_list():
         return "Error Processing Node List"
         
 def send_message(message, ch, nodeid):
-    #if message over 160 characters, split it into multiple messages
+    # if message over 160 characters, split it into multiple messages
     if len(message) > 160:
         #message_list = [message[i:i+160] for i in range(0, len(message), 160)]
         # smarter word split
@@ -220,24 +220,24 @@ def send_message(message, ch, nodeid):
             else:
                 message_list.append(line)
                 line = word + ' '
-        message_list.append(line) #needed add contents of the last 'line' into the list
+        message_list.append(line) # needed add contents of the last 'line' into the list
 
         for m in message_list:
             if nodeid == 0:
-                #Send to channel
+                # Send to channel
                 print (f"{log_timestamp()} System: Sending Multi-Chunk: {m} To: Channel:{ch}")
                 interface.sendText(text=m, channelIndex=ch)
             else:
-                #Send to DM
+                # Send to DM
                 print (f"{log_timestamp()} System: Sending Multi-Chunk: {m} To: {get_name_from_number(nodeid)}")
                 interface.sendText(text=m,channelIndex=ch, destinationId=nodeid)
-    else: #message is less than 160 characters
+    else: # message is less than 160 characters
         if nodeid == 0:
-            #Send to channel
+            # Send to channel
             print (f"{log_timestamp()} System: Sending: {message} To: Channel:{ch}")
             interface.sendText(text=message, channelIndex=ch)
         else:
-            #Send to DM
+            # Send to DM
             print (f"{log_timestamp()} System: Sending: {message} To: {get_name_from_number(nodeid)}")
             interface.sendText(text=message, channelIndex=ch, destinationId=nodeid)
 

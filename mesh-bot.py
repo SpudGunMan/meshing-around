@@ -101,7 +101,7 @@ def auto_response(message, snr, rssi, hop, message_from_id):
     elif "bbslist" in message.lower():
         bot_response = bbs_list_messages()
     elif "bbspost" in message.lower():
-        #Check if the user added a subject to the message
+        # Check if the user added a subject to the message
         if "$" in message:
             subject = message.split("$")[1].split("#")[0]
             subject = subject.rstrip()
@@ -115,14 +115,14 @@ def auto_response(message, snr, rssi, hop, message_from_id):
         else:
             bot_response = "Please add a subject to the message. ex: bbspost $subject #message"
     elif "bbsread" in message.lower():
-        #Check if the user added a message number to the message
+        # Check if the user added a message number to the message
         if "#" in message:
             messageID = int(message.split("#")[1])
             bot_response = bbs_read_message(messageID)
         else:
             bot_response = "Please add a message number ex: bbsread #14"
     elif "bbsdelete" in message.lower():
-        #Check if the user added a message number to the message
+        # Check if the user added a message number to the message
         if "#" in message:
             messageID = int(message.split("#")[1])
             bot_response = bbs_delete_message(messageID)
@@ -194,7 +194,7 @@ def onReceive(packet, interface):
                     # respond with a direct message
                     send_message(auto_response(message_string,snr,rssi,hop,message_from_id),channel_number,message_from_id)
                 else: 
-                    #respond with welcome message
+                    # respond with welcome message
                     print(f"{log_timestamp()} Ignoring DM: {message_string} From: {get_name_from_number(message_from_id)}")
                     send_message(welcome_message,channel_number,message_from_id)
             else:
@@ -215,7 +215,7 @@ def onReceive(packet, interface):
         print("END of packet \n")
         
 def messageTrap(msg):
-    #Check if the message contains a trap word
+    # Check if the message contains a trap word
     message_list=msg.split(" ")
     for m in message_list:
         for t in trap_list:
@@ -247,7 +247,7 @@ def get_node_list():
     short_node_list = []
     if interface.nodes:
         for node in interface.nodes.values():
-            #ignore own
+            # ignore own
             if node['num'] != myNodeNum:
                 node_name = get_name_from_number(node['num'])
                 snr = node.get('snr', 0)
@@ -255,7 +255,7 @@ def get_node_list():
                 # issue where lastHeard is not always present
                 last_heard = node.get('lastHeard', 0)
                 
-                #make a list of nodes with last heard time and SNR
+                # make a list of nodes with last heard time and SNR
                 item = (node_name, last_heard, snr)
                 node_list.append(item)
         
@@ -272,7 +272,7 @@ def get_node_list():
         return "Error Processing Node List"
     
 def get_node_location(number):
-    #Get the location of a node by its number from nodeDB on device
+    # Get the location of a node by its number from nodeDB on device
     latitude = 0
     longitude = 0
     position = [0,0]
@@ -293,7 +293,7 @@ def get_node_location(number):
         return position
         
 def send_message(message, ch, nodeid):
-    #if message over 160 characters, split it into multiple messages
+    # if message over 160 characters, split it into multiple messages
     if len(message) > 160:
         #message_list = [message[i:i+160] for i in range(0, len(message), 160)]
         # smarter word split
@@ -307,7 +307,7 @@ def send_message(message, ch, nodeid):
             else:
                 message_list.append(line)
                 line = word + ' '
-        message_list.append(line) #needed add contents of the last 'line' into the list
+        message_list.append(line) # needed add contents of the last 'line' into the list
 
         for m in message_list:
             if nodeid == 0:
@@ -315,16 +315,16 @@ def send_message(message, ch, nodeid):
                 print (f"{log_timestamp()} System: Sending Multi-Chunk: {m} To: Channel:{ch}")
                 interface.sendText(text=m, channelIndex=ch)
             else:
-                #Send to DM
+                # Send to DM
                 print (f"{log_timestamp()} System: Sending Multi-Chunk: {m} To: {get_name_from_number(nodeid)}")
                 interface.sendText(text=m,channelIndex=ch, destinationId=nodeid)
-    else: #message is less than 160 characters
+    else: # message is less than 160 characters
         if nodeid == 0:
-            #Send to channel
+            # Send to channel
             print (f"{log_timestamp()} System: Sending: {message} To: Channel:{ch}")
             interface.sendText(text=message, channelIndex=ch)
         else:
-            #Send to DM
+            # Send to DM
             print (f"{log_timestamp()} System: Sending: {message} To: {get_name_from_number(nodeid)}")
             interface.sendText(text=message, channelIndex=ch, destinationId=nodeid)
     

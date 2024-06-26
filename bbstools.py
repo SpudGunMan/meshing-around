@@ -3,7 +3,7 @@
 
 from dadjokes import Dadjoke # pip install dadjokes
 
-#global message list, later we will use a database on disk
+# global message list, later we will use a database on disk
 bbs_messages = [[1, "Welcome to meshBBS", "Welcome to the BBS, please post a message!"]]
 
 def tell_joke():
@@ -23,7 +23,7 @@ def bbs_list_messages():
         # message[0] is the messageID, message[1] is the subject
         message_list += "Msg #" + str(message[0]) + " " + message[1] + "\n"
 
-    #last newline removed
+    # last newline removed
     message_list = message_list[:-1]
     return message_list
 
@@ -31,7 +31,7 @@ def bbs_delete_message(messageID = 0):
     # delete a message from the bbsdb
     if messageID > 0:
         bbs_messages.pop(messageID - 1)
-        #reset the messageID
+        # reset the messageID
         for i in range(len(bbs_messages)):
             bbs_messages[i][0] = i + 1
         
