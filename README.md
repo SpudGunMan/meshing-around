@@ -69,6 +69,12 @@ pip install beautifulsoup4
 pip install dadjokes
 ```
 
+dev enhancments if using visual studio
+```
+pip install mock
+```
+
+
 # Recognition
 Used ideas and snippets from other responder bots want to call them out!
  - https://github.com/Murturtle/MeshLink
