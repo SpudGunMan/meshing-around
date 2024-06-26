@@ -3,6 +3,7 @@
 # K7MHI Kelly Keeton 2024
 
 import signal # for catching CTL+C
+import time
 from pubsub import pub # pip install pubsub
 import meshtastic.serial_interface #pip install meshtastic
 import meshtastic.tcp_interface
@@ -322,6 +323,9 @@ def send_message(message, ch, nodeid):
                 # Send to DM
                 print (f"{log_timestamp()} System: Sending Multi-Chunk: {m} To: {get_name_from_number(nodeid)}")
                 interface.sendText(text=m,channelIndex=ch, destinationId=nodeid)
+            # wait a 500ms to avoid message collision except after last message
+            if message_list.index(m) < len(message_list) - 1:
+                time.sleep(0.5)
     else: # message is less than 160 characters
         if nodeid == 0:
             # Send to channel
