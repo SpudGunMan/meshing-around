@@ -66,11 +66,18 @@ def get_tide(lat=0, lon=0):
     else:
         return "error fetching tide data"
     
-def get_weather(lat=0, lon=0):
+def get_weather(lat=0, lon=0, unit=0):
     weather = ""
     if float(lat) == 0 and float(lon) == 0:
         return "no location data: does your device have GPS?"
-    weather_url = "https://forecast.weather.gov/MapClick.php?FcstType=text&lat=" + str(lat) + "&lon=" + str(lon)
+    
+    if unit == 0:
+        # default to imperial units
+        weather_url = "https://forecast.weather.gov/MapClick.php?FcstType=text&lat=" + str(lat) + "&lon=" + str(lon)
+    else:
+        # metric units
+        weather_url = "https://forecast.weather.gov/MapClick.php?FcstType=text&unit=1&lat=" + str(lat) + "&lon=" + str(lon)
+
     weather_data = requests.get(weather_url, timeout=URL_TIMEOUT)
     if(weather_data.ok):
         soup = bs.BeautifulSoup(weather_data.text, 'html.parser')
