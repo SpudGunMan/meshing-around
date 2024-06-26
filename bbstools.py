@@ -11,6 +11,18 @@ def tell_joke():
     dadjoke = Dadjoke()
     return dadjoke.joke
 
+def create_bbsdb():
+    # create a database file for the bbs messages
+    pass
+
+def load_bbsdb():
+    # load the bbs messages from the database file
+    pass
+
+def save_bbsdb():
+    # save the bbs messages to the database file
+    pass
+
 def bbs_help():
     # help message
     return "BBS Commands:\n'bbslist'\n'bbspost $subject #message'\n'bbsread #'\n'bbsdelete #'"
