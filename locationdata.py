@@ -76,13 +76,13 @@ def get_tide(lat=0, lon=0):
     tide_string = tide_string[:-1]
     return tide_string
     
-def get_weather(lat=0, lon=0):
+def get_weather(lat=0, lon=0, unit=0):
     weather = ""
     if float(lat) == 0 and float(lon) == 0:
         return NO_DATA_NOGPS
-    weather_url = "https://forecast.weather.gov/MapClick.php?FcstType=text&lat=" + str(lat) + "&lon=" + str(lon)
+    weather_url = "https://forecast.weather.gov/MapClick.php?FcstType=text&lat=" + str(lat) + "&lon=" + str(lon) + "&unit=" + str(unit)
     try:
-        weather_data = requests.get(weather_url, timeout=TIMEOUT_DURATION)
+        weather_data = requests.get(weather_url, timeout=URL_TIMEOUT)
         if not weather_data.ok:
             return ERROR_FETCHING_DATA
     except (requests.exceptions.RequestException):

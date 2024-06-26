@@ -19,8 +19,8 @@ interface = meshtastic.serial_interface.SerialInterface() #serial interface
 #interface=meshtastic.ble_interface.BLEInterface("AA:BB:CC:DD:EE:FF") # BLE interface
 
 #A list of strings to trap and respond to
-trap_list = ("ping","ack","testing","pong","motd","help","sun","solar","hfcond","lheard","sitrep", \
-             "whereami","tide","moon","wx","joke","bbslist","bbspost","bbsread","bbsdelete","bbshelp")
+trap_list = ("ping", "ack", "testing", "pong", "motd", "help", "sun", "solar", "hfcond", "lheard", "sitrep", \
+             "whereami", "tide", "moon", "wx", "wxc", "joke", "bbslist", "bbspost", "bbsread", "bbsdelete", "bbshelp")
 
 welcome_message = "MeshBot, here for you like a friend who is not. Try sending: ping @foo  or, help"
 help_message = "Commands are: ack, hfcond, joke, Lheard, moon, motd, ping, solar, sun, tide, whereami, wx, bbshelp"
@@ -92,6 +92,10 @@ def auto_response(message, snr, rssi, hop, message_from_id):
         location = get_node_location(message_from_id)
         moon = get_moon(str(location[0]),str(location[1]))
         bot_response = moon
+    elif "wxc" in message.lower():
+        location = get_node_location(message_from_id)
+        weather = get_weather(str(location[0]),str(location[1]),1)
+        bot_response = weather
     elif "wx" in message.lower():
         location = get_node_location(message_from_id)
         weather = get_weather(str(location[0]),str(location[1]))
