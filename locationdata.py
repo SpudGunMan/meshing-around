@@ -99,12 +99,14 @@ def get_weather(lat=0, lon=0, unit=0):
         rows = table.find_all('div', class_="row")
     
     # extract data from rows
-    for row in rows:
+    for index, row in enumerate(rows):
         # shrink the text
         line = replace_weather(row.text)
         # only grab a few days of weather
-        if len(weather.split("\n")) < DAYS_OF_WEATHER:
-            weather += line + "\n"
+        print(f"weather: {index}")
+        weather += line + "\n"
+        if index >= DAYS_OF_WEATHER-1:
+            break
     # trim off last newline
     weather = weather[:-1]
 
