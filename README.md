@@ -9,20 +9,28 @@ Little bot which will trap keywords like ping and respond on a DM with pong. The
 other features
 - MOTD with ability to set remotely
   - `motd` or `motd $New Message Of the day`
-  - `lheard` returns the last 5 heard nodes
+  - `lheard` returns the last 5 heard nodes, can also use `sitrep`
 
 ## mesh-bot.sh
 
  alternate bot, adds internet and other telemetry data which goes beyond just ping
 
-- Various solar details
+- Various solar details for radio propigation
   - `sun` and `moon` return info on rise and set local time
     - uses the locaton of the node if known
   - `solar` gives an idea of the x-ray flux
   - `hfcond` returns a table of HF solar conditions
-- `whereami` returns the address of location of sender if known
-- `tide` returns the local tides (NOAA data source)
-- `wx` returns local weather forcast (NOAA data source)
+- Bulliten Board (BBS) functions
+  - `bbshelp` returns the following
+  - `bbslist` list the messages by ID and subject
+  - `bbsread` read a message example use: `bbsread #1`
+  - `bbspost` post a message example use: `bbspost $Message Subject #Message Body`
+  - `bbsdelete` delete a message example use: `bbsdelete #4`
+- Other functions
+  - `whereami` returns the address of location of sender if known
+  - `tide` returns the local tides (NOAA data source)
+  - `wx` returns local weather forcast (NOAA data source)
+  - `joke` tells a joke
 
  ### Configurations
  Currently config modifications is edit to code. Be sure to uncomment the appropriate interface for your method (serial/BLE/TCP). Only one at a time is supported to a single node at a time.
