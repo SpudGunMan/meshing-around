@@ -4,7 +4,7 @@
 from dadjokes import Dadjoke # pip install dadjokes
 
 #global message list, later we will use a database on disk
-bbs_messages = []
+bbs_messages = [[1, "Welcome to meshBBS", "Welcome to the BBS, please post a message!"]]
 
 def tell_joke():
     # tell a dad joke, does it need an explanationn :)
@@ -16,6 +16,7 @@ def bbs_help():
     return "Commands: 'bbslist', 'bbspost $subject #message', 'bbsread #', 'bbsdelete #'"
 
 def bbs_list_messages():
+    #print (f"System: raw bbs_messages: {bbs_messages}")
     # return a string with new line for each message subject in the list bbs_messages
     message_list = ""
     for message in bbs_messages:
