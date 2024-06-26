@@ -72,6 +72,7 @@ pip install dadjokes
 dev enhancments if using visual studio
 ```
 pip install mock
+pip install unittest
 ```
 
 

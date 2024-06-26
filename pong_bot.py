@@ -3,6 +3,7 @@
 # K7MHI Kelly Keeton 2024
 
 import signal # for catching CTL+C
+import time # for sleep, get some when you can :)
 from pubsub import pub # pip install pubsub
 import meshtastic.serial_interface #pip install meshtastic
 import meshtastic.tcp_interface
@@ -66,6 +67,9 @@ def auto_response(message, snr, rssi, hop):
         bot_response = "Last 5 nodes heard:\n" + str(get_node_list())
     else:
         bot_response = "I'm sorry, I'm afraid I can't do that."
+
+    # wait a 700ms to avoid message collision from lora-ack
+    time.sleep(0.7)
     
     return bot_response
 
