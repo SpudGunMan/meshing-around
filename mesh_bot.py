@@ -2,8 +2,8 @@
 # Meshtastic Autoresponder MESH Bot
 # K7MHI Kelly Keeton 2024
 
-import signal
-import time # for catching CTL+C
+import signal # for catching CTL+C
+import time
 from pubsub import pub # pip install pubsub
 import meshtastic.serial_interface #pip install meshtastic
 import meshtastic.tcp_interface
