@@ -101,7 +101,17 @@ def get_weather(lat=0, lon=0, unit=0):
     # extract data from rows
     for row in rows:
         # shrink the text
-        line = row.text.replace("Monday", "Mon ") \
+        line = replace_weather(row.text)
+        # only grab a few days of weather
+        if len(weather.split("\n")) < DAYS_OF_WEATHER:
+            weather += line + "\n"
+    # trim off last newline
+    weather = weather[:-1]
+
+    return weather
+
+def replace_weather(row):
+    line = row.replace("Monday", "Mon ") \
                         .replace("Tuesday", "Tue ") \
                         .replace("Wednesday", "Wed ") \
                         .replace("Thursday", "Thu ") \
@@ -130,10 +140,5 @@ def get_weather(lat=0, lon=0, unit=0):
                         .replace("precipitation", "precip") \
                         .replace("showers", "shwrs") \
                         .replace("thunderstorms", "t-storms")
-        # only grab a few days of weather
-        if len(weather.split("\n")) < DAYS_OF_WEATHER:
-            weather += line + "\n"
-    # trim off last newline
-    weather = weather[:-1]
-
-    return weather
+                    
+    return line
