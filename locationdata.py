@@ -1,7 +1,7 @@
 # helper functions to use location data
 # K7MHI Kelly Keeton 2024
 
-import json
+import json # pip install json
 from geopy.geocoders import Nominatim # pip install geopy
 import maidenhead as mh # pip install maidenhead
 import requests # pip install requests
