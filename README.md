@@ -16,7 +16,6 @@ other features
 
 - Various solar details for radio propigation
   - `sun` and `moon` return info on rise and set local time
-    - uses the locaton of the node if known
   - `solar` gives an idea of the x-ray flux
   - `hfcond` returns a table of HF solar conditions
 - Bulliten Board (BBS) functions
