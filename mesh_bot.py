@@ -12,8 +12,7 @@ from datetime import datetime
 
 from solarconditions import * # from the spudgunman/meshing-around repo
 from locationdata import * # from the spudgunman/meshing-around repo
-from bbstools import *
-from solarconditions import trap_list_conditions # from the spudgunman/meshing-around repo
+from bbstools import * # from the spudgunman/meshing-around repo
 
 # Uncomment the interface you want to use depending on your device connection
 interface = meshtastic.serial_interface.SerialInterface() #serial interface
@@ -26,7 +25,7 @@ trap_list = ("ping", "ack", "testing", "pong", "motd", "help",  "lheard", "sitre
 # join all lists, comment out unwanted funtionality, defined in corresponding files/modules
 trap_list = trap_list + trap_list_location
 trap_list = trap_list + trap_list_conditions
-#trap_list = trap_list + trap_list_bbs
+trap_list = trap_list + trap_list_bbs
 
 welcome_message = "MeshBot, here for you like a friend who is not. Try sending: ping @foo  or, help"
 help_message = "Commands are: " + ", ".join(trap_list)
