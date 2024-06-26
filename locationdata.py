@@ -80,7 +80,14 @@ def get_weather(lat=0, lon=0, unit=0):
     weather = ""
     if float(lat) == 0 and float(lon) == 0:
         return NO_DATA_NOGPS
-    weather_url = "https://forecast.weather.gov/MapClick.php?FcstType=text&lat=" + str(lat) + "&lon=" + str(lon) + "&unit=" + str(unit)
+    
+    if unit == 0:
+        # default to imperial units
+        weather_url = "https://forecast.weather.gov/MapClick.php?FcstType=text&lat=" + str(lat) + "&lon=" + str(lon)
+    else:
+        # metric units
+        weather_url = "https://forecast.weather.gov/MapClick.php?FcstType=text&unit=1&lat=" + str(lat) + "&lon=" + str(lon)
+
     try:
         weather_data = requests.get(weather_url, timeout=URL_TIMEOUT)
         if not weather_data.ok:
