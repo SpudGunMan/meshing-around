@@ -18,7 +18,7 @@ interface = meshtastic.serial_interface.SerialInterface() #serial interface
 #interface=meshtastic.tcp_interface.TCPInterface(hostname="192.168.0.1") # IP of your device
 #interface=meshtastic.ble_interface.BLEInterface("AA:BB:CC:DD:EE:FF") # BLE interface
 
-# A list of strings to trap and respond to
+#A list of strings to trap and respond to
 trap_list = ("ping", "ack", "testing", "pong", "motd", "help", "sun", "solar", "hfcond", "lheard", "sitrep", \
              "whereami", "tide", "moon", "wx", "wxc", "joke", "bbslist", "bbspost", "bbsread", "bbsdelete", "bbshelp")
 
@@ -27,7 +27,7 @@ help_message = "Commands are: ack, hfcond, joke, Lheard, moon, motd, ping, solar
 MOTD = "Thanks for using PongBOT! Have a good day!" # Message of the Day
 RESPOND_BY_DM_ONLY = True # Set to True to respond messages via DM only (keeps the channel clean)
 
-# Get the node number of the device, check if the device is connected
+#Get the node number of the device, check if the device is connected
 try:
     myinfo = interface.getMyNodeInfo()
     myNodeNum = myinfo['num']
@@ -36,11 +36,9 @@ except Exception as e:
     exit()
 
 def auto_response(message, snr, rssi, hop, message_from_id):
-    # Auto response to messages
-    # to lower is expensive do it once
-    message = message.lower()
-    if "ping" in message:
-        # Check if the user added @foo to the message
+    #Auto response to messages
+    if "ping" in message.lower():
+        #Check if the user added @foo to the message
         if "@" in message:
             if hop == "Direct":
                 bot_response = "PONG, " + f"SNR:{snr} RSSI:{rssi}" + " and copy: " + message.split("@")[1]
@@ -51,17 +49,17 @@ def auto_response(message, snr, rssi, hop, message_from_id):
                 bot_response = "PONG, " + f"SNR:{snr} RSSI:{rssi}"
             else:
                 bot_response = "PONG, " + hop
-    elif "ack" in message:
+    elif "ack" in message.lower():
         if hop == "Direct":
             bot_response = "ACK-ACK! " + f"SNR:{snr} RSSI:{rssi}"
         else:
             bot_response = "ACK-ACK! " + hop
-    elif "testing" in message:
+    elif "testing" in message.lower():
         bot_response = "Testing 1,2,3"
-    elif "pong" in message:
+    elif "pong" in message.lower():
         bot_response = "PING!!"
-    elif "motd" in message:
-        # check if the user wants to set the motd by using $
+    elif "motd" in message.lower():
+        #check if the user wants to set the motd by using $
         if "$" in message:
             motd = message.split("$")[1]
             global MOTD
@@ -69,44 +67,44 @@ def auto_response(message, snr, rssi, hop, message_from_id):
             bot_response = "MOTD Set to: " + MOTD
         else:
             bot_response = MOTD
-    elif "bbshelp" in message:
+    elif "bbshelp" in message.lower():
         bot_response = bbs_help()
-    elif "help" in message:
+    elif "help" in message.lower():
         bot_response = help_message
-    elif "sun" in message:
+    elif "sun" in message.lower():
         location = get_node_location(message_from_id)
         bot_response = get_sun(str(location[0]),str(location[1]))
-    elif "hfcond" in message:
+    elif "hfcond" in message.lower():
         bot_response = hf_band_conditions()
-    elif "solar" in message:
+    elif "solar" in message.lower():
         bot_response = drap_xray_conditions() + "\n" + solar_conditions()
-    elif "lheard" in message or "sitrep" in message:
+    elif "lheard" in message.lower() or "sitrep" in message.lower():
         bot_response = "Last 5 nodes heard:\n" + str(get_node_list())
-    elif "whereami" in message:
+    elif "whereami" in message.lower():
         location = get_node_location(message_from_id)
         where = where_am_i(str(location[0]),str(location[1]))
         bot_response = where
-    elif "tide" in message:
+    elif "tide" in message.lower():
         location = get_node_location(message_from_id)
         tide = get_tide(str(location[0]),str(location[1]))
         bot_response = tide
-    elif "moon" in message:
+    elif "moon" in message.lower():
         location = get_node_location(message_from_id)
         moon = get_moon(str(location[0]),str(location[1]))
         bot_response = moon
-    elif "wxc" in message:
+    elif "wxc" in message.lower():
         location = get_node_location(message_from_id)
         weather = get_weather(str(location[0]),str(location[1]),1)
         bot_response = weather
-    elif "wx" in message:
+    elif "wx" in message.lower():
         location = get_node_location(message_from_id)
         weather = get_weather(str(location[0]),str(location[1]))
         bot_response = weather
-    elif "joke" in message:
+    elif "joke" in message.lower():
         bot_response = tell_joke()
-    elif "bbslist" in message:
+    elif "bbslist" in message.lower():
         bot_response = bbs_list_messages()
-    elif "bbspost" in message:
+    elif "bbspost" in message.lower():
         # Check if the user added a subject to the message
         if "$" in message:
             subject = message.split("$")[1].split("#")[0]
@@ -115,19 +113,19 @@ def auto_response(message, snr, rssi, hop, message_from_id):
                 message = message.split("#")[1]
                 message = message.rstrip()
                 
-                bot_response = bbs_post_message(subject, message)
+                bot_response = bbs_post_message(subject,message)
             else:
                 bot_response = "example: bbspost $subject #message"
         else:
             bot_response = "Please add a subject to the message. ex: bbspost $subject #message"
-    elif "bbsread" in message:
+    elif "bbsread" in message.lower():
         # Check if the user added a message number to the message
         if "#" in message:
             messageID = int(message.split("#")[1])
             bot_response = bbs_read_message(messageID)
         else:
             bot_response = "Please add a message number ex: bbsread #14"
-    elif "bbsdelete" in message:
+    elif "bbsdelete" in message.lower():
         # Check if the user added a message number to the message
         if "#" in message:
             messageID = int(message.split("#")[1])
