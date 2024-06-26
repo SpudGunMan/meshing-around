@@ -2,26 +2,36 @@
 # K7MHI Kelly Keeton 2024
 
 from dadjokes import Dadjoke # pip install dadjokes
+import pickle # pip install pickle
+import os
 
-# global message list, later we will use a database on disk
-bbs_messages = [[1, "Welcome to meshBBS", "Welcome to the BBS, please post a message!"]]
+# global message list
+bbs_messages = []
 
 def tell_joke():
     # tell a dad joke, does it need an explanationn :)
     dadjoke = Dadjoke()
     return dadjoke.joke
 
-def create_bbsdb():
-    # create a database file for the bbs messages
-    pass
-
 def load_bbsdb():
+    global bbs_messages
     # load the bbs messages from the database file
-    pass
+    if not os.path.exists('bbsdb.pkl'):
+        # if not, create it
+        bbs_messages = [[1, "Welcome to meshBBS", "Welcome to the BBS, please post a message!"]]
+        print ("\nSystem: Creating new bbsdb.pkl")
+        with open('bbsdb.pkl', 'wb') as f:
+            pickle.dump(bbs_messages, f)
+    else:
+        with open('bbsdb.pkl', 'rb') as f:
+            bbs_messages = pickle.load(f)
 
 def save_bbsdb():
+    global bbs_messages
     # save the bbs messages to the database file
-    pass
+    print ("System: Saving bbsdb.pkl\n")
+    with open('bbsdb.pkl', 'wb') as f:
+        pickle.dump(bbs_messages, f)
 
 def bbs_help():
     # help message
@@ -67,5 +77,6 @@ def bbs_read_message(messageID = 0):
     else:
         return "Please specify a message number to read."
 
-
+#initialize the bbsdb
+load_bbsdb()
 
