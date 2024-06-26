@@ -26,8 +26,8 @@ other features
   - `bbsdelete` delete a message example use: `bbsdelete #4`
 - Other functions
   - `whereami` returns the address of location of sender if known
-  - `tide` returns the local tides (NOAA data source)
-  - `wx` returns local weather forcast (NOAA data source)
+  - `tide` returns the local tides, NOAA data source
+  - `wx` and `wxc` returns local weather forcast, NOAA data source (wxc is metric value)
   - `joke` tells a joke
 
  ### Configurations
