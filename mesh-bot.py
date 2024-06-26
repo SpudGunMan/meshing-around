@@ -19,7 +19,8 @@ interface = meshtastic.serial_interface.SerialInterface() #serial interface
 #interface=meshtastic.ble_interface.BLEInterface("AA:BB:CC:DD:EE:FF") # BLE interface
 
 #A list of strings to trap and respond to
-trap_list = ("ping","ack","testing","pong","motd","help","sun","solar","hfcond","lheard","sitrep","whereami","tide","moon","wx","joke")
+trap_list = ("ping","ack","testing","pong","motd","help","sun","solar","hfcond","lheard","sitrep", \
+             "whereami","tide","moon","wx","joke","bbslist","bbspost","bbsread","bbsdelete","bbshelp")
 
 welcome_message = "MeshBot, here for you like a friend who is not. Try sending: ping @foo  or, help"
 help_message = "Commands are: ack, hfcond, joke, Lheard, moon, motd, ping, solar, sun, tide, whereami, wx"
@@ -95,6 +96,38 @@ def auto_response(message, snr, rssi, hop, message_from_id):
         bot_response = weather
     elif "joke" in message.lower():
         bot_response = tell_joke()
+    elif "bbslist" in message.lower():
+        bot_response = bbs_list_messages()
+    elif "bbspost" in message.lower():
+        #Check if the user added a subject to the message
+        if "$" in message:
+            subject = message.split("$")[1].split("#")[0]
+            subject = subject.rstrip()
+            if "#" in message:
+                message = message.split("#")[1]
+                message = message.rstrip()
+                
+                bot_response = bbs_post_message(subject,message)
+            else:
+                bot_response = "example: bbspost $subject #message"
+        else:
+            bot_response = "Please add a subject to the message. ex: bbspost $subject #message"
+    elif "bbsread" in message.lower():
+        #Check if the user added a message number to the message
+        if "#" in message:
+            messageID = int(message.split("#")[1])
+            bot_response = bbs_read_message(messageID)
+        else:
+            bot_response = "Please add a message number ex: bbsread #14"
+    elif "bbsdelete" in message.lower():
+        #Check if the user added a message number to the message
+        if "#" in message:
+            messageID = int(message.split("#")[1])
+            bot_response = bbs_delete_message(messageID)
+        else:
+            bot_response = "Please add a message number ex: bbsdelete #14"
+    elif "bbshelp" in message.lower():
+        bot_response = bbs_help()
     else:
         bot_response = "I'm sorry, I'm afraid I can't do that."
     
