@@ -1,6 +1,6 @@
 import unittest
 from unittest import mock
-from modules.bbstools import *
+from bbstools import *
 
 class TestBBSListMessages(unittest.TestCase):
     def test_bbs_list_messages(self):
