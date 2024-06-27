@@ -119,6 +119,29 @@ def get_weather(lat=0, lon=0, unit=0):
 
     return weather
 
+def get_wx_alerts(lat=0, lon=0):
+    # get weather alerts from NOAA :: NOT IMPLEMENTED YET
+    alerts = ""
+    if float(lat) == 0 and float(lon) == 0:
+        return NO_DATA_NOGPS
+
+    # get weather alerts from NOAA
+    alert_url = "https://alerts.weather.gov/search?point=" + str(lat) + "," + str(lon)
+    
+    try:
+        alert_data = requests.get(alert_url, timeout=URL_TIMEOUT)
+        if not alert_data.ok:
+            return ERROR_FETCHING_DATA
+    except (requests.exceptions.RequestException):
+        return ERROR_FETCHING_DATA
+
+    soup = bs.BeautifulSoup(alert_data.text, 'html.parser')
+    alerts = soup.text
+
+    return alerts
+
+print(get_wx_alerts(37.7749, -122.4194))
+
 def replace_weather(row):
     replacements = {
         "Monday": "Mon ",
