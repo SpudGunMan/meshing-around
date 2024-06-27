@@ -4,6 +4,8 @@
 import pickle # pip install pickle
 import os
 
+bbs_ban_list = [] # list of banned nodes numbers ex: [2813308004, 4258675309]
+
 trap_list_bbs = ("bbslist", "bbspost", "bbsread", "bbsdelete", "bbshelp")
 
 # global message list, later we will use a pickle on disk
@@ -14,7 +16,7 @@ def load_bbsdb():
     # load the bbs messages from the database file
     if not os.path.exists('bbsdb.pkl'):
         # if not, create it
-        bbs_messages = [[1, "Welcome to meshBBS", "Welcome to the BBS, please post a message!"]]
+        bbs_messages = [[1, "Welcome to meshBBS", "Welcome to the BBS, please post a message!",0]]
         print ("\nSystem: Creating new bbsdb.pkl")
         with open('bbsdb.pkl', 'wb') as f:
             pickle.dump(bbs_messages, f)
@@ -57,13 +59,17 @@ def bbs_delete_message(messageID = 0):
     else:
         return "Please specify a message number to delete."
 
-def bbs_post_message(subject, message):
+def bbs_post_message(subject, message, fromNode = 0):
     # post a message to the bbsdb and assign a messageID
     messageID = len(bbs_messages) + 1
-    
+
+    # Check the BAN list for naughty nodes and silently drop the message
+    if fromNode in bbs_ban_list:
+        return "Message posted. ID is: " + str(messageID)
+
     #print (f"System: messageID: {messageID}, subject: {subject}, message: {message}")
     # append the message to the list
-    bbs_messages.append([messageID, subject, message])
+    bbs_messages.append([messageID, subject, message, fromNode])
     return "Message posted. ID is: " + str(messageID)
 
 def bbs_read_message(messageID = 0):
