@@ -65,11 +65,16 @@ def bbs_post_message(subject, message, fromNode = 0):
 
     # Check the BAN list for naughty nodes and silently drop the message
     if fromNode in bbs_ban_list:
+        print (f"!!System: Naughty node {fromNode}, tried to post a message: {subject}, {message} and was dropped.")
         return "Message posted. ID is: " + str(messageID)
 
-    #print (f"System: messageID: {messageID}, subject: {subject}, message: {message}")
     # append the message to the list
     bbs_messages.append([messageID, subject, message, fromNode])
+    print (f"System: NEW Message Posted, subject: {subject}, message: {message}")
+    
+    # save the bbsdb
+    save_bbsdb()
+
     return "Message posted. ID is: " + str(messageID)
 
 def bbs_read_message(messageID = 0):
