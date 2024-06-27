@@ -337,9 +337,6 @@ def send_message(message, ch, nodeid):
                 # Send to DM
                 print (f"{log_timestamp()} System: Sending Multi-Chunk: {m} To: {get_name_from_number(nodeid)}")
                 interface.sendText(text=m,channelIndex=ch, destinationId=nodeid)
-            # # wait a 500ms to avoid message collision except after last message
-            # if message_list.index(m) < len(message_list) - 1:
-            #     time.sleep(0.5)
     else: # message is less than 160 characters
         if nodeid == 0:
             # Send to channel
@@ -350,7 +347,6 @@ def send_message(message, ch, nodeid):
             print (f"{log_timestamp()} System: Sending: {message} To: {get_name_from_number(nodeid)}")
             interface.sendText(text=message, channelIndex=ch, destinationId=nodeid)
     
-
 def exit_handler(signum, frame):
     print("\nSystem: Closing Autoresponder")
     interface.close()
