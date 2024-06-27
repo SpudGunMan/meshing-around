@@ -12,9 +12,9 @@ from datetime import datetime
 from dadjokes import Dadjoke # pip install dadjokes
 
 # Import all the functions from the modules in the repo if you want to use them otherwise make waffles #
-from solarconditions import * # from the spudgunman/meshing-around repo
-from locationdata import * # from the spudgunman/meshing-around repo
-from bbstools import * # from the spudgunman/meshing-around repo
+from modules.solarconditions import * # from the spudgunman/meshing-around repo
+from modules.locationdata import * # from the spudgunman/meshing-around repo
+from modules.bbstools import * # from the spudgunman/meshing-around repo
 
 # Uncomment the interface you want to use depending on your device connection
 interface = meshtastic.serial_interface.SerialInterface() #serial interface
