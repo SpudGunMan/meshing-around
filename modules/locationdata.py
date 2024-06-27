@@ -9,7 +9,7 @@ import bs4 as bs # pip install beautifulsoup4
 
 URL_TIMEOUT = 10 # wait time for URL requests
 DAYS_OF_WEATHER = 4 # weather forecast days, the first two rows are today and tonight
-# unified error messages to be able to test them from tests
+# error messages
 NO_DATA_NOGPS = "no location data: does your device have GPS?"
 ERROR_FETCHING_DATA = "error fetching data"
 
@@ -134,9 +134,14 @@ def get_wx_alerts(lat=0, lon=0):
             return ERROR_FETCHING_DATA
     except (requests.exceptions.RequestException):
         return ERROR_FETCHING_DATA
-
+    
     soup = bs.BeautifulSoup(alert_data.text, 'html.parser')
-    alerts = soup.text
+    
+    alert_count = soup.find('span', class_="details-count")
+    if alert_count is None:
+        return "no weather alerts found"
+    else:
+        alerts += alert_count.text + "\n"
 
     return alerts
 
