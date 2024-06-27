@@ -30,9 +30,9 @@ class TestBBSListMessages(unittest.TestCase):
 
     def test_bbs_delete_message(self):
         # Mock the bbs_messages list
-        bbs_messages = [[1, "Welcome to meshBBS", "Welcome to the BBS, please post a message!"],
-                        [2, "Test Message 1", "This is a test message 1"],
-                        [3, "Test Message 2", "This is a test message 2"]]
+        bbs_messages = [[1, "Welcome to meshBBS", "Welcome to the BBS, please post a message!",0],
+                        [2, "Test Message 1", "This is a test message 1",0],
+                        [3, "Test Message 2", "This is a test message 2",0]]
         
         # Mock the return value of bbs_messages
         with mock.patch('bbstools.bbs_messages', bbs_messages):
