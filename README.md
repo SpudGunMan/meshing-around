@@ -46,12 +46,11 @@ RESPOND_BY_DM_ONLY = True # Set to True to respond messages via DM only (keeps t
 
 the enhanced bot is all modules by default, to disable extra modules comment out 
 ```
-# join all lists, comment out unwanted funtionality, defined in corresponding files/modules
+# comment out unwanted funtionality, defined in corresponding files/modules
 trap_list = trap_list + trap_list_location # items tide, whereami, wxc, wx
 trap_list = trap_list + trap_list_solarconditions # items hfcond, solar, sun, moon
 trap_list = trap_list + trap_list_bbs # items bbslist, bbspost, bbsread, bbsdelete
 ```
-
 
  Solar Data needs the LAT LONG for your area on the [solarconditions.py](solarconditions.py) used for when node has no location in the db
 ```
