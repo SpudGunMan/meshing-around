@@ -17,7 +17,7 @@ from modules.locationdata import * # from the spudgunman/meshing-around repo
 from modules.bbstools import * # from the spudgunman/meshing-around repo
 
 # Uncomment the interface you want to use depending on your device connection
-interface = meshtastic.serial_interface.SerialInterface() #serial interface
+interface = meshtastic.serial_interface.SerialInterface() #serial interface (specify port) default is first found
 #interface=meshtastic.tcp_interface.TCPInterface(hostname="192.168.0.1") # IP of your device
 #interface=meshtastic.ble_interface.BLEInterface("AA:BB:CC:DD:EE:FF") # BLE interface
 
