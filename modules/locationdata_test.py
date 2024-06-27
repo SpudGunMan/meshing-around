@@ -1,5 +1,5 @@
 import unittest
-from modules.locationdata import *
+from locationdata import *
 
 class TestGetWeather(unittest.TestCase):
 
