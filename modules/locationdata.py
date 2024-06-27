@@ -152,6 +152,7 @@ def replace_weather(row):
         "Tonight": "Tonight ",
         "Tomorrow": "Tomorrow ",
         "This Afternoon": "Afternoon ",
+        "Overnight": "Overnight ",
         "northwest": "NW",
         "northeast": "NE",
         "southwest": "SW",
