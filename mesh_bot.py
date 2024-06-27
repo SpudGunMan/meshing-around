@@ -24,7 +24,7 @@ interface = meshtastic.serial_interface.SerialInterface() #serial interface
 # A basic list of strings to trap and respond to
 trap_list = ("ping", "ack", "testing", "pong", "motd", "help",  "lheard", "sitrep", "joke")
 
-# join all lists, comment out unwanted funtionality, defined in corresponding files/modules
+# comment out unwanted funtionality, defined in corresponding files/modules
 trap_list = trap_list + trap_list_location # items tide, whereami, wxc, wx
 trap_list = trap_list + trap_list_solarconditions # items hfcond, solar, sun, moon
 trap_list = trap_list + trap_list_bbs # items bbslist, bbspost, bbsread, bbsdelete, bbshelp
