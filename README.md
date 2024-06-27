@@ -64,7 +64,6 @@ can also be installed with `pip install -r requirements.txt`
 ```
 pip install meshtastic
 pip install pubsub
-pip install datetime
 ```
 
 mesh-bot enhancments
