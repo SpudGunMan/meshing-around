@@ -6,7 +6,7 @@ import os
 
 trap_list_bbs = ("bbslist", "bbspost", "bbsread", "bbsdelete", "bbshelp")
 
-# global message list, later we will use a database on disk
+# global message list, later we will use a pickle on disk
 bbs_messages = []
 
 def load_bbsdb():
