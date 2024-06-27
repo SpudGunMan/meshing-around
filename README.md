@@ -2,7 +2,7 @@
 Random Mesh Scripts for BBS activities for use with Meshtastic nodes
 
 ## pong-bot.sh
-![alt text](img/pong-bot.jpg "Example Use")
+![alt text](etc/pong-bot.jpg "Example Use")
 
 Little bot which will trap keywords like ping and respond on a DM with pong. The script will also monitor the group channels for keywords to trap on. you can also `Ping @Data to Echo` as a example for further processing.
 
