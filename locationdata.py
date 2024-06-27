@@ -86,12 +86,11 @@ def get_weather(lat=0, lon=0, unit=0):
     if float(lat) == 0 and float(lon) == 0:
         return NO_DATA_NOGPS
     
-
+    # get weather data from NOAA units for metric
     weather_url = "https://forecast.weather.gov/MapClick.php?FcstType=text&lat=" + str(lat) + "&lon=" + str(lon)
     if unit == 1:
         weather_url += "&unit=1"
     
-
     try:
         weather_data = requests.get(weather_url, timeout=URL_TIMEOUT)
         if not weather_data.ok:
@@ -99,7 +98,6 @@ def get_weather(lat=0, lon=0, unit=0):
     except (requests.exceptions.RequestException):
         return ERROR_FETCHING_DATA
     
-
     soup = bs.BeautifulSoup(weather_data.text, 'html.parser')
     table = soup.find('div', id="detailed-forecast-body")
 
