@@ -140,8 +140,6 @@ def get_wx_alerts(lat=0, lon=0):
 
     return alerts
 
-print(get_wx_alerts(37.7749, -122.4194))
-
 def replace_weather(row):
     replacements = {
         "Monday": "Mon ",
