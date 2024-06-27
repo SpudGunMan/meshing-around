@@ -27,7 +27,7 @@ trap_list = ("ping", "ack", "testing", "pong", "motd", "help",  "lheard", "sitre
 # join all lists, comment out unwanted funtionality, defined in corresponding files/modules
 trap_list = trap_list + trap_list_location # items tide, whereami, wxc, wx
 trap_list = trap_list + trap_list_solarconditions # items hfcond, solar, sun, moon
-trap_list = trap_list + trap_list_bbs # items bbslist, bbspost, bbsread, bbsdelete
+trap_list = trap_list + trap_list_bbs # items bbslist, bbspost, bbsread, bbsdelete, bbshelp
 
 welcome_message = "MeshBot, here for you like a friend who is not. Try sending: ping @foo  or, help"
 help_message = "CMD?: " + ", ".join(trap_list)
