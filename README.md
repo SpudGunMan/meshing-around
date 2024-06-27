@@ -79,13 +79,6 @@ pip install dadjokes
 pip install pickle
 ```
 
-dev parts if using visual studio
-```
-pip install mock
-pip install unittest
-```
-
-
 # Recognition
 Used ideas and snippets from other responder bots want to call them out!
  - https://github.com/Murturtle/MeshLink
