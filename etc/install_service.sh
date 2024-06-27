@@ -18,3 +18,5 @@ if [ $bot == "mesh" ]; then
     sudo cp etc/mesh_bot.service /etc/systemd/system/
     exit 0
 fi
+
+# reminder to change the .service file to proper path for the bot
