@@ -92,4 +92,4 @@ Used ideas and snippets from other responder bots want to call them out!
  - https://github.com/pdxlocations/Meshtastic-Python-Examples
 
 GitHub user https://github.com/PiDiBi
- - providing test functions and other suggestions like wxc 
+ - providing looking at test functions and other suggestions like wxc
