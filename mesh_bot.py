@@ -22,7 +22,7 @@ interface = meshtastic.serial_interface.SerialInterface() #serial interface (spe
 #interface=meshtastic.ble_interface.BLEInterface("AA:BB:CC:DD:EE:FF") # BLE interface
 
 # A basic list of strings to trap and respond to
-trap_list = ("ping", "ack", "testing", "pong", "motd", "help",  "lheard", "sitrep", "joke")
+trap_list = ("ping", "pinging", "ack", "testing", "pong", "motd", "help",  "lheard", "sitrep", "joke")
 
 # comment out unwanted funtionality, defined in corresponding files/modules
 trap_list = trap_list + trap_list_location # items tide, whereami, wxc, wx
