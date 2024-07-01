@@ -30,7 +30,7 @@ trap_list = trap_list + trap_list_solarconditions # items hfcond, solar, sun, mo
 trap_list = trap_list + trap_list_bbs # items bbslist, bbspost, bbsread, bbsdelete, bbshelp
 
 welcome_message = "MeshBot, here for you like a friend who is not. Try sending: ping @foo  or, help"
-help_message = "CMD?: ping, motd, sitrep, joke, sun, hfcond, solar, moon, tide, whereami, wx, wxc, bbshelp"
+help_message = "CMD?: ping, motd, sitrep, joke, sun, hfcond, solar, moon, tide, whereami, wx, wxc, bbslist, bbshelp"
 MOTD = "Thanks for using PongBOT! Have a good day!" # Message of the Day
 RESPOND_BY_DM_ONLY = True # Set to True to respond messages via DM only (keeps the channel clean)
 
