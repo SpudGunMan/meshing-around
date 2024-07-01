@@ -255,5 +255,8 @@ pub.subscribe(onReceive, 'meshtastic.receive')
 print (f"System: Autoresponder Started for device {get_name_from_number(myNodeNum)}")
 
 while True:
+    # Catch CTL+C to exit
+    time.sleep(0.05)
     signal.signal(signal.SIGINT, exit_handler)
+    time.sleep(0.05)
     pass
