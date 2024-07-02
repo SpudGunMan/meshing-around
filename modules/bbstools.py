@@ -50,7 +50,7 @@ def bbs_list_messages():
 
 def bbs_delete_message(messageID = 0, fromNode = 0):
     #if messageID out of range ignore
-    if (messageID -1) > len(bbs_messages):
+    if (messageID - 1) >= len(bbs_messages):
         return "Message not found."
     
     # delete a message from the bbsdb
@@ -92,7 +92,7 @@ def bbs_post_message(subject, message, fromNode):
 
 def bbs_read_message(messageID = 0):
     #if messageID out of range ignore
-    if (messageID -1) > len(bbs_messages):
+    if (messageID - 1) >= len(bbs_messages):
         return "Message not found."
     if messageID > 0:
         message = bbs_messages[messageID - 1]
