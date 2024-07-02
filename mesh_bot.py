@@ -64,7 +64,7 @@ def auto_response(message, snr, rssi, hop, message_from_id):
     elif "testing" in message.lower():
         bot_response = "Testing 1,2,3"
     elif "pong" in message.lower():
-        bot_response = "P-I-N-G!!"
+        bot_response = "PING!!"
     elif "motd" in message.lower():
         #check if the user wants to set the motd by using $
         if "$" in message:
@@ -203,6 +203,15 @@ def onReceive(packet, interface):
             
             # If the packet is a DM (Direct Message) respond to it, otherwise validate its a message for us
             if packet['to'] == myNodeNum:
+                if message_string == help_message or message_string == welcome_message:
+                        # ignore help and welcome messages
+                        print(f"{log_timestamp()} Got Own Welcome/Help header. From: {get_name_from_number(message_from_id)}")
+                        return
+                elif "Try sending: ping @foo  or, help" in message_string:
+                        # ignore help and welcome messages
+                        print(f"{log_timestamp()} Got Help Message. From: {get_name_from_number(message_from_id)}")
+                        return
+
                 if messageTrap(message_string):
                     print(f"{log_timestamp()} Received DM: {message_string} on Channel: {channel_number} From: {get_name_from_number(message_from_id)}")
                     # respond with a direct message
