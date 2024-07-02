@@ -48,21 +48,21 @@ def auto_response(message, snr, rssi, hop, message_from_id):
         #Check if the user added @foo to the message
         if "@" in message:
             if hop == "Direct":
-                bot_response = "PONG, " + f"SNR:{snr} RSSI:{rssi}" + " and copy: " + message.split("@")[1]
+                bot_response = "🏓PONG, " + f"SNR:{snr} RSSI:{rssi}" + " and copy: " + message.split("@")[1]
             else:
-                bot_response = "PONG, " + hop + " and copy: " + message.split("@")[1]
+                bot_response = "🏓PONG, " + hop + " and copy: " + message.split("@")[1]
         else:
             if hop == "Direct":
-                bot_response = "PONG, " + f"SNR:{snr} RSSI:{rssi}"
+                bot_response = "🏓PONG, " + f"SNR:{snr} RSSI:{rssi}"
             else:
-                bot_response = "PONG, " + hop
+                bot_response = "🏓PONG, " + hop
     elif "ack" in message.lower():
         if hop == "Direct":
-            bot_response = "ACK-ACK! " + f"SNR:{snr} RSSI:{rssi}"
+            bot_response = "🏓ACK-ACK! " + f"SNR:{snr} RSSI:{rssi}"
         else:
-            bot_response = "ACK-ACK! " + hop
+            bot_response = "🏓ACK-ACK! " + hop
     elif "testing" in message.lower():
-        bot_response = "Testing 1,2,3"
+        bot_response = "🏓Testing 1,2,3"
     elif "pong" in message.lower():
         bot_response = "🏓PING!!"
     elif "motd" in message.lower():
