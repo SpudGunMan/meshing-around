@@ -51,7 +51,7 @@ def auto_response(message, snr, rssi, hop):
     elif "testing" in message.lower():
         bot_response = "Testing 1,2,3"
     elif "pong" in message.lower():
-        bot_response = "P-I-N-G!!"
+        bot_response = "🏓Ping!!"
     elif "motd" in message.lower():
         # check if the user wants to set the motd by using $
         if "$" in message:
