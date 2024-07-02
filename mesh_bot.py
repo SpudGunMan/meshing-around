@@ -120,7 +120,7 @@ def auto_response(message, snr, rssi, hop, message_from_id):
                 message = message.split("#")[1]
                 message = message.rstrip()
                 
-                bot_response = bbs_post_message(subject,message)
+                bot_response = bbs_post_message(subject,message,message_from_id)
             else:
                 bot_response = "example: bbspost $subject #message"
         else:
@@ -136,7 +136,7 @@ def auto_response(message, snr, rssi, hop, message_from_id):
         # Check if the user added a message number to the message
         if "#" in message:
             messageID = int(message.split("#")[1])
-            bot_response = bbs_delete_message(messageID)
+            bot_response = bbs_delete_message(messageID, message_from_id)
         else:
             bot_response = "Please add a message number ex: bbsdelete #14"
     else:

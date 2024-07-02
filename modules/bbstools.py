@@ -5,6 +5,7 @@ import pickle # pip install pickle
 import os
 
 bbs_ban_list = [] # list of banned nodes numbers ex: [2813308004, 4258675309]
+bbs_admin_list = [] # list of admin nodes numbers ex: [2813308004, 4258675309]
 
 trap_list_bbs = ("bbslist", "bbspost", "bbsread", "bbsdelete", "bbshelp")
 
@@ -47,19 +48,27 @@ def bbs_list_messages():
     message_list = message_list[:-1]
     return message_list
 
-def bbs_delete_message(messageID = 0):
+def bbs_delete_message(messageID = 0, fromNode = 0):
     # delete a message from the bbsdb
     if messageID > 0:
-        bbs_messages.pop(messageID - 1)
-        # reset the messageID
-        for i in range(len(bbs_messages)):
-            bbs_messages[i][0] = i + 1
-        
-        return "Msg #" + str(messageID) + " deleted."
+        # if same user wrote message they can delete it
+        if fromNode == bbs_messages[messageID - 1][3] or fromNode in bbs_admin_list:
+            bbs_messages.pop(messageID - 1)
+            # reset the messageID
+            for i in range(len(bbs_messages)):
+                bbs_messages[i][0] = i + 1
+
+            # save the bbsdb
+            save_bbsdb()
+            
+            return "Msg #" + str(messageID) + " deleted."
+        else:
+            print (f"!!System: node {fromNode}, tried to delete a message: {bbs_messages[messageID - 1]} and was dropped.")
+            return "You are not authorized to delete this message."
     else:
         return "Please specify a message number to delete."
 
-def bbs_post_message(subject, message, fromNode = 0):
+def bbs_post_message(subject, message, fromNode):
     # post a message to the bbsdb and assign a messageID
     messageID = len(bbs_messages) + 1
 
@@ -70,8 +79,8 @@ def bbs_post_message(subject, message, fromNode = 0):
 
     # append the message to the list
     bbs_messages.append([messageID, subject, message, fromNode])
-    print (f"System: NEW Message Posted, subject: {subject}, message: {message}")
-    
+    print (f"System: NEW Message Posted, subject: {subject}, message: {message} from {fromNode}")
+
     # save the bbsdb
     save_bbsdb()
 
