@@ -154,6 +154,7 @@ def replace_weather(row):
         "Friday": "Fri ",
         "Saturday": "Sat ",
         "Today": "Today ",
+        "Night": "Night ",
         "Tonight": "Tonight ",
         "Tomorrow": "Tomorrow ",
         "This Afternoon": "Afternoon ",
