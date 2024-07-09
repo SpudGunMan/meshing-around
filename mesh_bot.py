@@ -101,11 +101,11 @@ def auto_response(message, snr, rssi, hop, message_from_id):
         bot_response = moon
     elif "wxalert" in message.lower():
         location = get_node_location(message_from_id)
-        weatherAlert = get_wx_alert_details(str(location[0]),str(location[1]))
+        weatherAlert = getActiveWeatherAlertsDetail(str(location[0]),str(location[1]))
         bot_response = weatherAlert[0]
     elif "wxa" in message.lower():
         location = get_node_location(message_from_id)
-        weatherAlert = get_wx_alerts_list(str(location[0]),str(location[1]))
+        weatherAlert = getWeatherAlerts(str(location[0]),str(location[1]))
         bot_response = weatherAlert[0]
     elif "wxc" in message.lower():
         location = get_node_location(message_from_id)

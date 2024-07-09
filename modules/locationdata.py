@@ -84,6 +84,7 @@ def get_tide(lat=0, lon=0):
     return tide_string
     
 def get_weather(lat=0, lon=0, unit=0):
+    # get weather report from NOAA for forecast detailed
     weather = ""
     if float(lat) == 0 and float(lon) == 0:
         return NO_DATA_NOGPS
@@ -112,7 +113,7 @@ def get_weather(lat=0, lon=0, unit=0):
     # extract data from rows
     for row in rows:
         # shrink the text
-        line = replace_weather(row.text)
+        line = abbreviate_weather(row.text)
         # only grab a few days of weather
         if len(weather.split("\n")) < DAYS_OF_WEATHER:
             weather += line + "\n"
@@ -120,15 +121,15 @@ def get_weather(lat=0, lon=0, unit=0):
     weather = weather[:-1]
 
     # get any alerts and return the count
-    alert, alert_num = get_wx_alerts_list(lat, lon)
+    alert_num = getWeatherAlerts(lat, lon)[1]
     if alert_num > 0:
         # add the alert count warning to the weather
-        weather = str(alert_num) + " weather alerts!\n" + weather
+        weather = str(alert_num) + " local alerts!\n" + weather
 
     return weather
 
-def replace_weather(row):
-    # replace long strings with shorter ones for display used in get_weather
+def abbreviate_weather(row):
+    # replace long strings with shorter ones for display used in get_weather, get_wx_alerts_list, get_wx_alert_details
     replacements = {
         "Monday": "Mon ",
         "Tuesday": "Tue ",
@@ -140,6 +141,7 @@ def replace_weather(row):
         "Night": "Night ",
         "Tonight": "Tonight ",
         "Tomorrow": "Tomorrow ",
+        "Day": "Day ",
         "This Afternoon": "Afternoon ",
         "Overnight": "Overnight ",
         "northwest": "NW",
@@ -169,7 +171,7 @@ def replace_weather(row):
                     
     return line
 
-def get_wx_alerts_list(lat=0, lon=0):
+def getWeatherAlerts(lat=0, lon=0):
     # get weather alerts from NOAA limited to ALERT_COUNT with the total number of alerts found
     alerts = ""
     if float(lat) == 0 and float(lon) == 0:
@@ -190,7 +192,6 @@ def get_wx_alerts_list(lat=0, lon=0):
 
     for i in alertxml.getElementsByTagName("entry"):
         alerts += (
-            #i.getElementsByTagName("updated")[0].childNodes[0].nodeValue + ": " +
             i.getElementsByTagName("title")[0].childNodes[0].nodeValue + "\n"
         )
 
@@ -205,10 +206,12 @@ def get_wx_alerts_list(lat=0, lon=0):
     alert_num = 0
     alert_num = len(alerts.split("\n"))
 
+    alerts = abbreviate_weather(alerts)
+
     # return the first ALERT_COUNT alerts
     return "\n".join(alerts.split("\n")[:ALERT_COUNT]), alert_num
 
-def get_wx_alert_details(lat=0, lon=0):
+def getActiveWeatherAlertsDetail(lat=0, lon=0):
     # get the latest details of weather alerts from NOAA
     alerts = ""
     if float(lat) == 0 and float(lon) == 0:
@@ -238,6 +241,8 @@ def get_wx_alert_details(lat=0, lon=0):
             summary +
             "\n***\n"
         )
+
+    alerts = abbreviate_weather(alerts)
 
     # trim the alerts to the first ALERT_COUNT
     alerts = alerts.split("\n***\n")[:ALERT_COUNT]
