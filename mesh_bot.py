@@ -348,7 +348,7 @@ def send_message(message, ch, nodeid):
                 message_list.append(line)
                 line = word + ' '
         message_list.append(line) # needed add contents of the last 'line' into the list
-        #message_list = [x.replace('NEWLINE', '\n') for x in message_list] # put back the newlines
+        #message_list = [x.replace(' NEWLINE ', '\n') for x in message_list] # put back the newlines
 
         for m in message_list:
             if nodeid == 0:
