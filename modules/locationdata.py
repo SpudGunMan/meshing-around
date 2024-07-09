@@ -6,14 +6,16 @@ from geopy.geocoders import Nominatim # pip install geopy
 import maidenhead as mh # pip install maidenhead
 import requests # pip install requests
 import bs4 as bs # pip install beautifulsoup4
+import xml.dom.minidom 
 
 URL_TIMEOUT = 10 # wait time for URL requests
 DAYS_OF_WEATHER = 4 # weather forecast days, the first two rows are today and tonight
 # error messages
+ALERT_COUNT = 2 # number of weather alerts to display
 NO_DATA_NOGPS = "no location data: does your device have GPS?"
 ERROR_FETCHING_DATA = "error fetching data"
 
-trap_list_location = ("whereami", "tide", "moon", "wx", "wxc")
+trap_list_location = ("whereami", "tide", "moon", "wx", "wxc", "wxalert")
 
 def where_am_i(lat=0, lon=0):
     whereIam = ""
@@ -106,7 +108,7 @@ def get_weather(lat=0, lon=0, unit=0):
     else:
         # get rows
         rows = table.find_all('div', class_="row")
-    
+
     # extract data from rows
     for row in rows:
         # shrink the text
@@ -117,35 +119,16 @@ def get_weather(lat=0, lon=0, unit=0):
     # trim off last newline
     weather = weather[:-1]
 
+    # get any alerts and return the count
+    alert, alert_num = get_wx_alerts_list(lat, lon)
+    if alert_num > 0:
+        # add the alert count warning to the weather
+        weather = str(alert_num) + " weather alerts!\n" + weather
+
     return weather
 
-def get_wx_alerts(lat=0, lon=0):
-    # get weather alerts from NOAA :: NOT IMPLEMENTED YET
-    alerts = ""
-    if float(lat) == 0 and float(lon) == 0:
-        return NO_DATA_NOGPS
-
-    # get weather alerts from NOAA
-    alert_url = "https://alerts.weather.gov/search?point=" + str(lat) + "," + str(lon)
-    
-    try:
-        alert_data = requests.get(alert_url, timeout=URL_TIMEOUT)
-        if not alert_data.ok:
-            return ERROR_FETCHING_DATA
-    except (requests.exceptions.RequestException):
-        return ERROR_FETCHING_DATA
-    
-    soup = bs.BeautifulSoup(alert_data.text, 'html.parser')
-    
-    alert_count = soup.find('span', class_="details-count")
-    if alert_count is None:
-        return "no weather alerts found"
-    else:
-        alerts += alert_count.text + "\n"
-
-    return alerts
-
 def replace_weather(row):
+    # replace long strings with shorter ones for display used in get_weather
     replacements = {
         "Monday": "Mon ",
         "Tuesday": "Tue ",
@@ -186,3 +169,85 @@ def replace_weather(row):
                     
     return line
 
+def get_wx_alerts_list(lat=0, lon=0):
+    # get weather alerts from NOAA limited to ALERT_COUNT with the total number of alerts found
+    alerts = ""
+    if float(lat) == 0 and float(lon) == 0:
+        return NO_DATA_NOGPS
+
+    alert_url = "https://api.weather.gov/alerts/active.atom?point=" + str(lat) + "," + str(lon)
+    #alert_url = "https://api.weather.gov/alerts/active.atom?area=WA"
+    
+    try:
+        alert_data = requests.get(alert_url, timeout=URL_TIMEOUT)
+        if not alert_data.ok:
+            return ERROR_FETCHING_DATA
+    except (requests.exceptions.RequestException):
+        return ERROR_FETCHING_DATA
+    
+    alerts = ""
+    alertxml = xml.dom.minidom.parseString(alert_data.text)
+
+    for i in alertxml.getElementsByTagName("entry"):
+        alerts += (
+            #i.getElementsByTagName("updated")[0].childNodes[0].nodeValue + ": " +
+            i.getElementsByTagName("title")[0].childNodes[0].nodeValue + "\n"
+        )
+
+    if alerts == "":
+        return "No weather alerts found"
+
+    # trim off last newline
+    if alerts[-1] == "\n":
+        alerts = alerts[:-1]
+        
+    # get the number of alerts
+    alert_num = 0
+    alert_num = len(alerts.split("\n"))
+
+    # return the first ALERT_COUNT alerts
+    return "\n".join(alerts.split("\n")[:ALERT_COUNT]), alert_num
+
+def get_wx_alert_details(lat=0, lon=0):
+    # get the latest details of weather alerts from NOAA :: not used yet lotsa text
+    alerts = ""
+    if float(lat) == 0 and float(lon) == 0:
+        return NO_DATA_NOGPS
+
+    alert_url = "https://api.weather.gov/alerts/active.atom?point=" + str(lat) + "," + str(lon)
+    #alert_url = "https://api.weather.gov/alerts/active.atom?area=WA"
+    
+    try:
+        alert_data = requests.get(alert_url, timeout=URL_TIMEOUT)
+        if not alert_data.ok:
+            return ERROR_FETCHING_DATA
+    except (requests.exceptions.RequestException):
+        return ERROR_FETCHING_DATA
+    
+    alerts = ""
+    alertxml = xml.dom.minidom.parseString(alert_data.text)
+
+    for i in alertxml.getElementsByTagName("entry"):
+        summary = i.getElementsByTagName("summary")[0].childNodes[0].nodeValue
+        summary = summary.replace("\n\n", " ")
+        summary = summary.replace("\n", " ")
+        summary = summary.replace("*", "\n")
+
+        alerts += (
+            i.getElementsByTagName("title")[0].childNodes[0].nodeValue +
+            summary +
+            "\n***\n"
+        )
+
+    # trim the alerts to the first ALERT_COUNT
+    alerts = alerts.split("\n***\n")[:ALERT_COUNT]
+
+    if alerts == "":
+        return "No weather alerts found"
+
+    # trim off last newline
+    if alerts[-1] == "\n":
+        alerts = alerts[:-1]
+
+    # return the first ALERT_COUNT alerts
+    return alerts
