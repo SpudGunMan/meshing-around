@@ -2,7 +2,7 @@
 # Meshtastic Autoresponder MESH Bot
 # K7MHI Kelly Keeton 2024
 
-import signal # for catching CTL+C
+import asyncio # for the event loop
 import time # for sleep, get some when you can :)
 from pubsub import pub # pip install pubsub
 import meshtastic.serial_interface #pip install meshtastic
@@ -381,7 +381,8 @@ def send_message(message, ch, nodeid=0):
             print (f"{log_timestamp()} System: Sending: {message} To: {get_name_from_number(nodeid)}")
             interface.sendText(text=message, channelIndex=ch, destinationId=nodeid)
     
-def exit_handler(signum, frame):
+def exit_handler():
+    # Close the interface and save the BBS messages
     print("\nSystem: Closing Autoresponder")
     interface.close()
     print("System: Interface Closed")
@@ -391,15 +392,22 @@ def exit_handler(signum, frame):
     print("System: Exiting")
     exit (0)
 
-print ("\nMeshtastic Autoresponder MESH Bot CTL+C to exit\n")
-pub.subscribe(onReceive, 'meshtastic.receive')
-print (f"System: Autoresponder Started for device {get_name_from_number(myNodeNum)}")
+def start_rx():
+    # Start the receive loop
+    pub.subscribe(onReceive, 'meshtastic.receive')
+    print (f"System: Autoresponder Started for device {get_name_from_number(myNodeNum)}")
+    while True:
+        time.sleep(0.05)
+        pass
 
-while True:
-    # Catch CTL+C to exit
-    time.sleep(0.05)
-    signal.signal(signal.SIGINT, exit_handler)
-    time.sleep(0.05)
-    pass
+# Hello World 
+print ("\nMeshtastic Autoresponder MESH Bot CTL+C to exit\n")
+
+loop = asyncio.get_event_loop()
+try:
+    loop.run_forever(start_rx())
+finally:
+    loop.close()
+    exit_handler()
 
 # EOF
