@@ -230,7 +230,7 @@ def get_node_list():
     else:
         return "Error Processing Node List"
         
-def send_message(message, ch, nodeid):
+def send_message(message, ch, nodeid=0):
     # if message over 160 characters, split it into multiple messages
     if len(message) > 160:
         #message_list = [message[i:i+160] for i in range(0, len(message), 160)]
