@@ -226,18 +226,18 @@ def onReceive(packet, interface):
                 if messageTrap(message_string):
                     print(f"{log_timestamp()} Received DM: {message_string} on Channel: {channel_number} From: {get_name_from_number(message_from_id)}")
                     # respond with a direct message
-                    send_message(auto_response(message_string,snr,rssi,hop,message_from_id),channel_number,message_from_id)
+                    send_message(auto_response(message_string, snr, rssi, hop, message_from_id), channel_number, message_from_id)
                 else: 
                     # respond with welcome message
                     print(f"{log_timestamp()} Ignoring DM: {message_string} From: {get_name_from_number(message_from_id)}")
-                    send_message(welcome_message,channel_number,message_from_id)
+                    send_message(welcome_message, channel_number, message_from_id)
             else:
                 # message is on a channel
                 if messageTrap(message_string):
                     print(f"{log_timestamp()} Received On Channel {channel_number}: {message_string} From: {get_name_from_number(message_from_id)}")
                     if RESPOND_BY_DM_ONLY:
                         # respond to channel message via direct message
-                        send_message(auto_response(message_string,snr,rssi,hop,message_from_id),channel_number,message_from_id)
+                        send_message(auto_response(message_string, snr, rssi, hop, message_from_id), channel_number, message_from_id)
                     else:
                         # or respond to channel message on the channel itself
                         if channel_number == DEFAULT_CHANNEL:
@@ -245,10 +245,10 @@ def onReceive(packet, interface):
                             print(f"{log_timestamp()} System: Warning spamming default channel not allowed. sending DM to {get_name_from_number(message_from_id)}")
                         
                             # respond to channel message via direct message
-                            send_message(auto_response(message_string,snr,rssi,hop,message_from_id),channel_number,message_from_id)
+                            send_message(auto_response(message_string, snr, rssi, hop, message_from_id), channel_number, message_from_id)
                             #OVERIDE AND COMMENT ^ send_message(auto_response(message_string,snr,rssi,message_from_id),channel_number,0)
                         else:
-                            send_message(auto_response(message_string,snr,rssi,hop,message_from_id),channel_number,message_from_id)
+                            send_message(auto_response(message_string, snr, rssi, hop, message_from_id), channel_number, message_from_id)
                 else:
                     print(f"{log_timestamp()} System: Ignoring incoming channel {channel_number}: {message_string} From: {get_name_from_number(message_from_id)}")
                 
