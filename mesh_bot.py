@@ -33,6 +33,7 @@ welcome_message = "MeshBot, here for you like a friend who is not. Try sending: 
 help_message = "CMD?: ping, motd, sitrep, joke, sun, hfcond, solar, moon, tide, whereami, wx, wxc, wxa, bbslist, bbshelp"
 MOTD = "Thanks for using PongBOT! Have a good day!" # Message of the Day
 RESPOND_BY_DM_ONLY = True # Set to True to respond messages via DM only (keeps the channel clean)
+DEFAULT_CHANNEL = 0 # Default channel on your node, also known as "public channel" 0 on new devices
 
 #Get the node number of the device, check if the device is connected
 try:
@@ -236,7 +237,12 @@ def onReceive(packet, interface):
                         send_message(auto_response(message_string,snr,rssi,hop,message_from_id),channel_number,message_from_id)
                     else:
                         # or respond to channel message on the channel itself
-                        send_message(auto_response(message_string,snr,rssi,message_from_id),channel_number,0)
+                        if channel_number == DEFAULT_CHANNEL:
+                            print(f"{log_timestamp()} System: Warning spamming default channel")
+                            #warning user spamming default channel
+                            send_message(auto_response(message_string,snr,rssi,message_from_id),channel_number,0)
+                        else:
+                            send_message(auto_response(message_string,snr,rssi,message_from_id),channel_number,0)
                 else:
                     print(f"{log_timestamp()} System: Ignoring incoming channel {channel_number}: {message_string} From: {get_name_from_number(message_from_id)}")
                 
@@ -348,7 +354,7 @@ def send_message(message, ch, nodeid):
                 message_list.append(line)
                 line = word + ' '
         message_list.append(line) # needed add contents of the last 'line' into the list
-        #message_list = [x.replace(' NEWLINE ', '\n') for x in message_list] # put back the newlines
+        #message_list = [x.replace('NEWLINE', '\n') for x in message_list] # put back the newlines
 
         for m in message_list:
             if nodeid == 0:
