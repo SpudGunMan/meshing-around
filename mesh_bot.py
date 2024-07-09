@@ -246,9 +246,9 @@ def onReceive(packet, interface):
                         
                             # respond to channel message via direct message
                             send_message(auto_response(message_string, snr, rssi, hop, message_from_id), channel_number, message_from_id)
-                            #OVERIDE AND COMMENT ^ send_message(auto_response(message_string,snr,rssi,message_from_id),channel_number,0)
                         else:
-                            send_message(auto_response(message_string, snr, rssi, hop), channel_number, message_from_id)
+                            # respond to channel message on the channel itself
+                            send_message(auto_response(message_string, snr, rssi, hop, message_from_id), channel_number)
                 else:
                     print(f"{log_timestamp()} System: Ignoring incoming channel {channel_number}: {message_string} From: {get_name_from_number(message_from_id)}")
                 
