@@ -15,7 +15,7 @@ ALERT_COUNT = 2 # number of weather alerts to display
 NO_DATA_NOGPS = "no location data: does your device have GPS?"
 ERROR_FETCHING_DATA = "error fetching data"
 
-trap_list_location = ("whereami", "tide", "moon", "wx", "wxc", "wxalert")
+trap_list_location = ("whereami", "tide", "moon", "wx", "wxc", "wxa", "wxalert")
 
 def where_am_i(lat=0, lon=0):
     whereIam = ""
