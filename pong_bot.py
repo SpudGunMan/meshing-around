@@ -233,12 +233,16 @@ def get_node_list():
 def send_message(message, ch, nodeid=0):
     # if message over 160 characters, split it into multiple messages
     if len(message) > 160:
-        #message_list = [message[i:i+160] for i in range(0, len(message), 160)]
-        # smarter word split
+        print (f"{log_timestamp()} System: Splitting Message, Message Length: {len(message)}")
+        # split the message into 160 character chunks
+        
+        #message = message.replace('\n', ' NEWLINE ') # replace newlines with NEWLINE to keep them in split chunks
+
         split_message = message.split()
         line = ''
         split_len = 160
         message_list = []
+
         for word in split_message:
             if len(line+word)<split_len:
                 line += word + ' '
@@ -246,16 +250,17 @@ def send_message(message, ch, nodeid=0):
                 message_list.append(line)
                 line = word + ' '
         message_list.append(line) # needed add contents of the last 'line' into the list
+        #message_list = [x.replace('NEWLINE', '\n') for x in message_list] # put back the newlines
 
         for m in message_list:
             if nodeid == 0:
-                # Send to channel
+                #Send to channel
                 print (f"{log_timestamp()} System: Sending Multi-Chunk: {m} To: Channel:{ch}")
                 interface.sendText(text=m, channelIndex=ch)
             else:
                 # Send to DM
                 print (f"{log_timestamp()} System: Sending Multi-Chunk: {m} To: {get_name_from_number(nodeid)}")
-                interface.sendText(text=m,channelIndex=ch, destinationId=nodeid)
+                interface.sendText(text=m, channelIndex=ch, destinationId=nodeid)
     else: # message is less than 160 characters
         if nodeid == 0:
             # Send to channel
