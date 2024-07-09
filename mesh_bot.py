@@ -225,10 +225,10 @@ def onReceive(packet, interface):
                 # check if the message contains a trap word, DMs are always responded to
                 if messageTrap(message_string):
                     print(f"{log_timestamp()} Received DM: {message_string} on Channel: {channel_number} From: {get_name_from_number(message_from_id)}")
-                    # respond with a direct message
+                    # respond with DM
                     send_message(auto_response(message_string, snr, rssi, hop, message_from_id), channel_number, message_from_id)
                 else: 
-                    # respond with welcome message
+                    # respond with welcome message on DM
                     print(f"{log_timestamp()} Ignoring DM: {message_string} From: {get_name_from_number(message_from_id)}")
                     send_message(welcome_message, channel_number, message_from_id)
             else:
@@ -248,7 +248,7 @@ def onReceive(packet, interface):
                             send_message(auto_response(message_string, snr, rssi, hop, message_from_id), channel_number, message_from_id)
                             #OVERIDE AND COMMENT ^ send_message(auto_response(message_string,snr,rssi,message_from_id),channel_number,0)
                         else:
-                            send_message(auto_response(message_string, snr, rssi, hop, message_from_id), channel_number, message_from_id)
+                            send_message(auto_response(message_string, snr, rssi, hop), channel_number, message_from_id)
                 else:
                     print(f"{log_timestamp()} System: Ignoring incoming channel {channel_number}: {message_string} From: {get_name_from_number(message_from_id)}")
                 
@@ -340,7 +340,7 @@ def get_node_location(number):
         print (f"{log_timestamp()} System: No nodes found")
         return position
         
-def send_message(message, ch, nodeid):
+def send_message(message, ch, nodeid=0):
     # if message over 160 characters, split it into multiple messages
     if len(message) > 160:
         print (f"{log_timestamp()} System: Splitting Message, Message Length: {len(message)}")
