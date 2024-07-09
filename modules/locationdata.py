@@ -129,7 +129,7 @@ def get_weather(lat=0, lon=0, unit=0):
     return weather
 
 def abbreviate_weather(row):
-    # replace long strings with shorter ones for display used in get_weather, get_wx_alerts_list, get_wx_alert_details
+    # replace long strings with shorter ones for display
     replacements = {
         "Monday": "Mon ",
         "Tuesday": "Tue ",
@@ -137,6 +137,7 @@ def abbreviate_weather(row):
         "Thursday": "Thu ",
         "Friday": "Fri ",
         "Saturday": "Sat ",
+        "Sunday": "Sunday ",
         "Today": "Today ",
         "Night": "Night ",
         "Tonight": "Tonight ",
