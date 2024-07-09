@@ -42,6 +42,12 @@ interface = meshtastic.serial_interface.SerialInterface() #serial interface
 #interface=meshtastic.tcp_interface.TCPInterface(hostname="192.168.0.1") # IP of your device
 #interface=meshtastic.ble_interface.BLEInterface("AA:BB:CC:DD:EE:FF") # BLE interface
 ```
+The following pair of settings determins how to respond, default action is to not spam the default channel. Setting DM_ONLY will force all DM which may not be wanted. Setting the Default channel is the channel which wont be spammed by the bot.
+
+```
+RESPOND_BY_DM_ONLY = False # Set to True to respond messages via DM only, False uses smart response
+DEFAULT_CHANNEL = 0 # Default channel on your node, also known as "public channel" 0 on new devices
+```
 
 the enhanced bot is all modules by default, to disable extra modules comment out 
 ```
