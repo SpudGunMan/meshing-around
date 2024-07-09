@@ -30,7 +30,7 @@ trap_list = trap_list + trap_list_solarconditions # items hfcond, solar, sun, mo
 trap_list = trap_list + trap_list_bbs # items bbslist, bbspost, bbsread, bbsdelete, bbshelp
 
 welcome_message = "MeshBot, here for you like a friend who is not. Try sending: ping @foo  or, help"
-help_message = "CMD?: ping, motd, sitrep, joke, sun, hfcond, solar, moon, tide, whereami, wx, wxc, bbslist, bbshelp"
+help_message = "CMD?: ping, motd, sitrep, joke, sun, hfcond, solar, moon, tide, whereami, wx, wxc, wxa, bbslist, bbshelp"
 MOTD = "Thanks for using PongBOT! Have a good day!" # Message of the Day
 RESPOND_BY_DM_ONLY = True # Set to True to respond messages via DM only (keeps the channel clean)
 
@@ -99,6 +99,14 @@ def auto_response(message, snr, rssi, hop, message_from_id):
         location = get_node_location(message_from_id)
         moon = get_moon(str(location[0]),str(location[1]))
         bot_response = moon
+    elif "wxalert" in message.lower():
+        location = get_node_location(message_from_id)
+        weatherAlert = get_wx_alert_details(str(location[0]),str(location[1]))
+        bot_response = weatherAlert[0]
+    elif "wxa" in message.lower():
+        location = get_node_location(message_from_id)
+        weatherAlert = get_wx_alerts_list(str(location[0]),str(location[1]))
+        bot_response = weatherAlert[0]
     elif "wxc" in message.lower():
         location = get_node_location(message_from_id)
         weather = get_weather(str(location[0]),str(location[1]),1)

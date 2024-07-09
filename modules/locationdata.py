@@ -209,7 +209,7 @@ def get_wx_alerts_list(lat=0, lon=0):
     return "\n".join(alerts.split("\n")[:ALERT_COUNT]), alert_num
 
 def get_wx_alert_details(lat=0, lon=0):
-    # get the latest details of weather alerts from NOAA :: not used yet lotsa text
+    # get the latest details of weather alerts from NOAA
     alerts = ""
     if float(lat) == 0 and float(lon) == 0:
         return NO_DATA_NOGPS
