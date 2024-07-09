@@ -14,11 +14,11 @@ other features
 
  alternate bot, adds internet and other telemetry data which goes beyond just ping
 
-- Various solar details for radio propigation
+- Various solar details for radio propagation
   - `sun` and `moon` return info on rise and set local time
   - `solar` gives an idea of the x-ray flux
   - `hfcond` returns a table of HF solar conditions
-- Bulliten Board (BBS) functions
+- Bulletin Board (BBS) functions
   - `bbshelp` returns the following
   - `bbslist` list the messages by ID and subject
   - `bbsread` read a message example use: `bbsread #1`
@@ -27,7 +27,7 @@ other features
 - Other functions
   - `whereami` returns the address of location of sender if known
   - `tide` returns the local tides, NOAA data source
-  - `wx` and `wxc` returns local weather forcast, NOAA data source (wxc is metric value)
+  - `wx` and `wxc` returns local weather forecast, NOAA data source (wxc is metric value)
   - `wxa` and `wxalert` returns NOAA alerts. short title or expanded details
   - `joke` tells a joke
 
@@ -42,7 +42,7 @@ interface = meshtastic.serial_interface.SerialInterface() #serial interface
 #interface=meshtastic.tcp_interface.TCPInterface(hostname="192.168.0.1") # IP of your device
 #interface=meshtastic.ble_interface.BLEInterface("AA:BB:CC:DD:EE:FF") # BLE interface
 ```
-The following pair of settings determins how to respond, default action is to not spam the default channel. Setting DM_ONLY will force all DM which may not be wanted. Setting the Default channel is the channel which wont be spammed by the bot.
+The following pair of settings determine how to respond, default action is to not spam the default channel. Setting DM_ONLY will force all DM which may not be wanted. Setting the Default channel is the channel which wont be spammed by the bot.
 
 ```
 RESPOND_BY_DM_ONLY = False # Set to True to respond messages via DM only, False uses smart response
@@ -51,7 +51,7 @@ DEFAULT_CHANNEL = 0 # Default channel on your node, also known as "public channe
 
 the enhanced bot is all modules by default, to disable extra modules comment out 
 ```
-# comment out unwanted funtionality, defined in corresponding files/modules
+# comment out unwanted functionality, defined in corresponding files/modules
 trap_list = trap_list + trap_list_location # items tide, whereami, wxc, wx, wxa, wxalert
 trap_list = trap_list + trap_list_solarconditions # items hfcond, solar, sun, moon
 trap_list = trap_list + trap_list_bbs # items bbslist, bbspost, bbsread, bbsdelete
@@ -89,4 +89,7 @@ Used ideas and snippets from other responder bots want to call them out!
  - https://github.com/pdxlocations/Meshtastic-Python-Examples
 
 GitHub user https://github.com/PiDiBi
- - providing looking at test functions and other suggestions like wxc
+ - providing looking at test functions and other suggestions like wxc, cpu use and alerting code
+
+ Discord and Mesh user Cisien for testing and ideas!
+
