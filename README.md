@@ -33,27 +33,25 @@ other features
 
  ### Configurations
  Currently config modifications is edit to code. Be sure to uncomment the appropriate interface for your method (serial/BLE/TCP). Only one at a time is supported to a single node at a time.
- ```
+
+```
 # Uncomment the interface you want to use depending on your device connection
 interface = meshtastic.serial_interface.SerialInterface() #serial interface
+# you can specify SerialInterface('/dev/ttyUSB0')
+
 #interface=meshtastic.tcp_interface.TCPInterface(hostname="192.168.0.1") # IP of your device
 #interface=meshtastic.ble_interface.BLEInterface("AA:BB:CC:DD:EE:FF") # BLE interface
 ```
-It is recomended to leave this setting as default `True` to keep the channel clear in larger mesh. 
-
-```
-RESPOND_BY_DM_ONLY = True # Set to True to respond messages via DM only (keeps the channel clean)
- ```
 
 the enhanced bot is all modules by default, to disable extra modules comment out 
 ```
 # comment out unwanted funtionality, defined in corresponding files/modules
-trap_list = trap_list + trap_list_location # items tide, whereami, wxc, wx
+trap_list = trap_list + trap_list_location # items tide, whereami, wxc, wx, wxa, wxalert
 trap_list = trap_list + trap_list_solarconditions # items hfcond, solar, sun, moon
 trap_list = trap_list + trap_list_bbs # items bbslist, bbspost, bbsread, bbsdelete
 ```
 
- Solar Data needs the LAT LONG for your area on the [solarconditions.py](solarconditions.py) used for when node has no location in the db
+ Solar Data needs the LAT LONG for your area on the [solarconditions.py](solarconditions.py) used for when node has no location in the db, the settings are not used in weather data yet
 ```
 LATITUDE = 48.50
 LONGITUDE = -123.0
