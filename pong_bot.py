@@ -19,8 +19,9 @@ interface = meshtastic.serial_interface.SerialInterface() #serial interface
 trap_list = ("ping", "pinging", "ack", "testing", "pong", "motd", "help", "lheard", "sitrep") #A list of strings to trap and respond to
 welcome_message = "PongBot, here for you like a friend who is not. Try sending: ping @foo  or, help"
 help_message = "Commands are: ping, ack, motd, Lheard. Use 'motd $foo' to set MOTD."
-RESPOND_BY_DM_ONLY = True # Set to True to respond messages via DM only (keeps the channel clean)
 MOTD = "Thanks for using PongBOT! Have a good day!" # Message of the Day
+RESPOND_BY_DM_ONLY = False # Set to True to respond messages via DM only, False uses smart response
+DEFAULT_CHANNEL = 0 # Default channel on your node, also known as "public channel" 0 on new devices
 
 try:
     myinfo = interface.getMyNodeInfo()
@@ -127,8 +128,9 @@ def onReceive(packet, interface):
 
                 hop = f"{hop_count} hops"
             
-            # If the packet is a DM (Direct Message) respond to it, otherwise validate its a message for us
+          # If the packet is a DM (Direct Message) respond to it, otherwise validate its a message for us on the channel
             if packet['to'] == myNodeNum:
+                # message is DM to us
                 if message_string == help_message or message_string == welcome_message:
                         # ignore help and welcome messages
                         print(f"{log_timestamp()} Got Own Welcome/Help header. From: {get_name_from_number(message_from_id)}")
@@ -137,24 +139,34 @@ def onReceive(packet, interface):
                         # ignore help and welcome messages
                         print(f"{log_timestamp()} Got Help Message. From: {get_name_from_number(message_from_id)}")
                         return
-                
+
+                # check if the message contains a trap word, DMs are always responded to
                 if messageTrap(message_string):
                     print(f"{log_timestamp()} Received DM: {message_string} on Channel: {channel_number} From: {get_name_from_number(message_from_id)}")
-                    # respond with a direct message
-                    send_message(auto_response(message_string,snr,rssi,hop),channel_number,message_from_id)
+                    # respond with DM
+                    send_message(auto_response(message_string, snr, rssi, hop, message_from_id), channel_number, message_from_id)
                 else: 
-                    # respond with welcome message
+                    # respond with welcome message on DM
                     print(f"{log_timestamp()} Ignoring DM: {message_string} From: {get_name_from_number(message_from_id)}")
-                    send_message(welcome_message,channel_number,message_from_id)
+                    send_message(welcome_message, channel_number, message_from_id)
             else:
+                # message is on a channel
                 if messageTrap(message_string):
                     print(f"{log_timestamp()} Received On Channel {channel_number}: {message_string} From: {get_name_from_number(message_from_id)}")
                     if RESPOND_BY_DM_ONLY:
-                        # respond to channel message via direct message to keep the channel clean
-                        send_message(auto_response(message_string,snr,rssi,hop),channel_number,message_from_id)
+                        # respond to channel message via direct message
+                        send_message(auto_response(message_string, snr, rssi, hop, message_from_id), channel_number, message_from_id)
                     else:
                         # or respond to channel message on the channel itself
-                        send_message(auto_response(message_string,snr,rssi),channel_number,0)
+                        if channel_number == DEFAULT_CHANNEL:
+                            # warning user spamming default channel
+                            print(f"{log_timestamp()} System: Warning spamming default channel not allowed. sending DM to {get_name_from_number(message_from_id)}")
+                        
+                            # respond to channel message via direct message
+                            send_message(auto_response(message_string, snr, rssi, hop, message_from_id), channel_number, message_from_id)
+                        else:
+                            # respond to channel message on the channel itself
+                            send_message(auto_response(message_string, snr, rssi, hop, message_from_id), channel_number)
                 else:
                     print(f"{log_timestamp()} System: Ignoring incoming channel {channel_number}: {message_string} From: {get_name_from_number(message_from_id)}")
                 
