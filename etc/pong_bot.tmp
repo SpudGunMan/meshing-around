@@ -1,13 +1,13 @@
-# /etc/systemd/system/meshbot.service
+# /etc/systemd/system/pong_bot.service
 # sudo systemctl daemon-reload
-# sudo systemctl start meshbot.service
+# sudo systemctl start pong_bot.service
 
 [Unit]
 Description=PONG-BOT
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/python /usr/local/meshing-around/pong_bot.py
+ExecStart=/usr/bin/python /dir/launch.sh pong
 
 # Disable Python's buffering of STDOUT and STDERR, so that output from the
 # service shows up immediately in systemd's logs
