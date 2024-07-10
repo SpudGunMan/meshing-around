@@ -123,7 +123,7 @@ def get_weather(lat=0, lon=0, unit=0):
     # get any alerts and return the count
     alerts = getWeatherAlerts(lat, lon)
     alert = alerts[0]
-    alert_num = alerts[1]
+    alert_num = int(alerts[1])
     if alert_num > 0:
         # add the alert count warning to the weather
         weather = str(alert_num) + " local alerts!\n" + weather + "\n" + alert
