@@ -9,9 +9,9 @@ if [ $venv == "n" ]; then
     echo "Are you on Raspberry Pi? should we add --break-system-packages to the pip install command? (y/n)"
     read rpi
     if [ $rpi == "y" ]; then
-        pip install -r requirements.txt --break-system-packages
+        pip install -U -r requirements.txt --break-system-packages
     else
-        pip install -r requirements.txt
+        pip install -U -r requirements.txt
     fi
 fi
 
@@ -21,7 +21,7 @@ if [ $venv == "y" ]; then
     source venv/bin/activate
 
     # install dependencies
-    pip install -r requirements.txt
+    pip install -U -r requirements.txt
     exit 0
 fi
 
