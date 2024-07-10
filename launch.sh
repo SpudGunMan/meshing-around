@@ -4,7 +4,11 @@
 echo "Launches the bot in a virtual environment"
 
 # activate the virtual environment
-source venv/bin/activate
+
+#look for venv folder and activate it if found
+if [ -d "venv" ]; then
+    source venv/bin/activate
+fi
 
 # launch the application
 
