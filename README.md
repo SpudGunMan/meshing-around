@@ -32,6 +32,11 @@ other features
   - `wxa` and `wxalert` returns NOAA alerts. short title or expanded details
   - `joke` tells a joke
 
+## Install
+- Clone the project with `git clone https://github.com/spudgunman/meshing-around`
+- `install.sh` will automate optional venv and requirements install
+- `launch.sh` will activate and launch the app in the venv if built
+
  ### Configurations
  Currently config modifications is edit to code. Be sure to uncomment the appropriate interface for your method (serial/BLE/TCP). Only one at a time is supported to a single node at a time.
 

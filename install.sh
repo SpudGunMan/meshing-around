@@ -27,11 +27,13 @@ if [ $venv == "y" ]; then
 
     # install dependencies
     pip install -U -r requirements.txt
-    exit 0
 fi
 
 echo "Which bot do you want to install as a service? (pong/mesh/n)"
 read bot
+
+
+# reminder to change the .service file to proper path for the bot
 
 if [ $bot == "pong" ]; then
     # install service for pong bot
@@ -47,7 +49,8 @@ fi
 
 if [ $bot == "n" ]; then
     launch.sh
-    exit 1
+    exit 0
 fi
 
-# reminder to change the .service file to proper path for the bot
+echo "Goodbye!"
+exit 0
