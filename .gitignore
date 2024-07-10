@@ -3,3 +3,6 @@ bbsdb.pkl
 
 # virtualenv
 venv/
+
+# modified .service files
+etc/*.service

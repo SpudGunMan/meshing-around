@@ -1,13 +1,13 @@
-# /etc/systemd/system/meshbot.service
+# /etc/systemd/system/mesh_bot.service
 # sudo systemctl daemon-reload
-# sudo systemctl start meshbot.service
+# sudo systemctl start mesh_bot.service
 
 [Unit]
 Description=MESH-BOT
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/python /usr/local/meshing-around/mesh_bot.py
+ExecStart=/usr/bin/python /dir/launch.sh mesh
 
 # Disable Python's buffering of STDOUT and STDERR, so that output from the
 # service shows up immediately in systemd's logs
