@@ -1,6 +1,9 @@
 #!/bin/bash
 
 # install.sh
+
+cd "$(dirname "$0")"
+
 # set virtual environment and install dependencies
 
 echo "Do you want to install the bot in a virtual environment? (y/n)"
@@ -27,7 +30,7 @@ if [ $venv == "y" ]; then
     exit 0
 fi
 
-echo "Which bot do you want to install? (pong/mesh)"
+echo "Which bot do you want to install as a service? (pong/mesh/n)"
 read bot
 
 if [ $bot == "pong" ]; then
@@ -40,6 +43,11 @@ if [ $bot == "mesh" ]; then
     # install service for mesh bot
     sudo cp etc/mesh_bot.service /etc/systemd/system/
     exit 0
+fi
+
+if [ $bot == "n" ]; then
+    launch.sh
+    exit 1
 fi
 
 # reminder to change the .service file to proper path for the bot
