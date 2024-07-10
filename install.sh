@@ -37,8 +37,8 @@ read bot
 
 #set the correct path in the service file
 program_path="$(dirname "$0")"
-cp etc/pong_bot.service.tmp etc/pong_bot.service
-cp etc/mesh_bot.service.tmp etc/mesh_bot.service
+cp etc/pong_bot.tmp etc/pong_bot.service
+cp etc/mesh_bot.tmp etc/mesh_bot.service
 sed -i "s|/dir/launch.sh|$program_path/launch.sh|g" etc/pong_bot.service
 sed -i "s|/dir/launch.sh|$program_path/launch.sh|g" etc/mesh_bot.service
 
