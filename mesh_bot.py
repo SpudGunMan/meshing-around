@@ -22,14 +22,14 @@ interface = meshtastic.serial_interface.SerialInterface() #serial interface (spe
 #interface=meshtastic.ble_interface.BLEInterface("AA:BB:CC:DD:EE:FF") # BLE interface
 
 # A basic list of strings to trap and respond to
-trap_list = ("ping", "pinging", "ack", "testing", "pong", "motd", "help",  "lheard", "sitrep", "joke")
+trap_list = ("ping", "pinging", "ack", "testing", "pong", "motd", "cmd",  "lheard", "sitrep", "joke")
 
 # comment out unwanted funtionality, defined in corresponding files/modules
 trap_list = trap_list + trap_list_location # items tide, whereami, wxc, wx
 trap_list = trap_list + trap_list_solarconditions # items hfcond, solar, sun, moon
 trap_list = trap_list + trap_list_bbs # items bbslist, bbspost, bbsread, bbsdelete, bbshelp
 
-welcome_message = "MeshBot, here for you like a friend who is not. Try sending: ping @foo  or, help"
+welcome_message = "MeshBot, here for you like a friend who is not. Try sending: ping @foo  or, cmd"
 help_message = "CMD?: ping, motd, sitrep, joke, sun, hfcond, solar, moon, tide, whereami, wx, wxc, wxa, bbslist, bbshelp"
 MOTD = "Thanks for using PongBOT! Have a good day!" # Message of the Day
 RESPOND_BY_DM_ONLY = False # Set to True to respond messages via DM only, False uses smart response
@@ -77,7 +77,7 @@ def auto_response(message, snr, rssi, hop, message_from_id):
             bot_response = MOTD
     elif "bbshelp" in message.lower():
         bot_response = bbs_help()
-    elif "help" in message.lower():
+    elif "cmd" in message.lower():
         bot_response = help_message
     elif "sun" in message.lower():
         location = get_node_location(message_from_id)

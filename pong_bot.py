@@ -17,7 +17,7 @@ interface = meshtastic.serial_interface.SerialInterface() #serial interface
 #interface=meshtastic.ble_interface.BLEInterface("AA:BB:CC:DD:EE:FF") # BLE interface
 
 trap_list = ("ping", "pinging", "ack", "testing", "pong", "motd", "help", "lheard", "sitrep") #A list of strings to trap and respond to
-welcome_message = "PongBot, here for you like a friend who is not. Try sending: ping @foo  or, help"
+welcome_message = "PongBot, here for you like a friend who is not. Try sending: ping @foo  or, cmd"
 help_message = "Commands are: ping, ack, motd, Lheard. Use 'motd $foo' to set MOTD."
 MOTD = "Thanks for using PongBOT! Have a good day!" # Message of the Day
 RESPOND_BY_DM_ONLY = False # Set to True to respond messages via DM only, False uses smart response
@@ -62,7 +62,7 @@ def auto_response(message, snr, rssi, hop, message_from_id):
             bot_response = "MOTD Set to: " + MOTD
         else:
             bot_response = MOTD
-    elif "help" in message.lower():
+    elif "cmd" in message.lower():
         bot_response = help_message
     elif "lheard" in message.lower() or "sitrep" in message.lower():
         bot_response = "Last 5 nodes heard:\n" + str(get_node_list())
