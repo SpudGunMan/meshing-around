@@ -5,7 +5,7 @@
 cd "$(dirname "$0")"
 
 # set virtual environment and install dependencies
-
+printf "\n\nmeshing arpund installer\n"
 echo "Do you want to install the bot in a virtual environment? (y/n)"
 read venv
 
@@ -28,7 +28,7 @@ if [ $venv == "y" ]; then
     # install dependencies
     pip install -U -r requirements.txt
 fi
-
+printf "\n\n"
 echo "Which bot do you want to install as a service? (pong/mesh/n)"
 read bot
 
