@@ -1,2 +1,5 @@
 # Pickle files, specifically, bbsdb.pkl
 bbsdb.pkl
+
+# virtualenv
+venv/
