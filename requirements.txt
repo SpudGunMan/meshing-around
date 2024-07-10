@@ -7,4 +7,3 @@ geopy
 maidenhead
 beautifulsoup4
 dadjokes
-pickle
