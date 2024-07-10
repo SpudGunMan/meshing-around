@@ -1,8 +1,29 @@
 #!/bin/bash
 # set virtual environment and install dependencies
-#python -m venv venv
-#source venv/bin/activate
-pip install -r requirements.txt
+
+echo "Do you want to install the bot in a virtual environment? (y/n)"
+read venv
+
+if [ $venv == "n" ]; then
+    # install dependencies
+    echo "Are you on Raspberry Pi? should we add --break-system-packages to the pip install command? (y/n)"
+    read rpi
+    if [ $rpi == "y" ]; then
+        pip install -r requirements.txt --break-system-packages
+    else
+        pip install -r requirements.txt
+    fi
+fi
+
+if [ $venv == "y" ]; then
+    # set virtual environment
+    python -m venv venv
+    source venv/bin/activate
+
+    # install dependencies
+    pip install -r requirements.txt
+    exit 0
+fi
 
 echo "Which bot do you want to install? (pong/mesh)"
 read bot
