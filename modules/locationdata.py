@@ -256,13 +256,14 @@ def getActiveWeatherAlertsDetail(lat=0, lon=0):
 
     # trim the alerts to the first ALERT_COUNT
     alerts = alerts.split("\n***\n")[:ALERT_COUNT]
-
-    if alerts == "" or alerts == None:
+    
+    if alerts == "" or alerts == ['']:
         return "No weather alerts found"
 
     # trim off last newline
     if alerts[-1] == "\n":
         alerts = alerts[:-1]
 
-    # return the first ALERT_COUNT alerts
+    alerts = "\n".join(alerts)
+    
     return alerts
