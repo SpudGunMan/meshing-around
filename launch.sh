@@ -1,7 +1,9 @@
 #!/bin/bash
 
 # launch.sh
-echo "Launches the bot in a virtual environment"
+cd "$(dirname "$0")"
+
+printf "\n\nLaunches the bot in a virtual environment"
 
 # activate the virtual environment if it exists
 if [ -d "venv" ]; then
@@ -9,7 +11,7 @@ if [ -d "venv" ]; then
 fi
 
 # launch the application
-cd "$(dirname "$0")"
+
 
 if [ "$1" == "pong" ]; then
     python pong_bot.py
