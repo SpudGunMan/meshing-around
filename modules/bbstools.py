@@ -34,7 +34,7 @@ def save_bbsdb():
 
 def bbs_help():
     # help message
-    return "BBS Commands:\n'bbslist'\n'bbspost $subject #message'\n'bbsread #'\n'bbsdelete #'"
+    return "BBS Commands:\n'bbslist'\n'bbspost $subject #message'\n'bbsread #'\n'bbsdelete #'\n'cmd'"
 
 def bbs_list_messages():
     #print (f"System: raw bbs_messages: {bbs_messages}")
