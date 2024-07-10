@@ -1,4 +1,6 @@
 #!/bin/bash
+
+# install.sh
 # set virtual environment and install dependencies
 
 echo "Do you want to install the bot in a virtual environment? (y/n)"
