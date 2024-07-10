@@ -9,6 +9,7 @@ Little bot which will trap keywords like ping and respond on a DM with pong. The
 other features
 - `motd` or to set the message `motd $New Message Of the day`
 - `lheard` returns the last 5 heard nodes with SNR, can also use `sitrep`
+- `cmd` returns the list of commands (the help message)
 
 ## mesh-bot.sh
 
