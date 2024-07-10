@@ -204,7 +204,7 @@ def getWeatherAlerts(lat=0, lon=0):
             i.getElementsByTagName("title")[0].childNodes[0].nodeValue + "\n"
         )
 
-    if alerts == "":
+    if alerts == "" or alerts == None:
         return "No weather alerts found"
 
     # trim off last newline
@@ -257,7 +257,7 @@ def getActiveWeatherAlertsDetail(lat=0, lon=0):
     # trim the alerts to the first ALERT_COUNT
     alerts = alerts.split("\n***\n")[:ALERT_COUNT]
 
-    if alerts == "":
+    if alerts == "" or alerts == None:
         return "No weather alerts found"
 
     # trim off last newline
