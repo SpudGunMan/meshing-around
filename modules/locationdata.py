@@ -12,7 +12,7 @@ URL_TIMEOUT = 10 # wait time for URL requests
 DAYS_OF_WEATHER = 4 # weather forecast days, the first two rows are today and tonight
 # error messages
 ALERT_COUNT = 2 # number of weather alerts to display
-NO_DATA_NOGPS = "no location data: does your device have GPS?"
+NO_DATA_NOGPS = "No location data: does your device have GPS?"
 ERROR_FETCHING_DATA = "error fetching data"
 
 trap_list_location = ("whereami", "tide", "moon", "wx", "wxc", "wxa", "wxalert")
@@ -122,12 +122,20 @@ def get_weather(lat=0, lon=0, unit=0):
 
     # get any alerts and return the count
     alerts = getWeatherAlerts(lat, lon)
-    alert = alerts[0]
-    if alert == "No weather alerts found":
+
+    if alerts == "No weather alerts found" or alerts == ERROR_FETCHING_DATA or alerts == NO_DATA_NOGPS:
         alert = ""
         alert_num = 0
     else:
+        alert = alerts[0]
         alert_num = alerts[1]
+
+    if alert == "No weather alerts found" or alert == "":
+        alert = ""
+        alert_num = 0
+        print("No Alerts")
+    else:
+        alert_num = int(alerts[1])
 
     if alert_num > 0:
         # add the alert count warning to the weather
