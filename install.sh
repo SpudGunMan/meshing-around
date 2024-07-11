@@ -8,6 +8,9 @@ cd "$(dirname "$0")"
 sudo usermod -a -G dialout $USER
 sudo usermod -a -G tty $USER
 
+# generate config file
+cp config.template config.ini
+
 # set virtual environment and install dependencies
 printf "\n\nmeshing arpund installer\n"
 echo "Do you want to install the bot in a virtual environment? (y/n)"
@@ -43,7 +46,7 @@ read bot
 program_path=$(pwd)
 cp etc/pong_bot.tmp etc/pong_bot.service
 cp etc/mesh_bot.tmp etc/mesh_bot.service
-replace="s|/dir/launch.sh|$program_path/launch.sh|g"
+replace="s|/dir/|$program_path/|g"
 sed -i $replace etc/pong_bot.service
 sed -i $replace etc/mesh_bot.service
 
