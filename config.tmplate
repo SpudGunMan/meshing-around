@@ -1,0 +1,11 @@
+#config.ini
+# type can be serial, tcp, or ble
+# port is the serial port to use, commented out will try to auto-detect
+# hostname is the IP address of the device to connect to for tcp type
+# mac is the MAC address of the device to connect to for ble type
+
+[interface]
+type = serial
+# port = '/dev/ttyUSB0'
+# hostname = 192.168.0.1
+# mac = 00:11:22:33:44:55
