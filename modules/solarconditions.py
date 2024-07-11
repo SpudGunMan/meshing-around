@@ -87,7 +87,7 @@ def get_sun(lat=0, lon=0):
     if local_sunset < local_sunrise:
         local_sunset = ephem.localtime(obs.next_setting(sun)) + timedelta(1)
         sun_table['set_time'] = local_sunset.strftime('%a %d %I:%M')
-    sun_data = "Sun Rise: " + sun_table['rise_time'] + "\nSet: " + sun_table['set_time']
+    sun_data = "SunRise: " + sun_table['rise_time'] + "\nSet: " + sun_table['set_time']
     return sun_data
 
 def get_moon(lat=0, lon=0):
@@ -105,7 +105,7 @@ def get_moon(lat=0, lon=0):
     obs.date = datetime.now()
     moon.compute(obs)
     moon_table = {}
-    moon_phase = ['New Moon', 'Waxing Crescent', 'First Quarter', 'Waxing Gibbous', 'Full Moon', 'Waning Gibbous', 'Last Quarter', 'Waning Crescent'][round(moon.phase / (2 * ephem.pi) * 8) % 8]
+    moon_phase = ['NewMoon', 'Waxing Crescent', 'First Quarter', 'Waxing Gibbous', 'FullMoon', 'Waning Gibbous', 'Last Quarter', 'Waning Crescent'][round(moon.phase / (2 * ephem.pi) * 8) % 8]
     moon_table['phase'] = moon_phase
     moon_table['illumination'] = moon.phase
     moon_table['azimuth'] = moon.az
@@ -121,7 +121,7 @@ def get_moon(lat=0, lon=0):
     moon_table['next_full_moon'] = local_next_full_moon.strftime('%a %b %d %I:%M%p')
     moon_table['next_new_moon'] = local_next_new_moon.strftime('%a %b %d %I:%M%p')
 
-    moon_data = "Moon Rise:" + moon_table['rise_time'] + "\nSet:" + moon_table['set_time'] + \
+    moon_data = "MoonRise:" + moon_table['rise_time'] + "\nSet:" + moon_table['set_time'] + \
         "\nPhase:" + moon_table['phase'] + " @:" + str('{0:.2f}'.format(moon_table['illumination'])) + "%" \
         + "\nFull Moon:" + moon_table['next_full_moon'] + "\nNew Moon:" + moon_table['next_new_moon']
     
