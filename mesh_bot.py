@@ -62,7 +62,7 @@ def auto_response(message, snr, rssi, hop, message_from_id):
             bot_response = "🏓ACK-ACK! " + f"SNR:{snr} RSSI:{rssi}"
         else:
             bot_response = "🏓ACK-ACK! " + hop
-    elif "testing" in message.lower():
+    elif "testing" in message.lower() or "test" in message.lower():
         bot_response = "🏓Testing 1,2,3"
     elif "pong" in message.lower():
         bot_response = "🏓PING!!"
