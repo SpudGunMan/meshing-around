@@ -36,11 +36,12 @@ read bot
 # reminder to change the .service file to proper path for the bot
 
 #set the correct path in the service file
-program_path="$(dirname "$0")"
+program_path=$(pwd)
 cp etc/pong_bot.tmp etc/pong_bot.service
 cp etc/mesh_bot.tmp etc/mesh_bot.service
-sed -i "s|/dir/launch.sh|$program_path/launch.sh|g" etc/pong_bot.service
-sed -i "s|/dir/launch.sh|$program_path/launch.sh|g" etc/mesh_bot.service
+replace="s|/dir/launch.sh|$program_path/launch.sh|g"
+sed -i $replace etc/pong_bot.service
+sed -i $replace etc/mesh_bot.service
 
 if [ $bot == "pong" ]; then
     # install service for pong bot
