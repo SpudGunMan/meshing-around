@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # install.sh
-
 cd "$(dirname "$0")"
 
 # add user to groups for serial access
@@ -63,8 +62,8 @@ if [ $bot == "mesh" ]; then
 fi
 
 if [ $bot == "n" ]; then
-    launch.sh
-    exit 0
+    if [ -f launch.sh ]; then
+        ./launch.sh
 fi
 
 echo "Goodbye!"
