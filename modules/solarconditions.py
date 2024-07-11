@@ -8,10 +8,6 @@ from datetime import datetime
 import ephem # pip install pyephem
 from datetime import timedelta
 
-# default location for solar conditions if none is provided
-LATITUDE = 48.50
-LONGITUDE = -123.0
-
 URL_TIMEOUT = 10 # wait time for URL requests
 
 trap_list_solarconditions = ("sun", "solar", "hfcond")
