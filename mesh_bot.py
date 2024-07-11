@@ -66,7 +66,6 @@ bbsdb = config['bbs'].get('bbsdb', 'bbsdb.pkl')
 
 if bbs_enabled:
     trap_list = trap_list + trap_list_bbs # items bbslist, bbspost, bbsread, bbsdelete, bbshelp
-    print(f"System: BBS Enabled, using {bbsdb}")
 
 #Get the node number of the device, check if the device is connected
 try:
@@ -432,6 +431,9 @@ def start_rx():
 
 # Hello World 
 print ("\nMeshtastic Autoresponder MESH Bot CTL+C to exit\n")
+
+if bbs_enabled:
+    print(f"System: BBS Enabled, using {bbsdb}")
 
 loop = asyncio.get_event_loop()
 try:
