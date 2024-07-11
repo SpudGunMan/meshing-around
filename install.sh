@@ -12,7 +12,7 @@ sudo usermod -a -G tty $USER
 cp config.template config.ini
 
 # set virtual environment and install dependencies
-printf "\n\nmeshing arpund installer\n"
+printf "\nMeshing Around Installer\n"
 echo "Do you want to install the bot in a virtual environment? (y/n)"
 read venv
 
