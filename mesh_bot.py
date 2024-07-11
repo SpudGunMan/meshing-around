@@ -239,13 +239,13 @@ def onReceive(packet, interface):
             if packet['to'] == myNodeNum:
                 # message is DM to us
                 if message_string == help_message or message_string == welcome_message or "CMD?:" in message_string:
-                        # ignore help and welcome messages
-                        print(f"{log_timestamp()} Got Own Welcome/Help header. From: {get_name_from_number(message_from_id)}")
-                        return
+                    # ignore help and welcome messages
+                    print(f"{log_timestamp()} Got Own Welcome/Help header. From: {get_name_from_number(message_from_id)}")
+                    return
                 elif "Try sending: ping @foo  or, help" in message_string:
-                        # ignore help and welcome messages
-                        print(f"{log_timestamp()} Got Help Message. From: {get_name_from_number(message_from_id)}")
-                        return
+                    # ignore help and welcome messages
+                    print(f"{log_timestamp()} Got Help Message. From: {get_name_from_number(message_from_id)}")
+                    return
 
                 # check if the message contains a trap word, DMs are always responded to
                 if messageTrap(message_string):
