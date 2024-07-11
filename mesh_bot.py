@@ -49,7 +49,7 @@ hostname = config['interface'].get('hostname', '')
 mac = config['interface'].get('mac', '')
 
 if interface_type == 'serial':
-    interface = meshtastic.serial_interface.SerialInterface()
+    interface = meshtastic.serial_interface.SerialInterface(port)
 elif interface_type == 'tcp':
     interface = meshtastic.tcp_interface.TCPInterface(hostname)
 elif interface_type == 'ble':
