@@ -20,3 +20,5 @@ elif [ "$1" == "mesh" ]; then
 else
     printf "\nPlease provide a bot to launch (pong/mesh)"
 fi
+
+deactivate
