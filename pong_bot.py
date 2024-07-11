@@ -11,12 +11,9 @@ import meshtastic.ble_interface
 from datetime import datetime
 import configparser, os
 
+# system variables
 trap_list = ("ping", "pinging", "ack", "testing", "test", "pong", "motd", "cmd", "lheard", "sitrep") #A list of strings to trap and respond to
-welcome_message = "PongBot, here for you like a friend who is not. Try sending: ping @foo  or, cmd"
 help_message = "Commands are: ping, ack, motd, Lheard. Use 'motd $foo' to set MOTD."
-MOTD = "Thanks for using PongBOT! Have a good day!" # Message of the Day
-RESPOND_BY_DM_ONLY = False # Set to True to respond messages via DM only, False uses smart response
-DEFAULT_CHANNEL = 0 # Default channel on your node, also known as "public channel" 0 on new devices
 
 # Read the config file
 config = configparser.ConfigParser() 
@@ -29,11 +26,19 @@ if not os.path.exists(config_file):
 elif os.path.exists(config_file):
     config.read(config_file)
 
+# config.ini variables
 interface_type = config['interface'].get('type', 'serial')
 port = config['interface'].get('port', '')
 hostname = config['interface'].get('hostname', '')
 mac = config['interface'].get('mac', '')
 
+RESPOND_BY_DM_ONLY = config['general'].getboolean('respond_by_dm_only', True)
+DEFAULT_CHANNEL = config['general'].getint('defaultChannel', 0)
+
+MOTD = config['general'].get('motd', 'Thanks for using MeshBOT! Have a good day!')
+welcome_message = config['general'].get('welcome_message', 'MeshBot, here for you like a friend who is not. Try sending: ping @foo  or, cmd')
+
+# Interface Configuration
 if interface_type == 'serial':
     interface = meshtastic.serial_interface.SerialInterface(port)
 elif interface_type == 'tcp':
