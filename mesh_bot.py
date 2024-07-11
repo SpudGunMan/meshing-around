@@ -213,7 +213,7 @@ def onReceive(packet, interface):
             # If the packet is a DM (Direct Message) respond to it, otherwise validate its a message for us on the channel
             if packet['to'] == myNodeNum:
                 # message is DM to us
-                if message_string == help_message or message_string == welcome_message:
+                if message_string == help_message or message_string == welcome_message or "CMD?:" in message_string:
                         # ignore help and welcome messages
                         print(f"{log_timestamp()} Got Own Welcome/Help header. From: {get_name_from_number(message_from_id)}")
                         return
