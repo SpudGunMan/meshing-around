@@ -15,7 +15,16 @@ printf "\nMeshing Around Installer\n"
 echo "Do you want to install the bot in a virtual environment? (y/n)"
 read venv
 
-if [ $venv == "n" ]; then
+if [ $venv == "y" ]; then
+    # set virtual environment
+    echo "Creating virtual environment..."
+    python -m venv venv
+    source venv/bin/activate
+
+    # install dependencies
+    pip install -U -r requirements.txt
+else
+    printf "\nSkipping virtual environment...\n"
     # install dependencies
     echo "Are you on Raspberry Pi? should we add --break-system-packages to the pip install command? (y/n)"
     read rpi
@@ -26,20 +35,9 @@ if [ $venv == "n" ]; then
     fi
 fi
 
-if [ $venv == "y" ]; then
-    # set virtual environment
-    python -m venv venv
-    source venv/bin/activate
-
-    # install dependencies
-    pip install -U -r requirements.txt
-fi
 printf "\n\n"
 echo "Which bot do you want to install as a service? (pong/mesh/n)"
 read bot
-
-
-# reminder to change the .service file to proper path for the bot
 
 #set the correct path in the service file
 program_path=$(pwd)
@@ -48,6 +46,7 @@ cp etc/mesh_bot.tmp etc/mesh_bot.service
 replace="s|/dir/|$program_path/|g"
 sed -i $replace etc/pong_bot.service
 sed -i $replace etc/mesh_bot.service
+printf "\n service files updated\n"
 
 if [ $bot == "pong" ]; then
     # install service for pong bot
@@ -63,6 +62,7 @@ fi
 
 if [ $bot == "n" ]; then
     if [ -f launch.sh ]; then
+        printf "\nTo run the bot, use the command: ./launch.sh\n"
         ./launch.sh
 fi
 
