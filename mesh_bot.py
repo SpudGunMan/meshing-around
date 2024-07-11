@@ -18,7 +18,7 @@ from modules.locationdata import * # from the spudgunman/meshing-around repo
 from modules.bbstools import * # from the spudgunman/meshing-around repo
 
 # A basic list of strings to trap and respond to
-trap_list = ("ping", "pinging", "ack", "testing", "pong", "motd", "cmd",  "lheard", "sitrep", "joke")
+trap_list = ("ping", "pinging", "ack", "testing", "test", "pong", "motd", "cmd",  "lheard", "sitrep", "joke")
 
 # comment out unwanted funtionality, defined in corresponding files/modules
 trap_list = trap_list + trap_list_location # items tide, whereami, wxc, wx
