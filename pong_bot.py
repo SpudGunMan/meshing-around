@@ -13,7 +13,7 @@ import configparser, os
 
 
 
-trap_list = ("ping", "pinging", "ack", "testing", "test", "pong", "motd", "help", "lheard", "sitrep") #A list of strings to trap and respond to
+trap_list = ("ping", "pinging", "ack", "testing", "test", "pong", "motd", "cmd", "lheard", "sitrep") #A list of strings to trap and respond to
 welcome_message = "PongBot, here for you like a friend who is not. Try sending: ping @foo  or, cmd"
 help_message = "Commands are: ping, ack, motd, Lheard. Use 'motd $foo' to set MOTD."
 MOTD = "Thanks for using PongBOT! Have a good day!" # Message of the Day
