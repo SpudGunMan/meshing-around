@@ -87,7 +87,6 @@ pip install geopy
 pip install maidenhead
 pip install beautifulsoup4
 pip install dadjokes
-pip install pickle
 ```
 
 # Recognition
