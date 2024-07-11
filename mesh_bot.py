@@ -37,7 +37,7 @@ config = configparser.ConfigParser()
 config_file = "config.ini"
 
 if not os.path.exists(config_file):
-    config['interface'] = {'type': 'serial', 'port': "'/dev/ttyACM0'", 'hostname': '', 'mac': ''}
+    config['interface'] = {'type': 'serial', 'port': "/dev/ttyACM0", 'hostname': '', 'mac': ''}
     config.write(open(config_file, 'w'))
     print (f"System: Config file created, please edit {config_file} or review the config.template")
 elif os.path.exists(config_file):
