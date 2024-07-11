@@ -38,16 +38,23 @@ other features
 - `launch.sh` will activate and launch the app in the venv if built
 
  ### Configurations
- Currently config modifications is edit to code. Be sure to uncomment the appropriate interface for your method (serial/BLE/TCP). Only one at a time is supported to a single node at a time.
+Some config is via code, converting to `config.ini` set the appropriate interface for your method (serial/ble/tcp). 
+ Only one at a time is supported to a single node at a time.
 
 ```
-# Uncomment the interface you want to use depending on your device connection
-interface = meshtastic.serial_interface.SerialInterface() #serial interface
-# you can specify SerialInterface('/dev/ttyUSB0')
+#config.ini
+# type can be serial, tcp, or ble
+# port is the serial port to use, commented out will try to auto-detect
+# hostname is the IP address of the device to connect to for tcp type
+# mac is the MAC address of the device to connect to for ble type
 
-#interface=meshtastic.tcp_interface.TCPInterface(hostname="192.168.0.1") # IP of your device
-#interface=meshtastic.ble_interface.BLEInterface("AA:BB:CC:DD:EE:FF") # BLE interface
+[interface]
+type = serial
+# port = '/dev/ttyUSB0'
+# hostname = 192.168.0.1
+# mac = 00:11:22:33:44:55
 ```
+
 The following pair of settings determine how to respond, default action is to not spam the default channel. Setting DM_ONLY will force all DM which may not be wanted. Setting the Default channel is the channel which wont be spammed by the bot.
 
 ```

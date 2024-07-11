@@ -10,16 +10,12 @@ import meshtastic.tcp_interface
 import meshtastic.ble_interface
 from datetime import datetime
 from dadjokes import Dadjoke # pip install dadjokes
+import configparser
 
 # Import all the functions from the modules in the repo if you want to use them otherwise make waffles #
 from modules.solarconditions import * # from the spudgunman/meshing-around repo
 from modules.locationdata import * # from the spudgunman/meshing-around repo
 from modules.bbstools import * # from the spudgunman/meshing-around repo
-
-# Uncomment the interface you want to use depending on your device connection
-interface = meshtastic.serial_interface.SerialInterface() #serial interface (specify port) default is first found
-#interface=meshtastic.tcp_interface.TCPInterface(hostname="192.168.0.1") # IP of your device
-#interface=meshtastic.ble_interface.BLEInterface("AA:BB:CC:DD:EE:FF") # BLE interface
 
 # A basic list of strings to trap and respond to
 trap_list = ("ping", "pinging", "ack", "testing", "pong", "motd", "cmd",  "lheard", "sitrep", "joke")
@@ -34,6 +30,7 @@ help_message = "CMD?: ping, motd, sitrep, joke, sun, hfcond, solar, moon, tide, 
 MOTD = "Thanks for using PongBOT! Have a good day!" # Message of the Day
 RESPOND_BY_DM_ONLY = False # Set to True to respond messages via DM only, False uses smart response
 DEFAULT_CHANNEL = 0 # Default channel on your node, also known as "public channel" 0 on new devices
+
 
 #Get the node number of the device, check if the device is connected
 try:
