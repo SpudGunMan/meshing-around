@@ -74,7 +74,7 @@ if location_enabled:
     trap_list = trap_list + trap_list_location # items tide, whereami, wxc, wx
 
 # Solar Conditions Configuration
-solar_conditions_enabled = config['solar_conditions'].getboolean('enabled', True)
+solar_conditions_enabled = config['solar'].getboolean('enabled', True)
 if solar_conditions_enabled:
     trap_list = trap_list + trap_list_solarconditions # items hfcond, solar, sun, moon
 
