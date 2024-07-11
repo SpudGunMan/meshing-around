@@ -58,27 +58,27 @@ else:
     print(f"System: Interface Type: {interface_type} not supported. Validate your config against config.template Exiting")
     exit()
 
-# BBS Configuration
-bbs_enabled = config['bbs'].getboolean('enabled', True)
-bbsdb = config['bbs'].get('bbsdb', 'bbsdb.pkl')
-if bbs_enabled:
-    from modules.bbstools import * # from the spudgunman/meshing-around repo
-    trap_list = trap_list + trap_list_bbs # items bbslist, bbspost, bbsread, bbsdelete, bbshelp
-    help_message = help_message + "bbslist, bbshelp"
+# Solar Conditions Configuration
+solar_conditions_enabled = config['solar'].getboolean('enabled', True)
+if solar_conditions_enabled:
+    from modules.solarconditions import * # from the spudgunman/meshing-around repo
+    trap_list = trap_list + trap_list_solarconditions # items hfcond, solar, sun, moon
+    help_message = help_message + ", sun, hfcond, solar, moon, tide"
 
 # Location Configuration
 location_enabled = config['location'].getboolean('enabled', True)
 if location_enabled:
     from modules.locationdata import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + trap_list_location # items tide, whereami, wxc, wx
-    help_message = help_message + "whereami, wx, wxc, wxa"
+    help_message = help_message + ", whereami, wx, wxc, wxa"
 
-# Solar Conditions Configuration
-solar_conditions_enabled = config['solar'].getboolean('enabled', True)
-if solar_conditions_enabled:
-    from modules.solarconditions import * # from the spudgunman/meshing-around repo
-    trap_list = trap_list + trap_list_solarconditions # items hfcond, solar, sun, moon
-    help_message = help_message + "sun, hfcond, solar, moon, tide"
+# BBS Configuration
+bbs_enabled = config['bbs'].getboolean('enabled', True)
+bbsdb = config['bbs'].get('bbsdb', 'bbsdb.pkl')
+if bbs_enabled:
+    from modules.bbstools import * # from the spudgunman/meshing-around repo
+    trap_list = trap_list + trap_list_bbs # items bbslist, bbspost, bbsread, bbsdelete, bbshelp
+    help_message = help_message + ", bbslist, bbshelp"
 
 #Get the node number of the device, check if the device is connected
 try:
@@ -447,6 +447,12 @@ print ("\nMeshtastic Autoresponder MESH Bot CTL+C to exit\n")
 
 if bbs_enabled:
     print(f"System: BBS Enabled, using {bbsdb}")
+
+if solar_conditions_enabled:
+    print(f"System: Celestial Telemetry Enabled")
+
+if location_enabled:
+    print(f"System: Location Telemetry Enabled")
 
 loop = asyncio.get_event_loop()
 try:
