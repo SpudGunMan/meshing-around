@@ -11,8 +11,6 @@ import meshtastic.ble_interface
 from datetime import datetime
 import configparser, os
 
-
-
 trap_list = ("ping", "pinging", "ack", "testing", "test", "pong", "motd", "cmd", "lheard", "sitrep") #A list of strings to trap and respond to
 welcome_message = "PongBot, here for you like a friend who is not. Try sending: ping @foo  or, cmd"
 help_message = "Commands are: ping, ack, motd, Lheard. Use 'motd $foo' to set MOTD."
@@ -45,7 +43,6 @@ elif interface_type == 'ble':
 else:
     print(f"System: Interface Type: {interface_type} not supported. Validate your config against config.template Exiting")
     exit()
-
 
 try:
     myinfo = interface.getMyNodeInfo()
