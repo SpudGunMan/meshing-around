@@ -9,3 +9,6 @@ venv/
 
 # modified .service files
 etc/*.service
+
+# Python cache
+__pycache__/
