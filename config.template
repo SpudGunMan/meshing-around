@@ -8,6 +8,7 @@
 type = serial
 port = /dev/ttyACM0
 # port = /dev/ttyUSB0
+# port = COM1
 # hostname = 192.168.0.1
 # mac = 00:11:22:33:44:55
 
