@@ -7,6 +7,7 @@ Description=PONG-BOT
 After=network.target
 
 [Service]
+WorkingDirectory=/dir/
 ExecStart=/usr/bin/python /dir/launch.sh pong
 
 # Disable Python's buffering of STDOUT and STDERR, so that output from the
