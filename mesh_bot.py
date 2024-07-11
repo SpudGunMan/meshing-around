@@ -10,7 +10,7 @@ import meshtastic.tcp_interface
 import meshtastic.ble_interface
 from datetime import datetime
 from dadjokes import Dadjoke # pip install dadjokes
-import configparser
+import configparser, os
 
 # Import all the functions from the modules in the repo if you want to use them otherwise make waffles #
 from modules.solarconditions import * # from the spudgunman/meshing-around repo
@@ -31,6 +31,34 @@ MOTD = "Thanks for using PongBOT! Have a good day!" # Message of the Day
 RESPOND_BY_DM_ONLY = False # Set to True to respond messages via DM only, False uses smart response
 DEFAULT_CHANNEL = 0 # Default channel on your node, also known as "public channel" 0 on new devices
 
+
+# Read the config file
+config = configparser.ConfigParser() 
+config_file = "config.ini"
+
+if not os.path.exists(config_file):
+    config['interface'] = {'type': 'serial', 'port': "'/dev/ttyACM0'", 'hostname': '', 'mac': ''}
+    config.write(open(config_file, 'w'))
+    print (f"System: Config file created, please edit {config_file} or review the config.template")
+elif os.path.exists(config_file):
+    config.read(config_file)
+
+interface_type = config['interface'].get('type', 'serial')
+port = config['interface'].get('port', '')
+hostname = config['interface'].get('hostname', '')
+mac = config['interface'].get('mac', '')
+
+if interface_type == 'serial':
+    interface = meshtastic.serial_interface.SerialInterface()
+elif interface_type == 'tcp':
+    interface = meshtastic.tcp_interface.TCPInterface(hostname)
+elif interface_type == 'ble':
+    interface = meshtastic.ble_interface.BLEInterface(hostname)
+else:
+    print(f"System: Interface Type: {interface_type} not supported. Validate your config against config.template Exiting")
+    exit()
+
+#print(f"System: Interface Type: {interface_type} Port: {port} Hostname: {hostname} MAC: {mac}")
 
 #Get the node number of the device, check if the device is connected
 try:
