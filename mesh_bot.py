@@ -20,16 +20,9 @@ from modules.bbstools import * # from the spudgunman/meshing-around repo
 # A basic list of strings to trap and respond to
 trap_list = ("ping", "pinging", "ack", "testing", "test", "pong", "motd", "cmd",  "lheard", "sitrep", "joke")
 
-# comment out unwanted funtionality, defined in corresponding files/modules
-trap_list = trap_list + trap_list_location # items tide, whereami, wxc, wx
-trap_list = trap_list + trap_list_solarconditions # items hfcond, solar, sun, moon
-
 welcome_message = "MeshBot, here for you like a friend who is not. Try sending: ping @foo  or, cmd"
 help_message = "CMD?: ping, motd, sitrep, joke, sun, hfcond, solar, moon, tide, whereami, wx, wxc, wxa, bbslist, bbshelp"
 MOTD = "Thanks for using PongBOT! Have a good day!" # Message of the Day
-RESPOND_BY_DM_ONLY = False # Set to True to respond messages via DM only, False uses smart response
-DEFAULT_CHANNEL = 0 # Default channel on your node, also known as "public channel" 0 on new devices
-
 
 # Read the config file
 config = configparser.ConfigParser() 
@@ -37,9 +30,12 @@ config_file = "config.ini"
 
 if not os.path.exists(config_file):
     config['interface'] = {'type': 'serial', 'port': "/dev/ttyACM0", 'hostname': '', 'mac': ''}
+    config['general'] = {'respond_by_dm_only': 'True', 'defaultChannel': '0'}
     config['bbs'] = {'enabled': 'True', 'bbsdb': 'bbsdb.pkl'}
+    config['location'] = {'enabled': 'True','lat': '0', 'lon': '0'}
+    config['solar'] = {'enabled': 'True'}
     config.write(open(config_file, 'w'))
-    print (f"System: Config file created, please edit {config_file} or review the config.template")
+    print (f"System: Config file created, check {config_file} or review the config.template")
 elif os.path.exists(config_file):
     config.read(config_file)
 
@@ -47,6 +43,12 @@ interface_type = config['interface'].get('type', 'serial')
 port = config['interface'].get('port', '')
 hostname = config['interface'].get('hostname', '')
 mac = config['interface'].get('mac', '')
+
+RESPOND_BY_DM_ONLY = config['general'].getboolean('respond_by_dm_only', True)
+DEFAULT_CHANNEL = config['general'].getint('defaultChannel', 0)
+
+LATITUDE = config['location'].getfloat('lat', 48.50)
+LONGITUDE = config['location'].getfloat('lon', -123.0)
 
 if interface_type == 'serial':
     interface = meshtastic.serial_interface.SerialInterface(port)
@@ -63,9 +65,18 @@ else:
 # BBS Configuration
 bbs_enabled = config['bbs'].getboolean('enabled', True)
 bbsdb = config['bbs'].get('bbsdb', 'bbsdb.pkl')
-
 if bbs_enabled:
     trap_list = trap_list + trap_list_bbs # items bbslist, bbspost, bbsread, bbsdelete, bbshelp
+
+# Location Configuration
+location_enabled = config['location'].getboolean('enabled', True)
+if location_enabled:
+    trap_list = trap_list + trap_list_location # items tide, whereami, wxc, wx
+
+# Solar Conditions Configuration
+solar_conditions_enabled = config['solar_conditions'].getboolean('enabled', True)
+if solar_conditions_enabled:
+    trap_list = trap_list + trap_list_solarconditions # items hfcond, solar, sun, moon
 
 #Get the node number of the device, check if the device is connected
 try:

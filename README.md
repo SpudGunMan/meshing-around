@@ -56,25 +56,19 @@ type = serial
 ```
 
 The following pair of settings determine how to respond, default action is to not spam the default channel. Setting DM_ONLY will force all DM which may not be wanted. Setting the Default channel is the channel which wont be spammed by the bot.
-
 ```
-RESPOND_BY_DM_ONLY = False # Set to True to respond messages via DM only, False uses smart response
-DEFAULT_CHANNEL = 0 # Default channel on your node, also known as "public channel" 0 on new devices
-```
-
-the enhanced bot is all modules by default, to disable extra modules comment out 
-```
-# comment out unwanted functionality, defined in corresponding files/modules
-trap_list = trap_list + trap_list_location # items tide, whereami, wxc, wx, wxa, wxalert
-trap_list = trap_list + trap_list_solarconditions # items hfcond, solar, sun, moon
-trap_list = trap_list + trap_list_bbs # items bbslist, bbspost, bbsread, bbsdelete
+[general]
+respond_by_dm_only = True
+defaultChannel = 0
 ```
 
- Solar Data needs the LAT LONG for your area on the [solarconditions.py](solarconditions.py) used for when node has no location in the db, the settings are not used in weather data yet
+Modules can be disabled
 ```
-LATITUDE = 48.50
-LONGITUDE = -123.0
+[bbs]
+enabled = False
 ```
+
+
 
 # requirements
 can also be installed with `pip install -r requirements.txt`

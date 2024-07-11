@@ -10,5 +10,19 @@ type = serial
 # hostname = 192.168.0.1
 # mac = 00:11:22:33:44:55
 
+[general]
+respond_by_dm_only = True
+defaultChannel = 0
+
 [bbs]
+enabled = True
+
+# location module
+[location]
+enabled = True
+lat = 48.50
+lon = -123.0
+
+# solar module
+[solar]
 enabled = True
