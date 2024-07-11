@@ -21,6 +21,8 @@ config_file = "config.ini"
 
 if not os.path.exists(config_file):
     config['interface'] = {'type': 'serial', 'port': "/dev/ttyACM0", 'hostname': '', 'mac': ''}
+    config['general'] = {'respond_by_dm_only': 'True', 'defaultChannel': '0', 'motd': 'Thanks for using MeshBOT! Have a good day!',
+                         'welcome_message': 'MeshBot, here for you like a friend who is not. Try sending: ping @foo  or, cmd'}
     config.write(open(config_file, 'w'))
     print (f"System: Config file created, please edit {config_file} or review the config.template")
 elif os.path.exists(config_file):
