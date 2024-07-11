@@ -4,6 +4,10 @@
 
 cd "$(dirname "$0")"
 
+# add user to groups for serial access
+sudo usermod -a -G dialout $USER
+sudo usermod -a -G tty $USER
+
 # set virtual environment and install dependencies
 printf "\n\nmeshing arpund installer\n"
 echo "Do you want to install the bot in a virtual environment? (y/n)"
