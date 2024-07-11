@@ -123,6 +123,6 @@ def get_moon(lat=0, lon=0):
 
     moon_data = "MoonRise:" + moon_table['rise_time'] + "\nSet:" + moon_table['set_time'] + \
         "\nPhase:" + moon_table['phase'] + " @:" + str('{0:.2f}'.format(moon_table['illumination'])) + "%" \
-        + "\nFull Moon:" + moon_table['next_full_moon'] + "\nNew Moon:" + moon_table['next_new_moon']
+        + "\nFullMoon:" + moon_table['next_full_moon'] + "\nNewMoon:" + moon_table['next_new_moon']
     
     return moon_data
