@@ -9,12 +9,9 @@ import meshtastic.serial_interface #pip install meshtastic
 import meshtastic.tcp_interface
 import meshtastic.ble_interface
 from datetime import datetime
+import configparser, os
 
 
-# Uncomment the interface you want to use depending on your device connection
-interface = meshtastic.serial_interface.SerialInterface() #serial interface
-#interface=meshtastic.tcp_interface.TCPInterface(hostname="192.168.0.1") # IP of your device
-#interface=meshtastic.ble_interface.BLEInterface("AA:BB:CC:DD:EE:FF") # BLE interface
 
 trap_list = ("ping", "pinging", "ack", "testing", "pong", "motd", "help", "lheard", "sitrep") #A list of strings to trap and respond to
 welcome_message = "PongBot, here for you like a friend who is not. Try sending: ping @foo  or, cmd"
@@ -22,6 +19,33 @@ help_message = "Commands are: ping, ack, motd, Lheard. Use 'motd $foo' to set MO
 MOTD = "Thanks for using PongBOT! Have a good day!" # Message of the Day
 RESPOND_BY_DM_ONLY = False # Set to True to respond messages via DM only, False uses smart response
 DEFAULT_CHANNEL = 0 # Default channel on your node, also known as "public channel" 0 on new devices
+
+# Read the config file
+config = configparser.ConfigParser() 
+config_file = "config.ini"
+
+if not os.path.exists(config_file):
+    config['interface'] = {'type': 'serial', 'port': "/dev/ttyACM0", 'hostname': '', 'mac': ''}
+    config.write(open(config_file, 'w'))
+    print (f"System: Config file created, please edit {config_file} or review the config.template")
+elif os.path.exists(config_file):
+    config.read(config_file)
+
+interface_type = config['interface'].get('type', 'serial')
+port = config['interface'].get('port', '')
+hostname = config['interface'].get('hostname', '')
+mac = config['interface'].get('mac', '')
+
+if interface_type == 'serial':
+    interface = meshtastic.serial_interface.SerialInterface(port)
+elif interface_type == 'tcp':
+    interface = meshtastic.tcp_interface.TCPInterface(hostname)
+elif interface_type == 'ble':
+    interface = meshtastic.ble_interface.BLEInterface(hostname)
+else:
+    print(f"System: Interface Type: {interface_type} not supported. Validate your config against config.template Exiting")
+    exit()
+
 
 try:
     myinfo = interface.getMyNodeInfo()
