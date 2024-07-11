@@ -86,7 +86,7 @@ def auto_response(message, snr, rssi, hop, message_from_id):
     elif "cmd" in message.lower():
         bot_response = help_message
     elif "lheard" in message.lower() or "sitrep" in message.lower():
-        bot_response = "Last 5 nodes heard:\n" + str(get_node_list())
+        bot_response = "Last heard:\n" + str(get_node_list())
     else:
         bot_response = "I'm sorry, I'm afraid I can't do that."
 
