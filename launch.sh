@@ -10,6 +10,15 @@ if [ -d "venv" ]; then
     source venv/bin/activate
 fi
 
+if [ ! -d "venv" ]; then
+    echo "No virtual environment found. Please run install.sh to set one up"
+    exit 1
+fi
+
+if [ ! -f "config.ini" ]; then
+    cp config.template config.ini
+fi
+
 # launch the application
 
 
