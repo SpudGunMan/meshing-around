@@ -32,7 +32,7 @@ if not os.path.exists(config_file):
     config['interface'] = {'type': 'serial', 'port': "/dev/ttyACM0", 'hostname': '', 'mac': ''}
     config['general'] = {'respond_by_dm_only': 'True', 'defaultChannel': '0'}
     config['bbs'] = {'enabled': 'True', 'bbsdb': 'bbsdb.pkl'}
-    config['location'] = {'enabled': 'True','lat': '0', 'lon': '0'}
+    config['location'] = {'enabled': 'True','lat': '48.50', 'lon': '-123.0'}
     config['solar'] = {'enabled': 'True'}
     config.write(open(config_file, 'w'))
     print (f"System: Config file created, check {config_file} or review the config.template")
