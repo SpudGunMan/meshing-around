@@ -12,17 +12,9 @@ from datetime import datetime
 from dadjokes import Dadjoke # pip install dadjokes
 import configparser, os
 
-# Import all the functions from the modules in the repo if you want to use them otherwise make waffles #
-from modules.solarconditions import * # from the spudgunman/meshing-around repo
-from modules.locationdata import * # from the spudgunman/meshing-around repo
-from modules.bbstools import * # from the spudgunman/meshing-around repo
-
-# A basic list of strings to trap and respond to
+# system variables
 trap_list = ("ping", "pinging", "ack", "testing", "test", "pong", "motd", "cmd",  "lheard", "sitrep", "joke")
-
-welcome_message = "MeshBot, here for you like a friend who is not. Try sending: ping @foo  or, cmd"
-help_message = "CMD?: ping, motd, sitrep, joke, sun, hfcond, solar, moon, tide, whereami, wx, wxc, wxa, bbslist, bbshelp"
-MOTD = "Thanks for using PongBOT! Have a good day!" # Message of the Day
+help_message = "CMD?: ping, motd, sitrep, joke"
 
 # Read the config file
 config = configparser.ConfigParser() 
@@ -30,7 +22,8 @@ config_file = "config.ini"
 
 if not os.path.exists(config_file):
     config['interface'] = {'type': 'serial', 'port': "/dev/ttyACM0", 'hostname': '', 'mac': ''}
-    config['general'] = {'respond_by_dm_only': 'True', 'defaultChannel': '0'}
+    config['general'] = {'respond_by_dm_only': 'True', 'defaultChannel': '0', 'motd': 'Thanks for using MeshBOT! Have a good day!',
+                         'welcome_message': 'MeshBot, here for you like a friend who is not. Try sending: ping @foo  or, cmd'}
     config['bbs'] = {'enabled': 'True', 'bbsdb': 'bbsdb.pkl'}
     config['location'] = {'enabled': 'True','lat': '48.50', 'lon': '-123.0'}
     config['solar'] = {'enabled': 'True'}
@@ -39,6 +32,7 @@ if not os.path.exists(config_file):
 elif os.path.exists(config_file):
     config.read(config_file)
 
+# config.ini variables
 interface_type = config['interface'].get('type', 'serial')
 port = config['interface'].get('port', '')
 hostname = config['interface'].get('hostname', '')
@@ -50,6 +44,10 @@ DEFAULT_CHANNEL = config['general'].getint('defaultChannel', 0)
 LATITUDE = config['location'].getfloat('lat', 48.50)
 LONGITUDE = config['location'].getfloat('lon', -123.0)
 
+MOTD = config['general'].get('motd', 'Thanks for using MeshBOT! Have a good day!')
+welcome_message = config['general'].get('welcome_message', 'MeshBot, here for you like a friend who is not. Try sending: ping @foo  or, cmd')
+
+# Interface Configuration
 if interface_type == 'serial':
     interface = meshtastic.serial_interface.SerialInterface(port)
 elif interface_type == 'tcp':
@@ -60,23 +58,27 @@ else:
     print(f"System: Interface Type: {interface_type} not supported. Validate your config against config.template Exiting")
     exit()
 
-#print(f"System: Interface Type: {interface_type} Port: {port} Hostname: {hostname} MAC: {mac}")
-
 # BBS Configuration
 bbs_enabled = config['bbs'].getboolean('enabled', True)
 bbsdb = config['bbs'].get('bbsdb', 'bbsdb.pkl')
 if bbs_enabled:
+    from modules.bbstools import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + trap_list_bbs # items bbslist, bbspost, bbsread, bbsdelete, bbshelp
+    help_message = help_message + "bbslist, bbshelp"
 
 # Location Configuration
 location_enabled = config['location'].getboolean('enabled', True)
 if location_enabled:
+    from modules.locationdata import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + trap_list_location # items tide, whereami, wxc, wx
+    help_message = help_message + "whereami, wx, wxc, wxa"
 
 # Solar Conditions Configuration
 solar_conditions_enabled = config['solar'].getboolean('enabled', True)
 if solar_conditions_enabled:
+    from modules.solarconditions import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + trap_list_solarconditions # items hfcond, solar, sun, moon
+    help_message = help_message + "sun, hfcond, solar, moon, tide"
 
 #Get the node number of the device, check if the device is connected
 try:
