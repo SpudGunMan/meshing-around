@@ -23,7 +23,6 @@ trap_list = ("ping", "pinging", "ack", "testing", "test", "pong", "motd", "cmd",
 # comment out unwanted funtionality, defined in corresponding files/modules
 trap_list = trap_list + trap_list_location # items tide, whereami, wxc, wx
 trap_list = trap_list + trap_list_solarconditions # items hfcond, solar, sun, moon
-trap_list = trap_list + trap_list_bbs # items bbslist, bbspost, bbsread, bbsdelete, bbshelp
 
 welcome_message = "MeshBot, here for you like a friend who is not. Try sending: ping @foo  or, cmd"
 help_message = "CMD?: ping, motd, sitrep, joke, sun, hfcond, solar, moon, tide, whereami, wx, wxc, wxa, bbslist, bbshelp"
@@ -38,6 +37,7 @@ config_file = "config.ini"
 
 if not os.path.exists(config_file):
     config['interface'] = {'type': 'serial', 'port': "/dev/ttyACM0", 'hostname': '', 'mac': ''}
+    config['bbs'] = {'enabled': 'True', 'bbsdb': 'bbsdb.pkl'}
     config.write(open(config_file, 'w'))
     print (f"System: Config file created, please edit {config_file} or review the config.template")
 elif os.path.exists(config_file):
@@ -59,6 +59,14 @@ else:
     exit()
 
 #print(f"System: Interface Type: {interface_type} Port: {port} Hostname: {hostname} MAC: {mac}")
+
+# BBS Configuration
+bbs_enabled = config['bbs'].getboolean('enabled', True)
+bbsdb = config['bbs'].get('bbsdb', 'bbsdb.pkl')
+
+if bbs_enabled:
+    trap_list = trap_list + trap_list_bbs # items bbslist, bbspost, bbsread, bbsdelete, bbshelp
+    print(f"System: BBS Enabled, using {bbsdb}")
 
 #Get the node number of the device, check if the device is connected
 try:
