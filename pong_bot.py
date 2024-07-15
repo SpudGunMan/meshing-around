@@ -9,7 +9,7 @@ import meshtastic.serial_interface #pip install meshtastic
 import meshtastic.tcp_interface
 import meshtastic.ble_interface
 from datetime import datetime
-import configparser, os
+import configparser
 
 # system variables
 trap_list = ("ping", "pinging", "ack", "testing", "test", "pong", "motd", "cmd", "lheard", "sitrep") #A list of strings to trap and respond to
@@ -19,14 +19,21 @@ help_message = "Commands are: ping, ack, motd, Lheard. Use 'motd $foo' to set MO
 config = configparser.ConfigParser() 
 config_file = "config.ini"
 
-if not os.path.exists(config_file):
+try:
+    config.read(config_file)
+except Exception as e:
+    print(f"System: Error reading config file: {e}")
+
+if config.sections() == []:
+    print(f"System: Error reading config file: {config_file} is empty or does not exist.")
     config['interface'] = {'type': 'serial', 'port': "/dev/ttyACM0", 'hostname': '', 'mac': ''}
     config['general'] = {'respond_by_dm_only': 'True', 'defaultChannel': '0', 'motd': 'Thanks for using MeshBOT! Have a good day!',
                          'welcome_message': 'MeshBot, here for you like a friend who is not. Try sending: ping @foo  or, cmd'}
+    config['bbs'] = {'enabled': 'True', 'bbsdb': 'bbsdb.pkl'}
+    config['location'] = {'enabled': 'True','lat': '48.50', 'lon': '-123.0'}
+    config['solar'] = {'enabled': 'True'}
     config.write(open(config_file, 'w'))
-    print (f"System: Config file created, please edit {config_file} or review the config.template")
-elif os.path.exists(config_file):
-    config.read(config_file)
+    print (f"System: Config file created, check {config_file} or review the config.template")
 
 # config.ini variables
 interface_type = config['interface'].get('type', 'serial')

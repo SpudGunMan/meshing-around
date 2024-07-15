@@ -10,7 +10,7 @@ import meshtastic.tcp_interface
 import meshtastic.ble_interface
 from datetime import datetime
 from dadjokes import Dadjoke # pip install dadjokes
-import configparser, os
+import configparser
 
 # system variables
 trap_list = ("ping", "pinging", "ack", "testing", "test", "pong", "motd", "cmd",  "lheard", "sitrep", "joke")
@@ -20,7 +20,13 @@ help_message = "CMD?: ping, motd, sitrep, joke"
 config = configparser.ConfigParser() 
 config_file = "config.ini"
 
-if not os.path.exists(config_file):
+try:
+    config.read(config_file)
+except Exception as e:
+    print(f"System: Error reading config file: {e}")
+
+if config.sections() == []:
+    print(f"System: Error reading config file: {config_file} is empty or does not exist.")
     config['interface'] = {'type': 'serial', 'port': "/dev/ttyACM0", 'hostname': '', 'mac': ''}
     config['general'] = {'respond_by_dm_only': 'True', 'defaultChannel': '0', 'motd': 'Thanks for using MeshBOT! Have a good day!',
                          'welcome_message': 'MeshBot, here for you like a friend who is not. Try sending: ping @foo  or, cmd'}
@@ -29,8 +35,6 @@ if not os.path.exists(config_file):
     config['solar'] = {'enabled': 'True'}
     config.write(open(config_file, 'w'))
     print (f"System: Config file created, check {config_file} or review the config.template")
-elif os.path.exists(config_file):
-    config.read(config_file)
 
 # config.ini variables
 interface_type = config['interface'].get('type', 'serial')
