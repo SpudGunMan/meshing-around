@@ -173,14 +173,23 @@ def auto_response(message, snr, rssi, hop, message_from_id):
             subject = message.split("$")[1].split("#")[0]
             subject = subject.rstrip()
             if "#" in message:
-                message = message.split("#")[1]
-                message = message.rstrip()
-                
-                bot_response = bbs_post_message(subject,message,message_from_id)
+                body = message.split("#")[1]
+                body = message.rstrip()
+                bot_response = bbs_post_message(subject,body,message_from_id)
             else:
                 bot_response = "example: bbspost $subject #message"
+        # Check if the user added a node number to the message
+        elif "@" in message:
+            toNode = message.split("@")[1].split("#")[0]
+            toNode = toNode.rstrip()
+            if "#" in message:
+                body = message.split("#")[1]
+                bot_response = bbs_post_dm(toNode, body, message_from_id)
+            else:
+                bot_response = "example: bbspost @node #message"
         else:
-            bot_response = "Please add a subject to the message. ex: bbspost $subject #message"
+            bot_response = "example: bbspost $subject #message, or bbspost @node #message"
+
     elif "bbsread" in message.lower():
         # Check if the user added a message number to the message
         if "#" in message:
@@ -218,6 +227,24 @@ def onReceive(packet, interface):
     message_from_id = 0
     snr = 0
     rssi = 0
+
+    # check for BBS DM for mail delivery
+    if bbs_enabled and 'decoded' in packet:
+        message_from_id = packet['from']
+
+        if packet.get('channel'):
+            channel_number = packet['channel']
+        else:
+            channel_number = DEFAULT_CHANNEL
+        
+        msg = bbs_check_dm(message_from_id)
+        if msg:
+            print(f"{log_timestamp()} System: BBS DM Found: {msg[1]} For: {get_name_from_number(message_from_id)}")
+            message = "Mail: " + msg[1] + " from: " + get_name_from_number(msg[2])
+            send_message(message, channel_number, message_from_id)
+            bbs_dm.remove(msg)
+
+    # check for a message packet and process it
     try:
         if 'decoded' in packet and packet['decoded']['portnum'] == 'TEXT_MESSAGE_APP':
             message_bytes = packet['decoded']['payload']
@@ -229,7 +256,7 @@ def onReceive(packet, interface):
             if packet.get('channel'):
                 channel_number = packet['channel']
             else:
-                channel_number = 0
+                channel_number = DEFAULT_CHANNEL
         
             # check if the packet has a hop count flag use it
             if packet.get('hopsAway'):
