@@ -2,7 +2,6 @@
 # K7MHI Kelly Keeton 2024
 
 import pickle # pip install pickle
-import os
 
 bbs_ban_list = [] # list of banned nodes numbers ex: [2813308004, 4258675309]
 bbs_admin_list = [] # list of admin nodes numbers ex: [2813308004, 4258675309]
@@ -11,19 +10,19 @@ trap_list_bbs = ("bbslist", "bbspost", "bbsread", "bbsdelete", "bbshelp")
 
 # global message list, later we will use a pickle on disk
 bbs_messages = []
+bbs_dm = []
 
 def load_bbsdb():
     global bbs_messages
     # load the bbs messages from the database file
-    if not os.path.exists('bbsdb.pkl'):
-        # if not, create it
+    try:
+        with open('bbsdb.pkl', 'rb') as f:
+            bbs_messages = pickle.load(f)
+    except:
         bbs_messages = [[1, "Welcome to meshBBS", "Welcome to the BBS, please post a message!",0]]
         print ("\nSystem: Creating new bbsdb.pkl")
         with open('bbsdb.pkl', 'wb') as f:
             pickle.dump(bbs_messages, f)
-    else:
-        with open('bbsdb.pkl', 'rb') as f:
-            bbs_messages = pickle.load(f)
 
 def save_bbsdb():
     global bbs_messages
