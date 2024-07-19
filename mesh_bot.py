@@ -485,7 +485,7 @@ if solar_conditions_enabled:
 if location_enabled:
     print(f"System: Location Telemetry Enabled")
 
-loop = asyncio.get_event_loop()
+loop = asyncio.new_event_loop()
 try:
     loop.run_forever(start_rx())
 finally:

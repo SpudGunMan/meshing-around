@@ -322,7 +322,7 @@ def start_rx():
 # Hello World 
 print ("\nMeshtastic Autoresponder MESH Bot CTL+C to exit\n")
 
-loop = asyncio.get_event_loop()
+loop = asyncio.new_event_loop()
 try:
     loop.run_forever(start_rx())
 finally:
