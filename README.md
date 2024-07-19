@@ -97,5 +97,5 @@ Used ideas and snippets from other responder bots want to call them out!
 GitHub user https://github.com/PiDiBi
  - providing looking at test functions and other suggestions like wxc, cpu use and alerting code
 
-Discord and Mesh user Cisien for testing and ideas!
+Discord and Mesh user Cisien, and github Hailo1999, for testing and ideas!
 
