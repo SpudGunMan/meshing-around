@@ -13,8 +13,9 @@ from dadjokes import Dadjoke # pip install dadjokes
 import configparser
 
 # system variables
-trap_list = ("ping", "pinging", "ack", "testing", "test", "pong", "motd", "cmd",  "lheard", "sitrep", "joke")
-help_message = "CMD?: ping, motd, sitrep, joke"
+trap_list = ("ping", "pinging", "ack", "testing", "test", "pong", "motd", "cmd",  "lheard", "sitrep", "joke", "messages")
+help_message = "CMD?: ping, motd, sitrep, joke, messages"
+msg_history = [] # message history for the store and forward
 
 # Read the config file
 config = configparser.ConfigParser() 
@@ -92,7 +93,7 @@ except Exception as e:
     print(f"System: Critical Error script abort. {e}")
     exit()
 
-def auto_response(message, snr, rssi, hop, message_from_id):
+def auto_response(message, snr, rssi, hop, message_from_id, channel_number):
     #Auto response to messages
     if "ping" in message.lower():
         #Check if the user added @foo to the message
@@ -124,6 +125,18 @@ def auto_response(message, snr, rssi, hop, message_from_id):
             bot_response = "MOTD Set to: " + MOTD
         else:
             bot_response = MOTD
+    elif "messages" in message.lower():
+        response = ""
+        for msgH in msg_history:
+            # check if the message is from the same channel
+            if msgH[2] == channel_number or msgH[2] == DEFAULT_CHANNEL:
+                # consider message safe to send
+                response += f"\n{msgH[0]}: {msgH[1]}"
+
+        if len(response) > 0:
+            bot_response = "Message History:" + response
+        else:
+            bot_response = "No messages in history"
     elif "bbshelp" in message.lower():
         bot_response = bbs_help()
     elif "cmd" in message.lower():
@@ -272,7 +285,7 @@ def onReceive(packet, interface):
                 if messageTrap(message_string):
                     print(f"{log_timestamp()} Received DM: {message_string} on Channel: {channel_number} From: {get_name_from_number(message_from_id)}")
                     # respond with DM
-                    send_message(auto_response(message_string, snr, rssi, hop, message_from_id), channel_number, message_from_id)
+                    send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number), channel_number, message_from_id)
                 else: 
                     # respond with welcome message on DM
                     print(f"{log_timestamp()} Ignoring DM: {message_string} From: {get_name_from_number(message_from_id)}")
@@ -283,7 +296,7 @@ def onReceive(packet, interface):
                     print(f"{log_timestamp()} Received On Channel {channel_number}: {message_string} From: {get_name_from_number(message_from_id)}")
                     if RESPOND_BY_DM_ONLY:
                         # respond to channel message via direct message
-                        send_message(auto_response(message_string, snr, rssi, hop, message_from_id), channel_number, message_from_id)
+                        send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number), channel_number, message_from_id)
                     else:
                         # or respond to channel message on the channel itself
                         if channel_number == DEFAULT_CHANNEL:
@@ -291,11 +304,19 @@ def onReceive(packet, interface):
                             print(f"{log_timestamp()} System: Warning spamming default channel not allowed. sending DM to {get_name_from_number(message_from_id)}")
                         
                             # respond to channel message via direct message
-                            send_message(auto_response(message_string, snr, rssi, hop, message_from_id), channel_number, message_from_id)
+                            send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number), channel_number, message_from_id)
                         else:
                             # respond to channel message on the channel itself
-                            send_message(auto_response(message_string, snr, rssi, hop, message_from_id), channel_number)
+                            send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number), channel_number)
                 else:
+                    # add the message to the message history but limit it to 5 messages
+                    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    if len(msg_history) < 5:
+                        msg_history.append((get_name_from_number(message_from_id), message_string, channel_number, timestamp))
+                    else:
+                        msg_history.pop(0)
+                        msg_history.append((get_name_from_number(message_from_id), message_string, channel_number, timestamp))
+                    
                     print(f"{log_timestamp()} System: Ignoring incoming channel {channel_number}: {message_string} From: {get_name_from_number(message_from_id)}")
                 
     except KeyError as e:

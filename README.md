@@ -31,6 +31,7 @@ other features
   - `wx` and `wxc` returns local weather forecast, NOAA data source (wxc is metric value)
   - `wxa` and `wxalert` returns NOAA alerts. short title or expanded details
   - `joke` tells a joke
+  - `messages` replays the last 5 messages approprate to permissions of channels
 
 ## Install
 - Clone the project with `git clone https://github.com/spudgunman/meshing-around`
