@@ -98,8 +98,48 @@ def bbs_read_message(messageID = 0):
         return f"Msg #{message[0]}\nMsg Body: {message[2]}"
     else:
         return "Please specify a message number to read."
+   
+def save_bbsdm():
+    global bbs_dm
+    # save the bbs messages to the database file
+    print ("System: Saving Direct Messages bbsdm.pkl\n")
+    with open('bbsdm.pkl', 'wb') as f:
+        pickle.dump(bbs_dm, f)
 
+def load_bbsdm():
+    global bbs_dm
+    # load the bbs messages from the database file
+    try:
+        with open('bbsdm.pkl', 'rb') as f:
+            bbs_dm = pickle.load(f)
+    except:
+        bbs_dm = [[1234567890, "Message", 1234567890]]
+        print ("\nSystem: Creating new bbsdm.pkl")
+        with open('bbsdm.pkl', 'wb') as f:
+            pickle.dump(bbs_dm, f)
 
-#initialize the bbsdb
+def bbs_post_dm(toNode, message, fromNode):
+    global bbs_dm
+    # Check the BAN list for naughty nodes and silently drop the message
+    if fromNode in bbs_ban_list:
+        print (f"!!System: Naughty node {fromNode}, tried to post a message: {message} and was dropped.")
+        return "DM Posted for node " + str(toNode)
+
+    # append the message to the list
+    bbs_dm.append([int(toNode), message, int(fromNode)])
+
+    # save the bbsdb
+    save_bbsdm()
+    return "BBS DM Posted for node " + str(toNode)
+
+def bbs_check_dm(toNode):
+    global bbs_dm
+    # Check for any messages for toNode
+    for msg in bbs_dm:
+        if msg[0] == toNode:
+            return msg
+    return False
+
+#initialize the bbsdb's
 load_bbsdb()
-
+load_bbsdm()
