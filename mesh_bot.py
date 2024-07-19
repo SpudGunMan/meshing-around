@@ -186,9 +186,9 @@ def auto_response(message, snr, rssi, hop, message_from_id):
                 body = message.split("#")[1]
                 bot_response = bbs_post_dm(toNode, body, message_from_id)
             else:
-                bot_response = "example: bbspost @node #message"
+                bot_response = "example: bbspost @nodeNumber #message"
         else:
-            bot_response = "example: bbspost $subject #message, or bbspost @node #message"
+            bot_response = "example: bbspost $subject #message, or bbspost @nodeNumber #message"
 
     elif "bbsread" in message.lower():
         # Check if the user added a message number to the message
