@@ -102,7 +102,7 @@ def bbs_read_message(messageID = 0):
 def save_bbsdm():
     global bbs_dm
     # save the bbs messages to the database file
-    print ("System: Saving Direct Messages bbsdm.pkl\n")
+    print ("System: Saving Updated BBS Direct Messages bbsdm.pkl")
     with open('bbsdm.pkl', 'wb') as f:
         pickle.dump(bbs_dm, f)
 
