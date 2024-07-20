@@ -61,14 +61,14 @@ else:
 # Solar Conditions Configuration
 solar_conditions_enabled = config['solar'].getboolean('enabled', True)
 if solar_conditions_enabled:
-    from modules.solarconditions import * # from the spudgunman/meshing-around repo
+    from solarconditions import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + trap_list_solarconditions # items hfcond, solar, sun, moon
     help_message = help_message + ", sun, hfcond, solar, moon, tide"
 
 # Location Configuration
 location_enabled = config['location'].getboolean('enabled', True)
 if location_enabled:
-    from modules.locationdata import * # from the spudgunman/meshing-around repo
+    from locationdata import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + trap_list_location # items tide, whereami, wxc, wx
     help_message = help_message + ", whereami, wx, wxc, wxa"
 
@@ -76,7 +76,7 @@ if location_enabled:
 bbs_enabled = config['bbs'].getboolean('enabled', True)
 bbsdb = config['bbs'].get('bbsdb', 'bbsdb.pkl')
 if bbs_enabled:
-    from modules.bbstools import * # from the spudgunman/meshing-around repo
+    from bbstools import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + trap_list_bbs # items bbslist, bbspost, bbsread, bbsdelete, bbshelp
     help_message = help_message + ", bbslist, bbshelp"
 
