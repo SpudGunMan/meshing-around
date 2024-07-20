@@ -62,10 +62,14 @@ respond_by_dm_only = True
 defaultChannel = 0
 ```
 
-Modules can be disabled
+Modules can be disabled or enabled
 ```
 [bbs]
 enabled = False
+
+[general]
+DadJokes = True
+StoreFoward = True
 ```
 
 
