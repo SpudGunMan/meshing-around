@@ -140,6 +140,19 @@ def bbs_check_dm(toNode):
             return msg
     return False
 
+def bbs_delete_dm(toNode, message):
+    global bbs_dm
+    # delete a message from the bbsdm
+    for msg in bbs_dm:
+        if msg[0] == toNode:
+            # check if the message matches
+            if msg[1] == message:
+                bbs_dm.remove(msg)
+            # save the bbsdb
+            save_bbsdm()
+            return "System: cleared mail for" + str(toNode)
+    return "System: No DM found for node " + str(toNode)
+
 #initialize the bbsdb's
 load_bbsdb()
 load_bbsdm()
