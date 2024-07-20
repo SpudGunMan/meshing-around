@@ -19,6 +19,7 @@ motd = Thanks for using MeshBOT! Have a good day!
 welcome_message = MeshBot, here for you like a friend who is not. Try sending: ping @foo  or, cmd
 DadJokes = True
 StoreForward = True
+StoreLimit = 3
 
 [bbs]
 enabled = True

@@ -8,7 +8,6 @@ from datetime import datetime
 import configparser
 
 # Global Variables
-# system variables
 trap_list = ("ping", "pinging", "ack", "testing", "test", "pong", "motd", "cmd",  "lheard", "sitrep")
 help_message = "CMD?: ping, motd, sitrep"
 
@@ -26,7 +25,7 @@ if config.sections() == []:
     config['interface'] = {'type': 'serial', 'port': "/dev/ttyACM0", 'hostname': '', 'mac': ''}
     config['general'] = {'respond_by_dm_only': 'True', 'defaultChannel': '0', 'motd': 'Thanks for using MeshBOT! Have a good day!',
                          'welcome_message': 'MeshBot, here for you like a friend who is not. Try sending: ping @foo  or, cmd',
-                         'DadJokes': 'True', 'StoreForward': 'True'}
+                         'DadJokes': 'True', 'StoreForward': 'True', 'StoreLimit': '3'}
     config['bbs'] = {'enabled': 'True', 'bbsdb': 'bbsdb.pkl'}
     config['location'] = {'enabled': 'True','lat': '48.50', 'lon': '-123.0'}
     config['solar'] = {'enabled': 'True'}
@@ -39,6 +38,7 @@ port = config['interface'].get('port', '')
 hostname = config['interface'].get('hostname', '')
 mac = config['interface'].get('mac', '')
 msg_history = [] # message history for the store and forward feature
+storeFlimit = config['general'].getint('StoreLimit', 3) # limit of messages to store for Store and Forward
 
 RESPOND_BY_DM_ONLY = config['general'].getboolean('respond_by_dm_only', True)
 DEFAULT_CHANNEL = config['general'].getint('defaultChannel', 0)
@@ -186,7 +186,7 @@ def onReceive(packet, interface):
                 if messageTrap(message_string):
                     print(f"{log_timestamp()} Received DM: {message_string} on Channel: {channel_number} From: {get_name_from_number(message_from_id)}")
                     # respond with DM
-                    send_message(auto_response(message_string, snr, rssi, hop, message_from_id), channel_number, message_from_id)
+                    send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number), channel_number, message_from_id)
                 else: 
                     # respond with welcome message on DM
                     print(f"{log_timestamp()} Ignoring DM: {message_string} From: {get_name_from_number(message_from_id)}")
@@ -197,7 +197,7 @@ def onReceive(packet, interface):
                     print(f"{log_timestamp()} Received On Channel {channel_number}: {message_string} From: {get_name_from_number(message_from_id)}")
                     if RESPOND_BY_DM_ONLY:
                         # respond to channel message via direct message
-                        send_message(auto_response(message_string, snr, rssi, hop, message_from_id), channel_number, message_from_id)
+                        send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number), channel_number, message_from_id)
                     else:
                         # or respond to channel message on the channel itself
                         if channel_number == DEFAULT_CHANNEL:
@@ -205,14 +205,14 @@ def onReceive(packet, interface):
                             print(f"{log_timestamp()} System: Warning spamming default channel not allowed. sending DM to {get_name_from_number(message_from_id)}")
                         
                             # respond to channel message via direct message
-                            send_message(auto_response(message_string, snr, rssi, hop, message_from_id), channel_number, message_from_id)
+                            send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number), channel_number, message_from_id)
                         else:
                             # respond to channel message on the channel itself
-                            send_message(auto_response(message_string, snr, rssi, hop, message_from_id), channel_number)
+                            send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number), channel_number)
                 else:
-                    # add the message to the message history but limit it to 5 messages
+                    # add the message to the message history but limit
                     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    if len(msg_history) < 5:
+                    if len(msg_history) < storeFlimit:
                         msg_history.append((get_name_from_number(message_from_id), message_string, channel_number, timestamp))
                     else:
                         msg_history.pop(0)

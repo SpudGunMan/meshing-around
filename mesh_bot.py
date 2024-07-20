@@ -7,7 +7,7 @@ import time # for sleep, get some when you can :)
 from pubsub import pub # pip install pubsub
 from modules.system import *
 
-def auto_response(message, snr, rssi, hop, message_from_id):
+def auto_response(message, snr, rssi, hop, message_from_id, channel_number):
     #Auto response to messages
     if "ping" in message.lower():
         #Check if the user added @foo to the message
@@ -37,6 +37,18 @@ def auto_response(message, snr, rssi, hop, message_from_id):
             bot_response = "MOTD Set to: " + MOTD
         else:
             bot_response = MOTD
+    elif "messages" in message.lower():
+         response = ""
+         for msgH in msg_history:
+             # check if the message is from the same channel
+             if msgH[2] == channel_number or msgH[2] == DEFAULT_CHANNEL:
+                 # consider message safe to send
+                 response += f"\n{msgH[0]}: {msgH[1]}"
+
+         if len(response) > 0:
+             bot_response = "Message History:" + response
+         else:
+             bot_response = "No messages in history"
     elif "bbshelp" in message.lower():
         bot_response = bbs_help()
     elif "cmd" in message.lower():

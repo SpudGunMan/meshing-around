@@ -31,6 +31,7 @@ other features
   - `wx` and `wxc` returns local weather forecast, NOAA data source (wxc is metric value)
   - `wxa` and `wxalert` returns NOAA alerts. short title or expanded details
   - `joke` tells a joke
+  - `messages` Replay the last messages heard, like Store and Forward
 
 ## Install
 - Clone the project with `git clone https://github.com/spudgunman/meshing-around`
@@ -69,7 +70,8 @@ enabled = False
 
 [general]
 DadJokes = True
-StoreFoward = True
+StoreForward = True
+StoreLimit = 3 # The number of StoreForward messages to retain
 ```
 
 
