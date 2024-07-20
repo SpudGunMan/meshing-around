@@ -160,6 +160,12 @@ if solar_conditions_enabled:
 if location_enabled:
     print(f"System: Location Telemetry Enabled")
 
+if dad_jokes_enabled:
+    print(f"System: Dad Jokes Enabled!")
+
+if store_forward_enabled:
+    print(f"System: Store and Forward Enabled")
+
 loop = asyncio.new_event_loop()
 try:
     loop.run_forever(start_rx())
