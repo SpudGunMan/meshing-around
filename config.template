@@ -17,6 +17,8 @@ respond_by_dm_only = True
 defaultChannel = 0
 motd = Thanks for using MeshBOT! Have a good day!
 welcome_message = MeshBot, here for you like a friend who is not. Try sending: ping @foo  or, cmd
+DadJokes = True
+StoreFoward = True
 
 [bbs]
 enabled = True
