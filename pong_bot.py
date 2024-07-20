@@ -7,7 +7,7 @@ import time # for sleep, get some when you can :)
 from pubsub import pub # pip install pubsub
 from modules.system import *
 
-def auto_response(message, snr, rssi, hop, message_from_id):
+def auto_response(message, snr, rssi, hop, message_from_id, channel_number):
     # Auto response to messages
     if "ping" in message.lower():
         # Check if the user added @foo to the message
@@ -50,6 +50,109 @@ def auto_response(message, snr, rssi, hop, message_from_id):
     time.sleep(0.7)
     
     return bot_response
+
+def onReceive(packet, interface):
+    # receive a packet and process it, main instruction loop
+
+    # print the packet for debugging
+    #print(f"Packet Received\n {packet} \n END of packet \n")
+    message_from_id = 0
+    snr = 0
+    rssi = 0
+
+    # check for a message packet and process it
+    try:
+        if 'decoded' in packet and packet['decoded']['portnum'] == 'TEXT_MESSAGE_APP':
+            message_bytes = packet['decoded']['payload']
+            message_string = message_bytes.decode('utf-8')
+            message_from_id = packet['from']
+            snr = packet['rxSnr']
+            rssi = packet['rxRssi']
+
+            if packet.get('channel'):
+                channel_number = packet['channel']
+            else:
+                channel_number = DEFAULT_CHANNEL
+        
+            # check if the packet has a hop count flag use it
+            if packet.get('hopsAway'):
+                hop_away = packet['hopsAway']
+            else:
+                # if the packet does not have a hop count try other methods
+                hop_away = 0
+                if packet.get('hopLimit'):
+                    hop_limit = packet['hopLimit']
+                else:
+                    hop_limit = 0
+                
+                if packet.get('hopStart'):
+                    hop_start = packet['hopStart']
+                else:
+                    hop_start = 0
+
+            if hop_start == hop_limit:
+                hop = "Direct"
+            else:
+                # set hop to Direct if the message was sent directly otherwise set the hop count
+                if hop_away > 0:
+                    hop_count = hop_away
+                else:
+                    hop_count = hop_start - hop_limit
+                    #print (f"calculated hop count: {hop_start} - {hop_limit} = {hop_count}")
+
+                hop = f"{hop_count} hops"
+            
+            if message_string == help_message or message_string == welcome_message or "CMD?:" in message_string:
+                # ignore help and welcome messages
+                print(f"{log_timestamp()} Got Own Welcome/Help header. From: {get_name_from_number(message_from_id)}")
+                return
+        
+            # If the packet is a DM (Direct Message) respond to it, otherwise validate its a message for us on the channel
+            if packet['to'] == myNodeNum:
+                # message is DM to us
+
+                # check if the message contains a trap word, DMs are always responded to
+                if messageTrap(message_string):
+                    print(f"{log_timestamp()} Received DM: {message_string} on Channel: {channel_number} From: {get_name_from_number(message_from_id)}")
+                    # respond with DM
+                    send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number), channel_number, message_from_id)
+                else: 
+                    # respond with welcome message on DM
+                    print(f"{log_timestamp()} Ignoring DM: {message_string} From: {get_name_from_number(message_from_id)}")
+                    send_message(welcome_message, channel_number, message_from_id)
+            else:
+                # message is on a channel
+                if messageTrap(message_string):
+                    print(f"{log_timestamp()} Received On Channel {channel_number}: {message_string} From: {get_name_from_number(message_from_id)}")
+                    if RESPOND_BY_DM_ONLY:
+                        # respond to channel message via direct message
+                        send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number), channel_number, message_from_id)
+                    else:
+                        # or respond to channel message on the channel itself
+                        if channel_number == DEFAULT_CHANNEL:
+                            # warning user spamming default channel
+                            print(f"{log_timestamp()} System: Warning spamming default channel not allowed. sending DM to {get_name_from_number(message_from_id)}")
+                        
+                            # respond to channel message via direct message
+                            send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number), channel_number, message_from_id)
+                        else:
+                            # respond to channel message on the channel itself
+                            send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number), channel_number)
+                else:
+                    # add the message to the message history but limit
+                    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    if len(msg_history) < storeFlimit:
+                        msg_history.append((get_name_from_number(message_from_id), message_string, channel_number, timestamp))
+                    else:
+                        msg_history.pop(0)
+                        msg_history.append((get_name_from_number(message_from_id), message_string, channel_number, timestamp))
+                    
+                    print(f"{log_timestamp()} System: Ignoring incoming channel {channel_number}: {message_string} From: {get_name_from_number(message_from_id)}")
+                
+    except KeyError as e:
+        print(f"System: Error processing packet: {e}")
+        print(packet) # print the packet for debugging
+        print("END of packet \n")
 
 def exit_handler():
     # Close the interface and save the BBS messages
