@@ -86,13 +86,13 @@ if bbs_enabled:
 dad_jokes_enabled = config['general'].getboolean('DadJokes', False)
 if dad_jokes_enabled:
     from dadjokes import Dadjoke # pip install dadjokes
-    trap_list = trap_list + "joke"
+    trap_list = trap_list + ("joke",)
     help_message = help_message + ", joke"
 
 # Store and Forward Configuration
 store_forward_enabled = config['general'].getboolean('StoreForward', False)
 if store_forward_enabled:
-    trap_list = trap_list + "messages"
+    trap_list = trap_list + ("messages",)
     help_message = help_message + ", messages"
 
 #Get the node number of the device, check if the device is connected
