@@ -9,8 +9,8 @@ import configparser
 
 # Global Variables
 # system variables
-trap_list = ("ping", "pinging", "ack", "testing", "test", "pong", "motd", "cmd",  "lheard", "sitrep", "joke")
-help_message = "CMD?: ping, motd, sitrep, joke"
+trap_list = ("ping", "pinging", "ack", "testing", "test", "pong", "motd", "cmd",  "lheard", "sitrep")
+help_message = "CMD?: ping, motd, sitrep"
 
 # Read the config file
 config = configparser.ConfigParser() 
@@ -25,7 +25,8 @@ if config.sections() == []:
     print(f"System: Error reading config file: {config_file} is empty or does not exist.")
     config['interface'] = {'type': 'serial', 'port': "/dev/ttyACM0", 'hostname': '', 'mac': ''}
     config['general'] = {'respond_by_dm_only': 'True', 'defaultChannel': '0', 'motd': 'Thanks for using MeshBOT! Have a good day!',
-                         'welcome_message': 'MeshBot, here for you like a friend who is not. Try sending: ping @foo  or, cmd'}
+                         'welcome_message': 'MeshBot, here for you like a friend who is not. Try sending: ping @foo  or, cmd',
+                         'DadJokes': 'True', 'StoreForward': 'True'}
     config['bbs'] = {'enabled': 'True', 'bbsdb': 'bbsdb.pkl'}
     config['location'] = {'enabled': 'True','lat': '48.50', 'lon': '-123.0'}
     config['solar'] = {'enabled': 'True'}
@@ -37,6 +38,7 @@ interface_type = config['interface'].get('type', 'serial')
 port = config['interface'].get('port', '')
 hostname = config['interface'].get('hostname', '')
 mac = config['interface'].get('mac', '')
+msg_history = [] # message history for the store and forward feature
 
 RESPOND_BY_DM_ONLY = config['general'].getboolean('respond_by_dm_only', True)
 DEFAULT_CHANNEL = config['general'].getint('defaultChannel', 0)
@@ -59,26 +61,39 @@ else:
     exit()
 
 # Solar Conditions Configuration
-solar_conditions_enabled = config['solar'].getboolean('enabled', True)
+solar_conditions_enabled = config['solar'].getboolean('enabled', False)
 if solar_conditions_enabled:
     from modules.solarconditions import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + trap_list_solarconditions # items hfcond, solar, sun, moon
     help_message = help_message + ", sun, hfcond, solar, moon, tide"
 
 # Location Configuration
-location_enabled = config['location'].getboolean('enabled', True)
+location_enabled = config['location'].getboolean('enabled', False)
 if location_enabled:
     from modules.locationdata import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + trap_list_location # items tide, whereami, wxc, wx
     help_message = help_message + ", whereami, wx, wxc, wxa"
 
 # BBS Configuration
-bbs_enabled = config['bbs'].getboolean('enabled', True)
+bbs_enabled = config['bbs'].getboolean('enabled', False)
 bbsdb = config['bbs'].get('bbsdb', 'bbsdb.pkl')
 if bbs_enabled:
     from modules.bbstools import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + trap_list_bbs # items bbslist, bbspost, bbsread, bbsdelete, bbshelp
     help_message = help_message + ", bbslist, bbshelp"
+
+# Dad Jokes Configuration
+dad_jokes_enabled = config['general'].getboolean('DadJokes', False)
+if dad_jokes_enabled:
+    from dadjokes import Dadjoke # pip install dadjokes
+    trap_list = trap_list + ("joke")
+    help_message = help_message + ", joke"
+
+# Store and Forward Configuration
+store_forward_enabled = config['general'].getboolean('StoreForward', False)
+if store_forward_enabled:
+    trap_list = trap_list + ("messages")
+    help_message = help_message + ", messages"
 
 #Get the node number of the device, check if the device is connected
 try:
@@ -195,6 +210,14 @@ def onReceive(packet, interface):
                             # respond to channel message on the channel itself
                             send_message(auto_response(message_string, snr, rssi, hop, message_from_id), channel_number)
                 else:
+                    # add the message to the message history but limit it to 5 messages
+                    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    if len(msg_history) < 5:
+                        msg_history.append((get_name_from_number(message_from_id), message_string, channel_number, timestamp))
+                    else:
+                        msg_history.pop(0)
+                        msg_history.append((get_name_from_number(message_from_id), message_string, channel_number, timestamp))
+                    
                     print(f"{log_timestamp()} System: Ignoring incoming channel {channel_number}: {message_string} From: {get_name_from_number(message_from_id)}")
                 
     except KeyError as e:
@@ -311,6 +334,11 @@ def send_message(message, ch, nodeid=0):
             # Send to DM
             print (f"{log_timestamp()} System: Sending: {message} To: {get_name_from_number(nodeid)}")
             interface.sendText(text=message, channelIndex=ch, destinationId=nodeid)
+
+def tell_joke():
+    # tell a dad joke, does it need an explanationn :)
+    dadjoke = Dadjoke()
+    return dadjoke.joke
 
 def messageTrap(msg):
     # Check if the message contains a trap word
