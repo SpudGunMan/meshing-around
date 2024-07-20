@@ -162,7 +162,7 @@ def onReceive(packet, interface):
         msg = bbs_check_dm(message_from_id)
         if msg:
             print(f"{log_timestamp()} System: BBS DM Found: {msg[1]} For: {get_name_from_number(message_from_id)}")
-            message = "Mail: " + msg[1] + " from: " + get_name_from_number(msg[2])
+            message = "Mail: " + msg[1] + "  From: " + get_name_from_number(msg[2])
             bbs_delete_dm(msg[0], msg[1])
             send_message(message, channel_number, message_from_id)
 
