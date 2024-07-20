@@ -73,8 +73,7 @@ DadJokes = True
 StoreForward = True
 StoreLimit = 3 # The number of StoreForward messages to retain
 ```
-
-
+The BBS has admin and block lists, see the modules/bbstools.py for details
 
 # requirements
 can also be installed with `pip install -r requirements.txt`
@@ -83,7 +82,6 @@ can also be installed with `pip install -r requirements.txt`
 pip install meshtastic
 pip install pubsub
 ```
-
 mesh-bot enhancments
 
 ```
