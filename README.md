@@ -42,6 +42,8 @@ other features
 Some config is via code, converting to `config.ini` set the appropriate interface for your method (serial/ble/tcp). 
  Only one at a time is supported to a single node at a time.
 
+the config.template can be used to make a new config.ini
+
 ```
 #config.ini
 # type can be serial, tcp, or ble
