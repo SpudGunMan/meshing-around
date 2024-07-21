@@ -45,10 +45,10 @@ def get_tide(lat=0, lon=0):
         else:
             return ERROR_FETCHING_DATA
         
-        station_id = station_json['stationList'][0]['stationId']
-
-        if station_id is None:
+        if station_json['stationList'] == [] or station_json['stationList'] is None:
             return "no station found"
+        
+        station_id = station_json['stationList'][0]['stationId']
 
     except (requests.exceptions.RequestException, json.JSONDecodeError):
         return ERROR_FETCHING_DATA
