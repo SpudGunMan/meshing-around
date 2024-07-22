@@ -55,7 +55,7 @@ if interface_type == 'serial':
 elif interface_type == 'tcp':
     interface = meshtastic.tcp_interface.TCPInterface(hostname)
 elif interface_type == 'ble':
-    interface = meshtastic.ble_interface.BLEInterface(hostname)
+    interface = meshtastic.ble_interface.BLEInterface(mac)
 else:
     print(f"System: Interface Type: {interface_type} not supported. Validate your config against config.template Exiting")
     exit()
