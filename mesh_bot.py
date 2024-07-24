@@ -8,7 +8,7 @@ from pubsub import pub # pip install pubsub
 from modules.settings import *
 from modules.system import *
 
-def auto_response(message, snr, rssi, hop, message_from_id, channel_number):
+def auto_response(message, snr, rssi, hop, message_from_id, channel_number, deviceID):
     #Auto response to messages
     if "ping" in message.lower():
         #Check if the user added @foo to the message
@@ -55,7 +55,7 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number):
     elif "cmd" in message.lower():
         bot_response = help_message
     elif "sun" in message.lower():
-        location = get_node_location(message_from_id)
+        location = get_node_location(message_from_id, deviceID)
         bot_response = get_sun(str(location[0]),str(location[1]))
     elif "hfcond" in message.lower():
         bot_response = hf_band_conditions()
@@ -64,31 +64,31 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number):
     elif "lheard" in message.lower() or "sitrep" in message.lower():
         bot_response = "Last heard:\n" + str(get_node_list())
     elif "whereami" in message.lower():
-        location = get_node_location(message_from_id)
+        location = get_node_location(message_from_id, deviceID)
         where = where_am_i(str(location[0]),str(location[1]))
         bot_response = where
     elif "tide" in message.lower():
-        location = get_node_location(message_from_id)
+        location = get_node_location(message_from_id, deviceID)
         tide = get_tide(str(location[0]),str(location[1]))
         bot_response = tide
     elif "moon" in message.lower():
-        location = get_node_location(message_from_id)
+        location = get_node_location(message_from_id, deviceID)
         moon = get_moon(str(location[0]),str(location[1]))
         bot_response = moon
     elif "wxalert" in message.lower():
-        location = get_node_location(message_from_id)
+        location = get_node_location(message_from_id, deviceID)
         weatherAlert = getActiveWeatherAlertsDetail(str(location[0]),str(location[1]))
         bot_response = weatherAlert
     elif "wxa" in message.lower():
-        location = get_node_location(message_from_id)
+        location = get_node_location(message_from_id, deviceID)
         weatherAlert = getWeatherAlerts(str(location[0]),str(location[1]))
         bot_response = weatherAlert
     elif "wxc" in message.lower():
-        location = get_node_location(message_from_id)
+        location = get_node_location(message_from_id, deviceID)
         weather = get_weather(str(location[0]),str(location[1]),1)
         bot_response = weather
     elif "wx" in message.lower():
-        location = get_node_location(message_from_id)
+        location = get_node_location(message_from_id, deviceID)
         weather = get_weather(str(location[0]),str(location[1]))
         bot_response = weather
     elif "joke" in message.lower():

@@ -8,7 +8,7 @@ from pubsub import pub # pip install pubsub
 from modules.settings import *
 from modules.system import *
 
-def auto_response(message, snr, rssi, hop, message_from_id, channel_number):
+def auto_response(message, snr, rssi, hop, message_from_id, channel_number, deviceID):
     # Auto response to messages
     if "ping" in message.lower():
         # Check if the user added @foo to the message
