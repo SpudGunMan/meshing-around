@@ -81,7 +81,7 @@ def onReceive(packet, interface):
             if packet.get('channel'):
                 channel_number = packet['channel']
             else:
-                channel_number = DEFAULT_CHANNEL
+                channel_number = publicChannel
         
             # check if the packet has a hop count flag use it
             if packet.get('hopsAway'):
@@ -133,12 +133,12 @@ def onReceive(packet, interface):
                 # message is on a channel
                 if messageTrap(message_string):
                     print(f"{log_timestamp()} Received On Device:{rxNode} Channel {channel_number}: {message_string} From: {get_name_from_number(message_from_id)}")
-                    if RESPOND_BY_DM_ONLY:
+                    if useDMForResponse:
                         # respond to channel message via direct message
                         send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number, rxNode), channel_number, message_from_id)
                     else:
                         # or respond to channel message on the channel itself
-                        if channel_number == DEFAULT_CHANNEL:
+                        if channel_number == publicChannel:
                             # warning user spamming default channel
                             print(f"{log_timestamp()} System: Warning spamming default channel not allowed. sending DM to {get_name_from_number(message_from_id)}")
                         

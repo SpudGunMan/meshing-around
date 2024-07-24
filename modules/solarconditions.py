@@ -65,8 +65,8 @@ def get_sun(lat=0, lon=0):
         obs.lat = str(lat)
         obs.lon = str(lon)
     else:
-        obs.lat = str(LATITUDE)
-        obs.lon = str(LONGITUDE)
+        obs.lat = str(latitudeValue)
+        obs.lon = str(longitudeValue)
 
     sun.compute(obs)
     sun_table = {}
@@ -101,8 +101,8 @@ def get_moon(lat=0, lon=0):
         obs.lat = str(lat)
         obs.lon = str(lon)
     else:
-        obs.lat = str(LATITUDE)
-        obs.lon = str(LONGITUDE)
+        obs.lat = str(latitudeValue)
+        obs.lon = str(longitudeValue)
     
     obs.date = datetime.now()
     moon.compute(obs)
