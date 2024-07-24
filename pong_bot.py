@@ -5,6 +5,7 @@
 import asyncio # for the event loop
 import time # for sleep, get some when you can :)
 from pubsub import pub # pip install pubsub
+from modules.settings import *
 from modules.system import *
 
 def auto_response(message, snr, rssi, hop, message_from_id, channel_number):

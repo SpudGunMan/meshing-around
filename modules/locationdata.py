@@ -7,13 +7,7 @@ import maidenhead as mh # pip install maidenhead
 import requests # pip install requests
 import bs4 as bs # pip install beautifulsoup4
 import xml.dom.minidom 
-
-URL_TIMEOUT = 10 # wait time for URL requests
-DAYS_OF_WEATHER = 4 # weather forecast days, the first two rows are today and tonight
-# error messages
-ALERT_COUNT = 2 # number of weather alerts to display
-NO_DATA_NOGPS = "No location data: does your device have GPS?"
-ERROR_FETCHING_DATA = "error fetching data"
+from modules.settings import *
 
 trap_list_location = ("whereami", "tide", "moon", "wx", "wxc", "wxa", "wxalert")
 

@@ -7,8 +7,7 @@ import xml.dom.minidom
 from datetime import datetime
 import ephem # pip install pyephem
 from datetime import timedelta
-
-URL_TIMEOUT = 10 # wait time for URL requests
+from modules.settings import *
 
 trap_list_solarconditions = ("sun", "solar", "hfcond")
 

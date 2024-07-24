@@ -5,81 +5,37 @@ import meshtastic.serial_interface #pip install meshtastic
 import meshtastic.tcp_interface
 import meshtastic.ble_interface
 from datetime import datetime
-import configparser
+from modules.settings import *
 
 # Global Variables
 trap_list = ("ping", "pinging", "ack", "testing", "test", "pong", "motd", "cmd",  "lheard", "sitrep")
 help_message = "CMD?: ping, motd, sitrep"
 
-# Read the config file
-config = configparser.ConfigParser() 
-config_file = "config.ini"
-
-try:
-    config.read(config_file)
-except Exception as e:
-    print(f"System: Error reading config file: {e}")
-
-if config.sections() == []:
-    print(f"System: Error reading config file: {config_file} is empty or does not exist.")
-    config['interface'] = {'type': 'serial', 'port': "/dev/ttyACM0", 'hostname': '', 'mac': ''}
-    config['general'] = {'respond_by_dm_only': 'True', 'defaultChannel': '0', 'motd': 'Thanks for using MeshBOT! Have a good day!',
-                         'welcome_message': 'MeshBot, here for you like a friend who is not. Try sending: ping @foo  or, cmd',
-                         'DadJokes': 'True', 'StoreForward': 'True', 'StoreLimit': '3'}
-    config['bbs'] = {'enabled': 'True', 'bbsdb': 'bbsdb.pkl'}
-    config['location'] = {'enabled': 'True','lat': '48.50', 'lon': '-123.0'}
-    config['solar'] = {'enabled': 'True'}
-    config.write(open(config_file, 'w'))
-    print (f"System: Config file created, check {config_file} or review the config.template")
-
-# config.ini variables
-interface_type = config['interface'].get('type', 'serial')
-port = config['interface'].get('port', '')
-hostname = config['interface'].get('hostname', '')
-mac = config['interface'].get('mac', '')
-msg_history = [] # message history for the store and forward feature
-storeFlimit = config['general'].getint('StoreLimit', 3) # limit of messages to store for Store and Forward
-
-RESPOND_BY_DM_ONLY = config['general'].getboolean('respond_by_dm_only', True)
-DEFAULT_CHANNEL = config['general'].getint('defaultChannel', 0)
-
-LATITUDE = config['location'].getfloat('lat', 48.50)
-LONGITUDE = config['location'].getfloat('lon', -123.0)
-
-MOTD = config['general'].get('motd', 'Thanks for using MeshBOT! Have a good day!')
-welcome_message = config['general'].get('welcome_message', 'MeshBot, here for you like a friend who is not. Try sending: ping @foo  or, cmd')
-
 # Solar Conditions Configuration
-solar_conditions_enabled = config['solar'].getboolean('enabled', False)
 if solar_conditions_enabled:
     from modules.solarconditions import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + trap_list_solarconditions # items hfcond, solar, sun, moon
     help_message = help_message + ", sun, hfcond, solar, moon, tide"
 
 # Location Configuration
-location_enabled = config['location'].getboolean('enabled', False)
 if location_enabled:
     from modules.locationdata import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + trap_list_location # items tide, whereami, wxc, wx
     help_message = help_message + ", whereami, wx, wxc, wxa"
 
 # BBS Configuration
-bbs_enabled = config['bbs'].getboolean('enabled', False)
-bbsdb = config['bbs'].get('bbsdb', 'bbsdb.pkl')
 if bbs_enabled:
     from modules.bbstools import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + trap_list_bbs # items bbslist, bbspost, bbsread, bbsdelete, bbshelp
     help_message = help_message + ", bbslist, bbshelp"
 
 # Dad Jokes Configuration
-dad_jokes_enabled = config['general'].getboolean('DadJokes', False)
 if dad_jokes_enabled:
     from dadjokes import Dadjoke # pip install dadjokes
     trap_list = trap_list + ("joke",)
     help_message = help_message + ", joke"
 
 # Store and Forward Configuration
-store_forward_enabled = config['general'].getboolean('StoreForward', False)
 if store_forward_enabled:
     trap_list = trap_list + ("messages",)
     help_message = help_message + ", messages"

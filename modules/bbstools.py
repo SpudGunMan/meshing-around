@@ -3,9 +3,6 @@
 
 import pickle # pip install pickle
 
-bbs_ban_list = [] # list of banned nodes numbers ex: [2813308004, 4258675309]
-bbs_admin_list = [] # list of admin nodes numbers ex: [2813308004, 4258675309]
-
 trap_list_bbs = ("bbslist", "bbspost", "bbsread", "bbsdelete", "bbshelp")
 
 # global message list, later we will use a pickle on disk
