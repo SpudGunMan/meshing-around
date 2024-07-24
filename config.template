@@ -20,6 +20,8 @@ welcome_message = MeshBot, here for you like a friend who is not. Try sending: p
 DadJokes = True
 StoreForward = True
 StoreLimit = 3
+# 24 hour clock
+zuluTime = True
 
 [bbs]
 enabled = True

@@ -35,6 +35,8 @@ DEFAULT_CHANNEL = config['general'].getint('defaultChannel', 0)
 LATITUDE = config['location'].getfloat('lat', 48.50)
 LONGITUDE = config['location'].getfloat('lon', -123.0)
 
+zuluTime = config['general'].getboolean('zuluTime', False)
+
 try:
     if MOTD == '':
         config['general'].get('motd', 'Thanks for using MeshBOT! Have a good day!')

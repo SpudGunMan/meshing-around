@@ -76,12 +76,19 @@ def get_sun(lat=0, lon=0):
     # get the next rise and set times
     local_sunrise = ephem.localtime(obs.next_rising(sun))
     local_sunset = ephem.localtime(obs.next_setting(sun))
-    sun_table['rise_time'] = local_sunrise.strftime('%a %d %I:%M')
-    sun_table['set_time'] = local_sunset.strftime('%a %d %I:%M')
+    if zuluTime:
+        sun_table['rise_time'] = local_sunrise.strftime('%a %d %H:%M')
+        sun_table['set_time'] = local_sunset.strftime('%a %d %H:%M%')
+    else:
+        sun_table['rise_time'] = local_sunrise.strftime('%a %d %I:%M%p')
+        sun_table['set_time'] = local_sunset.strftime('%a %d %I:%M%p')
     # if sunset is before sunrise, then it's tomorrow
     if local_sunset < local_sunrise:
         local_sunset = ephem.localtime(obs.next_setting(sun)) + timedelta(1)
-        sun_table['set_time'] = local_sunset.strftime('%a %d %I:%M')
+        if zuluTime:
+            sun_table['set_time'] = local_sunset.strftime('%a %d %H:%M')
+        else:
+            sun_table['set_time'] = local_sunset.strftime('%a %d %I:%M%p')
     sun_data = "SunRise: " + sun_table['rise_time'] + "\nSet: " + sun_table['set_time']
     return sun_data
 
@@ -108,13 +115,21 @@ def get_moon(lat=0, lon=0):
 
     local_moonrise = ephem.localtime(obs.next_rising(moon))
     local_moonset = ephem.localtime(obs.next_setting(moon))
-    moon_table['rise_time'] = local_moonrise.strftime('%a %d %I:%M%p')
-    moon_table['set_time'] = local_moonset.strftime('%a %d %I:%M%p')
+    if zuluTime:
+        moon_table['rise_time'] = local_moonrise.strftime('%a %d %H:%M')
+        moon_table['set_time'] = local_moonset.strftime('%a %d %H:%M')
+    else:
+        moon_table['rise_time'] = local_moonrise.strftime('%a %d %I:%M%p')
+        moon_table['set_time'] = local_moonset.strftime('%a %d %I:%M%p')
 
     local_next_full_moon = ephem.localtime(ephem.next_full_moon((obs.date)))
     local_next_new_moon = ephem.localtime(ephem.next_new_moon((obs.date)))
-    moon_table['next_full_moon'] = local_next_full_moon.strftime('%a %b %d %I:%M%p')
-    moon_table['next_new_moon'] = local_next_new_moon.strftime('%a %b %d %I:%M%p')
+    if zuluTime:
+        moon_table['next_full_moon'] = local_next_full_moon.strftime('%a %b %d %H:%M')
+        moon_table['next_new_moon'] = local_next_new_moon.strftime('%a %b %d %H:%M')
+    else:
+        moon_table['next_full_moon'] = local_next_full_moon.strftime('%a %b %d %I:%M%p')
+        moon_table['next_new_moon'] = local_next_new_moon.strftime('%a %b %d %I:%M%p')
 
     moon_data = "MoonRise:" + moon_table['rise_time'] + "\nSet:" + moon_table['set_time'] + \
         "\nPhase:" + moon_table['phase'] + " @:" + str('{0:.2f}'.format(moon_table['illumination'])) + "%" \

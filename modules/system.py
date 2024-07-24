@@ -60,7 +60,10 @@ except Exception as e:
     exit()
 
 def log_timestamp():
-    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    if zuluTime:
+        return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    else:
+        return datetime.now().strftime("%Y-%m-%d %I:%M:%S%p")
 
 def decimal_to_hex(decimal_number):
     return f"!{decimal_number:08x}"
