@@ -143,6 +143,11 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number):
     return bot_response
 
 def onReceive(packet, interface):
+    # extract interface from interface object 
+    rxInterface = interface.__dict__.get('devPath')
+    if rxInterface == port1:
+        rxNode = 1
+
     # receive a packet and process it, main instruction loop
 
     # print the packet for debugging
@@ -272,7 +277,7 @@ def start_rx():
 def exit_handler():
     # Close the interface and save the BBS messages
     print("\nSystem: Closing Autoresponder")
-    interface.close()
+    interface1.close()
     print("System: Interface Closed")
     print("Saving BBS Messages")
     save_bbsdb()

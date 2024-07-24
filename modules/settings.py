@@ -22,10 +22,10 @@ if config.sections() == []:
     print (f"System: Config file created, check {config_file} or review the config.template")
 
 # config.ini variables
-interface_type = config['interface'].get('type', 'serial')
-port = config['interface'].get('port', '')
-hostname = config['interface'].get('hostname', '')
-mac = config['interface'].get('mac', '')
+interface1_type = config['interface'].get('type', 'serial')
+port1 = config['interface'].get('port', '')
+hostname1 = config['interface'].get('hostname', '')
+mac1 = config['interface'].get('mac', '')
 msg_history = [] # message history for the store and forward feature
 storeFlimit = config['general'].getint('StoreLimit', 3) # limit of messages to store for Store and Forward
 
