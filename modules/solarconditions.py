@@ -20,7 +20,7 @@ def hf_band_conditions():
         for i in solarxml.getElementsByTagName("band"):
             hf_cond += i.getAttribute("time")[0]+i.getAttribute("name") +"="+str(i.childNodes[0].data)+"\n"
     else:
-        hf_cond += "error fetching"
+        hf_cond += ERROR_FETCHING_DATA
     hf_cond = hf_cond[:-1] # remove the last newline
     return hf_cond
 
@@ -39,7 +39,7 @@ def solar_conditions():
             signalnoise = i.getElementsByTagName("signalnoise")[0].childNodes[0].data
         solar_cond = "A-Index: " + solar_a_index + "\nK-Index: " + solar_k_index + "\nSunspots: " + sunspots + "\nX-Ray Flux: " + solar_xray + "\nSolar Flux: " + solar_flux + "\nSignal Noise: " + signalnoise
     else:
-        solar_cond += "error fetching"
+        solar_cond += ERROR_FETCHING_DATA
     return solar_cond
 
 def drap_xray_conditions():
@@ -53,7 +53,7 @@ def drap_xray_conditions():
             if x_filter in line:
                 xray_flux = line.split(": ")[1]
     else:
-        xray_flux += "error fetching"
+        xray_flux += ERROR_FETCHING_DATA
     return xray_flux
 
 def get_sun(lat=0, lon=0):

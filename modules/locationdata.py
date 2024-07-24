@@ -40,7 +40,7 @@ def get_tide(lat=0, lon=0):
             return ERROR_FETCHING_DATA
         
         if station_json['stationList'] == [] or station_json['stationList'] is None:
-            return "no station found"
+            return ERROR_FETCHING_DATA
         
         station_id = station_json['stationList'][0]['stationId']
 
@@ -100,7 +100,7 @@ def get_weather(lat=0, lon=0, unit=0):
     table = soup.find('div', id="detailed-forecast-body")
 
     if table is None:
-        return "no weather data found on NOAA for your location"
+        return ERROR_FETCHING_DATA
     else:
         # get rows
         rows = table.find_all('div', class_="row")
@@ -118,7 +118,7 @@ def get_weather(lat=0, lon=0, unit=0):
     # get any alerts and return the count
     alerts = getWeatherAlerts(lat, lon)
 
-    if alerts == "No weather alerts found" or alerts == ERROR_FETCHING_DATA or alerts == NO_DATA_NOGPS:
+    if alerts == ERROR_FETCHING_DATA or alerts == NO_DATA_NOGPS:
         alert = ""
         alert_num = 0
     else:
@@ -200,7 +200,7 @@ def getWeatherAlerts(lat=0, lon=0):
         )
 
     if alerts == "" or alerts == None:
-        return "No weather alerts found"
+        return ERROR_FETCHING_DATA
 
     # trim off last newline
     if alerts[-1] == "\n":
@@ -253,7 +253,7 @@ def getActiveWeatherAlertsDetail(lat=0, lon=0):
     alerts = alerts.split("\n***\n")[:ALERT_COUNT]
     
     if alerts == "" or alerts == ['']:
-        return "No weather alerts found"
+        return ERROR_FETCHING_DATA
 
     # trim off last newline
     if alerts[-1] == "\n":
