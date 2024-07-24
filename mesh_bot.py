@@ -225,20 +225,20 @@ def onReceive(packet, interface):
 
                 # check if the message contains a trap word, DMs are always responded to
                 if messageTrap(message_string):
-                    print(f"{log_timestamp()} Received DM: {message_string} on Channel: {channel_number} From: {get_name_from_number(message_from_id)}")
+                    print(f"{log_timestamp()} Received DM: {message_string} on Device:{rxNode} Channel: {channel_number} From: {get_name_from_number(message_from_id)}")
                     # respond with DM
-                    send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number), channel_number, message_from_id)
+                    send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number, rxNode), channel_number, message_from_id)
                 else: 
                     # respond with welcome message on DM
-                    print(f"{log_timestamp()} Ignoring DM: {message_string} From: {get_name_from_number(message_from_id)}")
+                    print(f"{log_timestamp()} Ignoring DM: {message_string} on Device:{rxNode} From: {get_name_from_number(message_from_id)}")
                     send_message(welcome_message, channel_number, message_from_id)
             else:
                 # message is on a channel
                 if messageTrap(message_string):
-                    print(f"{log_timestamp()} Received On Channel {channel_number}: {message_string} From: {get_name_from_number(message_from_id)}")
+                    print(f"{log_timestamp()} Received On Device:{rxNode} Channel {channel_number}: {message_string} From: {get_name_from_number(message_from_id)}")
                     if RESPOND_BY_DM_ONLY:
                         # respond to channel message via direct message
-                        send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number), channel_number, message_from_id)
+                        send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number, rxNode), channel_number, message_from_id)
                     else:
                         # or respond to channel message on the channel itself
                         if channel_number == DEFAULT_CHANNEL:
@@ -246,20 +246,20 @@ def onReceive(packet, interface):
                             print(f"{log_timestamp()} System: Warning spamming default channel not allowed. sending DM to {get_name_from_number(message_from_id)}")
                         
                             # respond to channel message via direct message
-                            send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number), channel_number, message_from_id)
+                            send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number, rxNode), channel_number, message_from_id)
                         else:
                             # respond to channel message on the channel itself
-                            send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number), channel_number)
+                            send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number, rxNode), channel_number)
                 else:
                     # add the message to the message history but limit
                     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     if len(msg_history) < storeFlimit:
-                        msg_history.append((get_name_from_number(message_from_id), message_string, channel_number, timestamp))
+                        msg_history.append((get_name_from_number(message_from_id), message_string, channel_number, timestamp, rxNode))
                     else:
                         msg_history.pop(0)
-                        msg_history.append((get_name_from_number(message_from_id), message_string, channel_number, timestamp))
+                        msg_history.append((get_name_from_number(message_from_id), message_string, channel_number, timestamp, rxNode))
                     
-                    print(f"{log_timestamp()} System: Ignoring incoming channel {channel_number}: {message_string} From: {get_name_from_number(message_from_id)}")
+                    print(f"{log_timestamp()} System: Ignoring incoming Device:{rxNode} Channel:{channel_number} Message: {message_string} From: {get_name_from_number(message_from_id)}")
                 
     except KeyError as e:
         print(f"System: Error processing packet: {e}")
