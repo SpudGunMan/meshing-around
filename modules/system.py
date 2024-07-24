@@ -49,17 +49,6 @@ LONGITUDE = config['location'].getfloat('lon', -123.0)
 MOTD = config['general'].get('motd', 'Thanks for using MeshBOT! Have a good day!')
 welcome_message = config['general'].get('welcome_message', 'MeshBot, here for you like a friend who is not. Try sending: ping @foo  or, cmd')
 
-# Interface Configuration
-if interface_type == 'serial':
-    interface = meshtastic.serial_interface.SerialInterface(port)
-elif interface_type == 'tcp':
-    interface = meshtastic.tcp_interface.TCPInterface(hostname)
-elif interface_type == 'ble':
-    interface = meshtastic.ble_interface.BLEInterface(mac)
-else:
-    print(f"System: Interface Type: {interface_type} not supported. Validate your config against config.template Exiting")
-    exit()
-
 # Solar Conditions Configuration
 solar_conditions_enabled = config['solar'].getboolean('enabled', False)
 if solar_conditions_enabled:
@@ -94,6 +83,17 @@ store_forward_enabled = config['general'].getboolean('StoreForward', False)
 if store_forward_enabled:
     trap_list = trap_list + ("messages",)
     help_message = help_message + ", messages"
+
+# Interface Configuration
+if interface_type == 'serial':
+    interface = meshtastic.serial_interface.SerialInterface(port)
+elif interface_type == 'tcp':
+    interface = meshtastic.tcp_interface.TCPInterface(hostname)
+elif interface_type == 'ble':
+    interface = meshtastic.ble_interface.BLEInterface(mac)
+else:
+    print(f"System: Interface Type: {interface_type} not supported. Validate your config against config.template Exiting")
+    exit()
 
 #Get the node number of the device, check if the device is connected
 try:
@@ -218,8 +218,11 @@ def send_message(message, ch, nodeid=0):
 
 def tell_joke():
     # tell a dad joke, does it need an explanationn :)
-    dadjoke = Dadjoke()
-    return dadjoke.joke
+    if dad_jokes_enabled:
+        dadjoke = Dadjoke()
+        return dadjoke.joke
+    else:
+        return ''
 
 def messageTrap(msg):
     # Check if the message contains a trap word
