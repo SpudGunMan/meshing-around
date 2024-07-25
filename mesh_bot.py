@@ -174,7 +174,7 @@ def onReceive(packet, interface):
             print(f"{log_timestamp()} System: BBS DM Found: {msg[1]} For: {get_name_from_number(message_from_id)}")
             message = "Mail: " + msg[1] + "  From: " + get_name_from_number(msg[2])
             bbs_delete_dm(msg[0], msg[1])
-            send_message(message, channel_number, message_from_id)
+            send_message(message, channel_number, message_from_id, rxNode)
 
     # check for a message packet and process it
     try:
