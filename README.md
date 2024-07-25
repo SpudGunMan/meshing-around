@@ -13,7 +13,7 @@ other features
 
 ## mesh-bot.sh
 
- alternate bot, adds internet and other telemetry data which goes beyond just ping
+Alternate bot, adds internet and other telemetry data which goes beyond just ping
 
 - Various solar details for radio propagation
   - `sun` and `moon` return info on rise and set local time
