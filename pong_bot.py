@@ -170,8 +170,8 @@ def exit_handler():
     interface1.close()
     print(f"{log_timestamp()} System: Interface1 Closed")
     if interface2_enabled:
-        #interface2.close()
-        print(f"{log_timestamp()} System: Interface2 Closed remember to fix this line")
+        interface2.close()
+        print(f"{log_timestamp()} System: Interface2 Closed")
     print(f"{log_timestamp()} System: Exiting")
     exit (0)
 
