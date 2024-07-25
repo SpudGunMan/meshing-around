@@ -207,17 +207,23 @@ def send_message(message, ch, nodeid=0, node=1):
                 print (f"{log_timestamp()} System: Sending on Device:{node} Multi-Chunk Message: {m} To: {get_name_from_number(nodeid)}")
                 if node == 1:
                     interface1.sendText(text=m, channelIndex=ch, destinationId=nodeid)
+                if node == 2:
+                    interface2.sendText(text=m, channelIndex=ch, destinationId=nodeid)
     else: # message is less than 160 characters
         if nodeid == 0:
             # Send to channel
             print (f"{log_timestamp()} System: Sending Device:{node} Channel:{ch} Message: {message}")
             if node == 1:
                 interface1.sendText(text=message, channelIndex=ch)
+            if node == 2:
+                interface2.sendText(text=message, channelIndex=ch)
         else:
             # Send to DM
             print (f"{log_timestamp()} System: Sending: Device:{node} {message} To: {get_name_from_number(nodeid)}")
             if node == 1:
                 interface1.sendText(text=message, channelIndex=ch, destinationId=nodeid)
+            if node == 2:
+                interface2.sendText(text=message, channelIndex=ch, destinationId=nodeid)
 
 def tell_joke():
     # tell a dad joke, does it need an explanationn :)
