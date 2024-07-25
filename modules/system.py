@@ -104,6 +104,23 @@ def get_name_from_number(number, type='long', node=1):
             else:
                 name =  str(decimal_to_hex(number))  # If long name not found, use the ID as string
         return name
+    
+    if node == 2:
+        for node in interface2.nodes.values():
+            if number == node['num']:
+                if type == 'long':
+                    name = node['user']['longName']
+                    return name
+                elif type == 'short':
+                    name = node['user']['shortName']
+                    return name
+                else:
+                    pass
+            else:
+                name =  str(decimal_to_hex(number))
+        return name
+    return ERROR_FETCHING_DATA
+    
 
 def get_node_list(node=1):
     node_list = []
