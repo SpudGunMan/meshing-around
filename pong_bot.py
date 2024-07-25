@@ -159,21 +159,26 @@ def onReceive(packet, interface):
                     print(f"{log_timestamp()} System: Ignoring incoming Device:{rxNode} Channel:{channel_number} Message: {message_string} From: {get_name_from_number(message_from_id)}")
                 
     except KeyError as e:
-        print(f"System: Error processing packet: {e}")
+        print(f"{log_timestamp()} System: Error processing packet: {e}")
         print(packet) # print the packet for debugging
         print("END of packet \n")
+
+
 def exit_handler():
     # Close the interface and save the BBS messages
-    print("\nSystem: Closing Autoresponder")
-    interface.close()
-    print("System: Interface Closed")
-    print("System: Exiting")
+    print(f"\n{log_timestamp()} System: Closing Autoresponder\n")
+    interface1.close()
+    print(f"{log_timestamp()} System: Interface1 Closed")
+    if interface2_enabled:
+        #interface2.close()
+        print(f"{log_timestamp()} System: Interface2 Closed remember to fix this line")
+    print(f"{log_timestamp()} System: Exiting")
     exit (0)
 
 def start_rx():
     # Start the receive loop
     pub.subscribe(onReceive, 'meshtastic.receive')
-    print (f"System: Autoresponder Started for device {get_name_from_number(myNodeNum)}")
+    print (f"{log_timestamp()} System: Autoresponder Started for device {get_name_from_number(myNodeNum)}")
     while True:
         time.sleep(0.05)
         pass
