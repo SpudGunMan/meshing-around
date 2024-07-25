@@ -62,7 +62,7 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
     elif "solar" in message.lower():
         bot_response = drap_xray_conditions() + "\n" + solar_conditions()
     elif "lheard" in message.lower() or "sitrep" in message.lower():
-        bot_response = "Last heard:\n" + str(get_node_list())
+        bot_response = "Last heard:\n" + str(get_node_list(deviceID))
     elif "whereami" in message.lower():
         location = get_node_location(message_from_id, deviceID)
         where = where_am_i(str(location[0]),str(location[1]))
