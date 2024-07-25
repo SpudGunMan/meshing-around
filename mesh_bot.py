@@ -278,9 +278,13 @@ def exit_handler():
     # Close the interface and save the BBS messages
     print("\nSystem: Closing Autoresponder")
     interface1.close()
-    print("System: Interface Closed")
-    print("Saving BBS Messages")
-    save_bbsdb()
+    print("System: Interface1 Closed")
+    if interface2_enabled:
+        #interface2.close()
+        print("System: Interface2 Closed remember to fix this line")
+    if bbs_enabled:
+        print("Saving BBS Messages")
+        save_bbsdb()
     print("System: BBS Messages Saved")
     print("System: Exiting")
     exit (0)
