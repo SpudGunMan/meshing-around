@@ -88,9 +88,9 @@ def log_timestamp():
 def decimal_to_hex(decimal_number):
     return f"!{decimal_number:08x}"
 
-def get_name_from_number(number, type='long', node=1):
+def get_name_from_number(number, type='long', RXnodeId=1):
     name = ""
-    if node == 1:
+    if RXnodeId == 1:
         for node in interface1.nodes.values():
             if number == node['num']:
                 if type == 'long':
@@ -105,7 +105,7 @@ def get_name_from_number(number, type='long', node=1):
                 name =  str(decimal_to_hex(number))  # If long name not found, use the ID as string
         return name
     
-    if node == 2:
+    if RXnodeId == 2:
         for node in interface2.nodes.values():
             if number == node['num']:
                 if type == 'long':
@@ -122,15 +122,15 @@ def get_name_from_number(number, type='long', node=1):
     return ERROR_FETCHING_DATA
     
 
-def get_node_list(node=1):
+def get_node_list(RXnodeId=1):
     node_list = []
     short_node_list = []
-    if node == 1:
+    if RXnodeId == 1:
         if interface1.nodes:
             for node in interface1.nodes.values():
                 # ignore own
                 if node['num'] != myNodeNum:
-                    node_name = get_name_from_number(node['num'])
+                    node_name = get_name_from_number(node['num'], 'long', RXnodeId)
                     snr = node.get('snr', 0)
 
                     # issue where lastHeard is not always present
