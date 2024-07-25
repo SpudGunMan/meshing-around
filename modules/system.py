@@ -253,7 +253,7 @@ def send_message(message, ch, nodeid=0, nodeInt=1):
                     interface2.sendText(text=m, channelIndex=ch)
             else:
                 # Send to DM
-                print (f"{log_timestamp()} System: Sending on Device:{nodeInt} Multi-Chunk Message: {m} To: {get_name_from_number(nodeid, 'long', nodeInt)}")
+                print (f"{log_timestamp()} System: Sending DM Device:{nodeInt} Multi-Chunk Message: {m} To: {get_name_from_number(nodeid, 'long', nodeInt)}")
                 if nodeInt == 1:
                     interface1.sendText(text=m, channelIndex=ch, destinationId=nodeid)
                 if nodeInt == 2:
@@ -268,7 +268,7 @@ def send_message(message, ch, nodeid=0, nodeInt=1):
                 interface2.sendText(text=message, channelIndex=ch)
         else:
             # Send to DM
-            print (f"{log_timestamp()} System: Sending: Device:{nodeInt} {message} To: {get_name_from_number(nodeid, 'long', nodeInt)}")
+            print (f"{log_timestamp()} System: Sending DM Device:{nodeInt} {message} To: {get_name_from_number(nodeid, 'long', nodeInt)}")
             if nodeInt == 1:
                 interface1.sendText(text=message, channelIndex=ch, destinationId=nodeid)
             if nodeInt == 2:
