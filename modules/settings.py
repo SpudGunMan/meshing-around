@@ -49,6 +49,8 @@ if 'interface2' in config:
     hostname2 = config['interface2'].get('hostname', '')
     mac2 = config['interface2'].get('mac', '')
     interface2_enabled = config['interface2'].getboolean('enabled', False)
+else:
+    interface2_enabled = False
 
 # variables
 storeFlimit = config['general'].getint('StoreLimit', STORE_LIMIT)
