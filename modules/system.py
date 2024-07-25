@@ -51,6 +51,18 @@ else:
     print(f"System: Interface Type: {interface1_type} not supported. Validate your config against config.template Exiting")
     exit()
 
+# Interface2 Configuration
+if interface2_enabled:
+    if interface2_type == 'serial':
+        interface2 = meshtastic.serial_interface.SerialInterface(port2)
+    elif interface2_type == 'tcp':
+        interface2 = meshtastic.tcp_interface.TCPInterface(hostname2)
+    elif interface2_type == 'ble':
+        interface2 = meshtastic.ble_interface.BLEInterface(mac2)
+    else:
+        print(f"System: Interface Type: {interface2_type} not supported. Validate your config against config.template Exiting")
+        exit()
+
 #Get the node number of the device, check if the device is connected
 try:
     myinfo = interface1.getMyNodeInfo()
@@ -58,6 +70,14 @@ try:
 except Exception as e:
     print(f"System: Critical Error script abort. {e}")
     exit()
+
+if interface2_enabled:
+    try:
+        myinfo2 = interface2.getMyNodeInfo()
+        myNodeNum2 = myinfo2['num']
+    except Exception as e:
+        print(f"System: Critical Error script abort. {e}")
+        exit()
 
 def log_timestamp():
     if zuluTime:
