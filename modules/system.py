@@ -174,7 +174,7 @@ def get_node_location(number, node=1):
             print (f"{log_timestamp()} System: No nodes found")
             return position
         
-def send_message(message, ch, nodeid=0, node=1):
+def send_message(message, ch, nodeid=0, nodeInt=1):
     # if message over 160 characters, split it into multiple messages
     if len(message) > 160:
         print (f"{log_timestamp()} System: Splitting Message, Message Length: {len(message)}")
@@ -199,30 +199,30 @@ def send_message(message, ch, nodeid=0, node=1):
         for m in message_list:
             if nodeid == 0:
                 #Send to channel
-                print (f"{log_timestamp()} System: Sending Device:{node} Channel:{ch} Multi-Chunk Message: {m}")
-                if node == 1:
+                print (f"{log_timestamp()} System: Sending Device:{nodeInt} Channel:{ch} Multi-Chunk Message: {m}")
+                if nodeInt == 1:
                     interface1.sendText(text=m, channelIndex=ch)
             else:
                 # Send to DM
-                print (f"{log_timestamp()} System: Sending on Device:{node} Multi-Chunk Message: {m} To: {get_name_from_number(nodeid)}")
-                if node == 1:
+                print (f"{log_timestamp()} System: Sending on Device:{nodeInt} Multi-Chunk Message: {m} To: {get_name_from_number(nodeid)}")
+                if nodeInt == 1:
                     interface1.sendText(text=m, channelIndex=ch, destinationId=nodeid)
-                if node == 2:
+                if nodeInt == 2:
                     interface2.sendText(text=m, channelIndex=ch, destinationId=nodeid)
     else: # message is less than 160 characters
         if nodeid == 0:
             # Send to channel
-            print (f"{log_timestamp()} System: Sending Device:{node} Channel:{ch} Message: {message}")
-            if node == 1:
+            print (f"{log_timestamp()} System: Sending Device:{nodeInt} Channel:{ch} Message: {message}")
+            if nodeInt == 1:
                 interface1.sendText(text=message, channelIndex=ch)
-            if node == 2:
+            if nodeInt == 2:
                 interface2.sendText(text=message, channelIndex=ch)
         else:
             # Send to DM
-            print (f"{log_timestamp()} System: Sending: Device:{node} {message} To: {get_name_from_number(nodeid)}")
-            if node == 1:
+            print (f"{log_timestamp()} System: Sending: Device:{nodeInt} {message} To: {get_name_from_number(nodeid)}")
+            if nodeInt == 1:
                 interface1.sendText(text=message, channelIndex=ch, destinationId=nodeid)
-            if node == 2:
+            if nodeInt == 2:
                 interface2.sendText(text=message, channelIndex=ch, destinationId=nodeid)
 
 def tell_joke():
