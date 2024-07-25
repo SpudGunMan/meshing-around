@@ -63,8 +63,8 @@ bbsdb = config['bbs'].get('bbsdb', 'bbsdb.pkl')
 dad_jokes_enabled = config['general'].getboolean('DadJokes', False)
 store_forward_enabled = config['general'].getboolean('StoreForward', False)
 config['general'].get('motd', MOTD)
-URL_TIMEOUT = config['general'].getint('URL_TIMEOUT', 10) # default 10 seconds
-DAYS_OF_WEATHER = config['general'].getint('DAYS_OF_WEATHER', 4) # default days of weather
-ALERT_COUNT = config['general'].getint('ALERT_COUNT', 2) # default 2 alerts
+urlTimeoutSeconds = config['general'].getint('URL_TIMEOUT', 10) # default 10 seconds
+forecastDuration = config['general'].getint('DAYS_OF_WEATHER', 4) # default days of weather
+numWxAlerts = config['general'].getint('ALERT_COUNT', 2) # default 2 alerts
 bbs_ban_list = config['bbs'].get('ban_list', '').split(',')
 bbs_admin_list = config['bbs'].get('admin_list', '').split(',')

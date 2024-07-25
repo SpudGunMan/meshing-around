@@ -14,7 +14,7 @@ trap_list_solarconditions = ("sun", "solar", "hfcond")
 def hf_band_conditions():
     # ham radio HF band conditions
     hf_cond = ""
-    band_cond = requests.get("https://www.hamqsl.com/solarxml.php", timeout=URL_TIMEOUT)
+    band_cond = requests.get("https://www.hamqsl.com/solarxml.php", timeout=urlTimeoutSeconds)
     if(band_cond.ok):
         solarxml = xml.dom.minidom.parseString(band_cond.text)
         for i in solarxml.getElementsByTagName("band"):
@@ -27,7 +27,7 @@ def hf_band_conditions():
 def solar_conditions():
     # radio related solar conditions from hamsql.com
     solar_cond = ""
-    solar_cond = requests.get("https://www.hamqsl.com/solarxml.php", timeout=URL_TIMEOUT)
+    solar_cond = requests.get("https://www.hamqsl.com/solarxml.php", timeout=urlTimeoutSeconds)
     if(solar_cond.ok):
         solar_xml = xml.dom.minidom.parseString(solar_cond.text)
         for i in solar_xml.getElementsByTagName("solardata"):
@@ -45,7 +45,7 @@ def solar_conditions():
 def drap_xray_conditions():
     # DRAP X-ray flux conditions, from NOAA direct
     drap_cond = ""
-    drap_cond = requests.get("https://services.swpc.noaa.gov/text/drap_global_frequencies.txt", timeout=URL_TIMEOUT)
+    drap_cond = requests.get("https://services.swpc.noaa.gov/text/drap_global_frequencies.txt", timeout=urlTimeoutSeconds)
     if(drap_cond.ok):
         drap_list = drap_cond.text.split('\n')
         x_filter = '#  X-RAY Message :'

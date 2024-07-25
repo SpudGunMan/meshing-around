@@ -1,19 +1,17 @@
 # meshing-around
 Random Mesh Scripts for BBS activities for use with Meshtastic nodes
 
-## pong-bot.sh
 ![alt text](etc/pong-bot.jpg "Example Use")
 
-Little bot which will trap keywords like ping and respond on a DM with pong. The script will also monitor the group channels for keywords to trap on. you can also `Ping @Data to Echo` as a example for further processing.
+## mesh_bot.sh
+The feature rich bot, normally requires internet for full functionality. These responder bots will trap keywords like, ping and respond on a DM(direct Message) with, pong! The script will also monitor the group channels for keywords to trap on. You can also `Ping @Data to Echo` as a example for further processing.
 
-other features
-- `motd` or to set the message `motd $New Message Of the day`
-- `lheard` returns the last 5 heard nodes with SNR, can also use `sitrep`
-- `cmd` returns the list of commands (the help message)
+Along with network testing these this bot has a lot of other features like simple messaging you can leave for another device, when seen it can send the message for you. 
 
-## mesh-bot.sh
+The bot also is capable of dual radio/nodes so you can monitor two networks at the same time and send messages to nodes using the `bbspost @nodeNumber #message` function.
 
-Alternate bot, adds internet and other telemetry data which goes beyond just ping
+There is a small messageboard to fit in the constraints of Meshtastic for listing bulletin messages with `bbspost $subject #message`
+
 
 - Various solar details for radio propagation
   - `sun` and `moon` return info on rise and set local time
@@ -32,6 +30,12 @@ Alternate bot, adds internet and other telemetry data which goes beyond just pin
   - `wxa` and `wxalert` returns NOAA alerts. short title or expanded details
   - `joke` tells a joke
   - `messages` Replay the last messages heard, like Store and Forward
+  - `motd` or to set the message `motd $New Message Of the day`
+  - `lheard` returns the last 5 heard nodes with SNR, can also use `sitrep`
+  - `cmd` returns the list of commands (the help message)
+
+## pong_bot.sh
+Stripped down bot, mostly around for archive purposes. The mesh-bot enhanced modules can be disabled by config. 
 
 ## Install
 - Clone the project with `git clone https://github.com/spudgunman/meshing-around`
@@ -39,7 +43,7 @@ Alternate bot, adds internet and other telemetry data which goes beyond just pin
 - `launch.sh` will activate and launch the app in the venv if built
 
  ### Configurations
-Some config is via code see `modules/settings.py`, converting to `config.ini` set the appropriate interface for your method (serial/ble/tcp). The config.template can be used to make a new config.ini
+copy the [`config.template`](config.template) to `config.ini` set the appropriate interface for your method (serial/ble/tcp).
 
 ```
 #config.ini
@@ -59,7 +63,9 @@ type = serial
 enabled = False
 ```
 
-The following pair of settings determine how to respond, default action is to not spam the default channel. Setting DM_ONLY will force all DM which may not be wanted. Setting the Default channel is the channel which wont be spammed by the bot.
+The following pair of settings determine how to respond, default action is to not spam the default channel. Setting `respond_by_dm_only` will force all messaged to DM which may not be wanted. Setting the value to True will allow responses in the channel for all to see. 
+
+Setting the Default channel, is the channel which wont be spammed by the bot. It's the public default channel 0 on new Meshtastic firmware. Anti-Spam is hardcoded into the responder to prevent abuse of public channel. 
 ```
 [general]
 respond_by_dm_only = True
@@ -72,11 +78,10 @@ Modules can be disabled or enabled
 enabled = False
 
 [general]
-DadJokes = True
-StoreForward = True
-StoreLimit = 3 # The number of StoreForward messages to retain
+DadJokes = False
+StoreForward = False
 ```
-The BBS has admin and block lists, see the modules/bbstools.py for details
+The BBS has admin and block lists, see the [`config.template`](config.template)
 
 # requirements
 can also be installed with `pip install -r requirements.txt`
@@ -85,7 +90,7 @@ can also be installed with `pip install -r requirements.txt`
 pip install meshtastic
 pip install pubsub
 ```
-mesh-bot enhancments
+mesh-bot enhancements
 
 ```
 pip install pyephem
@@ -105,4 +110,5 @@ GitHub user https://github.com/PiDiBi
  - providing looking at test functions and other suggestions like wxc, cpu use and alerting code
 
 Discord and Mesh user Cisien, and github Hailo1999, for testing and ideas!
+
 

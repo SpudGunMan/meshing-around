@@ -33,7 +33,7 @@ def get_tide(lat=0, lon=0):
         return NO_DATA_NOGPS
     station_lookup_url = "https://api.tidesandcurrents.noaa.gov/mdapi/prod/webapi/tidepredstations.json?lat=" + str(lat) + "&lon=" + str(lon) + "&radius=50"
     try:
-        station_data = requests.get(station_lookup_url, timeout=URL_TIMEOUT)
+        station_data = requests.get(station_lookup_url, timeout=urlTimeoutSeconds)
         if station_data.ok:
             station_json = station_data.json()
         else:
@@ -52,7 +52,7 @@ def get_tide(lat=0, lon=0):
         station_url += "&clock=24hour"
 
     try:
-        station_data = requests.get(station_url, timeout=URL_TIMEOUT)
+        station_data = requests.get(station_url, timeout=urlTimeoutSeconds)
         if not station_data.ok:
             return ERROR_FETCHING_DATA
     except (requests.exceptions.RequestException):
@@ -92,7 +92,7 @@ def get_weather(lat=0, lon=0, unit=0):
         weather_url += "&unit=1"
     
     try:
-        weather_data = requests.get(weather_url, timeout=URL_TIMEOUT)
+        weather_data = requests.get(weather_url, timeout=urlTimeoutSeconds)
         if not weather_data.ok:
             return ERROR_FETCHING_DATA
     except (requests.exceptions.RequestException):
@@ -112,7 +112,7 @@ def get_weather(lat=0, lon=0, unit=0):
         # shrink the text
         line = abbreviate_weather(row.text)
         # only grab a few days of weather
-        if len(weather.split("\n")) < DAYS_OF_WEATHER:
+        if len(weather.split("\n")) < forecastDuration:
             weather += line + "\n"
     # trim off last newline
     weather = weather[:-1]
@@ -187,7 +187,7 @@ def getWeatherAlerts(lat=0, lon=0):
     #alert_url = "https://api.weather.gov/alerts/active.atom?area=WA"
     
     try:
-        alert_data = requests.get(alert_url, timeout=URL_TIMEOUT)
+        alert_data = requests.get(alert_url, timeout=urlTimeoutSeconds)
         if not alert_data.ok:
             return ERROR_FETCHING_DATA
     except (requests.exceptions.RequestException):
@@ -215,7 +215,7 @@ def getWeatherAlerts(lat=0, lon=0):
     alerts = abbreviate_weather(alerts)
 
     # return the first ALERT_COUNT alerts
-    data = "\n".join(alerts.split("\n")[:ALERT_COUNT]), alert_num
+    data = "\n".join(alerts.split("\n")[:numWxAlerts]), alert_num
     return data
 
 def getActiveWeatherAlertsDetail(lat=0, lon=0):
@@ -228,7 +228,7 @@ def getActiveWeatherAlertsDetail(lat=0, lon=0):
     #alert_url = "https://api.weather.gov/alerts/active.atom?area=WA"
     
     try:
-        alert_data = requests.get(alert_url, timeout=URL_TIMEOUT)
+        alert_data = requests.get(alert_url, timeout=urlTimeoutSeconds)
         if not alert_data.ok:
             return ERROR_FETCHING_DATA
     except (requests.exceptions.RequestException):
@@ -252,7 +252,7 @@ def getActiveWeatherAlertsDetail(lat=0, lon=0):
     alerts = abbreviate_weather(alerts)
 
     # trim the alerts to the first ALERT_COUNT
-    alerts = alerts.split("\n***\n")[:ALERT_COUNT]
+    alerts = alerts.split("\n***\n")[:numWxAlerts]
     
     if alerts == "" or alerts == ['']:
         return ERROR_FETCHING_DATA
