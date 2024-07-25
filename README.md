@@ -53,6 +53,10 @@ type = serial
 # port = '/dev/ttyUSB0'
 # hostname = 192.168.0.1
 # mac = 00:11:22:33:44:55
+
+# Additional interface for dual radio support see config.template for more
+[interface2]
+enabled = False
 ```
 
 The following pair of settings determine how to respond, default action is to not spam the default channel. Setting DM_ONLY will force all DM which may not be wanted. Setting the Default channel is the channel which wont be spammed by the bot.
