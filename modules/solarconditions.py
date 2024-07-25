@@ -78,7 +78,7 @@ def get_sun(lat=0, lon=0):
     local_sunset = ephem.localtime(obs.next_setting(sun))
     if zuluTime:
         sun_table['rise_time'] = local_sunrise.strftime('%a %d %H:%M')
-        sun_table['set_time'] = local_sunset.strftime('%a %d %H:%M%')
+        sun_table['set_time'] = local_sunset.strftime('%a %d %H:%M')
     else:
         sun_table['rise_time'] = local_sunrise.strftime('%a %d %I:%M%p')
         sun_table['set_time'] = local_sunset.strftime('%a %d %I:%M%p')
