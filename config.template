@@ -23,24 +23,39 @@ port = /dev/ttyUSB0
 # mac = 00:11:22:33:44:55
 
 [general]
+# if False will respond on all channels but the default channel
 respond_by_dm_only = True
+# defaultChannel is the meshtastic default public channel
 defaultChannel = 0
+# motd is reset to this value on boot
 motd = Thanks for using MeshBOT! Have a good day!
 welcome_message = MeshBot, here for you like a friend who is not. Try sending: ping @foo or, cmd
+# enable or disable the Joke module
 DadJokes = True
+# StoreForward Enabled and Limits
 StoreForward = True
 StoreLimit = 3
 # 24 hour clock
 zuluTime = True
+# wait time for URL requests
+URL_TIMEOUT = 10
 
 [bbs]
 enabled = True
+# list of banned nodes numbers ex: [2813308004, 4258675309]
+bbs_ban_list = []
+# list of admin nodes numbers ex: [2813308004, 4258675309] 
+bbs_admin_list = [] 
 
 # location module
 [location]
 enabled = True
 lat = 48.50
 lon = -123.0
+# weather forecast days, the first two rows are today and tonight
+DAYS_OF_WEATHER = 4
+# number of weather alerts to display
+ALERT_COUNT = 2
 
 # solar module
 [solar]
