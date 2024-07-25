@@ -253,7 +253,7 @@ def onReceive(packet, interface):
                             send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number, rxNode), channel_number, message_from_id, rxNode)
                         else:
                             # respond to channel message on the channel itself
-                            send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number, rxNode), channel_number, rxNode)
+                            send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number, rxNode), channel_number, None, rxNode)
                 else:
                     # add the message to the message history but limit
                     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
