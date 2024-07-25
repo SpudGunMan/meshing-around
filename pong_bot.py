@@ -136,6 +136,8 @@ def onReceive(packet, interface):
                     print(f"{log_timestamp()} Received On Device:{rxNode} Channel {channel_number}: {message_string} From: {get_name_from_number(message_from_id, 'long', rxNode)}")
                     if useDMForResponse:
                         # respond to channel message via direct message
+                        # wait a 700ms to avoid message collision from lora-ack
+                        time.sleep(0.7)
                         send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number, rxNode), channel_number, message_from_id, rxNode)
                     else:
                         # or respond to channel message on the channel itself
