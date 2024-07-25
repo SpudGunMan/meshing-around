@@ -39,10 +39,18 @@ Store and Fowrward like message replay with `messages` and there is a repeater m
 ## pong_bot.sh
 Stripped down bot, mostly around for archive purposes. The mesh-bot enhanced modules can be disabled by config. 
 
+## Hardware
+Project is written in linux on a pi, should work anywhere meshtastic python module will funciton, with any supported meshtastic hardware/firmware. 
+- Note the pico will not run meshtastic python module (July-2024)
+
+
 ## Install
 - Clone the project with `git clone https://github.com/spudgunman/meshing-around`
-- `install.sh` will automate optional venv and requirements install
-- `launch.sh` will activate and launch the app in the venv if built
+  - code is under a lot of development so check back often `git pull`
+- Copy [`config.template`](config.template) to `config.ini` and edit for your needs
+- Optionally
+  - `install.sh` will automate optional venv and requirements install
+  - `launch.sh` will activate and launch the app in the venv if built
 
  ### Configurations
 copy the [`config.template`](config.template) to `config.ini` set the appropriate interface for your method (serial/ble/tcp).
