@@ -199,23 +199,23 @@ def send_message(message, ch, nodeid=0, node=1):
         for m in message_list:
             if nodeid == 0:
                 #Send to channel
-                print (f"{log_timestamp()} System: Sending Multi-Chunk: {m} To: Channel:{ch}")
+                print (f"{log_timestamp()} System: Sending Device:{node} Channel:{ch} Multi-Chunk Message: {m}")
                 if node == 1:
                     interface1.sendText(text=m, channelIndex=ch)
             else:
                 # Send to DM
-                print (f"{log_timestamp()} System: Sending Multi-Chunk: {m} To: {get_name_from_number(nodeid)}")
+                print (f"{log_timestamp()} System: Sending on Device:{node} Multi-Chunk Message: {m} To: {get_name_from_number(nodeid)}")
                 if node == 1:
                     interface1.sendText(text=m, channelIndex=ch, destinationId=nodeid)
     else: # message is less than 160 characters
         if nodeid == 0:
             # Send to channel
-            print (f"{log_timestamp()} System: Sending: {message} To: Channel:{ch}")
+            print (f"{log_timestamp()} System: Sending Device:{node} Channel:{ch} Message: {message}")
             if node == 1:
                 interface1.sendText(text=message, channelIndex=ch)
         else:
             # Send to DM
-            print (f"{log_timestamp()} System: Sending: {message} To: {get_name_from_number(nodeid)}")
+            print (f"{log_timestamp()} System: Sending: Device:{node} {message} To: {get_name_from_number(nodeid)}")
             if node == 1:
                 interface1.sendText(text=message, channelIndex=ch, destinationId=nodeid)
 
