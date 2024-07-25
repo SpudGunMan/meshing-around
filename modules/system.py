@@ -202,6 +202,8 @@ def send_message(message, ch, nodeid=0, nodeInt=1):
                 print (f"{log_timestamp()} System: Sending Device:{nodeInt} Channel:{ch} Multi-Chunk Message: {m}")
                 if nodeInt == 1:
                     interface1.sendText(text=m, channelIndex=ch)
+                if nodeInt == 2:
+                    interface2.sendText(text=m, channelIndex=ch)
             else:
                 # Send to DM
                 print (f"{log_timestamp()} System: Sending on Device:{nodeInt} Multi-Chunk Message: {m} To: {get_name_from_number(nodeid)}")
