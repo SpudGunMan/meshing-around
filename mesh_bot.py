@@ -224,22 +224,22 @@ def onReceive(packet, interface):
                 return
         
             # If the packet is a DM (Direct Message) respond to it, otherwise validate its a message for us on the channel
-            if packet['to'] == myNodeNum:
+            if packet['to'] == myNodeNum or packet['to'] == myNodeNum2:
                 # message is DM to us
 
                 # check if the message contains a trap word, DMs are always responded to
                 if messageTrap(message_string):
-                    print(f"{log_timestamp()} Received DM: {message_string} on Device:{rxNode} Channel: {channel_number} From: {get_name_from_number(message_from_id)}")
+                    print(f"{log_timestamp()} Received DM: {message_string} on Device:{rxNode} Channel: {channel_number} From: {get_name_from_number(message_from_id, 'long', rxNode)}")
                     # respond with DM
                     send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number, rxNode), channel_number, message_from_id, rxNode)
                 else: 
                     # respond with welcome message on DM
-                    print(f"{log_timestamp()} Ignoring DM: {message_string} on Device:{rxNode} From: {get_name_from_number(message_from_id)}")
+                    print(f"{log_timestamp()} Ignoring DM: {message_string} on Device:{rxNode} From: {get_name_from_number(message_from_id, 'long', rxNode)}")
                     send_message(welcome_message, channel_number, message_from_id, rxNode)
             else:
                 # message is on a channel
                 if messageTrap(message_string):
-                    print(f"{log_timestamp()} Received On Device:{rxNode} Channel {channel_number}: {message_string} From: {get_name_from_number(message_from_id)}")
+                    print(f"{log_timestamp()} Received On Device:{rxNode} Channel {channel_number}: {message_string} From: {get_name_from_number(message_from_id, 'long', rxNode)}")
                     if useDMForResponse:
                         # respond to channel message via direct message
                         send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number, rxNode), channel_number, message_from_id, rxNode)
@@ -247,13 +247,13 @@ def onReceive(packet, interface):
                         # or respond to channel message on the channel itself
                         if channel_number == publicChannel:
                             # warning user spamming default channel
-                            print(f"{log_timestamp()} System: Warning spamming default channel not allowed. sending DM to {get_name_from_number(message_from_id)}")
+                            print(f"{log_timestamp()} System: Warning spamming default channel not allowed. sending DM to {get_name_from_number(message_from_id, 'long', rxNode)}")
                         
                             # respond to channel message via direct message
                             send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number, rxNode), channel_number, message_from_id, rxNode)
                         else:
                             # respond to channel message on the channel itself
-                            send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number, rxNode), channel_number, None, rxNode)
+                            send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number, rxNode), channel_number, 0, rxNode)
                 else:
                     # add the message to the message history but limit
                     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
