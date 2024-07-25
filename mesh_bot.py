@@ -41,11 +41,13 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
     elif "messages" in message.lower():
          response = ""
          for msgH in msg_history:
-             # check if the message is from the same channel
-             if msgH[2] == channel_number or msgH[2] == publicChannel:
-                 # consider message safe to send
-                 response += f"\n{msgH[0]}: {msgH[1]}"
-
+             # check if the message is from the same interface
+             if msgH[4] == deviceID:
+                # check if the message is from the same channel
+                if msgH[2] == channel_number or msgH[2] == publicChannel:
+                    # consider message safe to send
+                    response += f"\n{msgH[0]}: {msgH[1]}"
+                    
          if len(response) > 0:
              bot_response = "Message History:" + response
          else:
@@ -256,12 +258,16 @@ def onReceive(packet, interface):
                             send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number, rxNode), channel_number, 0, rxNode)
                 else:
                     # add the message to the message history but limit
-                    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    if zuluTime:
+                        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    else:
+                        timestamp = datetime.now().strftime("%Y-%m-%d %I:%M:%S%p")
+                    
                     if len(msg_history) < storeFlimit:
-                        msg_history.append((get_name_from_number(message_from_id), message_string, channel_number, timestamp, rxNode))
+                        msg_history.append((get_name_from_number(message_from_id, 'long', rxNode), message_string, channel_number, timestamp, rxNode))
                     else:
                         msg_history.pop(0)
-                        msg_history.append((get_name_from_number(message_from_id), message_string, channel_number, timestamp, rxNode))
+                        msg_history.append((get_name_from_number(message_from_id, 'long', rxNode), message_string, channel_number, timestamp, rxNode))
                     
                     print(f"{log_timestamp()} System: Ignoring incoming Device:{rxNode} Channel:{channel_number} Message: {message_string} From: {get_name_from_number(message_from_id)}")
                 
