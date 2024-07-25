@@ -123,36 +123,40 @@ def get_name_from_number(number, type='long', RXnodeId=1):
     
 
 def get_node_list(nodeInt=1):
-    node_list = []
-    short_node_list = []
-    if nodeInt == 1:
-        if interface1.nodes:
-            for node in interface1.nodes.values():
-                # ignore own
-                if node['num'] != myNodeNum:
-                    node_name = get_name_from_number(node['num'], 'long', nodeInt)
-                    snr = node.get('snr', 0)
+    
+    if interface1.nodes:
+        node_list = []
+        short_node_list = []
+        for node in interface1.nodes.values():
+            # ignore own
+            if node['num'] != myNodeNum2 or node['num'] != myNodeNum:
+                node_name = get_name_from_number(node['num'], 'long', nodeInt)
+                snr = node.get('snr', 0)
 
-                    # issue where lastHeard is not always present
-                    last_heard = node.get('lastHeard', 0)
-                    
-                    # make a list of nodes with last heard time and SNR
-                    item = (node_name, last_heard, snr)
-                    node_list.append(item)
-        
-        node_list.sort(key=lambda x: x[1], reverse=True)
-        #print (f"Node List: {node_list[:5]}\n")
+                # issue where lastHeard is not always present
+                last_heard = node.get('lastHeard', 0)
+                
+                # make a list of nodes with last heard time and SNR
+                item = (node_name, last_heard, snr)
+                node_list.append(item)
+    
+    node_list.sort(key=lambda x: x[1], reverse=True)
+    #print (f"Node List: {node_list[:5]}\n")
 
-        # make a nice list for the user
-        for x in node_list[:5]:
-            short_node_list.append(f"{x[0]} SNR:{x[2]}")
+    # make a nice list for the user
+    for x in node_list[:5]:
+        short_node_list.append(f"{x[0]} SNR:{x[2]}")
 
-        return "\n".join(short_node_list)
-    elif nodeInt == 2:
+    node1_list = "\n".join(short_node_list)
+    node1 = (f"Port1:\n{node1_list}")
+
+    if interface2_enabled:
+        node_list = []
+        short_node_list = []
         if interface2.nodes:
             for node in interface2.nodes.values():
                 # ignore own
-                if node['num'] != myNodeNum2:
+                if node['num'] != myNodeNum2 or node['num'] != myNodeNum:
                     node_name = get_name_from_number(node['num'], 'long', nodeInt)
                     snr = node.get('snr', 0)
 
@@ -170,10 +174,14 @@ def get_node_list(nodeInt=1):
         for x in node_list[:5]:
             short_node_list.append(f"{x[0]} SNR:{x[2]}")
 
-        return "\n".join(short_node_list)
-    
+        node2_list = "\n".join(short_node_list)
+        node2 = (f"\n Port2:\n{node2_list}")
     else:
-        return ERROR_FETCHING_DATA
+        node2 = ""
+    
+    return node1 + node2
+
+    
 
 def get_node_location(number, nodeInt=1):
     # Get the location of a node by its number from nodeDB on device
