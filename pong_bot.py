@@ -160,7 +160,7 @@ def onReceive(packet, interface):
                     print(f"{log_timestamp()} System: Ignoring incoming Device:{rxNode} Channel:{channel_number} Message: {message_string} From: {get_name_from_number(message_from_id)}")
                 
     except KeyError as e:
-        print(f"{log_timestamp()} System: Error processing packet: {e}")
+        print(f"{log_timestamp()} System: Error processing packet: {e} Device:{rxNode}")
         print(packet) # print the packet for debugging
         print("END of packet \n")
 
