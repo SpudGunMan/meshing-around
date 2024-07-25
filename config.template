@@ -12,6 +12,16 @@ port = /dev/ttyACM0
 # hostname = 192.168.0.1
 # mac = 00:11:22:33:44:55
 
+# Additional interface for dual radio support
+[interface2]
+enabled = False
+type = serial
+port = /dev/ttyUSB0
+#port = /dev/ttyACM1
+# port = COM1
+# hostname = 192.168.0.1
+# mac = 00:11:22:33:44:55
+
 [general]
 respond_by_dm_only = True
 defaultChannel = 0

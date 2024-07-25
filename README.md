@@ -39,10 +39,7 @@ other features
 - `launch.sh` will activate and launch the app in the venv if built
 
  ### Configurations
-Some config is via code, converting to `config.ini` set the appropriate interface for your method (serial/ble/tcp). 
- Only one at a time is supported to a single node at a time.
-
-the config.template can be used to make a new config.ini
+Some config is via code see `modules/settings.py`, converting to `config.ini` set the appropriate interface for your method (serial/ble/tcp). The config.template can be used to make a new config.ini
 
 ```
 #config.ini
