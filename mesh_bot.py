@@ -171,8 +171,8 @@ def onReceive(packet, interface):
         
         msg = bbs_check_dm(message_from_id)
         if msg:
-            print(f"{log_timestamp()} System: BBS DM Found: {msg[1]} For: {get_name_from_number(message_from_id)}")
-            message = "Mail: " + msg[1] + "  From: " + get_name_from_number(msg[2])
+            print(f"{log_timestamp()} System: BBS DM Found: {msg[1]} For: {get_name_from_number(message_from_id, 'long', rxNode)}")
+            message = "Mail: " + msg[1] + "  From: " + get_name_from_number(msg[2], 'long', rxNode)
             bbs_delete_dm(msg[0], msg[1])
             send_message(message, channel_number, message_from_id, rxNode)
 
@@ -220,7 +220,7 @@ def onReceive(packet, interface):
             
             if message_string == help_message or message_string == welcome_message or "CMD?:" in message_string:
                 # ignore help and welcome messages
-                print(f"{log_timestamp()} Got Own Welcome/Help header. From: {get_name_from_number(message_from_id)}")
+                print(f"{log_timestamp()} Got Own Welcome/Help header. From: {get_name_from_number(message_from_id, 'long', rxNode)}")
                 return
         
             # If the packet is a DM (Direct Message) respond to it, otherwise validate its a message for us on the channel
@@ -266,7 +266,7 @@ def onReceive(packet, interface):
                     print(f"{log_timestamp()} System: Ignoring incoming Device:{rxNode} Channel:{channel_number} Message: {message_string} From: {get_name_from_number(message_from_id)}")
                 
     except KeyError as e:
-        print(f"{log_timestamp()} System: Error processing packet: {e}")
+        print(f"{log_timestamp()} System: Error processing packet: {e} Device:{rxNode}")
         print(packet) # print the packet for debugging
         print("END of packet \n")
 
