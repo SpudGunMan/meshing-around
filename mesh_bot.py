@@ -257,6 +257,7 @@ def onReceive(packet, interface):
                             # respond to channel message on the channel itself
                             send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number, rxNode), channel_number, 0, rxNode)
                 else:
+                    # ignore the message but add it to the message history and repeat it if enabled
                     # add the message to the message history but limit
                     if zuluTime:
                         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -269,7 +270,21 @@ def onReceive(packet, interface):
                         msg_history.pop(0)
                         msg_history.append((get_name_from_number(message_from_id, 'long', rxNode), message_string, channel_number, timestamp, rxNode))
                     
-                    print(f"{log_timestamp()} System: Ignoring incoming Device:{rxNode} Channel:{channel_number} Message: {message_string} From: {get_name_from_number(message_from_id)}")
+                    # check if repeater is enabled and the other interface is enabled
+                    if repeater_enabled and interface2_enabled:         
+                        # repeat the message on the other device
+                        rMsg = (f"{message_string} From:{get_name_from_number(message_from_id, 'short', rxNode)}")
+                        # if channel found in the repeater list repeat the message
+                        if str(channel_number) in repeater_channels:
+                            if rxNode == 1:
+                                print(f"{log_timestamp()} Repeating message on Device2 Channel:{channel_number}")
+                                send_message(rMsg, channel_number, 0, 2)
+                            elif rxNode == 2:
+                                print(f"{log_timestamp()} Repeating message on Device1 Channel:{channel_number}")
+                                send_message(rMsg, channel_number, 0, 1)
+
+                    else: 
+                        print(f"{log_timestamp()} System: Ignoring incoming Device:{rxNode} Channel:{channel_number} Message: {message_string} From: {get_name_from_number(message_from_id)}")
                 
     except KeyError as e:
         print(f"{log_timestamp()} System: Error processing packet: {e} Device:{rxNode}")
@@ -290,6 +305,8 @@ def start_rx():
         print(f"System: Store and Forward Enabled")
     if useDMForResponse:
         print(f"System: Respond by DM only")
+    if repeater_enabled:
+        print(f"System: Repeater Enabled")
     # Start the receive loop
     pub.subscribe(onReceive, 'meshtastic.receive')
     print (f"{log_timestamp()} System: Autoresponder Started for Device1 {get_name_from_number(myNodeNum, 'long', 1)}")

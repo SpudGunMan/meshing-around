@@ -42,10 +42,10 @@ URL_TIMEOUT = 10
 
 [bbs]
 enabled = True
-# list of banned nodes numbers ex: [2813308004, 4258675309]
-bbs_ban_list = []
-# list of admin nodes numbers ex: [2813308004, 4258675309] 
-bbs_admin_list = [] 
+# list of banned nodes numbers ex: 2813308004,4258675309
+bbs_ban_list = 
+# list of admin nodes numbers ex: 2813308004,4258675309
+bbs_admin_list = 
 
 # location module
 [location]
@@ -60,3 +60,13 @@ ALERT_COUNT = 2
 # solar module
 [solar]
 enabled = True
+
+# repeater module
+[repeater]
+enabled = False
+# list of repeater channels ex: 2,3 which will be consumed 
+# and rebroadcasted on the same channel on the other device/node/interface
+# with great power comes great responsibility, danger could be lurking in use of this feature
+# if you have the two nodes on the same radio configurations, you could create a feedback loop
+repeater_channels = 
+

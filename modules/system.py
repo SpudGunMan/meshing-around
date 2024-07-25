@@ -121,7 +121,6 @@ def get_name_from_number(number, type='long', RXnodeId=1):
         return name
     return ERROR_FETCHING_DATA
     
-
 def get_node_list(nodeInt=1):
     
     if interface1.nodes:
@@ -180,8 +179,6 @@ def get_node_list(nodeInt=1):
         node2 = ""
     
     return node1 + node2
-
-    
 
 def get_node_location(number, nodeInt=1):
     # Get the location of a node by its number from nodeDB on device

@@ -10,6 +10,7 @@ MOTD = 'Thanks for using MeshBOT! Have a good day!'
 msg_history = [] # message history for the store and forward feature
 bbs_ban_list = [] # list of banned users
 bbs_admin_list = [] # list of admin users
+repeater_channels = [] # list of channels to listen on for repeater mode
 
 # Read the config file, if it does not exist, create basic config file
 config = configparser.ConfigParser() 
@@ -29,6 +30,7 @@ if config.sections() == []:
     config['bbs'] = {'enabled': 'True', 'bbsdb': 'bbsdb.pkl'}
     config['location'] = {'enabled': 'True','lat': '48.50', 'lon': '-123.0'}
     config['solar'] = {'enabled': 'True'}
+    config['repeater'] = {'enabled': 'false'}
     config.write(open(config_file, 'w'))
     print (f"System: Config file created, check {config_file} or review the config.template")
 
@@ -68,3 +70,6 @@ forecastDuration = config['general'].getint('DAYS_OF_WEATHER', 4) # default days
 numWxAlerts = config['general'].getint('ALERT_COUNT', 2) # default 2 alerts
 bbs_ban_list = config['bbs'].get('ban_list', '').split(',')
 bbs_admin_list = config['bbs'].get('admin_list', '').split(',')
+repeater_enabled = config['repeater'].getboolean('enabled', False)
+repeater_channels = config['repeater'].get('repeater_channels', '').split(',')
+

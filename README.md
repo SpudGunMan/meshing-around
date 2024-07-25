@@ -83,6 +83,15 @@ StoreForward = False
 ```
 The BBS has admin and block lists, see the [`config.template`](config.template)
 
+A repeater function for two different nodes and cross posting messages. The `repeater_channels` is a list of repeater channels ex: [2, 3] which will be consumed and rebroadcasted on the same channel on the other device/node/interface. With great power comes great responsibility, danger could be lurking in use of this feature! If you have the two nodes on the same radio configurations, you could create a feedback loop!!!
+
+```
+# repeater module
+[repeater]
+enabled = True
+repeater_channels = [2, 3]
+```
+
 # requirements
 can also be installed with `pip install -r requirements.txt`
 
