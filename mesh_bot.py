@@ -282,10 +282,8 @@ def onReceive(packet, interface):
                             elif rxNode == 2:
                                 print(f"{log_timestamp()} Repeating message on Device1 Channel:{channel_number}")
                                 send_message(rMsg, channel_number, 0, 1)
-
                     else: 
                         print(f"{log_timestamp()} System: Ignoring incoming Device:{rxNode} Channel:{channel_number} Message: {message_string} From: {get_name_from_number(message_from_id)}")
-                
     except KeyError as e:
         print(f"{log_timestamp()} System: Error processing packet: {e} Device:{rxNode}")
         print(packet) # print the packet for debugging
