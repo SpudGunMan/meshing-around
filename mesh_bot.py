@@ -247,7 +247,7 @@ def onReceive(packet, interface):
                         send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number, rxNode), channel_number, message_from_id, rxNode)
                     else:
                         # or respond to channel message on the channel itself
-                        if channel_number == publicChannel:
+                        if channel_number == publicChannel and antiSpam:
                             # warning user spamming default channel
                             print(f"{log_timestamp()} System: Warning spamming default channel not allowed. sending DM to {get_name_from_number(message_from_id, 'long', rxNode)}")
                         

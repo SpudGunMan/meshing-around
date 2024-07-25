@@ -11,6 +11,7 @@ msg_history = [] # message history for the store and forward feature
 bbs_ban_list = [] # list of banned users
 bbs_admin_list = [] # list of admin users
 repeater_channels = [] # list of channels to listen on for repeater mode
+antiSpam = True # anti-spam feature to prevent flooding public channel
 
 # Read the config file, if it does not exist, create basic config file
 config = configparser.ConfigParser() 
