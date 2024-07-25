@@ -282,7 +282,10 @@ def start_rx():
         print(f"System: Respond by DM only")
     # Start the receive loop
     pub.subscribe(onReceive, 'meshtastic.receive')
-    print (f"{log_timestamp()} System: Autoresponder Started for device {get_name_from_number(myNodeNum)}")
+    print (f"{log_timestamp()} System: Autoresponder Started for Device1 {get_name_from_number(myNodeNum, 'long', 1)}")
+    if interface2_enabled:
+        print (f"{log_timestamp()} System: Autoresponder Started for Device2 {get_name_from_number(myNodeNum2, 'long', 2)}")
+
     while True:
         time.sleep(0.05)
         pass
