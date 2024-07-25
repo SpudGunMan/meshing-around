@@ -122,15 +122,38 @@ def get_name_from_number(number, type='long', RXnodeId=1):
     return ERROR_FETCHING_DATA
     
 
-def get_node_list(RXnodeId=1):
+def get_node_list(nodeInt=1):
     node_list = []
     short_node_list = []
-    if RXnodeId == 1:
+    if nodeInt == 1:
         if interface1.nodes:
             for node in interface1.nodes.values():
                 # ignore own
                 if node['num'] != myNodeNum:
-                    node_name = get_name_from_number(node['num'], 'long', RXnodeId)
+                    node_name = get_name_from_number(node['num'], 'long', nodeInt)
+                    snr = node.get('snr', 0)
+
+                    # issue where lastHeard is not always present
+                    last_heard = node.get('lastHeard', 0)
+                    
+                    # make a list of nodes with last heard time and SNR
+                    item = (node_name, last_heard, snr)
+                    node_list.append(item)
+        
+        node_list.sort(key=lambda x: x[1], reverse=True)
+        #print (f"Node List: {node_list[:5]}\n")
+
+        # make a nice list for the user
+        for x in node_list[:5]:
+            short_node_list.append(f"{x[0]} SNR:{x[2]}")
+
+        return "\n".join(short_node_list)
+    elif nodeInt == 2:
+        if interface2.nodes:
+            for node in interface2.nodes.values():
+                # ignore own
+                if node['num'] != myNodeNum2:
+                    node_name = get_name_from_number(node['num'], 'long', nodeInt)
                     snr = node.get('snr', 0)
 
                     # issue where lastHeard is not always present
@@ -152,14 +175,30 @@ def get_node_list(RXnodeId=1):
     else:
         return ERROR_FETCHING_DATA
 
-def get_node_location(number, node=1):
+def get_node_location(number, nodeInt=1):
     # Get the location of a node by its number from nodeDB on device
     latitude = 0
     longitude = 0
     position = [0,0]
-    if node == 1:
+    if nodeInt == 1:
         if interface1.nodes:
             for node in interface1.nodes.values():
+                if number == node['num']:
+                    if 'position' in node:
+                        latitude = node['position']['latitude']
+                        longitude = node['position']['longitude']
+                        print (f"System: location data for {number} is {latitude},{longitude}")
+                        position = [latitude,longitude]
+                        return position
+                    else:
+                        print (f"{log_timestamp()} System: No location data for {number}")
+                        return position
+        else:
+            print (f"{log_timestamp()} System: No nodes found")
+            return position
+    if nodeInt == 2:
+        if interface2.nodes:
+            for node in interface2.nodes.values():
                 if number == node['num']:
                     if 'position' in node:
                         latitude = node['position']['latitude']
@@ -235,6 +274,14 @@ def tell_joke():
     else:
         return ''
 
+def messageTrap(msg):
+    # Check if the message contains a trap word
+    message_list=msg.split(" ")
+    for m in message_list:
+        for t in trap_list:
+            if t.lower() == m.lower():
+                return True
+    return False
 def messageTrap(msg):
     # Check if the message contains a trap word
     message_list=msg.split(" ")
