@@ -48,6 +48,8 @@ def get_tide(lat=0, lon=0):
         return ERROR_FETCHING_DATA
     
     station_url = "https://tidesandcurrents.noaa.gov/noaatidepredictions.html?id=" + station_id
+    if zuluTime:
+        station_url += "&clock=24hour"
 
     try:
         station_data = requests.get(station_url, timeout=URL_TIMEOUT)
