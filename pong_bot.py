@@ -57,9 +57,10 @@ def onReceive(packet, interface):
     rxInterface = interface.__dict__.get('devPath')
     if rxInterface == port1:
         rxNode = 1
+    elif rxInterface == port2:
+        rxNode = 2
     else:
         rxNode = 0
-        print(f"{log_timestamp()} System: Error, received packet on unknown interface: {rxInterface}")
 
     # receive a packet and process it, main instruction loop
 
