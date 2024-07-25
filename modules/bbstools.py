@@ -2,6 +2,7 @@
 # K7MHI Kelly Keeton 2024
 
 import pickle # pip install pickle
+from modules.settings import *
 
 trap_list_bbs = ("bbslist", "bbspost", "bbsread", "bbsdelete", "bbshelp")
 
