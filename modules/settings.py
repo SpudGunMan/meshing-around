@@ -13,6 +13,7 @@ msg_history = [] # message history for the store and forward feature
 NO_DATA_NOGPS = "No location data: does your device have GPS?"
 ERROR_FETCHING_DATA = "error fetching data"
 WELCOME_MSG = 'MeshBot, here for you like a friend who is not. Try sending: ping @foo  or, cmd'
+MOTD = 'Thanks for using MeshBOT! Have a good day!'
 
 # Read the config file, if it does not exist, create basic config file
 config = configparser.ConfigParser() 
@@ -26,9 +27,9 @@ except Exception as e:
 if config.sections() == []:
     print(f"System: Error reading config file: {config_file} is empty or does not exist.")
     config['interface'] = {'type': 'serial', 'port': "/dev/ttyACM0", 'hostname': '', 'mac': ''}
-    config['general'] = {'respond_by_dm_only': 'True', 'defaultChannel': '0', 'motd': 'Thanks for using MeshBOT! Have a good day!',
-                         'welcome_message': 'MeshBot, here for you like a friend who is not. Try sending: ping @foo  or, cmd',
-                         'DadJokes': 'True', 'StoreForward': 'True', 'StoreLimit': '3'}
+    config['general'] = {'respond_by_dm_only': 'True', 'defaultChannel': '0', 'motd': MOTD,
+                         'welcome_message': WELCOME_MSG,
+                         'DadJokes': 'True', 'StoreForward': 'True', 'StoreLimit': STORE_LIMIT, 'zuluTime': 'False'}
     config['bbs'] = {'enabled': 'True', 'bbsdb': 'bbsdb.pkl'}
     config['location'] = {'enabled': 'True','lat': '48.50', 'lon': '-123.0'}
     config['solar'] = {'enabled': 'True'}
@@ -63,4 +64,4 @@ bbs_enabled = config['bbs'].getboolean('enabled', False)
 bbsdb = config['bbs'].get('bbsdb', 'bbsdb.pkl')
 dad_jokes_enabled = config['general'].getboolean('DadJokes', False)
 store_forward_enabled = config['general'].getboolean('StoreForward', False)
-config['general'].get('motd', 'Thanks for using MeshBOT! Have a good day!')
+config['general'].get('motd', MOTD)
