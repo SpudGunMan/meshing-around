@@ -273,6 +273,8 @@ def onReceive(packet, interface):
                     # check if repeater is enabled and the other interface is enabled
                     if repeater_enabled and interface2_enabled:         
                         # repeat the message on the other device
+                        # wait a 700ms to avoid message collision from lora-ack.
+                        time.sleep(0.7)
                         rMsg = (f"{message_string} From:{get_name_from_number(message_from_id, 'short', rxNode)}")
                         # if channel found in the repeater list repeat the message
                         if str(channel_number) in repeater_channels:
