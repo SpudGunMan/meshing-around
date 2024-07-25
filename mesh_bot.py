@@ -231,18 +231,18 @@ def onReceive(packet, interface):
                 if messageTrap(message_string):
                     print(f"{log_timestamp()} Received DM: {message_string} on Device:{rxNode} Channel: {channel_number} From: {get_name_from_number(message_from_id)}")
                     # respond with DM
-                    send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number, rxNode), channel_number, message_from_id)
+                    send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number, rxNode), channel_number, message_from_id, rxNode)
                 else: 
                     # respond with welcome message on DM
                     print(f"{log_timestamp()} Ignoring DM: {message_string} on Device:{rxNode} From: {get_name_from_number(message_from_id)}")
-                    send_message(welcome_message, channel_number, message_from_id)
+                    send_message(welcome_message, channel_number, message_from_id, rxNode)
             else:
                 # message is on a channel
                 if messageTrap(message_string):
                     print(f"{log_timestamp()} Received On Device:{rxNode} Channel {channel_number}: {message_string} From: {get_name_from_number(message_from_id)}")
                     if useDMForResponse:
                         # respond to channel message via direct message
-                        send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number, rxNode), channel_number, message_from_id)
+                        send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number, rxNode), channel_number, message_from_id, rxNode)
                     else:
                         # or respond to channel message on the channel itself
                         if channel_number == publicChannel:
@@ -250,10 +250,10 @@ def onReceive(packet, interface):
                             print(f"{log_timestamp()} System: Warning spamming default channel not allowed. sending DM to {get_name_from_number(message_from_id)}")
                         
                             # respond to channel message via direct message
-                            send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number, rxNode), channel_number, message_from_id)
+                            send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number, rxNode), channel_number, message_from_id, rxNode)
                         else:
                             # respond to channel message on the channel itself
-                            send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number, rxNode), channel_number)
+                            send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number, rxNode), channel_number, rxNode)
                 else:
                     # add the message to the message history but limit
                     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
