@@ -25,12 +25,7 @@ if config.sections() == []:
     print(f"System: Error reading config file: {config_file} is empty or does not exist.")
     config['interface'] = {'type': 'serial', 'port': "/dev/ttyACM0", 'hostname': '', 'mac': ''}
     config['general'] = {'respond_by_dm_only': 'True', 'defaultChannel': '0', 'motd': MOTD,
-                         'welcome_message': WELCOME_MSG,
-                         'DadJokes': 'True', 'StoreForward': 'True', 'StoreLimit': '3', 'zuluTime': 'False'}
-    config['bbs'] = {'enabled': 'True', 'bbsdb': 'bbsdb.pkl'}
-    config['location'] = {'enabled': 'True','lat': '48.50', 'lon': '-123.0'}
-    config['solar'] = {'enabled': 'True'}
-    config['repeater'] = {'enabled': 'false'}
+                         'welcome_message': WELCOME_MSG, 'zuluTime': 'False'}
     config.write(open(config_file, 'w'))
     print (f"System: Config file created, check {config_file} or review the config.template")
 
