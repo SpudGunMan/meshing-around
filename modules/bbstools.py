@@ -53,7 +53,7 @@ def bbs_delete_message(messageID = 0, fromNode = 0):
     # delete a message from the bbsdb
     if messageID > 0:
         # if same user wrote message they can delete it
-        if fromNode == bbs_messages[messageID - 1][3] or fromNode in bbs_admin_list:
+        if fromNode == bbs_messages[messageID - 1][3] or str(fromNode) in bbs_admin_list:
             bbs_messages.pop(messageID - 1)
             # reset the messageID
             for i in range(len(bbs_messages)):
@@ -74,7 +74,7 @@ def bbs_post_message(subject, message, fromNode):
     messageID = len(bbs_messages) + 1
 
     # Check the BAN list for naughty nodes and silently drop the message
-    if fromNode in bbs_ban_list:
+    if str(fromNode) in bbs_ban_list:
         print (f"!!System: Naughty node {fromNode}, tried to post a message: {subject}, {message} and was dropped.")
         return "Message posted. ID is: " + str(messageID)
 
@@ -119,7 +119,7 @@ def load_bbsdm():
 def bbs_post_dm(toNode, message, fromNode):
     global bbs_dm
     # Check the BAN list for naughty nodes and silently drop the message
-    if fromNode in bbs_ban_list:
+    if str(fromNode) in bbs_ban_list:
         print (f"!!System: Naughty node {fromNode}, tried to post a message: {message} and was dropped.")
         return "DM Posted for node " + str(toNode)
 
