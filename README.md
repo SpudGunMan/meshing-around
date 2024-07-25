@@ -12,6 +12,8 @@ The bot also is capable of dual radio/nodes so you can monitor two networks at t
 
 There is a small messageboard to fit in the constraints of Meshtastic for listing bulletin messages with `bbspost $subject #message`
 
+Store and Fowrward like message replay with `messages` and there is a repeater module for dual radio bots.
+
 
 - Various solar details for radio propagation
   - `sun` and `moon` return info on rise and set local time
