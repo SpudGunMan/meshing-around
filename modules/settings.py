@@ -68,8 +68,8 @@ config['general'].get('motd', MOTD)
 urlTimeoutSeconds = config['general'].getint('URL_TIMEOUT', 10) # default 10 seconds
 forecastDuration = config['general'].getint('DAYS_OF_WEATHER', 4) # default days of weather
 numWxAlerts = config['general'].getint('ALERT_COUNT', 2) # default 2 alerts
-bbs_ban_list = config['bbs'].get('ban_list', '').split(',')
-bbs_admin_list = config['bbs'].get('admin_list', '').split(',')
+bbs_ban_list = config['bbs'].get('bbs_ban_list', '').split(',')
+bbs_admin_list = config['bbs'].get('bbs_admin_list', '').split(',')
 repeater_enabled = config['repeater'].getboolean('enabled', False)
 repeater_channels = config['repeater'].get('repeater_channels', '').split(',')
 
