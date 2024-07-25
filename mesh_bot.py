@@ -269,17 +269,17 @@ def onReceive(packet, interface):
 def start_rx():
     print ("\nMeshtastic Autoresponder Bot CTL+C to exit\n")
     if bbs_enabled:
-        print(f"{log_timestamp()} System: BBS Enabled, using {bbsdb}")
+        print(f"System: BBS Enabled, using {bbsdb}")
     if solar_conditions_enabled:
-        print(f"{log_timestamp()} System: Celestial Telemetry Enabled")
+        print(f"System: Celestial Telemetry Enabled")
     if location_enabled:
-        print(f"{log_timestamp()} System: Location Telemetry Enabled")
+        print(f"System: Location Telemetry Enabled")
     if dad_jokes_enabled:
-        print(f"{log_timestamp()} System: Dad Jokes Enabled!")
+        print(f"System: Dad Jokes Enabled!")
     if store_forward_enabled:
-        print(f"Sys{log_timestamp()} Systemtem: Store and Forward Enabled")
+        print(f"System: Store and Forward Enabled")
     if useDMForResponse:
-        print(f"{log_timestamp()} System: Respond by DM only")
+        print(f"System: Respond by DM only")
     # Start the receive loop
     pub.subscribe(onReceive, 'meshtastic.receive')
     print (f"{log_timestamp()} System: Autoresponder Started for device {get_name_from_number(myNodeNum)}")
