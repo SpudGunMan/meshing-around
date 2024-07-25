@@ -113,7 +113,7 @@ def get_node_list(node=1):
         return "\n".join(short_node_list)
     
     else:
-        return "Error Processing Node List"
+        return ERROR_FETCHING_DATA
 
 def get_node_location(number, node=1):
     # Get the location of a node by its number from nodeDB on device
