@@ -183,8 +183,11 @@ def get_node_location(number, nodeInt=1):
             for node in interface1.nodes.values():
                 if number == node['num']:
                     if 'position' in node:
-                        latitude = node['position']['latitude']
-                        longitude = node['position']['longitude']
+                        try:
+                            latitude = node['position']['latitude']
+                            longitude = node['position']['longitude']
+                        except Exception as e:
+                            print (f"{log_timestamp()} System: Error getting location data for {number}")
                         print (f"System: location data for {number} is {latitude},{longitude}")
                         position = [latitude,longitude]
                         return position
@@ -199,8 +202,11 @@ def get_node_location(number, nodeInt=1):
             for node in interface2.nodes.values():
                 if number == node['num']:
                     if 'position' in node:
-                        latitude = node['position']['latitude']
-                        longitude = node['position']['longitude']
+                        try:
+                            latitude = node['position']['latitude']
+                            longitude = node['position']['longitude']
+                        except Exception as e:
+                            print (f"{log_timestamp()} System: Error getting location data for {number}")
                         print (f"System: location data for {number} is {latitude},{longitude}")
                         position = [latitude,longitude]
                         return position
