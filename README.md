@@ -44,7 +44,7 @@ The project is written in Linux on a Pi and should work anywhere meshtastic Pyth
 ## Install
 Clone the project with `git clone https://github.com/spudgunman/meshing-around`
 code is under a lot of development, so check back often with `git pull`
-Copy [`config.template] to `config.ini` and edit for your needs.
+Copy [config.template](config.template) to `config.ini` and edit for your needs.
 - Optionally
 - `install.sh` will automate optional venv and requirements installation.
 - `launch.sh` will activate and launch the app in the venv if built.
@@ -121,8 +121,6 @@ I used ideas and snippets from other responder bots and want to call them out!
 - https://github.com/Murturtle/MeshLink
 - https://github.com/pdxlocations/Meshtastic-Python-Examples
 
-GitHub user: https://github.com/PiDiBi
-- providing looking at test functions and other suggestions like wxc, CPU use, and alerting code
-
+GitHub user PiDiBi looking at test functions and other suggestions like wxc, CPU use, and alerting ideas
 Discord and Mesh user Cisien, and github Hailo1999, for testing and ideas!
 
