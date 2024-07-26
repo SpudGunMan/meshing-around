@@ -68,7 +68,7 @@ type = serial
 [interface2]
 enabled = False
 ```
-The following pair of settings determine how to respond: The default action is to not spam the default channel. Setting'respond_by_DM_only'` will force all messages to be sent to DM, which may not be wanted. Setting the value to True will allow responses in the channel for all to see.
+The following pair of settings determine how to respond: The default action is to not spam the default channel. Setting'respond_by_DM_only'` will force all messages to be sent to DM, which may not be wanted. Setting the value to False will allow responses in the channel for all to see.
 
 Setting the default channel is the channel that won't be spammed by the bot. It's the public default channel 0 on the new Meshtastic firmware. Anti-Spam is hardcoded into the responder to prevent abuse of the public channel.
 ```
