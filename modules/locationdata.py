@@ -14,23 +14,28 @@ trap_list_location = ("whereami", "tide", "moon", "wx", "wxc", "wxa", "wxalert")
 def where_am_i(lat=0, lon=0):
     whereIam = ""
     grid = mh.to_maiden(float(lat), float(lon))
+    # initialize Nominatim API
+    geolocator = Nominatim(user_agent="mesh-bot")
 
     if float(lat) == 0 and float(lon) == 0:
         return NO_DATA_NOGPS
     
-    if float(lat) == latitudeValue and float(lon) == longitudeValue:
-        return "Grid: " + grid
-    
-    # initialize Nominatim API
-    geolocator = Nominatim(user_agent="mesh-bot")
     # Nomatim API call to get address
-    location = geolocator.reverse(lat + ", " + lon)
-    address = location.raw['address']
-    address_components = ['house_number', 'road', 'city', 'state', 'postcode', 'county', 'country']
-    whereIam += ' '.join([address.get(component, '') for component in address_components if component in address])
-    whereIam += " Grid: " + grid
-
-    return whereIam
+    if float(lat) == latitudeValue and float(lon) == longitudeValue:
+        # redacted address when no GPS and using default location
+        location = geolocator.reverse(lat + ", " + lon)
+        address = location.raw['address']
+        address_components = ['city', 'state', 'postcode', 'county', 'country']
+        whereIam += ' '.join([address.get(component, '') for component in address_components if component in address])
+        whereIam += " Grid: " + grid
+        return whereIam
+    else:
+        location = geolocator.reverse(lat + ", " + lon)
+        address = location.raw['address']
+        address_components = ['house_number', 'road', 'city', 'state', 'postcode', 'county', 'country']
+        whereIam += ' '.join([address.get(component, '') for component in address_components if component in address])
+        whereIam += " Grid: " + grid
+        return whereIam
 
 def get_tide(lat=0, lon=0):
     station_id = ""
