@@ -41,7 +41,9 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
     elif "cmd" in message.lower():
         bot_response = help_message
     elif "lheard" in message.lower() or "sitrep" in message.lower():
-        bot_response = "Last heard:\n" + str(get_node_list(deviceID))
+        bot_response = "Last heard:\n" + str(get_node_list(1))
+        if interface2_enabled:
+            bot_response += "\nPort2:\n" + str(get_node_list(2))
     elif "testing" in message.lower() or "test" in message.lower():
         bot_response = "🏓Testing 1,2,3"
     else:
