@@ -14,11 +14,12 @@ trap_list_location = ("whereami", "tide", "moon", "wx", "wxc", "wxa", "wxalert")
 def where_am_i(lat=0, lon=0):
     whereIam = ""
     grid = mh.to_maiden(float(lat), float(lon))
-    # initialize Nominatim API
-    geolocator = Nominatim(user_agent="mesh-bot")
-
+    
     if float(lat) == 0 and float(lon) == 0:
         return NO_DATA_NOGPS
+    
+    # initialize Nominatim API
+    geolocator = Nominatim(user_agent="mesh-bot")
     
     # Nomatim API call to get address
     if float(lat) == latitudeValue and float(lon) == longitudeValue:
