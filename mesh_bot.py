@@ -173,6 +173,8 @@ def onReceive(packet, interface):
         
         msg = bbs_check_dm(message_from_id)
         if msg:
+            # wait a 700ms to avoid message collision from lora-ack.
+            time.sleep(0.7)
             print(f"{log_timestamp()} System: BBS DM Found: {msg[1]} For: {get_name_from_number(message_from_id, 'long', rxNode)}")
             message = "Mail: " + msg[1] + "  From: " + get_name_from_number(msg[2], 'long', rxNode)
             bbs_delete_dm(msg[0], msg[1])
