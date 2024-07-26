@@ -78,6 +78,8 @@ if interface2_enabled:
     except Exception as e:
         print(f"System: Critical Error script abort. {e}")
         exit()
+else:
+    myNodeNum2 = 777
 
 def log_timestamp():
     if zuluTime:
