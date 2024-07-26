@@ -50,7 +50,7 @@ Copy [`config.template] to `config.ini` and edit for your needs.
 - `launch.sh` will activate and launch the app in the venv if built.
 
 ### Configurations
-Copy the [`config.template] to `config.ini` and set the appropriate interface for your method (serial/ble/tcp).
+Copy the [config.template](config.template) to `config.ini` and set the appropriate interface for your method (serial/ble/tcp).
 
 ```
 #config.ini
@@ -87,7 +87,7 @@ enabled = False
 DadJokes = False
 StoreForward = False
 ```
-The BBS has admin and block lists; see the ['config.template']. (config.template)
+The BBS has admin and block lists; see the [config.template](config.template)
 
 A repeater function for two different nodes and cross-posting messages. The'repeater_channels` is a list of repeater channel(s) that will be consumed and rebroadcasted on the same number channel on the other device, node, or interface. Each node should have matching channel numbers. The channel names and PSK do not need to be the same on the nodes. With great power comes great responsibility; danger could lurk in the use of this feature! If you have the two nodes in the same radio configuration, you could create a feedback loop!!!
 
