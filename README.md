@@ -37,8 +37,9 @@ Store and forward-like message re-play with `messages`, and there is a repeater 
 Stripped-down bot, mostly around for archive purposes. The mesh-bot enhanced modules can be disabled by config to disable features.
 
 ## Hardware
-The project is written in Linux on a Pi and should work anywhere meshtastic Python modules will function with any supported meshtastic hardware or firmware.
+The project is written in Linux on a Pi and should work anywhere meshtastic Python module will function. With any supported meshtastic hardware. While BLE and TCP will work they are not as reliable as serial connections. 
  - Note that Pico will not run the Meshastic Python module in July 2024.
+ - Firmware 2.3.14/15 could also have an issue with connectivity reported by a few in discord. 
 
 ## Install
 Clone the project with `git clone https://github.com/spudgunman/meshing-around`
