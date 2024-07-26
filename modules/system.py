@@ -119,7 +119,7 @@ def get_name_from_number(number, type='long', RXnodeId=1):
             else:
                 name =  str(decimal_to_hex(number))
         return name
-    return ERROR_FETCHING_DATA
+    return number
     
 def get_node_list(nodeInt=1):
     
@@ -182,9 +182,9 @@ def get_node_list(nodeInt=1):
 
 def get_node_location(number, nodeInt=1):
     # Get the location of a node by its number from nodeDB on device
-    latitude = 0
-    longitude = 0
-    position = [0,0]
+    latitude = latitudeValue
+    longitude = longitudeValue
+    position = [latitudeValue,longitudeValue]
     if nodeInt == 1:
         if interface1.nodes:
             for node in interface1.nodes.values():
