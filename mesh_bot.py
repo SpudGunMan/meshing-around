@@ -313,10 +313,13 @@ def start_rx():
         print(f"System: Repeater Enabled")
     # Start the receive loop
     pub.subscribe(onReceive, 'meshtastic.receive')
-    print (f"{log_timestamp()} System: Autoresponder Started for Device1 {get_name_from_number(myNodeNum, 'long', 1)}")
+    msg = (f"{log_timestamp()} System: Autoresponder Started for Device1 {get_name_from_number(myNodeNum, 'long', 1)},"
+            f"{get_name_from_number(myNodeNum, 'short', 1)}. NodeID: {myNodeNum}, {decimal_to_hex(myNodeNum)}")
+    print (msg)
     if interface2_enabled:
-        print (f"{log_timestamp()} System: Autoresponder Started for Device2 {get_name_from_number(myNodeNum2, 'long', 2)}")
-
+        msg = (f"{log_timestamp()} System: Autoresponder Started for Device2 {get_name_from_number(myNodeNum2, 'long', 2)},"
+               f"{get_name_from_number(myNodeNum2, 'short', 2)}. NodeID: {myNodeNum2}, {decimal_to_hex(myNodeNum2)}")
+        print (msg)
     while True:
         time.sleep(0.5) # sleep to allow the event loop to process
         pass
