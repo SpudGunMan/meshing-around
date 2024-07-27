@@ -55,22 +55,21 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
     return bot_response
 
 def onReceive(packet, interface):
-    # extract interface from interface object 
-    rxInterface = interface.__dict__.get('devPath')
-    if rxInterface == port1:
-        rxNode = 1
-    elif rxInterface == port2:
-        rxNode = 2
+    # extract interface from interface object
+    if interface2_enabled:
+        rxInterface = interface.__dict__.get('devPath')
+        if rxInterface == port2:
+            rxNode = 2
+        else:
+            rxNode = 0
     else:
-        rxNode = 0
+        rxNode = 1
 
     # receive a packet and process it, main instruction loop
 
     # print the packet for debugging
     #print(f"Packet Received\n {packet} \n END of packet \n")
     message_from_id = 0
-    snr = 0
-    rssi = 0
 
     # check for a message packet and process it
     try:
@@ -78,8 +77,12 @@ def onReceive(packet, interface):
             message_bytes = packet['decoded']['payload']
             message_string = message_bytes.decode('utf-8')
             message_from_id = packet['from']
-            snr = packet['rxSnr']
-            rssi = packet['rxRssi']
+            try:
+                snr = packet['rxSnr']
+                rssi = packet['rxRssi']
+            except KeyError:
+                snr = 0
+                rssi = 0
 
             if packet.get('channel'):
                 channel_number = packet['channel']
