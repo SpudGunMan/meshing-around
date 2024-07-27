@@ -205,7 +205,7 @@ def start_rx():
         print (f"{log_timestamp()} System: Autoresponder Started for Device2 {get_name_from_number(myNodeNum2, 'long', 2)}")
         
     while True:
-        time.sleep(0.05)
+        time.sleep(0.5) # sleep to allow the event loop to process
         pass
 
 # Hello World 
