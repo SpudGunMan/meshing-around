@@ -8,8 +8,20 @@ from datetime import datetime
 from modules.settings import *
 
 # Global Variables
-trap_list = ("ping", "pinging", "ack", "testing", "test", "pong", "motd", "cmd",  "lheard", "sitrep")
-help_message = "CMD?: ping, motd, sitrep"
+trap_list = ("cmd",) # default trap list
+help_message = "CMD?:"
+
+# Ping Configuration
+if ping_enabled:
+    # ping, pinging, ack, testing, test, pong
+    trap_list_ping = ("ping", "pinging", "ack", "testing", "test", "pong")
+    trap_list = trap_list + trap_list_ping
+    help_message = help_message + "ping"
+
+if sitrep_enabled:
+    trap_list_sitrep = ("sitrep", "lheard")
+    trap_list = trap_list + trap_list_sitrep
+    help_message = help_message + ", sitrep"
 
 # Solar Conditions Configuration
 if solar_conditions_enabled:

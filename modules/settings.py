@@ -12,6 +12,8 @@ bbs_ban_list = [] # list of banned users
 bbs_admin_list = [] # list of admin users
 repeater_channels = [] # list of channels to listen on for repeater mode
 antiSpam = True # anti-spam feature to prevent flooding public channel
+ping_enabled = True # ping feature to respond to pings, ack's etc.
+sitrep_enabled = True # sitrep feature to respond to sitreps
 
 # Read the config file, if it does not exist, create basic config file
 config = configparser.ConfigParser() 

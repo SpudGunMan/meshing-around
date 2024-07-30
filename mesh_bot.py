@@ -328,7 +328,6 @@ async def start_rx():
         await asyncio.sleep(0.5)
         for signal in [SIGINT, SIGTERM]:
             messageLoop.add_signal_handler(signal.SIGINT, rxLoop.cancel)
-            #exit_handler()
         pass
 
 def exit_handler():
