@@ -324,10 +324,14 @@ async def start_rx():
         msg = (f"{log_timestamp()} System: Autoresponder Started for Device2 {get_name_from_number(myNodeNum2, 'long', 2)},"
                f"{get_name_from_number(myNodeNum2, 'short', 2)}. NodeID: {myNodeNum2}, {decimal_to_hex(myNodeNum2)}")
         print (msg)
+    # add signal handlers
+    for signal in [SIGINT, SIGTERM]:
+        messageLoop.add_signal_handler(SIGINT)
+        messageLoop.add_signal_handler(SIGTERM)
+
+    # here we go loopty loo
     while True:
         await asyncio.sleep(0.5)
-        for signal in [SIGINT, SIGTERM]:
-            messageLoop.add_signal_handler(signal.SIGINT, rxLoop.cancel)
         pass
 
 def exit_handler():
