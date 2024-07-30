@@ -4,6 +4,7 @@
 
 import asyncio # for the event loop
 import time # for sleep, get some when you can :)
+from signal import SIGINT, SIGTERM
 from pubsub import pub # pip install pubsub
 from modules.settings import *
 from modules.system import *
@@ -298,7 +299,7 @@ def onReceive(packet, interface):
         print(packet) # print the packet for debugging
         print("END of packet \n")
 
-def start_rx():
+async def start_rx():
     print ("\nMeshtastic Autoresponder Bot CTL+C to exit\n")
     if bbs_enabled:
         print(f"System: BBS Enabled, using {bbsdb}")
@@ -324,12 +325,16 @@ def start_rx():
                f"{get_name_from_number(myNodeNum2, 'short', 2)}. NodeID: {myNodeNum2}, {decimal_to_hex(myNodeNum2)}")
         print (msg)
     while True:
-        time.sleep(0.5) # sleep to allow the event loop to process
+        await asyncio.sleep(0.5)
+        for signal in [SIGINT, SIGTERM]:
+            messageLoop.add_signal_handler(signal.SIGINT, rxLoop.cancel)
+            #exit_handler()
         pass
 
 def exit_handler():
     # Close the interface and save the BBS messages
     print(f"\n{log_timestamp()} System: Closing Autoresponder\n")
+    rxLoop.cancel()              
     interface1.close()
     print(f"{log_timestamp()} System: Interface1 Closed")
     if interface2_enabled:
@@ -339,14 +344,18 @@ def exit_handler():
         save_bbsdb()
         print(f"{log_timestamp()} System: BBS Messages Saved")
     print(f"{log_timestamp()} System: Exiting")
+    messageLoop.stop()
+    messageLoop.close()
     exit (0)
 
 # Hello World 
-loop = asyncio.new_event_loop()
+messageLoop = asyncio.new_event_loop()
+rxLoop = asyncio.ensure_future(start_rx(), loop=messageLoop)
+
 try:
-    loop.run_forever(start_rx())
-finally:
-    loop.close()
+    messageLoop.run_forever()
+except KeyboardInterrupt:
     exit_handler()
+    pass
 
 # EOF

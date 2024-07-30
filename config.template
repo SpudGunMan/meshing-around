@@ -19,7 +19,7 @@ type = serial
 port = /dev/ttyUSB0
 #port = /dev/ttyACM1
 # port = COM1
-# hostname = 192.168.0.1
+# hostname = meshtastic.local
 # mac = 00:11:22:33:44:55
 
 [general]
