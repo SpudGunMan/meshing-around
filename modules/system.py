@@ -327,44 +327,6 @@ def exit_handler():
     asyncLoop.close()
     exit (0)
 
-async def retry_interface(nodeID=1):
-    global interface1, interface2
-    # retry the interface
-    if nodeID==1:
-        interface1 = None
-        if interface1_type == 'serial':
-            interface1 = meshtastic.serial_interface.SerialInterface(port1)
-        elif interface1_type == 'tcp':
-            interface1 = meshtastic.tcp_interface.TCPInterface(hostname1)
-        elif interface1_type == 'ble':
-            interface1 = meshtastic.ble_interface.BLEInterface(mac1)
-        print(f"{log_timestamp()} System: Interface1 Opened")
-    if nodeID==2:
-        interface2 = None
-        if interface2_type == 'serial':
-            interface2 = meshtastic.serial_interface.SerialInterface(port2)
-        elif interface2_type == 'tcp':
-            interface2 = meshtastic.tcp_interface.TCPInterface(hostname2)
-        elif interface2_type == 'ble':
-            interface2 = meshtastic.ble_interface.BLEInterface(mac2)
-        print(f"{log_timestamp()} System: Interface2 Opened")
-
-# this is a workaround because .localNode.getMetadata spits out a lot of debug info which cant be suppressed
-
-from contextlib import contextmanager
-import os
-import sys
-
-@contextmanager
-def suppress_stdout():
-    with open(os.devnull, "w") as devnull:
-        old_stdout = sys.stdout
-        sys.stdout = devnull
-        try:  
-            yield
-        finally:
-            sys.stdout = old_stdout
-
 async def watchdog():
     # watchdog for connection to the interface
     while True:
@@ -385,3 +347,53 @@ async def watchdog():
             except Exception as e:
                 print(f"{log_timestamp()} System: Error communicating with interface2: {e}")
                 await retry_interface(2)
+
+# this is a workaround because .localNode.getMetadata spits out a lot of debug info which cant be suppressed
+
+from contextlib import contextmanager
+import os
+import sys
+
+@contextmanager
+def suppress_stdout():
+    with open(os.devnull, "w") as devnull:
+        old_stdout = sys.stdout
+        sys.stdout = devnull
+        try:  
+            yield
+        finally:
+            sys.stdout = old_stdout
+
+async def retry_interface(nodeID=1):
+    global interface1, interface2
+    # retry the interface
+    try:
+        if nodeID==1:
+            interface1 = None
+            if interface1_type == 'serial':
+                interface1 = meshtastic.serial_interface.SerialInterface(port1)
+            elif interface1_type == 'tcp':
+                interface1 = meshtastic.tcp_interface.TCPInterface(hostname1)
+            elif interface1_type == 'ble':
+                interface1 = meshtastic.ble_interface.BLEInterface(mac1)
+            print(f"{log_timestamp()} System: Interface1 Opened")
+    except Exception as e:
+        print(f"{log_timestamp()} System: Error opening interface1: {e}")
+        await asyncio.sleep(5)
+        retry_interface(nodeID)
+    
+    try:
+        if nodeID==2:
+            interface2 = None
+            if interface2_type == 'serial':
+                interface2 = meshtastic.serial_interface.SerialInterface(port2)
+            elif interface2_type == 'tcp':
+                interface2 = meshtastic.tcp_interface.TCPInterface(hostname2)
+            elif interface2_type == 'ble':
+                interface2 = meshtastic.ble_interface.BLEInterface(mac2)
+            print(f"{log_timestamp()} System: Interface2 Opened")
+    except Exception as e:
+        print(f"{log_timestamp()} System: Error opening interface2: {e}")
+        await asyncio.sleep(5)
+        retry_interface(nodeID)
+
