@@ -4,7 +4,6 @@
 
 import asyncio # for the event loop
 import time # for sleep, get some when you can :)
-from signal import SIGINT, SIGTERM
 from pubsub import pub # pip install pubsub
 from modules.settings import *
 from modules.system import *
@@ -332,20 +331,32 @@ async def start_rx():
         msg = (f"{log_timestamp()} System: Autoresponder Started for Device2 {get_name_from_number(myNodeNum2, 'long', 2)},"
                f"{get_name_from_number(myNodeNum2, 'short', 2)}. NodeID: {myNodeNum2}, {decimal_to_hex(myNodeNum2)}")
         print (msg)
-    # add signal handlers
-    for signal in [SIGINT, SIGTERM]:
-        messageLoop.add_signal_handler(SIGINT)
-        messageLoop.add_signal_handler(SIGTERM)
 
     # here we go loopty loo
     while True:
         await asyncio.sleep(0.5)
         pass
 
+async def watchdog():
+    # watchdog for connection to the interface
+    while True:
+        await asyncio.sleep(5)
+        try:
+            interface1.getMyNodeInfo()
+        except Exception as e:
+            print(f"{log_timestamp()} System: Watchdog Device1 Error: {e}")
+            #exit_handler()
+        if interface2_enabled:
+            try:
+                interface2.getMyNodeInfo()
+            except Exception as e:
+                print(f"{log_timestamp()} System: Watchdog Device2 Error: {e}")
+                #exit_handler()
+
 def exit_handler():
     # Close the interface and save the BBS messages
     print(f"\n{log_timestamp()} System: Closing Autoresponder\n")
-    rxLoop.cancel()              
+    #rxLoop.cancel()              
     interface1.close()
     print(f"{log_timestamp()} System: Interface1 Closed")
     if interface2_enabled:
@@ -355,16 +366,20 @@ def exit_handler():
         save_bbsdb()
         print(f"{log_timestamp()} System: BBS Messages Saved")
     print(f"{log_timestamp()} System: Exiting")
-    messageLoop.stop()
-    messageLoop.close()
+    asyncLoop.stop()
+    asyncLoop.close()
     exit (0)
 
 # Hello World 
-messageLoop = asyncio.new_event_loop()
-rxLoop = asyncio.ensure_future(start_rx(), loop=messageLoop)
+async def main():
+    meshRxTask = asyncio.create_task(start_rx())
+    watchdogTask = asyncio.create_task(watchdog())
+    await asyncio.wait([meshRxTask, watchdogTask])
 
 try:
-    messageLoop.run_forever()
+    asyncLoop = asyncio.new_event_loop()
+    if __name__ == "__main__":
+        asyncio.run(main())
 except KeyboardInterrupt:
     exit_handler()
     pass
