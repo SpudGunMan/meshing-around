@@ -2,7 +2,7 @@
 # Meshtastic Autoresponder PONG Bot
 # K7MHI Kelly Keeton 2024
 
-import asyncio # for the event loop
+import asyncio
 import time # for sleep, get some when you can :)
 from pubsub import pub # pip install pubsub
 from modules.settings import *
@@ -211,39 +211,6 @@ async def start_rx():
     while True:
         await asyncio.sleep(0.5)
         pass
-
-async def watchdog():
-    # watchdog for connection to the interface
-    while True:
-        await asyncio.sleep(5)
-        try:
-            interface1.getMyNodeInfo()
-        except Exception as e:
-            print(f"{log_timestamp()} System: Watchdog Device1 Error: {e}")
-            #exit_handler()
-        if interface2_enabled:
-            try:
-                interface2.getMyNodeInfo()
-            except Exception as e:
-                print(f"{log_timestamp()} System: Watchdog Device2 Error: {e}")
-                #exit_handler()
-
-def exit_handler():
-    # Close the interface and save the BBS messages
-    print(f"\n{log_timestamp()} System: Closing Autoresponder\n")
-    #rxLoop.cancel()              
-    interface1.close()
-    print(f"{log_timestamp()} System: Interface1 Closed")
-    if interface2_enabled:
-        interface2.close()
-        print(f"{log_timestamp()} System: Interface2 Closed")
-    if bbs_enabled:
-        save_bbsdb()
-        print(f"{log_timestamp()} System: BBS Messages Saved")
-    print(f"{log_timestamp()} System: Exiting")
-    asyncLoop.stop()
-    asyncLoop.close()
-    exit (0)
 
 # Hello World 
 async def main():

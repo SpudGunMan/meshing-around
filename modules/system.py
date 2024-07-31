@@ -5,11 +5,13 @@ import meshtastic.serial_interface #pip install meshtastic
 import meshtastic.tcp_interface
 import meshtastic.ble_interface
 from datetime import datetime
+import asyncio
 from modules.settings import *
 
 # Global Variables
 trap_list = ("cmd",) # default trap list
 help_message = "CMD?:"
+asyncLoop = asyncio.new_event_loop()
 
 # Ping Configuration
 if ping_enabled:
@@ -298,6 +300,7 @@ def messageTrap(msg):
             if t.lower() == m.lower():
                 return True
     return False
+
 def messageTrap(msg):
     # Check if the message contains a trap word
     message_list=msg.split(" ")
@@ -306,3 +309,41 @@ def messageTrap(msg):
             if t.lower() == m.lower():
                 return True
     return False
+
+def exit_handler():
+    # Close the interface and save the BBS messages
+    print(f"\n{log_timestamp()} System: Closing Autoresponder\n")
+    #rxLoop.cancel()              
+    interface1.close()
+    print(f"{log_timestamp()} System: Interface1 Closed")
+    if interface2_enabled:
+        interface2.close()
+        print(f"{log_timestamp()} System: Interface2 Closed")
+    if bbs_enabled:
+        save_bbsdb()
+        print(f"{log_timestamp()} System: BBS Messages Saved")
+    print(f"{log_timestamp()} System: Exiting")
+    asyncLoop.stop()
+    asyncLoop.close()
+    exit (0)
+
+async def watchdog():
+    # watchdog for connection to the interface
+    while True:
+        await asyncio.sleep(5)
+        #print(f"{log_timestamp()} System: watchdog running\r", end="")
+
+        try:
+            myinfo = interface1.getMyNodeInfo()
+            myNodeNum = myinfo['num']
+            print(f"{log_timestamp()} System: Got Device1 {get_name_from_number(myNodeNum, 'long', 1)},")
+        except Exception as e:
+            print(f"{log_timestamp()} System: Error getting myNodeNum from interface1: {e}")
+
+        if interface2_enabled:
+            try:
+                myinfo = interface2.getMyNodeInfo()
+                myNodeNum2 = myinfo['num']
+                print(f"{log_timestamp()} System: Got Device2 {get_name_from_number(myNodeNum2, 'long', 2)},")
+            except Exception as e:
+                print(f"{log_timestamp()} System: Error getting myNodeNum from interface2: {e}")
