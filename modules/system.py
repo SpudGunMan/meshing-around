@@ -143,7 +143,7 @@ def get_node_list(nodeInt=1):
         if interface1.nodes:
             for node in interface1.nodes.values():
                 # ignore own
-                if node['num'] != myNodeNum2 or node['num'] != myNodeNum:
+                if node['num'] != myNodeNum2 and node['num'] != myNodeNum:
                     node_name = get_name_from_number(node['num'], 'long', nodeInt)
                     snr = node.get('snr', 0)
 
@@ -160,7 +160,7 @@ def get_node_list(nodeInt=1):
         if interface2.nodes:
             for node in interface2.nodes.values():
                 # ignore own
-                if node['num'] != myNodeNum2 or node['num'] != myNodeNum:
+                if node['num'] != myNodeNum2 and node['num'] != myNodeNum:
                     node_name = get_name_from_number(node['num'], 'long', nodeInt)
                     snr = node.get('snr', 0)
 
