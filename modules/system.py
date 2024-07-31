@@ -336,7 +336,7 @@ async def watchdog():
         try:
             myinfo = interface1.getMyNodeInfo()
             myNodeNum = myinfo['num']
-            print(f"{log_timestamp()} System: Got Device1 {get_name_from_number(myNodeNum, 'long', 1)},")
+            #print(f"{log_timestamp()} System: Got Device1 {get_name_from_number(myNodeNum, 'long', 1)},")
         except Exception as e:
             print(f"{log_timestamp()} System: Error getting myNodeNum from interface1: {e}")
 
@@ -344,6 +344,6 @@ async def watchdog():
             try:
                 myinfo = interface2.getMyNodeInfo()
                 myNodeNum2 = myinfo['num']
-                print(f"{log_timestamp()} System: Got Device2 {get_name_from_number(myNodeNum2, 'long', 2)},")
+                #print(f"{log_timestamp()} System: Got Device2 {get_name_from_number(myNodeNum2, 'long', 2)},")
             except Exception as e:
                 print(f"{log_timestamp()} System: Error getting myNodeNum from interface2: {e}")
