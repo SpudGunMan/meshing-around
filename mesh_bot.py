@@ -318,11 +318,11 @@ async def start_rx():
     if dad_jokes_enabled:
         print(f"System: Dad Jokes Enabled!")
     if store_forward_enabled:
-        print(f"System: Store and Forward Enabled")
+        print(f"System: Store and Forward Enabled using limit: {storeFlimit}")
     if useDMForResponse:
         print(f"System: Respond by DM only")
     if repeater_enabled:
-        print(f"System: Repeater Enabled")
+        print(f"System: Repeater Enabled for Channels: {repeater_channels}")
     # Start the receive loop
     pub.subscribe(onReceive, 'meshtastic.receive')
     msg = (f"{log_timestamp()} System: Autoresponder Started for Device1 {get_name_from_number(myNodeNum, 'long', 1)},"

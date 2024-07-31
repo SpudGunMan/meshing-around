@@ -49,26 +49,32 @@ else:
     interface2_enabled = False
 
 # variables
-storeFlimit = config['general'].getint('StoreLimit', 3) # default 3 messages for S&F
-useDMForResponse = config['general'].getboolean('respond_by_dm_only', True)
-publicChannel = config['general'].getint('defaultChannel', 0) # the meshtastic public channel
-location_enabled = config['location'].getboolean('enabled', False)
-latitudeValue = config['location'].getfloat('lat', 48.50)
-longitudeValue = config['location'].getfloat('lon', -123.0)
-zuluTime = config['general'].getboolean('zuluTime', False)
-welcome_message = config['general'].get(f'welcome_message', WELCOME_MSG)
-welcome_message = (f"{welcome_message}").replace('\\n', '\n') # allow for newlines in the welcome message
-solar_conditions_enabled = config['solar'].getboolean('enabled', False)
-bbs_enabled = config['bbs'].getboolean('enabled', False)
-bbsdb = config['bbs'].get('bbsdb', 'bbsdb.pkl')
-dad_jokes_enabled = config['general'].getboolean('DadJokes', False)
-store_forward_enabled = config['general'].getboolean('StoreForward', False)
-config['general'].get('motd', MOTD)
-urlTimeoutSeconds = config['general'].getint('URL_TIMEOUT', 10) # default 10 seconds
-forecastDuration = config['general'].getint('DAYS_OF_WEATHER', 4) # default days of weather
-numWxAlerts = config['general'].getint('ALERT_COUNT', 2) # default 2 alerts
-bbs_ban_list = config['bbs'].get('bbs_ban_list', '').split(',')
-bbs_admin_list = config['bbs'].get('bbs_admin_list', '').split(',')
-repeater_enabled = config['repeater'].getboolean('enabled', False)
-repeater_channels = config['repeater'].get('repeater_channels', '').split(',')
+try:
+    storeFlimit = config['general'].getint('StoreLimit', 3) # default 3 messages for S&F
+    useDMForResponse = config['general'].getboolean('respond_by_dm_only', True)
+    publicChannel = config['general'].getint('defaultChannel', 0) # the meshtastic public channel
+    location_enabled = config['location'].getboolean('enabled', False)
+    latitudeValue = config['location'].getfloat('lat', 48.50)
+    longitudeValue = config['location'].getfloat('lon', -123.0)
+    zuluTime = config['general'].getboolean('zuluTime', False)
+    welcome_message = config['general'].get(f'welcome_message', WELCOME_MSG)
+    welcome_message = (f"{welcome_message}").replace('\\n', '\n') # allow for newlines in the welcome message
+    solar_conditions_enabled = config['solar'].getboolean('enabled', False)
+    bbs_enabled = config['bbs'].getboolean('enabled', False)
+    bbsdb = config['bbs'].get('bbsdb', 'bbsdb.pkl')
+    dad_jokes_enabled = config['general'].getboolean('DadJokes', False)
+    store_forward_enabled = config['general'].getboolean('StoreForward', False)
+    config['general'].get('motd', MOTD)
+    urlTimeoutSeconds = config['general'].getint('URL_TIMEOUT', 10) # default 10 seconds
+    forecastDuration = config['general'].getint('DAYS_OF_WEATHER', 4) # default days of weather
+    numWxAlerts = config['general'].getint('ALERT_COUNT', 2) # default 2 alerts
+    bbs_ban_list = config['bbs'].get('bbs_ban_list', '').split(',')
+    bbs_admin_list = config['bbs'].get('bbs_admin_list', '').split(',')
+    repeater_enabled = config['repeater'].getboolean('enabled', False)
+    repeater_channels = config['repeater'].get('repeater_channels', '').split(',')
+except KeyError as e:
+    print(f"System: Error reading config file: {e}")
+    print(f"System: Check the config.ini against config.template file for missing sections or values.")
+    print(f"System: Exiting...")
+    exit(1)
 
