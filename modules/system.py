@@ -342,8 +342,8 @@ async def watchdog():
 
         if interface2_enabled:
             try:
-                myinfo = interface2.getMyNodeInfo()
-                myNodeNum2 = myinfo['num']
+                myinfo2 = interface2.getMyNodeInfo()
+                myNodeNum2 = myinfo2['num']
                 #print(f"{log_timestamp()} System: Got Device2 {get_name_from_number(myNodeNum2, 'long', 2)},")
             except Exception as e:
                 print(f"{log_timestamp()} System: Error getting myNodeNum from interface2: {e}")
