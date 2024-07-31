@@ -327,22 +327,6 @@ def exit_handler():
     asyncLoop.close()
     exit (0)
 
-# this is a workaround because .localNode.getMetadata spits out a lot of debug info which cant be suppressed
-
-from contextlib import contextmanager
-import os
-import sys
-
-@contextmanager
-def suppress_stdout():
-    with open(os.devnull, "w") as devnull:
-        old_stdout = sys.stdout
-        sys.stdout = devnull
-        try:  
-            yield
-        finally:
-            sys.stdout = old_stdout
-
 async def retry_interface(nodeID=1):
     global interface1, interface2
     # retry the interface
@@ -364,6 +348,22 @@ async def retry_interface(nodeID=1):
         elif interface2_type == 'ble':
             interface2 = meshtastic.ble_interface.BLEInterface(mac2)
         print(f"{log_timestamp()} System: Interface2 Opened")
+
+# this is a workaround because .localNode.getMetadata spits out a lot of debug info which cant be suppressed
+
+from contextlib import contextmanager
+import os
+import sys
+
+@contextmanager
+def suppress_stdout():
+    with open(os.devnull, "w") as devnull:
+        old_stdout = sys.stdout
+        sys.stdout = devnull
+        try:  
+            yield
+        finally:
+            sys.stdout = old_stdout
 
 async def watchdog():
     # watchdog for connection to the interface
