@@ -327,6 +327,44 @@ def exit_handler():
     asyncLoop.close()
     exit (0)
 
+# this is a workaround because .localNode.getMetadata spits out a lot of debug info which cant be suppressed
+
+from contextlib import contextmanager
+import os
+import sys
+
+@contextmanager
+def suppress_stdout():
+    with open(os.devnull, "w") as devnull:
+        old_stdout = sys.stdout
+        sys.stdout = devnull
+        try:  
+            yield
+        finally:
+            sys.stdout = old_stdout
+
+async def retry_interface(nodeID=1):
+    global interface1, interface2
+    # retry the interface
+    if nodeID==1:
+        interface1 = None
+        if interface1_type == 'serial':
+            interface1 = meshtastic.serial_interface.SerialInterface(port1)
+        elif interface1_type == 'tcp':
+            interface1 = meshtastic.tcp_interface.TCPInterface(hostname1)
+        elif interface1_type == 'ble':
+            interface1 = meshtastic.ble_interface.BLEInterface(mac1)
+        print(f"{log_timestamp()} System: Interface1 Opened")
+    if nodeID==2:
+        interface2 = None
+        if interface2_type == 'serial':
+            interface2 = meshtastic.serial_interface.SerialInterface(port2)
+        elif interface2_type == 'tcp':
+            interface2 = meshtastic.tcp_interface.TCPInterface(hostname2)
+        elif interface2_type == 'ble':
+            interface2 = meshtastic.ble_interface.BLEInterface(mac2)
+        print(f"{log_timestamp()} System: Interface2 Opened")
+
 async def watchdog():
     # watchdog for connection to the interface
     while True:
@@ -334,16 +372,16 @@ async def watchdog():
         #print(f"{log_timestamp()} System: watchdog running\r", end="")
 
         try:
-            myinfo = interface1.getMyNodeInfo()
-            myNodeNum = myinfo['num']
-            #print(f"{log_timestamp()} System: Got Device1 {get_name_from_number(myNodeNum, 'long', 1)},")
+            with suppress_stdout():
+                interface1.localNode.getMetadata()
         except Exception as e:
-            print(f"{log_timestamp()} System: Error getting myNodeNum from interface1: {e}")
+            print(f"{log_timestamp()} System: Error communicating with interface1: {e}")
+            await retry_interface(1)
 
         if interface2_enabled:
             try:
-                myinfo2 = interface2.getMyNodeInfo()
-                myNodeNum2 = myinfo2['num']
-                #print(f"{log_timestamp()} System: Got Device2 {get_name_from_number(myNodeNum2, 'long', 2)},")
+                with suppress_stdout():
+                    interface2.localNode.getMetadata()
             except Exception as e:
-                print(f"{log_timestamp()} System: Error getting myNodeNum from interface2: {e}")
+                print(f"{log_timestamp()} System: Error communicating with interface2: {e}")
+                await retry_interface(2)
