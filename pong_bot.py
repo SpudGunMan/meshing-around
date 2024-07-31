@@ -56,19 +56,27 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
     return bot_response
 
 def onReceive(packet, interface):
-    # extract interface from interface object
-    if interface2_enabled:
-        rxInterface = interface.__dict__.get('devPath')
-        if rxInterface == port2:
+    # extract interface  defailts from interface object
+    rxType = type(interface).__name__
+    rxNode = 0
+    # Debug print the interface object
+    #for item in interface.__dict__.items(): print (item)
+
+    if rxType == 'SerialInterface':
+        rxInterface = interface.__dict__.get('devPath', 'unknown')
+        if port1 in rxInterface:
+            rxNode = 1
+        elif interface2_enabled and port2 in rxInterface:
             rxNode = 2
-        else:
-            rxNode = 0
-    else:
-        rxNode = 1
+    
+    if rxType == 'TCPInterface':
+        rxHost = interface.__dict__.get('hostname', 'unknown')
+        if hostname1 in rxHost and interface1_type == 'tcp':
+            rxNode = 1
+        elif interface2_enabled and hostname2 in rxHost and interface2_type == 'tcp':
+            rxNode = 2
 
-    # receive a packet and process it, main instruction loop
-
-    # print the packet for debugging
+    # Debug print the packet for debugging
     #print(f"Packet Received\n {packet} \n END of packet \n")
     message_from_id = 0
 
