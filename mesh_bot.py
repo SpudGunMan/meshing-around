@@ -322,8 +322,10 @@ async def start_rx():
         print(f"System: Respond by DM only")
     if repeater_enabled:
         print(f"System: Repeater Enabled for Channels: {repeater_channels}")
-    # Start the receive loop
+
+    # Start the receive subscriber using pubsub via meshtastic library
     pub.subscribe(onReceive, 'meshtastic.receive')
+
     msg = (f"{log_timestamp()} System: Autoresponder Started for Device1 {get_name_from_number(myNodeNum, 'long', 1)},"
             f"{get_name_from_number(myNodeNum, 'short', 1)}. NodeID: {myNodeNum}, {decimal_to_hex(myNodeNum)}")
     print (msg)
