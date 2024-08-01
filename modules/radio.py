@@ -42,32 +42,54 @@ def get_freq_common_name(freq):
         return "GRMS CH6"
     elif freq == 462712500:
         return "GRMS CH7"
-    elif freq == 462737500:
+    elif freq == 467562500:
         return "GRMS CH8"
-    elif freq == 462762500:
+    elif freq == 467587500:
         return "GRMS CH9"
-    elif freq == 462787500:
+    elif freq == 467612500:
         return "GRMS CH10"
-    elif freq == 462812500:
+    elif freq == 467637500:
         return "GRMS CH11"
-    elif freq == 462837500:
+    elif freq == 467662500:
         return "GRMS CH12"
-    elif freq == 462862500:
+    elif freq == 467687500:
         return "GRMS CH13"
-    elif freq == 462887500:
+    elif freq == 467712500:
         return "GRMS CH14"
-    elif freq == 462912500:
+    elif freq == 467737500:
         return "GRMS CH15"
-    elif freq == 462937500:
-        return "GRMS CH16"
     elif freq == 462550000:
+        return "GRMS CH16"
+    elif freq == 462575000:
+        return "GMRS CH17"
+    elif freq == 462600000:
+        return "GMRS CH18"
+    elif freq == 462625000:
+        return "GMRS CH19"
+    elif freq == 462675000:
+        return "GMRS CH20"
+    elif freq == 462670000:
+        return "GMRS CH21"
+    elif freq == 462725000:
+        return "GMRS CH22"
+    elif freq == 462725500:
+        return "GMRS CH23"
+    elif freq == 467575000:
+        return "GMRS CH24"
+    elif freq == 467600000:
+        return "GMRS CH25"
+    elif freq == 467625000:
+        return "GMRS CH26"
+    elif freq == 467650000:
+        return "GMRS CH27"
+    elif freq == 467675000:
+        return "GMRS CH28"
+    elif freq == 467700000:
         return "FRS CH1"
     elif freq == 462575000:
         return "FRS CH2"
     elif freq == 462600000:
         return "FRS CH3"
-    elif freq == 462625000:
-        return "FRS CH4"
     elif freq == 462650000:
         return "FRS CH5"
     elif freq == 462675000:
@@ -94,6 +116,10 @@ def get_freq_common_name(freq):
         return "FRS CH16"
     elif freq == 146520000:
         return "2M Simplex Calling"
+    elif freq == 446000000:
+        return "70cm Simplex Calling"
+    elif freq == 156800000:
+        return "Marine CH16"
     else:
         #return Mhz
         freq = freq/1000000

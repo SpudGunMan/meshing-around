@@ -74,4 +74,12 @@ repeater_channels =
 # using Hamlib rig control will monitor and alert on channel use
 enabled = False
 rigControlServerAddress = localhost:4532
+# brodcast to all nodes on the channel can alsp be  = 2,3
 sigWatchBrodcastCh = 2
+# minimum SNR as reported by radio via hamlib
+signalDetectionThreshold = -10
+# hold time for high SNR
+signalHoldTime = 10
+# the following are combined to reset the monitor
+signalCooldown = 5
+signalCycleLimit = 5

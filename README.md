@@ -104,7 +104,15 @@ A module allowing a Hamlib compatable radio to connect to the bot, when functipo
 [radioMon]
 enabled = False
 rigControlServerAddress = localhost:4532
+# channel to brodcast to can be 2,3
 sigWatchBrodcastCh = 2
+# minimum SNR as reported by radio via hamlib
+signalDetectionThreshold = -10
+# hold time for high SNR
+signalHoldTime = 10
+# the following are combined to reset the monitor
+signalCooldown = 5
+signalCycleLimit = 5
 ```
 # requirements
 can also be installed with `pip install -r requirements.txt`
