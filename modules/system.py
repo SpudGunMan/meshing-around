@@ -203,8 +203,8 @@ def get_node_list(nodeInt=1):
         short_node_list.append(f"{x[0]} SNR:{x[2]}")
 
     for x in short_node_list:
-        node_list += x + "\n"
-    node_list = node_list[:-1] # remove the last newline
+        if x != "" or x != '\n':
+            node_list += x + "\n"
     
     return node_list
 
