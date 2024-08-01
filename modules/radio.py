@@ -135,7 +135,7 @@ async def signalWatcher():
     try:
         signalStrength = int(get_sig_strength())
         if signalStrength >= previousStrength and signalStrength > signalDetectionThreshold:
-            message = f"Detected {get_freq_common_name(get_hamlib('f'))} active use S-Meter:{signalStrength}dBm"
+            message = f"Detected {get_freq_common_name(get_hamlib('f'))} active. S-Meter:{signalStrength}dBm"
             previousStrength = signalStrength
             signalCycle = 0
             await asyncio.sleep(signalHoldTime)
