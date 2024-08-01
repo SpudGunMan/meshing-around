@@ -351,6 +351,7 @@ async def main():
         await asyncio.wait([meshRxTask, watchdogTask, hamlibTask])
     else:
         await asyncio.wait([meshRxTask, watchdogTask])
+    await asyncio.sleep(0.01)
 
 try:
     if __name__ == "__main__":

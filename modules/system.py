@@ -400,7 +400,7 @@ async def retry_interface(nodeID=1):
     except Exception as e:
         print(f"{log_timestamp()} System: Error opening interface1: {e}")
         await asyncio.sleep(5)
-        await retry_interface(nodeID)
+        await retry_interface(1)
     
     try:
         if nodeID==2:
@@ -415,7 +415,7 @@ async def retry_interface(nodeID=1):
     except Exception as e:
         print(f"{log_timestamp()} System: Error opening interface2: {e}")
         await asyncio.sleep(5)
-        await retry_interface(nodeID)
+        await retry_interface(2)
 
 # this is a workaround because .localNode.getMetadata spits out a lot of debug info which cant be suppressed
 
