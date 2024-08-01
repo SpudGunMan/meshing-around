@@ -365,8 +365,7 @@ async def handleSignalWatcher():
             if time.time() - lastHamLibAlert > 60:
                 lastHamLibAlert = time.time()
                 # if sigWatchBrodcastCh contains multiple channels, broadcast to all
-                if sigWatchBrodcastCh.find(',') != -1:
-                    sigWatchBrodcastCh = sigWatchBrodcastCh.split(',')
+                if sigWatchBrodcastCh.count(',') > 0:
                     for ch in sigWatchBrodcastCh:
                         if antiSpam and ch != publicChannel:
                             send_message(msg, int(ch), 0, 1)
