@@ -338,14 +338,17 @@ def messageTrap(msg):
 def exit_handler():
     # Close the interface and save the BBS messages
     print(f"\n{log_timestamp()} System: Closing Autoresponder\n")
-    #rxLoop.cancel()              
-    interface1.close()
-    print(f"{log_timestamp()} System: Interface1 Closed")
-    if interface2_enabled:
-        interface2.close()
-        print(f"{log_timestamp()} System: Interface2 Closed")
+    try:         
+        interface1.close()
+        print(f"{log_timestamp()} System: Interface1 Closed")
+        if interface2_enabled:
+            interface2.close()
+            print(f"{log_timestamp()} System: Interface2 Closed")
+    except Exception as e:
+        print(f"{log_timestamp()} System: Error closing: {e}")
     if bbs_enabled:
         save_bbsdb()
+        save_bbsdm()
         print(f"{log_timestamp()} System: BBS Messages Saved")
     print(f"{log_timestamp()} System: Exiting")
     asyncLoop.stop()
