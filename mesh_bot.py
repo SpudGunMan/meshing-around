@@ -106,7 +106,8 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
             subject = subject.rstrip()
             if "#" in message:
                 body = message.split("#")[1]
-                body = message.rstrip()
+                body = body.rstrip()
+                print(f"{log_timestamp()} System: BBS Post: {subject} Body: {body}")
                 bot_response = bbs_post_message(subject,body,message_from_id)
             else:
                 bot_response = "example: bbspost $subject #message"
