@@ -152,7 +152,9 @@ def get_name_from_number(number, type='long', nodeInt=1):
     
 def get_node_list(nodeInt=1):
     # Get a list of nodes on the device
-    node_list = []
+    node_list = ""
+    node_list1 = []
+    node_list2 = []
     short_node_list = []
     if nodeInt == 1:
         if interface1.nodes:
@@ -167,10 +169,11 @@ def get_node_list(nodeInt=1):
                     
                     # make a list of nodes with last heard time and SNR
                     item = (node_name, last_heard, snr)
-                    node_list.append(item)
+                    node_list1.append(item)
         else:
             print (f"{log_timestamp()} System: No nodes found")
             return ERROR_FETCHING_DATA
+        
     if nodeInt == 2:
         if interface2.nodes:
             for node in interface2.nodes.values():
@@ -184,21 +187,26 @@ def get_node_list(nodeInt=1):
                     
                     # make a list of nodes with last heard time and SNR
                     item = (node_name, last_heard, snr)
-                    node_list.append(item)
+                    node_list2.append(item)
         else:
             print (f"{log_timestamp()} System: No nodes found")
             return ERROR_FETCHING_DATA
     
-    node_list.sort(key=lambda x: x[1], reverse=True)
-    #print (f"Node List: {node_list[:5]}\n")
+    node_list1.sort(key=lambda x: x[1], reverse=True)
+    #print (f"Node List: {node_list1[:5]}\n")
+    node_list2.sort(key=lambda x: x[1], reverse=True)
 
     # make a nice list for the user
-    for x in node_list[:5]:
+    for x in node_list1[:5]:
+        short_node_list.append(f"{x[0]} SNR:{x[2]}")
+    for x in node_list2[:5]:
         short_node_list.append(f"{x[0]} SNR:{x[2]}")
 
-    node1_list = "\n".join(short_node_list)
+    for x in short_node_list:
+        node_list += x + "\n"
+    node_list = node_list[:-1] # remove the last newline
     
-    return node1_list
+    return node_list
 
 def get_node_location(number, nodeInt=1):
     # Get the location of a node by its number from nodeDB on device
