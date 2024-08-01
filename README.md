@@ -132,6 +132,8 @@ pip install beautifulsoup4
 pip install dadjokes
 ```
 
+To enable emoji in debian console install the fonts `sudo apt-get install fonts-noto-color-emoji`
+
 # Recognition
 I used ideas and snippets from other responder bots and want to call them out!
 - https://github.com/Murturtle/MeshLink
