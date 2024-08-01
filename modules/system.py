@@ -60,26 +60,34 @@ if radio_dectection_enabled:
     from modules.radio import * # from the spudgunman/meshing-around repo
     
 # Interface1 Configuration
-if interface1_type == 'serial':
-    interface1 = meshtastic.serial_interface.SerialInterface(port1)
-elif interface1_type == 'tcp':
-    interface1 = meshtastic.tcp_interface.TCPInterface(hostname1)
-elif interface1_type == 'ble':
-    interface1 = meshtastic.ble_interface.BLEInterface(mac1)
-else:
-    print(f"System: Interface Type: {interface1_type} not supported. Validate your config against config.template Exiting")
+try:
+    if interface1_type == 'serial':
+        interface1 = meshtastic.serial_interface.SerialInterface(port1)
+    elif interface1_type == 'tcp':
+        interface1 = meshtastic.tcp_interface.TCPInterface(hostname1)
+    elif interface1_type == 'ble':
+        interface1 = meshtastic.ble_interface.BLEInterface(mac1)
+    else:
+        print(f"System: Interface Type: {interface1_type} not supported. Validate your config against config.template Exiting")
+        exit()
+except Exception as e:
+    print(f"System: Critical Error script abort. Initalizing Interface1 {e}")
     exit()
 
 # Interface2 Configuration
 if interface2_enabled:
-    if interface2_type == 'serial':
-        interface2 = meshtastic.serial_interface.SerialInterface(port2)
-    elif interface2_type == 'tcp':
-        interface2 = meshtastic.tcp_interface.TCPInterface(hostname2)
-    elif interface2_type == 'ble':
-        interface2 = meshtastic.ble_interface.BLEInterface(mac2)
-    else:
-        print(f"System: Interface Type: {interface2_type} not supported. Validate your config against config.template Exiting")
+    try:
+        if interface2_type == 'serial':
+            interface2 = meshtastic.serial_interface.SerialInterface(port2)
+        elif interface2_type == 'tcp':
+            interface2 = meshtastic.tcp_interface.TCPInterface(hostname2)
+        elif interface2_type == 'ble':
+            interface2 = meshtastic.ble_interface.BLEInterface(mac2)
+        else:
+            print(f"System: Interface Type: {interface2_type} not supported. Validate your config against config.template Exiting")
+            exit()
+    except Exception as e:
+        print(f"System: Critical Error script abort. Initalizing Interface2 {e}")
         exit()
 
 #Get the node number of the device, check if the device is connected
