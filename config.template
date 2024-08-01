@@ -70,3 +70,8 @@ enabled = False
 # if you have the two nodes on the same radio configurations, you could create a feedback loop
 repeater_channels = 
 
+[radioMon]
+# using Hamlib rig control will monitor and alert on channel use
+enabled = False
+rigControlServerAddress = localhost:4532
+sigWatchBrodcastCh = 2

@@ -322,6 +322,8 @@ async def start_rx():
         print(f"System: Respond by DM only")
     if repeater_enabled:
         print(f"System: Repeater Enabled for Channels: {repeater_channels}")
+    if radio_dectection_enabled:
+        print(f"System: Radio Detection Enabled using rigctld at {rigControlServerAddress}")
 
     # Start the receive subscriber using pubsub via meshtastic library
     pub.subscribe(onReceive, 'meshtastic.receive')
@@ -343,7 +345,11 @@ async def start_rx():
 async def main():
     meshRxTask = asyncio.create_task(start_rx())
     watchdogTask = asyncio.create_task(watchdog())
-    await asyncio.wait([meshRxTask, watchdogTask])
+    if radio_dectection_enabled:
+        hamlibTask = asyncio.create_task(handleSignalWatcher())
+        await asyncio.wait([meshRxTask, watchdogTask, hamlibTask])
+    else:
+        await asyncio.wait([meshRxTask, watchdogTask])
 
 try:
     if __name__ == "__main__":

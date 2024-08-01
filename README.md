@@ -12,6 +12,8 @@ The bot is also capable of using dual radio/nodes, so you can monitor two networ
 
 Store and forward-like message re-play with `messages`, and there is a repeater module for dual radio bots to cross post messages.
 
+The bot can alsp monitor a frequency and notify when activy is seen.
+
 - Various solar details for radio propagation
   - `sun` and `moon` return info on rise and set local time
   - `solar` gives an idea of the x-ray flux
@@ -96,7 +98,14 @@ A repeater function for two different nodes and cross-posting messages. The'repe
 enabled = True
 repeater_channels = [2, 3]
 ```
+A module allowing a Hamlib compatable radio to connect to the bot, when functiponing it will message the channel configured with a message of in use.
 
+```
+[radioMon]
+enabled = False
+rigControlServerAddress = localhost:4532
+sigWatchBrodcastCh = 2
+```
 # requirements
 can also be installed with `pip install -r requirements.txt`
 

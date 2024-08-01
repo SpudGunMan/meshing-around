@@ -14,6 +14,7 @@ repeater_channels = [] # list of channels to listen on for repeater mode
 antiSpam = True # anti-spam feature to prevent flooding public channel
 ping_enabled = True # ping feature to respond to pings, ack's etc.
 sitrep_enabled = True # sitrep feature to respond to sitreps
+lastHamLibAlert = 0 # last alert from hamlib
 
 # Read the config file, if it does not exist, create basic config file
 config = configparser.ConfigParser() 
@@ -72,6 +73,9 @@ try:
     bbs_admin_list = config['bbs'].get('bbs_admin_list', '').split(',')
     repeater_enabled = config['repeater'].getboolean('enabled', False)
     repeater_channels = config['repeater'].get('repeater_channels', '').split(',')
+    radio_dectection_enabled = config['radioMon'].getboolean('enabled', False)
+    rigControlServerAddress = config['radioMon'].get('rigControlServerAddress', 'localhost:4532')
+    sigWatchBrodcastCh = config['radioMon'].get('sigWatchBrodcastCh', '2').split(',')
 except KeyError as e:
     print(f"System: Error reading config file: {e}")
     print(f"System: Check the config.ini against config.template file for missing sections or values.")

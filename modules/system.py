@@ -5,6 +5,7 @@ import meshtastic.serial_interface #pip install meshtastic
 import meshtastic.tcp_interface
 import meshtastic.ble_interface
 from datetime import datetime
+import time
 import asyncio
 from modules.settings import *
 
@@ -54,6 +55,10 @@ if store_forward_enabled:
     trap_list = trap_list + ("messages",)
     help_message = help_message + ", messages"
 
+# Radio Monitor Configuration
+if radio_dectection_enabled:
+    from modules.radio import * # from the spudgunman/meshing-around repo
+    
 # Interface1 Configuration
 if interface1_type == 'serial':
     interface1 = meshtastic.serial_interface.SerialInterface(port1)
@@ -347,6 +352,34 @@ async def watchdog():
             except Exception as e:
                 print(f"{log_timestamp()} System: Error communicating with interface2: {e}")
                 await retry_interface(2)
+
+async def handleSignalWatcher():
+    global lastHamLibAlert, antiSpam, sigWatchBrodcastCh
+    # monitor rigctld for signal strength and frequency
+    while True:
+        msg =  await signalWatcher()
+        if msg != ERROR_FETCHING_DATA and msg != None:
+            print(f"{log_timestamp()} System: Detected Alert from Hamlib {msg}")
+            
+            # check we are not spammig the channel limit messages to once per minute
+            if time.time() - lastHamLibAlert > 60:
+                lastHamLibAlert = time.time()
+                # if sigWatchBrodcastCh contains multiple channels, broadcast to all
+                if sigWatchBrodcastCh.find(',') != -1:
+                    sigWatchBrodcastCh = sigWatchBrodcastCh.split(',')
+                    for ch in sigWatchBrodcastCh:
+                        if antiSpam and ch != publicChannel:
+                            send_message(msg, int(ch), 0, 1)
+                            if interface2_enabled:
+                                send_message(msg, int(ch), 0, 2)
+                else:
+                    if antiSpam and sigWatchBrodcastCh != publicChannel:
+                        send_message(msg, int(sigWatchBrodcastCh), 0, 1)
+                        if interface2_enabled:
+                            send_message(msg, int(sigWatchBrodcastCh), 0, 2)
+
+        await asyncio.sleep(1)
+        pass
 
 # this is a workaround because .localNode.getMetadata spits out a lot of debug info which cant be suppressed
 
