@@ -16,15 +16,19 @@ def get_hamlib(msg="f"):
         print(f"\nSystem: Error connecting to rigctld: {e}")
         return ERROR_FETCHING_DATA
 
-    build_msg = f"{msg}\n"
-    MESSAGE = bytes(build_msg, "utf-8")
-    rigControlSocket.sendall(MESSAGE)
-    # Look for the response
-    data = rigControlSocket.recv(16)
-    rigControlSocket.close()
-    # strip newline and return
-    data = data.replace(b'\n',b'')
-    return data.decode("utf-8").rstrip()
+    try:
+        build_msg = f"{msg}\n"
+        MESSAGE = bytes(build_msg, "utf-8")
+        rigControlSocket.sendall(MESSAGE)
+        # Look for the response
+        data = rigControlSocket.recv(16)
+        rigControlSocket.close()
+        # strip newline and return
+        data = data.replace(b'\n',b'')
+        return data.decode("utf-8").rstrip()
+    except Exception as e:
+        print(f"\nSystem: Error fetching data from rigctld: {e}")
+        return ERROR_FETCHING_DATA
 
 def get_freq_common_name(freq):
     freq = int(freq)
