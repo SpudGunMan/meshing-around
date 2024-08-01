@@ -8,9 +8,9 @@ import asyncio
 from modules.settings import *
 
 SIGNAL_DETECTION_THRESHOLD = -10 # dBm
-SIGNAL_HOLD_TIME = 15 # seconds to hold on to signal before checking again
+SIGNAL_HOLD_TIME = 10 # seconds to hold on to signal before checking again
 SIGNAL_COOLDOWN = 5 # seconds to wait between signal checks
-SIGNAL_CYCLE_LIMIT = 6 # multiply by SIGNAL_COOLDOWN to get total time to wait before resetting signal strength
+SIGNAL_CYCLE_LIMIT = 4 # multiply by SIGNAL_COOLDOWN to get total time to wait before resetting signal strength
 
 ERROR_FETCHING_DATA = "error fetching data"
 
