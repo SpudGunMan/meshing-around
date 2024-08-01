@@ -213,7 +213,7 @@ def getWeatherAlerts(lat=0, lon=0):
         )
 
     if alerts == "" or alerts == None:
-        return ERROR_FETCHING_DATA
+        return "No weather alerts found."
 
     # trim off last newline
     if alerts[-1] == "\n":
