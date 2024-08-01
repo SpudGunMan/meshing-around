@@ -242,7 +242,7 @@ def onReceive(packet, interface):
                 return
         
             # If the packet is a DM (Direct Message) respond to it, otherwise validate its a message for us on the channel
-            if packet['to'] == myNodeNum or packet['to'] == myNodeNum2:
+            if packet['to'] == myNodeNum1 or packet['to'] == myNodeNum2:
                 # message is DM to us
 
                 # check if the message contains a trap word, DMs are always responded to
@@ -329,8 +329,8 @@ async def start_rx():
     # Start the receive subscriber using pubsub via meshtastic library
     pub.subscribe(onReceive, 'meshtastic.receive')
 
-    msg = (f"{log_timestamp()} System: Autoresponder Started for Device1 {get_name_from_number(myNodeNum, 'long', 1)},"
-            f"{get_name_from_number(myNodeNum, 'short', 1)}. NodeID: {myNodeNum}, {decimal_to_hex(myNodeNum)}")
+    msg = (f"{log_timestamp()} System: Autoresponder Started for Device1 {get_name_from_number(myNodeNum1, 'long', 1)},"
+            f"{get_name_from_number(myNodeNum1, 'short', 1)}. NodeID: {myNodeNum1}, {decimal_to_hex(myNodeNum1)}")
     print (msg)
     if interface2_enabled:
         msg = (f"{log_timestamp()} System: Autoresponder Started for Device2 {get_name_from_number(myNodeNum2, 'long', 2)},"

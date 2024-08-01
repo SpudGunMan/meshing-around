@@ -93,7 +93,7 @@ if interface2_enabled:
 #Get the node number of the device, check if the device is connected
 try:
     myinfo = interface1.getMyNodeInfo()
-    myNodeNum = myinfo['num']
+    myNodeNum1 = myinfo['num']
 except Exception as e:
     print(f"System: Critical Error script abort. {e}")
     exit()
@@ -160,7 +160,7 @@ def get_node_list(nodeInt=1):
         if interface1.nodes:
             for node in interface1.nodes.values():
                 # ignore own
-                if node['num'] != myNodeNum2 and node['num'] != myNodeNum:
+                if node['num'] != myNodeNum2 and node['num'] != myNodeNum1:
                     node_name = get_name_from_number(node['num'], 'long', nodeInt)
                     snr = node.get('snr', 0)
 
@@ -178,7 +178,7 @@ def get_node_list(nodeInt=1):
         if interface2.nodes:
             for node in interface2.nodes.values():
                 # ignore own
-                if node['num'] != myNodeNum2 and node['num'] != myNodeNum:
+                if node['num'] != myNodeNum2 and node['num'] != myNodeNum1:
                     node_name = get_name_from_number(node['num'], 'long', nodeInt)
                     snr = node.get('snr', 0)
 
