@@ -4,11 +4,9 @@
 # 2024 Kelly Keeton K7MHI
 
 import socket
-from time import sleep
+import asyncio
 #from modules.settings import *
 
-rigControlServerAddress = "localhost:4532"
-radio_dectection_enabled = True
 SIGNAL_DETECTION_THRESHOLD = -10 # dBm
 SIGNAL_HOLD_TIME = 15 # seconds to hold on to signal before checking again
 SIGNAL_COOLDOWN = 5 # seconds to wait between signal checks
@@ -112,7 +110,7 @@ def get_sig_strength():
     strength = get_hamlib('l STRENGTH')
     return strength
 
-def signalWatcher():
+async def signalWatcher():
     global previousStrength
     global signalCycle
     try:
@@ -122,13 +120,13 @@ def signalWatcher():
             print (message)
             previousStrength = signalStrength
             signalCycle = 0
-            sleep(SIGNAL_HOLD_TIME)
+            await asyncio.sleep(SIGNAL_HOLD_TIME)
         else:
             signalCycle += 1
             if signalCycle >= SIGNAL_CYCLE_LIMIT:
                 signalCycle = 0
                 previousStrength = -40
-            sleep(SIGNAL_COOLDOWN)
+            await asyncio.sleep(SIGNAL_COOLDOWN)
     except Exception as e:
         signalStrength = -40
         signalCycle = 0
