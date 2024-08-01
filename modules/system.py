@@ -197,9 +197,9 @@ def get_node_list(nodeInt=1):
     node_list2.sort(key=lambda x: x[1], reverse=True)
 
     # make a nice list for the user
-    for x in node_list1[:5]:
+    for x in node_list1[:SITREP_NODE_COUNT]:
         short_node_list.append(f"{x[0]} SNR:{x[2]}")
-    for x in node_list2[:5]:
+    for x in node_list2[:SITREP_NODE_COUNT]:
         short_node_list.append(f"{x[0]} SNR:{x[2]}")
 
     for x in short_node_list:

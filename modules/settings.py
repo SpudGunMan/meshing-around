@@ -9,6 +9,7 @@ NO_ALERTS = "No weather alerts found."
 
 # setup the global variables
 MESSAGE_CHUNK_SIZE = 160 # message chunk size for sending at high success rate
+SITREP_NODE_COUNT = 3 # number of nodes to report in the sitrep
 msg_history = [] # message history for the store and forward feature
 bbs_ban_list = [] # list of banned users
 bbs_admin_list = [] # list of admin users
