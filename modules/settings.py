@@ -5,6 +5,7 @@ NO_DATA_NOGPS = "No location data: does your device have GPS?"
 ERROR_FETCHING_DATA = "error fetching data"
 WELCOME_MSG = 'MeshBot, here for you like a friend who is not. Try sending: ping @foo  or, cmd'
 MOTD = 'Thanks for using MeshBOT! Have a good day!'
+NO_ALERTS = "No weather alerts found."
 
 # setup the global variables
 MESSAGE_CHUNK_SIZE = 160 # message chunk size for sending at high success rate

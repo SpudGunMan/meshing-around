@@ -131,7 +131,7 @@ def get_weather(lat=0, lon=0, unit=0):
     # get any alerts and return the count
     alerts = getWeatherAlerts(lat, lon)
 
-    if alerts == ERROR_FETCHING_DATA or alerts == NO_DATA_NOGPS:
+    if alerts == ERROR_FETCHING_DATA or alerts == NO_DATA_NOGPS or alerts == NO_ALERTS:
         alert = ""
         alert_num = 0
     else:
@@ -213,7 +213,7 @@ def getWeatherAlerts(lat=0, lon=0):
         )
 
     if alerts == "" or alerts == None:
-        return "No weather alerts found."
+        return NO_ALERTS
 
     # trim off last newline
     if alerts[-1] == "\n":
