@@ -48,6 +48,14 @@ sed -i $replace etc/pong_bot.service
 sed -i $replace etc/mesh_bot.service
 printf "\n service files updated\n"
 
+# ask if emoji font should be installed for linux
+echo "Do you want to install the emoji font for debian linux? (y/n)"
+read emoji
+if [ $emoji == "y" ]; then
+    sudo apt-get install fonts-noto-color-emoji
+    echo "Emoji font installed!, reboot to load the font"
+fi
+
 if [ $bot == "pong" ]; then
     # install service for pong bot
     sudo cp etc/pong_bot.service /etc/systemd/system/
