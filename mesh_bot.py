@@ -323,7 +323,7 @@ async def start_rx():
     if repeater_enabled:
         print(f"System: Repeater Enabled for Channels: {repeater_channels}")
     if radio_dectection_enabled:
-        print(f"System: Radio Detection Enabled using rigctld at {rigControlServerAddress} brodcasting to channels: {sigWatchBrodcastCh} for {get_freq_common_name(sigWatchBrodcastCh[0])}")
+        print(f"System: Radio Detection Enabled using rigctld at {rigControlServerAddress} brodcasting to channels: {sigWatchBrodcastCh} for {get_freq_common_name(get_hamlib('f'))}")
 
     # Start the receive subscriber using pubsub via meshtastic library
     pub.subscribe(onReceive, 'meshtastic.receive')
