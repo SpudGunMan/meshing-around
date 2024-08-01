@@ -5,7 +5,7 @@
 
 import socket
 import asyncio
-#from modules.settings import *
+from modules.settings import *
 
 SIGNAL_DETECTION_THRESHOLD = -10 # dBm
 SIGNAL_HOLD_TIME = 15 # seconds to hold on to signal before checking again
