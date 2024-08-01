@@ -399,8 +399,6 @@ async def retry_interface(nodeID=1):
             print(f"{log_timestamp()} System: Interface1 Opened")
     except Exception as e:
         print(f"{log_timestamp()} System: Error opening interface1: {e}")
-        await asyncio.sleep(5)
-        await retry_interface(1)
     
     try:
         if nodeID==2:
@@ -414,8 +412,6 @@ async def retry_interface(nodeID=1):
             print(f"{log_timestamp()} System: Interface2 Opened")
     except Exception as e:
         print(f"{log_timestamp()} System: Error opening interface2: {e}")
-        await asyncio.sleep(5)
-        await retry_interface(2)
 
 # this is a workaround because .localNode.getMetadata spits out a lot of debug info which cant be suppressed
 
@@ -444,7 +440,7 @@ async def watchdog():
                 interface1.localNode.getMetadata()
         except Exception as e:
             print(f"{log_timestamp()} System: Error communicating with interface1: {e}")
-            await asyncio.sleep(5)
+            await asyncio.sleep(15)
             await retry_interface(1)
 
         if interface2_enabled:
@@ -453,5 +449,5 @@ async def watchdog():
                     interface2.localNode.getMetadata()
             except Exception as e:
                 print(f"{log_timestamp()} System: Error communicating with interface2: {e}")
-                await asyncio.sleep(5)
+                await asyncio.sleep(15)
                 await retry_interface(2)
