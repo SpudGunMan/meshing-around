@@ -74,8 +74,12 @@ try:
     repeater_enabled = config['repeater'].getboolean('enabled', False)
     repeater_channels = config['repeater'].get('repeater_channels', '').split(',')
     radio_dectection_enabled = config['radioMon'].getboolean('enabled', False)
-    rigControlServerAddress = config['radioMon'].get('rigControlServerAddress', 'localhost:4532')
-    sigWatchBrodcastCh = config['radioMon'].get('sigWatchBrodcastCh', '2').split(',')
+    rigControlServerAddress = config['radioMon'].get('rigControlServerAddress', 'localhost:4532') # default localhost:4532
+    sigWatchBrodcastCh = config['radioMon'].get('sigWatchBrodcastCh', '2').split(',') # default Channel 2
+    signalDetectionThreshold = config['radioMon'].getint('signalDetectionThreshold', -10) # default -10 dBm
+    signalHoldTime = config['radioMon'].getint('signalHoldTime', 10) # default 10 seconds
+    signalCooldown = config['radioMon'].getint('signalCooldown', 5) # default 1 second
+    signalCycleLimit = config['radioMon'].getint('signalCycleLimit', 5) # default 5 cycles, used with SIGNAL_COOLDOWN
 except KeyError as e:
     print(f"System: Error reading config file: {e}")
     print(f"System: Check the config.ini against config.template file for missing sections or values.")

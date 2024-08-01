@@ -7,13 +7,6 @@ import socket
 import asyncio
 from modules.settings import *
 
-SIGNAL_DETECTION_THRESHOLD = -10 # dBm
-SIGNAL_HOLD_TIME = 10 # seconds to hold on to signal before checking again
-SIGNAL_COOLDOWN = 5 # seconds to wait between signal checks
-SIGNAL_CYCLE_LIMIT = 4 # multiply by SIGNAL_COOLDOWN to get total time to wait before resetting signal strength
-
-ERROR_FETCHING_DATA = "error fetching data"
-
 def get_hamlib(msg="f"):
     try:
         rigControlSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -115,18 +108,18 @@ async def signalWatcher():
     global signalCycle
     try:
         signalStrength = int(get_sig_strength())
-        if signalStrength >= previousStrength and signalStrength > SIGNAL_DETECTION_THRESHOLD:
+        if signalStrength >= previousStrength and signalStrength > signalDetectionThreshold:
             message = f"Detected {get_freq_common_name(get_hamlib('f'))} active use S-Meter:{signalStrength}dBm"
             previousStrength = signalStrength
             signalCycle = 0
-            await asyncio.sleep(SIGNAL_HOLD_TIME)
+            await asyncio.sleep(signalHoldTime)
             return message
         else:
             signalCycle += 1
-            if signalCycle >= SIGNAL_CYCLE_LIMIT:
+            if signalCycle >= signalCycleLimit:
                 signalCycle = 0
                 previousStrength = -40
-            await asyncio.sleep(SIGNAL_COOLDOWN)
+            await asyncio.sleep(signalCooldown)
             return None
     except Exception as e:
         signalStrength = -40
