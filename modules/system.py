@@ -332,26 +332,6 @@ def exit_handler():
     asyncLoop.close()
     exit (0)
 
-async def watchdog():
-    # watchdog for connection to the interface
-    while True:
-        await asyncio.sleep(5)
-        #print(f"{log_timestamp()} System: watchdog running\r", end="")
-
-        try:
-            with suppress_stdout():
-                interface1.localNode.getMetadata()
-        except Exception as e:
-            print(f"{log_timestamp()} System: Error communicating with interface1: {e}")
-            await retry_interface(1)
-
-        if interface2_enabled:
-            try:
-                with suppress_stdout():
-                    interface2.localNode.getMetadata()
-            except Exception as e:
-                print(f"{log_timestamp()} System: Error communicating with interface2: {e}")
-                await retry_interface(2)
 
 async def handleSignalWatcher():
     global lastHamLibAlert, antiSpam, sigWatchBrodcastCh
@@ -383,22 +363,6 @@ async def handleSignalWatcher():
 
         await asyncio.sleep(1)
         pass
-
-# this is a workaround because .localNode.getMetadata spits out a lot of debug info which cant be suppressed
-
-from contextlib import contextmanager
-import os
-import sys
-
-@contextmanager
-def suppress_stdout():
-    with open(os.devnull, "w") as devnull:
-        old_stdout = sys.stdout
-        sys.stdout = devnull
-        try:  
-            yield
-        finally:
-            sys.stdout = old_stdout
 
 async def retry_interface(nodeID=1):
     global interface1, interface2
@@ -433,3 +397,41 @@ async def retry_interface(nodeID=1):
         await asyncio.sleep(5)
         retry_interface(nodeID)
 
+# this is a workaround because .localNode.getMetadata spits out a lot of debug info which cant be suppressed
+
+from contextlib import contextmanager
+import os
+import sys
+
+@contextmanager
+def suppress_stdout():
+    with open(os.devnull, "w") as devnull:
+        old_stdout = sys.stdout
+        sys.stdout = devnull
+        try:  
+            yield
+        finally:
+            sys.stdout = old_stdout
+
+async def watchdog():
+    # watchdog for connection to the interface
+    while True:
+        await asyncio.sleep(5)
+        #print(f"{log_timestamp()} System: watchdog running\r", end="")
+
+        try:
+            with suppress_stdout():
+                interface1.localNode.getMetadata()
+        except Exception as e:
+            print(f"{log_timestamp()} System: Error communicating with interface1: {e}")
+            await asyncio.sleep(5)
+            await retry_interface(1)
+
+        if interface2_enabled:
+            try:
+                with suppress_stdout():
+                    interface2.localNode.getMetadata()
+            except Exception as e:
+                print(f"{log_timestamp()} System: Error communicating with interface2: {e}")
+                await asyncio.sleep(5)
+                await retry_interface(2)
