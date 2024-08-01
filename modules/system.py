@@ -237,26 +237,30 @@ def get_node_location(number, nodeInt=1):
             return position
         
 def send_message(message, ch, nodeid=0, nodeInt=1):
-    # if message over 160 characters, split it into multiple messages
-    if len(message) > 160:
+    # if message over MESSAGE_CHUNK_SIZE characters, split it into multiple messages
+    if len(message) > MESSAGE_CHUNK_SIZE:
         print (f"{log_timestamp()} System: Splitting Message, Message Length: {len(message)}")
-        # split the message into 160 character chunks
-        
-        #message = message.replace('\n', ' NEWLINE ') # replace newlines with NEWLINE to keep them in split chunks
+
+        # split the message into MESSAGE_CHUNK_SIZE 160 character chunks
+        message = message.replace('\n', ' NEWLINE ') # replace newlines with NEWLINE to keep them in split chunks
 
         split_message = message.split()
         line = ''
-        split_len = 160
         message_list = []
 
         for word in split_message:
-            if len(line+word)<split_len:
-                line += word + ' '
+            if len(line + word) < MESSAGE_CHUNK_SIZE:
+                if word == 'NEWLINE':
+                    # chunk by newline if it exists
+                    message_list.append(line)
+                    line = ''
+                else:
+                    line += word + ' '
             else:
                 message_list.append(line)
                 line = word + ' '
+
         message_list.append(line) # needed add contents of the last 'line' into the list
-        #message_list = [x.replace('NEWLINE', '\n') for x in message_list] # put back the newlines
 
         for m in message_list:
             if nodeid == 0:
@@ -273,7 +277,7 @@ def send_message(message, ch, nodeid=0, nodeInt=1):
                     interface1.sendText(text=m, channelIndex=ch, destinationId=nodeid)
                 if nodeInt == 2:
                     interface2.sendText(text=m, channelIndex=ch, destinationId=nodeid)
-    else: # message is less than 160 characters
+    else: # message is less than MESSAGE_CHUNK_SIZE characters
         if nodeid == 0:
             # Send to channel
             print (f"{log_timestamp()} System: Sending Device:{nodeInt} Channel:{ch} Message: {message}")

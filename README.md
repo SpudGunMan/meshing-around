@@ -12,7 +12,9 @@ The bot is also capable of using dual radio/nodes, so you can monitor two networ
 
 Store and forward-like message re-play with `messages`, and there is a repeater module for dual radio bots to cross post messages.
 
-The bot can alsp monitor a frequency and notify when activy is seen.
+The bot can alsp monitor a frequency and notify when activy is seen. Using Hamlib to watch the S meter on a connected radio. You can send alerts to channels when a frequency is detected for 20 seconds within the thresholds set in config.ini
+
+Any messages which are over 160 charcters are chunked into 160 message bytes to help traverse hops, in testing this keeps delivery success higher.
 
 - Various solar details for radio propagation
   - `sun` and `moon` return info on rise and set local time
@@ -40,7 +42,7 @@ Stripped-down bot, mostly around for archive purposes. The mesh-bot enhanced mod
 
 ## Hardware
 The project is written in Linux on a Pi and should work anywhere meshtastic Python module will function, with any supported meshtastic hardware. While BLE and TCP will work they are not as reliable as serial connections.
- - Firmware 2.3.14/15 could also have an issue with connectivity reported by a few in discord. 
+ - Firmware 2.3.14/15 could also have an issue with connectivity with slower devices.
 
 ## Install
 Clone the project with `git clone https://github.com/spudgunman/meshing-around`

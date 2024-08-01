@@ -7,6 +7,7 @@ WELCOME_MSG = 'MeshBot, here for you like a friend who is not. Try sending: ping
 MOTD = 'Thanks for using MeshBOT! Have a good day!'
 
 # setup the global variables
+MESSAGE_CHUNK_SIZE = 160 # message chunk size for sending at high success rate
 msg_history = [] # message history for the store and forward feature
 bbs_ban_list = [] # list of banned users
 bbs_admin_list = [] # list of admin users
