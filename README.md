@@ -98,7 +98,7 @@ A repeater function for two different nodes and cross-posting messages. The'repe
 enabled = True
 repeater_channels = [2, 3]
 ```
-A module allowing a Hamlib compatable radio to connect to the bot, when functiponing it will message the channel configured with a message of in use.
+A module allowing a Hamlib compatable radio to connect to the bot, when functiponing it will message the channel configured with a message of in use. **Requires hamlib/rigctld to be running as a service.**
 
 ```
 [radioMon]
