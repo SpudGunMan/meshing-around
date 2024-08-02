@@ -41,6 +41,8 @@ interface1_type = config['interface'].get('type', 'serial')
 port1 = config['interface'].get('port', '')
 hostname1 = config['interface'].get('hostname', '')
 mac1 = config['interface'].get('mac', '')
+retry_int1 = False
+retry_int2 = False
 
 # interface2 settings
 if 'interface2' in config:

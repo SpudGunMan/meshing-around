@@ -422,8 +422,6 @@ async def retry_interface(nodeID=1):
             elif interface1_type == 'ble':
                 interface1 = meshtastic.ble_interface.BLEInterface(mac1)
             print(f"{log_timestamp()} System: Interface1 Opened!")
-        else:
-            print(f"{log_timestamp()} System: Interface1 already open")
     except Exception as e:
         print(f"{log_timestamp()} System: Error opening interface1 on: {e}")
     
@@ -438,8 +436,6 @@ async def retry_interface(nodeID=1):
             elif interface2_type == 'ble':
                 interface2 = meshtastic.ble_interface.BLEInterface(mac2)
             print(f"{log_timestamp()} System: Interface2 Opened!")
-        else:
-            print(f"{log_timestamp()} System: Interface2 already open")
     except Exception as e:
         print(f"{log_timestamp()} System: Error opening interface2: {e}")
 
