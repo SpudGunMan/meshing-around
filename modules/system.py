@@ -389,7 +389,7 @@ async def handleSignalWatcher():
 
 async def retry_interface(nodeID=1):
     global interface1, interface2, retry_int1, retry_int2, retryCount
-    retryCount += 1
+    retryCount = 1 if retryCount is None else retryCount +1
     # add a check to see if the interface is already open or trying to open
     if nodeID==1:
         if interface1 is not None:
