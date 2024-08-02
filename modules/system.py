@@ -388,33 +388,62 @@ async def handleSignalWatcher():
         pass
 
 async def retry_interface(nodeID=1):
-    global interface1, interface2
+    global interface1, interface2, retry_int1, retry_int2, retryCount
+    retryCount += 1
+    # add a check to see if the interface is already open or trying to open
+    if nodeID==1:
+        if interface1 is not None:
+            try:
+                interface1.close()
+                retry_int1 = True
+            except Exception as e:
+                print(f"{log_timestamp()} System: Error closing interface1 on retry{retryCount}: {e}")
+    if nodeID==2:
+        if interface2 is not None:
+            try:
+                interface2.close()
+                retry_int1 = True
+            except Exception as e:
+                print(f"{log_timestamp()} System: Error closing interface2 on retry{retryCount}: {e}")
+
+    # wait 15 seconds before retrying
+    print(f"{log_timestamp()} System: Retrying interface in 15 seconds")
+    await asyncio.sleep(15)
+
     # retry the interface
     try:
-        if nodeID==1:
+        if nodeID==1 and retry_int1:
             interface1 = None
+            retry_int1 = False
+            retryCount = 0
             if interface1_type == 'serial':
                 interface1 = meshtastic.serial_interface.SerialInterface(port1)
             elif interface1_type == 'tcp':
                 interface1 = meshtastic.tcp_interface.TCPInterface(hostname1)
             elif interface1_type == 'ble':
                 interface1 = meshtastic.ble_interface.BLEInterface(mac1)
-            print(f"{log_timestamp()} System: Interface1 Opened")
+            print(f"{log_timestamp()} System: Interface1 Opened!")
+        else:
+            print(f"{log_timestamp()} System: Interface1 already open")
     except Exception as e:
-        print(f"{log_timestamp()} System: Error opening interface1: {e}")
+        print(f"{log_timestamp()} System: Error opening interface1 on retry{retryCount}: {e}")
     
     try:
-        if nodeID==2:
+        if nodeID==2 and retry_int2:
             interface2 = None
+            retry_int2 = False
+            retryCount = 0
             if interface2_type == 'serial':
                 interface2 = meshtastic.serial_interface.SerialInterface(port2)
             elif interface2_type == 'tcp':
                 interface2 = meshtastic.tcp_interface.TCPInterface(hostname2)
             elif interface2_type == 'ble':
                 interface2 = meshtastic.ble_interface.BLEInterface(mac2)
-            print(f"{log_timestamp()} System: Interface2 Opened")
+            print(f"{log_timestamp()} System: Interface2 Opened!")
+        else:
+            print(f"{log_timestamp()} System: Interface2 already open")
     except Exception as e:
-        print(f"{log_timestamp()} System: Error opening interface2: {e}")
+        print(f"{log_timestamp()} System: Error opening interface2 on retry{retryCount}: {e}")
 
 # this is a workaround because .localNode.getMetadata spits out a lot of debug info which cant be suppressed
 
@@ -435,22 +464,25 @@ def suppress_stdout():
 async def watchdog():
     # watchdog for connection to the interface
     while True:
-        await asyncio.sleep(5)
+        await asyncio.sleep(20)
         #print(f"{log_timestamp()} System: watchdog running\r", end="")
-
-        try:
-            with suppress_stdout():
-                interface1.localNode.getMetadata()
-        except Exception as e:
-            print(f"{log_timestamp()} System: Error communicating with interface1: {e}")
-            await asyncio.sleep(15)
-            await retry_interface(1)
-
-        if interface2_enabled:
+        if interface1 is not None:
             try:
                 with suppress_stdout():
-                    interface2.localNode.getMetadata()
+                    interface1.localNode.getMetadata()
             except Exception as e:
-                print(f"{log_timestamp()} System: Error communicating with interface2: {e}")
-                await asyncio.sleep(15)
-                await retry_interface(2)
+                print(f"{log_timestamp()} System: Error communicating with interface1, trying to reconnect: {e}")
+                await retry_interface(1)
+        else:
+            print(f"{log_timestamp()} System: Interface1 not open\r", end="")
+
+        if interface2_enabled:
+            if interface2 is not None:
+                try:
+                    with suppress_stdout():
+                        interface2.localNode.getMetadata()
+                except Exception as e:
+                    print(f"{log_timestamp()} System: Error communicating with interface2, trying to reconnect: {e}")
+                    await retry_interface(2)
+            else:
+                print(f"{log_timestamp()} System: Interface2 not open\r", end="")
