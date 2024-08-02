@@ -389,7 +389,11 @@ async def handleSignalWatcher():
 
 async def retry_interface(nodeID=1):
     global interface1, interface2, retry_int1, retry_int2, retryCount
-    retryCount = 1 if retryCount is None else retryCount +1
+    # retry connecting to the interface
+    if retryCount is None:
+        retryCount = 1
+    else:
+        retryCount += 1
     # add a check to see if the interface is already open or trying to open
     if nodeID==1:
         if interface1 is not None:
@@ -473,8 +477,8 @@ async def watchdog():
             except Exception as e:
                 print(f"{log_timestamp()} System: Error communicating with interface1, trying to reconnect: {e}")
                 await retry_interface(1)
-        else:
-            print(f"{log_timestamp()} System: Interface1 not open\r", end="")
+            except Exception as e:
+                print(f"{log_timestamp()} System: Watchdog Error retrying interface1: {e}")
 
         if interface2_enabled:
             if interface2 is not None:
