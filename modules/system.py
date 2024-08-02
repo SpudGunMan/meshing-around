@@ -473,20 +473,18 @@ async def watchdog():
         if interface1 is not None:
             try:
                 with suppress_stdout():
-                    interface1.localNode.getMetadata()
+                    meta = interface1.localNode.getMetadata()
+                if "device_state_version:" not in meta:
+                    await retry_interface(1)
             except Exception as e:
                 print(f"{log_timestamp()} System: Error communicating with interface1, trying to reconnect: {e}")
-                await retry_interface(1)
-            except Exception as e:
-                print(f"{log_timestamp()} System: Watchdog Error retrying interface1: {e}")
 
         if interface2_enabled:
             if interface2 is not None:
                 try:
                     with suppress_stdout():
                         interface2.localNode.getMetadata()
+                    if "device_state_version:" not in meta:
+                        await retry_interface(2)
                 except Exception as e:
                     print(f"{log_timestamp()} System: Error communicating with interface2, trying to reconnect: {e}")
-                    await retry_interface(2)
-            else:
-                print(f"{log_timestamp()} System: Interface2 not open\r", end="")
