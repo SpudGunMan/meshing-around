@@ -66,9 +66,11 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
     elif "lheard" in message.lower() or "sitrep" in message.lower():
         bot_response = "Last heard:\n" + str(get_node_list(1))
         chutil1 = interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("channelUtilization", 0)
+        chutil1 = "{:.2f}".format(chutil1)
         if interface2_enabled:
             bot_response += "Port2:\n" + str(get_node_list(2))
             chutil2 = interface2.nodes.get(decimal_to_hex(myNodeNum2), {}).get("deviceMetrics", {}).get("channelUtilization", 0)
+            chutil2 = "{:.2f}".format(chutil2)
         bot_response += "Ch Use: " + str(chutil1) + "%"
         if interface2_enabled:
             bot_response += " P2:" + str(chutil2) + "%"

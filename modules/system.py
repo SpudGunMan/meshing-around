@@ -108,6 +108,8 @@ if interface2_enabled:
 else:
     myNodeNum2 = 777
 
+# functions
+
 def log_timestamp():
     if zuluTime:
         return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
