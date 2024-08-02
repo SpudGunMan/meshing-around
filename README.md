@@ -8,13 +8,13 @@ The feature-rich bot requires the internet for full functionality. These respond
 
 Along with network testing, this bot has a lot of other features, like simple mail messaging you can leave for another device, and when that device is seen, it can send the mail as a DM.
 
-The bot is also capable of using dual radio/nodes, so you can monitor two networks at the same time and send messages to nodes using the same `bbspost @nodeNumber #message` function. There is a small messageboard to fit in the constraints of Meshtastic for posting bulletin messages with `bbspost $subject #message`.
+The bot is also capable of using dual radio/nodes, so you can monitor two networks at the same time and send messages to nodes using the same `bbspost @nodeNumber #message` function. There is a small message board to fit in the constraints of Meshtastic for posting bulletin messages with `bbspost $subject #message`.
 
 Store and forward-like message re-play with `messages`, and there is a repeater module for dual radio bots to cross post messages.
 
-The bot can alsp monitor a frequency and notify when activy is seen. Using Hamlib to watch the S meter on a connected radio. You can send alerts to channels when a frequency is detected for 20 seconds within the thresholds set in config.ini
+The bot can also be used to monitor a frequency and let you know when activity is seen. Using Hamlib to watch the S meter on a connected radio. You can send alerts to channels when a frequency is detected for 20 seconds within the thresholds set in config.ini
 
-Any messages which are over 160 charcters are chunked into 160 message bytes to help traverse hops, in testing this keeps delivery success higher.
+Any messages that are over 160 characters are chunked into 160 message bytes to help traverse hops, in testing, this keeps delivery success higher.
 
 - Various solar details for radio propagation
   - `sun` and `moon` return info on rise and set local time
@@ -30,7 +30,7 @@ Any messages which are over 160 charcters are chunked into 160 message bytes to 
   - `whereami` returns the address of location of sender if known
   - `tide` returns the local tides, NOAA data source
   - `wx` and `wxc` returns local weather forecast, NOAA data source (wxc is metric value)
-  - `wxa` and `wxalert` returns NOAA alerts. short title or expanded details
+  - `wxa` and `wxalert` return NOAA alerts. Short title or expanded details
   - `joke` tells a joke
   - `messages` Replay the last messages heard, like Store and Forward
   - `motd` or to set the message `motd $New Message Of the day`
@@ -41,7 +41,7 @@ Any messages which are over 160 charcters are chunked into 160 message bytes to 
 Stripped-down bot, mostly around for archive purposes. The mesh-bot enhanced modules can be disabled by config to disable features.
 
 ## Hardware
-The project is written in Linux on a Pi and should work anywhere meshtastic Python module will function, with any supported meshtastic hardware. While BLE and TCP will work they are not as reliable as serial connections.
+The project is written on Linux on a Pi and should work anywhere meshtastic Python modules will function, with any supported meshtastic hardware. While BLE and TCP will work, they are not as reliable as serial connections.
  - Firmware 2.3.14/15 could also have an issue with connectivity with slower devices.
 
 ## Install
@@ -53,7 +53,7 @@ Copy [config.template](config.template) to `config.ini` and edit for your needs.
 - `launch.sh` will activate and launch the app in the venv if built.
 
 ### Configurations
-Copy the [config.template](config.template) to `config.ini` and set the appropriate interface for your method (serial/ble/tcp). While BLE and TCP will work they are not as reliable as serial connections. There is a watchdog to reconnect tcp if possible.
+Copy the [config.template](config.template) to `config.ini` and set the appropriate interface for your method (serial/ble/tcp). While BLE and TCP will work, they are not as reliable as serial connections. There is a watchdog to reconnect tcp if possible.
 
 ```
 #config.ini
@@ -74,7 +74,7 @@ enabled = False
 ```
 The following pair of settings determine how to respond: The default action is to not spam the default channel. Setting'respond_by_DM_only'` will force all messages to be sent to DM, which may not be wanted. Setting the value to False will allow responses in the channel for all to see.
 
-Setting the default channel is the channel that won't be spammed by the bot. It's the public default channel 0 on the new Meshtastic firmware. Anti-Spam is hardcoded into the responder to prevent abuse of the public channel.
+Setting the default channel is the channel that won't be spammed by the bot. It's the public default channel 0 on the new Meshtastic firmware. Anti-Spam is hard-coded into the responder to prevent abuse of the public channel.
 ```
 [general]
 respond_by_dm_only = True
@@ -92,7 +92,7 @@ StoreForward = False
 ```
 The BBS has admin and block lists; see the [config.template](config.template)
 
-A repeater function for two different nodes and cross-posting messages. The'repeater_channels` is a list of repeater channel(s) that will be consumed and rebroadcasted on the same number channel on the other device, node, or interface. Each node should have matching channel numbers. The channel names and PSK do not need to be the same on the nodes. With great power comes great responsibility; danger could lurk in the use of this feature! If you have the two nodes in the same radio configuration, you could create a feedback loop!!!
+A repeater function for two different nodes and cross-posting messages. The'repeater_channels` is a list of repeater channel(s) that will be consumed and rebroadcast on the same number channel on the other device, node, or interface. Each node should have matching channel numbers. The channel names and PSK do not need to be the same on the nodes. With great power comes great responsibility; danger could lurk in the use of this feature! If you have the two nodes in the same radio configuration, you could create a feedback loop!!!
 
 ```
 # repeater module
@@ -100,7 +100,7 @@ A repeater function for two different nodes and cross-posting messages. The'repe
 enabled = True
 repeater_channels = [2, 3]
 ```
-A module allowing a Hamlib compatable radio to connect to the bot, when functiponing it will message the channel configured with a message of in use. **Requires hamlib/rigctld to be running as a service.**
+A module allowing a Hamlib compatible radio to connect to the bot, when functioning it will message the channel configured with a message of in use. **Requires hamlib/rigctld to be running as a service.**
 
 ```
 [radioMon]
@@ -134,7 +134,7 @@ pip install beautifulsoup4
 pip install dadjokes
 ```
 
-To enable emoji in debian console install the fonts `sudo apt-get install fonts-noto-color-emoji`
+To enable emoji in the Debian console, install the fonts `sudo apt-get install fonts-noto-color-emoji`
 
 # Recognition
 I used ideas and snippets from other responder bots and want to call them out!
