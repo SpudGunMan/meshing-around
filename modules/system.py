@@ -398,7 +398,6 @@ async def retry_interface(nodeID=1):
                 interface1.close()
             except Exception as e:
                 print(f"{log_timestamp()} System: Error closing interface1: {e}")
-                interface1 = None
     if nodeID==2:
         if interface2 is not None:
             retry_int2 = True
@@ -406,7 +405,6 @@ async def retry_interface(nodeID=1):
                 interface2.close()
             except Exception as e:
                 print(f"{log_timestamp()} System: Error closing interface2: {e}")
-                interface2 = None
     
     # wait 15 seconds before retrying
     print(f"{log_timestamp()} System: Retrying interface in 15 seconds")
@@ -416,7 +414,7 @@ async def retry_interface(nodeID=1):
     try:
         if nodeID==1 and retry_int1:
             interface1 = None
-            retry_int1 = False
+            print(f"{log_timestamp()} System: Retrying Interface1")
             if interface1_type == 'serial':
                 interface1 = meshtastic.serial_interface.SerialInterface(port1)
             elif interface1_type == 'tcp':
@@ -424,13 +422,14 @@ async def retry_interface(nodeID=1):
             elif interface1_type == 'ble':
                 interface1 = meshtastic.ble_interface.BLEInterface(mac1)
             print(f"{log_timestamp()} System: Interface1 Opened!")
+            retry_int1 = False
     except Exception as e:
         print(f"{log_timestamp()} System: Error opening interface1 on: {e}")
     
     try:
         if nodeID==2 and retry_int2:
             interface2 = None
-            retry_int2 = False
+            print(f"{log_timestamp()} System: Retrying Interface2")
             if interface2_type == 'serial':
                 interface2 = meshtastic.serial_interface.SerialInterface(port2)
             elif interface2_type == 'tcp':
@@ -438,6 +437,7 @@ async def retry_interface(nodeID=1):
             elif interface2_type == 'ble':
                 interface2 = meshtastic.ble_interface.BLEInterface(mac2)
             print(f"{log_timestamp()} System: Interface2 Opened!")
+            retry_int2 = False
     except Exception as e:
         print(f"{log_timestamp()} System: Error opening interface2: {e}")
 
