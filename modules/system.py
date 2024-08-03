@@ -108,8 +108,6 @@ if interface2_enabled:
 else:
     myNodeNum2 = 777
 
-# functions
-
 def log_timestamp():
     if zuluTime:
         return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -395,19 +393,21 @@ async def retry_interface(nodeID=1):
     # add a check to see if the interface is already open or trying to open
     if nodeID==1:
         if interface1 is not None:
+            retry_int1 = True
             try:
                 interface1.close()
-                retry_int1 = True
             except Exception as e:
                 print(f"{log_timestamp()} System: Error closing interface1: {e}")
+                interface1 = None
     if nodeID==2:
         if interface2 is not None:
+            retry_int2 = True
             try:
                 interface2.close()
-                retry_int1 = True
             except Exception as e:
                 print(f"{log_timestamp()} System: Error closing interface2: {e}")
-
+                interface2 = None
+    
     # wait 15 seconds before retrying
     print(f"{log_timestamp()} System: Retrying interface in 15 seconds")
     await asyncio.sleep(15)
@@ -458,12 +458,13 @@ def suppress_stdout():
             sys.stdout = old_stdout
 
 async def watchdog():
+    global retry_int1, retry_int2
     # watchdog for connection to the interface
     while True:
         await asyncio.sleep(20)
         #print(f"{log_timestamp()} System: watchdog running\r", end="")
         retryConnect = False
-        if interface1 is not None:
+        if interface1 is not None and not retry_int1:
             try:
                 with suppress_stdout():
                     meta = interface1.localNode.getMetadata()
@@ -482,10 +483,10 @@ async def watchdog():
 
         if interface2_enabled:
             retryConnect = False
-            if interface2 is not None:
+            if interface2 is not None and not retry_int2:
                 try:
                     with suppress_stdout():
-                        interface2.localNode.getMetadata()
+                        meta = interface2.localNode.getMetadata()
                 except Exception as e:
                     print(f"{log_timestamp()} System: Error communicating with interface2, trying to reconnect: {e}")
                     retryConnect = True
