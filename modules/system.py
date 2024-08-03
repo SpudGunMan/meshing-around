@@ -463,7 +463,6 @@ async def watchdog():
     while True:
         await asyncio.sleep(20)
         #print(f"{log_timestamp()} System: watchdog running\r", end="")
-        retryConnect = False
         if interface1 is not None and not retry_int1:
             try:
                 with suppress_stdout():
@@ -471,30 +470,24 @@ async def watchdog():
                 #if "device_state_version:" not in meta:
             except Exception as e:
                 print(f"{log_timestamp()} System: Error communicating with interface1, trying to reconnect: {e}")
-                retryConnect = True
         
-        if retryConnect:
+        if retry_int1:
             try:
                 await retry_interface(1)
-                retryConnect = False
             except Exception as e:
                 print(f"{log_timestamp()} System: Error retrying interface1: {e}")
-                retryConnect = True
 
         if interface2_enabled:
-            retryConnect = False
             if interface2 is not None and not retry_int2:
                 try:
                     with suppress_stdout():
                         meta = interface2.localNode.getMetadata()
                 except Exception as e:
                     print(f"{log_timestamp()} System: Error communicating with interface2, trying to reconnect: {e}")
-                    retryConnect = True
         
-            if retryConnect:
+            if retry_int2:
                 try:
                     await retry_interface(2)
-                    retryConnect = False
                 except Exception as e:
                     print(f"{log_timestamp()} System: Error retrying interface2: {e}")
-                    retryConnect = True
+
