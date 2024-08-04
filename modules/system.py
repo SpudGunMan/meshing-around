@@ -10,7 +10,7 @@ import asyncio
 from modules.settings import *
 
 # Global Variables
-trap_list = ("cmd",) # default trap list
+trap_list = ("cmd","cmd?") # default trap list
 help_message = "CMD?:"
 asyncLoop = asyncio.new_event_loop()
 
@@ -388,12 +388,13 @@ async def handleSignalWatcher():
         pass
 
 async def retry_interface(nodeID=1):
-    global interface1, interface2, retry_int1, retry_int2
+    global interface1, interface2, retry_int1, retry_int2, max_retry_count1, max_retry_count2
     # retry connecting to the interface
     # add a check to see if the interface is already open or trying to open
     if nodeID==1:
         if interface1 is not None:
             retry_int1 = True
+            max_retry_count1 -= 1
             try:
                 interface1.close()
             except Exception as e:
@@ -401,13 +402,21 @@ async def retry_interface(nodeID=1):
     if nodeID==2:
         if interface2 is not None:
             retry_int2 = True
+            max_retry_count2 -= 1
             try:
                 interface2.close()
             except Exception as e:
                 print(f"{log_timestamp()} System: Error closing interface2: {e}")
     
-    # wait 15 seconds before retrying
+   
     print(f"{log_timestamp()} System: Retrying interface in 15 seconds")
+    if max_retry_count1 == 0:
+        print(f"{log_timestamp()} System: Max retry count reached for interface1")
+        exit_handler()
+    if max_retry_count2 == 0:
+        print(f"{log_timestamp()} System: Max retry count reached for interface2")
+        exit_handler()
+    # wait 15 seconds before retrying
     await asyncio.sleep(15)
 
     # retry the interface

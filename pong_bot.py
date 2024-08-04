@@ -38,7 +38,7 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
             bot_response = "MOTD Set to: " + MOTD
         else:
             bot_response = MOTD
-    elif "cmd" in message.lower():
+    elif "cmd" in message.lower() or "cmd?" in message.lower():
         bot_response = help_message
     elif "lheard" in message.lower() or "sitrep" in message.lower():
         bot_response = "Last heard:\n" + str(get_node_list(1))

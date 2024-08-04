@@ -54,7 +54,7 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
              bot_response = "No messages in history"
     elif "bbshelp" in message.lower():
         bot_response = bbs_help()
-    elif "cmd" in message.lower():
+    elif "cmd" in message.lower() or "cmd?" in message.lower():
         bot_response = help_message
     elif "sun" in message.lower():
         location = get_node_location(message_from_id, deviceID)

@@ -3,7 +3,7 @@ import configparser
 # messages
 NO_DATA_NOGPS = "No location data: does your device have GPS?"
 ERROR_FETCHING_DATA = "error fetching data"
-WELCOME_MSG = 'MeshBot, here for you like a friend who is not. Try sending: ping @foo  or, cmd'
+WELCOME_MSG = 'MeshBot, here for you like a friend who is not. Try sending: ping @foo  or, cmd? for more'
 MOTD = 'Thanks for using MeshBOT! Have a good day!'
 NO_ALERTS = "No weather alerts found."
 
@@ -11,13 +11,17 @@ NO_ALERTS = "No weather alerts found."
 MESSAGE_CHUNK_SIZE = 160 # message chunk size for sending at high success rate
 SITREP_NODE_COUNT = 3 # number of nodes to report in the sitrep
 msg_history = [] # message history for the store and forward feature
-bbs_ban_list = [] # list of banned users
-bbs_admin_list = [] # list of admin users
-repeater_channels = [] # list of channels to listen on for repeater mode
+bbs_ban_list = [] # list of banned users, imported from config
+bbs_admin_list = [] # list of admin users, imported from config
+repeater_channels = [] # list of channels to listen on for repeater mode, imported from config
 antiSpam = True # anti-spam feature to prevent flooding public channel
 ping_enabled = True # ping feature to respond to pings, ack's etc.
 sitrep_enabled = True # sitrep feature to respond to sitreps
 lastHamLibAlert = 0 # last alert from hamlib
+max_retry_count1 = 4 # max retry count for interface 1
+max_retry_count2 = 4 # max retry count for interface 2
+retry_int1 = False
+retry_int2 = False
 
 # Read the config file, if it does not exist, create basic config file
 config = configparser.ConfigParser() 
@@ -41,8 +45,6 @@ interface1_type = config['interface'].get('type', 'serial')
 port1 = config['interface'].get('port', '')
 hostname1 = config['interface'].get('hostname', '')
 mac1 = config['interface'].get('mac', '')
-retry_int1 = False
-retry_int2 = False
 
 # interface2 settings
 if 'interface2' in config:
