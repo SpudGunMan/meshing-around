@@ -328,7 +328,7 @@ async def start_rx():
         print(f"System: Store and Forward Enabled using limit: {storeFlimit}")
     if useDMForResponse:
         print(f"System: Respond by DM only")
-    if repeater_enabled:
+    if repeater_enabled and interface2_enabled:
         print(f"System: Repeater Enabled for Channels: {repeater_channels}")
     if radio_dectection_enabled:
         print(f"System: Radio Detection Enabled using rigctld at {rigControlServerAddress} brodcasting to channels: {sigWatchBrodcastCh} for {get_freq_common_name(get_hamlib('f'))}")
