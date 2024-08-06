@@ -103,7 +103,7 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
         bot_response = bbs_list_messages()
     elif "bbspost" in message.lower():
         # Check if the user added a subject to the message
-        if "$" in message:
+        if "$" in message and not "example:" in message:
             subject = message.split("$")[1].split("#")[0]
             subject = subject.rstrip()
             if "#" in message:
@@ -114,7 +114,7 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
             else:
                 bot_response = "example: bbspost $subject #message"
         # Check if the user added a node number to the message
-        elif "@" in message:
+        elif "@" in message and not "example:" in message:
             toNode = message.split("@")[1].split("#")[0]
             toNode = toNode.rstrip()
             if "#" in message:
@@ -127,25 +127,28 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
 
     elif "bbsread" in message.lower():
         # Check if the user added a message number to the message
-        if "#" in message:
+        if "#" in message and not "example:" in message:
             messageID = int(message.split("#")[1])
             bot_response = bbs_read_message(messageID)
         else:
-            bot_response = "Please add a message number ex: bbsread #14"
+            bot_response = "Please add a message number example: bbsread #14"
     elif "bbsdelete" in message.lower():
         # Check if the user added a message number to the message
-        if "#" in message:
+        if "#" in message and not "example:" in message:
             messageID = int(message.split("#")[1])
             bot_response = bbs_delete_message(messageID, message_from_id)
         else:
-            bot_response = "Please add a message number ex: bbsdelete #14"
+            bot_response = "Please add a message number example: bbsdelete #14"
     elif "ack" in message.lower():
         if hop == "Direct":
             bot_response = "🏓ACK-ACK! " + f"SNR:{snr} RSSI:{rssi}"
         else:
             bot_response = "🏓ACK-ACK! " + hop
     elif "testing" in message.lower() or "test" in message.lower():
-        bot_response = "🏓Testing 1,2,3"
+        if hop == "Direct":
+            bot_response = "🏓Testing 1,2,3 " + f"SNR:{snr} RSSI:{rssi}"
+        else:
+            bot_response = "🏓Testing 1,2,3 " + hop
     else:
         bot_response = "I'm sorry, I'm afraid I can't do that."
     

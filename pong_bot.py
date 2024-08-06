@@ -22,11 +22,6 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
                 bot_response = "🏓PONG, " + f"SNR:{snr} RSSI:{rssi}"
             else:
                 bot_response = "🏓PONG, " + hop
-    elif "ack" in message.lower():
-        if hop == "Direct":
-            bot_response = "🏓ACK-ACK! " + f"SNR:{snr} RSSI:{rssi}"
-        else:
-            bot_response = "🏓ACK-ACK! " + hop
     elif "pong" in message.lower():
         bot_response = "🏓Ping!!"
     elif "motd" in message.lower():
@@ -48,8 +43,16 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
             bot_response += "Port2:\n" + str(get_node_list(2))
             chutil2 = interface2.nodes.get(decimal_to_hex(myNodeNum2), {}).get("deviceMetrics", {}).get("channelUtilization", 0)
             chutil2 = "{:.2f}".format(chutil2)
+    elif "ack" in message.lower():
+        if hop == "Direct":
+            bot_response = "🏓ACK-ACK! " + f"SNR:{snr} RSSI:{rssi}"
+        else:
+            bot_response = "🏓ACK-ACK! " + hop
     elif "testing" in message.lower() or "test" in message.lower():
-        bot_response = "🏓Testing 1,2,3"
+        if hop == "Direct":
+            bot_response = "🏓Testing 1,2,3 " + f"SNR:{snr} RSSI:{rssi}"
+        else:
+            bot_response = "🏓Testing 1,2,3 " + hop
     else:
         bot_response = "I'm sorry, I'm afraid I can't do that."
 
