@@ -329,7 +329,7 @@ async def start_rx():
         logger.info(f"System: Autoresponder Started for Device2 {get_name_from_number(myNodeNum2, 'long', 2)},"
                     f"{get_name_from_number(myNodeNum2, 'short', 2)}. NodeID: {myNodeNum2}, {decimal_to_hex(myNodeNum2)}")
     if log_messages_to_file:
-        logger.info(f"System: Logging Messages to disk")
+        logger.debug(f"System: Logging Messages to disk")
     if bbs_enabled:
         logger.debug(f"System: BBS Enabled, {bbsdb} has {len(bbs_messages)} messages. Direct Mail Messages waiting: {(len(bbs_dm) - 1)}")
     if solar_conditions_enabled:
