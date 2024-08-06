@@ -207,33 +207,27 @@ def onReceive(packet, interface):
             message_bytes = packet['decoded']['payload']
             message_string = message_bytes.decode('utf-8')
             message_from_id = packet['from']
-            try:
-                snr = packet['rxSnr']
-                rssi = packet['rxRssi']
-            except KeyError:
-                snr = 0
-                rssi = 0
 
+            # get the signal strength and snr if available
+            if packet.get('rxSnr') or packet.get('rxRssi'):
+                snr = packet.get('rxSnr', 0)
+                rssi = packet.get('rxRssi', 0)
+
+            # check if the packet has a channel flag use it
             if packet.get('channel'):
-                channel_number = packet['channel']
-            else:
-                channel_number = publicChannel
+                channel_number = packet.get('channel', 0)
         
             # check if the packet has a hop count flag use it
             if packet.get('hopsAway'):
-                hop_away = packet['hopsAway']
+                hop_away = packet.get('hopsAway', 0)
             else:
                 # if the packet does not have a hop count try other methods
                 hop_away = 0
                 if packet.get('hopLimit'):
-                    hop_limit = packet['hopLimit']
-                else:
-                    hop_limit = 0
+                    hop_limit = packet.get('hopLimit', 0)
                 
                 if packet.get('hopStart'):
-                    hop_start = packet['hopStart']
-                else:
-                    hop_start = 0
+                    hop_start = packet.get('hopStart', 0)
 
             if hop_start == hop_limit:
                 hop = "Direct"
