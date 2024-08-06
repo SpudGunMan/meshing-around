@@ -45,10 +45,12 @@ msgLogFormat = '%(asctime)s | %(message)s'
 
 # Create stdout handler for logging to the console
 stdout_handler = logging.StreamHandler()
+# Set level for stdout handler (logs DEBUG level and above)
 stdout_handler.setLevel(logging.DEBUG)
+# Set format for stdout handler
 stdout_handler.setFormatter(CustomFormatter(logFormat))
 
-# Create file handler for logging to a file (logs INFO level and above)
+# Create file handler for logging to a file
 today = datetime.now()
 file_handler = logging.FileHandler('messages{}.log'.format(today.strftime('%Y_%m_%d')))
 file_handler.setLevel(logging.INFO)
