@@ -264,7 +264,7 @@ def onReceive(packet, interface):
                 # message is on a channel
                 if messageTrap(message_string):
                     # message is for bot to respond to
-                    logger.info(f"Device:{rxNode} Channel {channel_number} " + CustomFormatter.green + "Received: " + CustomFormatter.white + f"{message_string} " + CustomFormatter.purple +\
+                    logger.info(f"Device:{rxNode} Channel:{channel_number} " + CustomFormatter.green + "Received: " + CustomFormatter.white + f"{message_string} " + CustomFormatter.purple +\
                                  "From: " + CustomFormatter.white + f"{get_name_from_number(message_from_id, 'long', rxNode)}")
                     if useDMForResponse:
                         # respond to channel message via direct message
