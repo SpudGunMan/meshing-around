@@ -2,7 +2,7 @@
 # K7MHI Kelly Keeton 2024
 
 import pickle # pip install pickle
-from modules.settings import *
+from modules.log import *
 
 trap_list_bbs = ("bbslist", "bbspost", "bbsread", "bbsdelete", "bbshelp")
 
@@ -18,14 +18,14 @@ def load_bbsdb():
             bbs_messages = pickle.load(f)
     except:
         bbs_messages = [[1, "Welcome to meshBBS", "Welcome to the BBS, please post a message!",0]]
-        print ("\nSystem: Creating new bbsdb.pkl")
+        logger.debug("\nSystem: Creating new bbsdb.pkl")
         with open('bbsdb.pkl', 'wb') as f:
             pickle.dump(bbs_messages, f)
 
 def save_bbsdb():
     global bbs_messages
     # save the bbs messages to the database file
-    print ("System: Saving bbsdb.pkl\n")
+    logger.debug("System: Saving bbsdb.pkl\n")
     with open('bbsdb.pkl', 'wb') as f:
         pickle.dump(bbs_messages, f)
 
@@ -64,7 +64,7 @@ def bbs_delete_message(messageID = 0, fromNode = 0):
             
             return "Msg #" + str(messageID) + " deleted."
         else:
-            print (f"!!System: node {fromNode}, tried to delete a message: {bbs_messages[messageID - 1]} and was dropped.")
+            logger.warning(f"System: node {fromNode}, tried to delete a message: {bbs_messages[messageID - 1]} and was dropped.")
             return "You are not authorized to delete this message."
     else:
         return "Please specify a message number to delete."
@@ -75,12 +75,12 @@ def bbs_post_message(subject, message, fromNode):
 
     # Check the BAN list for naughty nodes and silently drop the message
     if str(fromNode) in bbs_ban_list:
-        print (f"!!System: Naughty node {fromNode}, tried to post a message: {subject}, {message} and was dropped.")
+        logger.warning(f"System: Naughty node {fromNode}, tried to post a message: {subject}, {message} and was dropped.")
         return "Message posted. ID is: " + str(messageID)
 
     # append the message to the list
     bbs_messages.append([messageID, subject, message, fromNode])
-    print (f"System: NEW Message Posted, subject: {subject}, message: {message} from {fromNode}")
+    logger.info(f"System: NEW Message Posted, subject: {subject}, message: {message} from {fromNode}")
 
     # save the bbsdb
     save_bbsdb()
@@ -100,7 +100,7 @@ def bbs_read_message(messageID = 0):
 def save_bbsdm():
     global bbs_dm
     # save the bbs messages to the database file
-    print ("System: Saving Updated BBS Direct Messages bbsdm.pkl")
+    logger.debug("System: Saving Updated BBS Direct Messages bbsdm.pkl")
     with open('bbsdm.pkl', 'wb') as f:
         pickle.dump(bbs_dm, f)
 
@@ -112,7 +112,7 @@ def load_bbsdm():
             bbs_dm = pickle.load(f)
     except:
         bbs_dm = [[1234567890, "Message", 1234567890]]
-        print ("\nSystem: Creating new bbsdm.pkl")
+        logger.debug("\nSystem: Creating new bbsdm.pkl")
         with open('bbsdm.pkl', 'wb') as f:
             pickle.dump(bbs_dm, f)
 
@@ -120,7 +120,7 @@ def bbs_post_dm(toNode, message, fromNode):
     global bbs_dm
     # Check the BAN list for naughty nodes and silently drop the message
     if str(fromNode) in bbs_ban_list:
-        print (f"!!System: Naughty node {fromNode}, tried to post a message: {message} and was dropped.")
+        logger.warning(f"System: Naughty node {fromNode}, tried to post a message: {message} and was dropped.")
         return "DM Posted for node " + str(toNode)
 
     # append the message to the list

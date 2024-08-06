@@ -5,7 +5,7 @@
 import asyncio
 import time # for sleep, get some when you can :)
 from pubsub import pub # pip install pubsub
-from modules.settings import *
+from modules.log import *
 from modules.system import *
 
 def auto_response(message, snr, rssi, hop, message_from_id, channel_number, deviceID):
@@ -110,7 +110,7 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
             if "#" in message:
                 body = message.split("#")[1]
                 body = body.rstrip()
-                print(f"{log_timestamp()} System: BBS Post: {subject} Body: {body}")
+                logger.info(f"System: BBS Post: {subject} Body: {body}")
                 bot_response = bbs_post_message(subject,body,message_from_id)
             elif not "example:" in message:
                 bot_response = "example: bbspost $subject #message"
@@ -196,7 +196,7 @@ def onReceive(packet, interface):
         if msg:
             # wait a 700ms to avoid message collision from lora-ack.
             time.sleep(0.7)
-            print(f"{log_timestamp()} System: BBS DM Found: {msg[1]} For: {get_name_from_number(message_from_id, 'long', rxNode)}")
+            logger.info(f"System: BBS DM Found: {msg[1]} For: {get_name_from_number(message_from_id, 'long', rxNode)}")
             message = "Mail: " + msg[1] + "  From: " + get_name_from_number(msg[2], 'long', rxNode)
             bbs_delete_dm(msg[0], msg[1])
             send_message(message, channel_number, message_from_id, rxNode)
@@ -249,26 +249,29 @@ def onReceive(packet, interface):
             
             if message_string == help_message or message_string == welcome_message or "CMD?:" in message_string:
                 # ignore help and welcome messages
-                print(f"{log_timestamp()} Got Own Welcome/Help header. From: {get_name_from_number(message_from_id, 'long', rxNode)}")
+                logger.warning(f"Got Own Welcome/Help header. From: {get_name_from_number(message_from_id, 'long', rxNode)}")
                 return
         
             # If the packet is a DM (Direct Message) respond to it, otherwise validate its a message for us on the channel
             if packet['to'] == myNodeNum1 or packet['to'] == myNodeNum2:
                 # message is DM to us
-
                 # check if the message contains a trap word, DMs are always responded to
                 if messageTrap(message_string):
-                    print(f"{log_timestamp()} Received DM: {message_string} on Device:{rxNode} Channel: {channel_number} From: {get_name_from_number(message_from_id, 'long', rxNode)}")
+                    logger.info(f"Device:{rxNode} Channel: {channel_number} " + CustomFormatter.green + f"Received DM: " + CustomFormatter.white + f"{message_string} " + CustomFormatter.purple +\
+                                "From: " + CustomFormatter.white + f"{get_name_from_number(message_from_id, 'long', rxNode)}")
                     # respond with DM
                     send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number, rxNode), channel_number, message_from_id, rxNode)
                 else: 
                     # respond with welcome message on DM
-                    print(f"{log_timestamp()} Ignoring DM: {message_string} on Device:{rxNode} From: {get_name_from_number(message_from_id, 'long', rxNode)}")
+                    logger.warning(f"Device:{rxNode} Ignoring DM: {message_string} From: {get_name_from_number(message_from_id, 'long', rxNode)}")
                     send_message(welcome_message, channel_number, message_from_id, rxNode)
+                    msgLogger.info(f"{get_name_from_number(message_from_id, 'long', rxNode)} | {message_string}")
             else:
                 # message is on a channel
                 if messageTrap(message_string):
-                    print(f"{log_timestamp()} Received On Device:{rxNode} Channel {channel_number}: {message_string} From: {get_name_from_number(message_from_id, 'long', rxNode)}")
+                    # message is for bot to respond to
+                    logger.info(f"Device:{rxNode} Channel:{channel_number} " + CustomFormatter.green + "Received: " + CustomFormatter.white + f"{message_string} " + CustomFormatter.purple +\
+                                 "From: " + CustomFormatter.white + f"{get_name_from_number(message_from_id, 'long', rxNode)}")
                     if useDMForResponse:
                         # respond to channel message via direct message
                         send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number, rxNode), channel_number, message_from_id, rxNode)
@@ -276,7 +279,7 @@ def onReceive(packet, interface):
                         # or respond to channel message on the channel itself
                         if channel_number == publicChannel and antiSpam:
                             # warning user spamming default channel
-                            print(f"{log_timestamp()} System: Warning spamming default channel not allowed. sending DM to {get_name_from_number(message_from_id, 'long', rxNode)}")
+                            logger.error(f"System: AntiSpam protection, sending DM to: {get_name_from_number(message_from_id, 'long', rxNode)}")
                         
                             # respond to channel message via direct message
                             send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number, rxNode), channel_number, message_from_id, rxNode)
@@ -284,8 +287,8 @@ def onReceive(packet, interface):
                             # respond to channel message on the channel itself
                             send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number, rxNode), channel_number, 0, rxNode)
                 else:
+                    # message is not for bot to respond to
                     # ignore the message but add it to the message history and repeat it if enabled
-                    # add the message to the message history but limit
                     if zuluTime:
                         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     else:
@@ -306,47 +309,47 @@ def onReceive(packet, interface):
                         # if channel found in the repeater list repeat the message
                         if str(channel_number) in repeater_channels:
                             if rxNode == 1:
-                                print(f"{log_timestamp()} Repeating message on Device2 Channel:{channel_number}")
+                                logger.debug(f"Repeating message on Device2 Channel:{channel_number}")
                                 send_message(rMsg, channel_number, 0, 2)
                             elif rxNode == 2:
-                                print(f"{log_timestamp()} Repeating message on Device1 Channel:{channel_number}")
+                                logger.debug(f"Repeating message on Device1 Channel:{channel_number}")
                                 send_message(rMsg, channel_number, 0, 1)
+                        msgLogger.info(f"{get_name_from_number(message_from_id, 'long', rxNode)} | {message_string}")
                     else: 
-                        print(f"{log_timestamp()} System: Ignoring incoming Device:{rxNode} Channel:{channel_number} Message: {message_string} From: {get_name_from_number(message_from_id)}")
+                        # nothing to do for us
+                        logger.info(f"Ignoring incoming Device:{rxNode} Channel:{channel_number} " + CustomFormatter.green + "Message:" + CustomFormatter.white +\
+                                     f" {message_string} " + CustomFormatter.purple + "From:" + CustomFormatter.white + f" {get_name_from_number(message_from_id)}")
+                        msgLogger.info(f"{get_name_from_number(message_from_id, 'long', rxNode)} | {message_string}")
     except KeyError as e:
-        print(f"{log_timestamp()} System: Error processing packet: {e} Device:{rxNode}")
+        logger.critical(f"System: Error processing packet: {e} Device:{rxNode}")
         print(packet) # print the packet for debugging
         print("END of packet \n")
 
 async def start_rx():
-    print ("\nMeshtastic Autoresponder Bot CTL+C to exit\n")
-    if bbs_enabled:
-        print(f"System: BBS Enabled, {bbsdb} has {len(bbs_messages)} messages. Direct Mail Messages waiting: {(len(bbs_dm) - 1)}")
-    if solar_conditions_enabled:
-        print(f"System: Celestial Telemetry Enabled")
-    if location_enabled:
-        print(f"System: Location Telemetry Enabled")
-    if dad_jokes_enabled:
-        print(f"System: Dad Jokes Enabled!")
-    if store_forward_enabled:
-        print(f"System: Store and Forward Enabled using limit: {storeFlimit}")
-    if useDMForResponse:
-        print(f"System: Respond by DM only")
-    if repeater_enabled and interface2_enabled:
-        print(f"System: Repeater Enabled for Channels: {repeater_channels}")
-    if radio_dectection_enabled:
-        print(f"System: Radio Detection Enabled using rigctld at {rigControlServerAddress} brodcasting to channels: {sigWatchBrodcastCh} for {get_freq_common_name(get_hamlib('f'))}")
-
+    print (CustomFormatter.bold_white + f"\nMeshtastic Autoresponder Bot CTL+C to exit\n" + CustomFormatter.reset)
     # Start the receive subscriber using pubsub via meshtastic library
     pub.subscribe(onReceive, 'meshtastic.receive')
-
-    msg = (f"{log_timestamp()} System: Autoresponder Started for Device1 {get_name_from_number(myNodeNum1, 'long', 1)},"
-            f"{get_name_from_number(myNodeNum1, 'short', 1)}. NodeID: {myNodeNum1}, {decimal_to_hex(myNodeNum1)}")
-    print (msg)
+    logger.info(f"System: Autoresponder Started for Device1 {get_name_from_number(myNodeNum1, 'long', 1)}," 
+                f"{get_name_from_number(myNodeNum1, 'short', 1)}. NodeID: {myNodeNum1}, {decimal_to_hex(myNodeNum1)}")
     if interface2_enabled:
-        msg = (f"{log_timestamp()} System: Autoresponder Started for Device2 {get_name_from_number(myNodeNum2, 'long', 2)},"
-               f"{get_name_from_number(myNodeNum2, 'short', 2)}. NodeID: {myNodeNum2}, {decimal_to_hex(myNodeNum2)}")
-        print (msg)
+        logger.info(f"System: Autoresponder Started for Device2 {get_name_from_number(myNodeNum2, 'long', 2)},"
+                    f"{get_name_from_number(myNodeNum2, 'short', 2)}. NodeID: {myNodeNum2}, {decimal_to_hex(myNodeNum2)}")
+    if bbs_enabled:
+        logger.debug(f"System: BBS Enabled, {bbsdb} has {len(bbs_messages)} messages. Direct Mail Messages waiting: {(len(bbs_dm) - 1)}")
+    if solar_conditions_enabled:
+        logger.debug(f"System: Celestial Telemetry Enabled")
+    if location_enabled:
+        logger.debug(f"System: Location Telemetry Enabled")
+    if dad_jokes_enabled:
+        logger.debug(f"System: Dad Jokes Enabled!")
+    if store_forward_enabled:
+        logger.debug(f"System: Store and Forward Enabled using limit: {storeFlimit}")
+    if useDMForResponse:
+        logger.debug(f"System: Respond by DM only")
+    if repeater_enabled and interface2_enabled:
+        logger.debug(f"System: Repeater Enabled for Channels: {repeater_channels}")
+    if radio_dectection_enabled:
+        logger.debug(f"System: Radio Detection Enabled using rigctld at {rigControlServerAddress} brodcasting to channels: {sigWatchBrodcastCh} for {get_freq_common_name(get_hamlib('f'))}")
 
     # here we go loopty loo
     while True:

@@ -4,10 +4,9 @@
 import meshtastic.serial_interface #pip install meshtastic
 import meshtastic.tcp_interface
 import meshtastic.ble_interface
-from datetime import datetime
 import time
 import asyncio
-from modules.settings import *
+from modules.log import *
 
 # Global Variables
 trap_list = ("cmd","cmd?") # default trap list
@@ -68,10 +67,10 @@ try:
     elif interface1_type == 'ble':
         interface1 = meshtastic.ble_interface.BLEInterface(mac1)
     else:
-        print(f"System: Interface Type: {interface1_type} not supported. Validate your config against config.template Exiting")
+        logger.critical(f"System: Interface Type: {interface1_type} not supported. Validate your config against config.template Exiting")
         exit()
 except Exception as e:
-    print(f"System: Critical Error script abort. Initalizing Interface1 {e}")
+    logger.critical(f"System: script abort. Initalizing Interface1 {e}")
     exit()
 
 # Interface2 Configuration
@@ -84,10 +83,10 @@ if interface2_enabled:
         elif interface2_type == 'ble':
             interface2 = meshtastic.ble_interface.BLEInterface(mac2)
         else:
-            print(f"System: Interface Type: {interface2_type} not supported. Validate your config against config.template Exiting")
+            logger.critical(f"System: Interface Type: {interface2_type} not supported. Validate your config against config.template Exiting")
             exit()
     except Exception as e:
-        print(f"System: Critical Error script abort. Initalizing Interface2 {e}")
+        logger.critical(f"System: script abort. Initalizing Interface2 {e}")
         exit()
 
 #Get the node number of the device, check if the device is connected
@@ -95,7 +94,7 @@ try:
     myinfo = interface1.getMyNodeInfo()
     myNodeNum1 = myinfo['num']
 except Exception as e:
-    print(f"System: Critical Error script abort. {e}")
+    logger.critical(f"System: script abort. {e}")
     exit()
 
 if interface2_enabled:
@@ -103,16 +102,10 @@ if interface2_enabled:
         myinfo2 = interface2.getMyNodeInfo()
         myNodeNum2 = myinfo2['num']
     except Exception as e:
-        print(f"System: Critical Error script abort. {e}")
+        logger.critical(f"System: script abort. {e}")
         exit()
 else:
     myNodeNum2 = 777
-
-def log_timestamp():
-    if zuluTime:
-        return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    else:
-        return datetime.now().strftime("%Y-%m-%d %I:%M:%S%p")
 
 def decimal_to_hex(decimal_number):
     return f"!{decimal_number:08x}"
@@ -171,7 +164,7 @@ def get_node_list(nodeInt=1):
                     item = (node_name, last_heard, snr)
                     node_list1.append(item)
         else:
-            print (f"{log_timestamp()} System: No nodes found")
+            logger.warning(f"System: No nodes found")
             return ERROR_FETCHING_DATA
         
     if nodeInt == 2:
@@ -189,7 +182,7 @@ def get_node_list(nodeInt=1):
                     item = (node_name, last_heard, snr)
                     node_list2.append(item)
         else:
-            print (f"{log_timestamp()} System: No nodes found")
+            logger.warning(f"System: No nodes found")
             return ERROR_FETCHING_DATA
     
     node_list1.sort(key=lambda x: x[1], reverse=True)
@@ -222,15 +215,16 @@ def get_node_location(number, nodeInt=1):
                             latitude = node['position']['latitude']
                             longitude = node['position']['longitude']
                         except Exception as e:
-                            print (f"{log_timestamp()} System: Error getting location data for {number}")
-                        print (f"System: location data for {number} is {latitude},{longitude}")
+                            logger.error(f"System: Error getting location data for {number}")
+                        logger.debug(f"System: location data for {number} is {latitude},{longitude}")
                         position = [latitude,longitude]
                         return position
                     else:
-                        print (f"{log_timestamp()} System: No location data for {number}")
+                        logger.warning(f"System: No location data for {number} using default location")
+                        #interface1.sendPosition(destinationId=number, wantResponse=True, channelIndex=0)
                         return position
         else:
-            print (f"{log_timestamp()} System: No nodes found")
+            logger.warning(f"System: No nodes found")
             return position
     if nodeInt == 2:
         if interface2.nodes:
@@ -241,15 +235,15 @@ def get_node_location(number, nodeInt=1):
                             latitude = node['position']['latitude']
                             longitude = node['position']['longitude']
                         except Exception as e:
-                            print (f"{log_timestamp()} System: Error getting location data for {number}")
-                        print (f"System: location data for {number} is {latitude},{longitude}")
+                            logger.error(f"System: Error getting location data for {number}")
+                        logger.info(f"System: location data for {number} is {latitude},{longitude}")
                         position = [latitude,longitude]
                         return position
                     else:
-                        print (f"{log_timestamp()} System: No location data for {number}")
+                        logger.warning(f"System: No location data for {number}")
                         return position
         else:
-            print (f"{log_timestamp()} System: No nodes found")
+            logger.warning(f"System: No nodes found")
             return position
         
 def send_message(message, ch, nodeid=0, nodeInt=1):
@@ -257,7 +251,7 @@ def send_message(message, ch, nodeid=0, nodeInt=1):
         return
     # if message over MESSAGE_CHUNK_SIZE characters, split it into multiple messages
     if len(message) > MESSAGE_CHUNK_SIZE:
-        print (f"{log_timestamp()} System: Splitting Message, Message Length: {len(message)}")
+        logger.debug(f"System: Splitting Message, Message Length: {len(message)}")
 
         # split the message into MESSAGE_CHUNK_SIZE 160 character chunks
         message = message.replace('\n', ' NEWLINE ') # replace newlines with NEWLINE to keep them in split chunks
@@ -283,14 +277,15 @@ def send_message(message, ch, nodeid=0, nodeInt=1):
         for m in message_list:
             if nodeid == 0:
                 #Send to channel
-                print (f"{log_timestamp()} System: Sending Device:{nodeInt} Channel:{ch} Multi-Chunk Message: {m}")
+                logger.info(f"Device:{nodeInt} Channel:{ch} " + CustomFormatter.red + "Sending Multi-Chunk Message: " + CustomFormatter.white + f"{m}")
                 if nodeInt == 1:
                     interface1.sendText(text=m, channelIndex=ch)
                 if nodeInt == 2:
                     interface2.sendText(text=m, channelIndex=ch)
             else:
                 # Send to DM
-                print (f"{log_timestamp()} System: Sending DM Device:{nodeInt} Multi-Chunk Message: {m} To: {get_name_from_number(nodeid, 'long', nodeInt)}")
+                logger.info(f"Device:{nodeInt} " + CustomFormatter.red + "Sending Multi-Chunk Message: " + CustomFormatter.white + f"{m}" + CustomFormatter.purple +\
+                             " To: " + CustomFormatter.white + f"{get_name_from_number(nodeid, 'long', nodeInt)}")
                 if nodeInt == 1:
                     interface1.sendText(text=m, channelIndex=ch, destinationId=nodeid)
                 if nodeInt == 2:
@@ -298,14 +293,15 @@ def send_message(message, ch, nodeid=0, nodeInt=1):
     else: # message is less than MESSAGE_CHUNK_SIZE characters
         if nodeid == 0:
             # Send to channel
-            print (f"{log_timestamp()} System: Sending Device:{nodeInt} Channel:{ch} Message: {message}")
+            logger.info(f"Device:{nodeInt} Channel:{ch} " + CustomFormatter.red + "Sending: " + CustomFormatter.white + f"{message}")
             if nodeInt == 1:
                 interface1.sendText(text=message, channelIndex=ch)
             if nodeInt == 2:
                 interface2.sendText(text=message, channelIndex=ch)
         else:
             # Send to DM
-            print (f"{log_timestamp()} System: Sending DM Device:{nodeInt} {message} To: {get_name_from_number(nodeid, 'long', nodeInt)}")
+            logger.info(f"Device:{nodeInt} " + CustomFormatter.red + "Sending: " + CustomFormatter.white + f"{message}" + CustomFormatter.purple +\
+                         " To: " + CustomFormatter.white + f"{get_name_from_number(nodeid, 'long', nodeInt)}")
             if nodeInt == 1:
                 interface1.sendText(text=message, channelIndex=ch, destinationId=nodeid)
             if nodeInt == 2:
@@ -339,24 +335,23 @@ def messageTrap(msg):
 
 def exit_handler():
     # Close the interface and save the BBS messages
-    print(f"\n{log_timestamp()} System: Closing Autoresponder\n")
+    logger.debug(f"\nSystem: Closing Autoresponder\n")
     try:         
         interface1.close()
-        print(f"{log_timestamp()} System: Interface1 Closed")
+        logger.debug(f"System: Interface1 Closed")
         if interface2_enabled:
             interface2.close()
-            print(f"{log_timestamp()} System: Interface2 Closed")
+            logger.debug(f"System: Interface2 Closed")
     except Exception as e:
-        print(f"{log_timestamp()} System: Error closing: {e}")
+        logger.error(f"System: closing: {e}")
     if bbs_enabled:
         save_bbsdb()
         save_bbsdm()
-        print(f"{log_timestamp()} System: BBS Messages Saved")
-    print(f"{log_timestamp()} System: Exiting")
+        logger.debug(f"System: BBS Messages Saved")
+    logger.debug(f"System: Exiting")
     asyncLoop.stop()
     asyncLoop.close()
     exit (0)
-
 
 async def handleSignalWatcher():
     global lastHamLibAlert, antiSpam, sigWatchBrodcastCh
@@ -364,7 +359,7 @@ async def handleSignalWatcher():
     while True:
         msg =  await signalWatcher()
         if msg != ERROR_FETCHING_DATA and msg is not None:
-            print(f"{log_timestamp()} System: Detected Alert from Hamlib {msg}")
+            logger.debug(f"System: Detected Alert from Hamlib {msg}")
             
             # check we are not spammig the channel limit messages to once per minute
             if time.time() - lastHamLibAlert > 60:
@@ -377,14 +372,14 @@ async def handleSignalWatcher():
                             if interface2_enabled:
                                 send_message(msg, int(ch), 0, 2)
                         else:
-                            print(f"{log_timestamp()} System: antiSpam prevented Alert from Hamlib {msg}")
+                            logger.error(f"System: antiSpam prevented Alert from Hamlib {msg}")
                 else:
                     if antiSpam and sigWatchBrodcastCh != publicChannel:
                         send_message(msg, int(sigWatchBrodcastCh), 0, 1)
                         if interface2_enabled:
                             send_message(msg, int(sigWatchBrodcastCh), 0, 2)
                     else:
-                        print(f"{log_timestamp()} System: antiSpam prevented Alert from Hamlib {msg}")
+                        logger.error(f"System: antiSpam prevented Alert from Hamlib {msg}")
 
         await asyncio.sleep(1)
         pass
@@ -400,7 +395,7 @@ async def retry_interface(nodeID=1):
             try:
                 interface1.close()
             except Exception as e:
-                print(f"{log_timestamp()} System: Error closing interface1: {e}")
+                logger.error(f"System: closing interface1: {e}")
     if nodeID==2:
         if interface2 is not None:
             retry_int2 = True
@@ -408,15 +403,15 @@ async def retry_interface(nodeID=1):
             try:
                 interface2.close()
             except Exception as e:
-                print(f"{log_timestamp()} System: Error closing interface2: {e}")
+                logger.error(f"System: closing interface2: {e}")
     
    
-    print(f"{log_timestamp()} System: Retrying interface in 15 seconds")
+    logger.debug(f"System: Retrying interface in 15 seconds")
     if max_retry_count1 == 0:
-        print(f"{log_timestamp()} System: Max retry count reached for interface1")
+        logger.critical(f"System: Max retry count reached for interface1")
         exit_handler()
     if max_retry_count2 == 0:
-        print(f"{log_timestamp()} System: Max retry count reached for interface2")
+        logger.critical(f"System: Max retry count reached for interface2")
         exit_handler()
     # wait 15 seconds before retrying
     await asyncio.sleep(15)
@@ -425,32 +420,32 @@ async def retry_interface(nodeID=1):
     try:
         if nodeID==1 and retry_int1:
             interface1 = None
-            print(f"{log_timestamp()} System: Retrying Interface1")
+            logger.debug(f"System: Retrying Interface1")
             if interface1_type == 'serial':
                 interface1 = meshtastic.serial_interface.SerialInterface(port1)
             elif interface1_type == 'tcp':
                 interface1 = meshtastic.tcp_interface.TCPInterface(hostname1)
             elif interface1_type == 'ble':
                 interface1 = meshtastic.ble_interface.BLEInterface(mac1)
-            print(f"{log_timestamp()} System: Interface1 Opened!")
+            logger.debug(f"System: Interface1 Opened!")
             retry_int1 = False
     except Exception as e:
-        print(f"{log_timestamp()} System: Error opening interface1 on: {e}")
+        logger.error(f"System: opening interface1 on: {e}")
     
     try:
         if nodeID==2 and retry_int2:
             interface2 = None
-            print(f"{log_timestamp()} System: Retrying Interface2")
+            logger.debug(f"System: Retrying Interface2")
             if interface2_type == 'serial':
                 interface2 = meshtastic.serial_interface.SerialInterface(port2)
             elif interface2_type == 'tcp':
                 interface2 = meshtastic.tcp_interface.TCPInterface(hostname2)
             elif interface2_type == 'ble':
                 interface2 = meshtastic.ble_interface.BLEInterface(mac2)
-            print(f"{log_timestamp()} System: Interface2 Opened!")
+            logger.debug(f"System: Interface2 Opened!")
             retry_int2 = False
     except Exception as e:
-        print(f"{log_timestamp()} System: Error opening interface2: {e}")
+        logger.error(f"System: opening interface2: {e}")
 
 # this is a workaround because .localNode.getMetadata spits out a lot of debug info which cant be suppressed
 
@@ -473,21 +468,21 @@ async def watchdog():
     # watchdog for connection to the interface
     while True:
         await asyncio.sleep(20)
-        #print(f"{log_timestamp()} System: watchdog running\r", end="")
+        #print(f"MeshBot System: watchdog running\r", end="")
         if interface1 is not None and not retry_int1:
             try:
                 with suppress_stdout():
                     interface1.localNode.getMetadata()
                 #if "device_state_version:" not in meta:
             except Exception as e:
-                print(f"{log_timestamp()} System: Error communicating with interface1, trying to reconnect: {e}")
+                logger.error(f"System: communicating with interface1, trying to reconnect: {e}")
                 retry_int1 = True
         
         if retry_int1:
             try:
                 await retry_interface(1)
             except Exception as e:
-                print(f"{log_timestamp()} System: Error retrying interface1: {e}")
+                logger.error(f"System: retrying interface1: {e}")
 
         if interface2_enabled:
             if interface2 is not None and not retry_int2:
@@ -495,12 +490,12 @@ async def watchdog():
                     with suppress_stdout():
                         interface2.localNode.getMetadata()
                 except Exception as e:
-                    print(f"{log_timestamp()} System: Error communicating with interface2, trying to reconnect: {e}")
+                    logger.error(f"System: communicating with interface2, trying to reconnect: {e}")
                     retry_int2 = True
         
             if retry_int2:
                 try:
                     await retry_interface(2)
                 except Exception as e:
-                    print(f"{log_timestamp()} System: Error retrying interface2: {e}")
+                    logger.error(f"System: retrying interface2: {e}")
 
