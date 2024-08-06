@@ -39,6 +39,8 @@ StoreLimit = 3
 zuluTime = True
 # wait time for URL requests
 URL_TIMEOUT = 10
+# logging to file of the non Bot messages
+LogMessagesToFile = False
 
 [bbs]
 enabled = True

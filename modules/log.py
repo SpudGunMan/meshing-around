@@ -58,4 +58,5 @@ file_handler.setFormatter(logging.Formatter(msgLogFormat))
 
 # Add handlers to the logger
 logger.addHandler(stdout_handler)
-msgLogger.addHandler(file_handler)
+if log_messages_to_file:
+    msgLogger.addHandler(file_handler)

@@ -72,6 +72,7 @@ try:
     bbsdb = config['bbs'].get('bbsdb', 'bbsdb.pkl')
     dad_jokes_enabled = config['general'].getboolean('DadJokes', False)
     store_forward_enabled = config['general'].getboolean('StoreForward', False)
+    log_messages_to_file = config['general'].getboolean('LogMessagesToFile', True) # default True
     config['general'].get('motd', MOTD)
     urlTimeoutSeconds = config['general'].getint('URL_TIMEOUT', 10) # default 10 seconds
     forecastDuration = config['general'].getint('DAYS_OF_WEATHER', 4) # default days of weather
