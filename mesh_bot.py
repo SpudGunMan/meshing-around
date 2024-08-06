@@ -10,6 +10,7 @@ from modules.system import *
 
 def auto_response(message, snr, rssi, hop, message_from_id, channel_number, deviceID):
     #Auto response to messages
+    bot_response = ""
     if "ping" in message.lower():
         #Check if the user added @foo to the message
         if "@" in message:
@@ -111,7 +112,7 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
                 body = body.rstrip()
                 print(f"{log_timestamp()} System: BBS Post: {subject} Body: {body}")
                 bot_response = bbs_post_message(subject,body,message_from_id)
-            else:
+            elif not "example:" in message:
                 bot_response = "example: bbspost $subject #message"
         # Check if the user added a node number to the message
         elif "@" in message and not "example:" in message:
@@ -122,7 +123,7 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
                 bot_response = bbs_post_dm(toNode, body, message_from_id)
             else:
                 bot_response = "example: bbspost @nodeNumber #message"
-        else:
+        elif not "example:" in message:
             bot_response = "example: bbspost $subject #message, or bbspost @nodeNumber #message"
 
     elif "bbsread" in message.lower():
@@ -130,14 +131,14 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
         if "#" in message and not "example:" in message:
             messageID = int(message.split("#")[1])
             bot_response = bbs_read_message(messageID)
-        else:
+        elif not "example:" in message:
             bot_response = "Please add a message number example: bbsread #14"
     elif "bbsdelete" in message.lower():
         # Check if the user added a message number to the message
         if "#" in message and not "example:" in message:
             messageID = int(message.split("#")[1])
             bot_response = bbs_delete_message(messageID, message_from_id)
-        else:
+        elif not "example:" in message:
             bot_response = "Please add a message number example: bbsdelete #14"
     elif "ack" in message.lower():
         if hop == "Direct":
