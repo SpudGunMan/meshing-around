@@ -92,4 +92,3 @@ except KeyError as e:
     print(f"System: Check the config.ini against config.template file for missing sections or values.")
     print(f"System: Exiting...")
     exit(1)
-
