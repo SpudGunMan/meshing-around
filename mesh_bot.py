@@ -22,11 +22,6 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
                 bot_response = "🏓PONG, " + f"SNR:{snr} RSSI:{rssi}"
             else:
                 bot_response = "🏓PONG, " + hop
-    elif "ack" in message.lower():
-        if hop == "Direct":
-            bot_response = "🏓ACK-ACK! " + f"SNR:{snr} RSSI:{rssi}"
-        else:
-            bot_response = "🏓ACK-ACK! " + hop
     elif "pong" in message.lower():
         bot_response = "🏓PING!!"
     elif "motd" in message.lower():
@@ -144,6 +139,11 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
             bot_response = bbs_delete_message(messageID, message_from_id)
         else:
             bot_response = "Please add a message number ex: bbsdelete #14"
+    elif "ack" in message.lower():
+        if hop == "Direct":
+            bot_response = "🏓ACK-ACK! " + f"SNR:{snr} RSSI:{rssi}"
+        else:
+            bot_response = "🏓ACK-ACK! " + hop
     elif "testing" in message.lower() or "test" in message.lower():
         bot_response = "🏓Testing 1,2,3"
     else:
