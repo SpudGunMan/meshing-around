@@ -253,6 +253,8 @@ def get_node_location(number, nodeInt=1):
             return position
         
 def send_message(message, ch, nodeid=0, nodeInt=1):
+    if message == "":
+        return
     # if message over MESSAGE_CHUNK_SIZE characters, split it into multiple messages
     if len(message) > MESSAGE_CHUNK_SIZE:
         print (f"{log_timestamp()} System: Splitting Message, Message Length: {len(message)}")
