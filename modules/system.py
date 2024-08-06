@@ -284,7 +284,7 @@ def send_message(message, ch, nodeid=0, nodeInt=1):
                     interface2.sendText(text=m, channelIndex=ch)
             else:
                 # Send to DM
-                logger.info(f"Device:{nodeInt} " + CustomFormatter.red + "Sending Multi-Chunk Message: " + CustomFormatter.white + f"{m}" + CustomFormatter.yellow +\
+                logger.info(f"Device:{nodeInt} " + CustomFormatter.red + "Sending Multi-Chunk Message: " + CustomFormatter.white + f"{m}" + CustomFormatter.purple +\
                              " To: " + CustomFormatter.white + f"{get_name_from_number(nodeid, 'long', nodeInt)}")
                 if nodeInt == 1:
                     interface1.sendText(text=m, channelIndex=ch, destinationId=nodeid)
@@ -300,7 +300,7 @@ def send_message(message, ch, nodeid=0, nodeInt=1):
                 interface2.sendText(text=message, channelIndex=ch)
         else:
             # Send to DM
-            logger.info(f"Device:{nodeInt} " + CustomFormatter.red + "Sending: " + CustomFormatter.white + f"{message}" + CustomFormatter.yellow +\
+            logger.info(f"Device:{nodeInt} " + CustomFormatter.red + "Sending: " + CustomFormatter.white + f"{message}" + CustomFormatter.purple +\
                          " To: " + CustomFormatter.white + f"{get_name_from_number(nodeid, 'long', nodeInt)}")
             if nodeInt == 1:
                 interface1.sendText(text=message, channelIndex=ch, destinationId=nodeid)
@@ -468,7 +468,7 @@ async def watchdog():
     # watchdog for connection to the interface
     while True:
         await asyncio.sleep(20)
-        #print(f"System: watchdog running\r", end="")
+        #print(f"MeshBot System: watchdog running\r", end="")
         if interface1 is not None and not retry_int1:
             try:
                 with suppress_stdout():

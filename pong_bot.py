@@ -143,7 +143,7 @@ def onReceive(packet, interface):
 
                 # check if the message contains a trap word, DMs are always responded to
                 if messageTrap(message_string):
-                    logger.info(f"Device:{rxNode} Channel: {channel_number} " + CustomFormatter.green + f"Received DM: " + CustomFormatter.white + f"{message_string} " + CustomFormatter.yellow +\
+                    logger.info(f"Device:{rxNode} Channel: {channel_number} " + CustomFormatter.green + f"Received DM: " + CustomFormatter.white + f"{message_string} " + CustomFormatter.purple +\
                                 "From: " + CustomFormatter.white + f"{get_name_from_number(message_from_id, 'long', rxNode)}")
                     # respond with DM
                     send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number, rxNode), channel_number, message_from_id, rxNode)
@@ -156,7 +156,7 @@ def onReceive(packet, interface):
                 # message is on a channel
                 if messageTrap(message_string):
                     # message is for bot to respond to
-                    logger.info(f"Device:{rxNode} Channel {channel_number} " + CustomFormatter.green + "Received: " + CustomFormatter.white + f"{message_string} " + CustomFormatter.yellow +\
+                    logger.info(f"Device:{rxNode} Channel {channel_number} " + CustomFormatter.green + "Received: " + CustomFormatter.white + f"{message_string} " + CustomFormatter.purple +\
                                  "From: " + CustomFormatter.white + f"{get_name_from_number(message_from_id, 'long', rxNode)}")
                     if useDMForResponse:
                         # respond to channel message via direct message
@@ -203,7 +203,7 @@ def onReceive(packet, interface):
                     else: 
                          # nothing to do for us
                         logger.info(f"Ignoring incoming Device:{rxNode} Channel:{channel_number} " + CustomFormatter.green + "Message:" + CustomFormatter.white +\
-                                     f" {message_string} " + CustomFormatter.yellow + "From:" + CustomFormatter.white + f" {get_name_from_number(message_from_id)}")
+                                     f" {message_string} " + CustomFormatter.purple + "From:" + CustomFormatter.white + f" {get_name_from_number(message_from_id)}")
                         msgLogger.info(f"{get_name_from_number(message_from_id, 'long', rxNode)} | {message_string}")
     except KeyError as e:
         logger.critical(f"System: Error processing packet: {e} Device:{rxNode}")
