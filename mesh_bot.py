@@ -225,9 +225,13 @@ def onReceive(packet, interface):
                 hop_away = 0
                 if packet.get('hopLimit'):
                     hop_limit = packet.get('hopLimit', 0)
+                else:
+                    hop_limit = 0
                 
                 if packet.get('hopStart'):
                     hop_start = packet.get('hopStart', 0)
+                else:
+                    hop_start = 0
 
             if hop_start == hop_limit:
                 hop = "Direct"
