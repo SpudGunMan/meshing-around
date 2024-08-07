@@ -53,7 +53,7 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
     elif "cmd" in message.lower() or "cmd?" in message.lower():
         bot_response = help_message
     elif "sun" in message.lower():
-        location = get_node_location(message_from_id, deviceID)
+        location = get_node_location(message_from_id, deviceID, channel_number)
         bot_response = get_sun(str(location[0]),str(location[1]))
     elif "hfcond" in message.lower():
         bot_response = hf_band_conditions()
@@ -71,31 +71,31 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
         if interface2_enabled:
             bot_response += " P2:" + str(chutil2) + "%"
     elif "whereami" in message.lower():
-        location = get_node_location(message_from_id, deviceID)
+        location = get_node_location(message_from_id, deviceID, channel_number)
         where = where_am_i(str(location[0]),str(location[1]))
         bot_response = where
     elif "tide" in message.lower():
-        location = get_node_location(message_from_id, deviceID)
+        location = get_node_location(message_from_id, deviceID, channel_number)
         tide = get_tide(str(location[0]),str(location[1]))
         bot_response = tide
     elif "moon" in message.lower():
-        location = get_node_location(message_from_id, deviceID)
+        location = get_node_location(message_from_id, deviceID, channel_number)
         moon = get_moon(str(location[0]),str(location[1]))
         bot_response = moon
     elif "wxalert" in message.lower():
-        location = get_node_location(message_from_id, deviceID)
+        location = get_node_location(message_from_id, deviceID, channel_number)
         weatherAlert = getActiveWeatherAlertsDetail(str(location[0]),str(location[1]))
         bot_response = weatherAlert
     elif "wxa" in message.lower():
-        location = get_node_location(message_from_id, deviceID)
+        location = get_node_location(message_from_id, deviceID, channel_number)
         weatherAlert = getWeatherAlerts(str(location[0]),str(location[1]))
         bot_response = weatherAlert
     elif "wxc" in message.lower():
-        location = get_node_location(message_from_id, deviceID)
+        location = get_node_location(message_from_id, deviceID, channel_number)
         weather = get_weather(str(location[0]),str(location[1]),1)
         bot_response = weather
     elif "wx" in message.lower():
-        location = get_node_location(message_from_id, deviceID)
+        location = get_node_location(message_from_id, deviceID, channel_number)
         weather = get_weather(str(location[0]),str(location[1]))
         bot_response = weather
     elif "joke" in message.lower():
