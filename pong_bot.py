@@ -202,7 +202,7 @@ def onReceive(packet, interface):
                                 send_message(rMsg, channel_number, 0, 1)
                     else: 
                          # nothing to do for us
-                        logger.info(f"Ignoring incoming Device:{rxNode} Channel:{channel_number} " + CustomFormatter.green + "Message:" + CustomFormatter.white +\
+                        logger.info(f"Ignoring Device:{rxNode} Channel:{channel_number} " + CustomFormatter.green + "Message:" + CustomFormatter.white +\
                                      f" {message_string} " + CustomFormatter.purple + "From:" + CustomFormatter.white + f" {get_name_from_number(message_from_id)}")
                         msgLogger.info(f"Device:{rxNode} Channel:{channel_number} | {get_name_from_number(message_from_id, 'long', rxNode)} | {message_string}")
     except KeyError as e:
