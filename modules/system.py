@@ -293,7 +293,7 @@ def send_message(message, ch, nodeid=0, nodeInt=1):
     else: # message is less than MESSAGE_CHUNK_SIZE characters
         if nodeid == 0:
             # Send to channel
-            logger.info(f"Device:{nodeInt} Channel:{ch}" + CustomFormatter.red + "Sending: " + CustomFormatter.white + f"{message}")
+            logger.info(f"Device:{nodeInt} Channel:{ch} " + CustomFormatter.red + "Sending: " + CustomFormatter.white + f"{message}")
             if nodeInt == 1:
                 interface1.sendText(text=message, channelIndex=ch)
             if nodeInt == 2:
