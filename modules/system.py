@@ -199,8 +199,8 @@ def get_node_list(nodeInt=1):
         node_list2.sort(key=lambda x: x[1], reverse=True)
     except Exception as e:
         logger.error(f"System: Error sorting node list: {e}")
-        print (f"Node List1: {node_list1[:5]}\n")
-        print (f"Node List2: {node_list2[:5]}\n")
+        #print (f"Node List1: {node_list1[:5]}\n")
+        #print (f"Node List2: {node_list2[:5]}\n")
 
     # make a nice list for the user
     for x in node_list1[:SITREP_NODE_COUNT]:
