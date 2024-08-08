@@ -146,7 +146,6 @@ pip install maidenhead
 pip install beautifulsoup4
 pip install dadjokes
 pip install openmeteo_requests
-pip install retry_requests
 ```
 
 To enable emoji in the Debian console, install the fonts `sudo apt-get install fonts-noto-color-emoji`
