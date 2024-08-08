@@ -565,7 +565,7 @@ async def watchdog():
                             enemySpotted += ", " + str(closest_nodes1[0]['id'])
                             enemySpotted += ", " + decimal_to_hex(closest_nodes1[0]['id'])
                 except Exception as e:
-                    logger.error(f"System: Sentry Error: on interface 1 {e}")
+                    pass
                 
                 if sentry_loop >= sentry_holdoff and lastSpotted != enemySpotted:
                     logger.warning(f"System: {enemySpotted} is close to your location on Interface1")
