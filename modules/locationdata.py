@@ -97,7 +97,10 @@ def get_weather(lat=0, lon=0, unit=0):
     if float(lat) == 0 and float(lon) == 0:
         return NO_DATA_NOGPS
     
-    # get weather data from NOAA units for metric
+    # get weather data from NOAA units for metric unit = 1 is metric
+    if use_metric:
+        unit = 1
+        
     weather_url = "https://forecast.weather.gov/MapClick.php?FcstType=text&lat=" + str(lat) + "&lon=" + str(lon)
     if unit == 1:
         weather_url += "&unit=1"
