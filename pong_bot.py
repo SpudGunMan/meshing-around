@@ -221,6 +221,8 @@ async def start_rx():
                     f"{get_name_from_number(myNodeNum2, 'short', 2)}. NodeID: {myNodeNum2}, {decimal_to_hex(myNodeNum2)}")
     if log_messages_to_file:
         logger.debug(f"System: Logging Messages to disk")
+    if sentry_enabled:
+        logger.debug(f"System: Sentry Enabled")
     if store_forward_enabled:
         logger.debug(f"System: Store and Forward Enabled using limit: {storeFlimit}")
     if useDMForResponse:
