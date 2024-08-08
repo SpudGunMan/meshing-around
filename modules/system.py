@@ -539,6 +539,8 @@ def suppress_stdout():
 
 async def watchdog():
     global retry_int1, retry_int2
+    sentry_loop = 0
+    lastSpotted = ""
     # watchdog for connection to the interface
     while True:
         await asyncio.sleep(20)
