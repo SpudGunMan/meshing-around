@@ -541,6 +541,8 @@ async def watchdog():
     global retry_int1, retry_int2
     sentry_loop = 0
     lastSpotted = ""
+    sentry_loop2 = 0
+    lastSpotted2 = ""
     # watchdog for connection to the interface
     while True:
         await asyncio.sleep(20)
@@ -589,6 +591,27 @@ async def watchdog():
                 except Exception as e:
                     logger.error(f"System: communicating with interface2, trying to reconnect: {e}")
                     retry_int2 = True
+                
+                # Locate Closest Nodes and report them to a secure channel
+                if sentry_enabled:
+                    try:
+                        closest_nodes2 = get_closest_nodes(2)
+                        if closest_nodes2 != ERROR_FETCHING_DATA:
+                            if closest_nodes2[0]['id'] is not None:
+                                enemySpotted2 = get_name_from_number(closest_nodes2[0]['id'], 'long', 2)
+                                enemySpotted2 += ", " + get_name_from_number(closest_nodes2[0]['id'], 'short', 2)
+                                enemySpotted2 += ", " + str(closest_nodes2[0]['id'])
+                                enemySpotted2 += ", " + decimal_to_hex(closest_nodes2[0]['id'])
+                    except Exception as e:
+                        pass
+                    
+                    if sentry_loop2 >= sentry_holdoff and lastSpotted2 != enemySpotted2:
+                        logger.warning(f"System: {enemySpotted2} is close to your location on Interface2")
+                        send_message(f"SentryP2: {enemySpotted2}", secure_channel, 0, 2)
+                        sentry_loop2 = 0
+                        lastSpotted2 = enemySpotted2
+                    else:
+                        sentry_loop2 += 1
         
             if retry_int2:
                 try:
