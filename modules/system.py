@@ -285,9 +285,10 @@ def get_closest_nodes(nodeInt=1):
                     try:
                         latitude = node['position']['latitude']
                         longitude = node['position']['longitude']
+                        nodeID = node['num']
+                        node_list.append({'id': nodeID, 'latitude': latitude, 'longitude': longitude}) 
                     except Exception as e:
-                        logger.error(f"System: Error getting location data for {node['id']}. Error: {e}")
-                    node_list.append({'id': node['id'], 'latitude': latitude, 'longitude': longitude})  
+                        pass
                 # else:
                 #     # request location data
                 #     try:
@@ -309,9 +310,11 @@ def get_closest_nodes(nodeInt=1):
                     try:
                         latitude = node['position']['latitude']
                         longitude = node['position']['longitude']
+                        nodeID = node['num']
+                        node_list.append({'id': nodeID, 'latitude': latitude, 'longitude': longitude})
                     except Exception as e:
-                        logger.error(f"System: Error getting location data for {node['id']}. Error: {e}")
-                    node_list.append({'id': node['id'], 'latitude': latitude, 'longitude': longitude})  
+                        pass
+                    
             #sort by distance closest to lattitudeValue, longitudeValue
             node_list.sort(key=lambda x: (x['latitude']-latitudeValue)**2 + (x['longitude']-longitudeValue)**2)
             # return the 3 closest nodes
