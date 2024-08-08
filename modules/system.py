@@ -295,8 +295,8 @@ def get_closest_nodes(nodeInt=1):
                         b = longitudeValue - longitude
                         c = sqrt(a * a  +  b * b)
                         if (c < radius):
-                                if nodeID != myNodeNum1 and nodeID not in sentryIgnoreList:
-                                    node_list.append({'id': nodeID, 'latitude': latitude, 'longitude': longitude}) 
+                            if nodeID != myNodeNum1 and nodeID not in sentryIgnoreList:
+                                node_list.append({'id': nodeID, 'latitude': latitude, 'longitude': longitude}) 
                     except Exception as e:
                         pass
                 # else:
@@ -327,8 +327,8 @@ def get_closest_nodes(nodeInt=1):
                         b = longitudeValue - longitude
                         c = sqrt(a * a  +  b * b)
                         if (c < radius):
-                                if nodeID != myNodeNum2 and nodeID not in sentryIgnoreList:
-                                    node_list.append({'id': nodeID, 'latitude': latitude, 'longitude': longitude}) 
+                            if nodeID != myNodeNum2 and nodeID not in sentryIgnoreList:
+                                node_list.append({'id': nodeID, 'latitude': latitude, 'longitude': longitude}) 
                     except Exception as e:
                         pass
                     
