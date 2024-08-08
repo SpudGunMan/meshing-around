@@ -78,7 +78,7 @@ def get_wx_meteo(lat=0, lon=0, unit=0):
 		elif str(i + 1) == "2":
 			weather_report += "Tomorrow, "
 		else:
-			weather_report += "Beyond tomorrow, "
+			weather_report += "Futurecast: "
 		
 		# report weather from WMO Weather interpretation codes (WW)
 		code_string = ""
@@ -137,30 +137,31 @@ def get_wx_meteo(lat=0, lon=0, unit=0):
 
 		# report temperature
 		if unit == 0:
-			weather_report += "High Temp: " + str(round(daily_temperature_2m_max[i],2)) + "F, with a low of " + str(round(daily_temperature_2m_min[i],2)) + "F. "
+			weather_report += "High: " + str(round(daily_temperature_2m_max[i],2)) + "F, with a low of " + str(round(daily_temperature_2m_min[i],2)) + "F. "
 		else:
-			weather_report += "High Temp: " + str(round(daily_temperature_2m_max[i],2)) + "C, with a low of " + str(round(daily_temperature_2m_min[i],2)) + "C. "
+			weather_report += "High: " + str(round(daily_temperature_2m_max[i],2)) + "C, with a low of " + str(round(daily_temperature_2m_min[i],2)) + "C. "
 
 		# check for precipitation
 		if daily_precipitation_hours[i] > 0:
 			if unit == 0:
-				weather_report += "Precipitation Probability: " + str(round(daily_precipitation_probability_max[i],2)) + "in. in " + str(round(daily_precipitation_hours[i],2)) + " hours. "
+				weather_report += "Precipitation: " + str(round(daily_precipitation_probability_max[i],2)) + "in, in " + str(round(daily_precipitation_hours[i],2)) + " hours. "
 			else:
-				weather_report += "Precipitation Probability: " + str(round(daily_precipitation_probability_max[i],2)) + "mm. in " + str(round(daily_precipitation_hours[i],2)) + " hours. "
+				weather_report += "Precipitation: " + str(round(daily_precipitation_probability_max[i],2)) + "mm, in " + str(round(daily_precipitation_hours[i],2)) + " hours. "
 		else:
 			weather_report += "No Precip. "
 
 		# check for wind
 		if daily_wind_speed_10m_max[i] > 0:
 			if unit == 0:
-				weather_report += "Max Wind Speed: " + str(round(daily_wind_speed_10m_max[i],2)) + "mph with gusts up to " + str(round(daily_wind_gusts_10m_max[i],2)) + "mph out of:" + wind_direction + "\n"
+				weather_report += "Max Wind Speed: " + str(round(daily_wind_speed_10m_max[i],2)) + "mph with gusts up to " + str(round(daily_wind_gusts_10m_max[i],2)) + "mph from:" + wind_direction
 			else:
-				weather_report += "Max Wind Speed: " + str(round(daily_wind_speed_10m_max[i],2)) + "kph with gusts up to " + str(round(daily_wind_gusts_10m_max[i],2)) + "kph out of:" + wind_direction + "\n"
+				weather_report += "Max Wind Speed: " + str(round(daily_wind_speed_10m_max[i],2)) + "kph with gusts up to " + str(round(daily_wind_gusts_10m_max[i],2)) + "kph from:" + wind_direction
 		else:
 			weather_report += "No Wind\n"
 
-		#trim last newline
-		weather_report = weather_report[:-1]
+		# add a new line for the next day
+		if i < forecastDays - 1:
+			weather_report += "\n"
 
 	return weather_report
 
