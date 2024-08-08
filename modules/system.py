@@ -29,13 +29,20 @@ if sitrep_enabled:
 if solar_conditions_enabled:
     from modules.solarconditions import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + trap_list_solarconditions # items hfcond, solar, sun, moon
-    help_message = help_message + ", sun, hfcond, solar, moon, tide"
+    help_message = help_message + ", sun, hfcond, solar, moon"
 
 # Location Configuration
 if location_enabled:
     from modules.locationdata import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + trap_list_location # items tide, whereami, wxc, wx
-    help_message = help_message + ", whereami, wx, wxc, wxa"
+    help_message = help_message + ", whereami, wx, wxc"
+    
+    # Open-Meteo Configuration for worldwide weather
+    if use_meteo_wxApi:
+        from modules.wx_meteo import * # from the spudgunman/meshing-around repo
+    else:
+        # NOAA only features
+        help_message = help_message + ", wxa, tide"
 
 # BBS Configuration
 if bbs_enabled:
@@ -192,18 +199,23 @@ def get_node_list(nodeInt=1):
         node_list2.sort(key=lambda x: x[1], reverse=True)
     except Exception as e:
         logger.error(f"System: Error sorting node list: {e}")
-        print (f"Node List1: {node_list1[:5]}\n")
-        print (f"Node List2: {node_list2[:5]}\n")
+        node_list = ERROR_FETCHING_DATA
+        #print (f"Node List1: {node_list1[:5]}\n")
+        #print (f"Node List2: {node_list2[:5]}\n")
 
-    # make a nice list for the user
-    for x in node_list1[:SITREP_NODE_COUNT]:
-        short_node_list.append(f"{x[0]} SNR:{x[2]}")
-    for x in node_list2[:SITREP_NODE_COUNT]:
-        short_node_list.append(f"{x[0]} SNR:{x[2]}")
+    try:
+        # make a nice list for the user
+        for x in node_list1[:SITREP_NODE_COUNT]:
+            short_node_list.append(f"{x[0]} SNR:{x[2]}")
+        for x in node_list2[:SITREP_NODE_COUNT]:
+            short_node_list.append(f"{x[0]} SNR:{x[2]}")
 
-    for x in short_node_list:
-        if x != "" or x != '\n':
-            node_list += x + "\n"
+        for x in short_node_list:
+            if x != "" or x != '\n':
+                node_list += x + "\n"
+    except Exception as e:
+        logger.error(f"System: Error creating node list: {e}")
+        node_list = ERROR_FETCHING_DATA
     
     return node_list
 

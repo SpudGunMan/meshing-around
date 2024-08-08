@@ -54,10 +54,12 @@ bbs_admin_list =
 enabled = True
 lat = 48.50
 lon = -123.0
-# weather forecast days, the first two rows are today and tonight
-DAYS_OF_WEATHER = 4
+# NOAA weather forecast days, the first two rows are today and tonight
+NOAAforecastDuration = 4
 # number of weather alerts to display
-ALERT_COUNT = 2
+NOAAalertCount = 2
+# use Open-Meteo API for weather data not NOAA usefull for non US locations
+UseMeteoWxAPI = False
 
 # solar module
 [solar]

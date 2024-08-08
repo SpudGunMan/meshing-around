@@ -29,7 +29,7 @@ Any messages that are over 160 characters are chunked into 160 message bytes to 
 - Other functions
   - `whereami` returns the address of location of sender if known
   - `tide` returns the local tides, NOAA data source
-  - `wx` and `wxc` returns local weather forecast, NOAA data source (wxc is metric value)
+  - `wx` and `wxc` returns local weather forecast, (wxc is metric value), NOAA or Open Meteo for weather forcasting.
   - `wxa` and `wxalert` return NOAA alerts. Short title or expanded details
   - `joke` tells a joke
   - `messages` Replay the last messages heard, like Store and Forward
@@ -79,6 +79,14 @@ Setting the default channel is the channel that won't be spammed by the bot. It'
 [general]
 respond_by_dm_only = True
 defaultChannel = 0
+```
+The weather forcasting defaults to NOAA but for outside the USA you can set UseMeteoWxAPI `True` to use a world weather API. The lat and lon are for defaults when a node has no location data to use.
+```
+[location]
+enabled = True
+lat = 48.50
+lon = -123.0
+UseMeteoWxAPI = True
 ```
 
 Modules can be disabled or enabled.
@@ -132,6 +140,7 @@ pip install geopy
 pip install maidenhead
 pip install beautifulsoup4
 pip install dadjokes
+pip install openmeteo_requests
 ```
 
 To enable emoji in the Debian console, install the fonts `sudo apt-get install fonts-noto-color-emoji`
