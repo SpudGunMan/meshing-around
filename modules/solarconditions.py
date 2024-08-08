@@ -7,7 +7,7 @@ import xml.dom.minidom
 from datetime import datetime
 import ephem # pip install pyephem
 from datetime import timedelta
-from modules.settings import *
+from modules.log import *
 
 trap_list_solarconditions = ("sun", "solar", "hfcond")
 
@@ -19,9 +19,11 @@ def hf_band_conditions():
         solarxml = xml.dom.minidom.parseString(band_cond.text)
         for i in solarxml.getElementsByTagName("band"):
             hf_cond += i.getAttribute("time")[0]+i.getAttribute("name") +"="+str(i.childNodes[0].data)+"\n"
+        hf_cond = hf_cond[:-1] # remove the last newline
     else:
-        hf_cond += ERROR_FETCHING_DATA
-    hf_cond = hf_cond[:-1] # remove the last newline
+        logger.error("Solar: Error fetching HF band conditions")
+        hf_cond = ERROR_FETCHING_DATA
+    
     return hf_cond
 
 def solar_conditions():
@@ -39,7 +41,8 @@ def solar_conditions():
             signalnoise = i.getElementsByTagName("signalnoise")[0].childNodes[0].data
         solar_cond = "A-Index: " + solar_a_index + "\nK-Index: " + solar_k_index + "\nSunspots: " + sunspots + "\nX-Ray Flux: " + solar_xray + "\nSolar Flux: " + solar_flux + "\nSignal Noise: " + signalnoise
     else:
-        solar_cond += ERROR_FETCHING_DATA
+        logger.error("Solar: Error fetching solar conditions")
+        solar_cond = ERROR_FETCHING_DATA
     return solar_cond
 
 def drap_xray_conditions():
@@ -53,7 +56,8 @@ def drap_xray_conditions():
             if x_filter in line:
                 xray_flux = line.split(": ")[1]
     else:
-        xray_flux += ERROR_FETCHING_DATA
+        logger.error("Error fetching DRAP X-ray flux")
+        xray_flux = ERROR_FETCHING_DATA
     return xray_flux
 
 def get_sun(lat=0, lon=0):

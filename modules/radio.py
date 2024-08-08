@@ -5,7 +5,7 @@
 
 import socket
 import asyncio
-from modules.settings import *
+from modules.log import *
 
 def get_hamlib(msg="f"):
     try:
@@ -13,7 +13,7 @@ def get_hamlib(msg="f"):
         rigControlSocket.settimeout(2)
         rigControlSocket.connect((rigControlServerAddress.split(":")[0],int(rigControlServerAddress.split(":")[1])))
     except Exception as e:
-        print(f"\nSystem: Error connecting to rigctld: {e}")
+        logger.error(f"RadioMon: Error connecting to rigctld: {e}")
         return ERROR_FETCHING_DATA
 
     try:
@@ -27,7 +27,7 @@ def get_hamlib(msg="f"):
         data = data.replace(b'\n',b'')
         return data.decode("utf-8").rstrip()
     except Exception as e:
-        print(f"\nSystem: Error fetching data from rigctld: {e}")
+        logger.error(f"RadioMon: Error fetching data from rigctld: {e}")
         return ERROR_FETCHING_DATA
 
 def get_freq_common_name(freq):
@@ -140,6 +140,7 @@ async def signalWatcher():
         signalStrength = int(get_sig_strength())
         if signalStrength >= previousStrength and signalStrength > signalDetectionThreshold:
             message = f"Detected {get_freq_common_name(get_hamlib('f'))} active. S-Meter:{signalStrength}dBm"
+            logger.debug(f"RadioMon: {message}. Waiting for {signalHoldTime} seconds")
             previousStrength = signalStrength
             signalCycle = 0
             await asyncio.sleep(signalHoldTime)

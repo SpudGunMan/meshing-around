@@ -7,7 +7,7 @@ import maidenhead as mh # pip install maidenhead
 import requests # pip install requests
 import bs4 as bs # pip install beautifulsoup4
 import xml.dom.minidom 
-from modules.settings import *
+from modules.log import *
 
 trap_list_location = ("whereami", "tide", "moon", "wx", "wxc", "wxa", "wxalert")
 
@@ -16,6 +16,7 @@ def where_am_i(lat=0, lon=0):
     grid = mh.to_maiden(float(lat), float(lon))
     
     if float(lat) == 0 and float(lon) == 0:
+        logger.error("Location: No GPS data, cant find where you are")
         return NO_DATA_NOGPS
     
     # initialize Nominatim API
@@ -41,6 +42,7 @@ def where_am_i(lat=0, lon=0):
 def get_tide(lat=0, lon=0):
     station_id = ""
     if float(lat) == 0 and float(lon) == 0:
+        logger.error("Location:No GPS data, cant find where you are for tide")
         return NO_DATA_NOGPS
     station_lookup_url = "https://api.tidesandcurrents.noaa.gov/mdapi/prod/webapi/tidepredstations.json?lat=" + str(lat) + "&lon=" + str(lon) + "&radius=50"
     try:
@@ -48,14 +50,17 @@ def get_tide(lat=0, lon=0):
         if station_data.ok:
             station_json = station_data.json()
         else:
+            logger.error("Location:Error fetching tide station table from NOAA")
             return ERROR_FETCHING_DATA
         
         if station_json['stationList'] == [] or station_json['stationList'] is None:
+            logger.error("Location:No tide station found")
             return ERROR_FETCHING_DATA
         
         station_id = station_json['stationList'][0]['stationId']
 
     except (requests.exceptions.RequestException, json.JSONDecodeError):
+        logger.error("Location:Error fetching tide station table from NOAA")
         return ERROR_FETCHING_DATA
     
     station_url = "https://tidesandcurrents.noaa.gov/noaatidepredictions.html?id=" + station_id
@@ -65,8 +70,10 @@ def get_tide(lat=0, lon=0):
     try:
         station_data = requests.get(station_url, timeout=urlTimeoutSeconds)
         if not station_data.ok:
+            logger.error("Location:Error fetching station data from NOAA")
             return ERROR_FETCHING_DATA
     except (requests.exceptions.RequestException):
+        logger.error("Location:Error fetching station data from NOAA")
         return ERROR_FETCHING_DATA
     
     # extract table class="table table-condensed"
@@ -108,14 +115,17 @@ def get_weather(lat=0, lon=0, unit=0):
     try:
         weather_data = requests.get(weather_url, timeout=urlTimeoutSeconds)
         if not weather_data.ok:
+            logger.error("Location:Error fetching weather data from NOAA")
             return ERROR_FETCHING_DATA
     except (requests.exceptions.RequestException):
+        logger.error("Location:Error fetching weather data from NOAA")
         return ERROR_FETCHING_DATA
     
     soup = bs.BeautifulSoup(weather_data.text, 'html.parser')
     table = soup.find('div', id="detailed-forecast-body")
 
     if table is None:
+        logger.error("Location:Bad weather data from NOAA")
         return ERROR_FETCHING_DATA
     else:
         # get rows
@@ -203,8 +213,10 @@ def getWeatherAlerts(lat=0, lon=0):
     try:
         alert_data = requests.get(alert_url, timeout=urlTimeoutSeconds)
         if not alert_data.ok:
+            logger.error("Location:Error fetching weather alerts from NOAA")
             return ERROR_FETCHING_DATA
     except (requests.exceptions.RequestException):
+        logger.error("Location:Error fetching weather alerts from NOAA")
         return ERROR_FETCHING_DATA
     
     alerts = ""
@@ -236,6 +248,7 @@ def getActiveWeatherAlertsDetail(lat=0, lon=0):
     # get the latest details of weather alerts from NOAA
     alerts = ""
     if float(lat) == 0 and float(lon) == 0:
+        logger.error("Location:No GPS data, cant find where you are for weather alerts")
         return NO_DATA_NOGPS
 
     alert_url = "https://api.weather.gov/alerts/active.atom?point=" + str(lat) + "," + str(lon)
@@ -244,8 +257,10 @@ def getActiveWeatherAlertsDetail(lat=0, lon=0):
     try:
         alert_data = requests.get(alert_url, timeout=urlTimeoutSeconds)
         if not alert_data.ok:
+            logger.error("Location:Error fetching weather alerts detailed from NOAA")
             return ERROR_FETCHING_DATA
     except (requests.exceptions.RequestException):
+        logger.error("Location:Error fetching weather alerts detailed from NOAA")
         return ERROR_FETCHING_DATA
     
     alerts = ""

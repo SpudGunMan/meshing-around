@@ -32,22 +32,32 @@ def get_wx_meteo(lat=0, lon=0, unit=0):
 		params["distance_unit"] = "mile"
 		params["pressure_unit"] = "inHg"
 
-	responses = openmeteo.weather_api(url, params=params)
+	try:
+		# Fetch the weather data
+		responses = openmeteo.weather_api(url, params=params)
+	except Exception as e:
+		logger.error(f"Error fetching meteo weather data: {e}")
+		return ERROR_FETCHING_DATA
 
-	# Process first location. Add a for-loop for multiple locations or weather models
-	response = responses[0]
-	logger.debug(f"Got wx data from Open-Meteo in {response.Timezone()} {response.TimezoneAbbreviation()}")
+	# Check if we got a response
+	try:
+		# Process location 
+		response = responses[0]
+		logger.debug(f"Got wx data from Open-Meteo in {response.Timezone()} {response.TimezoneAbbreviation()}")
 
-	# Process daily data. The order of variables needs to be the same as requested.
-	daily = response.Daily()
-	daily_weather_code = daily.Variables(0).ValuesAsNumpy()
-	daily_temperature_2m_max = daily.Variables(1).ValuesAsNumpy()
-	daily_temperature_2m_min = daily.Variables(2).ValuesAsNumpy()
-	daily_precipitation_hours = daily.Variables(3).ValuesAsNumpy()
-	daily_precipitation_probability_max = daily.Variables(4).ValuesAsNumpy()
-	daily_wind_speed_10m_max = daily.Variables(5).ValuesAsNumpy()
-	daily_wind_gusts_10m_max = daily.Variables(6).ValuesAsNumpy()
-	daily_wind_direction_10m_dominant = daily.Variables(7).ValuesAsNumpy()
+		# Process daily data. The order of variables needs to be the same as requested.
+		daily = response.Daily()
+		daily_weather_code = daily.Variables(0).ValuesAsNumpy()
+		daily_temperature_2m_max = daily.Variables(1).ValuesAsNumpy()
+		daily_temperature_2m_min = daily.Variables(2).ValuesAsNumpy()
+		daily_precipitation_hours = daily.Variables(3).ValuesAsNumpy()
+		daily_precipitation_probability_max = daily.Variables(4).ValuesAsNumpy()
+		daily_wind_speed_10m_max = daily.Variables(5).ValuesAsNumpy()
+		daily_wind_gusts_10m_max = daily.Variables(6).ValuesAsNumpy()
+		daily_wind_direction_10m_dominant = daily.Variables(7).ValuesAsNumpy()
+	except Exception as e:
+		logger.error(f"Error processing meteo weather data: {e}")
+		return ERROR_FETCHING_DATA
 
 	# convert wind value to cardinal directions
 	for value in daily_wind_direction_10m_dominant:
