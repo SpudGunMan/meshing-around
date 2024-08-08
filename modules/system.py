@@ -552,6 +552,27 @@ async def watchdog():
                 logger.error(f"System: communicating with interface1, trying to reconnect: {e}")
                 retry_int1 = True
         
+            # Locate Closest Nodes and report them to a secure channel
+            if sentry_enabled:
+                try:
+                    closest_nodes1 = get_closest_nodes(1)
+                    if closest_nodes1 != ERROR_FETCHING_DATA:
+                        if closest_nodes1[0]['id'] is not None:
+                            enemySpotted = get_name_from_number(closest_nodes1[0]['id'], 'long', 1)
+                            enemySpotted += ", " + get_name_from_number(closest_nodes1[0]['id'], 'short', 1)
+                            enemySpotted += ", " + str(closest_nodes1[0]['id'])
+                            enemySpotted += ", " + decimal_to_hex(closest_nodes1[0]['id'])
+                except Exception as e:
+                    logger.error(f"System: Sentry Error: on interface 1 {e}")
+                
+                if sentry_loop >= sentry_holdoff and lastSpotted != enemySpotted:
+                    logger.warning(f"System: {enemySpotted} is close to your location on Interface1")
+                    send_message(f"SentryP1: {enemySpotted}", secure_channel, 0, 1)
+                    sentry_loop = 0
+                    lastSpotted = enemySpotted
+                else:
+                    sentry_loop += 1
+        
         if retry_int1:
             try:
                 await retry_interface(1)
@@ -572,28 +593,4 @@ async def watchdog():
                     await retry_interface(2)
                 except Exception as e:
                     logger.error(f"System: retrying interface2: {e}")
-
-        # Locate Closest Nodes and report them to a secure channel
-        sentry_enabled = True
-        secure_channel = 2
-        if sentry_enabled:
-            try:
-                closest_nodes1 = get_closest_nodes(1)
-                if closest_nodes1 != ERROR_FETCHING_DATA:
-                    for node in closest_nodes1:
-                        if node is not None:
-                            node_name = get_name_from_number(node['id'], 'long', 1)
-                            send_message(f"{node_name} is close to your location", secure_channel, 0, 1)
-                            logger.warning(f"System: {node_name} {node['id']} is close to your location on Interface1")
-                            
-                if interface2_enabled:
-                    closest_nodes2 = get_closest_nodes(2)
-                    if closest_nodes2 != ERROR_FETCHING_DATA:
-                        for node in closest_nodes2:
-                            if node is not None:
-                                node_name = get_name_from_number(node['id'], 'long', 2)
-                                send_message(f"{node_name} is close to your location", secure_channel, 0, 2)
-                                logger.warning(f"System: {node_name} {node['id']} is close to your location on Interface2")
-            except Exception as e:
-                logger.error(f"System: Sentry Error: {e}")
 
