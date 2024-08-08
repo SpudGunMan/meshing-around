@@ -199,18 +199,23 @@ def get_node_list(nodeInt=1):
         node_list2.sort(key=lambda x: x[1], reverse=True)
     except Exception as e:
         logger.error(f"System: Error sorting node list: {e}")
+        node_list = "Error creating node list"
         #print (f"Node List1: {node_list1[:5]}\n")
         #print (f"Node List2: {node_list2[:5]}\n")
 
-    # make a nice list for the user
-    for x in node_list1[:SITREP_NODE_COUNT]:
-        short_node_list.append(f"{x[0]} SNR:{x[2]}")
-    for x in node_list2[:SITREP_NODE_COUNT]:
-        short_node_list.append(f"{x[0]} SNR:{x[2]}")
+    try:
+        # make a nice list for the user
+        for x in node_list1[:SITREP_NODE_COUNT]:
+            short_node_list.append(f"{x[0]} SNR:{x[2]}")
+        for x in node_list2[:SITREP_NODE_COUNT]:
+            short_node_list.append(f"{x[0]} SNR:{x[2]}")
 
-    for x in short_node_list:
-        if x != "" or x != '\n':
-            node_list += x + "\n"
+        for x in short_node_list:
+            if x != "" or x != '\n':
+                node_list += x + "\n"
+    except Exception as e:
+        logger.error(f"System: Error creating node list: {e}")
+        node_list = "Error creating node list"
     
     return node_list
 
