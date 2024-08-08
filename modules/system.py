@@ -41,6 +41,7 @@ if location_enabled:
     if use_meteo_wxApi:
         from modules.wx_meteo import * # from the spudgunman/meshing-around repo
     else:
+        # NOAA only features
         help_message = help_message + ", wxa, tide"
 
 # BBS Configuration
