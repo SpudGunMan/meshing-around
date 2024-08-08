@@ -10,6 +10,8 @@ Along with network testing, this bot has a lot of other features, like simple ma
 
 The bot is also capable of using dual radio/nodes, so you can monitor two networks at the same time and send messages to nodes using the same `bbspost @nodeNumber #message` function. There is a small message board to fit in the constraints of Meshtastic for posting bulletin messages with `bbspost $subject #message`.
 
+The bot will report on anyone who is getting close to the device if in a remote location.
+
 Store and forward-like message re-play with `messages`, and there is a repeater module for dual radio bots to cross post messages. Messages are also logged locally to disk.
 
 The bot can also be used to monitor a frequency and let you know when activity is seen. Using Hamlib to watch the S meter on a connected radio. You can send alerts to channels when a frequency is detected for 20 seconds within the thresholds set in config.ini
@@ -97,6 +99,9 @@ enabled = False
 [general]
 DadJokes = False
 StoreForward = False
+
+# detect and report the closest to the bot
+SentryEnabled = False
 ```
 The BBS has admin and block lists; see the [config.template](config.template)
 
