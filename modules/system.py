@@ -275,6 +275,50 @@ def get_node_location(number, nodeInt=1, channel=0):
         else:
             logger.warning(f"System: No nodes found")
             return position
+
+def get_closest_nodes(nodeInt=1):
+    node_list = []
+    if nodeInt == 1:
+        if interface1.nodes:
+            for node in interface1.nodes.values():
+                if 'position' in node:
+                    try:
+                        latitude = node['position']['latitude']
+                        longitude = node['position']['longitude']
+                    except Exception as e:
+                        logger.error(f"System: Error getting location data for {node['id']}. Error: {e}")
+                    node_list.append({'id': node['id'], 'latitude': latitude, 'longitude': longitude})  
+                # else:
+                #     # request location data
+                #     try:
+                #         logger.debug(f"System: Requesting location data for {node['id']}")
+                #         interface1.sendPosition(destinationId=node['id'], wantResponse=False, channelIndex=publicChannel)
+                #     except Exception as e:
+                #         logger.error(f"System: Error requesting location data for {node['id']}. Error: {e}")
+            #sort by distance closest to lattitudeValue, longitudeValue
+            node_list.sort(key=lambda x: (x['latitude']-latitudeValue)**2 + (x['longitude']-longitudeValue)**2)
+            # return the 3 closest nodes
+            return node_list[:3]
+        else:
+            logger.error(f"System: No nodes found in closest_nodes on interface {nodeInt}")
+            return ERROR_FETCHING_DATA
+    if nodeInt == 2:
+        if interface2.nodes:
+            for node in interface2.nodes.values():
+                if 'position' in node:
+                    try:
+                        latitude = node['position']['latitude']
+                        longitude = node['position']['longitude']
+                    except Exception as e:
+                        logger.error(f"System: Error getting location data for {node['id']}. Error: {e}")
+                    node_list.append({'id': node['id'], 'latitude': latitude, 'longitude': longitude})  
+            #sort by distance closest to lattitudeValue, longitudeValue
+            node_list.sort(key=lambda x: (x['latitude']-latitudeValue)**2 + (x['longitude']-longitudeValue)**2)
+            # return the 3 closest nodes
+            return node_list[:3]
+        else:
+            logger.error(f"System: No nodes found in closest_nodes on interface {nodeInt}")
+            return ERROR_FETCHING_DATA
         
 def send_message(message, ch, nodeid=0, nodeInt=1):
     if message == "":
@@ -528,4 +572,28 @@ async def watchdog():
                     await retry_interface(2)
                 except Exception as e:
                     logger.error(f"System: retrying interface2: {e}")
+
+        # Locate Closest Nodes and report them to a secure channel
+        sentry_enabled = True
+        secure_channel = 2
+        if sentry_enabled:
+            try:
+                closest_nodes1 = get_closest_nodes(1)
+                if closest_nodes1 != ERROR_FETCHING_DATA:
+                    for node in closest_nodes1:
+                        if node is not None:
+                            node_name = get_name_from_number(node['id'], 'long', 1)
+                            send_message(f"{node_name} is close to your location", secure_channel, 0, 1)
+                            logger.warning(f"System: {node_name} {node['id']} is close to your location on Interface1")
+                            
+                if interface2_enabled:
+                    closest_nodes2 = get_closest_nodes(2)
+                    if closest_nodes2 != ERROR_FETCHING_DATA:
+                        for node in closest_nodes2:
+                            if node is not None:
+                                node_name = get_name_from_number(node['id'], 'long', 2)
+                                send_message(f"{node_name} is close to your location", secure_channel, 0, 2)
+                                logger.warning(f"System: {node_name} {node['id']} is close to your location on Interface2")
+            except Exception as e:
+                logger.error(f"System: Sentry Error: {e}")
 

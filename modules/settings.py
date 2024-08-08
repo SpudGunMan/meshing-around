@@ -90,6 +90,9 @@ try:
     signalHoldTime = config['radioMon'].getint('signalHoldTime', 10) # default 10 seconds
     signalCooldown = config['radioMon'].getint('signalCooldown', 5) # default 1 second
     signalCycleLimit = config['radioMon'].getint('signalCycleLimit', 5) # default 5 cycles, used with SIGNAL_COOLDOWN
+    sentry_enabled = config['sentry'].getboolean('enabled', False)
+    secure_channel = config['sentry'].getint('secure_channel', 2) # default 2
+    sentry_holdoff = config['sentry'].getint('holdoff', 9) # default 9
 except KeyError as e:
     print(f"System: Error reading config file: {e}")
     print(f"System: Check the config.ini against config.template file for missing sections or values.")
