@@ -56,6 +56,10 @@ if dad_jokes_enabled:
     trap_list = trap_list + ("joke",)
     help_message = help_message + ", joke"
 
+if sentry_enabled:
+    from math import sqrt
+    radius = 1.00 # in kilometer
+
 # Store and Forward Configuration
 if store_forward_enabled:
     trap_list = trap_list + ("messages",)
@@ -286,7 +290,12 @@ def get_closest_nodes(nodeInt=1):
                         latitude = node['position']['latitude']
                         longitude = node['position']['longitude']
                         nodeID = node['num']
-                        node_list.append({'id': nodeID, 'latitude': latitude, 'longitude': longitude}) 
+                        # set radius around lattitudeValue, longitudeValue position 
+                        a = latitudeValue - latitude
+                        b = longitudeValue - longitude
+                        c = sqrt(a * a  +  b * b)
+                        if (c < radius):
+                                node_list.append({'id': nodeID, 'latitude': latitude, 'longitude': longitude}) 
                     except Exception as e:
                         pass
                 # else:
@@ -298,6 +307,7 @@ def get_closest_nodes(nodeInt=1):
                 #         logger.error(f"System: Error requesting location data for {node['id']}. Error: {e}")
             #sort by distance closest to lattitudeValue, longitudeValue
             node_list.sort(key=lambda x: (x['latitude']-latitudeValue)**2 + (x['longitude']-longitudeValue)**2)
+            
             # return the 3 closest nodes
             return node_list[:3]
         else:
@@ -311,12 +321,18 @@ def get_closest_nodes(nodeInt=1):
                         latitude = node['position']['latitude']
                         longitude = node['position']['longitude']
                         nodeID = node['num']
-                        node_list.append({'id': nodeID, 'latitude': latitude, 'longitude': longitude})
+                        # set radius around lattitudeValue, longitudeValue position 
+                        a = latitudeValue - latitude
+                        b = longitudeValue - longitude
+                        c = sqrt(a * a  +  b * b)
+                        if (c < radius):
+                                node_list.append({'id': nodeID, 'latitude': latitude, 'longitude': longitude}) 
                     except Exception as e:
                         pass
                     
             #sort by distance closest to lattitudeValue, longitudeValue
             node_list.sort(key=lambda x: (x['latitude']-latitudeValue)**2 + (x['longitude']-longitudeValue)**2)
+
             # return the 3 closest nodes
             return node_list[:3]
         else:
