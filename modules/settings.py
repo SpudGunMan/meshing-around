@@ -64,6 +64,7 @@ try:
     location_enabled = config['location'].getboolean('enabled', False)
     latitudeValue = config['location'].getfloat('lat', 48.50)
     longitudeValue = config['location'].getfloat('lon', -123.0)
+    use_meteo_wxApi = config['location'].getboolean('UseMeteoWxAPI', False) # default False use NOAA
     zuluTime = config['general'].getboolean('zuluTime', False)
     welcome_message = config['general'].get(f'welcome_message', WELCOME_MSG)
     welcome_message = (f"{welcome_message}").replace('\\n', '\n') # allow for newlines in the welcome message
@@ -75,8 +76,8 @@ try:
     log_messages_to_file = config['general'].getboolean('LogMessagesToFile', True) # default True
     config['general'].get('motd', MOTD)
     urlTimeoutSeconds = config['general'].getint('URL_TIMEOUT', 10) # default 10 seconds
-    forecastDuration = config['general'].getint('DAYS_OF_WEATHER', 4) # default days of weather
-    numWxAlerts = config['general'].getint('ALERT_COUNT', 2) # default 2 alerts
+    forecastDuration = config['general'].getint('NOAAforecastDuration', 4) # NOAA forcast days
+    numWxAlerts = config['general'].getint('NOAAalertCount', 2) # default 2 alerts
     bbs_ban_list = config['bbs'].get('bbs_ban_list', '').split(',')
     bbs_admin_list = config['bbs'].get('bbs_admin_list', '').split(',')
     repeater_enabled = config['repeater'].getboolean('enabled', False)

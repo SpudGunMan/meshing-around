@@ -36,6 +36,10 @@ if location_enabled:
     from modules.locationdata import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + trap_list_location # items tide, whereami, wxc, wx
     help_message = help_message + ", whereami, wx, wxc, wxa"
+    
+    # Open-Meteo Configuration for worldwide weather
+    if use_meteo_wxApi:
+        from modules.wx_meteo import * # from the spudgunman/meshing-around repo
 
 # BBS Configuration
 if bbs_enabled:

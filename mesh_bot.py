@@ -82,21 +82,26 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
         location = get_node_location(message_from_id, deviceID)
         moon = get_moon(str(location[0]),str(location[1]))
         bot_response = moon
-    elif "wxalert" in message.lower():
-        location = get_node_location(message_from_id, deviceID)
-        weatherAlert = getActiveWeatherAlertsDetail(str(location[0]),str(location[1]))
-        bot_response = weatherAlert
-    elif "wxa" in message.lower():
-        location = get_node_location(message_from_id, deviceID)
-        weatherAlert = getWeatherAlerts(str(location[0]),str(location[1]))
-        bot_response = weatherAlert
+    elif "wxalert" in message.lower() or "wxa" in message.lower():
+        if use_meteo_wxApi:
+            bot_response = "wxalert is not supported in Open-Meteo API"
+        else:
+            location = get_node_location(message_from_id, deviceID)
+            weatherAlert = getActiveWeatherAlertsDetail(str(location[0]),str(location[1]))
+            bot_response = weatherAlert
     elif "wxc" in message.lower():
         location = get_node_location(message_from_id, deviceID)
-        weather = get_weather(str(location[0]),str(location[1]),1)
+        if use_meteo_wxApi:
+            weather = get_wx_meteo(str(location[0]),str(location[1]),1)
+        else:
+            weather = get_weather(str(location[0]),str(location[1]),1)
         bot_response = weather
     elif "wx" in message.lower():
         location = get_node_location(message_from_id, deviceID)
-        weather = get_weather(str(location[0]),str(location[1]))
+        if use_meteo_wxApi:
+            weather = get_wx_meteo(str(location[0]),str(location[1]))
+        else:
+            weather = get_weather(str(location[0]),str(location[1]))
         bot_response = weather
     elif "joke" in message.lower():
         bot_response = tell_joke()
@@ -335,7 +340,10 @@ async def start_rx():
     if solar_conditions_enabled:
         logger.debug(f"System: Celestial Telemetry Enabled")
     if location_enabled:
-        logger.debug(f"System: Location Telemetry Enabled")
+        if use_meteo_wxApi:
+            logger.debug(f"System: Location Telemetry Enabled using Open-Meteo API")
+        else:
+            logger.debug(f"System: Location Telemetry Enabled using NOAA API")
     if dad_jokes_enabled:
         logger.debug(f"System: Dad Jokes Enabled!")
     if store_forward_enabled:
