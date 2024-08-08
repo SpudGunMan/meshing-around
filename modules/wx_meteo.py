@@ -88,28 +88,52 @@ def get_wx_meteo(lat=0, lon=0, unit=0):
 			code_string = "Partly cloudy"
 		elif daily_weather_code[i] == 45 or 48:
 			code_string = "Fog"
-		elif daily_weather_code[i] == 51 or 53 or 55:
-			code_string = "Drizzle: Light, moderate, and dense intensity"
-		elif daily_weather_code[i] == 56 or 57:
-			code_string = "Freezing Drizzle: Light and dense intensity"
-		elif daily_weather_code[i] == 61 or 63 or 65:
-			code_string = "Rain: Slight, moderate and heavy intensity"
-		elif daily_weather_code[i] == 66 or 67:
-			code_string = "Freezing Rain: Light and dense intensity"
-		elif daily_weather_code[i] == 71 or 73 or 75:
-			code_string = "Snow: Light, moderate and heavy intensity"
+		elif daily_weather_code[i] == 51:
+			code_string = "Drizzle: Light"
+		elif daily_weather_code[i] == 53:
+			code_string = "Drizzle: Moderate"
+		elif daily_weather_code[i] == 55:
+			code_string = "Drizzle: Heavy"
+		elif daily_weather_code[i] == 56:
+			code_string = "Freezing Drizzle: Light"
+		elif daily_weather_code[i] == 57:
+			code_string = "Freezing Drizzle: Moderate"
+		elif daily_weather_code[i] == 61:
+			code_string = "Rain: Slight"
+		elif daily_weather_code[i] == 63:
+			code_string = "Rain: Moderate"
+		elif daily_weather_code[i] == 65:
+			code_string = "Rain: Heavy"
+		elif daily_weather_code[i] == 66:
+			code_string = "Freezing Rain: Light"
+		elif daily_weather_code[i] == 67:
+			code_string = "Freezing Rain: Dense"
+		elif daily_weather_code[i] == 71:
+			code_string = "Snow: Light"
+		elif daily_weather_code[i] == 73:
+			code_string = "Snow: Moderate"
+		elif daily_weather_code[i] == 75:
+			code_string = "Snow: Heavy"
 		elif daily_weather_code[i] == 77:
 			code_string = "Snow Grains"
-		elif daily_weather_code[i] == 80 or 81 or 82:
-			code_string = "Rain showers: Slight, moderate, and violent"
-		elif daily_weather_code[i] == 85 or 86:
-			code_string = "Snow showers slight and heavy"
+		elif daily_weather_code[i] == 80:
+			code_string = "Rain showers: Slight"
+		elif daily_weather_code[i] == 81:
+			code_string = "Rain showers: Moderate"
+		elif daily_weather_code[i] == 82:
+			code_string = "Rain showers: Heavy"
+		elif daily_weather_code[i] == 85:
+			code_string = "Snow showers: Light"
+		elif daily_weather_code[i] == 86:
+			code_string = "Snow showers: Moderate"
 		elif daily_weather_code[i] == 95:
-			code_string = "Thunderstorm: Slight or moderate"
-		elif daily_weather_code[i] == 96 or 99:
-			code_string = "Thunderstorm with slight and heavy hail"
+			code_string = "Thunderstorm: Slight"
+		elif daily_weather_code[i] == 96:
+			code_string = "Thunderstorm: Moderate"
+		elif daily_weather_code[i] == 99:
+			code_string = "Thunderstorm: Heavy"
 
-		weather_report += "Conditions " + code_string + ". "
+		weather_report += "Cond: " + code_string + ". "
 
 		# report temperature
 		if unit == 0:
@@ -134,6 +158,9 @@ def get_wx_meteo(lat=0, lon=0, unit=0):
 				weather_report += "Max Wind Speed: " + str(round(daily_wind_speed_10m_max[i],2)) + "kph with gusts up to " + str(round(daily_wind_gusts_10m_max[i],2)) + "kph out of:" + wind_direction + "\n"
 		else:
 			weather_report += "No Wind\n"
+
+		#trim last newline
+		weather_report = weather_report[:-1]
 
 	return weather_report
 
