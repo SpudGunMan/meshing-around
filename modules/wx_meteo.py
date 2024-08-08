@@ -1,4 +1,4 @@
-import openmeteo_requests
+import openmeteo_requests # pip install openmeteo-requests
 from retry_requests import retry
 #import requests_cache
 from modules.log import *
