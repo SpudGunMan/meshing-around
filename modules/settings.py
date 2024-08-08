@@ -65,6 +65,7 @@ try:
     latitudeValue = config['location'].getfloat('lat', 48.50)
     longitudeValue = config['location'].getfloat('lon', -123.0)
     use_meteo_wxApi = config['location'].getboolean('UseMeteoWxAPI', False) # default False use NOAA
+    use_metric = config['location'].getboolean('useMetric', False) # default Imperial units
     zuluTime = config['general'].getboolean('zuluTime', False)
     welcome_message = config['general'].get(f'welcome_message', WELCOME_MSG)
     welcome_message = (f"{welcome_message}").replace('\\n', '\n') # allow for newlines in the welcome message

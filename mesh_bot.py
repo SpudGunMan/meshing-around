@@ -89,18 +89,19 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
             location = get_node_location(message_from_id, deviceID)
             weatherAlert = getActiveWeatherAlertsDetail(str(location[0]),str(location[1]))
             bot_response = weatherAlert
-    elif "wxc" in message.lower():
+    elif "wxc" in message.lower() or "wx" in message.lower():
         location = get_node_location(message_from_id, deviceID)
-        if use_meteo_wxApi:
-            weather = get_wx_meteo(str(location[0]),str(location[1]),1)
-        else:
-            weather = get_weather(str(location[0]),str(location[1]),1)
-        bot_response = weather
-    elif "wx" in message.lower():
-        location = get_node_location(message_from_id, deviceID)
-        if use_meteo_wxApi:
+        if use_meteo_wxApi and not "wxc" in message.lower() and not use_metric:
+            logger.debug(f"System: Returning Open-Meteo API for weather imperial")
             weather = get_wx_meteo(str(location[0]),str(location[1]))
+        elif use_meteo_wxApi:
+            logger.debug(f"System: Returning Open-Meteo API for weather metric")
+            weather = get_wx_meteo(str(location[0]),str(location[1]),1)
+        elif not use_meteo_wxApi and "wxc" in message.lower() or use_metric:
+            logger.debug(f"System: Returning NOAA API for weather metric")
+            weather = get_weather(str(location[0]),str(location[1]),1)
         else:
+            logger.debug(f"System: Returning NOAA API for weather imperial")
             weather = get_weather(str(location[0]),str(location[1]))
         bot_response = weather
     elif "joke" in message.lower():
