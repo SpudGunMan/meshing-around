@@ -182,8 +182,10 @@ def get_node_list(nodeInt=1):
                     node_name = get_name_from_number(node['num'], 'long', nodeInt)
                     snr = node.get('snr', 0)
 
-                    # issue where lastHeard is not always present
+                    # issue where lastHeard is not always present, also had issues with None
                     last_heard = node.get('lastHeard', 0)
+                    if last_heard is None:
+                        last_heard = 0
                     
                     # make a list of nodes with last heard time and SNR
                     item = (node_name, last_heard, snr)
