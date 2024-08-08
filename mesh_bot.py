@@ -269,7 +269,7 @@ def onReceive(packet, interface):
                     # respond with welcome message on DM
                     logger.warning(f"Device:{rxNode} Ignoring DM: {message_string} From: {get_name_from_number(message_from_id, 'long', rxNode)}")
                     send_message(welcome_message, channel_number, message_from_id, rxNode)
-                    msgLogger.info(f"Device:{rxNode} Channel:{channel_number} | {get_name_from_number(message_from_id, 'long', rxNode)} | {message_string}")
+                    msgLogger.info(f"Device:{rxNode} Channel:{channel_number} | {get_name_from_number(message_from_id, 'long', rxNode)} | " + message_string.replace('\n', '-nl-'))
             else:
                 # message is on a channel
                 if messageTrap(message_string):
@@ -318,12 +318,12 @@ def onReceive(packet, interface):
                             elif rxNode == 2:
                                 logger.debug(f"Repeating message on Device1 Channel:{channel_number}")
                                 send_message(rMsg, channel_number, 0, 1)
-                        msgLogger.info(f"Device:{rxNode} Channel:{channel_number} | {get_name_from_number(message_from_id, 'long', rxNode)} | {message_string}")
+                        msgLogger.info(f"Device:{rxNode} Channel:{channel_number} | {get_name_from_number(message_from_id, 'long', rxNode)} | " + message_string.replace('\n', '-nl-'))
                     else: 
                         # nothing to do for us
                         logger.info(f"Device:{rxNode} Channel:{channel_number} " + CustomFormatter.green + "Ignoring Message:" + CustomFormatter.white +\
                                      f" {message_string} " + CustomFormatter.purple + "From:" + CustomFormatter.white + f" {get_name_from_number(message_from_id)}")
-                        msgLogger.info(f"Device:{rxNode} Channel:{channel_number} | {get_name_from_number(message_from_id, 'long', rxNode)} | {message_string}")
+                        msgLogger.info(f"Device:{rxNode} Channel:{channel_number} | {get_name_from_number(message_from_id, 'long', rxNode)} | " + message_string.replace('\n', '-nl-'))
     except KeyError as e:
         logger.critical(f"System: Error processing packet: {e} Device:{rxNode}")
         print(packet) # print the packet for debugging
