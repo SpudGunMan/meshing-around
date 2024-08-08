@@ -78,6 +78,7 @@ try:
     sentry_enabled = config['general'].getboolean('SentryEnabled', True) # default True
     secure_channel = config['general'].getint('SentryChannel', 2) # default 2
     sentry_holdoff = config['general'].getint('SentryHoldoff', 9) # default 9
+    sentryIgnoreList = config['general'].get('sentryIgnoreList', '').split(',')
     config['general'].get('motd', MOTD)
     urlTimeoutSeconds = config['general'].getint('URL_TIMEOUT', 10) # default 10 seconds
     forecastDuration = config['general'].getint('NOAAforecastDuration', 4) # NOAA forcast days
