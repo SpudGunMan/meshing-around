@@ -53,7 +53,7 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
     elif "cmd" in message.lower() or "cmd?" in message.lower():
         bot_response = help_message
     elif "sun" in message.lower():
-        location = get_node_location(message_from_id, deviceID)
+        location = get_node_location(message_from_id, deviceID, channel_number)
         bot_response = get_sun(str(location[0]),str(location[1]))
     elif "hfcond" in message.lower():
         bot_response = hf_band_conditions()
@@ -71,15 +71,15 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
         if interface2_enabled:
             bot_response += " P2:" + str(chutil2) + "%"
     elif "whereami" in message.lower():
-        location = get_node_location(message_from_id, deviceID)
+        location = get_node_location(message_from_id, deviceID, channel_number)
         where = where_am_i(str(location[0]),str(location[1]))
         bot_response = where
     elif "tide" in message.lower():
-        location = get_node_location(message_from_id, deviceID)
+        location = get_node_location(message_from_id, deviceID, channel_number)
         tide = get_tide(str(location[0]),str(location[1]))
         bot_response = tide
     elif "moon" in message.lower():
-        location = get_node_location(message_from_id, deviceID)
+        location = get_node_location(message_from_id, deviceID, channel_number)
         moon = get_moon(str(location[0]),str(location[1]))
         bot_response = moon
     elif "wxalert" in message.lower() or "wxa" in message.lower():
@@ -230,9 +230,13 @@ def onReceive(packet, interface):
                 hop_away = 0
                 if packet.get('hopLimit'):
                     hop_limit = packet.get('hopLimit', 0)
+                else:
+                    hop_limit = 0
                 
                 if packet.get('hopStart'):
                     hop_start = packet.get('hopStart', 0)
+                else:
+                    hop_start = 0
 
             if hop_start == hop_limit:
                 hop = "Direct"
@@ -264,7 +268,7 @@ def onReceive(packet, interface):
                     # respond with welcome message on DM
                     logger.warning(f"Device:{rxNode} Ignoring DM: {message_string} From: {get_name_from_number(message_from_id, 'long', rxNode)}")
                     send_message(welcome_message, channel_number, message_from_id, rxNode)
-                    msgLogger.info(f"{get_name_from_number(message_from_id, 'long', rxNode)} | {message_string}")
+                    msgLogger.info(f"Device:{rxNode} Channel:{channel_number} | {get_name_from_number(message_from_id, 'long', rxNode)} | {message_string}")
             else:
                 # message is on a channel
                 if messageTrap(message_string):
@@ -313,12 +317,12 @@ def onReceive(packet, interface):
                             elif rxNode == 2:
                                 logger.debug(f"Repeating message on Device1 Channel:{channel_number}")
                                 send_message(rMsg, channel_number, 0, 1)
-                        msgLogger.info(f"{get_name_from_number(message_from_id, 'long', rxNode)} | {message_string}")
+                        msgLogger.info(f"Device:{rxNode} Channel:{channel_number} | {get_name_from_number(message_from_id, 'long', rxNode)} | {message_string}")
                     else: 
                         # nothing to do for us
-                        logger.info(f"Ignoring incoming Device:{rxNode} Channel:{channel_number} " + CustomFormatter.green + "Message:" + CustomFormatter.white +\
+                        logger.info(f"Device:{rxNode} Channel:{channel_number} " + CustomFormatter.green + "Ignoring Message:" + CustomFormatter.white +\
                                      f" {message_string} " + CustomFormatter.purple + "From:" + CustomFormatter.white + f" {get_name_from_number(message_from_id)}")
-                        msgLogger.info(f"{get_name_from_number(message_from_id, 'long', rxNode)} | {message_string}")
+                        msgLogger.info(f"Device:{rxNode} Channel:{channel_number} | {get_name_from_number(message_from_id, 'long', rxNode)} | {message_string}")
     except KeyError as e:
         logger.critical(f"System: Error processing packet: {e} Device:{rxNode}")
         print(packet) # print the packet for debugging

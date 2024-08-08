@@ -192,9 +192,15 @@ def get_node_list(nodeInt=1):
             logger.warning(f"System: No nodes found")
             return ERROR_FETCHING_DATA
     
-    node_list1.sort(key=lambda x: x[1], reverse=True)
-    #print (f"Node List: {node_list1[:5]}\n")
-    node_list2.sort(key=lambda x: x[1], reverse=True)
+    try:
+        #print (f"Node List: {node_list1[:5]}\n")
+        node_list1.sort(key=lambda x: x[1], reverse=True)
+        #print (f"Node List: {node_list1[:5]}\n")
+        node_list2.sort(key=lambda x: x[1], reverse=True)
+    except Exception as e:
+        logger.error(f"System: Error sorting node list: {e}")
+        print (f"Node List1: {node_list1[:5]}\n")
+        print (f"Node List2: {node_list2[:5]}\n")
 
     # make a nice list for the user
     for x in node_list1[:SITREP_NODE_COUNT]:
@@ -208,7 +214,7 @@ def get_node_list(nodeInt=1):
     
     return node_list
 
-def get_node_location(number, nodeInt=1):
+def get_node_location(number, nodeInt=1, channel=0):
     # Get the location of a node by its number from nodeDB on device
     latitude = latitudeValue
     longitude = longitudeValue
@@ -228,7 +234,17 @@ def get_node_location(number, nodeInt=1):
                         return position
                     else:
                         logger.warning(f"System: No location data for {number} using default location")
-                        #interface1.sendPosition(destinationId=number, wantResponse=True, channelIndex=0)
+
+                        # request location data
+                        try:
+                            logger.debug(f"System: Requesting location data for {number}")
+                            if nodeInt == 1:
+                                interface1.sendPosition(destinationId=number, wantResponse=False, channelIndex=channel)
+                            if nodeInt == 2:
+                                interface2.sendPosition(destinationId=number, wantResponse=False, channelIndex=channel)
+                        except Exception as e:
+                            logger.error(f"System: Error requesting location data for {number}. Error: {e}")
+
                         return position
         else:
             logger.warning(f"System: No nodes found")
@@ -291,7 +307,7 @@ def send_message(message, ch, nodeid=0, nodeInt=1):
                     interface2.sendText(text=m, channelIndex=ch)
             else:
                 # Send to DM
-                logger.info(f"Device:{nodeInt} " + CustomFormatter.red + "Sending Multi-Chunk Message: " + CustomFormatter.white + f"{m}" + CustomFormatter.purple +\
+                logger.info(f"Device:{nodeInt} " + CustomFormatter.red + "Sending Multi-Chunk DM: " + CustomFormatter.white + f"{m}" + CustomFormatter.purple +\
                              " To: " + CustomFormatter.white + f"{get_name_from_number(nodeid, 'long', nodeInt)}")
                 if nodeInt == 1:
                     interface1.sendText(text=m, channelIndex=ch, destinationId=nodeid)
@@ -307,7 +323,7 @@ def send_message(message, ch, nodeid=0, nodeInt=1):
                 interface2.sendText(text=message, channelIndex=ch)
         else:
             # Send to DM
-            logger.info(f"Device:{nodeInt} " + CustomFormatter.red + "Sending: " + CustomFormatter.white + f"{message}" + CustomFormatter.purple +\
+            logger.info(f"Device:{nodeInt} " + CustomFormatter.red + "Sending DM: " + CustomFormatter.white + f"{message}" + CustomFormatter.purple +\
                          " To: " + CustomFormatter.white + f"{get_name_from_number(nodeid, 'long', nodeInt)}")
             if nodeInt == 1:
                 interface1.sendText(text=message, channelIndex=ch, destinationId=nodeid)
