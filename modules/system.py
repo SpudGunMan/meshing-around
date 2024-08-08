@@ -307,14 +307,14 @@ def send_message(message, ch, nodeid=0, nodeInt=1):
         for m in message_list:
             if nodeid == 0:
                 #Send to channel
-                logger.info(f"Device:{nodeInt} Channel:{ch} " + CustomFormatter.red + "Sending Multi-Chunk Message: " + CustomFormatter.white + f"{m}")
+                logger.info(f"Device:{nodeInt} Channel:{ch} " + CustomFormatter.red + "Sending Multi-Chunk Message: " + CustomFormatter.white + m.replace('\n', ' '))
                 if nodeInt == 1:
                     interface1.sendText(text=m, channelIndex=ch)
                 if nodeInt == 2:
                     interface2.sendText(text=m, channelIndex=ch)
             else:
                 # Send to DM
-                logger.info(f"Device:{nodeInt} " + CustomFormatter.red + "Sending Multi-Chunk DM: " + CustomFormatter.white + f"{m}" + CustomFormatter.purple +\
+                logger.info(f"Device:{nodeInt} " + CustomFormatter.red + "Sending Multi-Chunk DM: " + CustomFormatter.white + m.replace('\n', ' ') + CustomFormatter.purple +\
                              " To: " + CustomFormatter.white + f"{get_name_from_number(nodeid, 'long', nodeInt)}")
                 if nodeInt == 1:
                     interface1.sendText(text=m, channelIndex=ch, destinationId=nodeid)
@@ -323,14 +323,14 @@ def send_message(message, ch, nodeid=0, nodeInt=1):
     else: # message is less than MESSAGE_CHUNK_SIZE characters
         if nodeid == 0:
             # Send to channel
-            logger.info(f"Device:{nodeInt} Channel:{ch} " + CustomFormatter.red + "Sending: " + CustomFormatter.white + f"{message}")
+            logger.info(f"Device:{nodeInt} Channel:{ch} " + CustomFormatter.red + "Sending: " + CustomFormatter.white + message.replace('\n', ' '))
             if nodeInt == 1:
                 interface1.sendText(text=message, channelIndex=ch)
             if nodeInt == 2:
                 interface2.sendText(text=message, channelIndex=ch)
         else:
             # Send to DM
-            logger.info(f"Device:{nodeInt} " + CustomFormatter.red + "Sending DM: " + CustomFormatter.white + f"{message}" + CustomFormatter.purple +\
+            logger.info(f"Device:{nodeInt} " + CustomFormatter.red + "Sending DM: " + CustomFormatter.white + message.replace('\n', ' ') + CustomFormatter.purple +\
                          " To: " + CustomFormatter.white + f"{get_name_from_number(nodeid, 'long', nodeInt)}")
             if nodeInt == 1:
                 interface1.sendText(text=message, channelIndex=ch, destinationId=nodeid)
