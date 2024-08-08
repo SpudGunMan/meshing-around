@@ -84,7 +84,7 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
         bot_response = moon
     elif "wxalert" in message.lower() or "wxa" in message.lower():
         if use_meteo_wxApi:
-            bot_response = "wxalert is not supported in Open-Meteo API"
+            bot_response = "wxalert is not supported"
         else:
             location = get_node_location(message_from_id, deviceID)
             weatherAlert = getActiveWeatherAlertsDetail(str(location[0]),str(location[1]))
