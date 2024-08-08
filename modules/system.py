@@ -29,7 +29,7 @@ if sitrep_enabled:
 if solar_conditions_enabled:
     from modules.solarconditions import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + trap_list_solarconditions # items hfcond, solar, sun, moon
-    help_message = help_message + ", sun, hfcond, solar, moon, tide"
+    help_message = help_message + ", sun, hfcond, solar, moon"
 
 # Location Configuration
 if location_enabled:
