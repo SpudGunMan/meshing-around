@@ -41,6 +41,12 @@ zuluTime = True
 URL_TIMEOUT = 10
 # logging to file of the non Bot messages
 LogMessagesToFile = False
+# detect anyone close to the bot
+SentryEnabled = True
+# holdoff time multiplied by minutes(20) of the watchdog
+SentryChannel = 9
+# channel to send a message to when the watchdog is triggered
+SentryHoldoff = 2
 
 [bbs]
 enabled = True
@@ -89,10 +95,3 @@ signalHoldTime = 10
 # the following are combined to reset the monitor
 signalCooldown = 5
 signalCycleLimit = 5
-
-[sentry]
-sentry_enabled = True
-# holdoff time multiplied by minutes(20) of the watchdog
-sentry_holdoff = 9
-# channel to send a message to when the watchdog is triggered
-secure_channel = 2

@@ -75,6 +75,9 @@ try:
     dad_jokes_enabled = config['general'].getboolean('DadJokes', False)
     store_forward_enabled = config['general'].getboolean('StoreForward', False)
     log_messages_to_file = config['general'].getboolean('LogMessagesToFile', True) # default True
+    sentry_enabled = config['general'].getboolean('SentryEnabled', True) # default True
+    secure_channel = config['general'].getint('SentryChannel', 2) # default 2
+    sentry_holdoff = config['general'].getint('SentryHoldoff', 9) # default 9
     config['general'].get('motd', MOTD)
     urlTimeoutSeconds = config['general'].getint('URL_TIMEOUT', 10) # default 10 seconds
     forecastDuration = config['general'].getint('NOAAforecastDuration', 4) # NOAA forcast days
@@ -90,9 +93,7 @@ try:
     signalHoldTime = config['radioMon'].getint('signalHoldTime', 10) # default 10 seconds
     signalCooldown = config['radioMon'].getint('signalCooldown', 5) # default 1 second
     signalCycleLimit = config['radioMon'].getint('signalCycleLimit', 5) # default 5 cycles, used with SIGNAL_COOLDOWN
-    sentry_enabled = config['sentry'].getboolean('enabled', False)
-    secure_channel = config['sentry'].getint('secure_channel', 2) # default 2
-    sentry_holdoff = config['sentry'].getint('holdoff', 9) # default 9
+
 except KeyError as e:
     print(f"System: Error reading config file: {e}")
     print(f"System: Check the config.ini against config.template file for missing sections or values.")
