@@ -140,8 +140,12 @@ pip install geopy
 pip install maidenhead
 pip install beautifulsoup4
 pip install dadjokes
+```
+The following is needed for open-meteo use
+```
 pip install openmeteo_requests
 pip install retry_requests
+pip install numpy
 ```
 
 To enable emoji in the Debian console, install the fonts `sudo apt-get install fonts-noto-color-emoji`
