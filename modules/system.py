@@ -322,8 +322,9 @@ def get_closest_nodes(nodeInt=1,returnCount=3):
                 #     except Exception as e:
                 #         logger.error(f"System: Error requesting location data for {node['id']}. Error: {e}")
 
-            #sort by distance closest to lattitudeValue, longitudeValue
-            node_list.sort(key=lambda x: (x['latitude']-latitudeValue)**2 + (x['longitude']-longitudeValue)**2)
+            # sort by distance closest
+            #node_list.sort(key=lambda x: (x['latitude']-latitudeValue)**2 + (x['longitude']-longitudeValue)**2)
+            node_list.sort(key=lambda x: x['distance'])
             # return the first 3 closest nodes by default
             return node_list[:returnCount]
         else:
