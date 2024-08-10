@@ -132,6 +132,12 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
                     return bot_response
                 else:
                     logger.debug(f"System: bbspost, name lookup found: {toNode}")
+            
+            # if not a number return error
+            if not toNode.isnumeric():
+                bot_response = "sorry cant yet process: " + message.split("@")[1].split("#")[0]
+                return bot_response
+            
             if "#" in message:
                 body = message.split("#")[1]
                 bot_response = bbs_post_dm(toNode, body, message_from_id)
