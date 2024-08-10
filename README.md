@@ -24,7 +24,7 @@ Any messages that are over 160 characters are chunked into 160 message bytes to 
   - `bbshelp` returns the following
   - `bbslist` list the messages by ID and subject
   - `bbsread` read a message example use: `bbsread #1`
-  - `bbspost` post a message to public board or send a DM example use: `bbspost $subject #message, or bbspost @nodeNumber #message`
+  - `bbspost` post a message to public board or send a DM example use: `bbspost $subject #message, or bbspost @nodeNumber #message or bbspost @nodeShportName #message`
   - `bbsdelete` delete a message example use: `bbsdelete #4`
 - Other functions
   - `whereami` returns the address of location of sender if known
