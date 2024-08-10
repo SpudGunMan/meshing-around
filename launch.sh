@@ -14,9 +14,9 @@ fi
 
 # launch the application
 if [ "$1" == "pong" ]; then
-    python pong_bot.py
+    python3 pong_bot.py
 elif [ "$1" == "mesh" ]; then
-    python mesh_bot.py
+    python3 mesh_bot.py
 else
     printf "\nPlease provide a bot to launch (pong/mesh)"
 fi
