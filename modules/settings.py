@@ -22,7 +22,7 @@ max_retry_count1 = 4 # max retry count for interface 1
 max_retry_count2 = 4 # max retry count for interface 2
 retry_int1 = False
 retry_int2 = False
-radius = 0.10 # in kilometer for sentry detection
+radius = 100 # radius for sentry alerts in meters
 
 # Read the config file, if it does not exist, create basic config file
 config = configparser.ConfigParser() 

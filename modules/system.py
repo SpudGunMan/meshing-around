@@ -58,6 +58,7 @@ if dad_jokes_enabled:
 
 if sentry_enabled:
     from math import sqrt
+    import geopy.distance # pip install geopy
 
 # Store and Forward Configuration
 if store_forward_enabled:
@@ -302,13 +303,15 @@ def get_closest_nodes(nodeInt=1,returnCount=3):
                         nodeID = node['num']
                         latitude = node['position']['latitude']
                         longitude = node['position']['longitude']
-                        # set radius around lattitudeValue, longitudeValue position 
-                        a = latitudeValue - latitude
-                        b = longitudeValue - longitude
-                        c = sqrt(a * a  +  b * b)
-                        if (c < radius):
+
+                        # set radius around BOT position
+                        distance = round(geopy.distance.geodesic((latitudeValue, longitudeValue), (latitude, longitude)).m, 2)
+
+                        if (distance < radius):
                             if nodeID != myNodeNum1 and myNodeNum2 and str(nodeID) not in sentryIgnoreList:
-                                node_list.append({'id': nodeID, 'latitude': latitude, 'longitude': longitude}) 
+                                node_list.append({'id': nodeID, 'latitude': latitude, 'longitude': longitude, 'distance': distance})
+                                # calculate distance to node and report
+                                
                     except Exception as e:
                         pass
                 # else:
@@ -318,9 +321,9 @@ def get_closest_nodes(nodeInt=1,returnCount=3):
                 #         interface1.sendPosition(destinationId=node['id'], wantResponse=False, channelIndex=publicChannel)
                 #     except Exception as e:
                 #         logger.error(f"System: Error requesting location data for {node['id']}. Error: {e}")
+
             #sort by distance closest to lattitudeValue, longitudeValue
             node_list.sort(key=lambda x: (x['latitude']-latitudeValue)**2 + (x['longitude']-longitudeValue)**2)
-            
             # return the first 3 closest nodes by default
             return node_list[:returnCount]
         else:
@@ -334,13 +337,15 @@ def get_closest_nodes(nodeInt=1,returnCount=3):
                         nodeID = node['num']
                         latitude = node['position']['latitude']
                         longitude = node['position']['longitude']
-                        # set radius around lattitudeValue, longitudeValue position 
-                        a = latitudeValue - latitude
-                        b = longitudeValue - longitude
-                        c = sqrt(a * a  +  b * b)
-                        if (c < radius):
+
+                        # set radius around BOT position
+                        distance = geopy.distance.geodesic((latitudeValue, longitudeValue), (latitude, longitude)).m
+
+                        if (distance < radius):
                             if nodeID != myNodeNum1 and myNodeNum2 and str(nodeID) not in sentryIgnoreList:
-                                node_list.append({'id': nodeID, 'latitude': latitude, 'longitude': longitude}) 
+                                node_list.append({'id': nodeID, 'latitude': latitude, 'longitude': longitude, 'distance': distance})
+                                # calculate distance to node and report
+                                
                     except Exception as e:
                         pass
                     
@@ -602,12 +607,13 @@ async def watchdog():
                             enemySpotted += ", " + get_name_from_number(closest_nodes1[0]['id'], 'short', 1)
                             enemySpotted += ", " + str(closest_nodes1[0]['id'])
                             enemySpotted += ", " + decimal_to_hex(closest_nodes1[0]['id'])
+                            enemySpotted += f" at {closest_nodes1[0]['distance']}m"
                 except Exception as e:
                     pass
                 
                 if sentry_loop >= sentry_holdoff and lastSpotted != enemySpotted:
                     logger.warning(f"System: {enemySpotted} is close to your location on Interface1")
-                    send_message(f"SentryP1: {enemySpotted}", secure_channel, 0, 1)
+                    send_message(f"Sentry1: {enemySpotted}", secure_channel, 0, 1)
                     sentry_loop = 0
                     lastSpotted = enemySpotted
                 else:
@@ -638,12 +644,13 @@ async def watchdog():
                                 enemySpotted2 += ", " + get_name_from_number(closest_nodes2[0]['id'], 'short', 2)
                                 enemySpotted2 += ", " + str(closest_nodes2[0]['id'])
                                 enemySpotted2 += ", " + decimal_to_hex(closest_nodes2[0]['id'])
+                                enemySpotted += f" at {closest_nodes1[0]['distance']}m"
                     except Exception as e:
                         pass
                     
                     if sentry_loop2 >= sentry_holdoff and lastSpotted2 != enemySpotted2:
                         logger.warning(f"System: {enemySpotted2} is close to your location on Interface2")
-                        send_message(f"SentryP2: {enemySpotted2}", secure_channel, 0, 2)
+                        send_message(f"Sentry2: {enemySpotted2}", secure_channel, 0, 2)
                         sentry_loop2 = 0
                         lastSpotted2 = enemySpotted2
                     else:
@@ -654,4 +661,3 @@ async def watchdog():
                     await retry_interface(2)
                 except Exception as e:
                     logger.error(f"System: retrying interface2: {e}")
-
