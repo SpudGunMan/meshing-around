@@ -125,17 +125,14 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
             toNode = message.split("@")[1].split("#")[0]
             toNode = toNode.rstrip()
             # if toNode is a string look for short name and convert to number
-            if toNode.isalpha():
+            if toNode.isalpha() or not toNode.isnumeric():
                 toNode = get_num_from_short_name(toNode, deviceID)
                 if toNode == 0:
                     bot_response = "Node not found " + message.split("@")[1].split("#")[0]
                     return bot_response
                 else:
                     logger.debug(f"System: bbspost, name lookup found: {toNode}")
-            # if not a number return error
-            if not toNode.isnumeric():
-                bot_response = "sorry cant yet process: " + message.split("@")[1].split("#")[0]
-                return bot_response
+            
             if "#" in message:
                 body = message.split("#")[1]
                 bot_response = bbs_post_dm(toNode, body, message_from_id)
