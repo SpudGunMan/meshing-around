@@ -136,7 +136,7 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
                 body = message.split("#")[1]
                 bot_response = bbs_post_dm(toNode, body, message_from_id)
             else:
-                bot_response = "example: bbspost @nodeNumber #message"
+                bot_response = "example: bbspost @nodeNumber/ShortName #message"
         elif not "example:" in message:
             bot_response = "example: bbspost $subject #message, or bbspost @nodeNumber #message"
 
