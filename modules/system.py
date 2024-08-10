@@ -58,7 +58,6 @@ if dad_jokes_enabled:
 
 if sentry_enabled:
     from math import sqrt
-    radius = 1.00 # in kilometer
 
 # Store and Forward Configuration
 if store_forward_enabled:
@@ -293,22 +292,22 @@ def get_node_location(number, nodeInt=1, channel=0):
             logger.warning(f"System: No nodes found")
             return position
 
-def get_closest_nodes(nodeInt=1):
+def get_closest_nodes(nodeInt=1,returnCount=3):
     node_list = []
     if nodeInt == 1:
         if interface1.nodes:
             for node in interface1.nodes.values():
                 if 'position' in node:
                     try:
+                        nodeID = node['num']
                         latitude = node['position']['latitude']
                         longitude = node['position']['longitude']
-                        nodeID = node['num']
                         # set radius around lattitudeValue, longitudeValue position 
                         a = latitudeValue - latitude
                         b = longitudeValue - longitude
                         c = sqrt(a * a  +  b * b)
                         if (c < radius):
-                            if nodeID != myNodeNum1 and str(nodeID) not in sentryIgnoreList:
+                            if nodeID != myNodeNum1 and myNodeNum2 and str(nodeID) not in sentryIgnoreList:
                                 node_list.append({'id': nodeID, 'latitude': latitude, 'longitude': longitude}) 
                     except Exception as e:
                         pass
@@ -322,8 +321,8 @@ def get_closest_nodes(nodeInt=1):
             #sort by distance closest to lattitudeValue, longitudeValue
             node_list.sort(key=lambda x: (x['latitude']-latitudeValue)**2 + (x['longitude']-longitudeValue)**2)
             
-            # return the 3 closest nodes
-            return node_list[:3]
+            # return the first 3 closest nodes by default
+            return node_list[:returnCount]
         else:
             logger.error(f"System: No nodes found in closest_nodes on interface {nodeInt}")
             return ERROR_FETCHING_DATA
@@ -332,15 +331,15 @@ def get_closest_nodes(nodeInt=1):
             for node in interface2.nodes.values():
                 if 'position' in node:
                     try:
+                        nodeID = node['num']
                         latitude = node['position']['latitude']
                         longitude = node['position']['longitude']
-                        nodeID = node['num']
                         # set radius around lattitudeValue, longitudeValue position 
                         a = latitudeValue - latitude
                         b = longitudeValue - longitude
                         c = sqrt(a * a  +  b * b)
                         if (c < radius):
-                            if nodeID != myNodeNum2 and str(nodeID) not in sentryIgnoreList:
+                            if nodeID != myNodeNum1 and myNodeNum2 and str(nodeID) not in sentryIgnoreList:
                                 node_list.append({'id': nodeID, 'latitude': latitude, 'longitude': longitude}) 
                     except Exception as e:
                         pass
@@ -348,8 +347,8 @@ def get_closest_nodes(nodeInt=1):
             #sort by distance closest to lattitudeValue, longitudeValue
             node_list.sort(key=lambda x: (x['latitude']-latitudeValue)**2 + (x['longitude']-longitudeValue)**2)
 
-            # return the 3 closest nodes
-            return node_list[:3]
+            # return the first 3 closest nodes by default
+            return node_list[:returnCount]
         else:
             logger.error(f"System: No nodes found in closest_nodes on interface {nodeInt}")
             return ERROR_FETCHING_DATA
