@@ -151,15 +151,15 @@ def get_name_from_number(number, type='long', nodeInt=1):
     return number
 
 def get_num_from_short_name(short_name, nodeInt=1):
-    # Get the node number from the short name
+    # Get the node number from the short name, converting all to lowercase for comparison (good practice?)
     logger.debug(f"System: Getting Node Number from Short Name: {short_name} on Device: {nodeInt}")
     if nodeInt == 1:
         for node in interface1.nodes.values():
-            if str(short_name) == node['user']['shortName']:
+            if str(short_name.lower()) == node['user']['shortName'].lower():
                 return node['num']
     if nodeInt == 2:
         for node in interface2.nodes.values():
-            if str(short_name) == node['user']['shortName']:
+            if str(short_name.lower()) == node['user']['shortName'].lower():
                 return node['num']
     return 0
     
