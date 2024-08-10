@@ -92,16 +92,16 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
     elif "wxc" in message.lower() or "wx" in message.lower():
         location = get_node_location(message_from_id, deviceID)
         if use_meteo_wxApi and not "wxc" in message.lower() and not use_metric:
-            logger.debug(f"System: Returning Open-Meteo API for weather imperial")
+            logger.debug(f"System: Bot Returning Open-Meteo API for weather imperial")
             weather = get_wx_meteo(str(location[0]),str(location[1]))
         elif use_meteo_wxApi:
-            logger.debug(f"System: Returning Open-Meteo API for weather metric")
+            logger.debug(f"System: Bot Returning Open-Meteo API for weather metric")
             weather = get_wx_meteo(str(location[0]),str(location[1]),1)
         elif not use_meteo_wxApi and "wxc" in message.lower() or use_metric:
-            logger.debug(f"System: Returning NOAA API for weather metric")
+            logger.debug(f"System: Bot Returning NOAA API for weather metric")
             weather = get_weather(str(location[0]),str(location[1]),1)
         else:
-            logger.debug(f"System: Returning NOAA API for weather imperial")
+            logger.debug(f"System: Bot Returning NOAA API for weather imperial")
             weather = get_weather(str(location[0]),str(location[1]))
         bot_response = weather
     elif "joke" in message.lower():
@@ -124,13 +124,21 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
         elif "@" in message and not "example:" in message:
             toNode = message.split("@")[1].split("#")[0]
             toNode = toNode.rstrip()
+            # if toNode is a string look for short name and convert to number
+            if toNode.isalpha():
+                toNode = get_num_from_short_name(toNode, deviceID)
+                if toNode == 0:
+                    bot_response = "Node not found " + message.split("@")[1].split("#")[0]
+                    return bot_response
+                else:
+                    logger.debug(f"System: bbspost, name lookup found: {toNode}")
             if "#" in message:
                 body = message.split("#")[1]
                 bot_response = bbs_post_dm(toNode, body, message_from_id)
             else:
-                bot_response = "example: bbspost @nodeNumber #message"
+                bot_response = "example: bbspost @nodeNumber/ShortName #message"
         elif not "example:" in message:
-            bot_response = "example: bbspost $subject #message, or bbspost @nodeNumber #message"
+            bot_response = "example: bbspost $subject #message, or bbspost @node #message"
 
     elif "bbsread" in message.lower():
         # Check if the user added a message number to the message

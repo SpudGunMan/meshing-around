@@ -8,7 +8,7 @@ The feature-rich bot requires the internet for full functionality. These respond
 
 Along with network testing, this bot has a lot of other features, like simple mail messaging you can leave for another device, and when that device is seen, it can send the mail as a DM.
 
-The bot is also capable of using dual radio/nodes, so you can monitor two networks at the same time and send messages to nodes using the same `bbspost @nodeNumber #message` function. There is a small message board to fit in the constraints of Meshtastic for posting bulletin messages with `bbspost $subject #message`.
+The bot is also capable of using dual radio/nodes, so you can monitor two networks at the same time and send messages to nodes using the same `bbspost @nodeNumber #message` or `bbspost @nodeShportName #message` function. There is a small message board to fit in the constraints of Meshtastic for posting bulletin messages with `bbspost $subject #message`.
 
 The bot will report on anyone who is getting close to the device if in a remote location.
 
@@ -26,7 +26,7 @@ Any messages that are over 160 characters are chunked into 160 message bytes to 
   - `bbshelp` returns the following
   - `bbslist` list the messages by ID and subject
   - `bbsread` read a message example use: `bbsread #1`
-  - `bbspost` post a message to public board or send a DM example use: `bbspost $subject #message, or bbspost @nodeNumber #message`
+  - `bbspost` post a message to public board or send a DM example use: `bbspost $subject #message, or bbspost @nodeNumber #message or bbspost @nodeShportName #message`
   - `bbsdelete` delete a message example use: `bbsdelete #4`
 - Other functions
   - `whereami` returns the address of location of sender if known
@@ -145,8 +145,12 @@ pip install geopy
 pip install maidenhead
 pip install beautifulsoup4
 pip install dadjokes
+```
+The following is needed for open-meteo use
+```
 pip install openmeteo_requests
 pip install retry_requests
+pip install numpy
 ```
 
 To enable emoji in the Debian console, install the fonts `sudo apt-get install fonts-noto-color-emoji`
