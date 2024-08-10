@@ -138,7 +138,7 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
             else:
                 bot_response = "example: bbspost @nodeNumber/ShortName #message"
         elif not "example:" in message:
-            bot_response = "example: bbspost $subject #message, or bbspost @nodeNumber #message"
+            bot_response = "example: bbspost $subject #message, or bbspost @node #message"
 
     elif "bbsread" in message.lower():
         # Check if the user added a message number to the message
