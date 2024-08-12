@@ -34,54 +34,8 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
             bot_response = "MOTD Set to: " + MOTD
         else:
             bot_response = MOTD
-    elif "messages" in message.lower():
-         response = ""
-         for msgH in msg_history:
-             # check if the message is from the same interface
-             if msgH[4] == deviceID:
-                # check if the message is from the same channel
-                if msgH[2] == channel_number or msgH[2] == publicChannel:
-                    # consider message safe to send
-                    response += f"\n{msgH[0]}: {msgH[1]}"
-                    
-         if len(response) > 0:
-             bot_response = "Message History:" + response
-         else:
-             bot_response = "No messages in history"
     elif "bbshelp" in message.lower():
         bot_response = bbs_help()
-    elif "cmd" in message.lower() or "cmd?" in message.lower():
-        bot_response = help_message
-    elif "sun" in message.lower():
-        location = get_node_location(message_from_id, deviceID, channel_number)
-        bot_response = get_sun(str(location[0]),str(location[1]))
-    elif "hfcond" in message.lower():
-        bot_response = hf_band_conditions()
-    elif "solar" in message.lower():
-        bot_response = drap_xray_conditions() + "\n" + solar_conditions()
-    elif "lheard" in message.lower() or "sitrep" in message.lower():
-        bot_response = "Last heard:\n" + str(get_node_list(1))
-        chutil1 = interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("channelUtilization", 0)
-        chutil1 = "{:.2f}".format(chutil1)
-        if interface2_enabled:
-            bot_response += "Port2:\n" + str(get_node_list(2))
-            chutil2 = interface2.nodes.get(decimal_to_hex(myNodeNum2), {}).get("deviceMetrics", {}).get("channelUtilization", 0)
-            chutil2 = "{:.2f}".format(chutil2)
-        bot_response += "Ch Use: " + str(chutil1) + "%"
-        if interface2_enabled:
-            bot_response += " P2:" + str(chutil2) + "%"
-    elif "whereami" in message.lower():
-        location = get_node_location(message_from_id, deviceID, channel_number)
-        where = where_am_i(str(location[0]),str(location[1]))
-        bot_response = where
-    elif "tide" in message.lower():
-        location = get_node_location(message_from_id, deviceID, channel_number)
-        tide = get_tide(str(location[0]),str(location[1]))
-        bot_response = tide
-    elif "moon" in message.lower():
-        location = get_node_location(message_from_id, deviceID, channel_number)
-        moon = get_moon(str(location[0]),str(location[1]))
-        bot_response = moon
     elif "wxalert" in message.lower() or "wxa" in message.lower():
         if use_meteo_wxApi:
             bot_response = "wxalert is not supported"
@@ -132,7 +86,6 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
                     return bot_response
                 else:
                     logger.debug(f"System: bbspost, name lookup found: {toNode}")
-            
             if "#" in message:
                 body = message.split("#")[1]
                 bot_response = bbs_post_dm(toNode, body, message_from_id)
@@ -140,7 +93,6 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
                 bot_response = "example: bbspost @nodeNumber/ShortName #message"
         elif not "example:" in message:
             bot_response = "example: bbspost $subject #message, or bbspost @node #message"
-
     elif "bbsread" in message.lower():
         # Check if the user added a message number to the message
         if "#" in message and not "example:" in message:
@@ -155,6 +107,52 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
             bot_response = bbs_delete_message(messageID, message_from_id)
         elif not "example:" in message:
             bot_response = "Please add a message number example: bbsdelete #14"
+        elif "messages" in message.lower():
+         response = ""
+         for msgH in msg_history:
+             # check if the message is from the same interface
+             if msgH[4] == deviceID:
+                # check if the message is from the same channel
+                if msgH[2] == channel_number or msgH[2] == publicChannel:
+                    # consider message safe to send
+                    response += f"\n{msgH[0]}: {msgH[1]}"
+                    
+         if len(response) > 0:
+             bot_response = "Message History:" + response
+         else:
+             bot_response = "No messages in history"
+    elif "cmd" in message.lower() or "cmd?" in message.lower():
+        bot_response = help_message
+    elif "sun" in message.lower():
+        location = get_node_location(message_from_id, deviceID, channel_number)
+        bot_response = get_sun(str(location[0]),str(location[1]))
+    elif "hfcond" in message.lower():
+        bot_response = hf_band_conditions()
+    elif "solar" in message.lower():
+        bot_response = drap_xray_conditions() + "\n" + solar_conditions()
+    elif "lheard" in message.lower() or "sitrep" in message.lower():
+        bot_response = "Last heard:\n" + str(get_node_list(1))
+        chutil1 = interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("channelUtilization", 0)
+        chutil1 = "{:.2f}".format(chutil1)
+        if interface2_enabled:
+            bot_response += "Port2:\n" + str(get_node_list(2))
+            chutil2 = interface2.nodes.get(decimal_to_hex(myNodeNum2), {}).get("deviceMetrics", {}).get("channelUtilization", 0)
+            chutil2 = "{:.2f}".format(chutil2)
+        bot_response += "Ch Use: " + str(chutil1) + "%"
+        if interface2_enabled:
+            bot_response += " P2:" + str(chutil2) + "%"
+    elif "whereami" in message.lower():
+        location = get_node_location(message_from_id, deviceID, channel_number)
+        where = where_am_i(str(location[0]),str(location[1]))
+        bot_response = where
+    elif "tide" in message.lower():
+        location = get_node_location(message_from_id, deviceID, channel_number)
+        tide = get_tide(str(location[0]),str(location[1]))
+        bot_response = tide
+    elif "moon" in message.lower():
+        location = get_node_location(message_from_id, deviceID, channel_number)
+        moon = get_moon(str(location[0]),str(location[1]))
+        bot_response = moon
     elif "ack" in message.lower():
         if hop == "Direct":
             bot_response = "🏓ACK-ACK! " + f"SNR:{snr} RSSI:{rssi}"
