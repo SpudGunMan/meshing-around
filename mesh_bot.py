@@ -360,6 +360,8 @@ async def start_rx():
             logger.debug(f"System: Location Telemetry Enabled using NOAA API")
     if dad_jokes_enabled:
         logger.debug(f"System: Dad Jokes Enabled!")
+    if sentry_enabled:
+        logger.debug(f"System: Sentry Mode Enabled")
     if store_forward_enabled:
         logger.debug(f"System: Store and Forward Enabled using limit: {storeFlimit}")
     if useDMForResponse:

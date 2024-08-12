@@ -10,6 +10,8 @@ Along with network testing, this bot has a lot of other features, like simple ma
 
 The bot is also capable of using dual radio/nodes, so you can monitor two networks at the same time and send messages to nodes using the same `bbspost @nodeNumber #message` or `bbspost @nodeShportName #message` function. There is a small message board to fit in the constraints of Meshtastic for posting bulletin messages with `bbspost $subject #message`.
 
+The bot will report on anyone who is getting close to the device if in a remote location.
+
 Store and forward-like message re-play with `messages`, and there is a repeater module for dual radio bots to cross post messages. Messages are also logged locally to disk.
 
 The bot can also be used to monitor a frequency and let you know when activity is seen. Using Hamlib to watch the S meter on a connected radio. You can send alerts to channels when a frequency is detected for 20 seconds within the thresholds set in config.ini
@@ -98,6 +100,17 @@ enabled = False
 DadJokes = False
 StoreForward = False
 ```
+Sentry Bot detects anyone comeing close to the bot-node
+```
+# detect anyone close to the bot
+SentryEnabled = True
+# holdoff time multiplied by minutes(20) of the watchdog
+SentryChannel = 9
+# channel to send a message to when the watchdog is triggered
+SentryHoldoff = 2
+# list of ignored nodes numbers ex: 2813308004,4258675309
+sentryIgnoreList = 
+```
 The BBS has admin and block lists; see the [config.template](config.template)
 
 A repeater function for two different nodes and cross-posting messages. The'repeater_channels` is a list of repeater channel(s) that will be consumed and rebroadcast on the same number channel on the other device, node, or interface. Each node should have matching channel numbers. The channel names and PSK do not need to be the same on the nodes. With great power comes great responsibility; danger could lurk in the use of this feature! If you have the two nodes in the same radio configuration, you could create a feedback loop!!!
@@ -140,6 +153,7 @@ pip install geopy
 pip install maidenhead
 pip install beautifulsoup4
 pip install dadjokes
+pip install geopy
 ```
 The following is needed for open-meteo use
 ```

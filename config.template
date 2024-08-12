@@ -41,6 +41,16 @@ zuluTime = True
 URL_TIMEOUT = 10
 # logging to file of the non Bot messages
 LogMessagesToFile = False
+# detect anyone close to the bot
+SentryEnabled = True
+# radius in meters to detect someone close to the bot
+SentryRadius = 100
+# holdoff time multiplied by minutes(20) of the watchdog
+SentryChannel = 9
+# channel to send a message to when the watchdog is triggered
+SentryHoldoff = 2
+# list of ignored nodes numbers ex: 2813308004,4258675309
+sentryIgnoreList = 
 
 [bbs]
 enabled = True

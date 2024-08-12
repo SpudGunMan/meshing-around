@@ -56,6 +56,10 @@ if dad_jokes_enabled:
     trap_list = trap_list + ("joke",)
     help_message = help_message + ", joke"
 
+if sentry_enabled:
+    from math import sqrt
+    import geopy.distance # pip install geopy
+
 # Store and Forward Configuration
 if store_forward_enabled:
     trap_list = trap_list + ("messages",)
@@ -288,6 +292,72 @@ def get_node_location(number, nodeInt=1, channel=0):
         else:
             logger.warning(f"System: No nodes found")
             return position
+
+def get_closest_nodes(nodeInt=1,returnCount=3):
+    node_list = []
+    if nodeInt == 1:
+        if interface1.nodes:
+            for node in interface1.nodes.values():
+                if 'position' in node:
+                    try:
+                        nodeID = node['num']
+                        latitude = node['position']['latitude']
+                        longitude = node['position']['longitude']
+
+                        # set radius around BOT position
+                        distance = round(geopy.distance.geodesic((latitudeValue, longitudeValue), (latitude, longitude)).m, 2)
+
+                        if (distance < sentry_radius):
+                            if nodeID != myNodeNum1 and myNodeNum2 and str(nodeID) not in sentryIgnoreList:
+                                node_list.append({'id': nodeID, 'latitude': latitude, 'longitude': longitude, 'distance': distance})
+                                # calculate distance to node and report
+                                
+                    except Exception as e:
+                        pass
+                # else:
+                #     # request location data
+                #     try:
+                #         logger.debug(f"System: Requesting location data for {node['id']}")
+                #         interface1.sendPosition(destinationId=node['id'], wantResponse=False, channelIndex=publicChannel)
+                #     except Exception as e:
+                #         logger.error(f"System: Error requesting location data for {node['id']}. Error: {e}")
+
+            # sort by distance closest
+            #node_list.sort(key=lambda x: (x['latitude']-latitudeValue)**2 + (x['longitude']-longitudeValue)**2)
+            node_list.sort(key=lambda x: x['distance'])
+            # return the first 3 closest nodes by default
+            return node_list[:returnCount]
+        else:
+            logger.error(f"System: No nodes found in closest_nodes on interface {nodeInt}")
+            return ERROR_FETCHING_DATA
+    if nodeInt == 2:
+        if interface2.nodes:
+            for node in interface2.nodes.values():
+                if 'position' in node:
+                    try:
+                        nodeID = node['num']
+                        latitude = node['position']['latitude']
+                        longitude = node['position']['longitude']
+
+                        # set radius around BOT position
+                        distance = geopy.distance.geodesic((latitudeValue, longitudeValue), (latitude, longitude)).m
+
+                        if (distance < sentry_radius):
+                            if nodeID != myNodeNum1 and myNodeNum2 and str(nodeID) not in sentryIgnoreList:
+                                node_list.append({'id': nodeID, 'latitude': latitude, 'longitude': longitude, 'distance': distance})
+                                # calculate distance to node and report
+                                
+                    except Exception as e:
+                        pass
+                    
+            #sort by distance closest to lattitudeValue, longitudeValue
+            node_list.sort(key=lambda x: (x['latitude']-latitudeValue)**2 + (x['longitude']-longitudeValue)**2)
+
+            # return the first 3 closest nodes by default
+            return node_list[:returnCount]
+        else:
+            logger.error(f"System: No nodes found in closest_nodes on interface {nodeInt}")
+            return ERROR_FETCHING_DATA
         
 def send_message(message, ch, nodeid=0, nodeInt=1):
     if message == "":
@@ -508,6 +578,13 @@ def suppress_stdout():
 
 async def watchdog():
     global retry_int1, retry_int2
+    if sentry_enabled:
+        sentry_loop = 0
+        lastSpotted = ""
+        enemySpotted = ""
+        sentry_loop2 = 0
+        lastSpotted2 = ""
+        enemySpotted2 = ""
     # watchdog for connection to the interface
     while True:
         await asyncio.sleep(20)
@@ -520,6 +597,28 @@ async def watchdog():
             except Exception as e:
                 logger.error(f"System: communicating with interface1, trying to reconnect: {e}")
                 retry_int1 = True
+        
+            # Locate Closest Nodes and report them to a secure channel
+            if sentry_enabled:
+                try:
+                    closest_nodes1 = get_closest_nodes(1)
+                    if closest_nodes1 != ERROR_FETCHING_DATA:
+                        if closest_nodes1[0]['id'] is not None:
+                            enemySpotted = get_name_from_number(closest_nodes1[0]['id'], 'long', 1)
+                            enemySpotted += ", " + get_name_from_number(closest_nodes1[0]['id'], 'short', 1)
+                            enemySpotted += ", " + str(closest_nodes1[0]['id'])
+                            enemySpotted += ", " + decimal_to_hex(closest_nodes1[0]['id'])
+                            enemySpotted += f" at {closest_nodes1[0]['distance']}m"
+                except Exception as e:
+                    pass
+                
+                if sentry_loop >= sentry_holdoff and lastSpotted != enemySpotted:
+                    logger.warning(f"System: {enemySpotted} is close to your location on Interface1")
+                    send_message(f"Sentry1: {enemySpotted}", secure_channel, 0, 1)
+                    sentry_loop = 0
+                    lastSpotted = enemySpotted
+                else:
+                    sentry_loop += 1
         
         if retry_int1:
             try:
@@ -535,10 +634,31 @@ async def watchdog():
                 except Exception as e:
                     logger.error(f"System: communicating with interface2, trying to reconnect: {e}")
                     retry_int2 = True
+                
+                # Locate Closest Nodes and report them to a secure channel
+                if sentry_enabled:
+                    try:
+                        closest_nodes2 = get_closest_nodes(2)
+                        if closest_nodes2 != ERROR_FETCHING_DATA:
+                            if closest_nodes2[0]['id'] is not None:
+                                enemySpotted2 = get_name_from_number(closest_nodes2[0]['id'], 'long', 2)
+                                enemySpotted2 += ", " + get_name_from_number(closest_nodes2[0]['id'], 'short', 2)
+                                enemySpotted2 += ", " + str(closest_nodes2[0]['id'])
+                                enemySpotted2 += ", " + decimal_to_hex(closest_nodes2[0]['id'])
+                                enemySpotted += f" at {closest_nodes1[0]['distance']}m"
+                    except Exception as e:
+                        pass
+                    
+                    if sentry_loop2 >= sentry_holdoff and lastSpotted2 != enemySpotted2:
+                        logger.warning(f"System: {enemySpotted2} is close to your location on Interface2")
+                        send_message(f"Sentry2: {enemySpotted2}", secure_channel, 0, 2)
+                        sentry_loop2 = 0
+                        lastSpotted2 = enemySpotted2
+                    else:
+                        sentry_loop2 += 1
         
             if retry_int2:
                 try:
                     await retry_interface(2)
                 except Exception as e:
                     logger.error(f"System: retrying interface2: {e}")
-
