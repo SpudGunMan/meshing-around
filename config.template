@@ -45,7 +45,7 @@ URL_TIMEOUT = 10
 LogMessagesToFile = False
 # detect anyone close to the bot
 
-[Sentry]
+[sentry]
 SentryEnabled = True
 # radius in meters to detect someone close to the bot
 SentryRadius = 100

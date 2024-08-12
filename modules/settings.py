@@ -91,11 +91,11 @@ try:
     dad_jokes_enabled = config['general'].getboolean('DadJokes', True)
     solar_conditions_enabled = config['general'].getboolean('spaceWeather', True) 
 
-    sentry_enabled = config['Sentry'].getboolean('SentryEnabled', True) # default True
-    secure_channel = config['Sentry'].getint('SentryChannel', 2) # default 2
-    sentry_holdoff = config['Sentry'].getint('SentryHoldoff', 9) # default 9
-    sentryIgnoreList = config['Sentry'].get('sentryIgnoreList', '').split(',')
-    sentry_radius = config['Sentry'].getint('SentryRadius', 100) # default 100 meters
+    sentry_enabled = config['sentry'].getboolean('SentryEnabled', True) # default True
+    secure_channel = config['sentry'].getint('SentryChannel', 2) # default 2
+    sentry_holdoff = config['sentry'].getint('SentryHoldoff', 9) # default 9
+    sentryIgnoreList = config['sentry'].get('sentryIgnoreList', '').split(',')
+    sentry_radius = config['sentry'].getint('SentryRadius', 100) # default 100 meters
 
     location_enabled = config['location'].getboolean('enabled', True)
     latitudeValue = config['location'].getfloat('lat', 48.50)
