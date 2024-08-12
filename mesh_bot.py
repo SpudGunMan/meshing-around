@@ -26,11 +26,11 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
     elif "pong" in message.lower():
         bot_response = "🏓PING!!"
     elif "motd" in message.lower():
+        global MOTD
         #check if the user wants to set the motd by using $
         if "$" in message:
             motd = message.split("$")[1]
-            global MOTD
-            MOTD = motd
+            MOTD = motd.rstrip()
             bot_response = "MOTD Set to: " + MOTD
         else:
             bot_response = MOTD
@@ -358,6 +358,8 @@ async def start_rx():
             logger.debug(f"System: Location Telemetry Enabled using NOAA API")
     if dad_jokes_enabled:
         logger.debug(f"System: Dad Jokes Enabled!")
+    if motd_enabled:
+        logger.debug(f"System: MOTD Enabled using {MOTD}")
     if sentry_enabled:
         logger.debug(f"System: Sentry Mode Enabled")
     if store_forward_enabled:

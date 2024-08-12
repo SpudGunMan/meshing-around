@@ -20,10 +20,17 @@ if ping_enabled:
     trap_list = trap_list + trap_list_ping
     help_message = help_message + "ping"
 
+# Sitrep Configuration
 if sitrep_enabled:
     trap_list_sitrep = ("sitrep", "lheard")
     trap_list = trap_list + trap_list_sitrep
     help_message = help_message + ", sitrep"
+
+# MOTD Configuration
+if motd_enabled:
+    trap_list_motd = ("motd",)
+    trap_list = trap_list + trap_list_motd
+    help_message = help_message + ", motd"
 
 # Solar Conditions Configuration
 if solar_conditions_enabled:

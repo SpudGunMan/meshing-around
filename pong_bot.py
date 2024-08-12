@@ -25,11 +25,10 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
     elif "pong" in message.lower():
         bot_response = "🏓Ping!!"
     elif "motd" in message.lower():
-        # check if the user wants to set the motd by using $
+        #check if the user wants to set the motd by using $
         if "$" in message:
             motd = message.split("$")[1]
-            global MOTD
-            MOTD = motd
+            MOTD = motd.rstrip()
             bot_response = "MOTD Set to: " + MOTD
         else:
             bot_response = MOTD

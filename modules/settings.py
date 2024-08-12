@@ -40,6 +40,26 @@ if config.sections() == []:
     config.write(open(config_file, 'w'))
     print (f"System: Config file created, check {config_file} or review the config.template")
 
+if 'sentry' not in config:
+        config['Sentry'] = {'SentryEnabled': 'True', 'SentryChannel': '2', 'SentryHoldoff': '9', 'sentryIgnoreList': '', 'SentryRadius': '100'}
+        config.write(open(config_file, 'w'))
+
+if 'location' not in config:
+        config['location'] = {'enabled': 'True', 'lat': '48.50', 'lon': '-123.0', 'UseMeteoWxAPI': 'False', 'useMetric': 'False', 'NOAAforecastDuration': '4', 'NOAAalertCount': '2', 'NOAAalertsEnabled': 'True'}
+        config.write(open(config_file, 'w'))
+
+if 'bbs' not in config:
+        config['bbs'] = {'enabled': 'False', 'bbsdb': 'bbsdb.pkl', 'bbs_ban_list': '', 'bbs_admin_list': ''}
+        config.write(open(config_file, 'w'))
+
+if 'repeater' not in config:
+        config['repeater'] = {'enabled': 'False', 'repeater_channels': ''}
+        config.write(open(config_file, 'w'))
+
+if 'radioMon' not in config:
+        config['radioMon'] = {'enabled': 'False', 'rigControlServerAddress': 'localhost:4532', 'sigWatchBrodcastCh': '2', 'signalDetectionThreshold': '-10', 'signalHoldTime': '10', 'signalCooldown': '5', 'signalCycleLimit': '5'}
+        config.write(open(config_file, 'w'))
+
 # interface1 settings
 interface1_type = config['interface'].get('type', 'serial')
 port1 = config['interface'].get('port', '')
@@ -58,36 +78,42 @@ else:
 
 # variables
 try:
-    storeFlimit = config['general'].getint('StoreLimit', 3) # default 3 messages for S&F
     useDMForResponse = config['general'].getboolean('respond_by_dm_only', True)
     publicChannel = config['general'].getint('defaultChannel', 0) # the meshtastic public channel
-    location_enabled = config['location'].getboolean('enabled', False)
+    zuluTime = config['general'].getboolean('zuluTime', False) # aka 24 hour time
+    log_messages_to_file = config['general'].getboolean('LogMessagesToFile', True) # default True
+    urlTimeoutSeconds = config['general'].getint('URL_TIMEOUT', 10) # default 10 seconds
+    store_forward_enabled = config['general'].getboolean('StoreForward', True) # default False
+    storeFlimit = config['general'].getint('StoreLimit', 3) # default 3 messages for S&F
+    welcome_message = config['general'].get(f'welcome_message', WELCOME_MSG)
+    welcome_message = (f"{welcome_message}").replace('\\n', '\n') # allow for newlines in the welcome message
+    motd_enabled = config['general'].getboolean('motdEnabled', True)
+    dad_jokes_enabled = config['general'].getboolean('DadJokes', True)
+    solar_conditions_enabled = config['general'].getboolean('spaceWeather', True) 
+
+    sentry_enabled = config['Sentry'].getboolean('SentryEnabled', True) # default True
+    secure_channel = config['Sentry'].getint('SentryChannel', 2) # default 2
+    sentry_holdoff = config['Sentry'].getint('SentryHoldoff', 9) # default 9
+    sentryIgnoreList = config['Sentry'].get('sentryIgnoreList', '').split(',')
+    sentry_radius = config['Sentry'].getint('SentryRadius', 100) # default 100 meters
+
+    location_enabled = config['location'].getboolean('enabled', True)
     latitudeValue = config['location'].getfloat('lat', 48.50)
     longitudeValue = config['location'].getfloat('lon', -123.0)
     use_meteo_wxApi = config['location'].getboolean('UseMeteoWxAPI', False) # default False use NOAA
     use_metric = config['location'].getboolean('useMetric', False) # default Imperial units
-    zuluTime = config['general'].getboolean('zuluTime', False)
-    welcome_message = config['general'].get(f'welcome_message', WELCOME_MSG)
-    welcome_message = (f"{welcome_message}").replace('\\n', '\n') # allow for newlines in the welcome message
-    solar_conditions_enabled = config['solar'].getboolean('enabled', False)
+    forecastDuration = config['location'].getint('NOAAforecastDuration', 4) # NOAA forcast days
+    numWxAlerts = config['location'].getint('NOAAalertCount', 2) # default 2 alerts
+    wxAlertsEnabled = config['location'].getboolean('NOAAalertsEnabled', True) # default True not enabled yet
+   
     bbs_enabled = config['bbs'].getboolean('enabled', False)
     bbsdb = config['bbs'].get('bbsdb', 'bbsdb.pkl')
-    dad_jokes_enabled = config['general'].getboolean('DadJokes', False)
-    store_forward_enabled = config['general'].getboolean('StoreForward', False)
-    log_messages_to_file = config['general'].getboolean('LogMessagesToFile', True) # default True
-    sentry_enabled = config['general'].getboolean('SentryEnabled', True) # default True
-    secure_channel = config['general'].getint('SentryChannel', 2) # default 2
-    sentry_holdoff = config['general'].getint('SentryHoldoff', 9) # default 9
-    sentryIgnoreList = config['general'].get('sentryIgnoreList', '').split(',')
-    sentry_radius = config['general'].getint('SentryRadius', 100) # default 100 meters
-    config['general'].get('motd', MOTD)
-    urlTimeoutSeconds = config['general'].getint('URL_TIMEOUT', 10) # default 10 seconds
-    forecastDuration = config['general'].getint('NOAAforecastDuration', 4) # NOAA forcast days
-    numWxAlerts = config['general'].getint('NOAAalertCount', 2) # default 2 alerts
     bbs_ban_list = config['bbs'].get('bbs_ban_list', '').split(',')
     bbs_admin_list = config['bbs'].get('bbs_admin_list', '').split(',')
+
     repeater_enabled = config['repeater'].getboolean('enabled', False)
     repeater_channels = config['repeater'].get('repeater_channels', '').split(',')
+
     radio_dectection_enabled = config['radioMon'].getboolean('enabled', False)
     rigControlServerAddress = config['radioMon'].get('rigControlServerAddress', 'localhost:4532') # default localhost:4532
     sigWatchBrodcastCh = config['radioMon'].get('sigWatchBrodcastCh', '2').split(',') # default Channel 2

@@ -32,6 +32,8 @@ motd = Thanks for using MeshBOT! Have a good day!
 welcome_message = MeshBot, here for you like a friend who is not. Try sending: ping @foo or, cmd
 # enable or disable the Joke module
 DadJokes = True
+# enable or disable the Solar module
+spaceWeather = True
 # StoreForward Enabled and Limits
 StoreForward = True
 StoreLimit = 3
@@ -42,6 +44,8 @@ URL_TIMEOUT = 10
 # logging to file of the non Bot messages
 LogMessagesToFile = False
 # detect anyone close to the bot
+
+[Sentry]
 SentryEnabled = True
 # radius in meters to detect someone close to the bot
 SentryRadius = 100
@@ -72,10 +76,6 @@ NOAAalertCount = 2
 UseMeteoWxAPI = False
 # Default to metric units rather than imperial
 useMetric = False
-
-# solar module
-[solar]
-enabled = True
 
 # repeater module
 [repeater]
