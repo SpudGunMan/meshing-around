@@ -45,14 +45,14 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
     cmds = [] # list to hold the commands found in the message
     for key in command_handler:
         if key in message_lower:
-            cmds.append({key,message_lower.index(key)})
+            cmds.append({'cmd': key, 'index': message_lower.index(key)})
 
     if len(cmds) > 0:
         # sort the commands by index value
-        cmds.sort(key=lambda x: list(x.values())[0])
+        cmds = sorted(cmds, key=lambda k: k['index'])
         logger.debug(f"System: Bot Detected: {cmds}")
         # run the first command after sorting
-        bot_response = command_handler[cmds[0].pop()]()
+        bot_response = command_handler[cmds[0]['cmd']]()
 
     # wait a 700ms to avoid message collision from lora-ack
     time.sleep(0.7)
