@@ -10,55 +10,81 @@ from modules.system import *
 
 def auto_response(message, snr, rssi, hop, message_from_id, channel_number, deviceID):
     # Auto response to messages
-    if "ping" in message.lower():
-        # Check if the user added @foo to the message
-        if "@" in message:
-            if hop == "Direct":
-                bot_response = "🏓PONG, " + f"SNR:{snr} RSSI:{rssi}" + " and copy: " + message.split("@")[1]
+    message_lower = message.lower()
+    bot_response = "I'm sorry, I'm afraid I can't do that."
+
+    command_handler = {
+        "ping": lambda: handle_ping(message, hop, snr, rssi),
+        "pong": lambda: "🏓Ping!!",
+        "motd": lambda: handle_motd(message, MOTD),
+        "cmd": lambda: help_message,
+        "cmd?": lambda: help_message,
+        "lheard": lambda: handle_lheard(interface1, interface2_enabled, myNodeNum1, myNodeNum2),
+        "sitrep": lambda: handle_lheard(interface1, interface2_enabled, myNodeNum1, myNodeNum2),
+        "ack": lambda: handle_ack(hop, snr, rssi),
+        "testing": lambda: handle_testing(hop, snr, rssi),
+        "test": lambda: handle_testing(hop, snr, rssi),
+    }
+    cmds = [] # list to hold the commands found in the message
+    for key in command_handler:
+        if key in message_lower:
+            if message_lower.index(key) == 0:
+                cmds += [key,]
             else:
-                bot_response = "🏓PONG, " + hop + " and copy: " + message.split("@")[1]
-        else:
-            if hop == "Direct":
-                bot_response = "🏓PONG, " + f"SNR:{snr} RSSI:{rssi}"
-            else:
-                bot_response = "🏓PONG, " + hop
-    elif "pong" in message.lower():
-        bot_response = "🏓Ping!!"
-    elif "motd" in message.lower():
-        #check if the user wants to set the motd by using $
-        if "$" in message:
-            motd = message.split("$")[1]
-            MOTD = motd.rstrip()
-            bot_response = "MOTD Set to: " + MOTD
-        else:
-            bot_response = MOTD
-    elif "cmd" in message.lower() or "cmd?" in message.lower():
-        bot_response = help_message
-    elif "lheard" in message.lower() or "sitrep" in message.lower():
-        bot_response = "Last heard:\n" + str(get_node_list(1))
-        chutil1 = interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("channelUtilization", 0)
-        chutil1 = "{:.2f}".format(chutil1)
-        if interface2_enabled:
-            bot_response += "Port2:\n" + str(get_node_list(2))
-            chutil2 = interface2.nodes.get(decimal_to_hex(myNodeNum2), {}).get("deviceMetrics", {}).get("channelUtilization", 0)
-            chutil2 = "{:.2f}".format(chutil2)
-    elif "ack" in message.lower():
-        if hop == "Direct":
-            bot_response = "🏓ACK-ACK! " + f"SNR:{snr} RSSI:{rssi}"
-        else:
-            bot_response = "🏓ACK-ACK! " + hop
-    elif "testing" in message.lower() or "test" in message.lower():
-        if hop == "Direct":
-            bot_response = "🏓Testing 1,2,3 " + f"SNR:{snr} RSSI:{rssi}"
-        else:
-            bot_response = "🏓Testing 1,2,3 " + hop
-    else:
-        bot_response = "I'm sorry, I'm afraid I can't do that."
+                cmds += [key,]
+
+    if len(cmds) > 0:
+        logger.debug(f"System: Bot Detected: {cmds}")
+        # run the last command found in the message
+        bot_response = command_handler[cmds[-1]]()
 
     # wait a 700ms to avoid message collision from lora-ack
     time.sleep(0.7)
     
     return bot_response
+
+def handle_ping(message, hop, snr, rssi):
+    if "@" in message:
+        if hop == "Direct":
+            return "🏓PONG, " + f"SNR:{snr} RSSI:{rssi}" + " and copy: " + message.split("@")[1]
+        else:
+            return "🏓PONG, " + hop + " and copy: " + message.split("@")[1]
+    else:
+        if hop == "Direct":
+            return "🏓PONG, " + f"SNR:{snr} RSSI:{rssi}"
+        else:
+            return "🏓PONG, " + hop
+
+def handle_motd(message):
+    global MOTD
+    if "$" in message:
+        motd = message.split("$")[1]
+        MOTD = motd.rstrip()
+        return "MOTD Set to: " + MOTD
+    else:
+        return MOTD
+
+def handle_lheard(interface1, interface2_enabled, myNodeNum1, myNodeNum2):
+    bot_response = "Last heard:\n" + str(get_node_list(1))
+    chutil1 = interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("channelUtilization", 0)
+    chutil1 = "{:.2f}".format(chutil1)
+    if interface2_enabled:
+        bot_response += "Port2:\n" + str(get_node_list(2))
+        chutil2 = interface2.nodes.get(decimal_to_hex(myNodeNum2), {}).get("deviceMetrics", {}).get("channelUtilization", 0)
+        chutil2 = "{:.2f}".format(chutil2)
+    return bot_response
+
+def handle_ack(hop, snr, rssi):
+    if hop == "Direct":
+        return "🏓ACK-ACK! " + f"SNR:{snr} RSSI:{rssi}"
+    else:
+        return "🏓ACK-ACK! " + hop
+
+def handle_testing(hop, snr, rssi):
+    if hop == "Direct":
+        return "🏓Testing 1,2,3 " + f"SNR:{snr} RSSI:{rssi}"
+    else:
+        return "🏓Testing 1,2,3 " + hop
 
 def onReceive(packet, interface):
     # extract interface  defailts from interface object
