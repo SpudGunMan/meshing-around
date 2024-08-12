@@ -22,7 +22,6 @@ max_retry_count1 = 4 # max retry count for interface 1
 max_retry_count2 = 4 # max retry count for interface 2
 retry_int1 = False
 retry_int2 = False
-radius = 100 # radius for sentry alerts in meters
 
 # Read the config file, if it does not exist, create basic config file
 config = configparser.ConfigParser() 
@@ -80,6 +79,7 @@ try:
     secure_channel = config['general'].getint('SentryChannel', 2) # default 2
     sentry_holdoff = config['general'].getint('SentryHoldoff', 9) # default 9
     sentryIgnoreList = config['general'].get('sentryIgnoreList', '').split(',')
+    sentry_radius = config['general'].getint('SentryRadius', 100) # default 100 meters
     config['general'].get('motd', MOTD)
     urlTimeoutSeconds = config['general'].getint('URL_TIMEOUT', 10) # default 10 seconds
     forecastDuration = config['general'].getint('NOAAforecastDuration', 4) # NOAA forcast days

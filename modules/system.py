@@ -307,7 +307,7 @@ def get_closest_nodes(nodeInt=1,returnCount=3):
                         # set radius around BOT position
                         distance = round(geopy.distance.geodesic((latitudeValue, longitudeValue), (latitude, longitude)).m, 2)
 
-                        if (distance < radius):
+                        if (distance < sentry_radius):
                             if nodeID != myNodeNum1 and myNodeNum2 and str(nodeID) not in sentryIgnoreList:
                                 node_list.append({'id': nodeID, 'latitude': latitude, 'longitude': longitude, 'distance': distance})
                                 # calculate distance to node and report
@@ -342,7 +342,7 @@ def get_closest_nodes(nodeInt=1,returnCount=3):
                         # set radius around BOT position
                         distance = geopy.distance.geodesic((latitudeValue, longitudeValue), (latitude, longitude)).m
 
-                        if (distance < radius):
+                        if (distance < sentry_radius):
                             if nodeID != myNodeNum1 and myNodeNum2 and str(nodeID) not in sentryIgnoreList:
                                 node_list.append({'id': nodeID, 'latitude': latitude, 'longitude': longitude, 'distance': distance})
                                 # calculate distance to node and report
