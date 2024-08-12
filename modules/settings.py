@@ -41,7 +41,7 @@ if config.sections() == []:
     print (f"System: Config file created, check {config_file} or review the config.template")
 
 if 'sentry' not in config:
-        config['Sentry'] = {'SentryEnabled': 'True', 'SentryChannel': '2', 'SentryHoldoff': '9', 'sentryIgnoreList': '', 'SentryRadius': '100'}
+        config['Sentry'] = {'SentryEnabled': 'False', 'SentryChannel': '2', 'SentryHoldoff': '9', 'sentryIgnoreList': '', 'SentryRadius': '100'}
         config.write(open(config_file, 'w'))
 
 if 'location' not in config:
@@ -91,7 +91,7 @@ try:
     dad_jokes_enabled = config['general'].getboolean('DadJokes', True)
     solar_conditions_enabled = config['general'].getboolean('spaceWeather', True) 
 
-    sentry_enabled = config['sentry'].getboolean('SentryEnabled', True) # default True
+    sentry_enabled = config['sentry'].getboolean('SentryEnabled', False) # default False
     secure_channel = config['sentry'].getint('SentryChannel', 2) # default 2
     sentry_holdoff = config['sentry'].getint('SentryHoldoff', 9) # default 9
     sentryIgnoreList = config['sentry'].get('sentryIgnoreList', '').split(',')
