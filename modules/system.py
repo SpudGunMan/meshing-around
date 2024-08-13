@@ -1,4 +1,4 @@
-# helper functions for system related tasks
+# helper functions and init for system related tasks
 # K7MHI Kelly Keeton 2024
 
 import meshtastic.serial_interface #pip install meshtastic
@@ -370,7 +370,7 @@ def get_closest_nodes(nodeInt=1,returnCount=3):
                     except Exception as e:
                         pass
                     
-            #sort by distance closest to lattitudeValue, longitudeValue
+            # sort by distance closest to lattitudeValue, longitudeValue
             node_list.sort(key=lambda x: (x['latitude']-latitudeValue)**2 + (x['longitude']-longitudeValue)**2)
 
             # return the first 3 closest nodes by default
@@ -409,7 +409,7 @@ def send_message(message, ch, nodeid=0, nodeInt=1):
 
         for m in message_list:
             if nodeid == 0:
-                #Send to channel
+                # Send to channel
                 logger.info(f"Device:{nodeInt} Channel:{ch} " + CustomFormatter.red + "Sending Multi-Chunk Message: " + CustomFormatter.white + m.replace('\n', ' '))
                 if nodeInt == 1:
                     interface1.sendText(text=m, channelIndex=ch)

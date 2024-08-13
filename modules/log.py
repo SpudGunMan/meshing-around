@@ -1,3 +1,7 @@
+# Custom logger for MeshBot and PongBot
+# you can change the sdtout_handler level to logging.INFO to only show INFO level logs
+# stdout_handler.setLevel(logging.INFO)vs stdout_handler.setLevel(logging.DEBUG)
+# 2024 Kelly Keeton K7MHI
 import logging
 from datetime import datetime
 from modules.settings import *
@@ -53,7 +57,7 @@ stdout_handler.setFormatter(CustomFormatter(logFormat))
 # Create file handler for logging to a file
 today = datetime.now()
 file_handler = logging.FileHandler('messages{}.log'.format(today.strftime('%Y_%m_%d')))
-file_handler.setLevel(logging.INFO)
+file_handler.setLevel(logging.INFO) # INFO used for messages
 file_handler.setFormatter(logging.Formatter(msgLogFormat))
 
 # Add handlers to the logger

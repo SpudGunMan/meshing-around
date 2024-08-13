@@ -1,4 +1,4 @@
-# helper functions to use location data
+# helper functions to use location data like NOAA weather
 # K7MHI Kelly Keeton 2024
 
 import json # pip install json

@@ -1,3 +1,5 @@
+# Settings for MeshBot and PongBot
+# 2024 Kelly Keeton K7MHI
 import configparser
 
 # messages
