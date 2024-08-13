@@ -12,21 +12,35 @@ cp config.template config.ini
 
 # set virtual environment and install dependencies
 printf "\nMeshing Around Installer\n"
+
+#check if python3 has venv module
+if ! python3 -m venv --help &> /dev/null
+then
+    printf "Python3 venv module not found, please install python3-venv with your OS\n"
+else
+    printf "Python3 venv module found\n"
+fi
+
 echo "Do you want to install the bot in a virtual environment? (y/n)"
 read venv
 
 if [ $venv == "y" ]; then
     # set virtual environment
-    echo "Creating virtual environment..."
-    python3 -m venv venv
-    source venv/bin/activate
+    if ! python3 -m venv --help &> /dev/null
+    then
+        printf "Python3 venv module not found, please install python3-venv with your OS\n"
+        exit 1
+    else
+        echo "Creating virtual environment..."
+        python3 -m venv venv
+        source venv/bin/activate
 
     # install dependencies
     pip install -U -r requirements.txt
 else
     printf "\nSkipping virtual environment...\n"
     # install dependencies
-    echo "Are you on Raspberry Pi? should we add --break-system-packages to the pip install command? (y/n)"
+    printf "Are you on Raspberry Pi?\nshould we add --break-system-packages to the pip install command? (y/n)"
     read rpi
     if [ $rpi == "y" ]; then
         pip install -U -r requirements.txt --break-system-packages
@@ -36,7 +50,7 @@ else
 fi
 
 printf "\n\n"
-echo "Which bot do you want to install as a service? (pong/mesh/n)"
+echo "Which bot do you want to install as a service? Pong Mesh or None? (pong/mesh/n)"
 read bot
 
 #set the correct path in the service file
