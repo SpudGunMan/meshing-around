@@ -636,6 +636,7 @@ async def watchdog():
                     logger.warning(f"System: {enemySpotted} is close to your location on Interface1")
                     send_message(f"Sentry1: {enemySpotted}", secure_channel, 0, 1)
                     if interface2_enabled:
+                        await asyncio.sleep(1.5)
                         send_message(f"Sentry1: {enemySpotted}", secure_channel, 0, 2)
                     sentry_loop = 0
                     lastSpotted = enemySpotted
@@ -675,6 +676,7 @@ async def watchdog():
                         logger.warning(f"System: {enemySpotted2} is close to your location on Interface2")
                         # send to secure channel on both interfaces
                         send_message(f"Sentry2: {enemySpotted2}", secure_channel, 0, 1)
+                        await asyncio.sleep(1.5)
                         send_message(f"Sentry2: {enemySpotted2}", secure_channel, 0, 2)
                         sentry_loop2 = 0
                         lastSpotted2 = enemySpotted2
