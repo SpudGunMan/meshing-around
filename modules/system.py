@@ -668,7 +668,7 @@ async def watchdog():
                                 enemySpotted2 += ", " + get_name_from_number(closest_nodes2[0]['id'], 'short', 2)
                                 enemySpotted2 += ", " + str(closest_nodes2[0]['id'])
                                 enemySpotted2 += ", " + decimal_to_hex(closest_nodes2[0]['id'])
-                                enemySpotted += f" at {closest_nodes1[0]['distance']}m"
+                                enemySpotted += f" at {closest_nodes2[0]['distance']}m"
                     except Exception as e:
                         pass
                     
