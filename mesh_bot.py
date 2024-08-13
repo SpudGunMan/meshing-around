@@ -388,7 +388,7 @@ async def start_rx():
     if motd_enabled:
         logger.debug(f"System: MOTD Enabled using {MOTD}")
     if sentry_enabled:
-        logger.debug(f"System: Sentry Mode Enabled {sentry_radius}m radius")
+        logger.debug(f"System: Sentry Mode Enabled {sentry_radius}m radius reporting to {secure_channel}")
     if store_forward_enabled:
         logger.debug(f"System: Store and Forward Enabled using limit: {storeFlimit}")
     if useDMForResponse:
