@@ -168,10 +168,23 @@ def get_num_from_short_name(short_name, nodeInt=1):
         for node in interface1.nodes.values():
             if str(short_name.lower()) == node['user']['shortName'].lower():
                 return node['num']
+            else:
+                # try other interface
+                if interface2_enabled:
+                    for node in interface2.nodes.values():
+                        if str(short_name.lower()) == node['user']['shortName'].lower():
+                            return node['num']
     if nodeInt == 2:
         for node in interface2.nodes.values():
             if str(short_name.lower()) == node['user']['shortName'].lower():
                 return node['num']
+            else:
+                # try other interface
+                if interface2_enabled:
+                    for node in interface1.nodes.values():
+                        if str(short_name.lower()) == node['user']['shortName'].lower():
+                            return node['num']
+    
     return 0
     
 def get_node_list(nodeInt=1):
@@ -622,6 +635,8 @@ async def watchdog():
                 if sentry_loop >= sentry_holdoff and lastSpotted != enemySpotted:
                     logger.warning(f"System: {enemySpotted} is close to your location on Interface1")
                     send_message(f"Sentry1: {enemySpotted}", secure_channel, 0, 1)
+                    if interface2_enabled:
+                        send_message(f"Sentry1: {enemySpotted}", secure_channel, 0, 2)
                     sentry_loop = 0
                     lastSpotted = enemySpotted
                 else:
@@ -658,6 +673,8 @@ async def watchdog():
                     
                     if sentry_loop2 >= sentry_holdoff and lastSpotted2 != enemySpotted2:
                         logger.warning(f"System: {enemySpotted2} is close to your location on Interface2")
+                        # send to secure channel on both interfaces
+                        send_message(f"Sentry2: {enemySpotted2}", secure_channel, 0, 1)
                         send_message(f"Sentry2: {enemySpotted2}", secure_channel, 0, 2)
                         sentry_loop2 = 0
                         lastSpotted2 = enemySpotted2
