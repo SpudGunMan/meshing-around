@@ -9,11 +9,13 @@ sudo usermod -a -G tty $USER
 
 # generate config file, check if it exists
 if [ -f config.ini ]; then
-    printf "\nConfig file already exists, skipping...\n"
-else
-    cp config.template config.ini
-    printf "\nConfig file generated\n"
+    printf "\nConfig file already exists, moving to backup config.old\n"
+    mv config.ini config.old
 fi
+
+cp config.template config.ini
+printf "\nConfig file generated\n"
+
 
 # set virtual environment and install dependencies
 printf "\nMeshing Around Installer\n"
