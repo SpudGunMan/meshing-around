@@ -7,8 +7,13 @@ cd "$(dirname "$0")"
 sudo usermod -a -G dialout $USER
 sudo usermod -a -G tty $USER
 
-# generate config file
-cp config.template config.ini
+# generate config file, check if it exists
+if [ -f config.ini ]; then
+    printf "\nConfig file already exists, skipping...\n"
+else
+    cp config.template config.ini
+    printf "\nConfig file generated\n"
+fi
 
 # set virtual environment and install dependencies
 printf "\nMeshing Around Installer\n"
