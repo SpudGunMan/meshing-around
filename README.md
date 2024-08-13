@@ -104,7 +104,9 @@ Sentry Bot detects anyone comeing close to the bot-node
 ```
 # detect anyone close to the bot
 SentryEnabled = True
-# holdoff time multiplied by minutes(20) of the watchdog
+# radius in meters to detect someone close to the bot
+SentryRadius = 100
+# holdoff time multiplied by seconds(20) of the watchdog
 SentryChannel = 9
 # channel to send a message to when the watchdog is triggered
 SentryHoldoff = 2
