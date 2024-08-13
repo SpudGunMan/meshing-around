@@ -38,7 +38,7 @@ spaceWeather = True
 StoreForward = True
 StoreLimit = 3
 # 24 hour clock
-zuluTime = True
+zuluTime = False
 # wait time for URL requests
 urlTimeout = 10
 # logging to file of the non Bot messages
