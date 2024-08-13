@@ -1,24 +1,26 @@
 # meshing-around
-Random Mesh Scripts for Network Testing and BBS Activities for Use with Meshtastic Nodes
+Random Mesh Scripts for Network Testing and BBS Activities for Use with [Meshtastic](https://meshtastic.org/docs/introduction/) Nodes
 
 ![alt text](etc/pong-bot.jpg "Example Use")
 
 ## mesh_bot.sh
-The feature-rich bot requires the internet for full functionality. These responder bots will trap keywords like ping and respond to a DM (direct message) with pong! The script will also monitor the group channels for keywords to trap. You can also `Ping @Data to Echo` as an example for further processing.
+The feature-rich bot requires the internet for full functionality. These responder bots will trap keywords like ping and respond to a DM (direct message) with pong! The script will also monitor the group channels for keywords to trap. You can also `Ping @Data to Echo` as an example.
 
-Along with network testing, this bot has a lot of other features, like simple mail messaging you can leave for another device, and when that device is seen, it can send the mail as a DM.
+Along with network testing, this bot has a lot of other fun features, like simple mail messaging you can leave for another device, and when that device is seen, it can send the mail as a DM.
 
 The bot is also capable of using dual radio/nodes, so you can monitor two networks at the same time and send messages to nodes using the same `bbspost @nodeNumber #message` or `bbspost @nodeShportName #message` function. There is a small message board to fit in the constraints of Meshtastic for posting bulletin messages with `bbspost $subject #message`.
 
-The bot will report on anyone who is getting close to the device if in a remote location.
+The bot will report on anyone who is getting close to the configured lat/long, if in a remote location.
 
 Store and forward-like message re-play with `messages`, and there is a repeater module for dual radio bots to cross post messages. Messages are also logged locally to disk.
 
-The bot can also be used to monitor a frequency and let you know when activity is seen. Using Hamlib to watch the S meter on a connected radio. You can send alerts to channels when a frequency is detected for 20 seconds within the thresholds set in config.ini
+The bot can also be used to monitor a radio frequency and let you know when high SNR RF activity is seen. Using Hamlib(rigctld) to watch the S meter on a connected radio. You can send alerts to channels when a frequency is detected for 20 seconds within the thresholds set in config.ini
 
 Any messages that are over 160 characters are chunked into 160 message bytes to help traverse hops, in testing, this keeps delivery success higher.
 
-- Various solar details for radio propagation
+Full list of commands for the bot.
+
+- Various solar details for radio propagation (spaceWeather module)
   - `sun` and `moon` return info on rise and set local time
   - `solar` gives an idea of the x-ray flux
   - `hfcond` returns a table of HF solar conditions
@@ -43,14 +45,14 @@ Any messages that are over 160 characters are chunked into 160 message bytes to 
 Stripped-down bot, mostly around for archive purposes. The mesh-bot enhanced modules can be disabled by config to disable features.
 
 ## Hardware
-The project is written on Linux on a Pi and should work anywhere meshtastic Python modules will function, with any supported meshtastic hardware. While BLE and TCP will work, they are not as reliable as serial connections.
- - Firmware 2.3.14/15 could also have an issue with connectivity with slower devices.
+The project is written on Linux on a Pi and should work anywhere [Meshtastic](https://meshtastic.org/docs/software/python/cli/) Python modules will function, with any supported [Meshtastic](https://meshtastic.org/docs/getting-started/) hardware. While BLE and TCP will work, they are not as reliable as serial connections.
 
 ## Install
 Clone the project with `git clone https://github.com/spudgunman/meshing-around`
 code is under a lot of development, so check back often with `git pull`
 Copy [config.template](config.template) to `config.ini` and edit for your needs.
-- Optionally
+
+Optionally:
 - `install.sh` will automate optional venv and requirements installation.
 - `launch.sh` will activate and launch the app in the venv if built.
 
@@ -169,7 +171,7 @@ To enable emoji in the Debian console, install the fonts `sudo apt-get install f
 # Recognition
 I used ideas and snippets from other responder bots and want to call them out!
 - https://github.com/Murturtle/MeshLink
-- https://github.com/pdxlocations/Meshtastic-Python-Examples
+- https://github.com/pdxlocations/meshtastic-Python-Examples
 - https://github.com/geoffwhittington/meshtastic-matrix-relay
 
 GitHub user PiDiBi looking at test functions and other suggestions like wxc, CPU use, and alerting ideas
