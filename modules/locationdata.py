@@ -16,7 +16,7 @@ def where_am_i(lat=0, lon=0):
     grid = mh.to_maiden(float(lat), float(lon))
     
     if float(lat) == 0 and float(lon) == 0:
-        logger.error("Location: No GPS data, cant find where you are")
+        logger.error("Location: No GPS data, try sending location")
         return NO_DATA_NOGPS
     
     # initialize Nominatim API
@@ -42,7 +42,7 @@ def where_am_i(lat=0, lon=0):
 def get_tide(lat=0, lon=0):
     station_id = ""
     if float(lat) == 0 and float(lon) == 0:
-        logger.error("Location:No GPS data, cant find where you are for tide")
+        logger.error("Location:No GPS data, try sending location for tide")
         return NO_DATA_NOGPS
     station_lookup_url = "https://api.tidesandcurrents.noaa.gov/mdapi/prod/webapi/tidepredstations.json?lat=" + str(lat) + "&lon=" + str(lon) + "&radius=50"
     try:
@@ -248,7 +248,7 @@ def getActiveWeatherAlertsDetail(lat=0, lon=0):
     # get the latest details of weather alerts from NOAA
     alerts = ""
     if float(lat) == 0 and float(lon) == 0:
-        logger.error("Location:No GPS data, cant find where you are for weather alerts")
+        logger.error("Location:No GPS data, try sending location for weather alerts")
         return NO_DATA_NOGPS
 
     alert_url = "https://api.weather.gov/alerts/active.atom?point=" + str(lat) + "," + str(lon)
