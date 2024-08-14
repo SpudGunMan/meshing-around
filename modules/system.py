@@ -315,6 +315,7 @@ def get_node_location(number, nodeInt=1, channel=0):
 
 def get_closest_nodes(nodeInt=1,returnCount=3):
     node_list = []
+
     if nodeInt == 1:
         if interface1.nodes:
             for node in interface1.nodes.values():
@@ -350,6 +351,7 @@ def get_closest_nodes(nodeInt=1,returnCount=3):
         else:
             logger.error(f"System: No nodes found in closest_nodes on interface {nodeInt}")
             return ERROR_FETCHING_DATA
+
     if nodeInt == 2:
         if interface2.nodes:
             for node in interface2.nodes.values():
@@ -369,10 +371,8 @@ def get_closest_nodes(nodeInt=1,returnCount=3):
                                 
                     except Exception as e:
                         pass
-                    
-            # sort by distance closest to lattitudeValue, longitudeValue
-            node_list.sort(key=lambda x: (x['latitude']-latitudeValue)**2 + (x['longitude']-longitudeValue)**2)
-
+            # sort by distance closest
+            node_list.sort(key=lambda x: x['distance'])
             # return the first 3 closest nodes by default
             return node_list[:returnCount]
         else:
