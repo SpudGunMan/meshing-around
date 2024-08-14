@@ -278,17 +278,15 @@ def get_node_location(number, nodeInt=1, channel=0):
                         return position
                     else:
                         logger.warning(f"System: No location data for {number} using default location")
-
                         # request location data
-                        try:
-                            logger.debug(f"System: Requesting location data for {number}")
-                            if nodeInt == 1:
-                                interface1.sendPosition(destinationId=number, wantResponse=False, channelIndex=channel)
-                            if nodeInt == 2:
-                                interface2.sendPosition(destinationId=number, wantResponse=False, channelIndex=channel)
-                        except Exception as e:
-                            logger.error(f"System: Error requesting location data for {number}. Error: {e}")
-
+                        # try:
+                        #     logger.debug(f"System: Requesting location data for {number}")
+                        #     if nodeInt == 1:
+                        #         interface1.sendPosition(destinationId=number, wantResponse=False, channelIndex=channel)
+                        #     if nodeInt == 2:
+                        #         interface2.sendPosition(destinationId=number, wantResponse=False, channelIndex=channel)
+                        # except Exception as e:
+                        #     logger.error(f"System: Error requesting location data for {number}. Error: {e}")
                         return position
         else:
             logger.warning(f"System: No nodes found")
