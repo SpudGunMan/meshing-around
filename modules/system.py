@@ -125,6 +125,8 @@ if interface2_enabled:
 else:
     myNodeNum2 = 777
 
+# functions below
+
 def decimal_to_hex(decimal_number):
     return f"!{decimal_number:08x}"
 
@@ -166,25 +168,33 @@ def get_num_from_short_name(short_name, nodeInt=1):
     logger.debug(f"System: Getting Node Number from Short Name: {short_name} on Device: {nodeInt}")
     if nodeInt == 1:
         for node in interface1.nodes.values():
-            if str(short_name.lower()) == node['user']['shortName'].lower():
+            #logger.debug(f"System: Checking Node: {node['user']['shortName']} against {short_name} for number {node['num']}")
+            if short_name == node['user']['shortName']:
+                return node['num']
+            elif str(short_name.lower()) == node['user']['shortName'].lower():
                 return node['num']
             else:
                 # try other interface
                 if interface2_enabled:
                     for node in interface2.nodes.values():
-                        if str(short_name.lower()) == node['user']['shortName'].lower():
+                        if short_name == node['user']['shortName']:
+                            return node['num']
+                        elif str(short_name.lower()) == node['user']['shortName'].lower():
                             return node['num']
     if nodeInt == 2:
         for node in interface2.nodes.values():
-            if str(short_name.lower()) == node['user']['shortName'].lower():
+            if short_name == node['user']['shortName']:
+                return node['num']
+            elif str(short_name.lower()) == node['user']['shortName'].lower():
                 return node['num']
             else:
                 # try other interface
                 if interface2_enabled:
                     for node in interface1.nodes.values():
-                        if str(short_name.lower()) == node['user']['shortName'].lower():
+                        if short_name == node['user']['shortName']:
                             return node['num']
-    
+                        elif str(short_name.lower()) == node['user']['shortName'].lower():
+                            return node['num']
     return 0
     
 def get_node_list(nodeInt=1):
