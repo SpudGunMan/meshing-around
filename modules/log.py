@@ -46,6 +46,7 @@ msgLogger.propagate = False
 # Define format for logs
 logFormat = '%(asctime)s | %(levelname)8s | %(message)s'
 msgLogFormat = '%(asctime)s | %(message)s'
+today = datetime.now()
 
 # Create stdout handler for logging to the console
 stdout_handler = logging.StreamHandler()
@@ -54,13 +55,12 @@ stdout_handler.setLevel(logging.DEBUG)
 # Set format for stdout handler
 stdout_handler.setFormatter(CustomFormatter(logFormat))
 
-# Create file handler for logging to a file
-today = datetime.now()
-file_handler = logging.FileHandler('messages{}.log'.format(today.strftime('%Y_%m_%d')))
-file_handler.setLevel(logging.INFO) # INFO used for messages
-file_handler.setFormatter(logging.Formatter(msgLogFormat))
-
 # Add handlers to the logger
 logger.addHandler(stdout_handler)
+
 if log_messages_to_file:
+    # Create file handler for logging to a file
+    file_handler = logging.FileHandler('messages{}.log'.format(today.strftime('%Y_%m_%d')))
+    file_handler.setLevel(logging.INFO) # INFO used for messages
+    file_handler.setFormatter(logging.Formatter(msgLogFormat))
     msgLogger.addHandler(file_handler)
