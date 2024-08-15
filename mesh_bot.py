@@ -122,8 +122,6 @@ def handle_bbspost(message, message_from_id, deviceID):
             toNode = get_num_from_short_name(toNode, deviceID)
             if toNode == 0:
                 return "Node not found " + message.split("@")[1].split("#")[0]
-            else:
-                logger.debug(f"System: bbspost, name lookup found: {toNode}")
         if "#" in message:
             body = message.split("#")[1]
             return bbs_post_dm(toNode, body, message_from_id)
