@@ -33,7 +33,7 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
     if len(cmds) > 0:
         # sort the commands by index value
         cmds = sorted(cmds, key=lambda k: k['index'])
-        logger.debug(f"System: Bot Detected: {cmds}")
+        logger.debug(f"System: Bot detected Commands:{cmds}")
         # run the first command after sorting
         bot_response = command_handler[cmds[0]['cmd']]()
 
