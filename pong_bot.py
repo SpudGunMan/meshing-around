@@ -198,7 +198,7 @@ def onReceive(packet, interface):
                             send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number, rxNode), channel_number, 0, rxNode)
                 else:
                     # message is not for bot to respond to
-                    # ignore the message but add it to the message history and repeat it if enabled
+                    # ignore the message but add it to the message history list
                     if zuluTime:
                         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     else:
@@ -209,10 +209,15 @@ def onReceive(packet, interface):
                     else:
                         msg_history.pop(0)
                         msg_history.append((get_name_from_number(message_from_id, 'long', rxNode), message_string, channel_number, timestamp, rxNode))
-                    
-                    # check if repeater is enabled and the other interface is enabled
+
+                    # print the message to the log and sdout
+                    logger.info(f"Device:{rxNode} Channel:{channel_number} " + CustomFormatter.green + "Ignoring Message:" + CustomFormatter.white +\
+                                f" {message_string} " + CustomFormatter.purple + "From:" + CustomFormatter.white + f" {get_name_from_number(message_from_id)}")
+                    if log_messages_to_file:
+                        msgLogger.info(f"Device:{rxNode} Channel:{channel_number} | {get_name_from_number(message_from_id, 'long', rxNode)} | " + message_string.replace('\n', '-nl-'))
+
+                     # repeat the message on the other device
                     if repeater_enabled and interface2_enabled:         
-                        # repeat the message on the other device
                         # wait a 700ms to avoid message collision from lora-ack.
                         time.sleep(0.7)
                         rMsg = (f"{message_string} From:{get_name_from_number(message_from_id, 'short', rxNode)}")
@@ -224,12 +229,6 @@ def onReceive(packet, interface):
                             elif rxNode == 2:
                                 logger.debug(f"Repeating message on Device1 Channel:{channel_number}")
                                 send_message(rMsg, channel_number, 0, 1)
-
-                    # print the message to the log and sdout
-                    logger.info(f"Device:{rxNode} Channel:{channel_number} " + CustomFormatter.green + "Ignoring Message:" + CustomFormatter.white +\
-                                f" {message_string} " + CustomFormatter.purple + "From:" + CustomFormatter.white + f" {get_name_from_number(message_from_id)}")
-                    if log_messages_to_file:
-                        msgLogger.info(f"Device:{rxNode} Channel:{channel_number} | {get_name_from_number(message_from_id, 'long', rxNode)} | " + message_string.replace('\n', '-nl-'))
     except KeyError as e:
         logger.critical(f"System: Error processing packet: {e} Device:{rxNode}")
         print(packet) # print the packet for debugging
