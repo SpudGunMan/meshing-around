@@ -170,6 +170,8 @@ def handle_lheard():
     bot_response += "Ch Use: " + str(chutil1) + "%"
     if interface2_enabled:
         bot_response += " P2:" + str(chutil2) + "%"
+    #packet count
+    bot_response += f"\nPackets: {packetCount} Encrypted: {encPacketCount}"
     return bot_response
 
 def handle_whereami(message_from_id, deviceID, channel_number):
@@ -350,12 +352,11 @@ def onReceive(packet, interface):
                             elif rxNode == 2:
                                 logger.debug(f"Repeating message on Device1 Channel:{channel_number}")
                                 send_message(rMsg, channel_number, 0, 1)
-                        msgLogger.info(f"Device:{rxNode} Channel:{channel_number} | {get_name_from_number(message_from_id, 'long', rxNode)} | " + message_string.replace('\n', '-nl-'))
-                    else: 
-                        # nothing to do for us
-                        logger.info(f"Device:{rxNode} Channel:{channel_number} " + CustomFormatter.green + "Ignoring Message:" + CustomFormatter.white +\
-                                     f" {message_string} " + CustomFormatter.purple + "From:" + CustomFormatter.white + f" {get_name_from_number(message_from_id)}")
-                        msgLogger.info(f"Device:{rxNode} Channel:{channel_number} | {get_name_from_number(message_from_id, 'long', rxNode)} | " + message_string.replace('\n', '-nl-'))
+
+                    # print the message to the log and sdout
+                    logger.info(f"Device:{rxNode} Channel:{channel_number} " + CustomFormatter.green + "Ignoring Message:" + CustomFormatter.white +\
+                                f" {message_string} " + CustomFormatter.purple + "From:" + CustomFormatter.white + f" {get_name_from_number(message_from_id)}")
+                    msgLogger.info(f"Device:{rxNode} Channel:{channel_number} | {get_name_from_number(message_from_id, 'long', rxNode)} | " + message_string.replace('\n', '-nl-'))
     except KeyError as e:
         logger.critical(f"System: Error processing packet: {e} Device:{rxNode}")
         print(packet) # print the packet for debugging
