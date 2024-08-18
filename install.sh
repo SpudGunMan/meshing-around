@@ -44,6 +44,7 @@ if [ $venv == "y" ]; then
 
     # install dependencies
     pip install -U -r requirements.txt
+    fi
 else
     printf "\nSkipping virtual environment...\n"
     # install dependencies
