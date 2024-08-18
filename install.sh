@@ -94,7 +94,9 @@ if [ $bot == "n" ]; then
     if [ -f launch.sh ]; then
         printf "\nTo run the bot, use the command: ./launch.sh\n"
         ./launch.sh
+    fi
 fi
 
-echo "Goodbye!"
+
+printf "\nGoodbye!"
 exit 0
