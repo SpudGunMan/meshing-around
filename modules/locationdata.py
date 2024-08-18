@@ -15,7 +15,7 @@ def where_am_i(lat=0, lon=0):
     whereIam = ""
     grid = mh.to_maiden(float(lat), float(lon))
     
-    if int(lat) == 0 and int(lon) == 0:
+    if int(float(lat)) == 0 and int(float(lon)) == 0:
         logger.error("Location: No GPS data, try sending location")
         return NO_DATA_NOGPS
     
