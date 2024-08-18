@@ -170,8 +170,6 @@ def handle_lheard():
     bot_response += "Ch Use: " + str(chutil1) + "%"
     if interface2_enabled:
         bot_response += " P2:" + str(chutil2) + "%"
-    #packet count
-    bot_response += f"\nPackets: {packetCount} Encrypted: {encPacketCount}"
     return bot_response
 
 def handle_whereami(message_from_id, deviceID, channel_number):
