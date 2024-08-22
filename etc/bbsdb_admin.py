@@ -7,13 +7,21 @@ try:
     with open('../bbsdb.pkl', 'rb') as f:
         bbs_messages = pickle.load(f)
 except:
-    print ("\nSystem: bbsdb.pkl not found")
+    try:
+        with open('bbsdb.pkl', 'rb') as f:
+            bbs_messages = pickle.load(f)
+    except:
+        print ("\nSystem: bbsdb.pkl not found")
 
 try:
     with open('../bbsdm.pkl', 'rb') as f:
         bbs_dm = pickle.load(f)
 except:
-    print ("\nSystem: bbsdm.pkl not found")
+    try:
+        with open('bbsdm.pkl', 'rb') as f:
+            bbs_dm = pickle.load(f)
+    except:
+        print ("\nSystem: bbsdm.pkl not found")
 
 print ("\nSystem: bbs_messages")
 print (bbs_messages)
