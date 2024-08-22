@@ -87,7 +87,7 @@ def handle_wxalert(message_from_id, deviceID, message):
         location = get_node_location(message_from_id, deviceID)
         if "wxalert" in message:
             # Detailed weather alert
-            weatherAlert = getActiveWeatherAlertsDetail(str(location[0]), str(location[1]))
+            weatherAlert = getWeatherAlerts(str(location[0]), str(location[1]))
         else:
             weatherAlert = getActiveWeatherAlertsDetail(str(location[0]), str(location[1]))
 
