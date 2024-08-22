@@ -89,7 +89,7 @@ def handle_wxalert(message_from_id, deviceID, message):
             # Detailed weather alert
             weatherAlert = getActiveWeatherAlertsDetail(str(location[0]), str(location[1]))
         else:
-            weatherAlert = getActiveWeatherAlertsDetail(str(location[0]), str(location[1]), 1)
+            weatherAlert = getActiveWeatherAlertsDetail(str(location[0]), str(location[1]))
 
         return weatherAlert
 
