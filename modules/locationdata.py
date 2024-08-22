@@ -207,8 +207,8 @@ def getWeatherAlerts(lat=0, lon=0):
     if float(lat) == 0 and float(lon) == 0:
         return NO_DATA_NOGPS
 
-    alert_url = "https://api.weather.gov/alerts/active.atom?point=" + str(lat) + "," + str(lon)
-    #alert_url = "https://api.weather.gov/alerts/active.atom?area=WA"
+    alert_url = "https://api.weather.gov/alerts/active?point=" + str(lat) + "," + str(lon)
+    #alert_url = "https://api.weather.gov/alerts/active?area=WA"
     
     try:
         alert_data = requests.get(alert_url, timeout=urlTimeoutSeconds)
