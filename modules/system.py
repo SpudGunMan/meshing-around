@@ -204,6 +204,7 @@ def get_node_list(nodeInt=1):
     node_list1 = []
     node_list2 = []
     short_node_list = []
+    last_heard = 0
     if nodeInt == 1:
         if interface1.nodes:
             for node in interface1.nodes.values():
@@ -230,10 +231,8 @@ def get_node_list(nodeInt=1):
                     node_name = get_name_from_number(node['num'], 'long', nodeInt)
                     snr = node.get('snr', 0)
 
-                    # issue where lastHeard is not always present, also had issues with None
+                    # issue where lastHeard is not always present
                     last_heard = node.get('lastHeard', 0)
-                    if last_heard is None:
-                        last_heard = 0
                     
                     # make a list of nodes with last heard time and SNR
                     item = (node_name, last_heard, snr)
@@ -244,10 +243,10 @@ def get_node_list(nodeInt=1):
     
     try:
         #print (f"Node List: {node_list1[:5]}\n")
-        node_list1.sort(key=lambda x: x[1], reverse=True)
+        node_list1.sort(key=lambda x: x[1] if x[1] is not None else 0, reverse=True)
         #print (f"Node List: {node_list1[:5]}\n")
         if interface2_enabled:
-            node_list2.sort(key=lambda x: x[1], reverse=True)
+            node_list2.sort(key=lambda x: x[1] if x[1] is not None else 0, reverse=True)
     except Exception as e:
         logger.error(f"System: Error sorting node list: {e}")
         logger.debug(f"Node List1: {node_list1[:5]}\n")
