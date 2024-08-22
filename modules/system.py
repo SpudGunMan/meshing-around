@@ -648,7 +648,7 @@ async def watchdog():
             if interface2 is not None and not retry_int2:
                 try:
                     with contextlib.redirect_stdout(None):
-                        interface1.localNode.getMetadata()
+                        interface2.localNode.getMetadata()
                         print(f"System: if you see this upgrade python to >3.4")
                 except Exception as e:
                     logger.error(f"System: communicating with interface2, trying to reconnect: {e}")
