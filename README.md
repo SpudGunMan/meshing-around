@@ -142,7 +142,9 @@ signalCooldown = 5
 signalCycleLimit = 5
 ```
 # requirements
-can also be installed with `pip install -r requirements.txt`
+Python 3.4 and likely higher is needed, developed on latest release.
+
+The following can also be installed with `pip install -r requirements.txt` or using the install.sh script for venv and automation
 
 ```
 pip install meshtastic

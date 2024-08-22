@@ -6,6 +6,7 @@ import meshtastic.tcp_interface
 import meshtastic.ble_interface
 import time
 import asyncio
+import contextlib # for suppressing output on watchdog
 from modules.log import *
 
 # Global Variables
@@ -588,22 +589,6 @@ async def retry_interface(nodeID=1):
     except Exception as e:
         logger.error(f"System: opening interface2: {e}")
 
-# this is a workaround because .localNode.getMetadata spits out a lot of debug info which cant be suppressed
-
-from contextlib import contextmanager
-import os
-import sys
-
-@contextmanager
-def suppress_stdout():
-    with open(os.devnull, "w") as devnull:
-        old_stdout = sys.stdout
-        sys.stdout = devnull
-        try:  
-            yield
-        finally:
-            sys.stdout = old_stdout
-
 async def watchdog():
     global retry_int1, retry_int2
     if sentry_enabled:
@@ -619,8 +604,10 @@ async def watchdog():
         #print(f"MeshBot System: watchdog running\r", end="")
         if interface1 is not None and not retry_int1:
             try:
-                with suppress_stdout():
+                # this is a workaround because .localNode.getMetadata spits out a lot of debug info which cant be suppressed
+                with contextlib.redirect_stdout(None):
                     interface1.localNode.getMetadata()
+                    print(f"System: if you see this upgrade python to >3.4")
                 #if "device_state_version:" not in meta:
             except Exception as e:
                 logger.error(f"System: communicating with interface1, trying to reconnect: {e}")
@@ -660,8 +647,9 @@ async def watchdog():
         if interface2_enabled:
             if interface2 is not None and not retry_int2:
                 try:
-                    with suppress_stdout():
-                        interface2.localNode.getMetadata()
+                    with contextlib.redirect_stdout(None):
+                        interface1.localNode.getMetadata()
+                        print(f"System: if you see this upgrade python to >3.4")
                 except Exception as e:
                     logger.error(f"System: communicating with interface2, trying to reconnect: {e}")
                     retry_int2 = True
