@@ -207,16 +207,17 @@ def getWeatherAlerts(lat=0, lon=0):
     if float(lat) == 0 and float(lon) == 0:
         return NO_DATA_NOGPS
 
-    alert_url = "https://api.weather.gov/alerts/active?point=" + str(lat) + "," + str(lon)
-    #alert_url = "https://api.weather.gov/alerts/active?area=WA"
+    alert_url = "https://api.weather.gov/alerts/active.atom?point=" + str(lat) + "," + str(lon)
+    #alert_url = "https://api.weather.gov/alerts/active.atom?area=WA"
+    #logger.debug("Location:Fetching weather alerts from NOAA for " + str(lat) + ", " + str(lon))
     
     try:
         alert_data = requests.get(alert_url, timeout=urlTimeoutSeconds)
         if not alert_data.ok:
-            logger.error("Location:Error fetching weather alerts from NOAA")
+            logger.warning("Location:Error fetching weather alerts from NOAA")
             return ERROR_FETCHING_DATA
     except (requests.exceptions.RequestException):
-        logger.error("Location:Error fetching weather alerts from NOAA")
+        logger.warning("Location:Error fetching weather alerts from NOAA")
         return ERROR_FETCHING_DATA
     
     alerts = ""
@@ -251,16 +252,17 @@ def getActiveWeatherAlertsDetail(lat=0, lon=0):
         logger.error("Location:No GPS data, try sending location for weather alerts")
         return NO_DATA_NOGPS
 
-    alert_url = "https://api.weather.gov/alerts/active?point=" + str(lat) + "," + str(lon)
-    #alert_url = "https://api.weather.gov/alerts/active?area=WA"
+    alert_url = "https://api.weather.gov/alerts/active.atom?point=" + str(lat) + "," + str(lon)
+    #alert_url = "https://api.weather.gov/alerts/active.atom?area=WA"
+    #logger.debug("Location:Fetching weather alerts detailed from NOAA for " + str(lat) + ", " + str(lon))
     
     try:
         alert_data = requests.get(alert_url, timeout=urlTimeoutSeconds)
         if not alert_data.ok:
-            logger.error("Location:Error fetching weather alerts detailed from NOAA")
+            logger.warning("Location:Error fetching weather alerts from NOAA")
             return ERROR_FETCHING_DATA
     except (requests.exceptions.RequestException):
-        logger.error("Location:Error fetching weather alerts detailed from NOAA")
+        logger.warning("Location:Error fetching weather alerts from NOAA")
         return ERROR_FETCHING_DATA
     
     alerts = ""
