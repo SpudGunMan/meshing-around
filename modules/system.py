@@ -378,7 +378,7 @@ def get_closest_nodes(nodeInt=1,returnCount=3):
                         longitude = node['position']['longitude']
 
                         #lastheard time in unix time
-                        lastheard = node['lastHeard']
+                        lastheard = node.get('lastHeard', 0)
                         #if last heard is over 24 hours ago, ignore the node
                         if lastheard < (time.time() - 86400):
                             continue
