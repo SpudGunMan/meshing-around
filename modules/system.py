@@ -250,9 +250,9 @@ def get_node_list(nodeInt=1):
             node_list2.sort(key=lambda x: x[1], reverse=True)
     except Exception as e:
         logger.error(f"System: Error sorting node list: {e}")
-        #print (f"Node List1: {node_list1[:5]}\n")
-        #if interface2_enabled:
-            #print (f"Node List2: {node_list2[:5]}\n")
+        logger.debug(f"Node List1: {node_list1[:5]}\n")
+        if interface2_enabled:
+            logger.debug(f"Node List2: {node_list2[:5]}\n")
         node_list = ERROR_FETCHING_DATA
 
     try:
