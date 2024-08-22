@@ -85,7 +85,12 @@ def handle_wxalert(message_from_id, deviceID):
         return "wxalert is not supported"
     else:
         location = get_node_location(message_from_id, deviceID)
-        weatherAlert = getActiveWeatherAlertsDetail(str(location[0]), str(location[1]))
+        if "wxalert" in message_from_id:
+            # Detailed weather alert
+            weatherAlert = getActiveWeatherAlertsDetail(str(location[0]), str(location[1]))
+        else:
+            weatherAlert = getActiveWeatherAlertsDetail(str(location[0]), str(location[1]), 1)
+
         return weatherAlert
 
 def handle_wxc(message_from_id, deviceID, cmd):
