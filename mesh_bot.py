@@ -18,8 +18,8 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
         "pong": lambda: "🏓PING!!",
         "motd": lambda: handle_motd(message),
         "bbshelp": bbs_help,
-        "wxalert": lambda: handle_wxalert(message_from_id, deviceID),
-        "wxa": lambda: handle_wxalert(message_from_id, deviceID),
+        "wxalert": lambda: handle_wxalert(message_from_id, deviceID, message),
+        "wxa": lambda: handle_wxalert(message_from_id, deviceID, message),
         "wxc": lambda: handle_wxc(message_from_id, deviceID, 'wxc'),
         "wx": lambda: handle_wxc(message_from_id, deviceID, 'wx'),
         "joke": tell_joke,
@@ -80,12 +80,12 @@ def handle_motd(message):
     else:
         return MOTD
 
-def handle_wxalert(message_from_id, deviceID):
+def handle_wxalert(message_from_id, deviceID, message):
     if use_meteo_wxApi:
         return "wxalert is not supported"
     else:
         location = get_node_location(message_from_id, deviceID)
-        if "wxalert" in message_from_id:
+        if "wxalert" in message:
             # Detailed weather alert
             weatherAlert = getActiveWeatherAlertsDetail(str(location[0]), str(location[1]))
         else:
