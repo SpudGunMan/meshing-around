@@ -84,6 +84,7 @@ try:
     publicChannel = config['general'].getint('defaultChannel', 0) # the meshtastic public channel
     zuluTime = config['general'].getboolean('zuluTime', False) # aka 24 hour time
     log_messages_to_file = config['general'].getboolean('LogMessagesToFile', True) # default True
+    syslog_to_file = config['general'].getboolean('SyslogToFile', False) # default True
     urlTimeoutSeconds = config['general'].getint('urlTimeout', 10) # default 10 seconds
     store_forward_enabled = config['general'].getboolean('StoreForward', True) # default False
     storeFlimit = config['general'].getint('StoreLimit', 3) # default 3 messages for S&F
