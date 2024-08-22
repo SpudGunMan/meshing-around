@@ -274,6 +274,7 @@ def get_node_location(number, nodeInt=1, channel=0):
     latitude = latitudeValue
     longitude = longitudeValue
     position = [latitudeValue,longitudeValue]
+    lastheard = 0
     if nodeInt == 1:
         if interface1.nodes:
             for node in interface1.nodes.values():
@@ -334,13 +335,18 @@ def get_closest_nodes(nodeInt=1,returnCount=3):
                         latitude = node['position']['latitude']
                         longitude = node['position']['longitude']
 
-                        # set radius around BOT position
-                        distance = round(geopy.distance.geodesic((latitudeValue, longitudeValue), (latitude, longitude)).m, 2)
+                        #lastheard time in unix time
+                        lastheard = node['lastHeard']
+                        #if last heard is over 24 hours ago, ignore the node
+                        if lastheard < (time.time() - 86400):
+                            continue
 
+                        # Calculate distance to node from config.ini location
+                        distance = round(geopy.distance.geodesic((latitudeValue, longitudeValue), (latitude, longitude)).m, 2)
+                        
                         if (distance < sentry_radius):
                             if nodeID != myNodeNum1 and myNodeNum2 and str(nodeID) not in sentryIgnoreList:
                                 node_list.append({'id': nodeID, 'latitude': latitude, 'longitude': longitude, 'distance': distance})
-                                # calculate distance to node and report
                                 
                     except Exception as e:
                         pass
@@ -370,13 +376,18 @@ def get_closest_nodes(nodeInt=1,returnCount=3):
                         latitude = node['position']['latitude']
                         longitude = node['position']['longitude']
 
-                        # set radius around BOT position
-                        distance = round(geopy.distance.geodesic((latitudeValue, longitudeValue), (latitude, longitude)).m, 2)
+                        #lastheard time in unix time
+                        lastheard = node['lastHeard']
+                        #if last heard is over 24 hours ago, ignore the node
+                        if lastheard < (time.time() - 86400):
+                            continue
 
+                        # Calculate distance to node from config.ini location
+                        distance = round(geopy.distance.geodesic((latitudeValue, longitudeValue), (latitude, longitude)).m, 2)
+                        
                         if (distance < sentry_radius):
                             if nodeID != myNodeNum1 and myNodeNum2 and str(nodeID) not in sentryIgnoreList:
                                 node_list.append({'id': nodeID, 'latitude': latitude, 'longitude': longitude, 'distance': distance})
-                                # calculate distance to node and report
                                 
                     except Exception as e:
                         pass
