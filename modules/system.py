@@ -416,7 +416,7 @@ def send_message(message, ch, nodeid=0, nodeInt=1):
 
         for word in split_message:
             if len(line + word) < MESSAGE_CHUNK_SIZE:
-                if 'NEWLINE' in word or '\n' in word or '\r' in word or 'NEWLINE ' in word:
+                if 'NEWLINE' in word or '\n' in word or '\r' in word:
                     # chunk by newline if it exists
                     message_list.append(line)
                     line = ''
@@ -427,6 +427,7 @@ def send_message(message, ch, nodeid=0, nodeInt=1):
                 line = word + ' '
 
         message_list.append(line) # needed add contents of the last 'line' into the list
+        message_list = [m.replace('NEWLINE', '') for m in message_list]
 
         for m in message_list:
             if nodeid == 0:
