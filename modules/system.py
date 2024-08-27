@@ -67,8 +67,8 @@ if dad_jokes_enabled:
 # Scheduled Broadcast Configuration
 if scheduler_enabled:
     import schedule # pip install schedule
-    # Reminder Scheduler is enabled every day at noon
-    schedule.every().day.at("12:00").do(logger.info, "Scheduler: Reminder Scheduler is enabled")
+    # Reminder Scheduler is enabled every Monday at noon send a log message
+    schedule.every().monday.at("12:00").do(lambda: logger.info("System: Scheduled Broadcast Reminder"))
 
 # Sentry Configuration
 if sentry_enabled:
