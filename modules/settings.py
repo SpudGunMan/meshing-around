@@ -24,6 +24,7 @@ max_retry_count1 = 4 # max retry count for interface 1
 max_retry_count2 = 4 # max retry count for interface 2
 retry_int1 = False
 retry_int2 = False
+scheduler_enabled = False # enable the scheduler currently config via code only
 
 # Read the config file, if it does not exist, create basic config file
 config = configparser.ConfigParser() 

@@ -64,6 +64,13 @@ if dad_jokes_enabled:
     trap_list = trap_list + ("joke",)
     help_message = help_message + ", joke"
 
+# Scheduled Broadcast Configuration
+if scheduler_enabled:
+    import schedule # pip install schedule
+    # Reminder Scheduler is enabled every day at noon
+    schedule.every().day.at("12:00").do(logger.info, "Scheduler: Reminder Scheduler is enabled")
+
+# Sentry Configuration
 if sentry_enabled:
     from math import sqrt
     import geopy.distance # pip install geopy
@@ -323,6 +330,7 @@ def get_node_location(number, nodeInt=1, channel=0):
         else:
             logger.warning(f"System: No nodes found")
             return position
+    return position
 
 def get_closest_nodes(nodeInt=1,returnCount=3):
     node_list = []
@@ -507,6 +515,12 @@ def exit_handler():
     asyncLoop.stop()
     asyncLoop.close()
     exit (0)
+
+async def BroadcastScheduler():
+    # handle schedule checks for the broadcast of messages
+    while True:
+        schedule.run_pending()
+        await asyncio.sleep(1)
 
 async def handleSignalWatcher():
     global lastHamLibAlert, antiSpam, sigWatchBrodcastCh
