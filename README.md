@@ -172,6 +172,7 @@ pip install maidenhead
 pip install beautifulsoup4
 pip install dadjokes
 pip install geopy
+pip install schedule
 ```
 The following is needed for open-meteo use
 ```
