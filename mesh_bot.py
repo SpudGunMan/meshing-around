@@ -426,13 +426,13 @@ async def start_rx():
         # https://schedule.readthedocs.io/en/stable/
 
         # Good Morning Every day at 09:00 using send_message function to channel 2 on device 1
-        #schedule.every().day.at("09:00").do(send_message, "Good Morning", 2, 0, 1)
+        #schedule.every().day.at("09:00").do(lambda: send_message("Good Morning", 2, 0, 1))
 
         # Send WX every Morning at 08:00 using handle_wxc function to channel 2 on device 1
-        #schedule.every().day.at("08:00").do(send_message, handle_wxc(0, 1, 'wx'), 2, 0, 1)
+        #schedule.every().day.at("08:00").do(lambda: send_message(handle_wxc(0, 1, 'wx'), 2, 0, 1))
 
         # Send a Net Starting Now Message Every Wednesday at 19:00 using send_message function to channel 2 on device 1
-        #schedule.every().wednesday.at("19:00").do(send_message, "The Radio Net Starting Now!", 2, 0, 1)
+        #schedule.every().wednesday.at("19:00").do(lambda: send_message("Net Starting Now", 2, 0, 1))
         
         #
         logger.debug("System: Starting the broadcast scheduler")
