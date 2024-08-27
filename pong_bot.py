@@ -85,6 +85,25 @@ def handle_testing(hop, snr, rssi):
     else:
         return "🏓Testing 1,2,3 " + hop
 
+def onDisconnect(interface):
+    global retry_int1, retry_int2
+    rxType = type(interface).__name__
+    if rxType == 'SerialInterface':
+        rxInterface = interface.__dict__.get('devPath', 'unknown')
+        logger.critical(f"System: Lost Connection to Device {rxInterface}")
+        if port1 in rxInterface:
+            retry_int1 = True
+        elif interface2_enabled and port2 in rxInterface:
+            retry_int2 = True
+
+    if rxType == 'TCPInterface':
+        rxHost = interface.__dict__.get('hostname', 'unknown')
+        logger.critical(f"System: Lost Connection to Device {rxHost}")
+        if hostname1 in rxHost and interface1_type == 'tcp':
+            retry_int1 = True
+        elif interface2_enabled and hostname2 in rxHost and interface2_type == 'tcp':
+            retry_int2 = True
+
 def onReceive(packet, interface):
     # extract interface  defailts from interface object
     rxType = type(interface).__name__
@@ -238,6 +257,7 @@ async def start_rx():
     print (CustomFormatter.bold_white + f"\nMeshtastic Autoresponder Bot CTL+C to exit\n" + CustomFormatter.reset)
     # Start the receive subscriber using pubsub via meshtastic library
     pub.subscribe(onReceive, 'meshtastic.receive')
+    pub.subscribe(onDisconnect, 'meshtastic.connection.lost')
     logger.info(f"System: Autoresponder Started for Device1 {get_name_from_number(myNodeNum1, 'long', 1)}," 
                 f"{get_name_from_number(myNodeNum1, 'short', 1)}. NodeID: {myNodeNum1}, {decimal_to_hex(myNodeNum1)}")
     if interface2_enabled:
