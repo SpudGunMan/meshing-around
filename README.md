@@ -6,7 +6,7 @@ Random Mesh Scripts for Network Testing and BBS Activities for Use with [Meshtas
 ## mesh_bot.sh
 The feature-rich bot requires the internet for full functionality. These responder bots will trap keywords like ping and respond to a DM (direct message) with pong! The script will also monitor the group channels for keywords to trap. You can also `Ping @Data to Echo` as an example.
 
-Along with network testing, this bot has a lot of other fun features, like simple mail messaging you can leave for another device, and when that device is seen, it can send the mail as a DM.
+Along with network testing, this bot has a lot of other fun features, like simple mail messaging you can leave for another device, and when that device is seen, it can send the mail as a DM. Or a scheduler to send weather or a reminder weekly for the VHF net.
 
 The bot is also capable of using dual radio/nodes, so you can monitor two networks at the same time and send messages to nodes using the same `bbspost @nodeNumber #message` or `bbspost @nodeShportName #message` function. There is a small message board to fit in the constraints of Meshtastic for posting bulletin messages with `bbspost $subject #message`.
 
@@ -149,10 +149,22 @@ Logging messages to disk or Syslog to disk uses the python native logging fuctio
 LogMessagesToFile = True
 # Logging of system messages to file
 SyslogToFile = True
+```
+Example to log to disk only INFO and higher (ignore DEBUG)
+```
 *log.py
 file_handler.setLevel(logging.INFO) # DEBUG used by default for system logs to disk example here shows INFO
 ```
 
+The Scheduler is enabled in the [settings.py](modules/settings.py) by setting `scheduler_enabled = True` the actions and setings are via code only at this time. see [mesh_bot.py](mesh_bot.py) around line [425](https://github.com/SpudGunMan/meshing-around/blob/22983133ee4db3df34f66699f565e506de296197/mesh_bot.py#L425-L435) to edit schedual its most flexable to edit raw code right now.  See https://schedule.readthedocs.io/en/stable/ for more.
+
+```
+# Send WX every Morning at 08:00 using handle_wxc function to channel 2 on device 1
+#schedule.every().day.at("08:00").do(lambda: send_message(handle_wxc(0, 1, 'wx'), 2, 0, 1))
+
+# Send a Net Starting Now Message Every Wednesday at 19:00 using send_message function to channel 2 on device 1
+#schedule.every().wednesday.at("19:00").do(lambda: send_message("Net Starting Now", 2, 0, 1))
+```
 # requirements
 Python 3.4 and likely higher is needed, developed on latest release.
 
