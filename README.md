@@ -57,7 +57,7 @@ Optionally:
 - `launch.sh` will activate and launch the app in the venv if built.
 
 ### Configurations
-Copy the [config.template](config.template) to `config.ini` and set the appropriate interface for your method (serial/ble/tcp). While BLE and TCP will work, they are not as reliable as serial connections. There is a watchdog to reconnect tcp if possible.
+Copy the [config.template](config.template) to `config.ini` and set the appropriate interface for your method (serial/ble/tcp). While BLE and TCP will work, they are not as reliable as serial connections. There is a watchdog to reconnect tcp if possible. To get BLE mac `meshtastic --ble-scan`
 
 ```
 #config.ini
