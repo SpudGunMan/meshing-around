@@ -83,6 +83,11 @@ if store_forward_enabled:
 # Radio Monitor Configuration
 if radio_detection_enabled:
     from modules.radio import * # from the spudgunman/meshing-around repo
+
+# BLE dual interface prevention
+if interface1_type == 'ble' and interface2_type == 'ble':
+    logger.critical(f"System: BLE Interface1 and Interface2 cannot both be BLE. Exiting")
+    exit()
     
 # Interface1 Configuration
 try:
