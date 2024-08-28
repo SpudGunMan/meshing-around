@@ -51,6 +51,7 @@ The project is written on Linux on a Pi and should work anywhere [Meshtastic](ht
 Clone the project with `git clone https://github.com/spudgunman/meshing-around`
 code is under a lot of development, so check back often with `git pull`
 Copy [config.template](config.template) to `config.ini` and edit for your needs.
+`pip install -r requirements.txt` 
 
 Optionally:
 - `install.sh` will automate optional venv and requirements installation.
