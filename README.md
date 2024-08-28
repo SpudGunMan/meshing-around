@@ -33,7 +33,7 @@ Full list of commands for the bot.
 - Other functions
   - `whereami` returns the address of location of sender if known
   - `tide` returns the local tides, NOAA data source
-  - `wx` and `wxc` returns local weather forecast, (wxc is metric value), NOAA or Open Meteo for weather forcasting.
+  - `wx` and `wxc` returns local weather forecast, (wxc is metric value), NOAA or Open Meteo for weather forecasting.
   - `wxa` and `wxalert` return NOAA alerts. Short title or expanded details
   - `joke` tells a joke
   - `messages` Replay the last messages heard, like Store and Forward
@@ -84,7 +84,7 @@ Setting the default channel is the channel that won't be spammed by the bot. It'
 respond_by_dm_only = True
 defaultChannel = 0
 ```
-The weather forcasting defaults to NOAA but for outside the USA you can set UseMeteoWxAPI `True` to use a world weather API. The lat and lon are for defaults when a node has no location data to use.
+The weather forecasting defaults to NOAA but for outside the USA you can set UseMeteoWxAPI `True` to use a world weather API. The lat and lon are for defaults when a node has no location data to use.
 ```
 [location]
 enabled = True
@@ -102,7 +102,7 @@ enabled = False
 DadJokes = False
 StoreForward = False
 ```
-Sentry Bot detects anyone comeing close to the bot-node
+Sentry Bot detects anyone coming close to the bot-node
 ```
 # detect anyone close to the bot
 SentryEnabled = True
@@ -131,8 +131,8 @@ A module allowing a Hamlib compatible radio to connect to the bot, when function
 [radioMon]
 enabled = False
 rigControlServerAddress = localhost:4532
-# channel to brodcast to can be 2,3
-sigWatchBrodcastCh = 2
+# channel to broadcast to can be 2,3
+sigWatchBroadcastCh = 2
 # minimum SNR as reported by radio via hamlib
 signalDetectionThreshold = -10
 # hold time for high SNR
@@ -142,7 +142,7 @@ signalCooldown = 5
 signalCycleLimit = 5
 ```
 
-Logging messages to disk or Syslog to disk uses the python native logging fuction. Take a look at the [/modules/log.py](/modules/log.py) you can set the file logger for syslog to INFO for example to not log DEBUG messages to file log, or modify the stdOut level.
+Logging messages to disk or Syslog to disk uses the python native logging function. Take a look at the [/modules/log.py](/modules/log.py) you can set the file logger for syslog to INFO for example to not log DEBUG messages to file log, or modify the stdOut level.
 ```
 [general]
 # logging to file of the non Bot messages
@@ -156,7 +156,7 @@ Example to log to disk only INFO and higher (ignore DEBUG)
 file_handler.setLevel(logging.INFO) # DEBUG used by default for system logs to disk example here shows INFO
 ```
 
-The Scheduler is enabled in the [settings.py](modules/settings.py) by setting `scheduler_enabled = True` the actions and setings are via code only at this time. see [mesh_bot.py](mesh_bot.py) around line [425](https://github.com/SpudGunMan/meshing-around/blob/22983133ee4db3df34f66699f565e506de296197/mesh_bot.py#L425-L435) to edit schedual its most flexable to edit raw code right now.  See https://schedule.readthedocs.io/en/stable/ for more.
+The Scheduler is enabled in the [settings.py](modules/settings.py) by setting `scheduler_enabled = True` the actions and settings are via code only at this time. see [mesh_bot.py](mesh_bot.py) around line [425](https://github.com/SpudGunMan/meshing-around/blob/22983133ee4db3df34f66699f565e506de296197/mesh_bot.py#L425-L435) to edit schedule its most flexible to edit raw code right now.  See https://schedule.readthedocs.io/en/stable/ for more.
 
 ```
 # Send WX every Morning at 08:00 using handle_wxc function to channel 2 on device 1
