@@ -447,6 +447,12 @@ async def start_rx():
 
         # Send a Net Starting Now Message Every Wednesday at 19:00 using send_message function to channel 2 on device 1
         #schedule.every().wednesday.at("19:00").do(lambda: send_message("Net Starting Now", 2, 0, 1))
+
+        # Send a Welcome Notice for group on the 15th and 25th of the month at 12:00 using send_message function to channel 2 on device 1
+        #schedule.every().day.at("12:00").do(lambda: send_message("Welcome to the group", 2, 0, 1)).day(15, 25)
+
+        # Send a joke every 6 hours using tell_joke function to channel 2 on device 1
+        #schedule.every(6).hours.do(lambda: send_message(tell_joke(), 2, 0, 1))
         
         #
         logger.debug("System: Starting the broadcast scheduler")
