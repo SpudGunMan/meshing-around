@@ -453,6 +453,12 @@ async def start_rx():
 
         # Send a joke every 6 hours using tell_joke function to channel 2 on device 1
         #schedule.every(6).hours.do(lambda: send_message(tell_joke(), 2, 0, 1))
+
+        # Send the Welcome Message every other day at 08:00 using send_message function to channel 2 on device 1
+        #schedule.every(2).days.at("08:00").do(lambda: send_message(welcome_message, 2, 0, 1))
+
+        # Send the MOTD every day at 13:00 using send_message function to channel 2 on device 1
+        #schedule.every().day.at("13:00").do(lambda: send_message(MOTD, 2, 0, 1))
         
         #
         logger.debug("System: Starting the broadcast scheduler")
