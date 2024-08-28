@@ -81,7 +81,7 @@ if store_forward_enabled:
     help_message = help_message + ", messages"
 
 # Radio Monitor Configuration
-if radio_dectection_enabled:
+if radio_detection_enabled:
     from modules.radio import * # from the spudgunman/meshing-around repo
     
 # Interface1 Configuration
@@ -523,7 +523,7 @@ async def BroadcastScheduler():
         await asyncio.sleep(1)
 
 async def handleSignalWatcher():
-    global lastHamLibAlert, antiSpam, sigWatchBrodcastCh
+    global lastHamLibAlert, antiSpam, sigWatchBroadcastCh
     # monitor rigctld for signal strength and frequency
     while True:
         msg =  await signalWatcher()
@@ -534,8 +534,8 @@ async def handleSignalWatcher():
             if time.time() - lastHamLibAlert > 60:
                 lastHamLibAlert = time.time()
                 # if sigWatchBrodcastCh list contains multiple channels, broadcast to all
-                if type(sigWatchBrodcastCh) is list:
-                    for ch in sigWatchBrodcastCh:
+                if type(sigWatchBroadcastCh) is list:
+                    for ch in sigWatchBroadcastCh:
                         if antiSpam and ch != publicChannel:
                             send_message(msg, int(ch), 0, 1)
                             if interface2_enabled:
@@ -543,10 +543,10 @@ async def handleSignalWatcher():
                         else:
                             logger.error(f"System: antiSpam prevented Alert from Hamlib {msg}")
                 else:
-                    if antiSpam and sigWatchBrodcastCh != publicChannel:
-                        send_message(msg, int(sigWatchBrodcastCh), 0, 1)
+                    if antiSpam and sigWatchBroadcastCh != publicChannel:
+                        send_message(msg, int(sigWatchBroadcastCh), 0, 1)
                         if interface2_enabled:
-                            send_message(msg, int(sigWatchBrodcastCh), 0, 2)
+                            send_message(msg, int(sigWatchBroadcastCh), 0, 2)
                     else:
                         logger.error(f"System: antiSpam prevented Alert from Hamlib {msg}")
 

@@ -419,8 +419,8 @@ async def start_rx():
         logger.debug(f"System: Respond by DM only")
     if repeater_enabled and interface2_enabled:
         logger.debug(f"System: Repeater Enabled for Channels: {repeater_channels}")
-    if radio_dectection_enabled:
-        logger.debug(f"System: Radio Detection Enabled using rigctld at {rigControlServerAddress} brodcasting to channels: {sigWatchBrodcastCh} for {get_freq_common_name(get_hamlib('f'))}")
+    if radio_detection_enabled:
+        logger.debug(f"System: Radio Detection Enabled using rigctld at {rigControlServerAddress} brodcasting to channels: {sigWatchBroadcastCh} for {get_freq_common_name(get_hamlib('f'))}")
     if scheduler_enabled:
         # Examples of using the scheduler, Times here are in 24hr format
         # https://schedule.readthedocs.io/en/stable/
@@ -447,7 +447,7 @@ async def start_rx():
 async def main():
     meshRxTask = asyncio.create_task(start_rx())
     watchdogTask = asyncio.create_task(watchdog())
-    if radio_dectection_enabled:
+    if radio_detection_enabled:
         hamlibTask = asyncio.create_task(handleSignalWatcher())
         await asyncio.wait([meshRxTask, watchdogTask, hamlibTask])
     else:

@@ -75,7 +75,7 @@ lon = -123.0
 NOAAforecastDuration = 4
 # number of weather alerts to display
 NOAAalertCount = 2
-# use Open-Meteo API for weather data not NOAA usefull for non US locations
+# use Open-Meteo API for weather data not NOAA useful for non US locations
 UseMeteoWxAPI = False
 # Default to metric units rather than imperial
 useMetric = False
@@ -93,8 +93,8 @@ repeater_channels =
 # using Hamlib rig control will monitor and alert on channel use
 enabled = False
 rigControlServerAddress = localhost:4532
-# brodcast to all nodes on the channel can alsp be  = 2,3
-sigWatchBrodcastCh = 2
+# broadcast to all nodes on the channel can alsp be  = 2,3
+sigWatchBroadcastCh = 2
 # minimum SNR as reported by radio via hamlib
 signalDetectionThreshold = -10
 # hold time for high SNR

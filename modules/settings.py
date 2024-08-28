@@ -118,9 +118,9 @@ try:
     repeater_enabled = config['repeater'].getboolean('enabled', False)
     repeater_channels = config['repeater'].get('repeater_channels', '').split(',')
 
-    radio_dectection_enabled = config['radioMon'].getboolean('enabled', False)
+    radio_detection_enabled = config['radioMon'].getboolean('enabled', False)
     rigControlServerAddress = config['radioMon'].get('rigControlServerAddress', 'localhost:4532') # default localhost:4532
-    sigWatchBrodcastCh = config['radioMon'].get('sigWatchBrodcastCh', '2').split(',') # default Channel 2
+    sigWatchBroadcastCh = config['radioMon'].get('sigWatchBroadcastCh', '2').split(',') # default Channel 2
     signalDetectionThreshold = config['radioMon'].getint('signalDetectionThreshold', -10) # default -10 dBm
     signalHoldTime = config['radioMon'].getint('signalHoldTime', 10) # default 10 seconds
     signalCooldown = config['radioMon'].getint('signalCooldown', 5) # default 1 second
