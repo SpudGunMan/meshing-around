@@ -104,6 +104,13 @@ def onDisconnect(interface):
         elif interface2_enabled and hostname2 in rxHost and interface2_type == 'tcp':
             retry_int2 = True
 
+    if rxType == 'BLEInterface':
+        logger.critical(f"System: Lost Connection to Device BLE")
+        if interface1_type == 'ble':
+            retry_int1 = True
+        elif interface2_enabled and interface2_type == 'ble':
+            retry_int2 = True
+
 def onReceive(packet, interface):
     # extract interface  defailts from interface object
     rxType = type(interface).__name__
@@ -123,6 +130,12 @@ def onReceive(packet, interface):
         if hostname1 in rxHost and interface1_type == 'tcp':
             rxNode = 1
         elif interface2_enabled and hostname2 in rxHost and interface2_type == 'tcp':
+            rxNode = 2
+
+    if rxType == 'BLEInterface':
+        if interface1_type == 'ble':
+            rxNode = 1
+        elif interface2_enabled and interface2_type == 'ble':
             rxNode = 2
 
     # Debug print the packet for debugging
