@@ -22,6 +22,7 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
         "wxa": lambda: handle_wxalert(message_from_id, deviceID, message),
         "wxc": lambda: handle_wxc(message_from_id, deviceID, 'wxc'),
         "wx": lambda: handle_wxc(message_from_id, deviceID, 'wx'),
+        "wiki:": lambda: handle_wiki(message),
         "joke": tell_joke,
         "bbslist": bbs_list_messages,
         "bbspost": lambda: handle_bbspost(message, message_from_id, deviceID),
@@ -92,6 +93,14 @@ def handle_wxalert(message_from_id, deviceID, message):
             weatherAlert = getWeatherAlerts(str(location[0]), str(location[1]))
 
         return weatherAlert
+
+def handle_wiki(message):
+    if "wiki:" in message.lower():
+        search = message.split(":")[1]
+        search = search.rstrip()
+        return get_wikipedia_summary(search)
+    else:
+        return "Please add a search term example:wiki: travelling gnome"
 
 def handle_wxc(message_from_id, deviceID, cmd):
     location = get_node_location(message_from_id, deviceID)

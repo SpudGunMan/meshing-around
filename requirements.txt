@@ -12,3 +12,5 @@ retry_requests
 numpy
 geopy
 schedule
+wikipedia
+

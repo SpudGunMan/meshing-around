@@ -36,6 +36,7 @@ Full list of commands for the bot.
   - `wx` and `wxc` returns local weather forecast, (wxc is metric value), NOAA or Open Meteo for weather forecasting.
   - `wxa` and `wxalert` return NOAA alerts. Short title or expanded details
   - `joke` tells a joke
+  - `wiki:` search wikipedia, return the first few sentances of first result if a match
   - `messages` Replay the last messages heard, like Store and Forward
   - `motd` or to set the message `motd $New Message Of the day`
   - `lheard` returns the last 5 heard nodes with SNR, can also use `sitrep`
@@ -186,6 +187,7 @@ pip install beautifulsoup4
 pip install dadjokes
 pip install geopy
 pip install schedule
+pip install wikipedia
 ```
 The following is needed for open-meteo use
 ```

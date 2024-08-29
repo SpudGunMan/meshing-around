@@ -64,6 +64,12 @@ if dad_jokes_enabled:
     trap_list = trap_list + ("joke",)
     help_message = help_message + ", joke"
 
+# Wikipedia Search Configuration
+if wikipedia_enabled:
+    import wikipedia # pip install wikipedia
+    trap_list = trap_list + ("wiki:",)
+    help_message = help_message + ", wiki:"
+
 # Scheduled Broadcast Configuration
 if scheduler_enabled:
     import schedule # pip install schedule
@@ -482,6 +488,16 @@ def tell_joke():
         return dadjoke.joke
     else:
         return ''
+
+def get_wikipedia_summary(search_term):
+    # search wikipedia for a summary of the search term
+    try:
+        logger.debug(f"System: Searching Wikipedia for:{search_term}")
+        summary = wikipedia.summary(search_term, sentences=wiki_return_limit)
+        return summary
+    except Exception as e:
+        logger.warning(f"System: Error searching Wikipedia:{e}")
+        return ERROR_FETCHING_DATA
 
 def messageTrap(msg):
     # Check if the message contains a trap word

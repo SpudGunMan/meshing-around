@@ -34,6 +34,8 @@ welcome_message = MeshBot, here for you like a friend who is not. Try sending: p
 DadJokes = True
 # enable or disable the Solar module
 spaceWeather = True
+# enable or disable the wikipedia search module
+wikipedia = True
 # StoreForward Enabled and Limits
 StoreForward = True
 StoreLimit = 3

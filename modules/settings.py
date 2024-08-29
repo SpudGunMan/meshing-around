@@ -25,6 +25,7 @@ max_retry_count2 = 4 # max retry count for interface 2
 retry_int1 = False
 retry_int2 = False
 scheduler_enabled = False # enable the scheduler currently config via code only
+wiki_return_limit = 3 # limit the number of sentences returned off the first paragraph first hit
 
 # Read the config file, if it does not exist, create basic config file
 config = configparser.ConfigParser() 
@@ -93,7 +94,8 @@ try:
     welcome_message = (f"{welcome_message}").replace('\\n', '\n') # allow for newlines in the welcome message
     motd_enabled = config['general'].getboolean('motdEnabled', True)
     dad_jokes_enabled = config['general'].getboolean('DadJokes', True)
-    solar_conditions_enabled = config['general'].getboolean('spaceWeather', True) 
+    solar_conditions_enabled = config['general'].getboolean('spaceWeather', True)
+    wikipedia_enabled = config['general'].getboolean('wikipedia', True)
 
     sentry_enabled = config['sentry'].getboolean('SentryEnabled', False) # default False
     secure_channel = config['sentry'].getint('SentryChannel', 2) # default 2
