@@ -93,9 +93,9 @@ try:
     welcome_message = config['general'].get(f'welcome_message', WELCOME_MSG)
     welcome_message = (f"{welcome_message}").replace('\\n', '\n') # allow for newlines in the welcome message
     motd_enabled = config['general'].getboolean('motdEnabled', True)
-    dad_jokes_enabled = config['general'].getboolean('DadJokes', True)
+    dad_jokes_enabled = config['general'].getboolean('DadJokes', False)
     solar_conditions_enabled = config['general'].getboolean('spaceWeather', True)
-    wikipedia_enabled = config['general'].getboolean('wikipedia', True)
+    wikipedia_enabled = config['general'].getboolean('wikipedia', False)
 
     sentry_enabled = config['sentry'].getboolean('SentryEnabled', False) # default False
     secure_channel = config['sentry'].getint('SentryChannel', 2) # default 2
