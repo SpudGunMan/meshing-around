@@ -97,7 +97,7 @@ def handle_wxalert(message_from_id, deviceID, message):
 def handle_wiki(message):
     if "wiki:" in message.lower():
         search = message.split(":")[1]
-        search = search.rstrip()
+        search = search.strip()
         return get_wikipedia_summary(search)
     else:
         return "Please add a search term example:wiki: travelling gnome"
