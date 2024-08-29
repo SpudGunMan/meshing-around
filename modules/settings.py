@@ -86,9 +86,9 @@ try:
     publicChannel = config['general'].getint('defaultChannel', 0) # the meshtastic public channel
     zuluTime = config['general'].getboolean('zuluTime', False) # aka 24 hour time
     log_messages_to_file = config['general'].getboolean('LogMessagesToFile', True) # default True
-    syslog_to_file = config['general'].getboolean('SyslogToFile', False) # default True
+    syslog_to_file = config['general'].getboolean('SyslogToFile', False)
     urlTimeoutSeconds = config['general'].getint('urlTimeout', 10) # default 10 seconds
-    store_forward_enabled = config['general'].getboolean('StoreForward', True) # default False
+    store_forward_enabled = config['general'].getboolean('StoreForward', True)
     storeFlimit = config['general'].getint('StoreLimit', 3) # default 3 messages for S&F
     welcome_message = config['general'].get(f'welcome_message', WELCOME_MSG)
     welcome_message = (f"{welcome_message}").replace('\\n', '\n') # allow for newlines in the welcome message
