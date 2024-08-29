@@ -496,7 +496,8 @@ def get_wikipedia_summary(search_term):
         summary = wikipedia.summary(search_term, sentences=wiki_return_limit)
         return summary
     except Exception as e:
-        logger.warning(f"System: Error searching Wikipedia:{e}")
+        # The errors are vebose, normallly around trying to guess the search term
+        logger.warning(f"System: Error searching Wikipedia for:{search_term}")
         return ERROR_FETCHING_DATA
 
 def messageTrap(msg):
