@@ -432,6 +432,8 @@ async def start_rx():
             logger.debug(f"System: Location Telemetry Enabled using NOAA API")
     if dad_jokes_enabled:
         logger.debug(f"System: Dad Jokes Enabled!")
+    if wikipedia_enabled:
+        logger.debug(f"System: Wikipedia search Enabled")
     if motd_enabled:
         logger.debug(f"System: MOTD Enabled using {MOTD}")
     if sentry_enabled:
