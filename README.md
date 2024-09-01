@@ -20,7 +20,9 @@ The bot can also be used to monitor a radio frequency and let you know when high
 
 Any messages that are over 160 characters are chunked into 160 message bytes to help traverse hops, in testing, this keeps delivery success higher.
 
-Full list of commands for the bot.
+[Donate$](https://www.paypal.com/donate?token=ZpiU7zDh-AQDyK76nWmWPQLf04iOm-Iyr3f85lpubt37NWGRYtfe11UyC0LmY1wdcC20UubWo4Kec-_G) via PayPal if you like the project! 
+
+## Full list of commands for the bot.
 
 - Various solar details for radio propagation (spaceWeather module)
   - `sun` and `moon` return info on rise and set local time
