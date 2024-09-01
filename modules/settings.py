@@ -26,6 +26,8 @@ retry_int1 = False
 retry_int2 = False
 scheduler_enabled = False # enable the scheduler currently config via code only
 wiki_return_limit = 3 # limit the number of sentences returned off the first paragraph first hit
+llmRunCounter = 0
+llmTotalRuntime = []
 
 # Read the config file, if it does not exist, create basic config file
 config = configparser.ConfigParser() 
@@ -96,6 +98,7 @@ try:
     dad_jokes_enabled = config['general'].getboolean('DadJokes', False)
     solar_conditions_enabled = config['general'].getboolean('spaceWeather', True)
     wikipedia_enabled = config['general'].getboolean('wikipedia', False)
+    llm_enabled = config['general'].getboolean('ollama', False) # https://ollama.com
 
     sentry_enabled = config['sentry'].getboolean('SentryEnabled', False) # default False
     secure_channel = config['sentry'].getint('SentryChannel', 2) # default 2

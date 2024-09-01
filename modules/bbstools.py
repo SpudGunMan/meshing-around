@@ -18,14 +18,14 @@ def load_bbsdb():
             bbs_messages = pickle.load(f)
     except:
         bbs_messages = [[1, "Welcome to meshBBS", "Welcome to the BBS, please post a message!",0]]
-        logger.debug("\nSystem: Creating new bbsdb.pkl")
+        logger.debug("System: Creating new bbsdb.pkl")
         with open('bbsdb.pkl', 'wb') as f:
             pickle.dump(bbs_messages, f)
 
 def save_bbsdb():
     global bbs_messages
     # save the bbs messages to the database file
-    logger.debug("System: Saving bbsdb.pkl\n")
+    logger.debug("System: Saving bbsdb.pkl")
     with open('bbsdb.pkl', 'wb') as f:
         pickle.dump(bbs_messages, f)
 
@@ -112,7 +112,7 @@ def load_bbsdm():
             bbs_dm = pickle.load(f)
     except:
         bbs_dm = [[1234567890, "Message", 1234567890]]
-        logger.debug("\nSystem: Creating new bbsdm.pkl")
+        logger.debug("System: Creating new bbsdm.pkl")
         with open('bbsdm.pkl', 'wb') as f:
             pickle.dump(bbs_dm, f)
 

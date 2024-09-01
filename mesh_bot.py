@@ -23,6 +23,7 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
         "wxc": lambda: handle_wxc(message_from_id, deviceID, 'wxc'),
         "wx": lambda: handle_wxc(message_from_id, deviceID, 'wx'),
         "wiki:": lambda: handle_wiki(message),
+        "ask:": lambda: handle_llm(message_from_id, channel_number, deviceID, message, publicChannel),
         "joke": tell_joke,
         "bbslist": bbs_list_messages,
         "bbspost": lambda: handle_bbspost(message, message_from_id, deviceID),
@@ -101,6 +102,45 @@ def handle_wiki(message):
         return get_wikipedia_summary(search)
     else:
         return "Please add a search term example:wiki: travelling gnome"
+
+def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel):
+    global llmRunCounter, llmTotalRuntime
+    if "ask:" in message.lower():
+        user_input = message.split(":")[1]
+        user_input = user_input.strip()
+    else:
+        user_input = message
+        
+    if len(user_input) < 1:
+        return "Please ask a question"
+
+    # information for the user on how long the query will take on average
+    if llmRunCounter > 0:
+        averageRuntime = sum(llmTotalRuntime) / len(llmTotalRuntime)
+        if averageRuntime > 25:
+            msg = f"Please wait, average query time is: {int(averageRuntime)} seconds"
+            if channel_number == publicChannel:
+                send_message(msg, channel_number, message_from_id, deviceID)
+            else:
+                send_message(msg, channel_number, 0, deviceID)
+    else:
+            msg = "Please wait, response could take 3+ minutes. Fund the SysOp's GPU budget!"
+            if channel_number == publicChannel:
+                send_message(msg, channel_number, message_from_id, deviceID)
+            else:
+                send_message(msg, channel_number, 0, deviceID)
+    
+    start = time.time()
+
+    #response = asyncio.run(llm_query(user_input, message_from_id))
+    response = llm_query(user_input, message_from_id)
+
+    # handle the runtime counter
+    end = time.time()
+    llmRunCounter += 1
+    llmTotalRuntime.append(end - start)
+
+    return response
 
 def handle_wxc(message_from_id, deviceID, cmd):
     location = get_node_location(message_from_id, deviceID)
@@ -344,10 +384,16 @@ def onReceive(packet, interface):
                                 "From: " + CustomFormatter.white + f"{get_name_from_number(message_from_id, 'long', rxNode)}")
                     # respond with DM
                     send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number, rxNode), channel_number, message_from_id, rxNode)
-                else: 
-                    # respond with welcome message on DM
-                    logger.warning(f"Device:{rxNode} Ignoring DM: {message_string} From: {get_name_from_number(message_from_id, 'long', rxNode)}")
-                    send_message(welcome_message, channel_number, message_from_id, rxNode)
+                else:
+                    if llm_enabled:
+                        llm = handle_llm(message_from_id, channel_number, rxNode, message_string, publicChannel)
+                        send_message(llm, channel_number, message_from_id, rxNode)
+                    else:
+                        # respond with welcome message on DM
+                        logger.warning(f"Device:{rxNode} Ignoring DM: {message_string} From: {get_name_from_number(message_from_id, 'long', rxNode)}")
+                        send_message(welcome_message, channel_number, message_from_id, rxNode)
+                    
+                    # log the message to the message log
                     msgLogger.info(f"Device:{rxNode} Channel:{channel_number} | {get_name_from_number(message_from_id, 'long', rxNode)} | " + message_string.replace('\n', '-nl-'))
             else:
                 # message is on a channel
@@ -409,6 +455,10 @@ def onReceive(packet, interface):
 
 async def start_rx():
     print (CustomFormatter.bold_white + f"\nMeshtastic Autoresponder Bot CTL+C to exit\n" + CustomFormatter.reset)
+    if llm_enabled:
+        logger.debug(f"System: Ollama LLM Enabled, loading model please wait")
+        llm_query(" ", myNodeNum1)
+        logger.debug(f"System: LLM model loaded")
     # Start the receive subscriber using pubsub via meshtastic library
     pub.subscribe(onReceive, 'meshtastic.receive')
     pub.subscribe(onDisconnect, 'meshtastic.connection.lost')

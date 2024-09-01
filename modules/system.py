@@ -70,6 +70,12 @@ if wikipedia_enabled:
     trap_list = trap_list + ("wiki:",)
     help_message = help_message + ", wiki:"
 
+# LLM Configuration
+if llm_enabled:
+    from modules.llm import * # from the spudgunman/meshing-around repo
+    trap_list = trap_list + trap_list_llm # items ask:
+    help_message = help_message + ", ask:"
+
 # Scheduled Broadcast Configuration
 if scheduler_enabled:
     import schedule # pip install schedule
@@ -97,6 +103,7 @@ if interface1_type == 'ble' and interface2_type == 'ble':
     
 # Interface1 Configuration
 try:
+    logger.debug(f"System: Initalizing Interface1")
     if interface1_type == 'serial':
         interface1 = meshtastic.serial_interface.SerialInterface(port1)
     elif interface1_type == 'tcp':
@@ -112,6 +119,7 @@ except Exception as e:
 
 # Interface2 Configuration
 if interface2_enabled:
+    logger.debug(f"System: Initalizing Interface2")
     try:
         if interface2_type == 'serial':
             interface2 = meshtastic.serial_interface.SerialInterface(port2)
@@ -420,7 +428,7 @@ def get_closest_nodes(nodeInt=1,returnCount=3):
             return ERROR_FETCHING_DATA
         
 def send_message(message, ch, nodeid=0, nodeInt=1):
-    if message == "":
+    if message == "" or message == None or len(message) == 0:
         return
     # if message over MESSAGE_CHUNK_SIZE characters, split it into multiple messages
     if len(message) > MESSAGE_CHUNK_SIZE:
@@ -509,18 +517,9 @@ def messageTrap(msg):
                 return True
     return False
 
-def messageTrap(msg):
-    # Check if the message contains a trap word
-    message_list=msg.split(" ")
-    for m in message_list:
-        for t in trap_list:
-            if t.lower() == m.lower():
-                return True
-    return False
-
 def exit_handler():
     # Close the interface and save the BBS messages
-    logger.debug(f"\nSystem: Closing Autoresponder\n")
+    logger.debug(f"\nSystem: Closing Autoresponder")
     try:         
         interface1.close()
         logger.debug(f"System: Interface1 Closed")
@@ -563,14 +562,14 @@ async def handleSignalWatcher():
                             if interface2_enabled:
                                 send_message(msg, int(ch), 0, 2)
                         else:
-                            logger.error(f"System: antiSpam prevented Alert from Hamlib {msg}")
+                            logger.warning(f"System: antiSpam prevented Alert from Hamlib {msg}")
                 else:
                     if antiSpam and sigWatchBroadcastCh != publicChannel:
                         send_message(msg, int(sigWatchBroadcastCh), 0, 1)
                         if interface2_enabled:
                             send_message(msg, int(sigWatchBroadcastCh), 0, 2)
                     else:
-                        logger.error(f"System: antiSpam prevented Alert from Hamlib {msg}")
+                        logger.warning(f"System: antiSpam prevented Alert from Hamlib {msg}")
 
         await asyncio.sleep(1)
         pass
