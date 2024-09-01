@@ -510,8 +510,6 @@ def get_wikipedia_summary(search_term):
 
 def messageTrap(msg):
     # Check if the message contains a trap word
-    if "wiki:" in msg or "ask:" in msg:
-        return True
     message_list=msg.split(" ")
     for m in message_list:
         for t in trap_list:
