@@ -10,6 +10,8 @@ Along with network testing, this bot has a lot of other fun features, like simpl
 
 The bot is also capable of using dual radio/nodes, so you can monitor two networks at the same time and send messages to nodes using the same `bbspost @nodeNumber #message` or `bbspost @nodeShportName #message` function. There is a small message board to fit in the constraints of Meshtastic for posting bulletin messages with `bbspost $subject #message`.
 
+Look up data using wiki results or interact with [Ollama](https://ollama.com) LLM AI 
+
 The bot will report on anyone who is getting close to the configured lat/long, if in a remote location.
 
 Store and forward-like message re-play with `messages`, and there is a repeater module for dual radio bots to cross post messages. Messages are also logged locally to disk.
@@ -37,6 +39,7 @@ Full list of commands for the bot.
   - `wxa` and `wxalert` return NOAA alerts. Short title or expanded details
   - `joke` tells a joke
   - `wiki:` search wikipedia, return the first few sentances of first result if a match
+  - `ask:` ask Ollama LLM AI for a response
   - `messages` Replay the last messages heard, like Store and Forward
   - `motd` or to set the message `motd $New Message Of the day`
   - `lheard` returns the last 5 heard nodes with SNR, can also use `sitrep`
@@ -194,6 +197,12 @@ The following is needed for open-meteo use
 pip install openmeteo_requests
 pip install retry_requests
 pip install numpy
+```
+The following is for the Ollama LLM
+```
+pip install langchain
+pip install langchain-ollama
+pip install ollama
 ```
 
 To enable emoji in the Debian console, install the fonts `sudo apt-get install fonts-noto-color-emoji`
