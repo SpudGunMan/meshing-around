@@ -456,9 +456,9 @@ def onReceive(packet, interface):
 async def start_rx():
     print (CustomFormatter.bold_white + f"\nMeshtastic Autoresponder Bot CTL+C to exit\n" + CustomFormatter.reset)
     if llm_enabled:
-        logger.debug(f"System: Ollama LLM Enabled, loading model please wait")
+        logger.debug(f"System: Ollama LLM Enabled, loading model {llmModel} please wait")
         llm_query(" ", myNodeNum1)
-        logger.debug(f"System: LLM model loaded")
+        logger.debug(f"System: LLM model {llmModel} loaded")
     # Start the receive subscriber using pubsub via meshtastic library
     pub.subscribe(onReceive, 'meshtastic.receive')
     pub.subscribe(onDisconnect, 'meshtastic.connection.lost')
