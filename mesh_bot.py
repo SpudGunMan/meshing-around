@@ -481,7 +481,7 @@ async def start_rx():
         logger.debug(f"System: Wikipedia search Enabled")
     if llm_enabled:
         logger.debug(f"System: Ollama LLM Enabled, loading model please wait")
-        llm_query("", myNodeNum1)
+        llm_query(" ", myNodeNum1)
         logger.debug(f"System: LLM model loaded")
     if motd_enabled:
         logger.debug(f"System: MOTD Enabled using {MOTD}")
