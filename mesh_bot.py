@@ -455,6 +455,10 @@ def onReceive(packet, interface):
 
 async def start_rx():
     print (CustomFormatter.bold_white + f"\nMeshtastic Autoresponder Bot CTL+C to exit\n" + CustomFormatter.reset)
+    if llm_enabled:
+        logger.debug(f"System: Ollama LLM Enabled, loading model please wait")
+        llm_query(" ", myNodeNum1)
+        logger.debug(f"System: LLM model loaded")
     # Start the receive subscriber using pubsub via meshtastic library
     pub.subscribe(onReceive, 'meshtastic.receive')
     pub.subscribe(onDisconnect, 'meshtastic.connection.lost')
@@ -480,10 +484,6 @@ async def start_rx():
         logger.debug(f"System: Dad Jokes Enabled!")
     if wikipedia_enabled:
         logger.debug(f"System: Wikipedia search Enabled")
-    if llm_enabled:
-        logger.debug(f"System: Ollama LLM Enabled, loading model please wait")
-        llm_query(" ", myNodeNum1)
-        logger.debug(f"System: LLM model loaded")
     if motd_enabled:
         logger.debug(f"System: MOTD Enabled using {MOTD}")
     if sentry_enabled:
