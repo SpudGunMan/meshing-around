@@ -103,6 +103,7 @@ if interface1_type == 'ble' and interface2_type == 'ble':
     
 # Interface1 Configuration
 try:
+    logger.debug(f"System: Initalizing Interface1")
     if interface1_type == 'serial':
         interface1 = meshtastic.serial_interface.SerialInterface(port1)
     elif interface1_type == 'tcp':
@@ -118,6 +119,7 @@ except Exception as e:
 
 # Interface2 Configuration
 if interface2_enabled:
+    logger.debug(f"System: Initalizing Interface2")
     try:
         if interface2_type == 'serial':
             interface2 = meshtastic.serial_interface.SerialInterface(port2)
