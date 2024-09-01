@@ -70,6 +70,12 @@ if wikipedia_enabled:
     trap_list = trap_list + ("wiki:",)
     help_message = help_message + ", wiki:"
 
+# LLM Configuration
+if llm_enabled:
+    from modules.llm import * # from the spudgunman/meshing-around repo
+    trap_list = trap_list + trap_list_llm # items ask:
+    help_message = help_message + ", ask:"
+
 # Scheduled Broadcast Configuration
 if scheduler_enabled:
     import schedule # pip install schedule

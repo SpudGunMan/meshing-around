@@ -47,6 +47,8 @@ urlTimeout = 10
 LogMessagesToFile = False
 # Logging of system messages to file
 SyslogToFile = False
+# Enable ollama LLM see more at https://ollama.com
+ollama = False
 
 
 [sentry]
