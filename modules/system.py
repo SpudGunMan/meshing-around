@@ -564,14 +564,14 @@ async def handleSignalWatcher():
                             if interface2_enabled:
                                 send_message(msg, int(ch), 0, 2)
                         else:
-                            logger.error(f"System: antiSpam prevented Alert from Hamlib {msg}")
+                            logger.warning(f"System: antiSpam prevented Alert from Hamlib {msg}")
                 else:
                     if antiSpam and sigWatchBroadcastCh != publicChannel:
                         send_message(msg, int(sigWatchBroadcastCh), 0, 1)
                         if interface2_enabled:
                             send_message(msg, int(sigWatchBroadcastCh), 0, 2)
                     else:
-                        logger.error(f"System: antiSpam prevented Alert from Hamlib {msg}")
+                        logger.warning(f"System: antiSpam prevented Alert from Hamlib {msg}")
 
         await asyncio.sleep(1)
         pass
