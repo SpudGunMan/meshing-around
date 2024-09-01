@@ -40,8 +40,8 @@ Any messages that are over 160 characters are chunked into 160 message bytes to 
   - `wx` and `wxc` returns local weather forecast, (wxc is metric value), NOAA or Open Meteo for weather forecasting.
   - `wxa` and `wxalert` return NOAA alerts. Short title or expanded details
   - `joke` tells a joke
-  - `wiki:` search wikipedia, return the first few sentances of first result if a match
-  - `ask:` ask Ollama LLM AI for a response
+  - `wiki: ` search wikipedia, return the first few sentances of first result if a match `wiki: lora radio`
+  - `ask: ` ask Ollama LLM AI for a response `ask: what temp do I cook chicken`
   - `messages` Replay the last messages heard, like Store and Forward
   - `motd` or to set the message `motd $New Message Of the day`
   - `lheard` returns the last 5 heard nodes with SNR, can also use `sitrep`
