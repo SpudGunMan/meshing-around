@@ -519,15 +519,6 @@ def messageTrap(msg):
                 return True
     return False
 
-def messageTrap(msg):
-    # Check if the message contains a trap word
-    message_list=msg.split(" ")
-    for m in message_list:
-        for t in trap_list:
-            if t.lower() == m.lower():
-                return True
-    return False
-
 def exit_handler():
     # Close the interface and save the BBS messages
     logger.debug(f"\nSystem: Closing Autoresponder")
