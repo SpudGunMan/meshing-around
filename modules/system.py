@@ -519,7 +519,7 @@ def messageTrap(msg):
 
 def exit_handler():
     # Close the interface and save the BBS messages
-    logger.debug(f"\nSystem: Closing Autoresponder")
+    logger.debug(f"System: Closing Autoresponder")
     try:         
         interface1.close()
         logger.debug(f"System: Interface1 Closed")
