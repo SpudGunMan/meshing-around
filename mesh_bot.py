@@ -384,10 +384,15 @@ def onReceive(packet, interface):
                                 "From: " + CustomFormatter.white + f"{get_name_from_number(message_from_id, 'long', rxNode)}")
                     # respond with DM
                     send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number, rxNode), channel_number, message_from_id, rxNode)
-                else: 
-                    # respond with welcome message on DM
-                    logger.warning(f"Device:{rxNode} Ignoring DM: {message_string} From: {get_name_from_number(message_from_id, 'long', rxNode)}")
-                    send_message(welcome_message, channel_number, message_from_id, rxNode)
+                else:
+                    if llm_enabled:
+                        handle_llm(message_from_id, channel_number, rxNode, message_string, publicChannel)
+                    else:
+                        # respond with welcome message on DM
+                        logger.warning(f"Device:{rxNode} Ignoring DM: {message_string} From: {get_name_from_number(message_from_id, 'long', rxNode)}")
+                        send_message(welcome_message, channel_number, message_from_id, rxNode)
+                    
+                    # log the message to the message log
                     msgLogger.info(f"Device:{rxNode} Channel:{channel_number} | {get_name_from_number(message_from_id, 'long', rxNode)} | " + message_string.replace('\n', '-nl-'))
             else:
                 # message is on a channel
