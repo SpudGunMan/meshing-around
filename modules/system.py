@@ -426,7 +426,7 @@ def get_closest_nodes(nodeInt=1,returnCount=3):
             return ERROR_FETCHING_DATA
         
 def send_message(message, ch, nodeid=0, nodeInt=1):
-    if message == "":
+    if message == "" or message == None or len(message) == 0:
         return
     # if message over MESSAGE_CHUNK_SIZE characters, split it into multiple messages
     if len(message) > MESSAGE_CHUNK_SIZE:
