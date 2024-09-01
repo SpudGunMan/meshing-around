@@ -23,7 +23,7 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
         "wxc": lambda: handle_wxc(message_from_id, deviceID, 'wxc'),
         "wx": lambda: handle_wxc(message_from_id, deviceID, 'wx'),
         "wiki:": lambda: handle_wiki(message),
-        "ask:": lambda: handle_llm(message_from_id, channel_number, deviceID, message),
+        "ask:": lambda: handle_llm(message_from_id, channel_number, deviceID, message, publicChannel),
         "joke": tell_joke,
         "bbslist": bbs_list_messages,
         "bbspost": lambda: handle_bbspost(message, message_from_id, deviceID),
@@ -103,7 +103,7 @@ def handle_wiki(message):
     else:
         return "Please add a search term example:wiki: travelling gnome"
 
-def handle_llm(message_from_id, channel_number, deviceID, message):
+def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel):
     global llmRunCounter, llmTotalRuntime
     if "ask:" in message.lower():
         user_input = message.split(":")[1]
@@ -119,10 +119,16 @@ def handle_llm(message_from_id, channel_number, deviceID, message):
         averageRuntime = sum(llmTotalRuntime) / len(llmTotalRuntime)
         if averageRuntime > 25:
             msg = f"Please wait, average query time is: {int(averageRuntime)} seconds"
-            send_message(msg, channel_number, message_from_id, deviceID)
+            if channel_number == publicChannel:
+                send_message(msg, channel_number, message_from_id, deviceID)
+            else:
+                send_message(msg, channel_number, 0, deviceID)
     else:
             msg = "Please wait, response could take 3+ minutes. Fund the SysOp's GPU budget!"
-            send_message(msg, channel_number, message_from_id, deviceID)
+            if channel_number == publicChannel:
+                send_message(msg, channel_number, message_from_id, deviceID)
+            else:
+                send_message(msg, channel_number, 0, deviceID)
     
     start = time.time()
 
