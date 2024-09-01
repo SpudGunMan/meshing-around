@@ -38,7 +38,7 @@ spaceWeather = True
 wikipedia = True
 # Enable ollama LLM see more at https://ollama.com
 ollama = False
-# Ollama modul
+# Ollama module
 ollamaModel = 'llama3.1'
 # StoreForward Enabled and Limits
 StoreForward = True
