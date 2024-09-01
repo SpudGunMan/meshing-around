@@ -386,7 +386,8 @@ def onReceive(packet, interface):
                     send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number, rxNode), channel_number, message_from_id, rxNode)
                 else:
                     if llm_enabled:
-                        handle_llm(message_from_id, channel_number, rxNode, message_string, publicChannel)
+                        llm = handle_llm(message_from_id, channel_number, rxNode, message_string, publicChannel)
+                        send_message(llm, channel_number, message_from_id, rxNode)
                     else:
                         # respond with welcome message on DM
                         logger.warning(f"Device:{rxNode} Ignoring DM: {message_string} From: {get_name_from_number(message_from_id, 'long', rxNode)}")
