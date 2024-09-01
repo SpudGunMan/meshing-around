@@ -26,6 +26,8 @@ retry_int1 = False
 retry_int2 = False
 scheduler_enabled = False # enable the scheduler currently config via code only
 wiki_return_limit = 3 # limit the number of sentences returned off the first paragraph first hit
+llmRunCounter = 0
+llmTotalRuntime = []
 
 # Read the config file, if it does not exist, create basic config file
 config = configparser.ConfigParser() 
