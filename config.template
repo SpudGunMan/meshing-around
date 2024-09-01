@@ -36,6 +36,8 @@ DadJokes = True
 spaceWeather = True
 # enable or disable the wikipedia search module
 wikipedia = True
+# Enable ollama LLM see more at https://ollama.com
+ollama = False
 # StoreForward Enabled and Limits
 StoreForward = True
 StoreLimit = 3
@@ -47,9 +49,6 @@ urlTimeout = 10
 LogMessagesToFile = False
 # Logging of system messages to file
 SyslogToFile = False
-# Enable ollama LLM see more at https://ollama.com
-ollama = False
-
 
 [sentry]
 # detect anyone close to the bot

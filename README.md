@@ -10,7 +10,7 @@ Along with network testing, this bot has a lot of other fun features, like simpl
 
 The bot is also capable of using dual radio/nodes, so you can monitor two networks at the same time and send messages to nodes using the same `bbspost @nodeNumber #message` or `bbspost @nodeShportName #message` function. There is a small message board to fit in the constraints of Meshtastic for posting bulletin messages with `bbspost $subject #message`.
 
-Look up data using wiki results or interact with [Ollama](https://ollama.com) LLM AI see the [OllamaDocs](https://github.com/ollama/ollama/tree/main/docs)
+Look up data using wiki results or interact with [Ollama](https://ollama.com) LLM AI see the [OllamaDocs](https://github.com/ollama/ollama/tree/main/docs) If Ollama is enabled you can DM the bot directly.
 
 The bot will report on anyone who is getting close to the configured lat/long, if in a remote location.
 
