@@ -6,7 +6,7 @@ from langchain_ollama import OllamaLLM
 from langchain_core.prompts import ChatPromptTemplate
 
 meshBotAI = """
-FROM llama3.1
+FROM {llmModel}
 SYSTEM
 You must keep responses under 450 characters at all times, the response will be cut off if it exceeds this limit.
 You must respond in plain text standard ASCII characters, or emojis.
@@ -19,7 +19,7 @@ PROMPT
 """
 # LLM System Variables
 #ollama_model = OllamaLLM(model="phi3")
-ollama_model = OllamaLLM(model="llama3.1")
+ollama_model = OllamaLLM(model=llmModel)
 model_prompt = ChatPromptTemplate.from_template(meshBotAI)
 chain_prompt_model = model_prompt | ollama_model
 antiFloodLLM = []
@@ -41,7 +41,7 @@ def llm_query(input, nodeID=0):
     response = ""
     logger.debug(f"System: LLM Query: {input} From:{nodeID}")
 
-    result = chain_prompt_model.invoke({"input": input})
+    result = chain_prompt_model.invoke({"input": input, "llmModel": llmModel})
     #logger.debug(f"System: LLM Response: " + result.strip().replace('\n', ' '))
     response = result.strip().replace('\n', ' ')
 
