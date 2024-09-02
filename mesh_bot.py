@@ -327,6 +327,8 @@ def onReceive(packet, interface):
             send_message(message, channel_number, message_from_id, rxNode)
 
     # check for a message packet and process it
+    snr = 0
+    rssi = 0
     try:
         if 'decoded' in packet and packet['decoded']['portnum'] == 'TEXT_MESSAGE_APP':
             message_bytes = packet['decoded']['payload']
