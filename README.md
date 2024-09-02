@@ -148,6 +148,14 @@ signalHoldTime = 10
 signalCooldown = 5
 signalCycleLimit = 5
 ```
+Ollama Settings, a quick note that for Ollama to work the command line ollama run 'model' needs to work properly. Check that you have enough RAM and your GPU are working as expected. the default is set to llama3.1 (run on command line `olamma pull llama3.1` to download and setup) however I have found gemma2:2b to be lighter, faster and seems better overall. (run `ollama pull gemma2:2b`)
+
+```
+# Enable ollama LLM see more at https://ollama.com
+ollama = True
+# Ollama model to use (defaults to llama3.1)
+ollamaModel = gemma2:2b
+```
 
 Logging messages to disk or Syslog to disk uses the python native logging function. Take a look at the [/modules/log.py](/modules/log.py) you can set the file logger for syslog to INFO for example to not log DEBUG messages to file log, or modify the stdOut level.
 ```
