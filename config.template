@@ -1,109 +1,59 @@
-#config.ini
-# type can be serial, tcp, or ble
-# port is the serial port to use, commented out will try to auto-detect
-# hostname is the IP address of the device to connect to for tcp type
-# mac is the MAC address of the device to connect to for ble type
-
 [interface]
 type = serial
 port = /dev/ttyACM0
-# port = /dev/ttyUSB0
-# port = COM1
-# hostname = 192.168.0.1
-# mac = 00:11:22:33:44:55
 
-# Additional interface for dual radio support
 [interface2]
 enabled = False
 type = serial
 port = /dev/ttyUSB0
-#port = /dev/ttyACM1
-# port = COM1
-# hostname = meshtastic.local
-# mac = 00:11:22:33:44:55
 
 [general]
-# if False will respond on all channels but the default channel
 respond_by_dm_only = True
-# defaultChannel is the meshtastic default public channel
 defaultChannel = 0
-# motd is reset to this value on boot
 motd = Thanks for using MeshBOT! Have a good day!
 welcome_message = MeshBot, here for you like a friend who is not. Try sending: ping @foo or, cmd
-# enable or disable the Joke module
 DadJokes = True
-# enable or disable the Solar module
 spaceWeather = True
-# enable or disable the wikipedia search module
 wikipedia = True
-# Enable ollama LLM see more at https://ollama.com
 ollama = False
-# Ollama model to use
 ollamaModel = llama3.1
-# StoreForward Enabled and Limits
 StoreForward = True
 StoreLimit = 3
-# 24 hour clock
 zuluTime = False
-# wait time for URL requests
 urlTimeout = 10
-# logging to file of the non Bot messages
 LogMessagesToFile = False
-# Logging of system messages to file
 SyslogToFile = False
 
 [sentry]
-# detect anyone close to the bot
 SentryEnabled = True
-# radius in meters to detect someone close to the bot
 SentryRadius = 100
-# channel to send a message to when the watchdog is triggered
 SentryChannel = 9
-# holdoff time multiplied by seconds(20) of the watchdog
 SentryHoldoff = 9
-# list of ignored nodes numbers ex: 2813308004,4258675309
 sentryIgnoreList = 
 
 [bbs]
 enabled = True
-# list of banned nodes numbers ex: 2813308004,4258675309
 bbs_ban_list = 
-# list of admin nodes numbers ex: 2813308004,4258675309
 bbs_admin_list = 
 
-# location module
 [location]
 enabled = True
 lat = 48.50
 lon = -123.0
-# NOAA weather forecast days, the first two rows are today and tonight
 NOAAforecastDuration = 4
-# number of weather alerts to display
 NOAAalertCount = 2
-# use Open-Meteo API for weather data not NOAA useful for non US locations
 UseMeteoWxAPI = False
-# Default to metric units rather than imperial
 useMetric = False
 
-# repeater module
 [repeater]
 enabled = False
-# list of repeater channels ex: 2,3 which will be consumed 
-# and rebroadcasted on the same channel on the other device/node/interface
-# with great power comes great responsibility, danger could be lurking in use of this feature
-# if you have the two nodes on the same radio configurations, you could create a feedback loop
 repeater_channels = 
 
 [radioMon]
-# using Hamlib rig control will monitor and alert on channel use
 enabled = False
 rigControlServerAddress = localhost:4532
-# broadcast to all nodes on the channel can alsp be  = 2,3
 sigWatchBroadcastCh = 2
-# minimum SNR as reported by radio via hamlib
 signalDetectionThreshold = -10
-# hold time for high SNR
 signalHoldTime = 10
-# the following are combined to reset the monitor
 signalCooldown = 5
 signalCycleLimit = 5
