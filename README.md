@@ -148,7 +148,7 @@ signalHoldTime = 10
 signalCooldown = 5
 signalCycleLimit = 5
 ```
-Ollama Settings, a quick note that for Ollama to work the command line ollama run 'model' needs to work properly. Check that you have enough RAM and your GPU are working as expected. the default is set to llama3.1 (run on command line `olamma pull llama3.1` to download and setup) however I have found gemma2:2b to be lighter, faster and seems better overall. (run `ollama pull gemma2:2b`)
+Ollama Settings, a quick note that for Ollama to work the command line ollama run 'model' needs to work properly. Check that you have enough RAM and your GPU are working as expected. the default is set to gemma2:2b (run `ollama pull gemma2:2b` on command line, to download and setup) however I have found gemma2:2b to be lighter, faster and seems better overall. (llama3,1 `olamma pull llama3.1`)
 
 ```
 # Enable ollama LLM see more at https://ollama.com
