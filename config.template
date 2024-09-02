@@ -38,8 +38,8 @@ spaceWeather = True
 wikipedia = True
 # Enable ollama LLM see more at https://ollama.com
 ollama = False
-# Ollama model to use (defaults to llama3.1)
-# ollamaModel = gemma2:2b
+# Ollama model to use (defaults to gemma2:2b)
+# ollamaModel = llama3.1
 # StoreForward Enabled and Limits
 StoreForward = True
 StoreLimit = 3
