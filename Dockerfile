@@ -11,8 +11,7 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 COPY . .
 
-COPY config.template /app/config.ini
-
+COPY config.ini /app/config.ini
 COPY entrypoint.sh /app/entrypoint.sh
 
 RUN chmod +x /app/entrypoint.sh

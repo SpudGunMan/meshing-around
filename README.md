@@ -63,6 +63,11 @@ Optionally:
 - `install.sh` will automate optional venv and requirements installation.
 - `launch.sh` will activate and launch the app in the venv if built.
 
+For Docker:
+- `git clone https://github.com/spudgunman/meshing-around`
+- `cd meshing-around && docker build -t meshing-around`
+- `docker run meshing-around`
+
 ### Configurations
 Copy the [config.template](config.template) to `config.ini` and set the appropriate interface for your method (serial/ble/tcp). While BLE and TCP will work, they are not as reliable as serial connections. There is a watchdog to reconnect tcp if possible. To get BLE mac `meshtastic --ble-scan` **NOTE** I have only tested with a single BLE device and the code is written to only have one interface be a BLE port
 
