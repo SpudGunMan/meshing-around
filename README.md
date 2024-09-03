@@ -187,7 +187,7 @@ The Scheduler is enabled in the [settings.py](modules/settings.py) by setting `s
 #schedule.every().wednesday.at("19:00").do(lambda: send_message("Net Starting Now", 2, 0, 1))
 ```
 # requirements
-Python 3.4 and likely higher is needed, developed on latest release.
+Python 3.10 minimally is needed, developed on latest release.
 
 The following can also be installed with `pip install -r requirements.txt` or using the install.sh script for venv and automation
 
