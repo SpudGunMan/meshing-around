@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-# LLM Module vDev
+# LLM Module for meshing-around
+# This module is used to interact with Ollama to generate responses to user input
+# K7MHI Kelly Keeton 2024
 from modules.log import *
 
 from langchain_ollama import OllamaLLM
