@@ -96,6 +96,7 @@ def handle_wxalert(message_from_id, deviceID, message):
         return weatherAlert
 
 def handle_wiki(message):
+    # location = get_node_location(message_from_id, deviceID)
     if "wiki:" in message.lower():
         search = message.split(":")[1]
         search = search.strip()

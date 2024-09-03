@@ -498,15 +498,29 @@ def tell_joke():
         return ''
 
 def get_wikipedia_summary(search_term):
-    # search wikipedia for a summary of the search term
-    try:
-        logger.debug(f"System: Searching Wikipedia for:{search_term}")
-        summary = wikipedia.summary(search_term, sentences=wiki_return_limit)
-        return summary
-    except Exception as e:
-        # The errors are vebose, normallly around trying to guess the search term
-        logger.warning(f"System: Error searching Wikipedia for:{search_term}")
+    wikipedia_search = wikipedia.search(search_term, results=3)
+    wikipedia_suggest = wikipedia.suggest(search_term)
+    #wikipedia_aroundme = wikipedia.geosearch(location[0], location[1], results=3)
+    #logger.debug(f"System: Wikipedia Nearby:{wikipedia_aroundme}")
+    
+    if len(wikipedia_search) == 0:
+        logger.warning(f"System: No Wikipedia Results for:{search_term}")
         return ERROR_FETCHING_DATA
+    
+    try:
+        logger.debug(f"System: Searching Wikipedia for:{search_term}, First Result:{wikipedia_search[0]}, Suggest Word:{wikipedia_suggest}")
+        summary = wikipedia.summary(search_term, sentences=wiki_return_limit, auto_suggest=False, redirect=True)
+    except wikipedia.DisambiguationError as e:
+        logger.warning(f"System: Disambiguation Error for:{search_term} trying {wikipedia_search[0]}")
+        summary = wikipedia.summary(wikipedia_search[0], sentences=wiki_return_limit, auto_suggest=True, redirect=True)
+    except wikipedia.PageError as e:
+        logger.warning(f"System: Wikipedia Page Error for:{search_term} {e} trying {wikipedia_search[0]}")
+        summary = wikipedia.summary(wikipedia_search[0], sentences=wiki_return_limit, auto_suggest=True, redirect=True)
+    except Exception as e:
+        logger.error(f"System: Error with Wikipedia for:{search_term} {e}")
+        return ERROR_FETCHING_DATA
+    
+    return summary
 
 def messageTrap(msg):
     # Check if the message contains a trap word
