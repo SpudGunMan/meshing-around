@@ -229,6 +229,6 @@ I used ideas and snippets from other responder bots and want to call them out!
 - https://github.com/pdxlocations/meshtastic-Python-Examples
 - https://github.com/geoffwhittington/meshtastic-matrix-relay
 
-GitHub user PiDiBi looking at test functions and other suggestions like wxc, CPU use, and alerting ideas
+GitHub user mrpatrick1991 For Docker configs, PiDiBi looking at test functions and other suggestions like wxc, CPU use, and alerting ideas
 Discord and Mesh user Cisien, and github Hailo1999, for testing and ideas!
 
