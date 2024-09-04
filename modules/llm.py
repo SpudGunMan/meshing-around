@@ -107,9 +107,15 @@ def llm_query(input, nodeID=0, location_name=None):
     response = ""
     result = ""
     location_name += f" at the current time of {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
-    result = chain_prompt_model.invoke({"input": input, "llmModel": llmModel, "userID": nodeID, \
-                                        "history": llmChat_history, "context": googleResults, "location_name": location_name})
-    #logger.debug(f"System: LLM Response: " + result.strip().replace('\n', ' '))
+    
+    try:
+        result = chain_prompt_model.invoke({"input": input, "llmModel": llmModel, "userID": nodeID, \
+                                            "history": llmChat_history, "context": googleResults, "location_name": location_name})
+        #logger.debug(f"System: LLM Response: " + result.strip().replace('\n', ' '))
+    except Exception as e:
+        logger.warning(f"System: LLM failure: {e}")
+        return "I am having trouble processing your request, please try again later."
+    
 
     response = result.strip().replace('\n', ' ')
 
