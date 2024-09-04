@@ -86,7 +86,7 @@ def llm_query(input, nodeID=0, location_name=None):
         # grab some context from the internet using google search hits (if available)
         # localization details at https://pypi.org/project/googlesearch-python/
         try:
-            googleSearch = search(input, advanced=True, num_results=5)
+            googleSearch = search(input, advanced=True, num_results=3)
             if googleSearch:
                 for result in googleSearch:
                     # SearchResult object has url= title= description= just grab title and description
