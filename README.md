@@ -166,7 +166,7 @@ ollama = True
 ollamaModel = gemma2:2b
 ```
 
-also see llm.py for changing the defautls of
+also see llm.py for changing the defaults of
 ```
 llmEnableHistory = False
 llmContext_fromGoogle = True
