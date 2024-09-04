@@ -112,7 +112,7 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
     if location_enabled:
         location_name = where_am_i(str(location[0]), str(location[1], short=True))
     else:
-        location_name = "Unknown"
+        location_name = "no location provided "
 
     if "ask:" in message.lower():
         user_input = message.split(":")[1]
