@@ -156,11 +156,19 @@ signalCycleLimit = 5
 Ollama Settings, for Ollama to work the command line `ollama run 'model'` needs to work properly. Check that you have enough RAM and your GPU are working as expected. The default model for this project, is set to `gemma2:2b` (run `ollama pull gemma2:2b` on command line, to download and setup) however I have found gemma2:2b to be lighter, faster and seems better overall vs llama3,1 (`olamma pull llama3.1`)
  - From the command terminal of your system with mesh-bot, download the default model for mesh-bot which is currently `ollama pull gemma2:2b`
 
+Enable History, set via code readme Ollama Config in [Settings](https://github.com/SpudGunMan/meshing-around?tab=readme-ov-file#configurations) and [llm.py](https://github.com/SpudGunMan/meshing-around/blob/eb3bbdd3c5e0f16fe3c465bea30c781bd132d2d3/modules/llm.py#L12)
+
 ```
 # Enable ollama LLM see more at https://ollama.com
 ollama = True
 # Ollama model to use (defaults to llama3.1)
 ollamaModel = gemma2:2b
+```
+
+also see llm.py for changing the defautls of
+```
+llmEnableHistory = False
+llmContext_fromGoogle = True
 ```
 
 Logging messages to disk or Syslog to disk uses the python native logging function. Take a look at the [/modules/log.py](/modules/log.py) you can set the file logger for syslog to INFO for example to not log DEBUG messages to file log, or modify the stdOut level.
@@ -219,6 +227,7 @@ The following is for the Ollama LLM
 pip install langchain
 pip install langchain-ollama
 pip install ollama
+pip install googlesearch-python
 ```
 
 To enable emoji in the Debian console, install the fonts `sudo apt-get install fonts-noto-color-emoji`
