@@ -109,7 +109,7 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
     global llmRunCounter, llmTotalRuntime
     
     location = get_node_location(message_from_id, deviceID)
-    if location_enabled:
+    if location_enabled and not NO_DATA_NOGPS in location:
         location_name = where_am_i(str(location[0]), str(location[1], short=True))
     else:
         location_name = "no location provided "
