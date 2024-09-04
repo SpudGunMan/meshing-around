@@ -82,6 +82,7 @@ def llm_query(input, nodeID=0, location_name=None):
 
     if llmContext_fromGoogle:
         # grab some context from the internet using google search hits (if available)
+        # localization details at https://pypi.org/project/googlesearch-python/
         try:
             googleSearch = search(input, advanced=True, num_results=5)
             if googleSearch:
