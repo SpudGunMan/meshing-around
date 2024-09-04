@@ -126,3 +126,15 @@ def llm_query(input, nodeID=0, location_name=None):
     antiFloodLLM.remove(nodeID)
 
     return response
+
+# import subprocess
+# def get_ollama_cpu():
+#     try:
+#         psOutput = subprocess.run(['ollama', 'ps'], capture_output=True, text=True)
+#         if "GPU" in psOutput.stdout:
+#             logger.debug(f"System: Ollama process with GPU")
+#         else:
+#             logger.debug(f"System: Ollama process with CPU, query time will be slower")
+#     except Exception as e:
+#         logger.debug(f"System: Ollama process not found, {e}")
+#         return False
