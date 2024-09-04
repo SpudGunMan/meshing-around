@@ -70,6 +70,8 @@ chain_prompt_model = model_prompt | ollama_model
 def llm_query(input, nodeID=0, location_name=None):
     global antiFloodLLM, llmChat_history
     googleResults = []
+    if not location_name:
+        location_name = "no location provided "
 
     # add the naughty list here to stop the function before we continue
     # add a list of allowed nodes only to use the function
