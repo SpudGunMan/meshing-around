@@ -12,6 +12,7 @@ from googlesearch import search # pip install googlesearch-python
 # LLM System Variables
 llmEnableHistory = False
 llmContext_fromGoogle = True
+googleSearchResults = 3
 llm_history_limit = 6 # limit the history to 3 messages (come in pairs)
 antiFloodLLM = []
 llmChat_history = []
@@ -86,7 +87,7 @@ def llm_query(input, nodeID=0, location_name=None):
         # grab some context from the internet using google search hits (if available)
         # localization details at https://pypi.org/project/googlesearch-python/
         try:
-            googleSearch = search(input, advanced=True, num_results=3)
+            googleSearch = search(input, advanced=True, num_results=googleSearchResults)
             if googleSearch:
                 for result in googleSearch:
                     # SearchResult object has url= title= description= just grab title and description
