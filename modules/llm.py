@@ -12,8 +12,8 @@ from googlesearch import search # pip install googlesearch-python
 # LLM System Variables
 llmEnableHistory = False
 llmContext_fromGoogle = True
-googleSearchResults = 3
-llm_history_limit = 6 # limit the history to 3 messages (come in pairs)
+googleSearchResults = 3 # number of google search results to include in the context more results = more compute time
+llm_history_limit = 6 # limit the history to 3 messages (come in pairs) more results = more compute time
 antiFloodLLM = []
 llmChat_history = []
 trap_list_llm = ("ask:", "askai")
@@ -39,7 +39,7 @@ user={userID}
 if llmContext_fromGoogle:
     meshBotAI = meshBotAI + """
     CONTEXT
-    The following is the location the user
+    The following is the location of the user
     {location_name}
 
     The following is for context around the prompt to help guide your response.
@@ -49,7 +49,7 @@ if llmContext_fromGoogle:
 else:
     meshBotAI = meshBotAI + """
     CONTEXT
-    The following is the location the user
+    The following is the location of the user
     {location_name}
 
     """
@@ -107,7 +107,7 @@ def llm_query(input, nodeID=0, location_name=None):
     response = ""
     result = ""
     location_name += f" at the current time of {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
-    
+
     try:
         result = chain_prompt_model.invoke({"input": input, "llmModel": llmModel, "userID": nodeID, \
                                             "history": llmChat_history, "context": googleResults, "location_name": location_name})
