@@ -11,7 +11,7 @@ from modules.log import *
 
 trap_list_location = ("whereami", "tide", "moon", "wx", "wxc", "wxa", "wxalert")
 
-def where_am_i(lat=0, lon=0):
+def where_am_i(lat=0, lon=0, short=False):
     whereIam = ""
     grid = mh.to_maiden(float(lat), float(lon))
     
@@ -32,11 +32,18 @@ def where_am_i(lat=0, lon=0):
         whereIam += " Grid: " + grid
         return whereIam
     else:
-        location = geolocator.reverse(lat + ", " + lon)
-        address = location.raw['address']
-        address_components = ['house_number', 'road', 'city', 'state', 'postcode', 'county', 'country']
-        whereIam += ' '.join([address.get(component, '') for component in address_components if component in address])
-        whereIam += " Grid: " + grid
+        if short:
+            location = geolocator.reverse(lat + ", " + lon)
+            address = location.raw['address']
+            address_components = ['city', 'state', 'county', 'country']
+            whereIam += ' '.join([address.get(component, '') for component in address_components if component in address])
+            return whereIam
+        else:
+            location = geolocator.reverse(lat + ", " + lon)
+            address = location.raw['address']
+            address_components = ['house_number', 'road', 'city', 'state', 'postcode', 'county', 'country']
+            whereIam += ' '.join([address.get(component, '') for component in address_components if component in address])
+            whereIam += " Grid: " + grid
         return whereIam
 
 def get_tide(lat=0, lon=0):

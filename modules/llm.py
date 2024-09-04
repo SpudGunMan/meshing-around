@@ -58,7 +58,7 @@ ollama_model = OllamaLLM(model=llmModel)
 model_prompt = ChatPromptTemplate.from_template(meshBotAI)
 chain_prompt_model = model_prompt | ollama_model
 
-def llm_query(input, nodeID=0):
+def llm_query(input, nodeID=0, location_name=None):
     global antiFloodLLM, llmChat_history
     googleResults = []
 

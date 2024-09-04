@@ -107,6 +107,8 @@ def handle_wiki(message):
 
 def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel):
     global llmRunCounter, llmTotalRuntime
+    location = get_node_location(message_from_id, deviceID)
+    location_name = where_am_i(str(location[0]), str(location[1], short=True))
     if "ask:" in message.lower():
         user_input = message.split(":")[1]
     elif "askai" in message.lower():
@@ -137,7 +139,7 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
     start = time.time()
 
     #response = asyncio.run(llm_query(user_input, message_from_id))
-    response = llm_query(user_input, message_from_id)
+    response = llm_query(user_input, message_from_id, location_name)
 
     # handle the runtime counter
     end = time.time()
