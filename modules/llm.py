@@ -10,8 +10,8 @@ from langchain_core.messages import AIMessage, HumanMessage
 from googlesearch import search # pip install googlesearch-python
 
 # LLM System Variables
-llmEnableHistory = False
-llmContext_fromGoogle = True
+llmEnableHistory = False # enable history for the LLM model to use in responses adds to compute time
+llmContext_fromGoogle = True # enable context from google search results adds to compute time but really helps with responses accuracy
 googleSearchResults = 3 # number of google search results to include in the context more results = more compute time
 llm_history_limit = 6 # limit the history to 3 messages (come in pairs) more results = more compute time
 antiFloodLLM = []

@@ -168,8 +168,11 @@ ollamaModel = gemma2:2b
 
 also see llm.py for changing the defaults of
 ```
-llmEnableHistory = False
-llmContext_fromGoogle = True
+# LLM System Variables
+llmEnableHistory = False # enable history for the LLM model to use in responses adds to compute time
+llmContext_fromGoogle = True # enable context from google search results adds to compute time but really helps with responses accuracy
+googleSearchResults = 3 # number of google search results to include in the context more results = more compute time
+llm_history_limit = 6 # limit the history to 3 messages (come in pairs) more results = more compute time
 ```
 
 Logging messages to disk or Syslog to disk uses the python native logging function. Take a look at the [/modules/log.py](/modules/log.py) you can set the file logger for syslog to INFO for example to not log DEBUG messages to file log, or modify the stdOut level.
