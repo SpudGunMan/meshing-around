@@ -64,6 +64,7 @@ Optionally:
 - `launch.sh` will activate and launch the app in the venv if built.
 
 For Docker:
+Check you have serial port properly shared and the GPU if using LLM with [NVidia](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/docker-specialized.html)
 - `git clone https://github.com/spudgunman/meshing-around`
 - `cd meshing-around && docker build -t meshing-around`
 - `docker run meshing-around`
