@@ -106,11 +106,17 @@ def handle_wiki(message):
         return "Please add a search term example:wiki: travelling gnome"
 
 def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel):
-    global llmRunCounter, llmTotalRuntime
-    
-    location = get_node_location(message_from_id, deviceID)
+    global llmRunCounter, llmTotalRuntime, llmLocationTable
+
     if location_enabled:
-        location_name = where_am_i(str(location[0]), str(location[1]), short = True)
+        location = get_node_location(message_from_id, deviceID)
+        # if message_from_id is is the llmLocationTable use the location from the table to save on API calls
+        if message_from_id in llmLocationTable:
+            location = llmLocationTable[message_from_id]
+        else:
+            location_name = where_am_i(str(location[0]), str(location[1]), short = True)
+            llmLocationTable.append({message_from_id: location_name})
+
         if NO_DATA_NOGPS in location_name:
             location_name = "no location provided "
     else:
