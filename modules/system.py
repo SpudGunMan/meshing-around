@@ -74,7 +74,7 @@ if wikipedia_enabled:
 if llm_enabled:
     from modules.llm import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + trap_list_llm # items ask:
-    help_message = help_message + ", ask:"
+    help_message = help_message + ", askai"
 
 # Scheduled Broadcast Configuration
 if scheduler_enabled:
@@ -670,7 +670,6 @@ async def watchdog():
                 with contextlib.redirect_stdout(None):
                     interface1.localNode.getMetadata()
                     print(f"System: if you see this upgrade python to >3.4")
-                #if "device_state_version:" not in meta:
             except Exception as e:
                 logger.error(f"System: communicating with interface1, trying to reconnect: {e}")
                 retry_int1 = True

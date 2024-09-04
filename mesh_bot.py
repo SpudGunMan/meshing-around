@@ -24,6 +24,7 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
         "wx": lambda: handle_wxc(message_from_id, deviceID, 'wx'),
         "wiki:": lambda: handle_wiki(message),
         "ask:": lambda: handle_llm(message_from_id, channel_number, deviceID, message, publicChannel),
+        "askai": lambda: handle_llm(message_from_id, channel_number, deviceID, message, publicChannel),
         "joke": tell_joke,
         "bbslist": bbs_list_messages,
         "bbspost": lambda: handle_bbspost(message, message_from_id, deviceID),
@@ -108,9 +109,11 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
     global llmRunCounter, llmTotalRuntime
     if "ask:" in message.lower():
         user_input = message.split(":")[1]
-        user_input = user_input.strip()
+    elif "askai" in message.lower():
+        user_input = message.replace("askai", "")
     else:
         user_input = message
+    user_input = user_input.strip()
         
     if len(user_input) < 1:
         return "Please ask a question"

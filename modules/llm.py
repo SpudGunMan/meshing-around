@@ -13,7 +13,7 @@ llmEnableHistory = False
 llm_history_limit = 6 # limit the history to 3 messages (come in pairs)
 antiFloodLLM = []
 llmChat_history = []
-trap_list_llm = ("ask:",)
+trap_list_llm = ("ask:", "askai")
 
 meshBotAI = """
 FROM {llmModel}
