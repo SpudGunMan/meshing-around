@@ -93,7 +93,7 @@ try:
     urlTimeoutSeconds = config['general'].getint('urlTimeout', 10) # default 10 seconds
     store_forward_enabled = config['general'].getboolean('StoreForward', True)
     storeFlimit = config['general'].getint('StoreLimit', 3) # default 3 messages for S&F
-    welcome_message = config['general'].get(f'welcome_message', WELCOME_MSG)
+    welcome_message = config['general'].get('welcome_message', WELCOME_MSG)
     welcome_message = (f"{welcome_message}").replace('\\n', '\n') # allow for newlines in the welcome message
     motd_enabled = config['general'].getboolean('motdEnabled', True)
     dad_jokes_enabled = config['general'].getboolean('DadJokes', False)
