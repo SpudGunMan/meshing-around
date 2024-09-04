@@ -15,7 +15,6 @@ llmContext_fromGoogle = True
 llm_history_limit = 6 # limit the history to 3 messages (come in pairs)
 antiFloodLLM = []
 llmChat_history = []
-googleResults = []
 trap_list_llm = ("ask:", "askai")
 
 meshBotAI = """
@@ -61,6 +60,7 @@ chain_prompt_model = model_prompt | ollama_model
 
 def llm_query(input, nodeID=0):
     global antiFloodLLM, llmChat_history
+    googleResults = []
 
     # add the naughty list here to stop the function before we continue
     # add a list of allowed nodes only to use the function
