@@ -33,14 +33,23 @@ PROMPT
 {input}
 user={userID}
 
-
 """
 
 if llmContext_fromGoogle:
     meshBotAI = meshBotAI + """
     CONTEXT
+    The following is the location the user
+    {location_name}
+
     The following is for context around the prompt to help guide your response.
     {context}
+
+    """
+else:
+    meshBotAI = meshBotAI + """
+    CONTEXT
+    The following is the location the user
+    {location_name}
 
     """
 
@@ -80,10 +89,10 @@ def llm_query(input, nodeID=0, location_name=None):
                     # SearchResult object has url= title= description= just grab title and description
                     googleResults.append(f"{result.title} {result.description}")
             else:
-                googleResults = ['no context provided']
+                googleResults = ['no other context provided']
         except Exception as e:
             logger.debug(f"System: LLM Query: context gathering error: {e}")
-            googleResults = ['no context provided']
+            googleResults = ['no other context provided']
 
 
     if googleResults:
@@ -93,7 +102,8 @@ def llm_query(input, nodeID=0, location_name=None):
     
     response = ""
     result = ""
-    result = chain_prompt_model.invoke({"input": input, "llmModel": llmModel, "userID": nodeID, "history": llmChat_history, "context": googleResults})
+    result = chain_prompt_model.invoke({"input": input, "llmModel": llmModel, "userID": nodeID, \
+                                        "history": llmChat_history, "context": googleResults, "location_name": location_name})
     #logger.debug(f"System: LLM Response: " + result.strip().replace('\n', ' '))
 
     response = result.strip().replace('\n', ' ')
