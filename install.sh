@@ -97,6 +97,15 @@ if [ $bot == "n" ]; then
     fi
 fi
 
+printf "\nOptionally if you want to install the LLM Ollama compnents we will execute the following commands\n"
+printf "\ncurl -fsSL https://ollama.com/install.sh | sh\n"
+
+# ask if the user wants to install the LLM Ollama components
+echo "Do you want to install the LLM Ollama components? (y/n)"
+read ollama
+if [ $ollama == "y" ]; then
+    curl -fsSL https://ollama.com/install.sh | sh
+fi
 
 printf "\nGoodbye!"
 exit 0
