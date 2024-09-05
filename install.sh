@@ -3,9 +3,23 @@
 # install.sh
 cd "$(dirname "$0")"
 
+printf "\nMeshing Around Installer\n"
+
+
 # add user to groups for serial access
+printf "\nAdding user to dialout and tty groups for serial access\n"
 sudo usermod -a -G dialout $USER
 sudo usermod -a -G tty $USER
+
+# check for pip
+if ! command -v pip &> /dev/null
+then
+    printf "pip not found, please install pip with your OS\n"
+    printf "sudo apt-get install python3-pip"
+    exit 1
+else
+    printf "python pip found\n"
+fi
 
 # generate config file, check if it exists
 if [ -f config.ini ]; then
