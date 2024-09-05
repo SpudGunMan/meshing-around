@@ -15,8 +15,7 @@ sudo usermod -a -G tty $USER
 if ! command -v pip &> /dev/null
 then
     printf "pip not found, please install pip with your OS\n"
-    printf "sudo apt-get install python3-pip"
-    exit 1
+    sudo apt-get install python3-pip
 else
     printf "python pip found\n"
 fi
