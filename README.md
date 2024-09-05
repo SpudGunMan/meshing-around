@@ -159,11 +159,14 @@ Ollama Settings, for Ollama to work the command line `ollama run 'model'` needs 
 
 Enable History, set via code readme Ollama Config in [Settings](https://github.com/SpudGunMan/meshing-around?tab=readme-ov-file#configurations) and [llm.py](https://github.com/SpudGunMan/meshing-around/blob/eb3bbdd3c5e0f16fe3c465bea30c781bd132d2d3/modules/llm.py#L12)
 
+Tested models are `llama3.1, gemma2 (and variants)` other models may not handle the template well.
+
 ```
 # Enable ollama LLM see more at https://ollama.com
 ollama = True
-# Ollama model to use (defaults to llama3.1)
-ollamaModel = gemma2:2b
+# Ollama model to use (defaults to gemma2:2b)
+ollamaModel = gemma2
+#ollamaModel = llama3.1
 ```
 
 also see llm.py for changing the defaults of
