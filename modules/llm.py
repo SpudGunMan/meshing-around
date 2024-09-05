@@ -86,6 +86,11 @@ def llm_query(input, nodeID=0, location_name=None):
     if llmContext_fromGoogle:
         # grab some context from the internet using google search hits (if available)
         # localization details at https://pypi.org/project/googlesearch-python/
+
+        # remove common words from the search query
+        # commonWordsList = ["is", "for", "the", "of", "and", "in", "on", "at", "to", "with", "by", "from", "as", "a", "an", "that", "this", "these", "those", "there", "here", "where", "when", "why", "how", "what", "which", "who", "whom", "whose", "whom"]
+        # sanitizedSearch = ' '.join([word for word in input.split() if word.lower() not in commonWordsList])
+
         try:
             googleSearch = search(input, advanced=True, num_results=googleSearchResults)
             if googleSearch:
@@ -106,7 +111,7 @@ def llm_query(input, nodeID=0, location_name=None):
     
     response = ""
     result = ""
-    location_name += f" at the current time of {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+    location_name += f" at the current time of {datetime.now().strftime('%Y-%m-%d %H:%M:%S %Z')}"
 
     try:
         result = chain_prompt_model.invoke({"input": input, "llmModel": llmModel, "userID": nodeID, \
