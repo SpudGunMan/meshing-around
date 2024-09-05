@@ -118,7 +118,17 @@ echo "Do you want to install the LLM Ollama components? (y/n)"
 read ollama
 if [ $ollama == "y" ]; then
     curl -fsSL https://ollama.com/install.sh | sh
+
+    # ask if want to install gemma2:2b
+    printf "\n Ollama install done now we can install the Gemma2:2b components, multi GB download\n"
+    echo "Do you want to install the Gemma2:2b components? (y/n)"
+    read gemma
+    if [ $gemma == "y" ]; then
+        olamma pull gemma2:2b
+    fi
 fi
+
+
 
 printf "\nGoodbye!"
 exit 0
