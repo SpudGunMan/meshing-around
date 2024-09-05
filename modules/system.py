@@ -103,7 +103,7 @@ if interface1_type == 'ble' and interface2_type == 'ble':
     
 # Interface1 Configuration
 try:
-    logger.debug(f"System: Initalizing Interface1")
+    logger.debug(f"System: Initializing Interface1")
     if interface1_type == 'serial':
         interface1 = meshtastic.serial_interface.SerialInterface(port1)
     elif interface1_type == 'tcp':
@@ -114,12 +114,12 @@ try:
         logger.critical(f"System: Interface Type: {interface1_type} not supported. Validate your config against config.template Exiting")
         exit()
 except Exception as e:
-    logger.critical(f"System: script abort. Initalizing Interface1 {e}")
+    logger.critical(f"System: script abort. Initializing Interface1 {e}")
     exit()
 
 # Interface2 Configuration
 if interface2_enabled:
-    logger.debug(f"System: Initalizing Interface2")
+    logger.debug(f"System: Initializing Interface2")
     try:
         if interface2_type == 'serial':
             interface2 = meshtastic.serial_interface.SerialInterface(port2)
@@ -131,7 +131,7 @@ if interface2_enabled:
             logger.critical(f"System: Interface Type: {interface2_type} not supported. Validate your config against config.template Exiting")
             exit()
     except Exception as e:
-        logger.critical(f"System: script abort. Initalizing Interface2 {e}")
+        logger.critical(f"System: script abort. Initializing Interface2 {e}")
         exit()
 
 #Get the node number of the device, check if the device is connected
