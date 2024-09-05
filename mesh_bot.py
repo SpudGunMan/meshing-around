@@ -139,14 +139,18 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
         if averageRuntime > 25:
             msg = f"Please wait, average query time is: {int(averageRuntime)} seconds"
             if channel_number == publicChannel:
+                # send via DM
                 send_message(msg, channel_number, message_from_id, deviceID)
             else:
+                # send via channel
                 send_message(msg, channel_number, 0, deviceID)
     else:
             msg = "Please wait, response could take 3+ minutes. Fund the SysOp's GPU budget!"
             if channel_number == publicChannel:
+                # send via DM
                 send_message(msg, channel_number, message_from_id, deviceID)
             else:
+                # send via channel
                 send_message(msg, channel_number, 0, deviceID)
     
     start = time.time()
