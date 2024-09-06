@@ -75,15 +75,15 @@ def handle_lheard(interface1, interface2_enabled, myNodeNum1, myNodeNum2):
 
 def handle_ack(hop, snr, rssi):
     if hop == "Direct":
-        return "🏓ACK-ACK! " + f"SNR:{snr} RSSI:{rssi}"
+        return "✋ACK-ACK! " + f"SNR:{snr} RSSI:{rssi}"
     else:
-        return "🏓ACK-ACK! " + hop
+        return "✋ACK-ACK! " + hop
 
 def handle_testing(hop, snr, rssi):
     if hop == "Direct":
-        return "🏓Testing 1,2,3 " + f"SNR:{snr} RSSI:{rssi}"
+        return "🎙Testing 1,2,3 " + f"SNR:{snr} RSSI:{rssi}"
     else:
-        return "🏓Testing 1,2,3 " + hop
+        return "🎙Testing 1,2,3 " + hop
 
 def onDisconnect(interface):
     global retry_int1, retry_int2
