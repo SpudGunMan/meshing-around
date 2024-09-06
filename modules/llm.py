@@ -100,7 +100,7 @@ def llm_query(input, nodeID=0, location_name=None):
             else:
                 googleResults = ['no other context provided']
         except Exception as e:
-            logger.debug(f"System: LLM Query: context gathering error: {e}")
+            logger.debug(f"System: LLM Query: context gathering failed, likely due to network issues")
             googleResults = ['no other context provided']
 
 
