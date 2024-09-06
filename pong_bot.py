@@ -8,6 +8,8 @@ from pubsub import pub # pip install pubsub
 from modules.log import *
 from modules.system import *
 
+responseDelay = 0.7 # delay in seconds for response to avoid message collision
+
 def auto_response(message, snr, rssi, hop, message_from_id, channel_number, deviceID):
     # Auto response to messages
     message_lower = message.lower()
@@ -37,8 +39,8 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
         # run the first command after sorting
         bot_response = command_handler[cmds[0]['cmd']]()
 
-    # wait a 700ms to avoid message collision from lora-ack
-    time.sleep(0.7)
+    # wait a responseDelay to avoid message collision from lora-ack
+    time.sleep(responseDelay)
     
     return bot_response
 
@@ -252,8 +254,8 @@ def onReceive(packet, interface):
 
                      # repeat the message on the other device
                     if repeater_enabled and interface2_enabled:         
-                        # wait a 700ms to avoid message collision from lora-ack.
-                        time.sleep(0.7)
+                        # wait a responseDelay to avoid message collision from lora-ack.
+                        time.sleep(responseDelay)
                         rMsg = (f"{message_string} From:{get_name_from_number(message_from_id, 'short', rxNode)}")
                         # if channel found in the repeater list repeat the message
                         if str(channel_number) in repeater_channels:
