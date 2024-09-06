@@ -263,15 +263,15 @@ def handle_moon(message_from_id, deviceID, channel_number):
 
 def handle_ack(hop, snr, rssi):
     if hop == "Direct":
-        return "🏓ACK-ACK! " + f"SNR:{snr} RSSI:{rssi}"
+        return "✋ACK-ACK! " + f"SNR:{snr} RSSI:{rssi}"
     else:
-        return "🏓ACK-ACK! " + hop
+        return "✋ACK-ACK! " + hop
 
 def handle_testing(hop, snr, rssi):
     if hop == "Direct":
-        return "🏓Testing 1,2,3 " + f"SNR:{snr} RSSI:{rssi}"
+        return "🎙Testing 1,2,3 " + f"SNR:{snr} RSSI:{rssi}"
     else:
-        return "🏓Testing 1,2,3 " + hop
+        return "🎙Testing 1,2,3 " + hop
 
 def onDisconnect(interface):
     global retry_int1, retry_int2
