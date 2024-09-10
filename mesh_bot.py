@@ -147,7 +147,7 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
                 # send via channel
                 send_message(msg, channel_number, 0, deviceID)
     else:
-            msg = "Please wait, response could take 3+ minutes. Fund the SysOp's GPU budget!"
+            msg = "Please wait, response could take 30+ seconds. Fund the SysOp's GPU budget!"
             if channel_number == publicChannel:
                 # send via DM
                 send_message(msg, channel_number, message_from_id, deviceID)
