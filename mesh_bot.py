@@ -106,30 +106,49 @@ def handle_wiki(message):
         return get_wikipedia_summary(search)
     else:
         return "Please add a search term example:wiki: travelling gnome"
+    
+llmRunCounter = 0
+llmTotalRuntime = []
+llmLocationTable = {}
 
 def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel):
     global llmRunCounter, llmTotalRuntime, llmLocationTable
-
+    
     if location_enabled:
         location = get_node_location(message_from_id, deviceID)
         # if message_from_id is is the llmLocationTable use the location from the table to save on API calls
         if message_from_id in llmLocationTable:
-            location = llmLocationTable[message_from_id]
+            location_name = llmLocationTable[message_from_id]
         else:
             location_name = where_am_i(str(location[0]), str(location[1]), short = True)
-            llmLocationTable.append({message_from_id: location_name})
 
-        if NO_DATA_NOGPS in location_name:
-            location_name = "no location provided "
+            if NO_DATA_NOGPS in location_name:
+                location_name = "no location provided "
     else:
-        location_name = "no location provided "
+        location_name = "no location provided"
 
     if "ask:" in message.lower():
         user_input = message.split(":")[1]
     elif "askai" in message.lower():
         user_input = message.replace("askai", "")
     else:
+        # likely a DM
         user_input = message
+
+        # if the message_from_id is not in the llmLocationTable send the welcome message
+        if not message_from_id in llmLocationTable:
+            if channel_number == publicChannel:
+                # send via DM
+                send_message(welcome_message, channel_number, message_from_id, deviceID)
+                time.sleep(responseDelay)
+            else:
+                # send via channel
+                send_message(welcome_message, channel_number, 0, deviceID)
+                time.sleep(responseDelay)
+    
+    # add the node to the llmLocationTable for future use
+    llmLocationTable[message_from_id] = location_name
+
     user_input = user_input.strip()
         
     if len(user_input) < 1:
@@ -143,17 +162,21 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
             if channel_number == publicChannel:
                 # send via DM
                 send_message(msg, channel_number, message_from_id, deviceID)
+                time.sleep(responseDelay)
             else:
                 # send via channel
                 send_message(msg, channel_number, 0, deviceID)
+                time.sleep(responseDelay)
     else:
-            msg = "Please wait, response could take 30+ seconds. Fund the SysOp's GPU budget!"
-            if channel_number == publicChannel:
-                # send via DM
-                send_message(msg, channel_number, message_from_id, deviceID)
-            else:
-                # send via channel
-                send_message(msg, channel_number, 0, deviceID)
+        msg = "Please wait, response could take 30+ seconds. Fund the SysOp's GPU budget!"
+        if channel_number == publicChannel:
+            # send via DM
+            send_message(msg, channel_number, message_from_id, deviceID)
+            time.sleep(responseDelay)
+        else:
+            # send via channel
+            send_message(msg, channel_number, 0, deviceID)
+            time.sleep(responseDelay)
     
     start = time.time()
 
