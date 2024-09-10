@@ -137,7 +137,7 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
 
         # if the message_from_id is not in the llmLocationTable send the welcome message
         if not message_from_id in llmLocationTable:
-            if channel_number == publicChannel:
+            if (channel_number == publicChannel and antiSpam) or useDMForResponse:
                 # send via DM
                 send_message(welcome_message, channel_number, message_from_id, deviceID)
                 time.sleep(responseDelay)
@@ -159,7 +159,7 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
         averageRuntime = sum(llmTotalRuntime) / len(llmTotalRuntime)
         if averageRuntime > 25:
             msg = f"Please wait, average query time is: {int(averageRuntime)} seconds"
-            if channel_number == publicChannel:
+            if (channel_number == publicChannel and antiSpam) or useDMForResponse:
                 # send via DM
                 send_message(msg, channel_number, message_from_id, deviceID)
                 time.sleep(responseDelay)
@@ -169,7 +169,7 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
                 time.sleep(responseDelay)
     else:
         msg = "Please wait, response could take 30+ seconds. Fund the SysOp's GPU budget!"
-        if channel_number == publicChannel:
+        if (channel_number == publicChannel and antiSpam) or useDMForResponse:
             # send via DM
             send_message(msg, channel_number, message_from_id, deviceID)
             time.sleep(responseDelay)
