@@ -8,7 +8,7 @@ The feature-rich bot requires the internet for full functionality. These respond
 
 Along with network testing, this bot has a lot of other fun features, like simple mail messaging you can leave for another device, and when that device is seen, it can send the mail as a DM. Or a scheduler to send weather or a reminder weekly for the VHF net.
 
-The bot is also capable of using dual radio/nodes, so you can monitor two networks at the same time and send messages to nodes using the same `bbspost @nodeNumber #message` or `bbspost @nodeShportName #message` function. There is a small message board to fit in the constraints of Meshtastic for posting bulletin messages with `bbspost $subject #message`.
+The bot is also capable of using dual radio/nodes, so you can monitor two networks at the same time and send messages to nodes using the same `bbspost @nodeNumber #message` or `bbspost @nodeShortName #message` function. There is a small message board to fit in the constraints of Meshtastic for posting bulletin messages with `bbspost $subject #message`.
 
 Look up data using wiki results or interact with [Ollama](https://ollama.com) LLM AI see the [OllamaDocs](https://github.com/ollama/ollama/tree/main/docs) If Ollama is enabled you can DM the bot directly. The default model for mesh-bot which is currently `gemma2:2b`
 
@@ -32,7 +32,7 @@ Any messages that are over 160 characters are chunked into 160 message bytes to 
   - `bbshelp` returns the following
   - `bbslist` list the messages by ID and subject
   - `bbsread` read a message example use: `bbsread #1`
-  - `bbspost` post a message to public board or send a DM example use: `bbspost $subject #message, or bbspost @nodeNumber #message or bbspost @nodeShportName #message`
+  - `bbspost` post a message to public board or send a DM example use: `bbspost $subject #message, or bbspost @nodeNumber #message or bbspost @nodeShortName #message`
   - `bbsdelete` delete a message example use: `bbsdelete #4`
 - Other functions
   - `whereami` returns the address of location of sender if known
