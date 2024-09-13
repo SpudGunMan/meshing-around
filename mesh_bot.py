@@ -8,6 +8,8 @@ from pubsub import pub # pip install pubsub
 from modules.log import *
 from modules.system import *
 
+responseDelay = 0.7 # delay in seconds for response to avoid message collision
+
 def auto_response(message, snr, rssi, hop, message_from_id, channel_number, deviceID):
     #Auto response to messages
     message_lower = message.lower()
@@ -57,8 +59,8 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
         # run the first command after sorting
         bot_response = command_handler[cmds[0]['cmd']]()
 
-    # wait a 700ms to avoid message collision from lora-ack
-    time.sleep(0.7)
+    # wait a responseDelay to avoid message collision from lora-ack
+    time.sleep(responseDelay)
 
     return bot_response
 
@@ -104,30 +106,49 @@ def handle_wiki(message):
         return get_wikipedia_summary(search)
     else:
         return "Please add a search term example:wiki: travelling gnome"
+    
+llmRunCounter = 0
+llmTotalRuntime = []
+llmLocationTable = {}
 
 def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel):
     global llmRunCounter, llmTotalRuntime, llmLocationTable
-
+    
     if location_enabled:
         location = get_node_location(message_from_id, deviceID)
         # if message_from_id is is the llmLocationTable use the location from the table to save on API calls
         if message_from_id in llmLocationTable:
-            location = llmLocationTable[message_from_id]
+            location_name = llmLocationTable[message_from_id]
         else:
             location_name = where_am_i(str(location[0]), str(location[1]), short = True)
-            llmLocationTable.append({message_from_id: location_name})
 
-        if NO_DATA_NOGPS in location_name:
-            location_name = "no location provided "
+            if NO_DATA_NOGPS in location_name:
+                location_name = "no location provided "
     else:
-        location_name = "no location provided "
+        location_name = "no location provided"
 
     if "ask:" in message.lower():
         user_input = message.split(":")[1]
     elif "askai" in message.lower():
         user_input = message.replace("askai", "")
     else:
+        # likely a DM
         user_input = message
+
+        # if the message_from_id is not in the llmLocationTable send the welcome message
+        if not message_from_id in llmLocationTable:
+            if (channel_number == publicChannel and antiSpam) or useDMForResponse:
+                # send via DM
+                send_message(welcome_message, channel_number, message_from_id, deviceID)
+                time.sleep(responseDelay)
+            else:
+                # send via channel
+                send_message(welcome_message, channel_number, 0, deviceID)
+                time.sleep(responseDelay)
+    
+    # add the node to the llmLocationTable for future use
+    llmLocationTable[message_from_id] = location_name
+
     user_input = user_input.strip()
         
     if len(user_input) < 1:
@@ -138,20 +159,24 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
         averageRuntime = sum(llmTotalRuntime) / len(llmTotalRuntime)
         if averageRuntime > 25:
             msg = f"Please wait, average query time is: {int(averageRuntime)} seconds"
-            if channel_number == publicChannel:
+            if (channel_number == publicChannel and antiSpam) or useDMForResponse:
                 # send via DM
                 send_message(msg, channel_number, message_from_id, deviceID)
+                time.sleep(responseDelay)
             else:
                 # send via channel
                 send_message(msg, channel_number, 0, deviceID)
+                time.sleep(responseDelay)
     else:
-            msg = "Please wait, response could take 3+ minutes. Fund the SysOp's GPU budget!"
-            if channel_number == publicChannel:
-                # send via DM
-                send_message(msg, channel_number, message_from_id, deviceID)
-            else:
-                # send via channel
-                send_message(msg, channel_number, 0, deviceID)
+        msg = "Please wait, response could take 30+ seconds. Fund the SysOp's GPU budget!"
+        if (channel_number == publicChannel and antiSpam) or useDMForResponse:
+            # send via DM
+            send_message(msg, channel_number, message_from_id, deviceID)
+            time.sleep(responseDelay)
+        else:
+            # send via channel
+            send_message(msg, channel_number, 0, deviceID)
+            time.sleep(responseDelay)
     
     start = time.time()
 
@@ -342,8 +367,8 @@ def onReceive(packet, interface):
         
         msg = bbs_check_dm(message_from_id)
         if msg:
-            # wait a 700ms to avoid message collision from lora-ack.
-            time.sleep(0.7)
+            # wait a responseDelay to avoid message collision from lora-ack.
+            time.sleep(responseDelay)
             logger.info(f"System: BBS DM Found: {msg[1]} For: {get_name_from_number(message_from_id, 'long', rxNode)}")
             message = "Mail: " + msg[1] + "  From: " + get_name_from_number(msg[2], 'long', rxNode)
             bbs_delete_dm(msg[0], msg[1])
@@ -462,8 +487,8 @@ def onReceive(packet, interface):
 
                      # repeat the message on the other device
                     if repeater_enabled and interface2_enabled:         
-                        # wait a 700ms to avoid message collision from lora-ack.
-                        time.sleep(0.7)
+                        # wait a responseDelay to avoid message collision from lora-ack.
+                        time.sleep(responseDelay)
                         rMsg = (f"{message_string} From:{get_name_from_number(message_from_id, 'short', rxNode)}")
                         # if channel found in the repeater list repeat the message
                         if str(channel_number) in repeater_channels:

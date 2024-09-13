@@ -28,7 +28,7 @@ def where_am_i(lat=0, lon=0, short=False):
             location = geolocator.reverse(lat + ", " + lon)
             address = location.raw['address']
             address_components = ['city', 'state', 'county', 'country']
-            whereIam = f"City: {address.get('city', '')} State: {address.get('state', '')} County: {address.get('county', '')} Country: {address.get('country', '')}"
+            whereIam = f"City: {address.get('city', '')}. State: {address.get('state', '')}. County: {address.get('county', '')}. Country: {address.get('country', '')}."
             return whereIam
         
         if float(lat) == latitudeValue and float(lon) == longitudeValue:

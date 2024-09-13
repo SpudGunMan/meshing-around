@@ -105,9 +105,9 @@ def llm_query(input, nodeID=0, location_name=None):
 
 
     if googleResults:
-        logger.debug(f"System: External LLM Query: {input} From:{nodeID} with context from google")
+        logger.debug(f"System: LLM Query: {input} From:{nodeID} with context from google")
     else:
-        logger.debug(f"System: External LLM Query: {input} From:{nodeID}")
+        logger.debug(f"System: LLM Query: {input} From:{nodeID}")
     
     response = ""
     result = ""
