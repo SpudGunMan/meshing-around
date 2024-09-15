@@ -67,9 +67,14 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
 def handle_ping(message, hop, snr, rssi):
     if "@" in message:
         if hop == "Direct":
-            return "🏓PONG, " + f"SNR:{snr} RSSI:{rssi}" + " and copy: " + message.split("@")[1]
+            return "🏓PONG, " + f"SNR:{snr} RSSI:{rssi}" + " at: " + message.split("@")[1]
         else:
-            return "🏓PONG, " + hop + " and copy: " + message.split("@")[1]
+            return "🏓PONG, " + hop + " at: " + message.split("@")[1]
+    elif "#" in message:
+        if hop == "Direct":
+            return "🏓PONG, " + f"SNR:{snr} RSSI:{rssi}" + " #" + message.split("#")[1]
+        else:
+            return "🏓PONG, " + hop + " #" + message.split("#")[1]
     else:
         if hop == "Direct":
             return "🏓PONG, " + f"SNR:{snr} RSSI:{rssi}"
@@ -293,10 +298,21 @@ def handle_ack(hop, snr, rssi):
         return "✋ACK-ACK! " + hop
 
 def handle_testing(hop, snr, rssi):
-    if hop == "Direct":
-        return "🎙Testing 1,2,3 " + f"SNR:{snr} RSSI:{rssi}"
+    if "@" in message:
+        if hop == "Direct":
+            return "🎙Testing, " + f"SNR:{snr} RSSI:{rssi}" + " at: " + message.split("@")[1]
+        else:
+            return "🎙Testing, " + hop + " at: " + message.split("@")[1]
+    elif "#" in message:
+        if hop == "Direct":
+            return "🎙Testing " + f"SNR:{snr} RSSI:{rssi}" + " #" + message.split("#")[1]
+        else:
+            return "🎙Testing  " + hop + " #" + message.split("#")[1]
     else:
-        return "🎙Testing 1,2,3 " + hop
+        if hop == "Direct":
+            return "🎙Testing 1,2,3 " + f"SNR:{snr} RSSI:{rssi}"
+        else:
+            return "🎙Testing 1,2,3 " + hop
 
 def onDisconnect(interface):
     global retry_int1, retry_int2
