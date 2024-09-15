@@ -10,7 +10,6 @@ MOTD = 'Thanks for using MeshBOT! Have a good day!'
 NO_ALERTS = "No weather alerts found."
 
 # setup the global variables
-MESSAGE_CHUNK_SIZE = 160 # message chunk size for sending at high success rate
 SITREP_NODE_COUNT = 3 # number of nodes to report in the sitrep
 msg_history = [] # message history for the store and forward feature
 bbs_ban_list = [] # list of banned users, imported from config
@@ -133,6 +132,11 @@ try:
     signalHoldTime = config['radioMon'].getint('signalHoldTime', 10) # default 10 seconds
     signalCooldown = config['radioMon'].getint('signalCooldown', 5) # default 1 second
     signalCycleLimit = config['radioMon'].getint('signalCycleLimit', 5) # default 5 cycles, used with SIGNAL_COOLDOWN
+
+messagingSettings
+    responseDelay = config['messagingSettings'].getint('responseDelay', 0.7) # default 0.7
+    splitDelay = config['messagingSettings'].getint('splitDelay', 0) # default 0
+    MESSAGE_CHUNK_SIZE = config['messagingSettings'].getint('MESSAGE_CHUNK_SIZE', 160) # default 160
 
 except KeyError as e:
     print(f"System: Error reading config file: {e}")
