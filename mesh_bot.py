@@ -8,8 +8,6 @@ from pubsub import pub # pip install pubsub
 from modules.log import *
 from modules.system import *
 
-responseDelay = 0.7 # delay in seconds for response to avoid message collision
-
 def auto_response(message, snr, rssi, hop, message_from_id, channel_number, deviceID):
     #Auto response to messages
     message_lower = message.lower()
