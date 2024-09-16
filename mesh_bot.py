@@ -324,7 +324,7 @@ def handle_testing(message, hop, snr, rssi):
             return "🎙Testing 1,2,3 " + hop
 
 def handle_whoami(message_from_id, deviceID):
-    return "You are " + str(message_from_id) + " AKA " + {get_name_from_number(message_from_id, 'long', deviceID)}
+    return "You are " + str(message_from_id) + " AKA " + str(get_name_from_number(message_from_id, 'long', deviceID))
 
 def onDisconnect(interface):
     global retry_int1, retry_int2
