@@ -16,7 +16,7 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
     command_handler = {
         "ping": lambda: handle_ping(message, hop, snr, rssi),
         "pong": lambda: "🏓PING!!",
-        "motd": lambda: handle_motd(message),
+        "motd": lambda: handle_motd(message, deviceID),
         "bbshelp": bbs_help,
         "wxalert": lambda: handle_wxalert(message_from_id, deviceID, message),
         "wxa": lambda: handle_wxalert(message_from_id, deviceID, message),
@@ -81,7 +81,7 @@ def handle_ping(message, hop, snr, rssi):
 
 def handle_motd(message):
     global MOTD
-    if "$" in message:
+    if "$" in message and str(fromNode) in bbs_admin_list:
         motd = message.split("$")[1]
         MOTD = motd.rstrip()
         return "MOTD Set to: " + MOTD
