@@ -89,7 +89,7 @@ def handle_motd(message, message_from_id):
         MOTD = motd.rstrip()
         logger.debug(f"System: node changed MOTD: ", {message_from_id})
         return "MOTD Set to: " + MOTD
-    elif "$" in message and not (bbs_admin_list): #no names in bbs admin list
+    elif "$" in message and not str(bbs_admin_list): #no names in bbs admin list
         motd = message.split("$")[1]
         MOTD = motd.rstrip()
         return "MOTD Set to: " + MOTD
