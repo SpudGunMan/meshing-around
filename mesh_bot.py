@@ -79,7 +79,7 @@ def handle_ping(message, hop, snr, rssi):
         else:
             return "🏓PONG, " + hop
 
-def handle_motd(message, deviceID):
+def handle_motd(message, message_from_id):
     global MOTD
     if "$" in message and str(message_from_id) in bbs_admin_list:
         motd = message.split("$")[1]
