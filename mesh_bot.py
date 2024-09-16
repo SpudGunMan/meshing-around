@@ -42,8 +42,8 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
         "tide": lambda: handle_tide(message_from_id, deviceID, channel_number),
         "moon": lambda: handle_moon(message_from_id, deviceID, channel_number),
         "ack": lambda: handle_ack(hop, snr, rssi),
-        "testing": lambda: handle_testing(hop, snr, rssi),
-        "test": lambda: handle_testing(hop, snr, rssi),
+        "testing": lambda: handle_testing(message, hop, snr, rssi),
+        "test": lambda: handle_testing(message, hop, snr, rssi),
     }
     cmds = [] # list to hold the commands found in the message
     for key in command_handler:
