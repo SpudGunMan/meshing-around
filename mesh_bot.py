@@ -44,6 +44,7 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
         "ack": lambda: handle_ack(hop, snr, rssi),
         "testing": lambda: handle_testing(message, hop, snr, rssi),
         "test": lambda: handle_testing(message, hop, snr, rssi),
+        "whoami": lambda: handle_whoami(message_from_id, deviceID, channel_number),
     }
     cmds = [] # list to hold the commands found in the message
     for key in command_handler:
@@ -315,6 +316,9 @@ def handle_testing(message, hop, snr, rssi):
             return "🎙Testing 1,2,3 " + f"SNR:{snr} RSSI:{rssi}"
         else:
             return "🎙Testing 1,2,3 " + hop
+
+def handle_whoami(message_from_id, deviceID, channel_number)
+    return "You are " + message_from_id + " on " + channel_number + "being received by " + deviceID
 
 def onDisconnect(interface):
     global retry_int1, retry_int2
