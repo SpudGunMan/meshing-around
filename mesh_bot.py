@@ -81,10 +81,12 @@ def handle_ping(message, hop, snr, rssi):
 
 def handle_motd(message, deviceID):
     global MOTD
-    if "$" in message and str(fromNode) in bbs_admin_list:
+    if "$" in message and str(deviceID) in bbs_admin_list:
         motd = message.split("$")[1]
         MOTD = motd.rstrip()
         return "MOTD Set to: " + MOTD
+    elif "$" in message and str(deviceID) not in bbs_admin_list:
+        return "I can't do that for you"
     else:
         return MOTD
 
