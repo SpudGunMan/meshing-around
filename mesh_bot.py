@@ -82,20 +82,20 @@ def handle_ping(message, hop, snr, rssi):
 
 def handle_motd(message, message_from_id):
     global MOTD
-    if "?" in message and not "$": #basic help message
+    if "?" in message and not "$": #basic help message - borked
         return "Message of the day, set with 'motd $ motd'"
-    elif "$" in message and str(message_from_id) in str(bbs_admin_list).strip(): #access control via bbs admin list
+    elif "$" in message and str(message_from_id) in str(bbs_admin_list): #access control via bbs admin list - works
         motd = message.split("$")[1]
         MOTD = motd.rstrip()
         logger.debug(f"System: node changed MOTD: ", {message_from_id})
         return "MOTD Set to: " + MOTD
-    elif "$" in message and not str(bbs_admin_list).strip(''): #no names in bbs admin list
+    elif "$" in message and not str(bbs_admin_list).strip(): #no names in bbs admin list - borked
         motd = message.split("$")[1]
         MOTD = motd.rstrip()
         return "MOTD Set to: " + MOTD
     elif "$" in message and str(bbs_admin_list).strip(''):
         logger.debug(f"System: node tried to change MOTD: ", str({message_from_id}))
-        return "I can't do that for you " + str(bbs_admin_list).strip('')
+        return "I can't do that for you "
     else:
         return MOTD
 
