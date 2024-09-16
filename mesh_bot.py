@@ -317,7 +317,7 @@ def handle_testing(message, hop, snr, rssi):
         else:
             return "🎙Testing 1,2,3 " + hop
 
-def handle_whoami(message_from_id, deviceID, channel_number)
+def handle_whoami(message_from_id, deviceID, channel_number):
     return "You are " + message_from_id + " on " + channel_number + "being received by " + deviceID
 
 def onDisconnect(interface):
