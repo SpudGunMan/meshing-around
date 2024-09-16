@@ -84,7 +84,7 @@ def handle_motd(message, message_from_id):
     global MOTD
     if "?" in message and not "$": #basic help message
         return "Message of the day, set with 'motd $ motd'"
-    elif "$" in message and str(message_from_id) in str(bbs_admin_list): #access control via bbs admin list
+    elif "$" in message and str(message_from_id) in bbs_admin_list.strip(): #access control via bbs admin list
         motd = message.split("$")[1]
         MOTD = motd.rstrip()
         logger.debug(f"System: node changed MOTD: ", {message_from_id})
@@ -93,8 +93,8 @@ def handle_motd(message, message_from_id):
         motd = message.split("$")[1]
         MOTD = motd.rstrip()
         return "MOTD Set to: " + MOTD
-    elif "$" in message and str(bbs_admin_list).strip():
-        logger.debug(f"System: node tried to change MOTD: ", str({message_from_id}), f", admin list is: ", str({bbs_admin_list}))
+    elif "$" in message and bbs_admin_list.strip():
+        logger.debug(f"System: node tried to change MOTD: ", str({message_from_id}), f", admin list is: ", str(bbs_admin_list))
         return "I can't do that for you"
     else:
         return MOTD
