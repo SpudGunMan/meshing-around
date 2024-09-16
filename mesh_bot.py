@@ -95,7 +95,7 @@ def handle_motd(message, message_from_id):
         return "MOTD Set to: " + MOTD
     elif "$" in message and str(bbs_admin_list).strip():
         logger.debug(f"System: node tried to change MOTD: ", {message_from_id})
-        return "I can't do that for you"
+        return "I can't do that for you" + str(bbs_admin_list).strip()
     else:
         return MOTD
 
