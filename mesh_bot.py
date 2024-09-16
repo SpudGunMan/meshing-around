@@ -85,8 +85,9 @@ def handle_motd(message, message_from_id):
         motd = message.split("$")[1]
         MOTD = motd.rstrip()
         return "MOTD Set to: " + MOTD
-    elif "$" in message and not str(message_from_id) in bbs_admin_list:
+    elif "$" in message:
         return "I can't do that for you"
+        logger.debug(f"System: {message_from_id} tried to change MOTD")
     else:
         return MOTD
 
