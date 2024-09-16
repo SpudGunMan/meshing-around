@@ -79,7 +79,7 @@ def handle_ping(message, hop, snr, rssi):
         else:
             return "🏓PONG, " + hop
 
-def handle_motd(message):
+def handle_motd(message, deviceID):
     global MOTD
     if "$" in message and str(fromNode) in bbs_admin_list:
         motd = message.split("$")[1]
@@ -295,7 +295,7 @@ def handle_ack(hop, snr, rssi):
     else:
         return "✋ACK-ACK! " + hop
 
-def handle_testing(hop, snr, rssi):
+def handle_testing(message, hop, snr, rssi):
     if "@" in message:
         if hop == "Direct":
             return "🎙Testing, " + f"SNR:{snr} RSSI:{rssi}" + " at: " + message.split("@")[1]
