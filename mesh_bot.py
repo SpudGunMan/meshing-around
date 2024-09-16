@@ -85,10 +85,10 @@ def handle_motd(message, message_from_id):
         motd = message.split("$")[1]
         MOTD = motd.rstrip()
         return "MOTD Set to: " + MOTD
-        logger.debug(f"System: node changed MOTD: " {message_from_id})
+        logger.debug(f"System: node changed MOTD: ", {message_from_id})
     elif "$" in message:
         return "I can't do that for you"
-        logger.debug(f"System: node tried to change MOTD: " {message_from_id})
+        logger.debug(f"System: node tried to change MOTD: ", {message_from_id})
     else:
         return MOTD
 
