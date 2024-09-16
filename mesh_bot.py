@@ -44,7 +44,7 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
         "ack": lambda: handle_ack(hop, snr, rssi),
         "testing": lambda: handle_testing(message, hop, snr, rssi),
         "test": lambda: handle_testing(message, hop, snr, rssi),
-        "whoami": lambda: handle_whoami(message_from_id, deviceID, channel_number),
+        "whoami": lambda: handle_whoami(message_from_id, short_name),
     }
     cmds = [] # list to hold the commands found in the message
     for key in command_handler:
@@ -87,15 +87,15 @@ def handle_motd(message, message_from_id):
     elif "$" in message and str(message_from_id) in str(bbs_admin_list): #access control via bbs admin list
         motd = message.split("$")[1]
         MOTD = motd.rstrip()
-        return "MOTD Set to: " + MOTD
         logger.debug(f"System: node changed MOTD: ", {message_from_id})
+        return "MOTD Set to: " + MOTD
     elif "$" in message and not (bbs_admin_list): #no names in bbs admin list
         motd = message.split("$")[1]
         MOTD = motd.rstrip()
         return "MOTD Set to: " + MOTD
     elif "$" in message:
-        return "I can't do that for you"
         logger.debug(f"System: node tried to change MOTD: ", {message_from_id})
+        return "I can't do that for you"
     else:
         return MOTD
 
@@ -323,8 +323,8 @@ def handle_testing(message, hop, snr, rssi):
         else:
             return "🎙Testing 1,2,3 " + hop
 
-def handle_whoami(message_from_id, deviceID, channel_number):
-    return "You are " + str(message_from_id) + " on " + str(channel_number) + " being received by " + str(deviceID)
+def handle_whoami(message_from_id, short_name):
+    return "You are " + str(message_from_id) + " AKA " + str({get_name_from_number(nodeid, 'long', nodeInt)})
 
 def onDisconnect(interface):
     global retry_int1, retry_int2
