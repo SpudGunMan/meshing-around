@@ -88,7 +88,7 @@ def handle_motd(message, message_from_id):
         return "MOTD Set to: " + MOTD
         logger.debug(f"System: node changed MOTD: ", {message_from_id})
     elif "$" in message:
-        return "I can't do that for you"
+        return "I can't do that for you " + bbs_admin_list
         logger.debug(f"System: node tried to change MOTD: ", {message_from_id})
     else:
         return MOTD
@@ -318,7 +318,7 @@ def handle_testing(message, hop, snr, rssi):
             return "🎙Testing 1,2,3 " + hop
 
 def handle_whoami(message_from_id, deviceID, channel_number):
-    return "You are " + str(message_from_id) + " on " + str(channel_number) + "being received by " + str(deviceID)
+    return "You are " + str(message_from_id) + " on " + str(channel_number) + " being received by " + str(deviceID)
 
 def onDisconnect(interface):
     global retry_int1, retry_int2
