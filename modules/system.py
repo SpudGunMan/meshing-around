@@ -10,7 +10,7 @@ import contextlib # for suppressing output on watchdog
 from modules.log import *
 
 # Global Variables
-trap_list = ("cmd","cmd?") # default trap list
+trap_list = ("cmd","cmd?","whoami") # default trap list
 help_message = "CMD?:"
 asyncLoop = asyncio.new_event_loop()
 
