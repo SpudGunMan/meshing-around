@@ -82,13 +82,13 @@ def handle_ping(message, hop, snr, rssi):
 
 def handle_motd(message, message_from_id):
     global MOTD
-    if "$" in message and str(message_from_id) in bbs_admin_list:
+    if "$" in message and str(message_from_id) in str(bbs_admin_list):
         motd = message.split("$")[1]
         MOTD = motd.rstrip()
         return "MOTD Set to: " + MOTD
         logger.debug(f"System: node changed MOTD: ", {message_from_id})
     elif "$" in message:
-        return "I can't do that for you " + bbs_admin_list
+        return "I can't do that for you " + str(bbs_admin_list)
         logger.debug(f"System: node tried to change MOTD: ", {message_from_id})
     else:
         return MOTD
