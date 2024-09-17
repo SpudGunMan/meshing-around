@@ -46,7 +46,7 @@ def getHighScore():
     except FileNotFoundError:
         logger.debug("System: Lemonade: No high score table found")
         # high score pickle file is a touple of the nodeID and the high score
-        high_score = ({"userID": 4258675309, "cash": 2})
+        high_score = ({"userID": 4258675309, "cash": 2, "success": 0})
         # write a new high score file if one is not found
         with open('lemonade_hs.pkl', 'wb') as file:
             pickle.dump(high_score, file)
@@ -116,7 +116,7 @@ def start_lemonade(nodeID, message, celsius=False):
                 lemonadeScore.pop(i)
 
     # Check for end of game
-    if "end" in message:
+    if "end" in message.lower():
         endGame()
         return "Goodbye!👋"
 
@@ -520,9 +520,10 @@ def start_lemonade(nodeID, message, celsius=False):
 
                 # check for high score
                 high_score = getHighScore()
-                if (success > int(high_score['cash'])):
+                if (inventory.cash > int(high_score['cash'])):
                     msg += "\nCongratulations! You've set a new high score!🎉💰🍋"
-                    high_score['cash'] = success
+                    high_score['cash'] = inventory.cash
+                    high_score['success'] = success
                     high_score['userID'] = nodeID
                     with open('lemonade_hs.pkl', 'wb') as file:
                         pickle.dump(high_score, file)
