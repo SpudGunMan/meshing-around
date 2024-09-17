@@ -16,7 +16,7 @@ import re     # regular expressions
 # ex. print(locale.currency(12345.67, grouping=True))
 locale.setlocale(locale.LC_ALL, '')
 lemon_starting_cash = 30.00
-lemon_total_weeks = 2
+lemon_total_weeks = 7
 
 lemonadeTracker = [{'nodeID': 0, 'cups': 0, 'lemons': 0, 'sugar': 0, 'cash': lemon_starting_cash, 'start': lemon_starting_cash, 'cmd': 'new', 'time': time.time()}]
 lemonadeCups = [{'nodeID': 0, 'cost': 2.50, 'count': 25, 'min': 0.99, 'unit': 0.00}]
