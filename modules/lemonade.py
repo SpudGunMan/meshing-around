@@ -333,7 +333,7 @@ def start_lemonade(nodeID, message, celsius=False):
                     inventory.cups += (newcups * cups.count)
                     inventory.cash -= cost
                     msg = "Purchased " + str(newcups) + " box(es) of cups for " + locale.currency(cost, grouping=True)
-                    msg += "  " + str(inventory.cups) + " cup inventory, "  + locale.currency(inventory.cash, grouping=True) + " cash remaining"
+                    msg += ". " + str(inventory.cups) + " cup inventory, "  + locale.currency(inventory.cash, grouping=True) + " cash remaining"
                 else:
                     msg =  "No additional cups were purchased"
             except Exception as e:
@@ -361,7 +361,7 @@ def start_lemonade(nodeID, message, celsius=False):
                     inventory.lemons += (newlemons * lemons.count)
                     inventory.cash   -= cost
                     msg = "Purchased " + str(newlemons) + " bag(s) of lemons for " + locale.currency(cost, grouping=True)
-                    msg += str(inventory.lemons) + " lemon inventory, "  + locale.currency(inventory.cash, grouping=True) + " cash remaining"
+                    msg += ". " + str(inventory.lemons) + " lemon inventory, "  + locale.currency(inventory.cash, grouping=True) + " cash remaining"
                 else:
                     msg =  "No additional lemons were purchased"
             except Exception as e:
@@ -388,7 +388,7 @@ def start_lemonade(nodeID, message, celsius=False):
                     inventory.sugar += (newsugar * sugar.count)
                     inventory.cash  -= cost
                     msg = " Purchased " + str(newsugar) + " bag(s) of sugar for " + locale.currency(cost, grouping=True)
-                    msg += str(inventory.sugar) + " sugar inventory, "  + locale.currency(inventory.cash, grouping=True) + " cash remaining"
+                    msg += ". " + str(inventory.sugar) + " sugar inventory, "  + locale.currency(inventory.cash, grouping=True) + " cash remaining"
                 else:
                     msg =  "No additional sugar was purchased"
             except Exception as e:
