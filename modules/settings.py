@@ -29,6 +29,7 @@ wiki_return_limit = 3 # limit the number of sentences returned off the first par
 llmRunCounter = 0
 llmTotalRuntime = []
 llmLocationTable = []
+playingGame = False
 
 # Read the config file, if it does not exist, create basic config file
 config = configparser.ConfigParser() 
@@ -133,6 +134,9 @@ try:
     signalHoldTime = config['radioMon'].getint('signalHoldTime', 10) # default 10 seconds
     signalCooldown = config['radioMon'].getint('signalCooldown', 5) # default 1 second
     signalCycleLimit = config['radioMon'].getint('signalCycleLimit', 5) # default 5 cycles, used with SIGNAL_COOLDOWN
+
+    dopewars_enabled = config['games'].getboolean('dopeWars', True)
+    lemonade_enabled = config['games'].getboolean('lemonade', True)
 
 except KeyError as e:
     print(f"System: Error reading config file: {e}")
