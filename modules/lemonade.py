@@ -469,7 +469,7 @@ def start_lemonade(nodeID, message, celsius=False):
             total    = 0
             msg += "\nWeekly Summary"
             for i in range(len(weeks.summary)):
-                msg += "  Week " + str(i + 1).rjust(pad_week) + ":  " + str(weeks.summary[i]['sales']).rjust(pad_sale) + \
+                msg += "  Week " + str(weeks.current).rjust(pad_week) + ":  " + str(weeks.summary[i]['sales']).rjust(pad_sale) + \
                     " sold x " + locale.currency(weeks.summary[i]['price'], grouping=True) + " ea."
                 total = total + weeks.summary[i]['sales']
 

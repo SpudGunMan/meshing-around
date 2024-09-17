@@ -211,7 +211,8 @@ def handleDopeWars(nodeID, message, rxNode):
     else:
         logger.debug("System: DopeWars: last_cmd: " + str(last_cmd))
         msg = playDopeWars(nodeID, message)
-
+    # wait a second to keep from message collision
+    time.sleep(1)
     return msg
 
 def handleLemonade(nodeID, message):
@@ -237,7 +238,8 @@ def handleLemonade(nodeID, message):
         create_player(nodeID)
     
     msg = start_lemonade(nodeID=nodeID, message=message, celsius=False)
-            
+    # wait a second to keep from message collision
+    time.sleep(1)
     return msg
 
 def handle_wxc(message_from_id, deviceID, cmd):
