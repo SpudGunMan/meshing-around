@@ -41,10 +41,11 @@ if __name__ == '__main__': # represents the bot's main loop
         nodeID = get_NodeID() # assign a nodeID for this iteration
         projectResponse = ""
         responseLength = 0
-        projectResponse = globals()[projectName](nodeID, packet) # Call the project handler under test
-        responseLength = len(projectResponse) # Evaluate the response length
-        logger.info(f"Device:{nodeInt} " + CustomFormatter.red + f"Sending {responseLength} long DM: " +\
-                     CustomFormatter.white + projectResponse + CustomFormatter.purple + " To: " + CustomFormatter.white + str(nodeID))
+        if packet != "":
+            projectResponse = globals()[projectName](nodeID, packet) # Call the project handler under test
+            responseLength = len(projectResponse) # Evaluate the response length
+            logger.info(f"Device:{nodeInt} " + CustomFormatter.red + f"Sending {responseLength} long DM: " +\
+                        CustomFormatter.white + projectResponse + CustomFormatter.purple + " To: " + CustomFormatter.white + str(nodeID))
         packet = input("CLIENT INPUT: " ) # Emulate the client input
         time.sleep(1)
 # # End of launcher
