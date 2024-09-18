@@ -248,6 +248,10 @@ I used ideas and snippets from other responder bots and want to call them out!
 - https://github.com/pdxlocations/meshtastic-Python-Examples
 - https://github.com/geoffwhittington/meshtastic-matrix-relay
 
+Games Ported from..
+- https://github.com/tigerpointe/Lemonade-Stand/
+- https://github.com/Reconfirefly/drugwars
+
 GitHub user mrpatrick1991 For Docker configs, PiDiBi looking at test functions and other suggestions like wxc, CPU use, and alerting ideas
-Discord and Mesh user Cisien, and github Hailo1999, for testing and ideas!
+Discord and Mesh user Cisien, and github Hailo1999, for testing and ideas! Lots of individuals on the Meshtastic discord who have tossed out ideas and tested code!
 

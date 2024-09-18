@@ -497,6 +497,11 @@ def onReceive(packet, interface):
                                     game = "DopeWars"
                                     if llm_enabled:
                                         logger.debug(f"System: LLM Disabled for {message_from_id} for duration of game")
+                                    
+                                    #if time exceeds 8 hours reset the player
+                                    if dwPlayerTracker[i].get('last_played') < (time.time() - 28800):
+                                        dwPlayerTracker.pop(i)
+
                         
                         for i in range(0, len(lemonadeTracker)):
                             if lemonadeTracker[i].get('nodeID') == message_from_id:
@@ -506,6 +511,10 @@ def onReceive(packet, interface):
                                     game = "LemonadeStand"
                                     if llm_enabled:
                                         logger.debug(f"System: LLM Disabled for {message_from_id} for duration of game")
+
+                                    #if time exceeds 8 hours reset the player
+                                    if lemonadeTracker[i].get('time') < (time.time() - 28800):
+                                        lemonadeTracker.pop(i)
                             else:
                                 playingGame = False
                     else:
