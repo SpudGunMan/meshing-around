@@ -376,7 +376,7 @@ def endGame(nodeID):
     
     return msg
 
-def getHighScore():
+def getHighScoreDw():
     global dwHighScore
     # Load high score table
     try:

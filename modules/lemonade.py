@@ -37,7 +37,7 @@ def get_sales_amount(potential, unit, price):
     """
     return math.floor(potential * (unit / (price ** 1.5)))
 
-def getHighScore():
+def getHighScoreLemon():
     global high_score
     # Load high score table
     try:

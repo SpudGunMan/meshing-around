@@ -205,7 +205,7 @@ def handleDopeWars(nodeID, message, rxNode):
     # welcome new player
     if not last_cmd:
         msg = 'Welcome to Dope Wars! You have ' + str(total_days) + ' days to make as much money as possible! '
-        high_score = getHighScore()
+        high_score = getHighScoreDw()
         msg += 'The High Score is $' + str(high_score.get('cash')) + ' by user ' + get_name_from_number(high_score.get('userID') , 'short', rxNode) + f'.\n'
         msg += playDopeWars(nodeID, message)
     else:
