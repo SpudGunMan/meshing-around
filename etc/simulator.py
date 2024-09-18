@@ -17,7 +17,7 @@ def get_NodeID():
     return nodeID
 # # end Initialization of the tool
 
-# # Function to handle the project in test
+# # Function to handle, or the project in test
 
 
 def example_handler(nodeID, message):
