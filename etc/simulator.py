@@ -9,12 +9,11 @@ projectName = "example_handler" # name of _handler function to match the functio
 randomNode = False # Set to True to use random node IDs
 
 def get_NodeID():
-    # get a random node ID
     nodeList = [4258675309, 1212121212, 1234567890, 9876543210]
-    if randomNode:
-        nodeID = random.choice(nodeList)
+    if randomNode: 
+        nodeID = random.choice(nodeList) # get a random node ID
     else:
-        nodeID = 4258675309
+        nodeID = nodeList[0]
     return nodeID
 # # end Initialization of the tool
 
