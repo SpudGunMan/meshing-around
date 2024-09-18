@@ -36,11 +36,11 @@ except:
 
 try:
     with open('../dopewar_hs.pkl', 'rb') as f:
-        blackjack_score = pickle.load(f)
+        dopewar_score = pickle.load(f)
 except:
     try:
         with open('dopewar_hs.pkl', 'rb') as f:
-            blackjack_score = pickle.load(f)
+            dopewar_score = pickle.load(f)
     except:
         print ("\nSystem: dopewar_hs.pkl not found")
 
@@ -50,5 +50,5 @@ print (bbs_messages)
 print ("\nSystem: bbs_dm")
 print (bbs_dm)
 print ("Game HS tables")
-print (lemon_score)
-print (blackjack_score)
+print (f"lemon:{lemon_score}")
+print (f"dopewar:{dopewar_score}")
