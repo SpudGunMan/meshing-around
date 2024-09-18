@@ -371,6 +371,8 @@ def endGame(nodeID):
         return msg
     if cash < starting_cash:
         msg = "You lost money, better go get a real job.💸"
+
+    logger.debug("System: DopeWars: Game Over for user: " + str(nodeID) + " with cash: " + str(cash))
     
     return msg
 

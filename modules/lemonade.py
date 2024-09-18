@@ -94,7 +94,7 @@ def start_lemonade(nodeID, message, celsius=False):
                 lemonadeScore[i]['value'] = score.value
                 lemonadeScore[i]['total'] = score.total
 
-    def endGame():
+    def endGame(nodeID):
         # remove the player from the tracker
         for i in range(len(lemonadeTracker)):
             if lemonadeTracker[i]['nodeID'] == nodeID:
@@ -114,10 +114,11 @@ def start_lemonade(nodeID, message, celsius=False):
         for i in range(len(lemonadeScore)):
             if lemonadeScore[i]['nodeID'] == nodeID:
                 lemonadeScore.pop(i)
+        logger.debug("System: Lemonade: Game Over for " + str(nodeID))
 
     # Check for end of game
     if "end" in message.lower():
-        endGame()
+        endGame(nodeID)
         return "Goodbye!👋"
 
     title="Lemonade Stand🍋"
