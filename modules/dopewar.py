@@ -358,7 +358,7 @@ def endGame(nodeID):
 
     # checks if the player's score is higher than the high score and writes a new high score if it is
     if cash > dwHighScore.get('cash'):
-        dwHighScore = ({'userID': nodeID, 'cash': cash})
+        dwHighScore = ({'userID': nodeID, 'cash': round(cash, 2)})
         with open('dopewar_hs.pkl', 'wb') as file:
             pickle.dump(dwHighScore, file)
         msg = "You finished with $" + str(cash) + " and beat the high score!🎉💰"
