@@ -502,6 +502,7 @@ def onReceive(packet, interface):
                                     
                                     #if time exceeds 8 hours reset the player
                                     if dwPlayerTracker[i].get('last_played') < (time.time() - 28800):
+                                        logger.debug(f"System: DopeWars: Resetting player {message_from_id}")
                                         dwPlayerTracker.pop(i)
                                     
                                     # play the game
@@ -519,6 +520,7 @@ def onReceive(packet, interface):
 
                                     #if time exceeds 8 hours reset the player
                                     if lemonadeTracker[i].get('time') < (time.time() - 28800):
+                                        logger.debug(f"System: LemonadeStand: Resetting player {message_from_id}")
                                         lemonadeTracker.pop(i)
                                     
                                     # play the game
