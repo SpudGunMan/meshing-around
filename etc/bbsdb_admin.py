@@ -35,14 +35,14 @@ except:
         print ("\nSystem: lemonade_hs.pkl not found")
 
 try:
-    with open('../blackjack_hs.pkl', 'rb') as f:
+    with open('../dopewar_hs.pkl', 'rb') as f:
         blackjack_score = pickle.load(f)
 except:
     try:
-        with open('blackjack_hs.pkl', 'rb') as f:
+        with open('dopewar_hs.pkl', 'rb') as f:
             blackjack_score = pickle.load(f)
     except:
-        print ("\nSystem: blackjack_hs.pkl not found")
+        print ("\nSystem: dopewar_hs.pkl not found")
 
 
 print ("\nSystem: bbs_messages")
