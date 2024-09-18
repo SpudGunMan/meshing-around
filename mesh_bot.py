@@ -487,7 +487,9 @@ def onReceive(packet, interface):
                     # respond with DM
                     send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number, rxNode), channel_number, message_from_id, rxNode)
                 else:
+                    # DM is usefull for games or LLM
                     if games_enabled:
+                        playingGame = False
                         # if in a game we cant use LLM disable for duration of game
                         for i in range(0, len(dwPlayerTracker)):
                             if dwPlayerTracker[i].get('userID') == message_from_id:
@@ -501,6 +503,9 @@ def onReceive(packet, interface):
                                     #if time exceeds 8 hours reset the player
                                     if dwPlayerTracker[i].get('last_played') < (time.time() - 28800):
                                         dwPlayerTracker.pop(i)
+                                    
+                                    # play the game
+                                    send_message(handleDopeWars(message_from_id, message_string, rxNode), channel_number, message_from_id, rxNode)
 
                         
                         for i in range(0, len(lemonadeTracker)):
@@ -515,17 +520,13 @@ def onReceive(packet, interface):
                                     #if time exceeds 8 hours reset the player
                                     if lemonadeTracker[i].get('time') < (time.time() - 28800):
                                         lemonadeTracker.pop(i)
-                            else:
-                                playingGame = False
+                                    
+                                    # play the game
+                                    send_message(handleLemonade(message_from_id, message_string), channel_number, message_from_id, rxNode)
                     else:
                         playingGame = False
 
-                    if playingGame:
-                        if game == "DopeWars":
-                            send_message(handleDopeWars(message_from_id, message_string, rxNode), channel_number, message_from_id, rxNode)
-                        elif game == "LemonadeStand":
-                            send_message(handleLemonade(message_from_id, message_string), channel_number, message_from_id, rxNode)
-                    else:
+                    if not playingGame:
                         if llm_enabled:
                             # respond with LLM
                             llm = handle_llm(message_from_id, channel_number, rxNode, message_string, publicChannel)
