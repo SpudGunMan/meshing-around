@@ -41,12 +41,11 @@ if __name__ == '__main__': # represents the bot's main loop
         projectResponse = ""
         responseLength = 0
         if packet != "":
-            try:
-                projectResponse = globals()[projectName](nodeID, packet) # Call the project handler under test
-            except Exception as e:
-                logger.error(f"System: Handler: {e}")
-                projectResponse = "Error in handler"
-            # if responce has value get length
+            #try:
+            projectResponse = globals()[projectName](nodeID, packet) # Call the project handler under test
+            # except Exception as e:
+            #     logger.error(f"System: Handler: {e}")
+            #     projectResponse = "Error in handler"
             if projectResponse:
                 responseLength = len(projectResponse) # Evaluate the response length
                 logger.info(f"Device:{nodeInt} " + CustomFormatter.red + f"Sending {responseLength} long DM: " +\
