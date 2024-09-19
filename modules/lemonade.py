@@ -264,7 +264,7 @@ def start_lemonade(nodeID, message, celsius=False):
             buffer += "wx: " + \
                         formatted + temperature.units + " " + \
                         forecastd[list(forecastd)[temperature.forecast]][2] + \
-                        " " + glyph + f"\n"
+                        " " + glyph
 
             # Calculate the potential sales as a percentage of the maximum value
             # (lower temperature = fewer sales, severe weather = fewer sales)
@@ -291,25 +291,25 @@ def start_lemonade(nodeID, message, celsius=False):
                 sugar.cost = sugar.min
             sugar.unit = round(sugar.cost / sugar.count, 2)
 
-            # Display the updated item prices
-            buffer += "Prices, "
-            buffer += "Cups:" + \
-                        locale.currency(cups.cost, grouping=True) + " box of " + str(cups.count) + "."
-            buffer += " Lemons:" + \
-                        locale.currency(lemons.cost, grouping=True) + " bag of " + str(lemons.count) + "."
-            buffer += " Sugar:" + \
-                        locale.currency(sugar.cost, grouping=True) + " bag for " + str(sugar.count) + " cups. "
-
             # Calculate the unit cost and display the estimated sales from the forecast potential
             unit = cups.unit + lemons.unit + sugar.unit
             buffer += locale.currency(unit, grouping=True) + " per cup."
-            buffer += " Potential Sales:" + str(potential) + " cups " + f"\n"
+            buffer += " Potential Sales:" + str(potential) + " cups "
 
             # Display the current inventory
             buffer += "Inventory"
             buffer += "  Cups:" + str(inventory.cups)
             buffer += "  Lemons:" + str(inventory.lemons)
             buffer += "  Sugar:" + str(inventory.sugar)
+
+            # Display the updated item prices
+            buffer += f"\nPrices, "
+            buffer += "Cups:" + \
+                        locale.currency(cups.cost, grouping=True) + " box of " + str(cups.count) + "."
+            buffer += " Lemons:" + \
+                        locale.currency(lemons.cost, grouping=True) + " bag of " + str(lemons.count) + "."
+            buffer += " Sugar:" + \
+                        locale.currency(sugar.cost, grouping=True) + " bag for " + str(sugar.count) + " cups. "
 
             # Display the current cash
             gainloss   = inventory.cash - inventory.start
