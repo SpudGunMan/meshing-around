@@ -329,7 +329,7 @@ def get_location_table(nodeID, choice=0):
     return loc_table_string
 
 
-def endGame(nodeID):
+def endGameDw(nodeID):
     global dwCashDb, dwInventoryDb, dwLocationDb, dwGameDayDb, dwHighScore
     msg = ''
     dwHighScore = getHighScoreDw()
@@ -559,7 +559,7 @@ def playDopeWars(nodeID, cmd):
                 msg = "You don't have anything to sell"
             else:
                 for i in range(0, len(my_drugs)):
-                    logger.debug("System: DopeWars: Selling all of drug: " + str(i))
+                    logger.debug("System: DopeWars: Selling all of drug: " + str(i)+1)
                     sell =  sell_func(nodeID, price_list, i+1, 'm')
                     # ignore starts with "You don't have any"
                     if not sell.startswith("You don't have any"):
@@ -577,7 +577,7 @@ def playDopeWars(nodeID, cmd):
                 msg = render_game_screen(nodeID, game_day, total_days, loc_choice, -1, price_list, 0)
                 return msg
         elif 'end' in menu_choice:
-                msg = endGame(nodeID)
+                msg = endGameDw(nodeID)
                 return msg
         else:
             msg = 'example Buy: b,Drug,Qty or Sell s,1,10. Fly: f. Price list: p or end'
@@ -638,6 +638,6 @@ def playDopeWars(nodeID, cmd):
     
     # Game end
     if game_day == total_days + 1:
-        msg = endGame(nodeID)
+        msg = endGameDw(nodeID)
     
     return msg
