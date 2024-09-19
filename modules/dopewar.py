@@ -564,9 +564,9 @@ def playDopeWars(nodeID, cmd):
             if inventory == 0:
                 msg = "You don't have anything to sell"
             else:
-                for i in range(0, len(my_drugs)):
+                for i in range(1, len(my_drugs) - 1):
                     logger.debug("System: DopeWars: Selling all of drug: " + str(i + 1 ))
-                    sell =  sell_func(nodeID, price_list, i+1, 'm')
+                    sell =  sell_func(nodeID, price_list, i, 'm')
                     # ignore starts with "You don't have any"
                     if not sell.startswith("You don't have any"):
                         msg += sell + '\n'
