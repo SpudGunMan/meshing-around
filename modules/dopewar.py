@@ -279,8 +279,6 @@ def sell_func(nodeID, price_list, choice=0, value='0'):
         msg = f"Enter qty or m for max"
         return msg
     
-    logger.debug("System: DopeWars: Selling " + str(sell_amount) + " of drug: " + str(drug_choice))
-    
     # check if the user has any of the drug they are trying to sell
     if choice == 0:
         msg = "Enter b or s and the drug number and qty you want to buy or sell. ex: b,1,10 buys 10 of drug 1"
@@ -565,7 +563,6 @@ def playDopeWars(nodeID, cmd):
                 msg = "You don't have anything to sell"
             else:
                 for i in range(1, (len(my_drugs) +1)):
-                    logger.debug("System: DopeWars: Selling all of drug: " + str(i ))
                     sell =  sell_func(nodeID, price_list, i, 'm')
                     # ignore starts with "You don't have any"
                     if not sell.startswith("You don't have any"):
