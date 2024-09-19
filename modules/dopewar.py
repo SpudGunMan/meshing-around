@@ -267,13 +267,19 @@ def sell_func(nodeID, price_list, choice=0, value='0'):
     drug_choice = choice
     sell_amount = value
 
-    if sell_amount == 'm':
-        sell_amount = amount[drug_choice - 1]
-    else:
-        sell_amount = int(sell_amount)
-        if sell_amount not in range(1, 101):
-            msg = f"You can only sell between 1 and 100"
-            return msg
+    try:
+        if sell_amount == 'm':
+            sell_amount = amount[drug_choice - 1]
+        else:
+            sell_amount = int(sell_amount)
+            if sell_amount not in range(1, 101):
+                msg = f"You can only sell between 1 and 100"
+                return msg
+    except ValueError:
+        msg = f"Enter qty or m for max"
+        return msg
+    
+    logger.debug("System: DopeWars: Selling " + str(sell_amount) + " of drug: " + str(drug_choice))
     
     # check if the user has any of the drug they are trying to sell
     if choice == 0:
@@ -559,7 +565,7 @@ def playDopeWars(nodeID, cmd):
                 msg = "You don't have anything to sell"
             else:
                 for i in range(0, len(my_drugs)):
-                    logger.debug("System: DopeWars: Selling all of drug: " + str(i)+1)
+                    logger.debug("System: DopeWars: Selling all of drug: " + str(i + 1 ))
                     sell =  sell_func(nodeID, price_list, i+1, 'm')
                     # ignore starts with "You don't have any"
                     if not sell.startswith("You don't have any"):
