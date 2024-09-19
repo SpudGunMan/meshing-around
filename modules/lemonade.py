@@ -520,7 +520,7 @@ def start_lemonade(nodeID, message, celsius=False):
                 msg += "You've sold " + str(total) + " total cups -- see you again next time!🍋"
 
                 # check for high score
-                high_score = getHighScore()
+                high_score = getHighScoreLemon()
                 if (inventory.cash > int(high_score['cash'])):
                     msg += "\nCongratulations! You've set a new high score!🎉💰🍋"
                     high_score['cash'] = inventory.cash
