@@ -557,10 +557,9 @@ def playDopeWars(nodeID, cmd):
                     inventory = dwInventoryDb[i].get('inventory')
             if inventory == 0:
                 msg = "You don't have anything to sell"
-                return msg
             else:
                 for i in range(0, len(my_drugs)):
-                    msg += sell_func(nodeID, price_list, i, 'm')
+                    msg += sell_func(nodeID, price_list, i+1, 'm')
             return msg
         elif 'f' in menu_choice:
                 # set last command to location
