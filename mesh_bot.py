@@ -206,7 +206,9 @@ def handleDopeWars(nodeID, message, rxNode):
     if not last_cmd:
         msg = 'Welcome to Dope Wars! You have ' + str(total_days) + ' days to make as much money as possible! '
         high_score = getHighScoreDw()
-        msg += 'The High Score is $' + str(high_score.get('cash')) + ' by user ' + get_name_from_number(high_score.get('userID') , 'short', rxNode) + f'.\n'
+        # set comma for thousands and millions
+        fancyCash = "{:,}".format(high_score.get('cash'))
+        msg += 'The High Score is $' + fancyCash + ' by user ' + get_name_from_number(high_score.get('userID') , 'short', rxNode) + f'.\n'
         msg += playDopeWars(nodeID, message)
     else:
         logger.debug("System: DopeWars: last_cmd: " + str(last_cmd))
