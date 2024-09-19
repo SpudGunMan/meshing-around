@@ -332,7 +332,7 @@ def get_location_table(nodeID, choice=0):
 def endGame(nodeID):
     global dwCashDb, dwInventoryDb, dwLocationDb, dwGameDayDb, dwHighScore
     msg = ''
-    dwHighScore = getHighScore()
+    dwHighScore = getHighScoreDw()
     # Confirm the cash for the user
     for i in range(0, len(dwCashDb)):
         if dwCashDb[i].get('userID') == nodeID:
