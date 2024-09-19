@@ -549,6 +549,19 @@ def playDopeWars(nodeID, cmd):
                         dwPlayerTracker[i]['cmd'] = 'ask_bsf'
                 msg = sell_func(nodeID, price_list, menu_choice[1], menu_choice[2])
                 return msg
+        elif 's' in menu_choice:
+            msg = ''
+            # sell everything we have in backpack
+            for i in range(0, len(dwInventoryDb)):
+                if dwInventoryDb[i].get('userID') == nodeID:
+                    inventory = dwInventoryDb[i].get('inventory')
+            if inventory == 0:
+                msg = "You don't have anything to sell"
+                return msg
+            else:
+                for i in range(0, len(my_drugs)):
+                    msg += sell_func(nodeID, price_list, i+1, 'm')
+            return msg
         elif 'f' in menu_choice:
                 # set last command to location
                 for i in range(0, len(dwPlayerTracker)):
