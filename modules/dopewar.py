@@ -294,12 +294,12 @@ def sell_func(nodeID, price_list, choice=0, value='0'):
                 cash += sell_amount * price_list[drug_choice]
                 inventory -= sell_amount
                 msg += " You sold " + str(sell_amount) + " " + my_drugs[drug_choice].name + ' for $' +\
-                    str(sell_amount * price_list[drug_choice]) + ' total cash: $' + str(cash)
+                    str(sell_amount * price_list[drug_choice]) + '. Total cash: $' + str(cash)
             else:
-                msg = "You don\'t have that much"
+                msg = "You don't have that much"
                 return msg
         else:
-            msg = 'You don\'t have any ' + my_drugs[drug_choice].name
+            msg = "You don't have any " + my_drugs[drug_choice - 1].name
             return msg
 
     # update the cash_db and inventory_db values
@@ -566,7 +566,9 @@ def playDopeWars(nodeID, cmd):
                     sell =  sell_func(nodeID, price_list, i, 'm')
                     # ignore starts with "You don't have any"
                     if not sell.startswith("You don't have any"):
-                        msg += sell + '\n'
+                        msg += sell
+                        if i != len(my_drugs):
+                            msg += '\n'
             return msg
         elif 'f' in menu_choice:
                 # set last command to location
