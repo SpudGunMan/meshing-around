@@ -1,9 +1,8 @@
 # config
 config.ini
 
-# Pickle files, specifically, bbsdb.pkl
-bbsdb.pkl
-bbsdm.pkl
+# Pickle files
+*.pkl
 
 # virtualenv
 venv/
