@@ -25,9 +25,10 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
         "wxc": lambda: handle_wxc(message_from_id, deviceID, 'wxc'),
         "wx": lambda: handle_wxc(message_from_id, deviceID, 'wx'),
         "wiki:": lambda: handle_wiki(message),
-        "games": lambda: "CMD: dopewars, lemonstand",
+        "games": lambda: gamesCmdList,
         "dopewars": lambda: handleDopeWars(message_from_id, message, deviceID),
         "lemonstand": lambda: handleLemonade(message_from_id, message),
+        "blackjack": lambda: handleBlackJack(message_from_id, message),
         "ask:": lambda: handle_llm(message_from_id, channel_number, deviceID, message, publicChannel),
         "askai": lambda: handle_llm(message_from_id, channel_number, deviceID, message, publicChannel),
         "joke": tell_joke,
@@ -240,6 +241,43 @@ def handleLemonade(nodeID, message):
     msg = start_lemonade(nodeID=nodeID, message=message, celsius=False)
     # wait a second to keep from message collision
     time.sleep(1)
+    return msg
+
+def handleBlackJack(nodeID, message):
+    global jackTracker
+    msg = ""
+
+    # if player sends a L for leave table
+    if message.lower().startswith("l"):
+        logger.debug(f"System: BlackJack: {nodeID} is leaving the table")
+        # add 16 hours to the player time to leave the table, this will be detected by bot logic as player leaving
+        for i in range(len(jackTracker)):
+            if jackTracker[i]['nodeID'] == nodeID:
+                jackTracker[i]['leaveTime'] = time.time() + 57600
+                jackTracker[i]['cmd'] = "new"
+    else:
+        # Play BlackJack
+        msg = playBlackJack(nodeID=nodeID, message=message)
+
+        # get player's last command from tracker
+        last_cmd = ""
+        for i in range(len(jackTracker)):
+            if jackTracker[i]['nodeID'] == nodeID:
+                last_cmd = jackTracker[i]['cmd']
+
+        # find higest dollar amount in tracker for high score
+        if last_cmd == "new":
+            high_score = 0
+            for i in range(len(jackTracker)):
+                if jackTracker[i]['cash'] > high_score:
+                    high_score = int(jackTracker[i]['cash'])
+                    user = jackTracker[i]['nodeID']
+            if user != 0:
+                msg += f" Ranking🥇:{get_name_from_number(user)} with {high_score} chips. "
+    
+        if last_cmd != "":
+            logger.debug(f"System: BlackJack: {nodeID} last command: {last_cmd}")
+    
     return msg
 
 def handle_wxc(message_from_id, deviceID, cmd):
@@ -508,7 +546,6 @@ def onReceive(packet, interface):
                                     # play the game
                                     send_message(handleDopeWars(message_from_id, message_string, rxNode), channel_number, message_from_id, rxNode)
 
-                        
                         for i in range(0, len(lemonadeTracker)):
                             if lemonadeTracker[i].get('nodeID') == message_from_id:
                                 # check if the player has played in the last 8 hours
@@ -525,6 +562,23 @@ def onReceive(packet, interface):
                                     
                                     # play the game
                                     send_message(handleLemonade(message_from_id, message_string), channel_number, message_from_id, rxNode)
+
+                        for i in range(0, len(jackTracker)):
+                            if jackTracker[i].get('nodeID') == message_from_id:
+                                # check if the player has played in the last 8 hours
+                                if jackTracker[i].get('time') > (time.time() - 28800):
+                                    playingGame = True
+                                    game = "BlackJack"
+                                    if llm_enabled:
+                                        logger.debug(f"System: LLM Disabled for {message_from_id} for duration of game")
+
+                                    #if time exceeds 8 hours reset the player
+                                    if jackTracker[i].get('time') < (time.time() - 28800):
+                                        logger.debug(f"System: BlackJack: Resetting player {message_from_id}")
+                                        jackTracker.pop(i)
+                                    
+                                    # play the game
+                                    send_message(handleBlackJack(message_from_id, message_string), channel_number, message_from_id, rxNode)
                     else:
                         playingGame = False
 

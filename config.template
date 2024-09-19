@@ -53,9 +53,10 @@ LogMessagesToFile = False
 SyslogToFile = False
 
 [games]
-# enable or disable the games module
+# enable or disable the games module(s)
 dopeWars = True
 lemonade = True
+blackjack = True
 
 [sentry]
 # detect anyone close to the bot

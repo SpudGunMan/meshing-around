@@ -88,11 +88,25 @@ if lemonade_enabled:
     from modules.lemonade import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + ("lemonstand",)
     games_enabled = True
+
+# BlackJack Configuration
+if blackjack_enabled:
+    from modules.blackjack import * # from the spudgunman/meshing-around repo
+    trap_list = trap_list + ("blackjack",)
+    games_enabled = True
     
 # Games Configuration
 if games_enabled is True:
     help_message = help_message + ", games"
     trap_list = trap_list + ("games",)
+    gamesCmdList = "CMD: "
+    if dopewars_enabled:
+        gamesCmdList += "DopeWars, "
+    if lemonade_enabled:
+        gamesCmdList += "LemonStand, "
+    if blackjack_enabled:
+        gamesCmdList += "BlackJack, "
+    gamesCmdList = gamesCmdList[:-2] # remove the last comma
 
 # Scheduled Broadcast Configuration
 if scheduler_enabled:

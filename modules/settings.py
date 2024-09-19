@@ -86,6 +86,7 @@ else:
 
 # variables
 try:
+    # general
     useDMForResponse = config['general'].getboolean('respond_by_dm_only', True)
     publicChannel = config['general'].getint('defaultChannel', 0) # the meshtastic public channel
     zuluTime = config['general'].getboolean('zuluTime', False) # aka 24 hour time
@@ -104,12 +105,14 @@ try:
     llm_enabled = config['general'].getboolean('ollama', False) # https://ollama.com
     llmModel = config['general'].get('ollamaModel', 'gemma2:2b') # default gemma2:2b
 
+    # sentry
     sentry_enabled = config['sentry'].getboolean('SentryEnabled', False) # default False
     secure_channel = config['sentry'].getint('SentryChannel', 2) # default 2
     sentry_holdoff = config['sentry'].getint('SentryHoldoff', 9) # default 9
     sentryIgnoreList = config['sentry'].get('sentryIgnoreList', '').split(',')
     sentry_radius = config['sentry'].getint('SentryRadius', 100) # default 100 meters
 
+    # location
     location_enabled = config['location'].getboolean('enabled', True)
     latitudeValue = config['location'].getfloat('lat', 48.50)
     longitudeValue = config['location'].getfloat('lon', -123.0)
@@ -119,14 +122,17 @@ try:
     numWxAlerts = config['location'].getint('NOAAalertCount', 2) # default 2 alerts
     wxAlertsEnabled = config['location'].getboolean('NOAAalertsEnabled', True) # default True not enabled yet
    
+    # bbs
     bbs_enabled = config['bbs'].getboolean('enabled', False)
     bbsdb = config['bbs'].get('bbsdb', 'bbsdb.pkl')
     bbs_ban_list = config['bbs'].get('bbs_ban_list', '').split(',')
     bbs_admin_list = config['bbs'].get('bbs_admin_list', '').split(',')
 
+    # repeater
     repeater_enabled = config['repeater'].getboolean('enabled', False)
     repeater_channels = config['repeater'].get('repeater_channels', '').split(',')
 
+    # radio monitoring
     radio_detection_enabled = config['radioMon'].getboolean('enabled', False)
     rigControlServerAddress = config['radioMon'].get('rigControlServerAddress', 'localhost:4532') # default localhost:4532
     sigWatchBroadcastCh = config['radioMon'].get('sigWatchBroadcastCh', '2').split(',') # default Channel 2
@@ -134,9 +140,11 @@ try:
     signalHoldTime = config['radioMon'].getint('signalHoldTime', 10) # default 10 seconds
     signalCooldown = config['radioMon'].getint('signalCooldown', 5) # default 1 second
     signalCycleLimit = config['radioMon'].getint('signalCycleLimit', 5) # default 5 cycles, used with SIGNAL_COOLDOWN
-
+    
+    # games
     dopewars_enabled = config['games'].getboolean('dopeWars', True)
     lemonade_enabled = config['games'].getboolean('lemonade', True)
+    blackjack_enabled = config['games'].getboolean('blackjack', True)
 
 except KeyError as e:
     print(f"System: Error reading config file: {e}")
