@@ -400,7 +400,7 @@ def start_lemonade(nodeID, message, celsius=False):
                 if lemonadeTracker[i]['nodeID'] == nodeID:
                     lemonadeTracker[i]['cmd'] = "price"
             saveValues()
-            msg += f"\nHow much should the lemonade cost? Cost of goods is {locale.currency(unit, grouping=True)} per cup"
+            msg += f"\nPrice to Sell? Cost of goods is {locale.currency(unit, grouping=True)} per cup"
             return msg
     
         if "price" in last_cmd:
@@ -448,21 +448,20 @@ def start_lemonade(nodeID, message, celsius=False):
             gainloss= inventory.cash - inventory.start
     
             # Display the calculated sales information
-            msg = "Sales Results Week #" + str(weeks.current) + " of " + str(weeks.total)
-            msg += " Unit Cost:" + locale.currency(unit, grouping=True)
-            msg += " Actual Price:" + locale.currency(price, grouping=True)
-            msg += " Profit Margin:" + locale.currency(margin, grouping=True)
-            msg += " Actual Sales:" + str(sales) + " x " + locale.currency(price, grouping=True)
-            msg += " Gross Profit: " + locale.currency(gross, grouping=True)
-            msg += " Net Profit:" + locale.currency(net, grouping=True)
+            msg = "Results Week #" + str(weeks.current) + " of " + str(weeks.total)
+            msg += " Cost/Price:" + locale.currency(unit, grouping=True) + "/" + locale.currency(price, grouping=True)
+            msg += " P.Margin:" + locale.currency(margin, grouping=True)
+            msg += " T.Sales:" + str(sales) + " x " + locale.currency(price, grouping=True)
+            msg += " G.Profit: " + locale.currency(gross, grouping=True)
+            msg += " N.Profit:" + locale.currency(net, grouping=True)
 
             # Display the updated inventory levels
-            msg += "\nRemaining Inventory"
+            msg += "\nRemaining"
             msg += " Cups:" + str(inventory.cups)
             msg += " Lemons:" + str(inventory.lemons)
             msg += " Sugar:" + str(inventory.sugar)
             msg += " Cash:" + locale.currency(inventory.cash, grouping=True)
-            msg += " Total Gain/Loss:" + locale.currency(gainloss, grouping=True)
+            msg += " P&L:" + locale.currency(gainloss, grouping=True)
     
             # Display the weekly sales summary
             pad_week = len(str(weeks.total))
