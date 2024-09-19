@@ -58,7 +58,7 @@ def start_lemonade(nodeID, message, celsius=False):
     unit = 0.0
     price = 0.0
 
-    high_score = getHighScore()
+    high_score = getHighScoreLemon()
 
     def saveValues():
         # save playerDB values
