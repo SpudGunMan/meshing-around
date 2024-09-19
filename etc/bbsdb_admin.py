@@ -23,7 +23,32 @@ except:
     except:
         print ("\nSystem: bbsdm.pkl not found")
 
+# Game HS tables
+try:
+    with open('../lemonade_hs.pkl', 'rb') as f:
+       lemon_score = pickle.load(f)
+except:
+    try:
+        with open('lemonade_hs.pkl', 'rb') as f:
+            lemon_score = pickle.load(f)
+    except:
+        print ("\nSystem: lemonade_hs.pkl not found")
+
+try:
+    with open('../dopewar_hs.pkl', 'rb') as f:
+        dopewar_score = pickle.load(f)
+except:
+    try:
+        with open('dopewar_hs.pkl', 'rb') as f:
+            dopewar_score = pickle.load(f)
+    except:
+        print ("\nSystem: dopewar_hs.pkl not found")
+
+
 print ("\nSystem: bbs_messages")
 print (bbs_messages)
 print ("\nSystem: bbs_dm")
 print (bbs_dm)
+print ("Game HS tables")
+print (f"lemon:{lemon_score}")
+print (f"dopewar:{dopewar_score}")

@@ -13,6 +13,7 @@ from modules.log import *
 trap_list = ("cmd","cmd?") # default trap list
 help_message = "CMD?:"
 asyncLoop = asyncio.new_event_loop()
+games_enabled = False
 
 # Ping Configuration
 if ping_enabled:
@@ -75,6 +76,37 @@ if llm_enabled:
     from modules.llm import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + trap_list_llm # items ask:
     help_message = help_message + ", askai"
+
+# DopeWars Configuration
+if dopewars_enabled:
+    from modules.dopewar import * # from the spudgunman/meshing-around repo
+    trap_list = trap_list + ("dopewars",)
+    games_enabled = True
+
+# Lemonade Stand Configuration
+if lemonade_enabled:
+    from modules.lemonade import * # from the spudgunman/meshing-around repo
+    trap_list = trap_list + ("lemonstand",)
+    games_enabled = True
+
+# BlackJack Configuration
+if blackjack_enabled:
+    from modules.blackjack import * # from the spudgunman/meshing-around repo
+    trap_list = trap_list + ("blackjack",)
+    games_enabled = True
+    
+# Games Configuration
+if games_enabled is True:
+    help_message = help_message + ", games"
+    trap_list = trap_list + ("games",)
+    gamesCmdList = "CMD: "
+    if dopewars_enabled:
+        gamesCmdList += "DopeWars, "
+    if lemonade_enabled:
+        gamesCmdList += "LemonStand, "
+    if blackjack_enabled:
+        gamesCmdList += "BlackJack, "
+    gamesCmdList = gamesCmdList[:-2] # remove the last comma
 
 # Scheduled Broadcast Configuration
 if scheduler_enabled:

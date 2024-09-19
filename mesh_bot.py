@@ -25,6 +25,10 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
         "wxc": lambda: handle_wxc(message_from_id, deviceID, 'wxc'),
         "wx": lambda: handle_wxc(message_from_id, deviceID, 'wx'),
         "wiki:": lambda: handle_wiki(message),
+        "games": lambda: gamesCmdList,
+        "dopewars": lambda: handleDopeWars(message_from_id, message, deviceID),
+        "lemonstand": lambda: handleLemonade(message_from_id, message),
+        "blackjack": lambda: handleBlackJack(message_from_id, message),
         "ask:": lambda: handle_llm(message_from_id, channel_number, deviceID, message, publicChannel),
         "askai": lambda: handle_llm(message_from_id, channel_number, deviceID, message, publicChannel),
         "joke": tell_joke,
@@ -189,6 +193,92 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
     llmTotalRuntime.append(end - start)
 
     return response
+
+def handleDopeWars(nodeID, message, rxNode):
+    global dwPlayerTracker, dwHighScore
+    
+    # get player's last command
+    last_cmd = None
+    for i in range(0, len(dwPlayerTracker)):
+        if dwPlayerTracker[i].get('userID') == nodeID:
+            last_cmd = dwPlayerTracker[i].get('cmd')
+    
+    # welcome new player
+    if not last_cmd:
+        msg = 'Welcome to Dope Wars! You have ' + str(total_days) + ' days to make as much money as possible! '
+        high_score = getHighScoreDw()
+        msg += 'The High Score is $' + "{:,}".format(high_score.get('cash')) + ' by user ' + get_name_from_number(high_score.get('userID') , 'short', rxNode) + f'.\n'
+        msg += playDopeWars(nodeID, message)
+    else:
+        logger.debug("System: DopeWars: last_cmd: " + str(last_cmd))
+        msg = playDopeWars(nodeID, message)
+    # wait a second to keep from message collision
+    time.sleep(1)
+    return msg
+
+def handleLemonade(nodeID, message):
+    global lemonadeTracker, lemonadeCups, lemonadeLemons, lemonadeSugar, lemonadeWeeks, lemonadeScore, lemon_starting_cash, lemon_total_weeks
+
+    def create_player(nodeID):
+        # create new player
+        logger.debug("System: Lemonade: New Player: " + str(nodeID))
+        lemonadeTracker.append({'nodeID': nodeID, 'cups': 0, 'lemons': 0, 'sugar': 0, 'cash': lemon_starting_cash, 'start': lemon_starting_cash, 'cmd': 'new', 'time': time.time()})
+        lemonadeCups.append({'nodeID': nodeID, 'cost': 2.50, 'count': 25, 'min': 0.99, 'unit': 0.00})
+        lemonadeLemons.append({'nodeID': nodeID, 'cost': 4.00, 'count': 8, 'min': 2.00, 'unit': 0.00})
+        lemonadeSugar.append({'nodeID': nodeID, 'cost': 3.00, 'count': 15, 'min': 1.50, 'unit': 0.00})
+        lemonadeScore.append({'nodeID': nodeID, 'value': 0.00, 'total': 0.00})
+        lemonadeWeeks.append({'nodeID': nodeID, 'current': 1, 'total': lemon_total_weeks, 'sales': 99, 'potential': 0, 'unit': 0.00, 'price': 0.00})
+    
+    # get player's last command from tracker if not new player
+    last_cmd = ""
+    for i in range(len(lemonadeTracker)):
+        if lemonadeTracker[i]['nodeID'] == nodeID:
+            last_cmd = lemonadeTracker[i]['cmd']
+    # create new player if not in tracker
+    if last_cmd == "":
+        create_player(nodeID)
+    
+    msg = start_lemonade(nodeID=nodeID, message=message, celsius=False)
+    # wait a second to keep from message collision
+    time.sleep(1)
+    return msg
+
+def handleBlackJack(nodeID, message):
+    global jackTracker
+    msg = ""
+
+    # if player sends a L for leave table
+    if message.lower().startswith("l"):
+        logger.debug(f"System: BlackJack: {nodeID} is leaving the table")
+        # add 16 hours to the player time to leave the table, this will be detected by bot logic as player leaving
+        for i in range(len(jackTracker)):
+            if jackTracker[i]['nodeID'] == nodeID:
+                jackTracker[i]['leaveTime'] = time.time() + 57600
+                jackTracker[i]['cmd'] = "new"
+    else:
+        # Play BlackJack
+        msg = playBlackJack(nodeID=nodeID, message=message)
+
+        # get player's last command from tracker
+        last_cmd = ""
+        for i in range(len(jackTracker)):
+            if jackTracker[i]['nodeID'] == nodeID:
+                last_cmd = jackTracker[i]['cmd']
+
+        # find higest dollar amount in tracker for high score
+        if last_cmd == "new":
+            high_score = 0
+            for i in range(len(jackTracker)):
+                if jackTracker[i]['cash'] > high_score:
+                    high_score = int(jackTracker[i]['cash'])
+                    user = jackTracker[i]['nodeID']
+            if user != 0:
+                msg += f" Ranking🥇:{get_name_from_number(user)} with {high_score} chips. "
+    
+        if last_cmd != "":
+            logger.debug(f"System: BlackJack: {nodeID} last command: {last_cmd}")
+    
+    return msg
 
 def handle_wxc(message_from_id, deviceID, cmd):
     location = get_node_location(message_from_id, deviceID)
@@ -435,13 +525,72 @@ def onReceive(packet, interface):
                     # respond with DM
                     send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number, rxNode), channel_number, message_from_id, rxNode)
                 else:
-                    if llm_enabled:
-                        llm = handle_llm(message_from_id, channel_number, rxNode, message_string, publicChannel)
-                        send_message(llm, channel_number, message_from_id, rxNode)
+                    # DM is usefull for games or LLM
+                    if games_enabled:
+                        playingGame = False
+                        # if in a game we cant use LLM disable for duration of game
+                        for i in range(0, len(dwPlayerTracker)):
+                            if dwPlayerTracker[i].get('userID') == message_from_id:
+                                # check if the player has played in the last 8 hours
+                                if dwPlayerTracker[i].get('last_played') > (time.time() - 28800):
+                                    playingGame = True
+                                    game = "DopeWars"
+                                    if llm_enabled:
+                                        logger.debug(f"System: LLM Disabled for {message_from_id} for duration of game")
+                                    
+                                    #if time exceeds 8 hours reset the player
+                                    if dwPlayerTracker[i].get('last_played') < (time.time() - 28800):
+                                        logger.debug(f"System: DopeWars: Resetting player {message_from_id}")
+                                        dwPlayerTracker.pop(i)
+                                    
+                                    # play the game
+                                    send_message(handleDopeWars(message_from_id, message_string, rxNode), channel_number, message_from_id, rxNode)
+
+                        for i in range(0, len(lemonadeTracker)):
+                            if lemonadeTracker[i].get('nodeID') == message_from_id:
+                                # check if the player has played in the last 8 hours
+                                if lemonadeTracker[i].get('time') > (time.time() - 28800):
+                                    playingGame = True
+                                    game = "LemonadeStand"
+                                    if llm_enabled:
+                                        logger.debug(f"System: LLM Disabled for {message_from_id} for duration of game")
+
+                                    #if time exceeds 8 hours reset the player
+                                    if lemonadeTracker[i].get('time') < (time.time() - 28800):
+                                        logger.debug(f"System: LemonadeStand: Resetting player {message_from_id}")
+                                        lemonadeTracker.pop(i)
+                                    
+                                    # play the game
+                                    send_message(handleLemonade(message_from_id, message_string), channel_number, message_from_id, rxNode)
+
+                        for i in range(0, len(jackTracker)):
+                            if jackTracker[i].get('nodeID') == message_from_id:
+                                # check if the player has played in the last 8 hours
+                                if jackTracker[i].get('time') > (time.time() - 28800):
+                                    playingGame = True
+                                    game = "BlackJack"
+                                    if llm_enabled:
+                                        logger.debug(f"System: LLM Disabled for {message_from_id} for duration of game")
+
+                                    #if time exceeds 8 hours reset the player
+                                    if jackTracker[i].get('time') < (time.time() - 28800):
+                                        logger.debug(f"System: BlackJack: Resetting player {message_from_id}")
+                                        jackTracker.pop(i)
+                                    
+                                    # play the game
+                                    send_message(handleBlackJack(message_from_id, message_string), channel_number, message_from_id, rxNode)
                     else:
-                        # respond with welcome message on DM
-                        logger.warning(f"Device:{rxNode} Ignoring DM: {message_string} From: {get_name_from_number(message_from_id, 'long', rxNode)}")
-                        send_message(welcome_message, channel_number, message_from_id, rxNode)
+                        playingGame = False
+
+                    if not playingGame:
+                        if llm_enabled:
+                            # respond with LLM
+                            llm = handle_llm(message_from_id, channel_number, rxNode, message_string, publicChannel)
+                            send_message(llm, channel_number, message_from_id, rxNode)
+                        else:
+                            # respond with welcome message on DM
+                            logger.warning(f"Device:{rxNode} Ignoring DM: {message_string} From: {get_name_from_number(message_from_id, 'long', rxNode)}")
+                            send_message(welcome_message, channel_number, message_from_id, rxNode)
                     
                     # log the message to the message log
                     msgLogger.info(f"Device:{rxNode} Channel:{channel_number} | {get_name_from_number(message_from_id, 'long', rxNode)} | " + message_string.replace('\n', '-nl-'))
@@ -532,6 +681,8 @@ async def start_rx():
             logger.debug(f"System: Location Telemetry Enabled using NOAA API")
     if dad_jokes_enabled:
         logger.debug(f"System: Dad Jokes Enabled!")
+    if games_enabled:
+        logger.debug(f"System: Games Enabled!")
     if wikipedia_enabled:
         logger.debug(f"System: Wikipedia search Enabled")
     if motd_enabled:

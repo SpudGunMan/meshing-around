@@ -16,11 +16,11 @@ The bot will report on anyone who is getting close to the configured lat/long, i
 
 Store and forward-like message re-play with `messages`, and there is a repeater module for dual radio bots to cross post messages. Messages are also logged locally to disk.
 
+There is a small collection of games to play like DopeWars or Lemonade Stand and BlackJack to name a few, issuing `games` displays help
+
 The bot can also be used to monitor a radio frequency and let you know when high SNR RF activity is seen. Using Hamlib(rigctld) to watch the S meter on a connected radio. You can send alerts to channels when a frequency is detected for 20 seconds within the thresholds set in config.ini
 
 Any messages that are over 160 characters are chunked into 160 message bytes to help traverse hops, in testing, this keeps delivery success higher.
-
-[Donate$](https://www.paypal.com/donate?token=ZpiU7zDh-AQDyK76nWmWPQLf04iOm-Iyr3f85lpubt37NWGRYtfe11UyC0LmY1wdcC20UubWo4Kec-_G) via PayPal if you like the project! 
 
 ## Full list of commands for the bot
 
@@ -46,6 +46,9 @@ Any messages that are over 160 characters are chunked into 160 message bytes to 
   - `motd` or to set the message `motd $New Message Of the day`
   - `lheard` returns the last 5 heard nodes with SNR, can also use `sitrep`
   - `cmd` returns the list of commands (the help message)
+- Games
+  - `lemonstand` plays the classic Lemonade Stand Finance game via DM
+  - `dopewars` plays the classic drug trader game via DM
 
 ## pong_bot.sh
 Stripped-down bot, mostly around for archive purposes. The mesh-bot enhanced modules can be disabled by config to disable features.
@@ -245,6 +248,11 @@ I used ideas and snippets from other responder bots and want to call them out!
 - https://github.com/pdxlocations/meshtastic-Python-Examples
 - https://github.com/geoffwhittington/meshtastic-matrix-relay
 
+Games Ported from..
+- https://github.com/tigerpointe/Lemonade-Stand/
+- https://github.com/Reconfirefly/drugwars
+- https://github.com/Himan10/BlackJack
+
 GitHub user mrpatrick1991 For Docker configs, PiDiBi looking at test functions and other suggestions like wxc, CPU use, and alerting ideas
-Discord and Mesh user Cisien, and github Hailo1999, for testing and ideas!
+Discord and Mesh user Cisien, and github Hailo1999, for testing and ideas! Lots of individuals on the Meshtastic discord who have tossed out ideas and tested code!
 
