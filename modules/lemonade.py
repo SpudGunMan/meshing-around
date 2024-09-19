@@ -400,7 +400,7 @@ def start_lemonade(nodeID, message, celsius=False):
                 if lemonadeTracker[i]['nodeID'] == nodeID:
                     lemonadeTracker[i]['cmd'] = "price"
             saveValues()
-            msg += f"\nHow much should the lemonade cost?"
+            msg += f"\nHow much should the lemonade cost? Cost of goods is {locale.currency(unit, grouping=True)} per cup"
             return msg
     
         if "price" in last_cmd:
