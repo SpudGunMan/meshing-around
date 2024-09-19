@@ -36,10 +36,11 @@ if __name__ == '__main__': # represents the bot's main loop
     packet = ""
     nodeInt = 1 # represents the device/node number
     logger.info(f"System: Meshing-Around Simulator Starting for {projectName}")
+    nodeID = get_NodeID() # assign a nodeID
     while True: # represents the onReceive() loop in the bot.py
-        nodeID = get_NodeID() # assign a nodeID for this iteration
         projectResponse = ""
         responseLength = 0
+        packet = input(f"CLIENT {nodeID} INPUT: " ) # Emulate the client input
         if packet != "":
             #try:
             projectResponse = globals()[projectName](nodeID, packet) # Call the project handler under test
@@ -50,6 +51,6 @@ if __name__ == '__main__': # represents the bot's main loop
                 responseLength = len(projectResponse) # Evaluate the response length
                 logger.info(f"Device:{nodeInt} " + CustomFormatter.red + f"Sending {responseLength} long DM: " +\
                         CustomFormatter.white + projectResponse + CustomFormatter.purple + " To: " + CustomFormatter.white + str(nodeID))
-        packet = input("CLIENT INPUT: " ) # Emulate the client input
         time.sleep(0.5)
+        nodeID = get_NodeID() # assign a nodeID
 # # End of launcher
