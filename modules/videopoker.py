@@ -259,19 +259,20 @@ def playVideoPoker(nodeID, message):
         deck = DeckVP()
         deck.shuffle()
         drawCount = 1
-
+        bet = 0
 
         # Detect if message is a bet, set default to 1
         try:
-            message = int(message)
+            bet = int(message)
         except ValueError:
-            message = 1
+            bet = 1
 
-        if message.lower() > player.bankroll:
+        if bet > player.bankroll:
             msg = "You can only bet the money you have. No strip poker here..."
 
-
+        # take bet
         msg = player.bet(str(message))
+        
         if msg != None:
             return msg
         else:
