@@ -26,9 +26,6 @@ retry_int1 = False
 retry_int2 = False
 scheduler_enabled = False # enable the scheduler currently config via code only
 wiki_return_limit = 3 # limit the number of sentences returned off the first paragraph first hit
-llmRunCounter = 0
-llmTotalRuntime = []
-llmLocationTable = []
 playingGame = False
 GAMEDELAY = 28800 # 8 hours in seconds for game mode holdoff
 

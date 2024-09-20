@@ -112,26 +112,30 @@ def handle_wiki(message):
         return get_wikipedia_summary(search)
     else:
         return "Please add a search term example:wiki: travelling gnome"
-    
+
+# Runtime Variables for LLM
 llmRunCounter = 0
 llmTotalRuntime = []
-llmLocationTable = [{0: {'location': 'No Location'}}]
+llmLocationTable = [{'nodeID': 1234567890, 'location': 'No Location'},]
 
 def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel):
-    global llmRunCounter, llmTotalRuntime, llmLocationTable
+    global llmRunCounter, llmLocationTable, llmTotalRuntime, location_enabled, antiSpam, useDMForResponse, NO_DATA_NOGPS
+    location_name = 'no location provided'
     
     if location_enabled:
-        location = get_node_location(message_from_id, deviceID)
-        # if message_from_id is is the llmLocationTable use the location from the table to save on API calls
-        if message_from_id in llmLocationTable:
-            # get the location from the llmLocationTable
-            location_name = llmLocationTable[message_from_id].get('location')
+        print(llmLocationTable)
+        # if message_from_id is is the llmLocationTable use the location from the list to save on API calls
+        for i in range(0, len(llmLocationTable)):
+            logger.debug(f"System: LLM: Checking for {message_from_id} in {llmLocationTable}")
+            if llmLocationTable[i].get('nodeID') == message_from_id:
+                logger.debug(f"System: LLM: Found {message_from_id} in location table")
+                location_name = llmLocationTable[i].get('location')
+                break
         else:
+            location = get_node_location(message_from_id, deviceID)
             location_name = where_am_i(str(location[0]), str(location[1]), short = True)
 
-            if NO_DATA_NOGPS in location_name:
-                location_name = "no location provided "
-    else:
+    if NO_DATA_NOGPS in location_name:
         location_name = "no location provided"
 
     if "ask:" in message.lower():
@@ -144,7 +148,7 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
 
         # if the message_from_id is not in the llmLocationTable send the welcome message
         for i in range(0, len(llmLocationTable)):
-            if message_from_id in llmLocationTable[i]:
+            if llmLocationTable[i].get('nodeID') == message_from_id:
                 if (channel_number == publicChannel and antiSpam) or useDMForResponse:
                     # send via DM
                     send_message(welcome_message, channel_number, message_from_id, deviceID)
@@ -156,9 +160,10 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
     
     # update the llmLocationTable for future use
     for i in range(0, len(llmLocationTable)):
-        if message_from_id in llmLocationTable[i]:
+        if llmLocationTable[i].get('nodeID') == message_from_id:
             llmLocationTable[i]['location'] = location_name
-            break
+        else:
+            llmLocationTable.append({'nodeID': message_from_id, 'location': location_name})
 
     user_input = user_input.strip()
         
