@@ -66,7 +66,7 @@ def drawCards(*cards, return_string=True):
         lines[0].append('{}{} '.format(rank, suit))
 
     result = []
-    result.append('1  2  3  4  5')  # add the index for the cards to top row
+    #result.append('1       2       3       4      5')  # add the index for the cards to top row
     for index, line in enumerate(lines):
         result.append(''.join(lines[index]))
 
@@ -258,12 +258,6 @@ def playVideoPoker(nodeID, message):
         logger.debug(f"System: VideoPoker: New Player {nodeID}")
         vpTracker.append({'nodeID': nodeID, 'cmd': 'new', 'time': time.time(), 'cash': vpStartingCash, 'player': None, 'deck': None, 'highScore': 0, 'drawCount': 0})
         return f"Welcome to VideoPoker! you have {vpStartingCash} coins, Whats your bet?"
-    elif getLastCmdVp(nodeID) == "gameOver" or getLastCmdVp(nodeID) == "new":
-        # load the player bankroll from tracker
-        for i in range(len(vpTracker)):
-            if vpTracker[i]['nodeID'] == nodeID:
-                cash = vpTracker[i]['cash']
-        return f"Welcome back to VideoPoker! you have {cash} coins, Whats your bet?"
     
     # Gather the player's bet
     if getLastCmdVp(nodeID) == "new" or getLastCmdVp(nodeID) == "gameOver":
@@ -271,7 +265,7 @@ def playVideoPoker(nodeID, message):
         player = PlayerVP()
         deck = DeckVP()
         deck.shuffle()
-        drawCount = 0
+        drawCount = 1
 
         # save player and deck to tracker
         for i in range(len(vpTracker)):
@@ -291,8 +285,7 @@ def playVideoPoker(nodeID, message):
     
         player.draw_cards(deck)
         msg += player.show_hand()
-        setLastCmdVp(nodeID, "redraw")
-
+        
         # save player and deck to tracker
         for i in range(len(vpTracker)):
             if vpTracker[i]['nodeID'] == nodeID:
@@ -300,10 +293,12 @@ def playVideoPoker(nodeID, message):
                 vpTracker[i]['deck'] = deck
                 vpTracker[i]['drawCount'] = drawCount
 
-        msg += f"\nDeal any cards? List them by number separated by commas"
+        msg += f"\nRedraw? \nCard# separated by commas ex: 1,3,4 or (N)o"
+        setLastCmdVp(nodeID, "redraw")
         return msg
     
     if getLastCmdVp(nodeID) == "redraw":
+        msg = ''
         # load the player and deck from tracker
         for i in range(len(vpTracker)):
             if vpTracker[i]['nodeID'] == nodeID:
@@ -311,26 +306,32 @@ def playVideoPoker(nodeID, message):
                 deck = vpTracker[i]['deck']
                 drawCount  = vpTracker[i]['drawCount']
 
-        # if player wants to redraw cards, and not done so twice total
+        # if player wants to redraw cards, and not done already
         if message.lower().startswith("n"):
             setLastCmdVp(nodeID, "endGame")
         else:
-            if drawCount < 2:
+            if drawCount <= 1:
                 msg = player.redraw(deck, message)
                 drawCount += 1
-                setLastCmdVp(nodeID, "endGame")
                 # save player and deck to tracker
                 for i in range(len(vpTracker)):
                     if vpTracker[i]['nodeID'] == nodeID:
                         vpTracker[i]['player'] = player
                         vpTracker[i]['deck'] = deck
                         vpTracker[i]['drawCount'] = drawCount
-                return msg
+                if drawCount == 2:
+                    # this is the last draw will carry on to endGame for scoring
+                    msg = player.redraw(deck, message) + f"\n"
+                    # redraw done
+                    setLastCmdVp(nodeID, "endGame")
+                else:
+                    # show redrawn hand
+                    return msg
             else:
+                # redraw already done
                 setLastCmdVp(nodeID, "endGame")
                 
     if getLastCmdVp(nodeID) == "endGame":
-        msg = ''
         # load the player and deck from tracker
         for i in range(len(vpTracker)):
             if vpTracker[i]['nodeID'] == nodeID:
@@ -346,9 +347,9 @@ def playVideoPoker(nodeID, message):
         # check if player has new high score
         if player.bankroll > vpTracker[i]['highScore']:
             vpTracker[i]['highScore'] = player.bankroll
-            msg += " You have a new personal high score of {} coins.".format(player.bankroll)
+            msg += " New personal high score of {} coins.".format(player.bankroll)
         else:
-            msg += " Your personal high score is {} coins.".format(vpTracker[i]['highScore'])
+            msg += " Your high score is {} coins.".format(vpTracker[i]['highScore'])
 
         msg += "Place your Bet, 'L' to leave the game."
 
@@ -359,6 +360,8 @@ def playVideoPoker(nodeID, message):
                 vpTracker[i]['player'] = None
                 vpTracker[i]['deck'] = None
                 vpTracker[i]['drawCount'] = 0
+                vpTracker[i]['time'] = time.time()
 
         return msg
+
  
