@@ -630,11 +630,6 @@ def onReceive(packet, interface):
                                     game = "VideoPoker"
                                     if llm_enabled:
                                         logger.debug(f"System: LLM Disabled for {message_from_id} for duration of VideoPoker")
-
-                                    #if time exceeds 8 hours reset the player
-                                    if vpTracker[i].get('time') < (time.time() - GAMEDELAY):
-                                        logger.debug(f"System: VideoPoker: Resetting player {message_from_id}")
-                                        vpTracker.pop(i)
                                     
                                     # play the game
                                     send_message(handleVideoPoker(message_from_id, message_string), channel_number, message_from_id, rxNode)
@@ -647,11 +642,6 @@ def onReceive(packet, interface):
                                     game = "BlackJack"
                                     if llm_enabled:
                                         logger.debug(f"System: LLM Disabled for {message_from_id} for duration of BlackJack")
-
-                                    #if time exceeds 8 hours reset the player
-                                    if jackTracker[i].get('time') < (time.time() - GAMEDELAY):
-                                        logger.debug(f"System: BlackJack: Resetting player {message_from_id}")
-                                        jackTracker.pop(i)
                                     
                                     # play the game
                                     send_message(handleBlackJack(message_from_id, message_string), channel_number, message_from_id, rxNode)
