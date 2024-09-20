@@ -49,6 +49,8 @@ Any messages that are over 160 characters are chunked into 160 message bytes to 
 - Games
   - `lemonstand` plays the classic Lemonade Stand Finance game via DM
   - `dopewars` plays the classic drug trader game via DM
+  - `blackjack` BlackJack
+  - `videopoker` Video Poker
 
 ## pong_bot.sh
 Stripped-down bot, mostly around for archive purposes. The mesh-bot enhanced modules can be disabled by config to disable features.
