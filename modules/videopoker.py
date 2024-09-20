@@ -293,7 +293,7 @@ def playVideoPoker(nodeID, message):
                 vpTracker[i]['deck'] = deck
                 vpTracker[i]['drawCount'] = drawCount
 
-        msg += f"\nRedraw? \nCard# separated by commas ex: 1,3,4 or (N)o"
+        msg += f"\nRedraw Card? # separated by commas \nex: 1,3,4 or (N)o"
         setLastCmdVp(nodeID, "redraw")
         return msg
     
