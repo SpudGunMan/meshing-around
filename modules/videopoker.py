@@ -153,7 +153,7 @@ class PlayerVP:
                 redraw_index = int(message) - 1
                 self.hand[redraw_index] = deck.draw_card()
             except ValueError:
-                return "Please enter a valid card slot to re-deal 1 to 5."
+                return "Please enter a valid card slot to re-deal 1 to 5. Separate multiple cards with a comma."
 
         else:
             redraw_list = [int(x) - 1 for x in message.split(',')]
