@@ -164,13 +164,14 @@ class PlayerVP:
         return "Send Card(s) to Re-Draw/Deal like 1,3,4 to hold cards 1, 3, and 4. or (N)o to keep current hand."
 
     # Method for scoring hand, calculating winnings, and outputting message
-    def score_hand(self):
+    def score_hand(self, resetHand = True):
         points = sorted([self.hand[i].points for i in range(5)])
         suits = [self.hand[i].suit for i in range(5)]
         points_repeat = [points.count(i) for i in points]
         suits_repeat = [suits.count(i) for i in suits]
         diff = max(points) - min(points)
         hand_name = ""
+        msg = ""
         payoff = {
             "👑Royal Flush🚽": 10,
             "🧻Straight Flush🚽": 9,
@@ -187,57 +188,75 @@ class PlayerVP:
         if 5 in suits_repeat:
             if points == [10, 11, 12, 13, 14]: #find royal flush
                 hand_name = "👑Royal Flush🚽"
-                self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
+                if resetHand:
+                    self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
             elif diff == 4 and max(points_repeat) == 1: # find straight flush w/o ace low
                 hand_name = "🧻Straight Flush🚽"
-                self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
+                if resetHand:
+                    self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
             elif diff == 12 and points[4] == 14: # find straight flush w/ace low
                 check = 0
                 for i in range(1, 4):
                     check += points[i] - points[i - 1]
                 if check == 3:
                     hand_name =  "🧻Straight Flush🚽"
-                    self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
+                    if resetHand:
+                        self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
                 else:
                     hand_name =  "Flush🚽"
-                    self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
+                    if resetHand:
+                        self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
             else:
                 hand_name = "Flush🚽"
-                self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
+                if resetHand:
+                    self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
         elif sorted(points_repeat) == [2,2,3,3,3]: # find full house
             hand_name = "Full House🏠"
-            self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
+            if resetHand:
+                self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
         elif 4 in points_repeat: # find four of a kind
             hand_name = "Four of a Kind👯👯"
-            self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
+            if resetHand:
+                self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
         elif 3 in points_repeat: # find three of a kind
             hand_name = "Three of a Kind☘️"
-            self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
+            if resetHand:
+                self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
         elif points_repeat.count(2) == 4: # find two-pair
             hand_name = "Two Pair👯👯"
-            self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
+            if resetHand:
+                self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
         elif 2 in points_repeat: # find pair
             hand_name = "Pair👯"
-            self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
+            if resetHand:
+                self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
         elif diff == 4 and max(points_repeat) == 1: # find straight w/o ace low
             hand_name = "Straight📏"
-            self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
+            if resetHand:
+                self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
         elif diff == 12 and points[4] == 14: # find straight w/ace low
             check = 0
             for i in range(1, 4):
                 check += points[i] - points[i - 1]
                 if check == 3:
                     hand_name = "Straight📏"
-                    self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
+                    if resetHand:
+                        self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
                 else:
-                    hand_name = "Bad Hand 🙈"
-                    self.bankroll += self.bet_size * payoff[hand_name]
+                    if resetHand:
+                        hand_name = "Bad Hand 🙈"
+                        self.bankroll += self.bet_size * payoff[hand_name]
         else: # for everything Hand
-            hand_name = "Bad Hand 🙈"
-            self.bankroll += self.bet_size * payoff[hand_name]
+            if resetHand:
+                hand_name = "Bad Hand 🙈"
+                self.bankroll += self.bet_size * payoff[hand_name]
 
-        msg = "You have a {}. Your bankroll is now {} coins.".format(hand_name, self.bankroll)
-        self.hand = []
+        if resetHand:
+            self.hand = []
+            msg = "You have a {}. Your bankroll is now {} coins.".format(hand_name, self.bankroll)
+        else:
+            if hand_name != "":
+                msg = "You have a {}. ".format(hand_name)
         return msg
 
 
@@ -315,6 +334,8 @@ def playVideoPoker(nodeID, message):
     
         player.draw_cards(deck)
         msg += player.show_hand()
+        # give hint to player
+        msg += player.score_hand(resetHand=False)
         
         # save player and deck to tracker
         for i in range(len(vpTracker)):
@@ -323,7 +344,7 @@ def playVideoPoker(nodeID, message):
                 vpTracker[i]['deck'] = deck
                 vpTracker[i]['drawCount'] = drawCount
 
-        msg += f"\nRedraw Card? \nex: 1,3,4 or (N)o,(A)ll"
+        msg += f"\nDeal new card? \nex: 1,3,4 or (N)o,(A)ll"
         setLastCmdVp(nodeID, "redraw")
         return msg
     
