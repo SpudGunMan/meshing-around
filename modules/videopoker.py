@@ -182,54 +182,54 @@ class PlayerVP:
 
         if 5 in suits_repeat:
             if points == [10, 11, 12, 13, 14]: #find royal flush
-                hand_name = "Royal Flush"
+                hand_name = "👑Royal Flush🚽"
                 self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
             elif diff == 4 and max(points_repeat) == 1: # find straight flush w/o ace low
-                hand_name = "Straight Flush"
+                hand_name = "🧻Straight Flush🚽"
                 self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
             elif diff == 12 and points[4] == 14: # find straight flush w/ace low
                 check = 0
                 for i in range(1, 4):
                     check += points[i] - points[i - 1]
                 if check == 3:
-                    hand_name =  "Straight Flush"
+                    hand_name =  "🧻Straight Flush🚽"
                     self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
                 else:
-                    hand_name =  "Flush"
+                    hand_name =  "Flush🚽"
                     self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
             else:
-                hand_name = "Flush"
+                hand_name = "Flush🚽"
                 self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
         elif sorted(points_repeat) == [2,2,3,3,3]: # find full house
-            hand_name = "Full House"
+            hand_name = "Full House🏠"
             self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
         elif 4 in points_repeat: # find four of a kind
-            hand_name = "Four of a Kind"
+            hand_name = "Four of a Kind👯👯"
             self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
         elif 3 in points_repeat: # find three of a kind
-            hand_name = "Three of a Kind"
+            hand_name = "Three of a Kind☘️"
             self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
         elif points_repeat.count(2) == 4: # find two-pair
-            hand_name = "Two Pair"
+            hand_name = "Two Pair👯👯"
             self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
         elif 2 in points_repeat: # find pair
-            hand_name = "Pair"
+            hand_name = "Pair👯"
             self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
         elif diff == 4 and max(points_repeat) == 1: # find straight w/o ace low
-            hand_name = "Straight"
+            hand_name = "Straight📏"
             self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
         elif diff == 12 and points[4] == 14: # find straight w/ace low
             check = 0
             for i in range(1, 4):
                 check += points[i] - points[i - 1]
                 if check == 3:
-                    hand_name = "Straight"
+                    hand_name = "Straight📏"
                     self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
                 else:
-                    hand_name = "Bad Hand"
+                    hand_name = "Bad Hand 🙈"
                     self.bankroll += self.bet_size * payoff[hand_name]
-        else: # for everything else
-            hand_name = "Bad Hand"
+        else: # for everything Hand
+            hand_name = "Bad Hand 🙈"
             self.bankroll += self.bet_size * payoff[hand_name]
 
         msg = "You have a {}. Your bankroll is now {} coins.".format(hand_name, self.bankroll)
