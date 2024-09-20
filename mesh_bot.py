@@ -147,7 +147,7 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
 
         # if the message_from_id is not in the llmLocationTable send the welcome message
         for i in range(0, len(llmLocationTable)):
-            if llmLocationTable[i].get('nodeID') == message_from_id:
+            if not any(d['nodeID'] == message_from_id for d in llmLocationTable):
                 if (channel_number == publicChannel and antiSpam) or useDMForResponse:
                     # send via DM
                     send_message(welcome_message, channel_number, message_from_id, deviceID)
@@ -161,8 +161,10 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
     for i in range(0, len(llmLocationTable)):
         if llmLocationTable[i].get('nodeID') == message_from_id:
             llmLocationTable[i]['location'] = location_name
-        else:
-            llmLocationTable.append({'nodeID': message_from_id, 'location': location_name})
+
+    # if not in table add the location
+    if not any(d['nodeID'] == message_from_id for d in llmLocationTable):
+        llmLocationTable.append({'nodeID': message_from_id, 'location': location_name})
 
     user_input = user_input.strip()
         
