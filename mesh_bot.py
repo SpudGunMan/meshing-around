@@ -591,7 +591,7 @@ def onReceive(packet, interface):
                         for i in range(0, len(dwPlayerTracker)):
                             if dwPlayerTracker[i].get('userID') == message_from_id:
                                 # check if the player has played in the last 8 hours
-                                if dwPlayerTracker[i].get('last_played') > (time.time() - GAMEDELAY):
+                                if dwPlayerTracker[i].get('last_played') < (time.time() - GAMEDELAY):
                                     playingGame = True
                                     game = "DopeWars"
                                     if llm_enabled:
@@ -608,7 +608,7 @@ def onReceive(packet, interface):
                         for i in range(0, len(lemonadeTracker)):
                             if lemonadeTracker[i].get('nodeID') == message_from_id:
                                 # check if the player has played in the last 8 hours
-                                if lemonadeTracker[i].get('time') > (time.time() - GAMEDELAY):
+                                if lemonadeTracker[i].get('time') < (time.time() - GAMEDELAY):
                                     playingGame = True
                                     game = "LemonadeStand"
                                     if llm_enabled:
@@ -625,7 +625,7 @@ def onReceive(packet, interface):
                         for i in range(0, len(vpTracker)):
                             if vpTracker[i].get('nodeID') == message_from_id:
                                 # check if the player has played in the last 8 hours
-                                if vpTracker[i].get('time') > (time.time() - GAMEDELAY):
+                                if vpTracker[i].get('time') < (time.time() - GAMEDELAY):
                                     playingGame = True
                                     game = "VideoPoker"
                                     if llm_enabled:
@@ -637,7 +637,7 @@ def onReceive(packet, interface):
                         for i in range(0, len(jackTracker)):
                             if jackTracker[i].get('nodeID') == message_from_id:
                                 # check if the player has played in the last 8 hours
-                                if jackTracker[i].get('time') > (time.time() - GAMEDELAY):
+                                if jackTracker[i].get('time') < (time.time() - GAMEDELAY):
                                     playingGame = True
                                     game = "BlackJack"
                                     if llm_enabled:
