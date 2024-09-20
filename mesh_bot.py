@@ -123,7 +123,6 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
     location_name = 'no location provided'
     
     if location_enabled:
-        print(llmLocationTable)
         # if message_from_id is is the llmLocationTable use the location from the list to save on API calls
         for i in range(0, len(llmLocationTable)):
             if llmLocationTable[i].get('nodeID') == message_from_id:
