@@ -139,18 +139,29 @@ class PlayerVP:
         # if message has single digit, then it is the card to redraw, else it is the list of cards to redraw with a comma
         if len(message) == 1:
             try:
-                redraw_index = int(message) - 1
-                self.hand[redraw_index] = deck.draw_card()
-            except ValueError:
-                return "Please enter a valid card slot to re-deal 1 to 5. Separate multiple cards with a comma."
+                # if single digit is the letter a redraw all cards
+                if message.lower() == "a":
+                    for i in range(5):
+                        self.hand[i] = deck.draw_card()
+                else:
+                    # error trap for bad input
+                    redraw_index = int(message) - 1
+                    self.hand[redraw_index] = deck.draw_card()
 
+                return self.show_hand()
+            except Exception as e:
+                pass
         else:
-            redraw_list = [int(x) - 1 for x in message.split(',')]
-            for i in redraw_list:
-                self.hand[i] = deck.draw_card()
-
-
-        return self.show_hand()        
+            try:
+                # error trap for bad input
+                redraw_list = [int(x) - 1 for x in message.split(',')]
+                for i in redraw_list:
+                    self.hand[i] = deck.draw_card()
+                return self.show_hand()    
+            except Exception as e:
+                pass
+    
+        return "Send Card(s) to Re-Draw/Deal like 1,3,4 to hold cards 1, 3, and 4. or (N)o to keep current hand."
 
     # Method for scoring hand, calculating winnings, and outputting message
     def score_hand(self):
@@ -312,7 +323,7 @@ def playVideoPoker(nodeID, message):
                 vpTracker[i]['deck'] = deck
                 vpTracker[i]['drawCount'] = drawCount
 
-        msg += f"\nRedraw Card? # separated by commas \nex: 1,3,4 or (N)o"
+        msg += f"\nRedraw Card? \nex: 1,3,4 or (N)o,(A)ll"
         setLastCmdVp(nodeID, "redraw")
         return msg
     
@@ -331,6 +342,9 @@ def playVideoPoker(nodeID, message):
         else:
             if drawCount <= 1:
                 msg = player.redraw(deck, message)
+                if msg.startswith("Send Card"):
+                    # if returned error message, return it
+                    return msg
                 drawCount += 1
                 # save player and deck to tracker
                 for i in range(len(vpTracker)):
@@ -341,6 +355,9 @@ def playVideoPoker(nodeID, message):
                 if drawCount == 2:
                     # this is the last draw will carry on to endGame for scoring
                     msg = player.redraw(deck, message) + f"\n"
+                    if msg.startswith("Send Card"):
+                        # if returned error message, return it
+                        return msg
                     # redraw done
                     setLastCmdVp(nodeID, "endGame")
                 else:
@@ -366,7 +383,7 @@ def playVideoPoker(nodeID, message):
             vpTracker[i]['highScore'] = player.bankroll
             msg += " 🎉HighScore! {} coins.".format(player.bankroll)
         else:
-            msg += " Score is {} coins.".format(vpTracker[i]['highScore'])
+            msg += " Best is {} coins.".format(vpTracker[i]['highScore'])
 
         msg += "Place your Bet, 'L' to leave the game."
 
