@@ -30,6 +30,7 @@ llmRunCounter = 0
 llmTotalRuntime = []
 llmLocationTable = []
 playingGame = False
+GAMEDELAY = 28800 # 8 hours in seconds for game mode holdoff
 
 # Read the config file, if it does not exist, create basic config file
 config = configparser.ConfigParser() 

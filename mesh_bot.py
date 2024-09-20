@@ -581,14 +581,14 @@ def onReceive(packet, interface):
                         for i in range(0, len(dwPlayerTracker)):
                             if dwPlayerTracker[i].get('userID') == message_from_id:
                                 # check if the player has played in the last 8 hours
-                                if dwPlayerTracker[i].get('last_played') > (time.time() - 28800):
+                                if dwPlayerTracker[i].get('last_played') > (time.time() - GAMEDELAY):
                                     playingGame = True
                                     game = "DopeWars"
                                     if llm_enabled:
                                         logger.debug(f"System: LLM Disabled for {message_from_id} for duration of game")
                                     
                                     #if time exceeds 8 hours reset the player
-                                    if dwPlayerTracker[i].get('last_played') < (time.time() - 28800):
+                                    if dwPlayerTracker[i].get('last_played') < (time.time() - GAMEDELAY):
                                         logger.debug(f"System: DopeWars: Resetting player {message_from_id}")
                                         dwPlayerTracker.pop(i)
                                     
@@ -598,14 +598,14 @@ def onReceive(packet, interface):
                         for i in range(0, len(lemonadeTracker)):
                             if lemonadeTracker[i].get('nodeID') == message_from_id:
                                 # check if the player has played in the last 8 hours
-                                if lemonadeTracker[i].get('time') > (time.time() - 28800):
+                                if lemonadeTracker[i].get('time') > (time.time() - GAMEDELAY):
                                     playingGame = True
                                     game = "LemonadeStand"
                                     if llm_enabled:
                                         logger.debug(f"System: LLM Disabled for {message_from_id} for duration of game")
 
                                     #if time exceeds 8 hours reset the player
-                                    if lemonadeTracker[i].get('time') < (time.time() - 28800):
+                                    if lemonadeTracker[i].get('time') < (time.time() - GAMEDELAY):
                                         logger.debug(f"System: LemonadeStand: Resetting player {message_from_id}")
                                         lemonadeTracker.pop(i)
                                     
@@ -615,14 +615,14 @@ def onReceive(packet, interface):
                         for i in range(0, len(vpTracker)):
                             if vpTracker[i].get('nodeID') == message_from_id:
                                 # check if the player has played in the last 8 hours
-                                if vpTracker[i].get('time') > (time.time() - 28800):
+                                if vpTracker[i].get('time') > (time.time() - GAMEDELAY):
                                     playingGame = True
                                     game = "VideoPoker"
                                     if llm_enabled:
                                         logger.debug(f"System: LLM Disabled for {message_from_id} for duration of game")
 
                                     #if time exceeds 8 hours reset the player
-                                    if vpTracker[i].get('time') < (time.time() - 28800):
+                                    if vpTracker[i].get('time') < (time.time() - GAMEDELAY):
                                         logger.debug(f"System: VideoPoker: Resetting player {message_from_id}")
                                         vpTracker.pop(i)
                                     
@@ -632,14 +632,14 @@ def onReceive(packet, interface):
                         for i in range(0, len(jackTracker)):
                             if jackTracker[i].get('nodeID') == message_from_id:
                                 # check if the player has played in the last 8 hours
-                                if jackTracker[i].get('time') > (time.time() - 28800):
+                                if jackTracker[i].get('time') > (time.time() - GAMEDELAY):
                                     playingGame = True
                                     game = "BlackJack"
                                     if llm_enabled:
                                         logger.debug(f"System: LLM Disabled for {message_from_id} for duration of game")
 
                                     #if time exceeds 8 hours reset the player
-                                    if jackTracker[i].get('time') < (time.time() - 28800):
+                                    if jackTracker[i].get('time') < (time.time() - GAMEDELAY):
                                         logger.debug(f"System: BlackJack: Resetting player {message_from_id}")
                                         jackTracker.pop(i)
                                     
