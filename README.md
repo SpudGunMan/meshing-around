@@ -10,7 +10,7 @@ Along with network testing, this bot has a lot of other fun features, like simpl
 
 The bot is also capable of using dual radio/nodes, so you can monitor two networks at the same time and send messages to nodes using the same `bbspost @nodeNumber #message` or `bbspost @nodeShortName #message` function. There is a small message board to fit in the constraints of Meshtastic for posting bulletin messages with `bbspost $subject #message`.
 
-Look up data using wiki results or interact with [Ollama](https://ollama.com) LLM AI see the [OllamaDocs](https://github.com/ollama/ollama/tree/main/docs) If Ollama is enabled you can DM the bot directly. The default model for mesh-bot which is currently `gemma2:2b`
+Look up data using wiki results, or interact with [Ollama](https://ollama.com) LLM AI see the [OllamaDocs](https://github.com/ollama/ollama/tree/main/docs) If Ollama is enabled you can DM the bot directly. The default model for mesh-bot which is currently `gemma2:2b`
 
 The bot will report on anyone who is getting close to the configured lat/long, if in a remote location.
 
@@ -159,7 +159,7 @@ signalHoldTime = 10
 signalCooldown = 5
 signalCycleLimit = 5
 ```
-Ollama Settings, for Ollama to work the command line `ollama run 'model'` needs to work properly. Check that you have enough RAM and your GPU are working as expected. The default model for this project, is set to `gemma2:2b` (run `ollama pull gemma2:2b` on command line, to download and setup) however I have found gemma2:2b to be lighter, faster and seems better overall vs llama3,1 (`olamma pull llama3.1`)
+Ollama Settings, for Ollama to work the command line `ollama run 'model'` needs to work properly. Check that you have enough RAM and your GPU are working as expected. The default model for this project, is set to `gemma2:2b` (run `ollama pull gemma2:2b` on command line, to download and setup) 
  - From the command terminal of your system with mesh-bot, download the default model for mesh-bot which is currently `ollama pull gemma2:2b`
 
 Enable History, set via code readme Ollama Config in [Settings](https://github.com/SpudGunMan/meshing-around?tab=readme-ov-file#configurations) and [llm.py](https://github.com/SpudGunMan/meshing-around/blob/eb3bbdd3c5e0f16fe3c465bea30c781bd132d2d3/modules/llm.py#L12)
