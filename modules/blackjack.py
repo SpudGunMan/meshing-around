@@ -41,7 +41,7 @@ VALUES = {
     "A": 11,
 }
 
-class Card:
+class jackCard:
     def __init__(self, suit, rank):
         self.suit = suit
         self.rank = rank
@@ -49,7 +49,7 @@ class Card:
     def __str__(self):
         return self.rank + " of " + self.suit
 
-class Deck:
+class jackDeck:
     """ Creating a Deck of cards and Deal two cards to both player and dealer. """
 
     def __init__(self):
@@ -78,7 +78,7 @@ class Deck:
         except ValueError:
             pass
 
-class Hand:
+class jackHand:
     """ Adding the values of player/dealer cards and change the values of Aces acc. to situation. """
     def __init__(self):
         self.cards = []
@@ -98,7 +98,7 @@ class Hand:
             self.value -= 10
             self.aces -= 1
 
-class Chips:
+class jackChips:
     """ Player/dealer chips for making bets and Adding/Deducting amount in/from Player's total. """
     def __init__(self):
         self.total = jack_starting_cash
@@ -220,13 +220,13 @@ def playBlackJack(nodeID, message):
     # Initalize the Game
     msg, last_cmd = '', None
     p_win, d_win, draw = 0, 0, 0
-    p_chips = Chips()
-    p_hand = Hand()
-    d_hand = Hand()
+    p_chips = jackChips()
+    p_hand = jackHand()
+    d_hand = jackHand()
     p_cards, d_cards = [], []
     bet_money = 0
     # Initalize the Cards
-    cards_deck = Deck()
+    cards_deck = jackDeck()
     cards_deck.shuffle()
     p_cards, d_cards = cards_deck.deal_cards()
     # Deal the cards to player and dealer

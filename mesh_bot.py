@@ -29,6 +29,7 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
         "dopewars": lambda: handleDopeWars(message_from_id, message, deviceID),
         "lemonstand": lambda: handleLemonade(message_from_id, message),
         "blackjack": lambda: handleBlackJack(message_from_id, message),
+        "videopoker": lambda: handleVideoPoker(message_from_id, message),
         "ask:": lambda: handle_llm(message_from_id, channel_number, deviceID, message, publicChannel),
         "askai": lambda: handle_llm(message_from_id, channel_number, deviceID, message, publicChannel),
         "joke": tell_joke,
@@ -277,6 +278,45 @@ def handleBlackJack(nodeID, message):
     
         if last_cmd != "":
             logger.debug(f"System: BlackJack: {nodeID} last command: {last_cmd}")
+    
+    return msg
+
+from modules.videopoker import *
+def handleVideoPoker(nodeID, message):
+    global vpTracker
+    msg = ""
+
+    # if player sends a L for leave table
+    if message.lower().startswith("l"):
+        logger.debug(f"System: VideoPoker: {nodeID} is leaving the table")
+        # add 16 hours to the player time to leave the table, this will be detected by bot logic as player leaving
+        for i in range(len(vpTracker)):
+            if vpTracker[i]['nodeID'] == nodeID:
+                vpTracker[i]['leaveTime'] = time.time() + 57600
+                vpTracker[i]['cmd'] = "new"
+    else:
+        # Play Video Poker
+        msg = playVideoPoker(nodeID=nodeID, message=message)
+
+        # get player's last command from tracker
+        last_cmd = ""
+        for i in range(len(vpTracker)):
+            if vpTracker[i]['nodeID'] == nodeID:
+                last_cmd = vpTracker[i]['cmd']
+
+        # find higest dollar amount in tracker for high score
+        if last_cmd == "new":
+            high_score = 0
+            user = 0
+            for i in range(len(vpTracker)):
+                if vpTracker[i]['highScore'] > high_score:
+                    high_score = vpTracker[i]['highScore']
+                    user = vpTracker[i]['nodeID']
+            if user != 0:
+                msg += f"\nHigh Score: {high_score} by {get_name_from_number(user)}"
+    
+        if last_cmd != "":
+            logger.debug(f"System: VideoPoker: {nodeID} last command: {last_cmd}")
     
     return msg
 
@@ -563,6 +603,23 @@ def onReceive(packet, interface):
                                     # play the game
                                     send_message(handleLemonade(message_from_id, message_string), channel_number, message_from_id, rxNode)
 
+                        for i in range(0, len(vpTracker)):
+                            if vpTracker[i].get('nodeID') == message_from_id:
+                                # check if the player has played in the last 8 hours
+                                if vpTracker[i].get('time') > (time.time() - 28800):
+                                    playingGame = True
+                                    game = "VideoPoker"
+                                    if llm_enabled:
+                                        logger.debug(f"System: LLM Disabled for {message_from_id} for duration of game")
+
+                                    #if time exceeds 8 hours reset the player
+                                    if vpTracker[i].get('time') < (time.time() - 28800):
+                                        logger.debug(f"System: VideoPoker: Resetting player {message_from_id}")
+                                        vpTracker.pop(i)
+                                    
+                                    # play the game
+                                    send_message(handleVideoPoker(message_from_id, message_string), channel_number, message_from_id, rxNode)
+                        
                         for i in range(0, len(jackTracker)):
                             if jackTracker[i].get('nodeID') == message_from_id:
                                 # check if the player has played in the last 8 hours

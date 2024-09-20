@@ -145,6 +145,7 @@ try:
     dopewars_enabled = config['games'].getboolean('dopeWars', True)
     lemonade_enabled = config['games'].getboolean('lemonade', True)
     blackjack_enabled = config['games'].getboolean('blackjack', True)
+    videoPoker_enabled = config['games'].getboolean('videoPoker', True)
 
 except KeyError as e:
     print(f"System: Error reading config file: {e}")

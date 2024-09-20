@@ -94,6 +94,12 @@ if blackjack_enabled:
     from modules.blackjack import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + ("blackjack",)
     games_enabled = True
+
+# Video Poker Configuration
+if videoPoker_enabled:
+    from modules.videopoker import * # from the spudgunman/meshing-around repo
+    trap_list = trap_list + ("videopoker",)
+    games_enabled = True
     
 # Games Configuration
 if games_enabled is True:
@@ -106,6 +112,8 @@ if games_enabled is True:
         gamesCmdList += "LemonStand, "
     if blackjack_enabled:
         gamesCmdList += "BlackJack, "
+    if videoPoker_enabled:
+        gamesCmdList += "VideoPoker, "
     gamesCmdList = gamesCmdList[:-2] # remove the last comma
 
 # Scheduled Broadcast Configuration

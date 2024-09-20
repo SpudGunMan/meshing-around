@@ -57,6 +57,7 @@ SyslogToFile = False
 dopeWars = True
 lemonade = True
 blackjack = True
+videopoker = True
 
 [sentry]
 # detect anyone close to the bot
