@@ -149,8 +149,12 @@ class PlayerVP:
     def redraw(self, deck, message):
         # if message has single digit, then it is the card to redraw, else it is the list of cards to redraw with a comma
         if len(message) == 1:
-            redraw_index = int(message) - 1
-            self.hand[redraw_index] = deck.draw_card()
+            try:
+                redraw_index = int(message) - 1
+                self.hand[redraw_index] = deck.draw_card()
+            except ValueError:
+                return "Please enter a valid card slot to re-deal 1 to 5."
+
         else:
             redraw_list = [int(x) - 1 for x in message.split(',')]
             for i in redraw_list:
