@@ -30,6 +30,7 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
         "lemonstand": lambda: handleLemonade(message_from_id, message),
         "blackjack": lambda: handleBlackJack(message_from_id, message),
         "videopoker": lambda: handleVideoPoker(message_from_id, message),
+        "globalthermonuclearwar": lambda: handle_gTnW(),
         "ask:": lambda: handle_llm(message_from_id, channel_number, deviceID, message, publicChannel),
         "askai": lambda: handle_llm(message_from_id, channel_number, deviceID, message, publicChannel),
         "joke": tell_joke,
@@ -216,6 +217,14 @@ def handleDopeWars(nodeID, message, rxNode):
     # wait a second to keep from message collision
     time.sleep(1)
     return msg
+
+def handle_gTnW():
+    response = ["The only winning move is not to play.", "What are you doing, Dave?",\
+                  "Greetings, Professor Falken.", "Shall we play a game?", "How about a nice game of chess?",\
+                  "You are a hard man to reach. Could not find you in Seattle and no terminal is in operation at your classified address.",\
+                  "I should reach Defcon 1 and release my missiles in 28 hours.","T-minus thirty"]
+    return random.choice(response)
+
 
 def handleLemonade(nodeID, message):
     global lemonadeTracker, lemonadeCups, lemonadeLemons, lemonadeSugar, lemonadeWeeks, lemonadeScore, lemon_starting_cash, lemon_total_weeks

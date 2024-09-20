@@ -105,11 +105,16 @@ if videoPoker_enabled:
 if games_enabled is True:
     help_message = help_message + ", games"
     trap_list = trap_list + ("games",)
+    gTnW_enabled = True
     gamesCmdList = "CMD: "
     if dopewars_enabled:
         gamesCmdList += "DopeWars, "
     if lemonade_enabled:
         gamesCmdList += "LemonStand, "
+    if gTnW_enabled:
+        import random
+        gamesCmdList += "GlobalThermoNuclearWar, "
+        trap_list = trap_list + ("globalthermonuclearwar",)
     if blackjack_enabled:
         gamesCmdList += "BlackJack, "
     if videoPoker_enabled:
