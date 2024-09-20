@@ -143,15 +143,16 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
         user_input = message
 
         # if the message_from_id is not in the llmLocationTable send the welcome message
-        if not message_from_id in llmLocationTable:
-            if (channel_number == publicChannel and antiSpam) or useDMForResponse:
-                # send via DM
-                send_message(welcome_message, channel_number, message_from_id, deviceID)
-                time.sleep(responseDelay)
-            else:
-                # send via channel
-                send_message(welcome_message, channel_number, 0, deviceID)
-                time.sleep(responseDelay)
+        for i in range(0, len(llmLocationTable)):
+            if message_from_id in llmLocationTable[i]:
+                if (channel_number == publicChannel and antiSpam) or useDMForResponse:
+                    # send via DM
+                    send_message(welcome_message, channel_number, message_from_id, deviceID)
+                    time.sleep(responseDelay)
+                else:
+                    # send via channel
+                    send_message(welcome_message, channel_number, 0, deviceID)
+                    time.sleep(responseDelay)
     
     # update the llmLocationTable for future use
     for i in range(0, len(llmLocationTable)):
