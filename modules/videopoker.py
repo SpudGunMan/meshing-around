@@ -257,7 +257,7 @@ def playVideoPoker(nodeID, message):
         # create new player if not in tracker
         logger.debug(f"System: VideoPoker: New Player {nodeID}")
         vpTracker.append({'nodeID': nodeID, 'cmd': 'new', 'time': time.time(), 'cash': vpStartingCash, 'player': None, 'deck': None, 'highScore': 0, 'drawCount': 0})
-        return f"Welcome to VideoPoker! you have {vpStartingCash} coins, Whats your bet?"
+        return f"Welcome to 🎰 VideoPoker! you have {vpStartingCash} coins, Whats your bet?"
     
     # Gather the player's bet
     if getLastCmdVp(nodeID) == "new" or getLastCmdVp(nodeID) == "gameOver":
@@ -342,12 +342,12 @@ def playVideoPoker(nodeID, message):
 
         if player.bankroll < 1:
             player.bankroll = vpStartingCash
-            return "Looks like you're out of money. Better luck next time!"
+            return "Looks like you're out of money. Better luck next time! 💸"
 
         # check if player has new high score
         if player.bankroll > vpTracker[i]['highScore']:
             vpTracker[i]['highScore'] = player.bankroll
-            msg += " New personal high score of {} coins.".format(player.bankroll)
+            msg += " 🎉New personal best score of {} coins.".format(player.bankroll)
         else:
             msg += " Your high score is {} coins.".format(vpTracker[i]['highScore'])
 
