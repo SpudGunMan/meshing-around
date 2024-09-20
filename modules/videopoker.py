@@ -351,9 +351,9 @@ def playVideoPoker(nodeID, message):
         # check if player has new high score
         if player.bankroll > vpTracker[i]['highScore']:
             vpTracker[i]['highScore'] = player.bankroll
-            msg += " 🎉New personal best score of {} coins.".format(player.bankroll)
+            msg += " 🎉HighScore! {} coins.".format(player.bankroll)
         else:
-            msg += " Your high score is {} coins.".format(vpTracker[i]['highScore'])
+            msg += " Score is {} coins.".format(vpTracker[i]['highScore'])
 
         msg += "Place your Bet, 'L' to leave the game."
 
