@@ -168,16 +168,16 @@ class PlayerVP:
         diff = max(points) - min(points)
         hand_name = ""
         payoff = {
-            "Royal Flush": 10,
-            "Straight Flush": 9,
-            "Flush": 8,
-            "Full House": 7,
-            "Four of a Kind": 6,
-            "Three of a Kind": 5,
-            "Two Pair": 4,
-            "Straight": 3,
-            "Pair": 2,
-            "Bad Hand": -1,
+            "👑Royal Flush🚽": 10,
+            "🧻Straight Flush🚽": 9,
+            "Flush🚽": 8,
+            "Full House🏠": 7,
+            "Four of a Kind👯👯": 6,
+            "Three of a Kind☘️": 5,
+            "Two Pair👯👯": 4,
+            "Straight📏": 3,
+            "Pair👯": 2,
+            "Bad Hand 🙈": -1,
         }
 
         if 5 in suits_repeat:
