@@ -36,7 +36,7 @@ class CardVP:
         self.points = self.card_values[rank]
 
 # Function to output ascii version of the cards in a hand in the terminal
-def drawCards(*cards, return_string=True):
+def drawCardsVp(*cards, return_string=True):
     """
     Instead of a boring text version of the card we render an ASCII image of the card.
     :param cards: One or more card objects
@@ -94,7 +94,7 @@ class DeckVP:
     # method to show cards in deck
     def display(self):
         for c in self.cards:
-            print(drawCards(c))
+            print(drawCardsVp(c))
 
     # method to shuffle cards in deck
     def shuffle(self):
@@ -120,7 +120,7 @@ class PlayerVP:
 
     # Method for displaying player's hand
     def show_hand(self):
-        msg = (drawCards(
+        msg = (drawCardsVp(
                 self.hand[0],
                 self.hand[1],
                 self.hand[2],

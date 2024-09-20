@@ -252,6 +252,7 @@ Games Ported from..
 - https://github.com/tigerpointe/Lemonade-Stand/
 - https://github.com/Reconfirefly/drugwars
 - https://github.com/Himan10/BlackJack
+- https://github.com/devtronvarma/Video-Poker-Terminal-Game
 
 GitHub user mrpatrick1991 For Docker configs, PiDiBi looking at test functions and other suggestions like wxc, CPU use, and alerting ideas
 Discord and Mesh user Cisien, and github Hailo1999, for testing and ideas! Lots of individuals on the Meshtastic discord who have tossed out ideas and tested code!
