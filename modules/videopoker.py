@@ -130,19 +130,8 @@ class PlayerVP:
 
     # Method for placing a bet
     def bet(self, ammount=0):
-        try:
-            bet = int(ammount)
-        except ValueError:
-            bet = 1
-
-        if bet > self.bankroll:
-            return "You can only bet the money you have. No strip poker here..."
-            self.bet_size = self.bankroll
-        elif bet > 5:
-            return "You can only bet 5 coins at most."
-            self.bet_size = 5
-        else:
-            self.bet_size = bet
+        bet = int(ammount)
+        self.bet_size = bet
         self.bankroll -= self.bet_size
 
     # Method for selecting cards to redraw
@@ -271,17 +260,30 @@ def playVideoPoker(nodeID, message):
         deck.shuffle()
         drawCount = 1
 
-        # save player and deck to tracker
-        for i in range(len(vpTracker)):
-            if vpTracker[i]['nodeID'] == nodeID:
-                vpTracker[i]['player'] = player
-                vpTracker[i]['deck'] = deck
+
+        # Detect if message is a bet, set default to 1
+        try:
+            message = int(message)
+        except ValueError:
+            message = 1
+
+        if message.lower() > player.bankroll:
+            msg = "You can only bet the money you have. No strip poker here..."
+
 
         msg = player.bet(str(message))
         if msg != None:
-            print(msg)
+            return msg
         else:
+            # Bet placed, start the game
             setLastCmdVp(nodeID, "playing")
+
+            # save player and deck to tracker
+            for i in range(len(vpTracker)):
+                if vpTracker[i]['nodeID'] == nodeID:
+                    vpTracker[i]['player'] = player
+                    vpTracker[i]['deck'] = deck
+                    vpTracker[i]['cash'] = player.bankroll
 
     # Play the game
     if getLastCmdVp(nodeID) == "playing":
@@ -296,11 +298,6 @@ def playVideoPoker(nodeID, message):
                 vpTracker[i]['player'] = player
                 vpTracker[i]['deck'] = deck
                 vpTracker[i]['drawCount'] = drawCount
-        
-        # recall the bankroll if it is in the tracker
-        for i in range(len(vpTracker)):
-            if vpTracker[i]['nodeID'] == nodeID:
-                player.bankroll = vpTracker[i]['cash']
 
         msg += f"\nRedraw Card? # separated by commas \nex: 1,3,4 or (N)o"
         setLastCmdVp(nodeID, "redraw")
