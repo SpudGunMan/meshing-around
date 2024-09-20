@@ -273,7 +273,7 @@ def handleBlackJack(nodeID, message):
         # add 16 hours to the player time to leave the table, this will be detected by bot logic as player leaving
         for i in range(len(jackTracker)):
             if jackTracker[i]['nodeID'] == nodeID:
-                jackTracker[i]['leaveTime'] = time.time() + 57600
+                jackTracker[i]['leaveTime'] = time.time() - 57600
                 jackTracker[i]['cmd'] = "new"
     else:
         # Play BlackJack
@@ -311,7 +311,7 @@ def handleVideoPoker(nodeID, message):
         # add 16 hours to the player time to leave the table, this will be detected by bot logic as player leaving
         for i in range(len(vpTracker)):
             if vpTracker[i]['nodeID'] == nodeID:
-                vpTracker[i]['leaveTime'] = time.time() + 57600
+                vpTracker[i]['leaveTime'] = time.time() - 57600
                 vpTracker[i]['cmd'] = "new"
     else:
         # Play Video Poker
