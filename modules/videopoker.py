@@ -260,6 +260,7 @@ def playVideoPoker(nodeID, message):
         deck.shuffle()
         drawCount = 1
         bet = 0
+        msg = ''
 
         # load the player bankroll from tracker
         for i in range(len(vpTracker)):
@@ -285,7 +286,8 @@ def playVideoPoker(nodeID, message):
         # take bet
         msg = player.bet(str(message))
 
-        if msg != None:
+        # if msg contains an error, return it
+        if msg is not None and msg != '':
             return msg
         else:
             # Bet placed, start the game
@@ -361,7 +363,7 @@ def playVideoPoker(nodeID, message):
 
         if player.bankroll < 1:
             player.bankroll = vpStartingCash
-            return "Looks like you're out of money. Better luck next time! 💸"
+            msg += "\nLooks 💸 like you're out of money. 🏧🪙 resetting ballance"
 
         # check if player has new high score
         if player.bankroll > vpTracker[i]['highScore']:
