@@ -113,7 +113,6 @@ if games_enabled is True:
         gamesCmdList += "LemonStand, "
     if gTnW_enabled:
         import random
-        gamesCmdList += "GlobalThermoNuclearWar, "
         trap_list = trap_list + ("globalthermonuclearwar",)
     if blackjack_enabled:
         gamesCmdList += "BlackJack, "

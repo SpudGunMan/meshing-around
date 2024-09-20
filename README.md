@@ -16,7 +16,7 @@ The bot will report on anyone who is getting close to the configured lat/long, i
 
 Store and forward-like message re-play with `messages`, and there is a repeater module for dual radio bots to cross post messages. Messages are also logged locally to disk.
 
-There is a small collection of games to play like DopeWars or Lemonade Stand and BlackJack to name a few, issuing `games` displays help
+There is a small collection of games to play like DopeWars, Lemonade Stand, and BlackJack or VideoPoker to name a few, issuing `games` displays help
 
 The bot can also be used to monitor a radio frequency and let you know when high SNR RF activity is seen. Using Hamlib(rigctld) to watch the S meter on a connected radio. You can send alerts to channels when a frequency is detected for 20 seconds within the thresholds set in config.ini
 
