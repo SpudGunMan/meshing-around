@@ -153,10 +153,11 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
                 send_message(welcome_message, channel_number, 0, deviceID)
                 time.sleep(responseDelay)
     
-    # add the node to the llmLocationTable for future use
-    if not message_from_id in llmLocationTable:
-        llmLocationTable[message_from_id] = {'location': location_name}
-    
+    # update the llmLocationTable for future use
+    for i in range(0, len(llmLocationTable)):
+        if message_from_id in llmLocationTable[i]:
+            llmLocationTable[i]['location'] = location_name
+            break
 
     user_input = user_input.strip()
         
