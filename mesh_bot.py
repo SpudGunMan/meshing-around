@@ -115,7 +115,7 @@ def handle_wiki(message):
     
 llmRunCounter = 0
 llmTotalRuntime = []
-llmLocationTable = {}
+llmLocationTable = [{0: {'location': 'No Location'}}]
 
 def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel):
     global llmRunCounter, llmTotalRuntime, llmLocationTable
@@ -124,7 +124,8 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
         location = get_node_location(message_from_id, deviceID)
         # if message_from_id is is the llmLocationTable use the location from the table to save on API calls
         if message_from_id in llmLocationTable:
-            location_name = llmLocationTable[message_from_id]
+            # get the location from the llmLocationTable
+            location_name = llmLocationTable[message_from_id].get('location')
         else:
             location_name = where_am_i(str(location[0]), str(location[1]), short = True)
 
@@ -153,7 +154,9 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
                 time.sleep(responseDelay)
     
     # add the node to the llmLocationTable for future use
-    llmLocationTable[message_from_id] = location_name
+    if not message_from_id in llmLocationTable:
+        llmLocationTable[message_from_id] = {'location': location_name}
+    
 
     user_input = user_input.strip()
         
