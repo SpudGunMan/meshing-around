@@ -45,7 +45,7 @@ def drawCards(*cards, return_string=True):
     """
     # we will use this to prints the appropriate icons for each card
     suits_name = ['Spades', 'Diamonds', 'Hearts', 'Clubs']
-    suits_symbols = ['♠', '♦', '♥', '♣']
+    suits_symbols = ['♠️', '♦️', '♥️', '♣️']
 
     # create an empty list of list, each sublist is a line 2 lines for the card
     lines = [[] for i in range(1)]
