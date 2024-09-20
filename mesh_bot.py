@@ -300,7 +300,7 @@ def handleBlackJack(nodeID, message):
     
     return msg
 
-from modules.videopoker import *
+
 def handleVideoPoker(nodeID, message):
     global vpTracker
     msg = ""
