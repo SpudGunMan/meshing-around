@@ -261,18 +261,30 @@ def playVideoPoker(nodeID, message):
         drawCount = 1
         bet = 0
 
-        # Detect if message is a bet, set default to 1
+        # load the player bankroll from tracker
+        for i in range(len(vpTracker)):
+            if vpTracker[i]['nodeID'] == nodeID:
+                player.bankroll = vpTracker[i]['cash']
+                vpTracker[i]['time'] = time.time()
+
+        # Detect if message is a bet
         try:
             bet = int(message)
         except ValueError:
-            bet = 1
+            msg = "Please enter a valid bet amount. 1 to 5 coins."
+
+        # Check if bet is valid
 
         if bet > player.bankroll:
             msg = "You can only bet the money you have. No strip poker here..."
+        elif bet < 1:
+            msg = "You must bet at least 1 coin."
+        elif bet > 5:
+            msg = "You can only bet up to 5 coins."
 
         # take bet
         msg = player.bet(str(message))
-        
+
         if msg != None:
             return msg
         else:
@@ -366,7 +378,7 @@ def playVideoPoker(nodeID, message):
                 vpTracker[i]['player'] = None
                 vpTracker[i]['deck'] = None
                 vpTracker[i]['drawCount'] = 0
-                vpTracker[i]['time'] = time.time()
+                # save bankroll
                 vpTracker[i]['cash'] = player.bankroll
 
         return msg
