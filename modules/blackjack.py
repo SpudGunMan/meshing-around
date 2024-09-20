@@ -131,7 +131,7 @@ def success_rate(card, obj_h):
         rate = (VALUES[card[0][1]] / diff) * 100
 
     if rate < 100:
-        msg += f"If Hit, chance {100-int(rate)}% success, {int(rate)}% failure."
+        msg += f"If Hit, chance {int(rate)}% success, {100-int(rate)}% failure."
     elif rate > 100:
         l_rate = int(rate - (rate - 99))  # Round to 99
         if card[0][1] == "A":
