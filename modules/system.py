@@ -34,6 +34,12 @@ if motd_enabled:
     trap_list = trap_list + trap_list_motd
     help_message = help_message + ", motd"
 
+# whoami Configuration
+if whoami_enabled:
+    trap_list_whoami = ("whoami",)
+    trap_list = trap_list + trap_list_whoami
+    help_message = help_message + ", whoami"
+
 # Solar Conditions Configuration
 if solar_conditions_enabled:
     from modules.solarconditions import * # from the spudgunman/meshing-around repo
@@ -516,6 +522,7 @@ def send_message(message, ch, nodeid=0, nodeInt=1):
                     interface1.sendText(text=m, channelIndex=ch, destinationId=nodeid)
                 if nodeInt == 2:
                     interface2.sendText(text=m, channelIndex=ch, destinationId=nodeid)
+            time.sleep(splitDelay) # wait an amout of time between sending each split message
     else: # message is less than MESSAGE_CHUNK_SIZE characters
         if nodeid == 0:
             # Send to channel

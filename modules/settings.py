@@ -10,7 +10,6 @@ MOTD = 'Thanks for using MeshBOT! Have a good day!'
 NO_ALERTS = "No weather alerts found."
 
 # setup the global variables
-MESSAGE_CHUNK_SIZE = 160 # message chunk size for sending at high success rate
 SITREP_NODE_COUNT = 3 # number of nodes to report in the sitrep
 msg_history = [] # message history for the store and forward feature
 bbs_ban_list = [] # list of banned users, imported from config
@@ -66,6 +65,14 @@ if 'radioMon' not in config:
         config['radioMon'] = {'enabled': 'False', 'rigControlServerAddress': 'localhost:4532', 'sigWatchBrodcastCh': '2', 'signalDetectionThreshold': '-10', 'signalHoldTime': '10', 'signalCooldown': '5', 'signalCycleLimit': '5'}
         config.write(open(config_file, 'w'))
 
+if 'games' not in config:
+        config['games'] = {'dopeWars': 'True', 'lemonade': 'True', 'blackjack': 'True', 'videoPoker': 'True'}
+        config.write(open(config_file, 'w'))
+
+if 'messagingSettings' not in config:
+        config['messagingSettings'] = {'responseDelay': '0.7', 'splitDelay': '0', 'MESSAGE_CHUNK_SIZE': '160'}
+        config.write(open(config_file, 'w'))
+
 # interface1 settings
 interface1_type = config['interface'].get('type', 'serial')
 port1 = config['interface'].get('port', '')
@@ -97,6 +104,7 @@ try:
     welcome_message = (f"{welcome_message}").replace('\\n', '\n') # allow for newlines in the welcome message
     motd_enabled = config['general'].getboolean('motdEnabled', True)
     MOTD = config['general'].get('motd', MOTD)
+    whoami_enabled = config['general'].getboolean('whoami', True)
     dad_jokes_enabled = config['general'].getboolean('DadJokes', False)
     solar_conditions_enabled = config['general'].getboolean('spaceWeather', True)
     wikipedia_enabled = config['general'].getboolean('wikipedia', False)
@@ -144,6 +152,11 @@ try:
     lemonade_enabled = config['games'].getboolean('lemonade', True)
     blackjack_enabled = config['games'].getboolean('blackjack', True)
     videoPoker_enabled = config['games'].getboolean('videoPoker', True)
+
+    # messaging settings
+    responseDelay = config['messagingSettings'].getfloat('responseDelay', 0.7) # default 0.7
+    splitDelay = config['messagingSettings'].getfloat('splitDelay', 0) # default 0
+    MESSAGE_CHUNK_SIZE = config['messagingSettings'].getint('MESSAGE_CHUNK_SIZE', 160) # default 160
 
 except KeyError as e:
     print(f"System: Error reading config file: {e}")
