@@ -361,6 +361,15 @@ def handleVideoPoker(nodeID, message):
                     user = vpTracker[i]['nodeID']
             if user != 0:
                 msg += f"\nHigh Score: {high_score} by {get_name_from_number(user)}"
+
+                # # Save the game high_score to pickle
+                # try:
+                #     with open('videopoker_hs.pkl', 'wb') as file:
+                #         pickle.dump(high_score, file)
+                # except FileNotFoundError:
+                #     logger.debug("System: BlackJack: Creating new videopoker_hs.pkl file")
+                #     with open('videopoker_hs.pkl', 'wb') as file:
+                #         pickle.dump(high_score, file)
     
         if last_cmd != "":
             logger.debug(f"System: VideoPoker: {nodeID} last command: {last_cmd}")
