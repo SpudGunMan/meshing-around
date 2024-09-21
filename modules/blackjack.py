@@ -200,7 +200,7 @@ def player_surrender(obj_c):
     return True
 
 def gameStats(p_count, d_count, draw_c):
-    msg = f"\n📊WINS:{p_count},DEALER:{d_count},DRAW:{draw_c}"
+    msg = f"\n📊🏆P:{p_count},D:{d_count},T:{draw_c}"
     return msg
 
 def getLastCmdJack(nodeID):
