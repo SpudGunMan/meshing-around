@@ -319,10 +319,11 @@ def start_lemonade(nodeID, message, celsius=False):
             
             # if the player is in the red
             pnl = locale.currency(gainloss, grouping=True)
-            if pnl.startswith("-"):
-                buffer += " P&L📉" + pnl
-            else:
-                buffer += " P&L📈" + pnl
+            if "0.00" not in pnl:
+                if pnl.startswith("-"):
+                    buffer += "📊P&L📉" + pnl
+                else:
+                    buffer += "📊P&L📈" + pnl
 
             buffer += f"\n🥤 to buy? Have {inventory.cups}, Cost {locale.currency(cups.cost, grouping=True)}/box25"
             saveValues()
