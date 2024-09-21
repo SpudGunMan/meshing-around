@@ -472,9 +472,9 @@ def start_lemonade(nodeID, message, celsius=False):
             pnl = locale.currency(gainloss, grouping=True)
             if "0.00" not in pnl:
                 if pnl.startswith("-"):
-                    buffer += "📊P&L📉" + pnl
+                    msg += "📊P&L📉" + pnl
                 else:
-                    buffer += "📊P&L📈" + pnl
+                    msg += "📊P&L📈" + pnl
     
             # Display the weekly sales summary
             pad_week = len(str(weeks.total))
