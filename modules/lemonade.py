@@ -293,8 +293,8 @@ def start_lemonade(nodeID, message, celsius=False):
 
             # Calculate the unit cost and display the estimated sales from the forecast potential
             unit = cups.unit + lemons.unit + sugar.unit
-            buffer += " SupplyCost" + locale.currency(unit, grouping=True) + " per cup."
-            buffer += " SalesPotential:" + str(potential)
+            buffer += " SupplyCost" + locale.currency(unit, grouping=True) + "a cup"
+            buffer += " SalesPotential:" + str(potential) + "🥤"
 
             # Display the current inventory
             buffer += "Inventory:"
@@ -309,15 +309,21 @@ def start_lemonade(nodeID, message, celsius=False):
             buffer += " 🍋:" + \
                         locale.currency(lemons.cost, grouping=True) + " bag of " + str(lemons.count) + "."
             buffer += " 🍚:" + \
-                        locale.currency(sugar.cost, grouping=True) + " bag for " + str(sugar.count) + " cups. "
+                        locale.currency(sugar.cost, grouping=True) + " bag for " + str(sugar.count) + "🥤."
 
             # Display the current cash
             gainloss   = inventory.cash - inventory.start
-            buffer += " Cash:" + \
+            buffer += " 💵:" + \
                         locale.currency(inventory.cash, grouping=True)
-            buffer += " P&L:" + \
-                        locale.currency(gainloss, grouping=True)
-    
+            
+            
+            # if the player is in the red
+            pnl = locale.currency(gainloss, grouping=True)
+            if pnl.startswith("-"):
+                buffer += " P&L📉" + pnl
+            else:
+                buffer += " P&L📈" + pnl
+
             buffer += f"\n🥤 to buy? Have {inventory.cups}, Cost {locale.currency(cups.cost, grouping=True)}/box25"
             saveValues()
             return buffer
