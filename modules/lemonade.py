@@ -457,17 +457,17 @@ def start_lemonade(nodeID, message, celsius=False):
 
             # Display the updated inventory levels
             msg += "\nRemaining"
-            msg += " Cups:" + str(inventory.cups)
-            msg += " Lemons:" + str(inventory.lemons)
-            msg += " Sugar:" + str(inventory.sugar)
-            msg += " Cash:" + locale.currency(inventory.cash, grouping=True)
+            msg += " 🥤:" + str(inventory.cups)
+            msg += " 🍋:" + str(inventory.lemons)
+            msg += " 🍚:" + str(inventory.sugar)
+            msg += " 💵:" + locale.currency(inventory.cash, grouping=True)
             msg += " P&L:" + locale.currency(gainloss, grouping=True)
     
             # Display the weekly sales summary
             pad_week = len(str(weeks.total))
             pad_sale = len(str(weeks.sales))
             total    = 0
-            msg += "\nWeekly Summary"
+            msg += "\nWeekly📊"
             for i in range(len(weeks.summary)):
                 msg += "  Week " + str(weeks.current).rjust(pad_week) + ":  " + str(weeks.summary[i]['sales']).rjust(pad_sale) + \
                     " sold x " + locale.currency(weeks.summary[i]['price'], grouping=True) + " ea."
@@ -504,7 +504,7 @@ def start_lemonade(nodeID, message, celsius=False):
                 if (inventory.sugar <= 0):
                     msg += " You ran out of sugar.🍚"
             else:
-                msg += "\nCongratulations -- your sales were perfect!🎉"
+                msg += "\nCongratulations 🍋🍋 your sales were perfect!🎉"
             
             # Increment the score counters
             score.value = score.value + minnet
@@ -516,7 +516,7 @@ def start_lemonade(nodeID, message, celsius=False):
                 success = round((score.value / score.total) * 100)
                 msg += "\nYou've made " + locale.currency(score.value, grouping=True) + " out of a possible " + \
                     locale.currency(score.total, grouping=True) + " for a score of " + str(success) + "% "
-                msg += "You've sold " + str(total) + " total cups -- see you again next time!🍋"
+                msg += "You've sold " + str(total) + " total 🥤🍋"
 
                 # check for high score
                 high_score = getHighScoreLemon()
@@ -538,7 +538,7 @@ def start_lemonade(nodeID, message, celsius=False):
             
                 weeks.current = weeks.current + 1
 
-                msg += f"\nPlay another week? send 'end' to end game"
+                msg += f"\nPlay another week🥤 'end' to end game"
                 
                 saveValues()
             return msg
