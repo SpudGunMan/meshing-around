@@ -267,6 +267,12 @@ def handleBlackJack(nodeID, message):
     global jackTracker
     msg = ""
 
+    # get player's last command from tracker
+    last_cmd = ""
+    for i in range(len(jackTracker)):
+        if jackTracker[i]['nodeID'] == nodeID:
+            last_cmd = jackTracker[i]['cmd']
+
     # if player sends a L for leave table
     if message.lower().startswith("l"):
         logger.debug(f"System: BlackJack: {nodeID} is leaving the table")
@@ -288,14 +294,6 @@ def handleBlackJack(nodeID, message):
 
         # Play BlackJack
         msg = playBlackJack(nodeID=nodeID, message=message)
-
-        # get player's last command from tracker
-        last_cmd = ""
-        for i in range(len(jackTracker)):
-            if jackTracker[i]['nodeID'] == nodeID:
-                last_cmd = jackTracker[i]['cmd']
-
-
     
         if last_cmd != "":
             logger.debug(f"System: BlackJack: {nodeID} last command: {last_cmd}")
