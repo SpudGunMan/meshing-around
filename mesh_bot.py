@@ -50,7 +50,7 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
         "ack": lambda: handle_ack(hop, snr, rssi),
         "testing": lambda: handle_testing(message, hop, snr, rssi),
         "test": lambda: handle_testing(message, hop, snr, rssi),
-        "whoami": lambda: handle_whoami(message_from_id, deviceID),
+        "whoami": lambda: handle_whoami(message_from_id, deviceID, hop, snr, rssi)
     }
     cmds = [] # list to hold the commands found in the message
     for key in command_handler:
@@ -495,7 +495,7 @@ def handle_whoami(message_from_id, deviceID, hop, snr, rssi):
             str(get_name_from_number(message_from_id, 'short', deviceID)) + " AKA, " +\
             str(decimal_to_hex(message_from_id)) + f"\n")
     msg += f"I see the signal strength is {rssi} and the SNR is {snr} with hop count of {hop} \n"
-    
+
     loc = get_node_location(message_from_id, deviceID)
     if loc != [latitudeValue,longitudeValue]:
         msg += f"\nYou are at: lat:{loc[0]} lon:{loc[1]}"
