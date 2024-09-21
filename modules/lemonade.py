@@ -332,6 +332,8 @@ def start_lemonade(nodeID, message, celsius=False):
         if "cups" in last_cmd:
             # Read the number of cup boxes to purchase
             newcups = -1
+            if "n" in message.lower():
+                message = "0"
             try:
                 newcups = int(message)
                 if (newcups > 0):
@@ -360,6 +362,8 @@ def start_lemonade(nodeID, message, celsius=False):
         if "lemons" in last_cmd:
             # Read the number of lemon bags to purchase
             newlemons = -1
+            if "n" in message.lower():
+                message = "0"
             try:
                 newlemons = int(message)
                 if (newlemons > 0):
@@ -387,6 +391,8 @@ def start_lemonade(nodeID, message, celsius=False):
         if "sugar" in last_cmd:
             # Read the number of sugar bags to purchase
             newsugar = -1
+            if "n" in message.lower():
+                message = "0"
             try:
                 newsugar = int(message)
                 if (newsugar > 0):
