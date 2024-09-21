@@ -276,15 +276,6 @@ def handleBlackJack(nodeID, message):
                 jackTracker[i]['time'] = time.time() - 57600
                 jackTracker[i]['cmd'] = "new"
     else:
-        # Play BlackJack
-        msg = playBlackJack(nodeID=nodeID, message=message)
-
-        # get player's last command from tracker
-        last_cmd = ""
-        for i in range(len(jackTracker)):
-            if jackTracker[i]['nodeID'] == nodeID:
-                last_cmd = jackTracker[i]['cmd']
-
         # find higest dollar amount in tracker for high score
         if last_cmd == "new":
             high_score = 0
@@ -294,6 +285,17 @@ def handleBlackJack(nodeID, message):
                     user = jackTracker[i]['nodeID']
             if user != 0:
                 msg += f" Ranking🥇:{get_name_from_number(user)} with {high_score} chips. "
+
+        # Play BlackJack
+        msg = playBlackJack(nodeID=nodeID, message=message)
+
+        # get player's last command from tracker
+        last_cmd = ""
+        for i in range(len(jackTracker)):
+            if jackTracker[i]['nodeID'] == nodeID:
+                last_cmd = jackTracker[i]['cmd']
+
+
     
         if last_cmd != "":
             logger.debug(f"System: BlackJack: {nodeID} last command: {last_cmd}")
