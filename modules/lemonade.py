@@ -412,7 +412,7 @@ def start_lemonade(nodeID, message, celsius=False):
             for i in range(len(lemonadeTracker)):
                 if lemonadeTracker[i]['nodeID'] == nodeID:
                     lemonadeTracker[i]['cmd'] = "price"
-                    if "g" not in message.lower():
+                    if "g" in message.lower():
                         lemonadeTracker[i]['cmd'] = "cups"
                         msg += f"\n#of🥤 to buy? Have {inventory.cups} Cost {locale.currency(cups.cost, grouping=True)} a 📦 of {str(cups.count)}"
             saveValues()
