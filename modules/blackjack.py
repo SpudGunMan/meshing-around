@@ -371,12 +371,28 @@ def playBlackJack(nodeID, message):
                 jackTracker[i]['d_hand'] = d_hand
                 break
 
+        # Exit player's turn
         if getLastCmdJack(nodeID) == "dealerTurn":
             break
         
         return msg
 
     if getLastCmdJack(nodeID) == "dealerTurn":
+        # recall the game state
+        for i in range(len(jackTracker)):
+            if jackTracker[i]['nodeID'] == nodeID:
+                p_chips.total = jackTracker[i]['cash']
+                p_chips.bet = jackTracker[i]['bet']
+                p_win = jackTracker[i]['gameStats']['p_win']
+                d_win = jackTracker[i]['gameStats']['d_win']
+                draw = jackTracker[i]['gameStats']['draw']
+                p_cards = jackTracker[i]['p_cards']
+                d_cards = jackTracker[i]['d_cards']
+                p_hand = jackTracker[i]['p_hand']
+                d_hand = jackTracker[i]['d_hand']
+                next_card = jackTracker[i]['next_card']
+                break
+
         if p_hand.value <= 21:
             # Dealer's Turn
             while d_hand.value < 17:
