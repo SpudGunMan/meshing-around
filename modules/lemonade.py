@@ -387,20 +387,21 @@ def start_lemonade(nodeID, message, celsius=False):
         if "sugar" in last_cmd:
             # Read the number of sugar bags to purchase
             newsugar = -1
-            try:
-                newsugar = int(message)
-                if (newsugar > 0):
-                    cost = round(newsugar * sugar.cost, 2)
-                    if (cost > inventory.cash):
-                        return "You do not have enough cash."
-                    inventory.sugar += (newsugar * sugar.count)
-                    inventory.cash  -= cost
-                    msg = " Purchased " + str(newsugar) + " bag(s) of 🍚 for " + locale.currency(cost, grouping=True)
-                    msg += ". " + str(inventory.sugar) + f"🥤🍚 in inventory."
-                else:
-                    msg =  "No additional 🍚 was purchased"
-            except Exception as e:
-                return "⛔️invalid input, enter the number of 🍚 bags to purchase"
+            if not message.lower().startswith("g"):
+                try:
+                    newsugar = int(message)
+                    if (newsugar > 0):
+                        cost = round(newsugar * sugar.cost, 2)
+                        if (cost > inventory.cash):
+                            return "You do not have enough cash."
+                        inventory.sugar += (newsugar * sugar.count)
+                        inventory.cash  -= cost
+                        msg = " Purchased " + str(newsugar) + " bag(s) of 🍚 for " + locale.currency(cost, grouping=True)
+                        msg += ". " + str(inventory.sugar) + f"🥤🍚 in inventory."
+                    else:
+                        msg =  "No additional 🍚 was purchased"
+                except Exception as e:
+                    return "⛔️invalid input, enter the number of 🍚 bags to purchase"
 
 
             msg += f"\nPrice to Sell? Cost of goods is {locale.currency(unit, grouping=True)} \
@@ -411,7 +412,7 @@ def start_lemonade(nodeID, message, celsius=False):
             for i in range(len(lemonadeTracker)):
                 if lemonadeTracker[i]['nodeID'] == nodeID:
                     lemonadeTracker[i]['cmd'] = "price"
-                    if message.lower.startswith("g"):
+                    if message.lower().startswith("g"):
                         lemonadeTracker[i]['cmd'] = "cups"
                         msg += f"\n#of🥤 to buy? Have {inventory.cups} Cost {locale.currency(cups.cost, grouping=True)} a 📦 of {str(cups.count)}"
             saveValues()
