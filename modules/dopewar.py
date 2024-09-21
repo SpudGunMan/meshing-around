@@ -329,7 +329,7 @@ def get_location_table(nodeID, choice=0):
     loc_table_string = ''
     for i in range(len(loc)):
             loc_table_string += str(i+1) + '. ' + loc[i] + '  ' 
-    loc_table_string += f'Where do you want to go?#'
+    loc_table_string += f'\nWhere do you want to 🛫?#'
     return loc_table_string
 
 
@@ -421,7 +421,8 @@ def render_game_screen(userID, day_play, total_day, loc_choice, event_number, pr
         if dwCashDb[i].get('userID') == userID:
             cash = dwCashDb[i].get('cash')
 
-    msg += "Location: " + loc[int(loc_choice) - 1] + ", Day:" + str(day_play) + '/' + str(total_day) + ", $" + str(cash) + " 🎒: " + str(inventory) + "/100" + f"\n"
+    msg += "Location: " + loc[int(loc_choice) - 1] + ", Day:" + str(day_play) + '/' + str(total_day) +  " 🎒: " + str(inventory) + "/100" + ", $" + str(cash) + f"\n"
+    
     for i, drug in enumerate(my_drugs, 1):
         qty = amount[i-1]
         msg += f'#{str(i)}.{drug.name}/${price_list[i-1]}({qty})    '
