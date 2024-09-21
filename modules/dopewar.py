@@ -329,7 +329,7 @@ def get_location_table(nodeID, choice=0):
     loc_table_string = ''
     for i in range(len(loc)):
             loc_table_string += str(i+1) + '. ' + loc[i] + '  ' 
-    loc_table_string += f'\nWhere do you want to 🛫?#'
+    loc_table_string += f' Where do you want to 🛫?#'
     return loc_table_string
 
 
