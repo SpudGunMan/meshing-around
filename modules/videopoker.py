@@ -166,7 +166,7 @@ class PlayerVP:
             except Exception as e:
                 pass
     
-        return "Send Card(s) to Re-Draw/Deal like 1,3,4 to hold cards 1, 3, and 4. or (N)o to keep current hand."
+        return "Re-Draw/Deal ex:1,3,4 to hold cards 1,3 and 4, or (N)o to keep current (H)and"
 
     # Method for scoring hand, calculating winnings, and outputting message
     def score_hand(self, resetHand = True):
@@ -362,6 +362,9 @@ def playVideoPoker(nodeID, message):
         # if player wants to redraw cards, and not done already
         if message.lower().startswith("n"):
             setLastCmdVp(nodeID, "endGame")
+        if message.lower().startswith("h"):
+            msg = player.show_hand()
+            return msg
         else:
             if drawCount <= 1:
                 msg = player.redraw(deck, message)
