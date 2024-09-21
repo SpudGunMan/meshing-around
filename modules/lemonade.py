@@ -404,19 +404,16 @@ def start_lemonade(nodeID, message, celsius=False):
 
 
             msg += f"\nPrice to Sell? Cost of goods is {locale.currency(unit, grouping=True)} \
-                per 🥤 {locale.currency(inventory.cash, grouping=True)} 💵 remaining.\
-                Revisit any item with (C)ups, (L)emons, (S)ugar"
+                per 🥤 {locale.currency(inventory.cash, grouping=True)} 💵 remaining. \
+                To go shopping again type (G)rocery"
             
             # set the last command to price in the inventory db
             for i in range(len(lemonadeTracker)):
                 if lemonadeTracker[i]['nodeID'] == nodeID:
                     lemonadeTracker[i]['cmd'] = "price"
-                    if message.lower.startswith("c"):
+                    if message.lower.startswith("g"):
                         lemonadeTracker[i]['cmd'] = "cups"
-                    if message.lower.startswith("l"):
-                        lemonadeTracker[i]['cmd'] = "lemons"
-                    if message.lower.startswith("s"):
-                        lemonadeTracker[i]['cmd'] = "sugar"
+                        msg += f"\n#of🥤 to buy? Have {inventory.cups} Cost {locale.currency(cups.cost, grouping=True)} a 📦 of {str(cups.count)}"
             saveValues()
             return msg
     
