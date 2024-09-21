@@ -262,7 +262,7 @@ class PlayerVP:
             msg = f"\nYour hand, {hand_name}. Your bankroll is now {self.bankroll} coins."
         else:
             if hand_name != "":
-                msg = f"\nShowing:{hand_name}."
+                msg = f"\nShowing:{hand_name}"
         return msg
 
 
