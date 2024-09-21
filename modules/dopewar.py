@@ -211,26 +211,26 @@ def buy_func(nodeID, price_list, choice=0, value='0'):
         buy_amount = cash // price_list[drug_choice]
         if buy_amount > 100 - inventory:
             buy_amount = 100 - inventory
+    # set the buy amount to the max if the user enters m
+    buy_amount = int(buy_amount)
     
     if buy_amount == 0:
         msg = f"Didnt see a qty. ex: b,1,10 buys 10 of {my_drugs[1].name}, can also use m for max"
         return msg
-
-    buy_amount = int(buy_amount)
-    if buy_amount not in range(1, 101):
+    elif buy_amount not in range(1, 101):
         msg = f"Enter qty or m for max"
         return msg
-    if buy_amount > 100 - inventory:
+    elif buy_amount > 100 - inventory:
         msg = "You don\'t have enough space for all that.🎒"
         return msg
-    if buy_amount * price_list[drug_choice] <= cash:
+    elif buy_amount * price_list[drug_choice] <= cash:
         amount[drug_choice] += buy_amount
         cash -= buy_amount * price_list[drug_choice]
         inventory += buy_amount
         msg += "You bought " + str(buy_amount) + " " + my_drugs[drug_choice].name + '. Remaining cash: $' + str(cash)
         msg += f"\nBuy Sell Fly?"
     else:
-        msg = "You don\'t have enough cash!"
+        msg = "You don't have enough cash!😭"
         return msg
 
     # update the cash_db and inventory_db values
