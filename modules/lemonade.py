@@ -293,7 +293,7 @@ def start_lemonade(nodeID, message, celsius=False):
 
             # Calculate the unit cost and display the estimated sales from the forecast potential
             unit = cups.unit + lemons.unit + sugar.unit
-            buffer += " SupplyCost" + locale.currency(unit, grouping=True) + "a cup"
+            buffer += " SupplyCost" + locale.currency(unit, grouping=True) + " a cup"
             buffer += " SalesPotential:" + str(potential) + "🥤"
 
             # Display the current inventory
