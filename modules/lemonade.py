@@ -387,7 +387,7 @@ def start_lemonade(nodeID, message, celsius=False):
         if "sugar" in last_cmd:
             # Read the number of sugar bags to purchase
             newsugar = -1
-            if not message.lower().startswith("g"):
+            if "g" not in message.lower():
                 try:
                     newsugar = int(message)
                     if (newsugar > 0):
@@ -412,7 +412,7 @@ def start_lemonade(nodeID, message, celsius=False):
             for i in range(len(lemonadeTracker)):
                 if lemonadeTracker[i]['nodeID'] == nodeID:
                     lemonadeTracker[i]['cmd'] = "price"
-                    if message.lower().startswith("g"):
+                    if "g" not in message.lower():
                         lemonadeTracker[i]['cmd'] = "cups"
                         msg += f"\n#of🥤 to buy? Have {inventory.cups} Cost {locale.currency(cups.cost, grouping=True)} a 📦 of {str(cups.count)}"
             saveValues()
