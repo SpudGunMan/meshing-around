@@ -347,7 +347,7 @@ def start_lemonade(nodeID, message, celsius=False):
                 else:
                     msg =  "No 🥤 were purchased"
             except Exception as e:
-                return "invalid input"
+                return "invalid input, enter the number of 🥤 to purchase or (N)one"
                 
             # set the last command to lemons in the inventory db
             for i in range(len(lemonadeTracker)):
