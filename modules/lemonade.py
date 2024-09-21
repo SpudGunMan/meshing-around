@@ -420,7 +420,7 @@ def start_lemonade(nodeID, message, celsius=False):
                     lemonadeTracker[i]['cmd'] = "sales"
                     if "g" in message.lower():
                         lemonadeTracker[i]['cmd'] = "cups"
-                        msg = f"\n#of🥤 to buy? Have {inventory.cups} Cost {locale.currency(cups.cost, grouping=True)} a 📦 of {str(cups.count)}"
+                        msg = f"#of🥤 to buy? Have {inventory.cups} Cost {locale.currency(cups.cost, grouping=True)} a 📦 of {str(cups.count)}"
                         return msg
                     else:
                         last_cmd = "sales"
