@@ -154,7 +154,12 @@ class PlayerVP:
         else:
             try:
                 # error trap for bad input
-                redraw_list = [int(x) - 1 for x in message.split(',')]
+                if "," in message:
+                    redraw_list = [int(x) - 1 for x in message.split(',')]
+                if "." in message:
+                    redraw_list = [int(x) - 1 for x in message.split('.')]
+                if " " in message:
+                    redraw_list = [int(x) - 1 for x in message.split(' ')]
                 for i in redraw_list:
                     self.hand[i] = deck.draw_card()
                 return self.show_hand()    
@@ -253,10 +258,10 @@ class PlayerVP:
 
         if resetHand:
             self.hand = []
-            msg = "You have a {}. Your bankroll is now {} coins.".format(hand_name, self.bankroll)
+            msg = f"\nYour hand, {hand_name}. Your bankroll is now {self.bankroll} coins."
         else:
             if hand_name != "":
-                msg = "You have a {}. ".format(hand_name)
+                msg = f"\nShowing:{hand_name}."
         return msg
 
 
@@ -402,11 +407,9 @@ def playVideoPoker(nodeID, message):
             msg += "\nLooks 💸 like you're out of money. 💳 resetting ballance 🏧"
         elif player.bankroll > vpTracker[i]['highScore']:
             vpTracker[i]['highScore'] = player.bankroll
-            msg += " 🎉HighScore! {} coins.".format(player.bankroll)
-        else:
-            msg += " Best is {} coins.".format(vpTracker[i]['highScore'])
+            msg += " 🎉HighScore!"
 
-        msg += "Place your Bet, 'L' to leave the game."
+        msg += f"\nPlace your Bet, 'L' to leave the game."
 
         setLastCmdVp(nodeID, "gameOver")
         # reset player and deck in tracker
