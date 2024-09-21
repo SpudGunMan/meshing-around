@@ -115,7 +115,7 @@ class jackChips:
 
 def take_bet(bet_amount, player_money):
     try:
-        while bet_amount > player_money or bet_amount <= 0:
+        if bet_amount >= player_money or bet_amount <= 0:
             return f"Enter a bet amount between 1 and {player_money}"
         return bet_amount
 
