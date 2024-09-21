@@ -325,7 +325,7 @@ def start_lemonade(nodeID, message, celsius=False):
                 else:
                     buffer += "📊P&L📈" + pnl
 
-            buffer += f"\n🥤 to buy? Have {inventory.cups}, Cost {locale.currency(cups.cost, grouping=True)}/box25"
+            buffer += f"\n🥤 to buy? Have {inventory.cups}, Cost {locale.currency(cups.cost, grouping=True)}/{str(cups.count)}📦"
             saveValues()
             return buffer
         
@@ -337,13 +337,13 @@ def start_lemonade(nodeID, message, celsius=False):
                 if (newcups > 0):
                     cost = round(newcups * cups.cost, 2)
                     if (cost > inventory.cash):
-                        return "You do not have enough cash."
+                        return "You do not have enough 💵."
                     inventory.cups += (newcups * cups.count)
                     inventory.cash -= cost
-                    msg = "Purchased " + str(newcups) + " box(es) of cups. "
-                    msg += str(inventory.cups) + " cup inventory, "  + locale.currency(inventory.cash, grouping=True) + " remaining"
+                    msg = "Purchased " + str(newcups) + " 📦 of 🥤. "
+                    msg += str(inventory.cups) + " 🥤 inventory, "  + locale.currency(inventory.cash, grouping=True) + " remaining📊"
                 else:
-                    msg =  "No cups were purchased"
+                    msg =  "No 🥤 were purchased"
             except Exception as e:
                 msg = "invalid input"
                 newcups = -1
@@ -353,7 +353,7 @@ def start_lemonade(nodeID, message, celsius=False):
                 if lemonadeTracker[i]['nodeID'] == nodeID:
                     lemonadeTracker[i]['cmd'] = "lemons"
             saveValues()
-            msg += f"\n🍋 to buy? Have {inventory.lemons}, Cost {locale.currency(lemons.cost, grouping=True)}/bag8"
+            msg += f"\n🍋 to buy? Have {inventory.lemons}, Cost {locale.currency(lemons.cost, grouping=True)} a 🧺 for {str(lemons.count)}🥤"
             return msg
                 
 
@@ -368,20 +368,20 @@ def start_lemonade(nodeID, message, celsius=False):
                         return "You do not have enough cash."
                     inventory.lemons += (newlemons * lemons.count)
                     inventory.cash   -= cost
-                    msg = "Purchased " + str(newlemons) + " bag(s) of lemons. "
-                    msg += str(inventory.lemons) + " lemon inventory, "  + locale.currency(inventory.cash, grouping=True) + " remaining"
+                    msg = "Purchased " + str(newlemons) + " 🧺 of 🍋. "
+                    msg += str(inventory.lemons) + " 🍋 inventory, "  + locale.currency(inventory.cash, grouping=True) + " remaining📊"
                 else:
-                    msg =  "No lemons were purchased"
+                    msg =  "No 🍋 were purchased"
             except Exception as e:
                 newlemons = -1
-                return "invalid input, enter the number of lemons to purchase"
+                return "⛔️invalid input, enter the number of 🍋 to purchase"
                 
             # set the last command to sugar in the inventory db
             for i in range(len(lemonadeTracker)):
                 if lemonadeTracker[i]['nodeID'] == nodeID:
                     lemonadeTracker[i]['cmd'] = "sugar"
             saveValues()
-            msg += f"\n🍚 to buy? You have {inventory.sugar} cups, Cost {locale.currency(sugar.cost, grouping=True)}/15cup bag"
+            msg += f"\n🍚 to buy? You have {inventory.sugar} 🥤, Cost {locale.currency(sugar.cost, grouping=True)} a bag for {str(sugar.count)}🥤"
             return msg
 
         if "sugar" in last_cmd:
@@ -395,19 +395,19 @@ def start_lemonade(nodeID, message, celsius=False):
                         return "You do not have enough cash."
                     inventory.sugar += (newsugar * sugar.count)
                     inventory.cash  -= cost
-                    msg = " Purchased " + str(newsugar) + " bag(s) of sugar for " + locale.currency(cost, grouping=True)
-                    msg += ". " + str(inventory.sugar) + " sugar inventory, "  + locale.currency(inventory.cash, grouping=True) + " cash remaining"
+                    msg = " Purchased " + str(newsugar) + " bag(s) of 🍚 for " + locale.currency(cost, grouping=True)
+                    msg += ". " + str(inventory.sugar) + " 🍚 inventory, "  + locale.currency(inventory.cash, grouping=True) + " 💵 remaining"
                 else:
-                    msg =  "No additional sugar was purchased"
+                    msg =  "No additional 🍚 was purchased"
             except Exception as e:
-                return "invalid input, enter the number of sugar bags to purchase"
+                return "⛔️invalid input, enter the number of 🍚 bags to purchase"
 
             # set the last command to price in the inventory db
             for i in range(len(lemonadeTracker)):
                 if lemonadeTracker[i]['nodeID'] == nodeID:
                     lemonadeTracker[i]['cmd'] = "price"
             saveValues()
-            msg += f"\nPrice to Sell? Cost of goods is {locale.currency(unit, grouping=True)} per cup"
+            msg += f"\nPrice to Sell? Cost of goods is {locale.currency(unit, grouping=True)} per 🥤"
             return msg
     
         if "price" in last_cmd:
@@ -421,7 +421,7 @@ def start_lemonade(nodeID, message, celsius=False):
                         return "The price must be greater than zero."
                 except Exception as e:
                     price = 0.00
-                    return "Invalid input, enter the price of the lemonade per cup"
+                    return "⛔️Invalid input, enter the price of the lemonade per 🥤"
             
             # this isnt sent to the user, not needed
             #msg = "  Setting the price at " + locale.currency(price, grouping=True)
