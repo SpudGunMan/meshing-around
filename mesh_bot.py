@@ -488,16 +488,17 @@ def handle_testing(message, hop, snr, rssi):
         else:
             return "🎙Testing 1,2,3 " + hop
 
-def handle_whoami(message_from_id, deviceID):
+def handle_whoami(message_from_id, deviceID, hop, snr, rssi):
     loc = []
     msg = "You are " + str(message_from_id) + " AKA " +\
-          str(get_name_from_number(message_from_id, 'long', deviceID) + " AKA " +\
-            str(get_name_from_number(message_from_id, 'short', deviceID)) + " AKA " +\
-            str(decimal_to_hex(message_from_id)) + " AKA " +\
-            str(message_from_id) + f"\n")
+          str(get_name_from_number(message_from_id, 'long', deviceID) + " AKA, " +\
+            str(get_name_from_number(message_from_id, 'short', deviceID)) + " AKA, " +\
+            str(decimal_to_hex(message_from_id)) + f"\n")
+    msg += f"I see the signal strength is {rssi} and the SNR is {snr} with hop count of {hop} \n"
+    
     loc = get_node_location(message_from_id, deviceID)
     if loc != [latitudeValue,longitudeValue]:
-        msg += f"You are at: lat:{loc[0]} lon:{loc[1]}\n"
+        msg += f"\nYou are at: lat:{loc[0]} lon:{loc[1]}"
     return msg
 
 
