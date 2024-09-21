@@ -341,7 +341,7 @@ def start_lemonade(nodeID, message, celsius=False):
                     inventory.cups += (newcups * cups.count)
                     inventory.cash -= cost
                     msg = "Purchased " + str(newcups) + " 📦 "
-                    msg += str(inventory.cups) + " 🥤  in inventory. "  + locale.currency(inventory.cash, grouping=True) + f" remaining📊"
+                    msg += str(inventory.cups) + " 🥤  in inventory. "  + locale.currency(inventory.cash, grouping=True) + f" remaining"
                 else:
                     msg =  "No 🥤 were purchased"
             except Exception as e:
@@ -369,7 +369,7 @@ def start_lemonade(nodeID, message, celsius=False):
                     inventory.lemons += (newlemons * lemons.count)
                     inventory.cash   -= cost
                     msg = "Purchased " + str(newlemons) + " 🧺 "
-                    msg += str(inventory.lemons) + " 🍋  in inventory. "  + locale.currency(inventory.cash, grouping=True) + f" remaining📊"
+                    msg += str(inventory.lemons) + " 🍋  in inventory. "  + locale.currency(inventory.cash, grouping=True) + f" remaining"
                 else:
                     msg =  "No 🍋 were purchased"
             except Exception as e:
