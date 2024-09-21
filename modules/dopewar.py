@@ -198,7 +198,7 @@ def buy_func(nodeID, price_list, choice=0, value='0'):
 
     drug_choice = choice
     if choice == 0:
-       msg = "Enter b or s and the drug number and qty you want to buy or sell. ex: b,1,10 buys 10 of drug 1"
+       msg = f"Didnt see a drug chouce. ex: s,1,10 sells 10 of drug 1{my_drugs[1].name}, or p for price list"
        return msg
     else:
         if drug_choice in range(1, len(my_drugs) + 1):
@@ -213,7 +213,7 @@ def buy_func(nodeID, price_list, choice=0, value='0'):
             buy_amount = 100 - inventory
     
     if buy_amount == 0:
-        msg = "Enter b or s and the drug number and qty you want to buy or sell. ex: b,1,10 buys 10 of drug 1"
+        msg = f"Didnt see a qty. ex: b,1,10 buys 10 of {my_drugs[1].name}, can also use m for max"
         return msg
 
     buy_amount = int(buy_amount)
