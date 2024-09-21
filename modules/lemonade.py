@@ -402,12 +402,22 @@ def start_lemonade(nodeID, message, celsius=False):
             except Exception as e:
                 return "⛔️invalid input, enter the number of 🍚 bags to purchase"
 
+
+            msg += f"\nPrice to Sell? Cost of goods is {locale.currency(unit, grouping=True)} \
+                per 🥤 {locale.currency(inventory.cash, grouping=True)} 💵 remaining.\
+                Revisit any item with (C)ups, (L)emons, (S)ugar"
+            
             # set the last command to price in the inventory db
             for i in range(len(lemonadeTracker)):
                 if lemonadeTracker[i]['nodeID'] == nodeID:
                     lemonadeTracker[i]['cmd'] = "price"
+                    if message.lower.startswith("c"):
+                        lemonadeTracker[i]['cmd'] = "cups"
+                    if message.lower.startswith("l"):
+                        lemonadeTracker[i]['cmd'] = "lemons"
+                    if message.lower.startswith("s"):
+                        lemonadeTracker[i]['cmd'] = "sugar"
             saveValues()
-            msg += f"\nPrice to Sell? Cost of goods is {locale.currency(unit, grouping=True)} per 🥤 {locale.currency(inventory.cash, grouping=True)} 💵 remaining"
             return msg
     
         if "price" in last_cmd:
