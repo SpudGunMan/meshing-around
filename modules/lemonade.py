@@ -293,21 +293,21 @@ def start_lemonade(nodeID, message, celsius=False):
 
             # Calculate the unit cost and display the estimated sales from the forecast potential
             unit = cups.unit + lemons.unit + sugar.unit
-            buffer += " SupplyCost" + locale.currency(unit, grouping=True) + " a cup"
+            buffer += " SupplyCost" + locale.currency(unit, grouping=True) + " a cup."
             buffer += " Sales Potential:" + str(potential) + " cups."
 
             # Display the current inventory
-            buffer += "Inventory:"
+            buffer += " Inventory:"
             buffer += "🥤:" + str(inventory.cups)
             buffer += "🍋:" + str(inventory.lemons)
             buffer += "🍚:" + str(inventory.sugar)
 
             # Display the updated item prices
-            buffer += f"\nPrices, "
+            buffer += f"\nPrices: "
             buffer += "🥤:" + \
                         locale.currency(cups.cost, grouping=True) + " 📦 of " + str(cups.count) + "."
             buffer += " 🍋:" + \
-                        locale.currency(lemons.cost, grouping=True) + " 🛒 of " + str(lemons.count) + "."
+                        locale.currency(lemons.cost, grouping=True) + " 🧺 of " + str(lemons.count) + "."
             buffer += " 🍚:" + \
                         locale.currency(sugar.cost, grouping=True) + " bag for " + str(sugar.count) + "🥤."
 
