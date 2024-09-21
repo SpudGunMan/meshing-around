@@ -36,6 +36,7 @@ Any messages that are over 160 characters are chunked into 160 message bytes to 
   - `bbsdelete` delete a message example use: `bbsdelete #4`
 - Other functions
   - `whereami` returns the address of location of sender if known
+  - `whoami` returns some details of the node asking
   - `tide` returns the local tides, NOAA data source
   - `wx` and `wxc` returns local weather forecast, (wxc is metric value), NOAA or Open Meteo for weather forecasting.
   - `wxa` and `wxalert` return NOAA alerts. Short title or expanded details
@@ -256,6 +257,6 @@ Games Ported from..
 - https://github.com/Himan10/BlackJack
 - https://github.com/devtronvarma/Video-Poker-Terminal-Game
 
-GitHub user mrpatrick1991 For Docker configs, PiDiBi looking at test functions and other suggestions like wxc, CPU use, and alerting ideas
+GitHub user Nestpebble, for new ideas and enhancments, mrpatrick1991 For Docker configs, PiDiBi looking at test functions and other suggestions like wxc, CPU use, and alerting ideas
 Discord and Mesh user Cisien, and github Hailo1999, for testing and ideas! Lots of individuals on the Meshtastic discord who have tossed out ideas and tested code!
 

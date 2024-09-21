@@ -10,7 +10,7 @@ import contextlib # for suppressing output on watchdog
 from modules.log import *
 
 # Global Variables
-trap_list = ("cmd","cmd?","whoami") # default trap list
+trap_list = ("cmd","cmd?",) # default trap list
 help_message = "CMD?:"
 asyncLoop = asyncio.new_event_loop()
 games_enabled = False
@@ -33,6 +33,12 @@ if motd_enabled:
     trap_list_motd = ("motd",)
     trap_list = trap_list + trap_list_motd
     help_message = help_message + ", motd"
+
+# whoami Configuration
+if whoami_enabled:
+    trap_list_whoami = ("whoami",)
+    trap_list = trap_list + trap_list_whoami
+    help_message = help_message + ", whoami"
 
 # Solar Conditions Configuration
 if solar_conditions_enabled:

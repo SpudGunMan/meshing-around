@@ -96,6 +96,7 @@ try:
     welcome_message = (f"{welcome_message}").replace('\\n', '\n') # allow for newlines in the welcome message
     motd_enabled = config['general'].getboolean('motdEnabled', True)
     MOTD = config['general'].get('motd', MOTD)
+    whoami_enabled = config['general'].getboolean('whoami', True)
     dad_jokes_enabled = config['general'].getboolean('DadJokes', False)
     solar_conditions_enabled = config['general'].getboolean('spaceWeather', True)
     wikipedia_enabled = config['general'].getboolean('wikipedia', False)
@@ -144,6 +145,7 @@ try:
     blackjack_enabled = config['games'].getboolean('blackjack', True)
     videoPoker_enabled = config['games'].getboolean('videoPoker', True)
 
+    # messaging settings
     responseDelay = config['messagingSettings'].getfloat('responseDelay', 0.7) # default 0.7
     splitDelay = config['messagingSettings'].getfloat('splitDelay', 0) # default 0
     MESSAGE_CHUNK_SIZE = config['messagingSettings'].getint('MESSAGE_CHUNK_SIZE', 160) # default 160

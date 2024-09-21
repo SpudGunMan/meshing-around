@@ -88,22 +88,29 @@ def handle_ping(message, hop, snr, rssi):
 
 def handle_motd(message, message_from_id):
     global MOTD
-    if "?" in message and not "$": #basic help message - borked
-        return "Message of the day, set with 'motd $ motd'"
-    elif "$" in message and str(message_from_id) in str(bbs_admin_list): #access control via bbs admin list - works
-        motd = message.split("$")[1]
-        MOTD = motd.rstrip()
-        logger.debug(f"System: node changed MOTD: ", {message_from_id})
-        return "MOTD Set to: " + MOTD
-    elif "$" in message and not str(bbs_admin_list).strip(): #no names in bbs admin list - borked
-        motd = message.split("$")[1]
-        MOTD = motd.rstrip()
-        return "MOTD Set to: " + MOTD
-    elif "$" in message and str(bbs_admin_list).strip(''):
-        logger.debug(f"System: node tried to change MOTD: ", str({message_from_id}))
-        return "I can't do that for you "
+    isAdmin = False
+    msg = ""
+    # check if the message_from_id is in the bbs_admin_list
+    if bbs_admin_list != ['']:
+        for admin in bbs_admin_list:
+            if str(message_from_id) == admin:
+                isAdmin = True
+                break
     else:
-        return MOTD
+        isAdmin = True
+
+    if "$" in message and isAdmin:
+        motd = message.split("$")[1]
+        MOTD = motd.rstrip()
+        logger.debug(f"System: {message_from_id} changed MOTD: {MOTD}")
+        msg = "MOTD changed to: " + MOTD
+    elif "?" in message:
+        msg = "Message of the day, set with 'motd $ HelloWorld!'"
+    else:
+        logger.debug(f"System: {message_from_id} requested MOTD: {MOTD} isAdmin: {isAdmin}")
+        msg = "MOTD: " + MOTD
+
+    return msg
 
 def handle_wxalert(message_from_id, deviceID, message):
     if use_meteo_wxApi:
@@ -482,7 +489,17 @@ def handle_testing(message, hop, snr, rssi):
             return "🎙Testing 1,2,3 " + hop
 
 def handle_whoami(message_from_id, deviceID):
-    return "You are " + str(message_from_id) + " AKA " + str(get_name_from_number(message_from_id, 'long', deviceID))
+    loc = []
+    msg = "You are " + str(message_from_id) + " AKA " +\
+          str(get_name_from_number(message_from_id, 'long', deviceID) + " AKA " +\
+            str(get_name_from_number(message_from_id, 'short', deviceID)) + " AKA " +\
+            str(decimal_to_hex(message_from_id)) + " AKA " +\
+            str(message_from_id) + f"\n")
+    loc = get_node_location(message_from_id, deviceID)
+    if loc != [latitudeValue,longitudeValue]:
+        msg += f"You are at: lat:{loc[0]} lon:{loc[1]}\n"
+    return msg
+
 
 def onDisconnect(interface):
     global retry_int1, retry_int2

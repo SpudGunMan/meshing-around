@@ -30,6 +30,8 @@ defaultChannel = 0
 # motd is reset to this value on boot
 motd = Thanks for using MeshBOT! Have a good day!
 welcome_message = MeshBot, here for you like a friend who is not. Try sending: ping @foo or, cmd
+# whoami
+whoami = True
 # enable or disable the Joke module
 DadJokes = True
 # enable or disable the Solar module
