@@ -114,3 +114,8 @@ signalHoldTime = 10
 # the following are combined to reset the monitor
 signalCooldown = 5
 signalCycleLimit = 5
+
+[messagingSettings]
+responseDelay = 0.7 # delay in seconds for response to avoid message collision
+splitDelay = 0.7 # delay in seconds for splits in messages to avoid message collision
+MESSAGE_CHUNK_SIZE = 160 # message chunk size for sending at high success rate

@@ -8,8 +8,6 @@ from pubsub import pub # pip install pubsub
 from modules.log import *
 from modules.system import *
 
-responseDelay = 0.7 # delay in seconds for response to avoid message collision
-
 def auto_response(message, snr, rssi, hop, message_from_id, channel_number, deviceID):
     #Auto response to messages
     message_lower = message.lower()
@@ -18,7 +16,7 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
     command_handler = {
         "ping": lambda: handle_ping(message, hop, snr, rssi),
         "pong": lambda: "🏓PING!!",
-        "motd": lambda: handle_motd(message),
+        "motd": lambda: handle_motd(message, message_from_id),
         "bbshelp": bbs_help,
         "wxalert": lambda: handle_wxalert(message_from_id, deviceID, message),
         "wxa": lambda: handle_wxalert(message_from_id, deviceID, message),
@@ -50,8 +48,9 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
         "tide": lambda: handle_tide(message_from_id, deviceID, channel_number),
         "moon": lambda: handle_moon(message_from_id, deviceID, channel_number),
         "ack": lambda: handle_ack(hop, snr, rssi),
-        "testing": lambda: handle_testing(hop, snr, rssi),
-        "test": lambda: handle_testing(hop, snr, rssi),
+        "testing": lambda: handle_testing(message, hop, snr, rssi),
+        "test": lambda: handle_testing(message, hop, snr, rssi),
+        "whoami": lambda: handle_whoami(message_from_id, deviceID),
     }
     cmds = [] # list to hold the commands found in the message
     for key in command_handler:
@@ -73,21 +72,36 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
 def handle_ping(message, hop, snr, rssi):
     if "@" in message:
         if hop == "Direct":
-            return "🏓PONG, " + f"SNR:{snr} RSSI:{rssi}" + " and copy: " + message.split("@")[1]
+            return "🏓PONG, " + f"SNR:{snr} RSSI:{rssi}" + " at: " + message.split("@")[1]
         else:
-            return "🏓PONG, " + hop + " and copy: " + message.split("@")[1]
+            return "🏓PONG, " + hop + " at: " + message.split("@")[1]
+    elif "#" in message:
+        if hop == "Direct":
+            return "🏓PONG, " + f"SNR:{snr} RSSI:{rssi}" + " #" + message.split("#")[1]
+        else:
+            return "🏓PONG, " + hop + " #" + message.split("#")[1]
     else:
         if hop == "Direct":
             return "🏓PONG, " + f"SNR:{snr} RSSI:{rssi}"
         else:
             return "🏓PONG, " + hop
 
-def handle_motd(message):
+def handle_motd(message, message_from_id):
     global MOTD
-    if "$" in message:
+    if "?" in message and not "$": #basic help message - borked
+        return "Message of the day, set with 'motd $ motd'"
+    elif "$" in message and str(message_from_id) in str(bbs_admin_list): #access control via bbs admin list - works
+        motd = message.split("$")[1]
+        MOTD = motd.rstrip()
+        logger.debug(f"System: node changed MOTD: ", {message_from_id})
+        return "MOTD Set to: " + MOTD
+    elif "$" in message and not str(bbs_admin_list).strip(): #no names in bbs admin list - borked
         motd = message.split("$")[1]
         MOTD = motd.rstrip()
         return "MOTD Set to: " + MOTD
+    elif "$" in message and str(bbs_admin_list).strip(''):
+        logger.debug(f"System: node tried to change MOTD: ", str({message_from_id}))
+        return "I can't do that for you "
     else:
         return MOTD
 
@@ -446,15 +460,29 @@ def handle_moon(message_from_id, deviceID, channel_number):
 
 def handle_ack(hop, snr, rssi):
     if hop == "Direct":
-        return "🏓ACK-ACK! " + f"SNR:{snr} RSSI:{rssi}"
+        return "✋ACK-ACK! " + f"SNR:{snr} RSSI:{rssi}"
     else:
-        return "🏓ACK-ACK! " + hop
+        return "✋ACK-ACK! " + hop
 
-def handle_testing(hop, snr, rssi):
-    if hop == "Direct":
-        return "🏓Testing 1,2,3 " + f"SNR:{snr} RSSI:{rssi}"
+def handle_testing(message, hop, snr, rssi):
+    if "@" in message:
+        if hop == "Direct":
+            return "🎙Testing, " + f"SNR:{snr} RSSI:{rssi}" + " at: " + message.split("@")[1]
+        else:
+            return "🎙Testing, " + hop + " at: " + message.split("@")[1]
+    elif "#" in message:
+        if hop == "Direct":
+            return "🎙Testing " + f"SNR:{snr} RSSI:{rssi}" + " #" + message.split("#")[1]
+        else:
+            return "🎙Testing  " + hop + " #" + message.split("#")[1]
     else:
-        return "🏓Testing 1,2,3 " + hop
+        if hop == "Direct":
+            return "🎙Testing 1,2,3 " + f"SNR:{snr} RSSI:{rssi}"
+        else:
+            return "🎙Testing 1,2,3 " + hop
+
+def handle_whoami(message_from_id, deviceID):
+    return "You are " + str(message_from_id) + " AKA " + str(get_name_from_number(message_from_id, 'long', deviceID))
 
 def onDisconnect(interface):
     global retry_int1, retry_int2
