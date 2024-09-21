@@ -131,12 +131,12 @@ def success_rate(card, obj_h):
         rate = (VALUES[card[0][1]] / diff) * 100
 
     if rate < 100:
-        msg += f"If Hit, chance {int(rate)}% success, {100-int(rate)}% failure."
+        msg += f"If Hit, chance {int(rate)}% failure, {100-int(rate)}% success."
     elif rate > 100:
         l_rate = int(rate - (rate - 99))  # Round to 99
         if card[0][1] == "A":
             l_rate -= 99
-        msg += f"If Hit, chance {100-l_rate}% failure, and {l_rate}% success."
+        msg += f"If Hit, chance {100-l_rate}% failure, and {l_rate}% success"
     else:
         msg += f"If Hit, a low chance of success."
     return msg
@@ -156,13 +156,13 @@ def display_hand(hand):
     return d
 
 def show_some(player_cards, dealer_cards, obj_h):
-    msg = f"PLAYER[{obj_h.value}] {display_hand(player_cards)}  "
-    msg += f"DEALER[{VALUES[dealer_cards[1][1]]}] {dealer_cards[1][1]}{dealer_cards[1][0]} "
+    msg = f"Player[{obj_h.value}] {display_hand(player_cards)}  "
+    msg += f"Dealer[{VALUES[dealer_cards[1][1]]}] {dealer_cards[1][1]}{dealer_cards[1][0]} "
     return msg
 
 def show_all(player_cards, dealer_cards, obj_h, obj_d):
-    msg = f"PLAYER_CARDS [{obj_h.value}] {display_hand(player_cards)}  "
-    msg += f"DEALER_CARDS [{obj_d.value}] {display_hand(dealer_cards)}"
+    msg = f"Player[{obj_h.value}] {display_hand(player_cards)}  "
+    msg += f"Dealer[{obj_d.value}] {display_hand(dealer_cards)}"
     return msg
 
 def player_bust(obj_h, obj_c):
@@ -256,17 +256,18 @@ def playBlackJack(nodeID, message):
         logger.debug(f"System: BlackJack: New Player {nodeID}")
         jackTracker.append({'nodeID': nodeID, 'cmd': 'new', 'time': time.time(), 'cash': jack_starting_cash,\
             'bet': 0, 'gameStats': {'p_win': p_win, 'd_win': d_win, 'draw': draw}, 'p_cards':p_cards, 'd_cards':d_cards, 'p_hand':p_hand.cards, 'd_hand':d_hand.cards, 'next_card':next_card})
-        return f"Welcome to BlackJack! you have {p_chips.total} chips, Whats your bet?"
+        return f"Welcome to BlackJack!♠️♥️♣️♦️ you have {p_chips.total} chips, Whats your bet?"
 
     if getLastCmdJack(nodeID) == "new":
         # Place Bet
         try:
+            # handle B letter
             if message == "b":
                 if bet_money == 0:
                     bet_money = 5
                 else:
                     bet_money = bet_money
-
+            # handle # message
             if bet_money != 0:
                 bet_money = int(bet_money)
             else:
@@ -277,7 +278,7 @@ def playBlackJack(nodeID, message):
             else:
                 return f"Invalid Bet, the maximum bet you can place is {p_chips.total}"
         except ValueError:
-            p_chips.bet = 5
+            return f"Invalid Bet, the maximum bet you can place is {p_chips.total}"
 
         # Show the cards
         msg += show_some(p_cards, d_cards, p_hand)
@@ -349,7 +350,7 @@ def playBlackJack(nodeID, message):
         # Check if player bust
         if player_bust(p_hand, p_chips):
             d_win += 1
-            msg += "Player BUUUSSTTT💥"
+            msg += f"Player BUST💥"
             setLastCmdJack(nodeID, "dealerTurn")
         
         if getLastCmdJack(nodeID) == "playing":
@@ -383,7 +384,7 @@ def playBlackJack(nodeID, message):
                 d_hand.add_cards(d_card)
                 if dealer_bust(d_hand, p_hand, p_chips):
                     p_win += 1
-                    msg += "Dealer BUUUSSTTT💥"
+                    msg += f"Dealer BUST💥\n"
                     break
             # Show all cards
             msg += show_all(p_hand.cards, d_hand.cards, p_hand, d_hand)
