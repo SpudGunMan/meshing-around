@@ -554,7 +554,7 @@ def start_lemonade(nodeID, message, celsius=False):
                     high_score['userID'] = nodeID
                     with open('lemonade_hs.pkl', 'wb') as file:
                         pickle.dump(high_score, file)
-                endGame()
+                endGame(nodeID)
 
             else:
                 # keep playing
