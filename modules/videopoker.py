@@ -194,11 +194,11 @@ class PlayerVP:
             if points == [10, 11, 12, 13, 14]: #find royal flush
                 hand_name = "👑Royal Flush🚽"
                 if resetHand:
-                    self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
+                    self.bankroll += self.bet_size * payoff[hand_name]
             elif diff == 4 and max(points_repeat) == 1: # find straight flush w/o ace low
                 hand_name = "🧻Straight Flush🚽"
                 if resetHand:
-                    self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
+                    self.bankroll += self.bet_size * payoff[hand_name]
             elif diff == 12 and points[4] == 14: # find straight flush w/ace low
                 check = 0
                 for i in range(1, 4):
@@ -206,39 +206,40 @@ class PlayerVP:
                 if check == 3:
                     hand_name =  "🧻Straight Flush🚽"
                     if resetHand:
-                        self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
+                        self.bankroll += self.bet_size * payoff[hand_name]
                 else:
                     hand_name =  "Flush🚽"
                     if resetHand:
-                        self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
+                        self.bankroll += self.bet_size * payoff[hand_name]
             else:
                 hand_name = "Flush🚽"
                 if resetHand:
-                    self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
+                    self.bankroll += self.bet_size * payoff[hand_name]
         elif sorted(points_repeat) == [2,2,3,3,3]: # find full house
             hand_name = "Full House🏠"
             if resetHand:
-                self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
+                self.bankroll += self.bet_size * payoff[hand_name]
         elif 4 in points_repeat: # find four of a kind
             hand_name = "Four of a Kind👯👯"
             if resetHand:
-                self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
+                self.bankroll += self.bet_size * payoff[hand_name]
         elif 3 in points_repeat: # find three of a kind
             hand_name = "Three of a Kind☘️"
             if resetHand:
-                self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
+                self.bankroll += self.bet_size * payoff[hand_name]
         elif points_repeat.count(2) == 4: # find two-pair
             hand_name = "Two Pair👯👯"
             if resetHand:
-                self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
+                self.bankroll += self.bet_size * payoff[hand_name]
         elif 2 in points_repeat: # find pair
+            logger.debug(f"System: VideoPoker: 235 self.bankroll: {self.bankroll} bet_size: {self.bet_size}")
             hand_name = "Pair👯"
             if resetHand:
-                self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
+                self.bankroll += self.bet_size * payoff[hand_name]
         elif diff == 4 and max(points_repeat) == 1: # find straight w/o ace low
             hand_name = "Straight📏"
             if resetHand:
-                self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
+                self.bankroll += self.bet_size * payoff[hand_name]
         elif diff == 12 and points[4] == 14: # find straight w/ace low
             check = 0
             for i in range(1, 4):
@@ -246,7 +247,7 @@ class PlayerVP:
                 if check == 3:
                     hand_name = "Straight📏"
                     if resetHand:
-                        self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
+                        self.bankroll += self.bet_size * payoff[hand_name]
                 else:
                     hand_name = "Bad Hand 🙈"
                     if resetHand:
