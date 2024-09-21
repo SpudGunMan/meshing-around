@@ -252,7 +252,7 @@ def start_lemonade(nodeID, message, celsius=False):
             buffer= ""
     
             # the current week number
-            buffer += title + "Week #" + str(weeks.current) + " of " + str(weeks.total) + " "
+            buffer += title + "Week #" + str(weeks.current) + "of" + str(weeks.total)
 
             # Generate a random weather forecast and temperature and display
             temperature.forecast = randrange(0, len(forecastd))
@@ -261,7 +261,7 @@ def start_lemonade(nodeID, message, celsius=False):
             if (temperature.units == celsius_unit):
                 formatted = str(round(((temperature.value - 32) * (5/9))))
             glyph = chr(forecastd[list(forecastd)[temperature.forecast]][1])
-            buffer += "wx: " + \
+            buffer += ". " + \
                         formatted + temperature.units + " " + \
                         forecastd[list(forecastd)[temperature.forecast]][2] + \
                         " " + glyph
