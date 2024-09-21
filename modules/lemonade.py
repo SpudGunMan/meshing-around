@@ -293,22 +293,22 @@ def start_lemonade(nodeID, message, celsius=False):
 
             # Calculate the unit cost and display the estimated sales from the forecast potential
             unit = cups.unit + lemons.unit + sugar.unit
-            buffer += locale.currency(unit, grouping=True) + " per cup."
-            buffer += " Potential Sales:" + str(potential) + " cups "
+            buffer += " SupplyCost" + locale.currency(unit, grouping=True) + " per cup."
+            buffer += " SalesPotential:" + str(potential)
 
             # Display the current inventory
-            buffer += "Inventory"
-            buffer += "  Cups:" + str(inventory.cups)
-            buffer += "  Lemons:" + str(inventory.lemons)
-            buffer += "  Sugar:" + str(inventory.sugar)
+            buffer += "Inventory:"
+            buffer += "🥤:" + str(inventory.cups)
+            buffer += "🍋:" + str(inventory.lemons)
+            buffer += "🍚:" + str(inventory.sugar)
 
             # Display the updated item prices
             buffer += f"\nPrices, "
-            buffer += "Cups:" + \
+            buffer += "🥤:" + \
                         locale.currency(cups.cost, grouping=True) + " box of " + str(cups.count) + "."
-            buffer += " Lemons:" + \
+            buffer += " 🍋:" + \
                         locale.currency(lemons.cost, grouping=True) + " bag of " + str(lemons.count) + "."
-            buffer += " Sugar:" + \
+            buffer += " 🍚:" + \
                         locale.currency(sugar.cost, grouping=True) + " bag for " + str(sugar.count) + " cups. "
 
             # Display the current cash
@@ -318,7 +318,7 @@ def start_lemonade(nodeID, message, celsius=False):
             buffer += " P&L:" + \
                         locale.currency(gainloss, grouping=True)
     
-            buffer += f"\nCups to buy? Have {inventory.cups}, Cost {locale.currency(cups.cost, grouping=True)}/box25"
+            buffer += f"\n🥤 to buy? Have {inventory.cups}, Cost {locale.currency(cups.cost, grouping=True)}/box25"
             saveValues()
             return buffer
         
@@ -346,7 +346,7 @@ def start_lemonade(nodeID, message, celsius=False):
                 if lemonadeTracker[i]['nodeID'] == nodeID:
                     lemonadeTracker[i]['cmd'] = "lemons"
             saveValues()
-            msg += f"\nLemons to buy? Have {inventory.lemons}, Cost {locale.currency(lemons.cost, grouping=True)}/bag8"
+            msg += f"\n🍋 to buy? Have {inventory.lemons}, Cost {locale.currency(lemons.cost, grouping=True)}/bag8"
             return msg
                 
 
@@ -374,7 +374,7 @@ def start_lemonade(nodeID, message, celsius=False):
                 if lemonadeTracker[i]['nodeID'] == nodeID:
                     lemonadeTracker[i]['cmd'] = "sugar"
             saveValues()
-            msg += f"\nSugar to buy? You have {inventory.sugar} cups, Cost {locale.currency(sugar.cost, grouping=True)}/15cup bag"
+            msg += f"\n🍚 to buy? You have {inventory.sugar} cups, Cost {locale.currency(sugar.cost, grouping=True)}/15cup bag"
             return msg
 
         if "sugar" in last_cmd:
