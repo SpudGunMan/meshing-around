@@ -305,9 +305,9 @@ def start_lemonade(nodeID, message, celsius=False):
             # Display the updated item prices
             buffer += f"\nPrices, "
             buffer += "🥤:" + \
-                        locale.currency(cups.cost, grouping=True) + " box of " + str(cups.count) + "."
+                        locale.currency(cups.cost, grouping=True) + " 📦 of " + str(cups.count) + "."
             buffer += " 🍋:" + \
-                        locale.currency(lemons.cost, grouping=True) + " bag of " + str(lemons.count) + "."
+                        locale.currency(lemons.cost, grouping=True) + " 🛒 of " + str(lemons.count) + "."
             buffer += " 🍚:" + \
                         locale.currency(sugar.cost, grouping=True) + " bag for " + str(sugar.count) + "🥤."
 
