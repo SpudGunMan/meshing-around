@@ -238,7 +238,7 @@ def handleDopeWars(nodeID, message, rxNode):
     
     # welcome new player
     if not last_cmd:
-        msg = 'Welcome to Dope Wars! You have ' + str(total_days) + ' days to make as much money as possible! '
+        msg = 'Welcome to 💊Dope Wars!💉 You have ' + str(total_days) + ' days to make as much 💰 as possible! '
         high_score = getHighScoreDw()
         msg += 'The High Score is $' + "{:,}".format(high_score.get('cash')) + ' by user ' + get_name_from_number(high_score.get('userID') , 'short', rxNode) + f'.\n'
         msg += playDopeWars(nodeID, message)
@@ -255,7 +255,6 @@ def handle_gTnW():
                   "You are a hard man to reach. Could not find you in Seattle and no terminal is in operation at your classified address.",\
                   "I should reach Defcon 1 and release my missiles in 28 hours.","T-minus thirty"]
     return random.choice(response)
-
 
 def handleLemonade(nodeID, message):
     global lemonadeTracker, lemonadeCups, lemonadeLemons, lemonadeSugar, lemonadeWeeks, lemonadeScore, lemon_starting_cash, lemon_total_weeks
@@ -329,7 +328,6 @@ def handleBlackJack(nodeID, message):
             logger.debug(f"System: BlackJack: {nodeID} last command: {last_cmd}")
     
     return msg
-
 
 def handleVideoPoker(nodeID, message):
     global vpTracker
