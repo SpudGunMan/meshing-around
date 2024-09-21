@@ -203,7 +203,7 @@ def buy_func(nodeID, price_list, choice=0, value='0'):
     else:
         if drug_choice in range(1, len(my_drugs) + 1):
             drug_choice = drug_choice - 1
-            msg = my_drugs[drug_choice].name + ": you have " + str(amount[drug_choice]) + " "
+            msg = my_drugs[drug_choice].name + ": you have🎒 " + str(amount[drug_choice]) + " "
             msg += " The going price is: $" + str(price_list[drug_choice]) + " "
 
     buy_amount = value
