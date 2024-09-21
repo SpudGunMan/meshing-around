@@ -281,6 +281,15 @@ def handleBlackJack(nodeID, message):
             if jackTracker[i]['nodeID'] == nodeID:
                 jackTracker[i]['time'] = time.time() - 57600
                 jackTracker[i]['cmd'] = "new"
+
+        # # Save the game state to pickle
+        # try:
+        #     with open('blackjack_hs.pkl', 'wb') as file:
+        #         pickle.dump(jackTracker, file)
+        # except FileNotFoundError:
+        #     logger.debug("System: BlackJack: Creating new blackjack_hs.pkl file")
+        #     with open('blackjack_hs.pkl', 'wb') as file:
+        #         pickle.dump(jackTracker, file)
     else:
         # find higest dollar amount in tracker for high score
         if last_cmd == "new":
