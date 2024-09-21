@@ -427,7 +427,7 @@ def playBlackJack(nodeID, message):
                 msg += f"🪙Keep the change you filthy animal!"
             else:
                 msg += "💸NO MORE MONEY! Game Over!"
-            p_chips.total = jack_starting_cash
+                p_chips.total = jack_starting_cash
         else:
             msg += f"💰You have {p_chips.total} chips left"
 
