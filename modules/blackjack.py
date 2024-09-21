@@ -273,7 +273,7 @@ def playBlackJack(nodeID, message):
             else:
                 bet_money = int(message)
 
-            if bet_money < p_chips.total or bet_money <= 0:
+            if bet_money <= p_chips.total and bet_money > 0:
                 p_chips.bet = take_bet(bet_money, p_chips.total)
             else:
                 return f"Invalid Bet, the maximum bet you can place is {p_chips.total}"
