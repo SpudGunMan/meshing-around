@@ -325,7 +325,7 @@ def start_lemonade(nodeID, message, celsius=False):
                 else:
                     buffer += "📊P&L📈" + pnl
 
-            buffer += f"\n🥤 to buy? Have {inventory.cups}, Cost {locale.currency(cups.cost, grouping=True)}/{str(cups.count)}📦"
+            buffer += f"\n🥤 to buy? Have {inventory.cups} Cost {locale.currency(cups.cost, grouping=True)} a 📦 of {str(cups.count)}"
             saveValues()
             return buffer
         
@@ -340,8 +340,8 @@ def start_lemonade(nodeID, message, celsius=False):
                         return "You do not have enough 💵."
                     inventory.cups += (newcups * cups.count)
                     inventory.cash -= cost
-                    msg = "Purchased " + str(newcups) + " 📦 of 🥤. "
-                    msg += str(inventory.cups) + " 🥤 inventory, "  + locale.currency(inventory.cash, grouping=True) + " remaining📊"
+                    msg = "Purchased " + str(newcups) + " 📦 "
+                    msg += str(inventory.cups) + " 🥤  in inventory. "  + locale.currency(inventory.cash, grouping=True) + f" remaining📊"
                 else:
                     msg =  "No 🥤 were purchased"
             except Exception as e:
@@ -353,7 +353,7 @@ def start_lemonade(nodeID, message, celsius=False):
                 if lemonadeTracker[i]['nodeID'] == nodeID:
                     lemonadeTracker[i]['cmd'] = "lemons"
             saveValues()
-            msg += f"\n🍋 to buy? Have {inventory.lemons}, Cost {locale.currency(lemons.cost, grouping=True)} a 🧺 for {str(lemons.count)}🥤"
+            msg += f"\n 🍋 to buy? Have {inventory.lemons}🥤 of 🍋 Cost {locale.currency(lemons.cost, grouping=True)} a 🧺 for {str(lemons.count)}🥤"
             return msg
                 
 
@@ -368,8 +368,8 @@ def start_lemonade(nodeID, message, celsius=False):
                         return "You do not have enough cash."
                     inventory.lemons += (newlemons * lemons.count)
                     inventory.cash   -= cost
-                    msg = "Purchased " + str(newlemons) + " 🧺 of 🍋. "
-                    msg += str(inventory.lemons) + " 🍋 inventory, "  + locale.currency(inventory.cash, grouping=True) + " remaining📊"
+                    msg = "Purchased " + str(newlemons) + " 🧺 "
+                    msg += str(inventory.lemons) + " 🍋  in inventory. "  + locale.currency(inventory.cash, grouping=True) + f" remaining📊"
                 else:
                     msg =  "No 🍋 were purchased"
             except Exception as e:
@@ -381,7 +381,7 @@ def start_lemonade(nodeID, message, celsius=False):
                 if lemonadeTracker[i]['nodeID'] == nodeID:
                     lemonadeTracker[i]['cmd'] = "sugar"
             saveValues()
-            msg += f"\n🍚 to buy? You have {inventory.sugar} 🥤, Cost {locale.currency(sugar.cost, grouping=True)} a bag for {str(sugar.count)}🥤"
+            msg += f"\n 🍚 to buy? You have {inventory.sugar}🥤 of 🍚, Cost {locale.currency(sugar.cost, grouping=True)} a bag for {str(sugar.count)}🥤"
             return msg
 
         if "sugar" in last_cmd:
@@ -396,7 +396,7 @@ def start_lemonade(nodeID, message, celsius=False):
                     inventory.sugar += (newsugar * sugar.count)
                     inventory.cash  -= cost
                     msg = " Purchased " + str(newsugar) + " bag(s) of 🍚 for " + locale.currency(cost, grouping=True)
-                    msg += ". " + str(inventory.sugar) + " 🍚 inventory, "  + locale.currency(inventory.cash, grouping=True) + " 💵 remaining"
+                    msg += ". " + str(inventory.sugar) + f"🥤🍚 in inventory."
                 else:
                     msg =  "No additional 🍚 was purchased"
             except Exception as e:
@@ -407,7 +407,7 @@ def start_lemonade(nodeID, message, celsius=False):
                 if lemonadeTracker[i]['nodeID'] == nodeID:
                     lemonadeTracker[i]['cmd'] = "price"
             saveValues()
-            msg += f"\nPrice to Sell? Cost of goods is {locale.currency(unit, grouping=True)} per 🥤"
+            msg += f"\nPrice to Sell? Cost of goods is {locale.currency(unit, grouping=True)} per 🥤 {locale.currency(inventory.cash, grouping=True)} 💵 remaining"
             return msg
     
         if "price" in last_cmd:
@@ -455,10 +455,10 @@ def start_lemonade(nodeID, message, celsius=False):
             gainloss= inventory.cash - inventory.start
     
             # Display the calculated sales information
-            msg = "Results Week #" + str(weeks.current) + " of " + str(weeks.total)
+            msg = "Results Week📊#" + str(weeks.current) + "of" + str(weeks.total)
             msg += " Cost/Price:" + locale.currency(unit, grouping=True) + "/" + locale.currency(price, grouping=True)
             msg += " P.Margin:" + locale.currency(margin, grouping=True)
-            msg += " T.Sales:" + str(sales) + " x " + locale.currency(price, grouping=True)
+            msg += " T.Sales:" + str(sales) + "@" + locale.currency(price, grouping=True)
             msg += " G.Profit: " + locale.currency(gross, grouping=True)
             msg += " N.Profit:" + locale.currency(net, grouping=True)
 
@@ -468,7 +468,13 @@ def start_lemonade(nodeID, message, celsius=False):
             msg += " 🍋:" + str(inventory.lemons)
             msg += " 🍚:" + str(inventory.sugar)
             msg += " 💵:" + locale.currency(inventory.cash, grouping=True)
-            msg += " P&L:" + locale.currency(gainloss, grouping=True)
+            # Display the gain/loss
+            pnl = locale.currency(gainloss, grouping=True)
+            if "0.00" not in pnl:
+                if pnl.startswith("-"):
+                    buffer += "📊P&L📉" + pnl
+                else:
+                    buffer += "📊P&L📈" + pnl
     
             # Display the weekly sales summary
             pad_week = len(str(weeks.total))
@@ -476,8 +482,8 @@ def start_lemonade(nodeID, message, celsius=False):
             total    = 0
             msg += "\nWeekly📊"
             for i in range(len(weeks.summary)):
-                msg += "  Week " + str(weeks.current).rjust(pad_week) + ":  " + str(weeks.summary[i]['sales']).rjust(pad_sale) + \
-                    " sold x " + locale.currency(weeks.summary[i]['price'], grouping=True) + " ea."
+                msg += "#" + str(weeks.current).rjust(pad_week) + ".  " + str(weeks.summary[i]['sales']).rjust(pad_sale) + \
+                    " sold x " + locale.currency(weeks.summary[i]['price'], grouping=True) + "ea. "
                 total = total + weeks.summary[i]['sales']
 
             # Loop through a range of prices to find the highest net profit
@@ -502,7 +508,7 @@ def start_lemonade(nodeID, message, celsius=False):
                             maxnet   = net
             if (maxnet > minnet):
                 msg += "Sales could have been:"
-                msg += "  " + str(maxsales) + " sold x " + locale.currency(maxprice, grouping=True) + " ea. = " + \
+                msg += "  " + str(maxsales) + " sold x " + locale.currency(maxprice, grouping=True) + "ea. @" + \
                     locale.currency(maxgross, grouping=True) + " for a net profit of " + locale.currency(maxnet, grouping=True)
                 if (inventory.cups <= 0):
                     msg += " You ran out of cups.🥤"
@@ -545,7 +551,7 @@ def start_lemonade(nodeID, message, celsius=False):
             
                 weeks.current = weeks.current + 1
 
-                msg += f"\nPlay another week🥤 'end' to end game"
+                msg += f"\nPlay another week🥤? 'end' to end game"
                 
                 saveValues()
             return msg
