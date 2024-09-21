@@ -248,12 +248,12 @@ class PlayerVP:
                     if resetHand:
                         self.bankroll += self.bet_size * payoff[hand_name] + self.bet_size
                 else:
+                    hand_name = "Bad Hand 🙈"
                     if resetHand:
-                        hand_name = "Bad Hand 🙈"
                         self.bankroll += self.bet_size * payoff[hand_name]
         else: # for everything Hand
+            hand_name = "Bad Hand 🙈"
             if resetHand:
-                hand_name = "Bad Hand 🙈"
                 self.bankroll += self.bet_size * payoff[hand_name]
 
         if resetHand:
