@@ -221,7 +221,7 @@ def buy_func(nodeID, price_list, choice=0, value='0'):
         msg = f"Enter qty or m for max"
         return msg
     if buy_amount > 100 - inventory:
-        msg = "You don\'t have enough space for all that."
+        msg = "You don\'t have enough space for all that.🎒"
         return msg
     if buy_amount * price_list[drug_choice] <= cash:
         amount[drug_choice] += buy_amount
@@ -403,13 +403,12 @@ def render_game_screen(userID, day_play, total_day, loc_choice, event_number, pr
         if dwLocationDb[i].get('userID') == userID:
             loc = dwLocationDb[i].get('location')
     
-    
     if event_number != -1:
         msg += event_list[event_number].text + f"\n"
     if event_number == -1 and cash_stolen != 0 and cash_stolen != 'conf':
-        msg += "🚔Officer Leroy stopped you and took $" + str(cash_stolen) + " from you." + f"\n"
+        msg += "🚔Officer Leroy stopped you and took $" + str(cash_stolen) + "💸" + f"\n"
     if event_number == -1 and cash_stolen == 'conf':
-        msg += "🚔Officer Leroy stopped you and took all of your drugs." + f"\n"
+        msg += "🚔Officer Leroy stopped you and took all of your drugs.🚭" + f"\n"
 
     # get the inventory for the user
     for i in range(0, len(dwInventoryDb)):
@@ -422,7 +421,7 @@ def render_game_screen(userID, day_play, total_day, loc_choice, event_number, pr
         if dwCashDb[i].get('userID') == userID:
             cash = dwCashDb[i].get('cash')
 
-    msg += "Location: " + loc[int(loc_choice) - 1] + ", Day:" + str(day_play) + '/' + str(total_day) + ", $" + str(cash) + " Backpack: " + str(inventory) + "/100" + f"\n"
+    msg += "Location: " + loc[int(loc_choice) - 1] + ", Day:" + str(day_play) + '/' + str(total_day) + ", $" + str(cash) + " 🎒: " + str(inventory) + "/100" + f"\n"
     for i, drug in enumerate(my_drugs, 1):
         qty = amount[i-1]
         msg += f'#{str(i)}.{drug.name}/${price_list[i-1]}({qty})    '
@@ -518,10 +517,14 @@ def playDopeWars(nodeID, cmd):
     if last_cmd == 'ask_bsf':
         msg = 'example Buy: b,Drug,Qty or Sell s,1,10. Fly: f. Price list: p or end'
         menu_choice = cmd.lower()
-        if ',' in menu_choice:
+        if ',' in menu_choice or '.' in menu_choice:
             #split the choice into a letter and a number for the buy/sell functions
-            menu_choice = menu_choice.split(',')
             try:
+                if '.' in menu_choice:
+                    menu_choice = menu_choice.split('.')
+                if ',' in menu_choice:
+                    menu_choice = menu_choice.split(',')
+
                 if int(menu_choice[1]) not in range(1, 8):
                     raise ValueError
                 else:
@@ -560,7 +563,7 @@ def playDopeWars(nodeID, cmd):
                 if dwInventoryDb[i].get('userID') == nodeID:
                     inventory = dwInventoryDb[i].get('inventory')
             if inventory == 0:
-                msg = "You don't have anything to sell"
+                msg = "You don't have anything to sell🚭"
             else:
                 for i in range(1, (len(my_drugs) +1)):
                     sell =  sell_func(nodeID, price_list, i, 'm')
