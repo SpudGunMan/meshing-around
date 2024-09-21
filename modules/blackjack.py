@@ -350,7 +350,7 @@ def playBlackJack(nodeID, message):
         # Check if player bust
         if player_bust(p_hand, p_chips):
             d_win += 1
-            msg += f"Player BUST💥"
+            msg += "Player:BUST💥"
             setLastCmdJack(nodeID, "dealerTurn")
         
         if getLastCmdJack(nodeID) == "playing":
@@ -400,7 +400,7 @@ def playBlackJack(nodeID, message):
                 d_hand.add_cards(d_card)
                 if dealer_bust(d_hand, p_hand, p_chips):
                     p_win += 1
-                    msg += f"Dealer BUST💥\n"
+                    msg += "Dealer:BUST💥"
                     break
             # Show all cards
             msg += show_all(p_hand.cards, d_hand.cards, p_hand, d_hand)
