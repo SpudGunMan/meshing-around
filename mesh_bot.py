@@ -301,6 +301,10 @@ def handleBlackJack(nodeID, message):
             if jackTracker[i]['nodeID'] == nodeID:
                 jackTracker[i]['time'] = time.time() - 57600
                 jackTracker[i]['cmd'] = "new"
+                jackTracker[i]['p_cards'] = []
+                jackTracker[i]['d_cards'] = []
+                jackTracker[i]['p_hand'] = []
+                jackTracker[i]['d_hand'] = []
 
         # # Save the game state to pickle
         # try:
