@@ -253,7 +253,7 @@ def handle_gTnW():
     response = ["The only winning move is not to play.", "What are you doing, Dave?",\
                   "Greetings, Professor Falken.", "Shall we play a game?", "How about a nice game of chess?",\
                   "You are a hard man to reach. Could not find you in Seattle and no terminal is in operation at your classified address.",\
-                  "I should reach Defcon 1 and release my missiles in 28 hours.","T-minus thirty"]
+                  "I should reach Defcon 1 and release my missiles in 28 hours.","T-minus thirty","?SYNTAX return[ERROR 54]"]
     return random.choice(response)
 
 def handleLemonade(nodeID, message):
