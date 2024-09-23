@@ -495,8 +495,6 @@ def handle_history(nodeid, deviceID, lheard=False):
     # show the last commands from the user to the bot
     if not lheard:
         for i in range(len(cmdHistory)):
-            if i > 1: continue # skip the first iteration
-
             prettyTime = round((time.time() - cmdHistory[i]['time']) / 600) * 5
             if prettyTime < 60:
                 prettyTime = str(prettyTime) + "m"
@@ -527,12 +525,12 @@ def handle_history(nodeid, deviceID, lheard=False):
             if not cmdHistorySorted[i]['nodeID'] in lheardCmdIgnoreNode:
                 # add line to a new list for display
                 nodeName = get_name_from_number(cmdHistorySorted[i]['nodeID'], 'short', deviceID)
-                if nodeName not in buffer:
+                if not any(d[0] == nodeName for d in buffer):
                     buffer.append((nodeName, prettyTime))
             if i > 4: break # only show the last 4 users
 
-        # format the buffer list into a string for return but skip the first line
-        for i in range(1, len(buffer)):
+        # format the buffer list into a string for display
+        for i in range(0, len(buffer)):
             msg += f"{buffer[i][0]} seen {buffer[i][1]} ago. "
 
     return msg
