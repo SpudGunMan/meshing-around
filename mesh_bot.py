@@ -494,15 +494,16 @@ def handle_history(nodeid, deviceID, lheard=False):
             if prettyTime < 60:
                 prettyTime = str(prettyTime) + "m"
             elif prettyTime < 1440:
-                prettyTime = str(prettyTime/60) + "h"
+                prettyTime = str(round(prettyTime/60)) + "h"
             else:
-                prettyTime = str(prettyTime/1440) + "d"
+                prettyTime = str(round(prettyTime/1440)) + "d"
 
             # history display output
             if nodeid in bbs_admin_list and not cmdHistory[i]['nodeID'] in lheardCmdIgnoreNode:
                 msg += f"{get_name_from_number(nodeid,'short',deviceID)}:cmd:{cmdHistory[i]['cmd']}/{prettyTime} ago.\n"
             elif cmdHistory[i]['nodeID'] == nodeid and not cmdHistory[i]['nodeID'] in lheardCmdIgnoreNode:
                 msg += f"{get_name_from_number(nodeid,'short',deviceID)}:cmd:{cmdHistory[i]['cmd']}/{prettyTime} ago.\n"
+        # message for output of the last commands
         msg = msg.rstrip()
         # only return the last 4 commands
         if len(msg) > 0:
@@ -517,16 +518,16 @@ def handle_history(nodeid, deviceID, lheard=False):
             if prettyTime < 60:
                 prettyTime = str(prettyTime) + "m"
             elif prettyTime < 1440:
-                prettyTime = str(prettyTime/60) + "h"
+                prettyTime = str(round(prettyTime/60)) + "h"
             else:
-                prettyTime = str(prettyTime/1440) + "d"
+                prettyTime = str(round(prettyTime/1440)) + "d"
 
             if not cmdHistorySorted[i]['nodeID'] in lheardCmdIgnoreNode:
                 # add line to a new list for display
                 nodeName = get_name_from_number(cmdHistorySorted[i]['nodeID'], 'short', deviceID)
                 if not any(d[0] == nodeName for d in buffer):
                     buffer.append((nodeName, prettyTime))
-        # truncate buffer list to 4 users
+        # message for output of the last users of the bot
         if len(buffer) > 4:
             buffer = buffer[-4:]
         # create the message from the buffer list
