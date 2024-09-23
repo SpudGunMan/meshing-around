@@ -150,7 +150,7 @@ llmTotalRuntime = []
 llmLocationTable = [{'nodeID': 1234567890, 'location': 'No Location'},]
 
 def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel):
-    global llmRunCounter, llmLocationTable, llmTotalRuntime, location_enabled, antiSpam, useDMForResponse, NO_DATA_NOGPS
+    global llmRunCounter, llmLocationTable, llmTotalRuntime, cmdHistory
     location_name = 'no location provided'
     
     if location_enabled:
@@ -234,6 +234,9 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
     end = time.time()
     llmRunCounter += 1
     llmTotalRuntime.append(end - start)
+
+    # append the command to the cmdHistory list user touched the bot llm
+    cmdHistory.append({'nodeID': message_from_id, 'cmd':  'llm-use', 'time': time.time()})
 
     return response
 
