@@ -543,9 +543,9 @@ def handle_history(nodeid, deviceID, lheard=False):
             buffer = buffer[-4:]
         # create the message from the buffer list
         for i in range(0, len(buffer)):
-            msg += f"{buffer[i][0]}: {buffer[i][1]} :{buffer[i][2]} ago."
+            msg += f"{buffer[i][0]}: {buffer[i][1]} :{buffer[i][2]} ago"
             if i < len(buffer) - 1:
-                msg += f"\n"
+                msg += "\n"
     else:
         # sort the cmdHistory list by time, return the username and time into a new list which used for display
         cmdHistorySorted = sorted(cmdHistory, key=lambda k: k['time'], reverse=True)
@@ -569,8 +569,9 @@ def handle_history(nodeid, deviceID, lheard=False):
             buffer = buffer[-4:]
         # create the message from the buffer list
         for i in range(0, len(buffer)):
-            msg += f"{buffer[i][0]} seen {buffer[i][1]} ago. "
-
+            msg += f"{buffer[i][0]} seen {buffer[i][1]} ago"
+            if i < len(buffer) - 1:
+                msg += "\n"
     return msg
 
 def handle_whereami(message_from_id, deviceID, channel_number):
