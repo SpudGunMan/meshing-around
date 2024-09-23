@@ -46,6 +46,7 @@ Any messages that are over 160 characters are chunked into 160 message bytes to 
   - `messages` Replay the last messages heard, like Store and Forward
   - `motd` or to set the message `motd $New Message Of the day`
   - `lheard` returns the last 5 heard nodes with SNR, can also use `sitrep`
+  - `history` returns the last commands ran by user(s)
   - `cmd` returns the list of commands (the help message)
 - Games
   - `lemonstand` plays the classic Lemonade Stand Finance game via DM
@@ -120,6 +121,13 @@ enabled = False
 [general]
 DadJokes = False
 StoreForward = False
+```
+History command is like a linix terminal, shows the last commands the user ran and the `lheard` reflects last users on the bot.
+```
+# history command 
+enableCmdHistory = True
+# command history ignore list ex: 2813308004,4258675309
+lheardCmdIgnoreNodes =
 ```
 Sentry Bot detects anyone coming close to the bot-node
 ```
@@ -258,5 +266,5 @@ Games Ported from..
 - https://github.com/devtronvarma/Video-Poker-Terminal-Game
 
 GitHub user Nestpebble, for new ideas and enhancments, mrpatrick1991 For Docker configs, PiDiBi looking at test functions and other suggestions like wxc, CPU use, and alerting ideas
-Discord and Mesh user Cisien, and github Hailo1999, for testing and ideas! Lots of individuals on the Meshtastic discord who have tossed out ideas and tested code!
+Discord and Mesh user Cisien, bitflip, and github Hailo1999, for testing and ideas! Lots of individuals on the Meshtastic discord who have tossed out ideas and tested code!
 

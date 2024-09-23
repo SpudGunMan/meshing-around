@@ -10,7 +10,11 @@ from modules.system import *
 
 DEBUGpacket = False # Debug print the packet rx
 
+# Global Variables
+cmdHistory = [] # list to hold the last commands
+
 def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_number, deviceID):
+    global cmdHistory
     #Auto response to messages
     message_lower = message.lower()
     bot_response = "I'm sorry, I'm afraid I can't do that."
@@ -41,11 +45,12 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
         "messages": lambda: handle_messages(deviceID, channel_number, msg_history, publicChannel),
         "cmd": lambda: help_message,
         "cmd?": lambda: help_message,
+        "history": lambda: handle_history(message_from_id, deviceID),
         "sun": lambda: handle_sun(message_from_id, deviceID, channel_number),
         "hfcond": hf_band_conditions,
         "solar": lambda: drap_xray_conditions() + "\n" + solar_conditions(),
-        "lheard": lambda: handle_lheard(),
-        "sitrep": lambda: handle_lheard(),
+        "lheard": lambda: handle_lheard(message_from_id, deviceID),
+        "sitrep": lambda: handle_lheard(message_from_id, deviceID),
         "whereami": lambda: handle_whereami(message_from_id, deviceID, channel_number),
         "tide": lambda: handle_tide(message_from_id, deviceID, channel_number),
         "moon": lambda: handle_moon(message_from_id, deviceID, channel_number),
@@ -57,6 +62,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     cmds = [] # list to hold the commands found in the message
     for key in command_handler:
         if key in message_lower.split(' '):
+            # append all the commands found in the message to the cmds list
             cmds.append({'cmd': key, 'index': message_lower.index(key)})
 
     if len(cmds) > 0:
@@ -65,6 +71,8 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
         logger.debug(f"System: Bot detected Commands:{cmds}")
         # run the first command after sorting
         bot_response = command_handler[cmds[0]['cmd']]()
+        # append the command to the cmdHistory list for lheard and history
+        cmdHistory.append({'nodeID': message_from_id, 'cmd':  cmds[0]['cmd'], 'time': time.time()})
 
     # wait a responseDelay to avoid message collision from lora-ack
     time.sleep(responseDelay)
@@ -453,7 +461,7 @@ def handle_sun(message_from_id, deviceID, channel_number):
     location = get_node_location(message_from_id, deviceID, channel_number)
     return get_sun(str(location[0]), str(location[1]))
 
-def handle_lheard():
+def handle_lheard(nodeid, deviceID):
     bot_response = "Last heard:\n" + str(get_node_list(1))
     chutil1 = interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("channelUtilization", 0)
     chutil1 = "{:.2f}".format(chutil1)
@@ -464,7 +472,51 @@ def handle_lheard():
     bot_response += "Ch Use: " + str(chutil1) + "%"
     if interface2_enabled:
         bot_response += " P2:" + str(chutil2) + "%"
+
+    # show last users of the bot with the cmdHistory list
+    history = handle_history(nodeid, deviceID, lheard=True)
+    if history:
+        bot_response += f'\n{history}'
     return bot_response
+
+def handle_history(nodeid, deviceID, lheard=False):
+    global cmdHistory, lheardCmdIgnoreNode
+    msg = ""
+    # show the last commands from the user to the bot
+    if not lheard:
+        for i in range(len(cmdHistory)):
+            prettyTime = round((time.time() - cmdHistory[i]['time']) / 600) * 10
+            if prettyTime < 60:
+                prettyTime = str(prettyTime) + "m"
+            else:
+                prettyTime = str(prettyTime/60) + "h"
+            # history display output
+            if nodeid in bbs_admin_list and not cmdHistory[i]['nodeID'] in lheardCmdIgnoreNode:
+                msg += f"{get_name_from_number(nodeid,'short',deviceID)}:cmd:{cmdHistory[i]['cmd']}@{prettyTime} ago. "
+            elif cmdHistory[i]['nodeID'] == nodeid and not cmdHistory[i]['nodeID'] in lheardCmdIgnoreNode:
+                msg += f"{get_name_from_number(nodeid,'short',deviceID)}:cmd:{cmdHistory[i]['cmd']}@ {prettyTime} ago. "
+            if i > 2: break # only show the last 3 commands
+    else:
+        # sort the cmdHistory list by time, return the username and time into a new list which used for display
+        cmdHistorySorted = sorted(cmdHistory, key=lambda k: k['time'], reverse=True)
+        buffer = []
+        for i in range(len(cmdHistorySorted)):
+            prettyTime = round((time.time() - cmdHistorySorted[i]['time']) / 600) * 10
+            if prettyTime < 60:
+                prettyTime = str(prettyTime) + "m"
+            else:
+                prettyTime = str(prettyTime/60) + "h"
+
+            if not cmdHistorySorted[i]['nodeID'] in lheardCmdIgnoreNode:
+                # add line to a new list for display
+                if get_name_from_number(nodeid, 'short', deviceID) not in buffer:
+                    buffer.append([get_name_from_number(nodeid, 'short', deviceID), prettyTime])
+            if i > 2: break
+        # format the buffer list into a string for return
+        for line in buffer:
+            msg += f"{line[0]}@{line[1]} ago. "
+
+    return msg
 
 def handle_whereami(message_from_id, deviceID, channel_number):
     location = get_node_location(message_from_id, deviceID, channel_number)

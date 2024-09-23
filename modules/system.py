@@ -46,6 +46,11 @@ if solar_conditions_enabled:
     trap_list = trap_list + trap_list_solarconditions # items hfcond, solar, sun, moon
     help_message = help_message + ", sun, hfcond, solar, moon"
 
+# Command History Configuration
+if enableCmdHistory:
+    trap_list = trap_list + ("history",)
+    #help_message = help_message + ", history"
+
 # Location Configuration
 if location_enabled:
     from modules.locationdata import * # from the spudgunman/meshing-around repo

@@ -104,6 +104,8 @@ try:
     welcome_message = (f"{welcome_message}").replace('\\n', '\n') # allow for newlines in the welcome message
     motd_enabled = config['general'].getboolean('motdEnabled', True)
     MOTD = config['general'].get('motd', MOTD)
+    enableCmdHistory = config['general'].getboolean('enableCmdHistory', True)
+    lheardCmdIgnoreNode = config['general'].get('lheardCmdIgnoreNode', '').split(',')
     whoami_enabled = config['general'].getboolean('whoami', True)
     dad_jokes_enabled = config['general'].getboolean('DadJokes', False)
     solar_conditions_enabled = config['general'].getboolean('spaceWeather', True)

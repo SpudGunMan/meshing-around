@@ -45,6 +45,10 @@ ollama = False
 # StoreForward Enabled and Limits
 StoreForward = True
 StoreLimit = 3
+# history command 
+enableCmdHistory = True
+# command history ignore list ex: 2813308004,4258675309
+lheardCmdIgnoreNodes =
 # 24 hour clock
 zuluTime = False
 # wait time for URL requests
