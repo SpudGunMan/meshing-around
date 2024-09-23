@@ -503,8 +503,11 @@ def handle_history(nodeid, deviceID, lheard=False):
                 msg += f"{get_name_from_number(nodeid,'short',deviceID)}:cmd:{cmdHistory[i]['cmd']}/{prettyTime} ago.\n"
             elif cmdHistory[i]['nodeID'] == nodeid and not cmdHistory[i]['nodeID'] in lheardCmdIgnoreNode:
                 msg += f"{get_name_from_number(nodeid,'short',deviceID)}:cmd:{cmdHistory[i]['cmd']}/{prettyTime} ago.\n"
-            if i > 2: break # only show the last 3 commands
         msg = msg.rstrip()
+        # only return the last 4 commands
+        if len(msg) > 0:
+            msg = msg.split("\n")[-4:]
+            msg = "\n".join(msg)
     else:
         # sort the cmdHistory list by time, return the username and time into a new list which used for display
         cmdHistorySorted = sorted(cmdHistory, key=lambda k: k['time'], reverse=True)
@@ -523,9 +526,12 @@ def handle_history(nodeid, deviceID, lheard=False):
                 nodeName = get_name_from_number(cmdHistorySorted[i]['nodeID'], 'short', deviceID)
                 if not any(d[0] == nodeName for d in buffer):
                     buffer.append((nodeName, prettyTime))
-            if i > 4: break # only show the last 4 users
+        
+        # truncate buffer list to 4 users
+        if len(buffer) > 4:
+            buffer = buffer[-4:]
 
-        # format the buffer list into a string for display
+        # format the buffer list into a string for display only return the last 4 users
         for i in range(0, len(buffer)):
             msg += f"{buffer[i][0]} seen {buffer[i][1]} ago. "
 
