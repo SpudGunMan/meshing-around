@@ -495,9 +495,9 @@ def handle_history(nodeid, deviceID, lheard=False):
     # show the last commands from the user to the bot
     if not lheard:
         for i in range(len(cmdHistory)):
-            if i > 1: break # skip the first iteration
+            if i > 1: continue # skip the first iteration
 
-            prettyTime = round((time.time() - cmdHistory[i]['time']) / 600) * 10
+            prettyTime = round((time.time() - cmdHistory[i]['time']) / 600) * 5
             if prettyTime < 60:
                 prettyTime = str(prettyTime) + "m"
             elif prettyTime < 1440:
@@ -507,17 +507,16 @@ def handle_history(nodeid, deviceID, lheard=False):
 
             # history display output
             if nodeid in bbs_admin_list and not cmdHistory[i]['nodeID'] in lheardCmdIgnoreNode:
-                msg += f"{get_name_from_number(nodeid,'short',deviceID)}:cmd:{cmdHistory[i]['cmd']}@{prettyTime} ago. "
+                msg += f"{get_name_from_number(nodeid,'short',deviceID)}:cmd:{cmdHistory[i]['cmd']}/{prettyTime} ago. "
             elif cmdHistory[i]['nodeID'] == nodeid and not cmdHistory[i]['nodeID'] in lheardCmdIgnoreNode:
-                msg += f"{get_name_from_number(nodeid,'short',deviceID)}:cmd:{cmdHistory[i]['cmd']}@ {prettyTime} ago. "
+                msg += f"{get_name_from_number(nodeid,'short',deviceID)}:cmd:{cmdHistory[i]['cmd']}/{prettyTime} ago. "
             if i > 2: break # only show the last 3 commands
     else:
         # sort the cmdHistory list by time, return the username and time into a new list which used for display
         cmdHistorySorted = sorted(cmdHistory, key=lambda k: k['time'], reverse=True)
         buffer = []
         for i in range(len(cmdHistorySorted)):
-            if i >1: break # skip the first iteration
-            prettyTime = round((time.time() - cmdHistory[i]['time']) / 600) * 10
+            prettyTime = round((time.time() - cmdHistory[i]['time']) / 600) * 5
             if prettyTime < 60:
                 prettyTime = str(prettyTime) + "m"
             elif prettyTime < 1440:
@@ -527,12 +526,14 @@ def handle_history(nodeid, deviceID, lheard=False):
 
             if not cmdHistorySorted[i]['nodeID'] in lheardCmdIgnoreNode:
                 # add line to a new list for display
-                if get_name_from_number(nodeid, 'short', deviceID) not in buffer:
-                    buffer.append([get_name_from_number(nodeid, 'short', deviceID), prettyTime])
+                nodeName = get_name_from_number(cmdHistorySorted[i]['nodeID'], 'short', deviceID)
+                if nodeName not in buffer:
+                    buffer.append((nodeName, prettyTime))
             if i > 4: break # only show the last 4 users
-        # format the buffer list into a string for return
-        for line in buffer:
-            msg += f"{line[0]}@{line[1]} ago. "
+
+        # format the buffer list into a string for return but skip the first line
+        for i in range(1, len(buffer)):
+            msg += f"{buffer[i][0]} seen {buffer[i][1]} ago. "
 
     return msg
 
