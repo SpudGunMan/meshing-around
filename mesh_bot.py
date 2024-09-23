@@ -466,17 +466,49 @@ def handle_sun(message_from_id, deviceID, channel_number):
     return get_sun(str(location[0]), str(location[1]))
 
 def handle_lheard(nodeid, deviceID):
-    bot_response = "Last heard:\n" + str(get_node_list(1))
-    chutil1 = interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("channelUtilization", 0)
-    chutil1 = "{:.2f}".format(chutil1)
+    # display last heard nodes add to response
+    bot_response = "LastHeard:\n" + str(get_node_list(1))
+    # gather telemetry
+    chutil1 = round(interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("channelUtilization", 0), 1)
+    airUtilTx = round(interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("airUtilTx", 0), 1)
+    uptimeSeconds = interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("uptimeSeconds", 0)
+    batteryLevel = interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("batteryLevel", 0)
+    voltage = interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("voltage", 0)
     if interface2_enabled:
         bot_response += "Port2:\n" + str(get_node_list(2))
-        chutil2 = interface2.nodes.get(decimal_to_hex(myNodeNum2), {}).get("deviceMetrics", {}).get("channelUtilization", 0)
-        chutil2 = "{:.2f}".format(chutil2)
-    bot_response += "Ch Use: " + str(chutil1) + "%"
+        chutil2 = round(interface2.nodes.get(decimal_to_hex(myNodeNum2), {}).get("deviceMetrics", {}).get("channelUtilization", 0), 1)
+        airUtilTx2 = round(interface2.nodes.get(decimal_to_hex(myNodeNum2), {}).get("deviceMetrics", {}).get("airUtilTx", 0), 1)
+        uptimeSeconds2 = interface2.nodes.get(decimal_to_hex(myNodeNum2), {}).get("deviceMetrics", {}).get("uptimeSeconds", 0)
+        batteryLevel2 = interface2.nodes.get(decimal_to_hex(myNodeNum2), {}).get("deviceMetrics", {}).get("batteryLevel", 0)
+        voltage2 = interface2.nodes.get(decimal_to_hex(myNodeNum2), {}).get("deviceMetrics", {}).get("voltage", 0)
+    else:
+        chutil2, airUtilTx2, uptimeSeconds2, batteryLevel2, voltage2 = 0, 0, 0, 0, 0
+    # add the channel utilization and airUtilTx to the bot response
+    bot_response += "\nUse/Tx " + str(chutil1) + "%" + "/" + str(airUtilTx) + "%"
     if interface2_enabled:
-        bot_response += " P2:" + str(chutil2) + "%"
-
+        bot_response += " P2:" + str(chutil2) + "%" + "/" + str(airUtilTx2) + "%"
+    # convert uptime to minutes, hours, or days
+    
+    if uptimeSeconds > 0 or uptimeSeconds2 > 0:
+        uptimeSeconds = round(uptimeSeconds / 60)
+        uptimeSeconds2 = round(uptimeSeconds2 / 60)
+        designator = "m"
+        if uptimeSeconds > 60 or uptimeSeconds2 > 60:
+            uptimeSeconds = round(uptimeSeconds / 60)
+            uptimeSeconds2 = round(uptimeSeconds2 / 60)
+            designator = "h"
+        if uptimeSeconds > 1440 or uptimeSeconds2 > 1440:
+            uptimeSeconds = round(uptimeSeconds / 24)
+            uptimeSeconds2 = round(uptimeSeconds2 / 24)
+            designator = "d"
+    # add uptime and battery info to the bot response
+    bot_response += "\nUptime:" + str(uptimeSeconds) + designator
+    if interface2_enabled:
+        bot_response += f" P2:" + {uptimeSeconds2} + {designator}
+    if not batteryLevel == 101:
+        bot_response += f" Bat: {batteryLevel}% Volt: {voltage}"
+    if interface2_enabled and  not batteryLevel2 == 101:
+        bot_response += f" P2: Bat: {batteryLevel2}% Volt: {voltage2}"
     # show last users of the bot with the cmdHistory list
     history = handle_history(nodeid, deviceID, lheard=True)
     if history:
@@ -511,9 +543,7 @@ def handle_history(nodeid, deviceID, lheard=False):
             buffer = buffer[-4:]
         # create the message from the buffer list
         for i in range(0, len(buffer)):
-            msg += f"{buffer[i][0]}: {buffer[i][1]} :{buffer[i][2]} ago"
-            if i < len(buffer) - 1:
-                msg += f"\n"
+            msg += f"{buffer[i][0]}: {buffer[i][1]} :{buffer[i][2]} ago.\n"
             
     else:
         # sort the cmdHistory list by time, return the username and time into a new list which used for display
@@ -967,5 +997,4 @@ try:
 except KeyboardInterrupt:
     exit_handler()
     pass
-
 # EOF
