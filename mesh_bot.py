@@ -235,8 +235,14 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
     llmRunCounter += 1
     llmTotalRuntime.append(end - start)
 
-    # append the command to the cmdHistory list user touched the bot llm
-    cmdHistory.append({'nodeID': message_from_id, 'cmd':  'llm-use', 'time': time.time()})
+    # if cmdhistory has existing llm-use command from the user, just update the time
+    if any(d['nodeID'] == message_from_id and d['cmd'] == 'llm-use' for d in cmdHistory):
+        for i in range(len(cmdHistory)):
+            if cmdHistory[i]['nodeID'] == message_from_id and cmdHistory[i]['cmd'] == 'llm-use':
+                cmdHistory[i]['time'] = time.time()
+                break
+    else:
+        cmdHistory.append({'nodeID': message_from_id, 'cmd':  'llm-use', 'time': time.time()})
 
     return response
 
@@ -485,14 +491,20 @@ def handle_lheard(nodeid, deviceID):
 def handle_history(nodeid, deviceID, lheard=False):
     global cmdHistory, lheardCmdIgnoreNode
     msg = ""
+    
     # show the last commands from the user to the bot
     if not lheard:
         for i in range(len(cmdHistory)):
+            if i > 1: break # skip the first iteration
+
             prettyTime = round((time.time() - cmdHistory[i]['time']) / 600) * 10
             if prettyTime < 60:
                 prettyTime = str(prettyTime) + "m"
-            else:
+            elif prettyTime < 1440:
                 prettyTime = str(prettyTime/60) + "h"
+            else:
+                prettyTime = str(prettyTime/1440) + "d"
+
             # history display output
             if nodeid in bbs_admin_list and not cmdHistory[i]['nodeID'] in lheardCmdIgnoreNode:
                 msg += f"{get_name_from_number(nodeid,'short',deviceID)}:cmd:{cmdHistory[i]['cmd']}@{prettyTime} ago. "
@@ -504,17 +516,20 @@ def handle_history(nodeid, deviceID, lheard=False):
         cmdHistorySorted = sorted(cmdHistory, key=lambda k: k['time'], reverse=True)
         buffer = []
         for i in range(len(cmdHistorySorted)):
-            prettyTime = round((time.time() - cmdHistorySorted[i]['time']) / 600) * 10
+            if i >1: break # skip the first iteration
+            prettyTime = round((time.time() - cmdHistory[i]['time']) / 600) * 10
             if prettyTime < 60:
                 prettyTime = str(prettyTime) + "m"
-            else:
+            elif prettyTime < 1440:
                 prettyTime = str(prettyTime/60) + "h"
+            else:
+                prettyTime = str(prettyTime/1440) + "d"
 
             if not cmdHistorySorted[i]['nodeID'] in lheardCmdIgnoreNode:
                 # add line to a new list for display
                 if get_name_from_number(nodeid, 'short', deviceID) not in buffer:
                     buffer.append([get_name_from_number(nodeid, 'short', deviceID), prettyTime])
-            if i > 2: break
+            if i > 4: break # only show the last 4 users
         # format the buffer list into a string for return
         for line in buffer:
             msg += f"{line[0]}@{line[1]} ago. "
