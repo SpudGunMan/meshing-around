@@ -466,7 +466,7 @@ def handle_sun(message_from_id, deviceID, channel_number):
     return get_sun(str(location[0]), str(location[1]))
 
 def handle_lheard(nodeid, deviceID):
-    global bbs_admin_list
+    global bbs_admin_list, lheardCmdIgnoreNode
     # display last heard nodes add to response
     bot_response = "LastHeard:\n" + str(get_node_list(1))
     # gather telemetry
