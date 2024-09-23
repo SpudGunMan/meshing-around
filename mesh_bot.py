@@ -72,6 +72,8 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
         # run the first command after sorting
         bot_response = command_handler[cmds[0]['cmd']]()
         # append the command to the cmdHistory list for lheard and history
+        if len(cmdHistory) > 50:
+            cmdHistory.pop(0)
         cmdHistory.append({'nodeID': message_from_id, 'cmd':  cmds[0]['cmd'], 'time': time.time()})
 
     # wait a responseDelay to avoid message collision from lora-ack
@@ -235,15 +237,8 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
     llmRunCounter += 1
     llmTotalRuntime.append(end - start)
 
-    # if cmdhistory has existing llm-use command from the user, just update the time
-    if any(d['nodeID'] == message_from_id and d['cmd'] == 'llm-use' for d in cmdHistory):
-        for i in range(len(cmdHistory)):
-            if cmdHistory[i]['nodeID'] == message_from_id and cmdHistory[i]['cmd'] == 'llm-use':
-                cmdHistory[i]['time'] = time.time()
-                break
-    else:
-        cmdHistory.append({'nodeID': message_from_id, 'cmd':  'llm-use', 'time': time.time()})
-
+    cmdHistory.append({'nodeID': message_from_id, 'cmd':  'llm-use', 'time': time.time()})
+    
     return response
 
 def handleDopeWars(nodeID, message, rxNode):
@@ -505,10 +500,11 @@ def handle_history(nodeid, deviceID, lheard=False):
 
             # history display output
             if nodeid in bbs_admin_list and not cmdHistory[i]['nodeID'] in lheardCmdIgnoreNode:
-                msg += f"{get_name_from_number(nodeid,'short',deviceID)}:cmd:{cmdHistory[i]['cmd']}/{prettyTime} ago. "
+                msg += f"{get_name_from_number(nodeid,'short',deviceID)}:cmd:{cmdHistory[i]['cmd']}/{prettyTime} ago.\n"
             elif cmdHistory[i]['nodeID'] == nodeid and not cmdHistory[i]['nodeID'] in lheardCmdIgnoreNode:
-                msg += f"{get_name_from_number(nodeid,'short',deviceID)}:cmd:{cmdHistory[i]['cmd']}/{prettyTime} ago. "
+                msg += f"{get_name_from_number(nodeid,'short',deviceID)}:cmd:{cmdHistory[i]['cmd']}/{prettyTime} ago.\n"
             if i > 2: break # only show the last 3 commands
+        msg = msg.rstrip()
     else:
         # sort the cmdHistory list by time, return the username and time into a new list which used for display
         cmdHistorySorted = sorted(cmdHistory, key=lambda k: k['time'], reverse=True)
