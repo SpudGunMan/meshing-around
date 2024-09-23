@@ -9,6 +9,7 @@ from modules.log import *
 from modules.system import *
 
 responseDelay = 0.7 # delay in seconds for response to avoid message collision
+DEBUGpacket = False # Debug print the packet rx
 
 def auto_response(message, snr, rssi, hop, message_from_id, channel_number, deviceID):
     # Auto response to messages
@@ -117,8 +118,13 @@ def onReceive(packet, interface):
     # extract interface  defailts from interface object
     rxType = type(interface).__name__
     rxNode = 0
-    # Debug print the interface object
-    #for item in interface.__dict__.items(): print (item)
+    
+    if DEBUGpacket:
+        # Debug print the interface object
+        for item in interface.__dict__.items(): intDebug = f"{item}\n"
+        logger.debug(f"System: Packet Received on {rxType} Interface\n {intDebug} \n END of interface \n")
+        # Debug print the packet for debugging
+        logger.debug(f"Packet Received\n {packet} \n END of packet \n")
 
     if rxType == 'SerialInterface':
         rxInterface = interface.__dict__.get('devPath', 'unknown')
