@@ -176,6 +176,8 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
     else:
         # likely a DM
         user_input = message
+        # consider this a command use for the cmdHistory list
+        cmdHistory.append({'nodeID': message_from_id, 'cmd':  'llm-use', 'time': time.time()})
 
         # if the message_from_id is not in the llmLocationTable send the welcome message
         for i in range(0, len(llmLocationTable)):
@@ -236,8 +238,6 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
     end = time.time()
     llmRunCounter += 1
     llmTotalRuntime.append(end - start)
-
-    cmdHistory.append({'nodeID': message_from_id, 'cmd':  'llm-use', 'time': time.time()})
     
     return response
 
