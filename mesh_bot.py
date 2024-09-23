@@ -510,8 +510,6 @@ def handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus):
     msg += f"I see the signal strength is {rssi} and the SNR is {snr} with hop count of {hop} \n"
     if pkiStatus[0]:
         msg += f"Your PKI bit is {pkiStatus[0]} pubKey: {pkiStatus[1]}"
-    else:
-        msg += f"Your PKI bit is {pkiStatus[0]}"
 
     loc = get_node_location(message_from_id, deviceID)
     if loc != [latitudeValue,longitudeValue]:
