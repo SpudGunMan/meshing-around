@@ -486,6 +486,7 @@ def handle_lheard(nodeid, deviceID):
 def handle_history(nodeid, deviceID, lheard=False):
     global cmdHistory, lheardCmdIgnoreNode
     msg = ""
+    buffer = []
     
     # show the last commands from the user to the bot
     if not lheard:
@@ -500,19 +501,23 @@ def handle_history(nodeid, deviceID, lheard=False):
 
             # history display output
             if nodeid in bbs_admin_list and not cmdHistory[i]['nodeID'] in lheardCmdIgnoreNode:
-                msg += f"{get_name_from_number(nodeid,'short',deviceID)}:cmd:{cmdHistory.reverse()[i]['cmd']}/{prettyTime} ago.\n"
+                buffer.append((get_name_from_number(cmdHistory[i]['nodeID'], 'short', deviceID), cmdHistory[i]['cmd'], prettyTime))
             elif cmdHistory[i]['nodeID'] == nodeid and not cmdHistory[i]['nodeID'] in lheardCmdIgnoreNode:
-                msg += f"{get_name_from_number(nodeid,'short',deviceID)}:cmd:{cmdHistory.reverse()[i]['cmd']}/{prettyTime} ago.\n"
+                buffer.append((get_name_from_number(nodeid, 'short', deviceID), cmdHistory[i]['cmd'], prettyTime))
         # message for output of the last commands
-        msg = msg.rstrip()
+        buffer.reverse()
         # only return the last 4 commands
-        if len(msg) > 0:
-            msg = msg.split("\n")[-4:]
-            msg = "\n".join(msg)
+        if len(buffer) > 4:
+            buffer = buffer[-4:]
+        # create the message from the buffer list
+        for i in range(0, len(buffer)):
+            msg += f"{buffer[i][0]}: {buffer[i][1]} :{buffer[i][2]} ago"
+            if i < len(buffer) - 1:
+                msg += f"\n"
+            
     else:
         # sort the cmdHistory list by time, return the username and time into a new list which used for display
         cmdHistorySorted = sorted(cmdHistory, key=lambda k: k['time'], reverse=True)
-        buffer = []
         for i in range(len(cmdHistorySorted)):
             prettyTime = round((time.time() - cmdHistory[i]['time']) / 600) * 5
             if prettyTime < 60:
