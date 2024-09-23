@@ -117,6 +117,11 @@ def onReceive(packet, interface):
     # extract interface  defailts from interface object
     rxType = type(interface).__name__
     rxNode = 0
+    message_from_id = 0
+    snr = 0
+    rssi = 0
+    hop = 0
+    hop_away = 0
     
     if DEBUGpacket:
         # Debug print the interface object
@@ -145,13 +150,7 @@ def onReceive(packet, interface):
         elif interface2_enabled and interface2_type == 'ble':
             rxNode = 2
 
-    # Debug print the packet for debugging
-    #print(f"Packet Received\n {packet} \n END of packet \n")
-    message_from_id = 0
-
     # check for a message packet and process it
-    snr = 0
-    rssi = 0
     try:
         if 'decoded' in packet and packet['decoded']['portnum'] == 'TEXT_MESSAGE_APP':
             message_bytes = packet['decoded']['payload']

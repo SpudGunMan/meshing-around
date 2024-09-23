@@ -10,7 +10,7 @@ from modules.system import *
 
 DEBUGpacket = False # Debug print the packet rx
 
-def auto_response(message, snr, rssi, hop, message_from_id, channel_number, deviceID):
+def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_number, deviceID):
     #Auto response to messages
     message_lower = message.lower()
     bot_response = "I'm sorry, I'm afraid I can't do that."
@@ -52,7 +52,7 @@ def auto_response(message, snr, rssi, hop, message_from_id, channel_number, devi
         "ack": lambda: handle_ack(hop, snr, rssi),
         "testing": lambda: handle_testing(message, hop, snr, rssi),
         "test": lambda: handle_testing(message, hop, snr, rssi),
-        "whoami": lambda: handle_whoami(message_from_id, deviceID, hop, snr, rssi)
+        "whoami": lambda: handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus)
     }
     cmds = [] # list to hold the commands found in the message
     for key in command_handler:
@@ -501,13 +501,17 @@ def handle_testing(message, hop, snr, rssi):
         else:
             return "🎙Testing 1,2,3 " + hop
 
-def handle_whoami(message_from_id, deviceID, hop, snr, rssi):
+def handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus):
     loc = []
     msg = "You are " + str(message_from_id) + " AKA " +\
           str(get_name_from_number(message_from_id, 'long', deviceID) + " AKA, " +\
             str(get_name_from_number(message_from_id, 'short', deviceID)) + " AKA, " +\
             str(decimal_to_hex(message_from_id)) + f"\n")
     msg += f"I see the signal strength is {rssi} and the SNR is {snr} with hop count of {hop} \n"
+    if pkiStatus[0]:
+        msg += f"Your encryption bit is {pkiStatus[0]} pubKey: {pkiStatus[1]}"
+    else:
+        msg += f"Your encryption bit is {pkiStatus[0]}"
 
     loc = get_node_location(message_from_id, deviceID)
     if loc != [latitudeValue,longitudeValue]:
@@ -545,6 +549,13 @@ def onReceive(packet, interface):
     # extract interface  defailts from interface object
     rxType = type(interface).__name__
     rxNode = 0
+    message_from_id = 0
+    snr = 0
+    rssi = 0
+    hop = 0
+    hop_away = 0
+    pkiStatus = (False, 'ABC')
+
     if DEBUGpacket:
         # Debug print the interface object
         for item in interface.__dict__.items(): intDebug = f"{item}\n"
@@ -572,10 +583,6 @@ def onReceive(packet, interface):
         elif interface2_enabled and interface2_type == 'ble':
             rxNode = 2
 
-    # Debug print the packet for debugging
-    #print(f"Packet Received\n {packet} \n END of packet \n")
-    message_from_id = 0
-
     # check for BBS DM for mail delivery
     if bbs_enabled and 'decoded' in packet:
         message_from_id = packet['from']
@@ -595,8 +602,6 @@ def onReceive(packet, interface):
             send_message(message, channel_number, message_from_id, rxNode)
 
     # check for a message packet and process it
-    snr = 0
-    rssi = 0
     try:
         if 'decoded' in packet and packet['decoded']['portnum'] == 'TEXT_MESSAGE_APP':
             message_bytes = packet['decoded']['payload']
@@ -611,13 +616,16 @@ def onReceive(packet, interface):
             # check if the packet has a channel flag use it
             if packet.get('channel'):
                 channel_number = packet.get('channel', 0)
-        
+
+            # check if the packet has a publicKey flag use it
+            if packet.get('publicKey'):
+                pkiStatus = (packet.get('pkiEncrypted', False), packet.get('publicKey', 'ABC'))
+
             # check if the packet has a hop count flag use it
             if packet.get('hopsAway'):
                 hop_away = packet.get('hopsAway', 0)
             else:
                 # if the packet does not have a hop count try other methods
-                hop_away = 0
                 if packet.get('hopLimit'):
                     hop_limit = packet.get('hopLimit', 0)
                 else:
@@ -653,7 +661,7 @@ def onReceive(packet, interface):
                     logger.info(f"Device:{rxNode} Channel: {channel_number} " + CustomFormatter.green + f"Received DM: " + CustomFormatter.white + f"{message_string} " + CustomFormatter.purple +\
                                 "From: " + CustomFormatter.white + f"{get_name_from_number(message_from_id, 'long', rxNode)}")
                     # respond with DM
-                    send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number, rxNode), channel_number, message_from_id, rxNode)
+                    send_message(auto_response(message_string, snr, rssi, hop, pkiStatus, message_from_id, channel_number, rxNode), channel_number, message_from_id, rxNode)
                 else:
                     # DM is usefull for games or LLM
                     if games_enabled:
@@ -739,7 +747,7 @@ def onReceive(packet, interface):
                                  "From: " + CustomFormatter.white + f"{get_name_from_number(message_from_id, 'long', rxNode)}")
                     if useDMForResponse:
                         # respond to channel message via direct message
-                        send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number, rxNode), channel_number, message_from_id, rxNode)
+                        send_message(auto_response(message_string, snr, rssi, hop, pkiStatus, message_from_id, channel_number, rxNode), channel_number, message_from_id, rxNode)
                     else:
                         # or respond to channel message on the channel itself
                         if channel_number == publicChannel and antiSpam:
@@ -747,10 +755,10 @@ def onReceive(packet, interface):
                             logger.error(f"System: AntiSpam protection, sending DM to: {get_name_from_number(message_from_id, 'long', rxNode)}")
                         
                             # respond to channel message via direct message
-                            send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number, rxNode), channel_number, message_from_id, rxNode)
+                            send_message(auto_response(message_string, snr, rssi, hop, pkiStatus, message_from_id, channel_number, rxNode), channel_number, message_from_id, rxNode)
                         else:
                             # respond to channel message on the channel itself
-                            send_message(auto_response(message_string, snr, rssi, hop, message_from_id, channel_number, rxNode), channel_number, 0, rxNode)
+                            send_message(auto_response(message_string, snr, rssi, hop, pkiStatus, message_from_id, channel_number, rxNode), channel_number, 0, rxNode)
                 else:
                     # message is not for bot to respond to
                     # ignore the message but add it to the message history list
