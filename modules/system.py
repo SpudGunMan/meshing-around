@@ -151,6 +151,11 @@ if store_forward_enabled:
 if radio_detection_enabled:
     from modules.radio import * # from the spudgunman/meshing-around repo
 
+# LinkPlanner Configuration
+if linkplanner_enabled:
+    trap_list = trap_list + ("linkplan",)
+    help_message = help_message + ", linkplan"
+
 # BLE dual interface prevention
 if interface1_type == 'ble' and interface2_type == 'ble':
     logger.critical(f"System: BLE Interface1 and Interface2 cannot both be BLE. Exiting")

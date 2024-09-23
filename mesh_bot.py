@@ -390,6 +390,10 @@ def handleVideoPoker(nodeID, message):
     
     return msg
 
+def handle_linkPlanner(message_from_id, deviceID):
+    location = get_node_location(deviceID, deviceID)
+    return f"TODO: Link Planner for {location} hostname {linkPlanner_hostname}"
+
 def handle_wxc(message_from_id, deviceID, cmd):
     location = get_node_location(message_from_id, deviceID)
     if use_meteo_wxApi and not "wxc" in cmd and not use_metric:
