@@ -500,9 +500,9 @@ def handle_history(nodeid, deviceID, lheard=False):
 
             # history display output
             if nodeid in bbs_admin_list and not cmdHistory[i]['nodeID'] in lheardCmdIgnoreNode:
-                msg += f"{get_name_from_number(nodeid,'short',deviceID)}:cmd:{cmdHistory[i]['cmd']}/{prettyTime} ago.\n"
+                msg += f"{get_name_from_number(nodeid,'short',deviceID)}:cmd:{cmdHistory.reverse()[i]['cmd']}/{prettyTime} ago.\n"
             elif cmdHistory[i]['nodeID'] == nodeid and not cmdHistory[i]['nodeID'] in lheardCmdIgnoreNode:
-                msg += f"{get_name_from_number(nodeid,'short',deviceID)}:cmd:{cmdHistory[i]['cmd']}/{prettyTime} ago.\n"
+                msg += f"{get_name_from_number(nodeid,'short',deviceID)}:cmd:{cmdHistory.reverse()[i]['cmd']}/{prettyTime} ago.\n"
         # message for output of the last commands
         msg = msg.rstrip()
         # only return the last 4 commands
@@ -528,6 +528,7 @@ def handle_history(nodeid, deviceID, lheard=False):
                 if not any(d[0] == nodeName for d in buffer):
                     buffer.append((nodeName, prettyTime))
         # message for output of the last users of the bot
+        buffer.reverse()
         if len(buffer) > 4:
             buffer = buffer[-4:]
         # create the message from the buffer list
