@@ -819,11 +819,6 @@ def onReceive(packet, interface):
                                     
                                     # play the game
                                     send_message(handleVideoPoker(message_from_id, message_string), channel_number, message_from_id, rxNode)
-                            else:
-                                # reset the player if the time exceeds 8 hours
-                                vpTracker[i]['cmd'] = "gameOver"
-                                vpTracker[i]['player'] = None
-                                vpTracker[i]['deck'] = None
                         
                         for i in range(0, len(jackTracker)):
                             if jackTracker[i].get('nodeID') == message_from_id:
@@ -836,13 +831,6 @@ def onReceive(packet, interface):
                                     
                                     # play the game
                                     send_message(handleBlackJack(message_from_id, message_string), channel_number, message_from_id, rxNode)
-                                else:
-                                    # reset the player if the time exceeds 8 hours
-                                    jackTracker[i]['cmd'] = "new"
-                                    jackTracker[i]['p_cards'] = []
-                                    jackTracker[i]['d_cards'] = []
-                                    jackTracker[i]['p_hand'] = []
-                                    jackTracker[i]['d_hand'] = []
                     else:
                         playingGame = False
 
