@@ -348,7 +348,7 @@ def handleBlackJack(nodeID, message):
     
         if last_cmd != "":
             logger.debug(f"System: BlackJack: {nodeID} last command: {last_cmd}")
-    
+    time.sleep(1)
     return msg
 
 def handleVideoPoker(nodeID, message):
@@ -397,7 +397,7 @@ def handleVideoPoker(nodeID, message):
     
         if last_cmd != "":
             logger.debug(f"System: VideoPoker: {nodeID} last command: {last_cmd}")
-    
+    time.sleep(1)
     return msg
 
 def handle_wxc(message_from_id, deviceID, cmd):
