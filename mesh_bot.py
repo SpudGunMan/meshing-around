@@ -814,14 +814,16 @@ def onReceive(packet, interface):
                                 if vpTracker[i].get('time') > (time.time() - GAMEDELAY):
                                     playingGame = True
                                     game = "VideoPoker"
-                                    vpTracker[i]['cmd'] = "gameOver"
-                                    vpTracker[i]['player'] = None
-                                    vpTracker[i]['deck'] = None
                                     if llm_enabled:
                                         logger.debug(f"System: LLM Disabled for {message_from_id} for duration of VideoPoker")
                                     
                                     # play the game
                                     send_message(handleVideoPoker(message_from_id, message_string), channel_number, message_from_id, rxNode)
+                            else:
+                                # reset the player if the time exceeds 8 hours
+                                vpTracker[i]['cmd'] = "gameOver"
+                                vpTracker[i]['player'] = None
+                                vpTracker[i]['deck'] = None
                         
                         for i in range(0, len(jackTracker)):
                             if jackTracker[i].get('nodeID') == message_from_id:
@@ -829,16 +831,18 @@ def onReceive(packet, interface):
                                 if jackTracker[i].get('time') > (time.time() - GAMEDELAY):
                                     playingGame = True
                                     game = "BlackJack"
-                                    jackTracker[i]['cmd'] = "new"
-                                    jackTracker[i]['p_cards'] = []
-                                    jackTracker[i]['d_cards'] = []
-                                    jackTracker[i]['p_hand'] = []
-                                    jackTracker[i]['d_hand'] = []
                                     if llm_enabled:
                                         logger.debug(f"System: LLM Disabled for {message_from_id} for duration of BlackJack")
                                     
                                     # play the game
                                     send_message(handleBlackJack(message_from_id, message_string), channel_number, message_from_id, rxNode)
+                                else:
+                                    # reset the player if the time exceeds 8 hours
+                                    jackTracker[i]['cmd'] = "new"
+                                    jackTracker[i]['p_cards'] = []
+                                    jackTracker[i]['d_cards'] = []
+                                    jackTracker[i]['p_hand'] = []
+                                    jackTracker[i]['d_hand'] = []
                     else:
                         playingGame = False
 
