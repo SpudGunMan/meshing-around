@@ -381,10 +381,10 @@ def playBlackJack(nodeID, message):
         # recall the game state
         for i in range(len(jackTracker)):
             if jackTracker[i]['nodeID'] == nodeID:
-                p_chips.total = jackTracker[i]['cash']
-                p_chips.bet = jackTracker[i]['bet']
-                p_win = jackTracker[i]['gameStats']['p_win']
-                d_win = jackTracker[i]['gameStats']['d_win']
+                p_chips.total = int(jackTracker[i]['cash'])
+                p_chips.bet = int(jackTracker[i]['bet'])
+                p_win = int(jackTracker[i]['gameStats']['p_win'])
+                d_win = int(jackTracker[i]['gameStats']['d_win'])
                 draw = jackTracker[i]['gameStats']['draw']
                 p_cards = jackTracker[i]['p_cards']
                 d_cards = jackTracker[i]['d_cards']
