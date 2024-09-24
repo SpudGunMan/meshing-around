@@ -313,6 +313,7 @@ def handleBlackJack(nodeID, message):
     if message.lower().startswith("l"):
         logger.debug(f"System: BlackJack: {nodeID} is leaving the table")
         # add 16 hours to the player time to leave the table, this will be detected by bot logic as player leaving
+        msg = "You have left the table."
         for i in range(len(jackTracker)):
             if jackTracker[i]['nodeID'] == nodeID:
                 jackTracker[i]['time'] = time.time() - 57600
@@ -321,6 +322,7 @@ def handleBlackJack(nodeID, message):
                 jackTracker[i]['d_cards'] = []
                 jackTracker[i]['p_hand'] = []
                 jackTracker[i]['d_hand'] = []
+        return msg
 
         # # Save the game state to pickle
         # try:
@@ -357,10 +359,12 @@ def handleVideoPoker(nodeID, message):
     if message.lower().startswith("l"):
         logger.debug(f"System: VideoPoker: {nodeID} is leaving the table")
         # add 16 hours to the player time to leave the table, this will be detected by bot logic as player leaving
+        msg = "You have left the table."
         for i in range(len(vpTracker)):
             if vpTracker[i]['nodeID'] == nodeID:
                 vpTracker[i]['time'] = time.time() - 57600
                 vpTracker[i]['cmd'] = "new"
+        return msg
     else:
         # Play Video Poker
         msg = playVideoPoker(nodeID=nodeID, message=message)
