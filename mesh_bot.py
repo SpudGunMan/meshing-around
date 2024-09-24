@@ -548,8 +548,7 @@ def handle_history(nodeid, deviceID, lheard=False):
                 msg += "\n"
     else:
         # sort the cmdHistory list by time, return the username and time into a new list which used for display
-        cmdHistorySorted = sorted(cmdHistory, key=lambda k: k['time'], reverse=True)
-        for i in range(len(cmdHistorySorted)):
+        for i in range(len(cmdHistory)):
             prettyTime = round((time.time() - cmdHistory[i]['time']) / 600) * 5
             if prettyTime < 60:
                 prettyTime = str(prettyTime) + "m"
@@ -558,17 +557,22 @@ def handle_history(nodeid, deviceID, lheard=False):
             else:
                 prettyTime = str(round(prettyTime/1440)) + "d"
 
-            if not cmdHistorySorted[i]['nodeID'] in lheardCmdIgnoreNode:
+            if not cmdHistory[i]['nodeID'] in lheardCmdIgnoreNode:
                 # add line to a new list for display
-                nodeName = get_name_from_number(cmdHistorySorted[i]['nodeID'], 'short', deviceID)
+                nodeName = get_name_from_number(cmdHistory[i]['nodeID'], 'short', deviceID)
                 if not any(d[0] == nodeName for d in buffer):
                     buffer.append((nodeName, prettyTime))
-
+                else:
+                    # update the time for the node in the buffer for the latest time in cmdHistory
+                    for j in range(len(buffer)):
+                        if buffer[j][0] == nodeName:
+                            buffer[j] = (nodeName, prettyTime)
+    
         # create the message from the buffer list
         for i in range(0, len(buffer)):
             msg += f"{buffer[i][0]} seen {buffer[i][1]} ago"
             if i < len(buffer) - 1:
-                msg += "\n"
+                msg += ", "
     return msg
 
 def handle_whereami(message_from_id, deviceID, channel_number):
