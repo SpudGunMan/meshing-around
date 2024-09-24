@@ -813,6 +813,9 @@ def onReceive(packet, interface):
                                 if vpTracker[i].get('time') > (time.time() - GAMEDELAY):
                                     playingGame = True
                                     game = "VideoPoker"
+                                    vpTracker[i]['cmd'] = "gameOver"
+                                    vpTracker[i]['player'] = None
+                                    vpTracker[i]['deck'] = None
                                     if llm_enabled:
                                         logger.debug(f"System: LLM Disabled for {message_from_id} for duration of VideoPoker")
                                     
@@ -825,6 +828,11 @@ def onReceive(packet, interface):
                                 if jackTracker[i].get('time') > (time.time() - GAMEDELAY):
                                     playingGame = True
                                     game = "BlackJack"
+                                    jackTracker[i]['cmd'] = "new"
+                                    jackTracker[i]['p_cards'] = []
+                                    jackTracker[i]['d_cards'] = []
+                                    jackTracker[i]['p_hand'] = []
+                                    jackTracker[i]['d_hand'] = []
                                     if llm_enabled:
                                         logger.debug(f"System: LLM Disabled for {message_from_id} for duration of BlackJack")
                                     
