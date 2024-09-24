@@ -267,9 +267,6 @@ def playBlackJack(nodeID, message):
                     bet_money = 5
                 else:
                     bet_money = bet_money
-            # handle # message
-            if bet_money != 0:
-                bet_money = int(bet_money)
             else:
                 bet_money = int(message)
 
@@ -278,7 +275,7 @@ def playBlackJack(nodeID, message):
             else:
                 return f"Invalid Bet, the maximum bet you can place is {p_chips.total}"
         except ValueError:
-            return f"Invalid Bet, the maximum bet you can place is {p_chips.total}"
+            return f"Invalid Bet, the maximum bet, {p_chips.total}"
 
         # Show the cards
         msg += show_some(p_cards, d_cards, p_hand)
