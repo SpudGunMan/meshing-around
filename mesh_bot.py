@@ -254,7 +254,8 @@ def handleDopeWars(nodeID, message, rxNode):
     if not last_cmd:
         msg = 'Welcome to 💊Dope Wars!💉 You have ' + str(total_days) + ' days to make as much 💰 as possible! '
         high_score = getHighScoreDw()
-        msg += 'The High Score is $' + "{:,}".format(high_score.get('cash')) + ' by user ' + get_name_from_number(high_score.get('userID') , 'short', rxNode) + f'.\n'
+        msg += 'The High Score is $' + "{:,}".format(high_score.get('cash')) + ' by user ' + get_name_from_number(high_score.get('userID') , 'short', rxNode)
+        msg += 'Game Played via Direct Message.' + f'.\n'
         msg += playDopeWars(nodeID, message)
     else:
         logger.debug("System: DopeWars: last_cmd: " + str(last_cmd))
@@ -272,7 +273,7 @@ def handle_gTnW():
 
 def handleLemonade(nodeID, message):
     global lemonadeTracker, lemonadeCups, lemonadeLemons, lemonadeSugar, lemonadeWeeks, lemonadeScore, lemon_starting_cash, lemon_total_weeks
-
+    msg = ""
     def create_player(nodeID):
         # create new player
         logger.debug("System: Lemonade: New Player: " + str(nodeID))
@@ -291,8 +292,9 @@ def handleLemonade(nodeID, message):
     # create new player if not in tracker
     if last_cmd == "":
         create_player(nodeID)
+        msg += "Welcome to 🍋Lemonade Stand!🍋 Game Played via Direct Message."
     
-    msg = start_lemonade(nodeID=nodeID, message=message, celsius=False)
+    msg += start_lemonade(nodeID=nodeID, message=message, celsius=False)
     # wait a second to keep from message collision
     time.sleep(1)
     return msg

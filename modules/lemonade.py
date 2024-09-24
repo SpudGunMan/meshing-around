@@ -121,7 +121,7 @@ def start_lemonade(nodeID, message, celsius=False):
         endGame(nodeID)
         return "Goodbye!👋"
 
-    title="Lemonade Stand🍋"
+    title="LemonStand🍋"
     # Define the temperature unit symbols
     fahrenheit_unit = "ºF"
     celsius_unit    = "ºC"
