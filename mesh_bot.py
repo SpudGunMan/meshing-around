@@ -142,9 +142,9 @@ def handle_wiki(message):
     if "wiki:" in message.lower():
         search = message.split(":")[1]
         search = search.strip()
-        return get_wikipedia_summary(search)
-    else:
-        return "Please add a search term example:wiki: travelling gnome"
+        if search:
+            return get_wikipedia_summary(search)
+    return "Please add a search term example:wiki: travelling gnome"
 
 # Runtime Variables for LLM
 llmRunCounter = 0
@@ -563,10 +563,7 @@ def handle_history(nodeid, deviceID, lheard=False):
                 nodeName = get_name_from_number(cmdHistorySorted[i]['nodeID'], 'short', deviceID)
                 if not any(d[0] == nodeName for d in buffer):
                     buffer.append((nodeName, prettyTime))
-        # message for output of the last users of the bot
-        buffer.reverse()
-        if len(buffer) > 4:
-            buffer = buffer[-4:]
+
         # create the message from the buffer list
         for i in range(0, len(buffer)):
             msg += f"{buffer[i][0]} seen {buffer[i][1]} ago"
