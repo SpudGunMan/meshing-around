@@ -494,19 +494,18 @@ def handle_lheard(nodeid, deviceID):
     if interface2_enabled:
         bot_response += " P2:" + str(chutil2) + "%" + "/" + str(airUtilTx2) + "%"
     # convert uptime to minutes, hours, or days
-    
     if uptimeSeconds > 0 or uptimeSeconds2 > 0:
         uptimeSeconds = round(uptimeSeconds / 60)
         uptimeSeconds2 = round(uptimeSeconds2 / 60)
         designator = "m"
-        if uptimeSeconds > 60 or uptimeSeconds2 > 60:
-            uptimeSeconds = round(uptimeSeconds / 60)
-            uptimeSeconds2 = round(uptimeSeconds2 / 60)
-            designator = "h"
-        if uptimeSeconds > 1440 or uptimeSeconds2 > 1440:
-            uptimeSeconds = round(uptimeSeconds / 24)
-            uptimeSeconds2 = round(uptimeSeconds2 / 24)
-            designator = "d"
+    if uptimeSeconds > 60 or uptimeSeconds2 > 60:
+        uptimeSeconds = round(uptimeSeconds / 60)
+        uptimeSeconds2 = round(uptimeSeconds2 / 60)
+        designator = "h"
+    if uptimeSeconds > 24 or uptimeSeconds2 > 24:
+        uptimeSeconds = round(uptimeSeconds / 24)
+        uptimeSeconds2 = round(uptimeSeconds2 / 24)
+        designator = "d"
     # add uptime and battery info to the bot response
     bot_response += "\nUptime:" + str(uptimeSeconds) + designator
     if interface2_enabled:
