@@ -578,7 +578,7 @@ def handle_history(nodeid, deviceID, lheard=False):
         for i in range(0, len(buffer)):
             msg += f"{buffer[i][0]} seen {buffer[i][1]} ago"
             if i < len(buffer) - 1:
-                msg += ", "
+                msg += "\n"
     return msg
 
 def handle_whereami(message_from_id, deviceID, channel_number):
