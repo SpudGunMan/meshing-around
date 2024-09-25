@@ -218,7 +218,7 @@ def buy_func(nodeID, price_list, choice=0, value='0'):
         msg = f"Didnt see a qty. ex: b,1,10 buys 10 of {my_drugs[1].name}, can also use m for max"
         return msg
     elif buy_amount not in range(1, 101):
-        msg = f"Enter qty or m for max"
+        msg = "Enter qty or m for max"
         return msg
     elif buy_amount > 100 - inventory:
         msg = "You don\'t have enough space for all that.🎒"
@@ -273,10 +273,10 @@ def sell_func(nodeID, price_list, choice=0, value='0'):
         else:
             sell_amount = int(sell_amount)
             if sell_amount not in range(1, 101):
-                msg = f"You can only sell between 1 and 100"
+                msg = "You can only sell between 1 and 100"
                 return msg
     except ValueError:
-        msg = f"Enter qty or m for max"
+        msg = "Enter qty or m for max"
         return msg
     
     # check if the user has any of the drug they are trying to sell
@@ -329,7 +329,7 @@ def get_location_table(nodeID, choice=0):
     loc_table_string = ''
     for i in range(len(loc)):
             loc_table_string += str(i+1) + '. ' + loc[i] + '  ' 
-    loc_table_string += f' Where do you want to 🛫?#'
+    loc_table_string += ' Where do you want to 🛫?#'
     return loc_table_string
 
 
