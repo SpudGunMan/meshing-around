@@ -204,6 +204,7 @@ def abbreviate_weather(row):
         "precipitation": "precip",
         "showers": "shwrs",
         "thunderstorms": "t-storms",
+        "thunderstorm": "t-storm",
         "quarters": "qtrs",
         "quarter": "qtr"
     }
