@@ -8,57 +8,64 @@ from pubsub import pub # pip install pubsub
 from modules.log import *
 from modules.system import *
 
-DEBUGpacket = False # Debug print the packet rx
+# list of commands to remove from the default list for DM only
+restrictedCommands = ["blackjack", "videopoker", "dopewars", "lemonstand"]
+restrictedResponse = "🤖only available in a Direct Message📵" # "" for none
 
 # Global Variables
 cmdHistory = [] # list to hold the last commands
+DEBUGpacket = False # Debug print the packet rx
 
-def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_number, deviceID):
+def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_number, deviceID, isDM):
     global cmdHistory
     #Auto response to messages
     message_lower = message.lower()
-    bot_response = "I'm sorry, I'm afraid I can't do that."
+    bot_response = "🤖I'm sorry, I'm afraid I can't do that."
 
-    command_handler = {
-        "ping": lambda: handle_ping(message, hop, snr, rssi),
-        "pong": lambda: "🏓PING!!",
-        "motd": lambda: handle_motd(message, message_from_id),
-        "bbshelp": bbs_help,
-        "wxalert": lambda: handle_wxalert(message_from_id, deviceID, message),
-        "wxa": lambda: handle_wxalert(message_from_id, deviceID, message),
-        "wxc": lambda: handle_wxc(message_from_id, deviceID, 'wxc'),
-        "wx": lambda: handle_wxc(message_from_id, deviceID, 'wx'),
-        "wiki:": lambda: handle_wiki(message),
-        "games": lambda: gamesCmdList,
-        "dopewars": lambda: handleDopeWars(message_from_id, message, deviceID),
-        "lemonstand": lambda: handleLemonade(message_from_id, message),
-        "blackjack": lambda: handleBlackJack(message_from_id, message),
-        "videopoker": lambda: handleVideoPoker(message_from_id, message),
-        "globalthermonuclearwar": lambda: handle_gTnW(),
-        "ask:": lambda: handle_llm(message_from_id, channel_number, deviceID, message, publicChannel),
-        "askai": lambda: handle_llm(message_from_id, channel_number, deviceID, message, publicChannel),
-        "joke": tell_joke,
-        "bbslist": bbs_list_messages,
-        "bbspost": lambda: handle_bbspost(message, message_from_id, deviceID),
-        "bbsread": lambda: handle_bbsread(message),
-        "bbsdelete": lambda: handle_bbsdelete(message, message_from_id),
-        "messages": lambda: handle_messages(deviceID, channel_number, msg_history, publicChannel),
-        "cmd": lambda: help_message,
-        "cmd?": lambda: help_message,
-        "history": lambda: handle_history(message_from_id, deviceID),
-        "sun": lambda: handle_sun(message_from_id, deviceID, channel_number),
-        "hfcond": hf_band_conditions,
-        "solar": lambda: drap_xray_conditions() + "\n" + solar_conditions(),
-        "lheard": lambda: handle_lheard(message_from_id, deviceID),
-        "sitrep": lambda: handle_lheard(message_from_id, deviceID),
-        "whereami": lambda: handle_whereami(message_from_id, deviceID, channel_number),
-        "tide": lambda: handle_tide(message_from_id, deviceID, channel_number),
-        "moon": lambda: handle_moon(message_from_id, deviceID, channel_number),
-        "ack": lambda: handle_ack(hop, snr, rssi),
-        "testing": lambda: handle_testing(message, hop, snr, rssi),
-        "test": lambda: handle_testing(message, hop, snr, rssi),
-        "whoami": lambda: handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus)
+    # Command List
+    default_commands = {
+    "ping": lambda: handle_ping(message, hop, snr, rssi),
+    "pong": lambda: "🏓PING!!",
+    "motd": lambda: handle_motd(message, message_from_id),
+    "bbshelp": bbs_help,
+    "wxalert": lambda: handle_wxalert(message_from_id, deviceID, message),
+    "wxa": lambda: handle_wxalert(message_from_id, deviceID, message),
+    "wxc": lambda: handle_wxc(message_from_id, deviceID, 'wxc'),
+    "wx": lambda: handle_wxc(message_from_id, deviceID, 'wx'),
+    "wiki:": lambda: handle_wiki(message),
+    "games": lambda: gamesCmdList,
+    "dopewars": lambda: handleDopeWars(message_from_id, message, deviceID),
+    "lemonstand": lambda: handleLemonade(message_from_id, message),
+    "blackjack": lambda: handleBlackJack(message_from_id, message),
+    "videopoker": lambda: handleVideoPoker(message_from_id, message),
+    "globalthermonuclearwar": lambda: handle_gTnW(),
+    "ask:": lambda: handle_llm(message_from_id, channel_number, deviceID, message, publicChannel),
+    "askai": lambda: handle_llm(message_from_id, channel_number, deviceID, message, publicChannel),
+    "joke": tell_joke,
+    "bbslist": bbs_list_messages,
+    "bbspost": lambda: handle_bbspost(message, message_from_id, deviceID),
+    "bbsread": lambda: handle_bbsread(message),
+    "bbsdelete": lambda: handle_bbsdelete(message, message_from_id),
+    "messages": lambda: handle_messages(deviceID, channel_number, msg_history, publicChannel),
+    "cmd": lambda: help_message,
+    "cmd?": lambda: help_message,
+    "history": lambda: handle_history(message_from_id, deviceID),
+    "sun": lambda: handle_sun(message_from_id, deviceID, channel_number),
+    "hfcond": hf_band_conditions,
+    "solar": lambda: drap_xray_conditions() + "\n" + solar_conditions(),
+    "lheard": lambda: handle_lheard(message_from_id, deviceID),
+    "sitrep": lambda: handle_lheard(message_from_id, deviceID),
+    "whereami": lambda: handle_whereami(message_from_id, deviceID, channel_number),
+    "tide": lambda: handle_tide(message_from_id, deviceID, channel_number),
+    "moon": lambda: handle_moon(message_from_id, deviceID, channel_number),
+    "ack": lambda: handle_ack(hop, snr, rssi),
+    "testing": lambda: handle_testing(message, hop, snr, rssi),
+    "test": lambda: handle_testing(message, hop, snr, rssi),
+    "whoami": lambda: handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus)
     }
+
+    # set the command handler
+    command_handler = default_commands
     cmds = [] # list to hold the commands found in the message
     for key in command_handler:
         if key in message_lower.split(' '):
@@ -69,12 +76,16 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
         # sort the commands by index value
         cmds = sorted(cmds, key=lambda k: k['index'])
         logger.debug(f"System: Bot detected Commands:{cmds}")
-        # run the first command after sorting
-        bot_response = command_handler[cmds[0]['cmd']]()
-        # append the command to the cmdHistory list for lheard and history
-        if len(cmdHistory) > 50:
-            cmdHistory.pop(0)
-        cmdHistory.append({'nodeID': message_from_id, 'cmd':  cmds[0]['cmd'], 'time': time.time()})
+        # check the command isnt a isDM only command
+        if cmds[0]['cmd'] in restrictedCommands and not isDM:
+            bot_response = restrictedResponse
+        else:
+            # run the first command after sorting
+            bot_response = command_handler[cmds[0]['cmd']]()
+            # append the command to the cmdHistory list for lheard and history
+            if len(cmdHistory) > 50:
+                cmdHistory.pop(0)
+            cmdHistory.append({'nodeID': message_from_id, 'cmd':  cmds[0]['cmd'], 'time': time.time()})
 
     # wait a responseDelay to avoid message collision from lora-ack
     time.sleep(responseDelay)
@@ -667,6 +678,7 @@ def onReceive(packet, interface):
     hop = 0
     hop_away = 0
     pkiStatus = (False, 'ABC')
+    isDM = False
 
     if DEBUGpacket:
         # Debug print the interface object
@@ -768,14 +780,15 @@ def onReceive(packet, interface):
             # If the packet is a DM (Direct Message) respond to it, otherwise validate its a message for us on the channel
             if packet['to'] == myNodeNum1 or packet['to'] == myNodeNum2:
                 # message is DM to us
+                isDM = True
                 # check if the message contains a trap word, DMs are always responded to
                 if messageTrap(message_string):
                     logger.info(f"Device:{rxNode} Channel: {channel_number} " + CustomFormatter.green + f"Received DM: " + CustomFormatter.white + f"{message_string} " + CustomFormatter.purple +\
                                 "From: " + CustomFormatter.white + f"{get_name_from_number(message_from_id, 'long', rxNode)}")
                     # respond with DM
-                    send_message(auto_response(message_string, snr, rssi, hop, pkiStatus, message_from_id, channel_number, rxNode), channel_number, message_from_id, rxNode)
+                    send_message(auto_response(message_string, snr, rssi, hop, pkiStatus, message_from_id, channel_number, rxNode, isDM), channel_number, message_from_id, rxNode)
                 else:
-                    # DM is usefull for games or LLM
+                    # DM is useful for games or LLM
                     if games_enabled:
                         playingGame = False
                         # if in a game we cant use LLM disable for duration of game
@@ -871,7 +884,7 @@ def onReceive(packet, interface):
                                  "From: " + CustomFormatter.white + f"{get_name_from_number(message_from_id, 'long', rxNode)}")
                     if useDMForResponse:
                         # respond to channel message via direct message
-                        send_message(auto_response(message_string, snr, rssi, hop, pkiStatus, message_from_id, channel_number, rxNode), channel_number, message_from_id, rxNode)
+                        send_message(auto_response(message_string, snr, rssi, hop, pkiStatus, message_from_id, channel_number, rxNode, isDM), channel_number, message_from_id, rxNode)
                     else:
                         # or respond to channel message on the channel itself
                         if channel_number == publicChannel and antiSpam:
@@ -879,10 +892,10 @@ def onReceive(packet, interface):
                             logger.error(f"System: AntiSpam protection, sending DM to: {get_name_from_number(message_from_id, 'long', rxNode)}")
                         
                             # respond to channel message via direct message
-                            send_message(auto_response(message_string, snr, rssi, hop, pkiStatus, message_from_id, channel_number, rxNode), channel_number, message_from_id, rxNode)
+                            send_message(auto_response(message_string, snr, rssi, hop, pkiStatus, message_from_id, channel_number, rxNode, isDM), channel_number, message_from_id, rxNode)
                         else:
                             # respond to channel message on the channel itself
-                            send_message(auto_response(message_string, snr, rssi, hop, pkiStatus, message_from_id, channel_number, rxNode), channel_number, 0, rxNode)
+                            send_message(auto_response(message_string, snr, rssi, hop, pkiStatus, message_from_id, channel_number, rxNode, isDM), channel_number, 0, rxNode)
                 else:
                     # message is not for bot to respond to
                     # ignore the message but add it to the message history list
