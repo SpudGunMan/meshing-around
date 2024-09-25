@@ -8,70 +8,64 @@ from pubsub import pub # pip install pubsub
 from modules.log import *
 from modules.system import *
 
-DEBUGpacket = False # Debug print the packet rx
+# list of commands to remove from the default list for DM only
+restrictedCommands = ["blackjack", "videopoker", "dopewars", "lemonstand"]
+restrictedResponse = "🤖only available in a Direct Message📵" # "" for none
 
 # Global Variables
 cmdHistory = [] # list to hold the last commands
+DEBUGpacket = False # Debug print the packet rx
 
 def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_number, deviceID, isDM):
     global cmdHistory
     #Auto response to messages
     message_lower = message.lower()
-    if isDM:
-        bot_response = "I'm sorry, I'm afraid I can't do that."
-        command_handler = {
-            "ping": lambda: handle_ping(message, hop, snr, rssi),
-            "pong": lambda: "🏓PING!!",
-            "motd": lambda: handle_motd(message, message_from_id),
-            "bbshelp": bbs_help,
-            "wxalert": lambda: handle_wxalert(message_from_id, deviceID, message),
-            "wxa": lambda: handle_wxalert(message_from_id, deviceID, message),
-            "wxc": lambda: handle_wxc(message_from_id, deviceID, 'wxc'),
-            "wx": lambda: handle_wxc(message_from_id, deviceID, 'wx'),
-            "wiki:": lambda: handle_wiki(message),
-            "games": lambda: gamesCmdList,
-            "dopewars": lambda: handleDopeWars(message_from_id, message, deviceID),
-            "lemonstand": lambda: handleLemonade(message_from_id, message),
-            "blackjack": lambda: handleBlackJack(message_from_id, message),
-            "videopoker": lambda: handleVideoPoker(message_from_id, message),
-            "globalthermonuclearwar": lambda: handle_gTnW(),
-            "ask:": lambda: handle_llm(message_from_id, channel_number, deviceID, message, publicChannel),
-            "askai": lambda: handle_llm(message_from_id, channel_number, deviceID, message, publicChannel),
-            "joke": tell_joke,
-            "bbslist": bbs_list_messages,
-            "bbspost": lambda: handle_bbspost(message, message_from_id, deviceID),
-            "bbsread": lambda: handle_bbsread(message),
-            "bbsdelete": lambda: handle_bbsdelete(message, message_from_id),
-            "messages": lambda: handle_messages(deviceID, channel_number, msg_history, publicChannel),
-            "cmd": lambda: help_message,
-            "cmd?": lambda: help_message,
-            "history": lambda: handle_history(message_from_id, deviceID),
-            "sun": lambda: handle_sun(message_from_id, deviceID, channel_number),
-            "hfcond": hf_band_conditions,
-            "solar": lambda: drap_xray_conditions() + "\n" + solar_conditions(),
-            "lheard": lambda: handle_lheard(message_from_id, deviceID),
-            "sitrep": lambda: handle_lheard(message_from_id, deviceID),
-            "whereami": lambda: handle_whereami(message_from_id, deviceID, channel_number),
-            "tide": lambda: handle_tide(message_from_id, deviceID, channel_number),
-            "moon": lambda: handle_moon(message_from_id, deviceID, channel_number),
-            "ack": lambda: handle_ack(hop, snr, rssi),
-            "testing": lambda: handle_testing(message, hop, snr, rssi),
-            "test": lambda: handle_testing(message, hop, snr, rssi),
-            "whoami": lambda: handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus)
-        }
-    else:
-        bot_response = ""
-        command_handler = {
-            "ping": lambda: handle_ping(message, hop, snr, rssi),
-            "pong": lambda: "🏓PING!!",
-            "motd": lambda: handle_motd(message, message_from_id),
-            "ack": lambda: handle_ack(hop, snr, rssi),
-            "testing": lambda: handle_testing(message, hop, snr, rssi),
-            "test": lambda: handle_testing(message, hop, snr, rssi),
-            "whoami": lambda: handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus)
-        }
+    bot_response = "🤖I'm sorry, I'm afraid I can't do that."
 
-    
+    # Command List
+    default_commands = {
+    "ping": lambda: handle_ping(message, hop, snr, rssi),
+    "pong": lambda: "🏓PING!!",
+    "motd": lambda: handle_motd(message, message_from_id),
+    "bbshelp": bbs_help,
+    "wxalert": lambda: handle_wxalert(message_from_id, deviceID, message),
+    "wxa": lambda: handle_wxalert(message_from_id, deviceID, message),
+    "wxc": lambda: handle_wxc(message_from_id, deviceID, 'wxc'),
+    "wx": lambda: handle_wxc(message_from_id, deviceID, 'wx'),
+    "wiki:": lambda: handle_wiki(message),
+    "games": lambda: gamesCmdList,
+    "dopewars": lambda: handleDopeWars(message_from_id, message, deviceID),
+    "lemonstand": lambda: handleLemonade(message_from_id, message),
+    "blackjack": lambda: handleBlackJack(message_from_id, message),
+    "videopoker": lambda: handleVideoPoker(message_from_id, message),
+    "globalthermonuclearwar": lambda: handle_gTnW(),
+    "ask:": lambda: handle_llm(message_from_id, channel_number, deviceID, message, publicChannel),
+    "askai": lambda: handle_llm(message_from_id, channel_number, deviceID, message, publicChannel),
+    "joke": tell_joke,
+    "bbslist": bbs_list_messages,
+    "bbspost": lambda: handle_bbspost(message, message_from_id, deviceID),
+    "bbsread": lambda: handle_bbsread(message),
+    "bbsdelete": lambda: handle_bbsdelete(message, message_from_id),
+    "messages": lambda: handle_messages(deviceID, channel_number, msg_history, publicChannel),
+    "cmd": lambda: help_message,
+    "cmd?": lambda: help_message,
+    "history": lambda: handle_history(message_from_id, deviceID),
+    "sun": lambda: handle_sun(message_from_id, deviceID, channel_number),
+    "hfcond": hf_band_conditions,
+    "solar": lambda: drap_xray_conditions() + "\n" + solar_conditions(),
+    "lheard": lambda: handle_lheard(message_from_id, deviceID),
+    "sitrep": lambda: handle_lheard(message_from_id, deviceID),
+    "whereami": lambda: handle_whereami(message_from_id, deviceID, channel_number),
+    "tide": lambda: handle_tide(message_from_id, deviceID, channel_number),
+    "moon": lambda: handle_moon(message_from_id, deviceID, channel_number),
+    "ack": lambda: handle_ack(hop, snr, rssi),
+    "testing": lambda: handle_testing(message, hop, snr, rssi),
+    "test": lambda: handle_testing(message, hop, snr, rssi),
+    "whoami": lambda: handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus)
+    }
+
+    # set the command handler
+    command_handler = default_commands
     cmds = [] # list to hold the commands found in the message
     for key in command_handler:
         if key in message_lower.split(' '):
@@ -82,14 +76,16 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
         # sort the commands by index value
         cmds = sorted(cmds, key=lambda k: k['index'])
         logger.debug(f"System: Bot detected Commands:{cmds}")
-        # run the first command after sorting
-        bot_response = command_handler[cmds[0]['cmd']]()
-        # append the command to the cmdHistory list for lheard and history
-        if len(cmdHistory) > 50:
-            cmdHistory.pop(0)
-        cmdHistory.append({'nodeID': message_from_id, 'cmd':  cmds[0]['cmd'], 'time': time.time()})
-    else: 
-        logger.debug(f"System: Bot detected messageTrap but was not a DM")
+        # check the command isnt a isDM only command
+        if cmds[0]['cmd'] in restrictedCommands and not isDM:
+            bot_response = restrictedResponse
+        else:
+            # run the first command after sorting
+            bot_response = command_handler[cmds[0]['cmd']]()
+            # append the command to the cmdHistory list for lheard and history
+            if len(cmdHistory) > 50:
+                cmdHistory.pop(0)
+            cmdHistory.append({'nodeID': message_from_id, 'cmd':  cmds[0]['cmd'], 'time': time.time()})
 
     # wait a responseDelay to avoid message collision from lora-ack
     time.sleep(responseDelay)
@@ -776,7 +772,7 @@ def onReceive(packet, interface):
 
                 hop = f"{hop_count} hops"
             
-            if message_string == help_message or message_string == welcome_message or "cmd?:" in message_string.lower():
+            if message_string == help_message or message_string == welcome_message or "CMD?:" in message_string:
                 # ignore help and welcome messages
                 logger.warning(f"Got Own Welcome/Help header. From: {get_name_from_number(message_from_id, 'long', rxNode)}")
                 return
