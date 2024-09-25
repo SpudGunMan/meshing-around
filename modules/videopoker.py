@@ -54,10 +54,8 @@ def drawCardsVp(*cards, return_string=True):
         # "King" should be "K" and "10" should still be "10"
         if card.rank == 10:  # ten is the only one who's rank is 2 char long
             rank = str(card.rank)
-            space = ''  # if we write "10" on the card that line will be 1 char to long
         else:
             rank = str(card.rank)[0]  # some have a rank of 'King' this changes that to a simple 'K' ("King" doesn't fit)
-            space = ' '  # no "10", we use a blank space to will the void
         # get the cards suit in two steps
         suit = suits_name.index(card.suit)
         suit = suits_symbols[suit]
