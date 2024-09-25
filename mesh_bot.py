@@ -88,6 +88,8 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
         if len(cmdHistory) > 50:
             cmdHistory.pop(0)
         cmdHistory.append({'nodeID': message_from_id, 'cmd':  cmds[0]['cmd'], 'time': time.time()})
+    else: 
+        logger.debug(f"System: Bot detected messageTrap but was not a DM")
 
     # wait a responseDelay to avoid message collision from lora-ack
     time.sleep(responseDelay)
