@@ -667,6 +667,7 @@ def onReceive(packet, interface):
     hop = 0
     hop_away = 0
     pkiStatus = (False, 'ABC')
+    isDM = False
 
     if DEBUGpacket:
         # Debug print the interface object
@@ -760,7 +761,7 @@ def onReceive(packet, interface):
 
                 hop = f"{hop_count} hops"
             
-            if message_string == help_message or message_string == welcome_message or "CMD?:" in message_string:
+            if message_string == help_message or message_string == welcome_message or message_string == "CMD?:" in message_string:
                 # ignore help and welcome messages
                 logger.warning(f"Got Own Welcome/Help header. From: {get_name_from_number(message_from_id, 'long', rxNode)}")
                 return
@@ -768,14 +769,15 @@ def onReceive(packet, interface):
             # If the packet is a DM (Direct Message) respond to it, otherwise validate its a message for us on the channel
             if packet['to'] == myNodeNum1 or packet['to'] == myNodeNum2:
                 # message is DM to us
+                isDM = True
                 # check if the message contains a trap word, DMs are always responded to
                 if messageTrap(message_string):
                     logger.info(f"Device:{rxNode} Channel: {channel_number} " + CustomFormatter.green + f"Received DM: " + CustomFormatter.white + f"{message_string} " + CustomFormatter.purple +\
                                 "From: " + CustomFormatter.white + f"{get_name_from_number(message_from_id, 'long', rxNode)}")
                     # respond with DM
-                    send_message(auto_response(message_string, snr, rssi, hop, pkiStatus, message_from_id, channel_number, rxNode), channel_number, message_from_id, rxNode)
+                    send_message(auto_response(message_string, snr, rssi, hop, pkiStatus, message_from_id, channel_number, rxNode), channel_number, message_from_id, rxNode, isDM)
                 else:
-                    # DM is usefull for games or LLM
+                    # DM is useful for games or LLM
                     if games_enabled:
                         playingGame = False
                         # if in a game we cant use LLM disable for duration of game
