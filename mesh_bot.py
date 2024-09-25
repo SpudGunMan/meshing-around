@@ -953,7 +953,7 @@ async def start_rx():
     if syslog_to_file:
         logger.debug("System: Logging System Logs to disk")
     if bbs_enabled:
-        logger.debug("System: BBS Enabled, {bbsdb} has {len(bbs_messages)} messages. Direct Mail Messages waiting: {(len(bbs_dm) - 1)}")
+        logger.debug(f"System: BBS Enabled, {bbsdb} has {len(bbs_messages)} messages. Direct Mail Messages waiting: {(len(bbs_dm) - 1)}")
     if solar_conditions_enabled:
         logger.debug("System: Celestial Telemetry Enabled")
     if location_enabled:
@@ -968,7 +968,7 @@ async def start_rx():
     if wikipedia_enabled:
         logger.debug("System: Wikipedia search Enabled")
     if motd_enabled:
-        logger.debug("System: MOTD Enabled using {MOTD}")
+        logger.debug(f"System: MOTD Enabled using {MOTD}")
     if sentry_enabled:
         logger.debug(f"System: Sentry Mode Enabled {sentry_radius}m radius reporting to channel:{secure_channel}")
     if store_forward_enabled:

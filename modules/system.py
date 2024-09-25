@@ -117,7 +117,7 @@ if games_enabled is True:
     help_message = help_message + ", games"
     trap_list = trap_list + ("games",)
     gTnW_enabled = True
-    gamesCmdList = "CMD: "
+    gamesCmdList = "Play via DM! CMD: "
     if dopewars_enabled:
         gamesCmdList += "DopeWars, "
     if lemonade_enabled:
@@ -130,6 +130,8 @@ if games_enabled is True:
     if videoPoker_enabled:
         gamesCmdList += "VideoPoker, "
     gamesCmdList = gamesCmdList[:-2] # remove the last comma
+else:
+    gamesCmdList = ""
 
 # Scheduled Broadcast Configuration
 if scheduler_enabled:
