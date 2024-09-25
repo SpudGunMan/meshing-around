@@ -13,7 +13,7 @@ DEBUGpacket = False # Debug print the packet rx
 # Global Variables
 cmdHistory = [] # list to hold the last commands
 
-def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_number, deviceID):
+def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_number, deviceID, isDM):
     global cmdHistory
     #Auto response to messages
     message_lower = message.lower()
@@ -775,7 +775,7 @@ def onReceive(packet, interface):
                     logger.info(f"Device:{rxNode} Channel: {channel_number} " + CustomFormatter.green + f"Received DM: " + CustomFormatter.white + f"{message_string} " + CustomFormatter.purple +\
                                 "From: " + CustomFormatter.white + f"{get_name_from_number(message_from_id, 'long', rxNode)}")
                     # respond with DM
-                    send_message(auto_response(message_string, snr, rssi, hop, pkiStatus, message_from_id, channel_number, rxNode), channel_number, message_from_id, rxNode, isDM)
+                    send_message(auto_response(message_string, snr, rssi, hop, pkiStatus, message_from_id, channel_number, rxNode, isDM), channel_number, message_from_id, rxNode)
                 else:
                     # DM is useful for games or LLM
                     if games_enabled:
