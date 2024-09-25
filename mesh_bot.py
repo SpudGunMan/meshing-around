@@ -403,16 +403,16 @@ def handleVideoPoker(nodeID, message):
 def handle_wxc(message_from_id, deviceID, cmd):
     location = get_node_location(message_from_id, deviceID)
     if use_meteo_wxApi and not "wxc" in cmd and not use_metric:
-        logger.debug(f"System: Bot Returning Open-Meteo API for weather imperial")
+        logger.debug("System: Bot Returning Open-Meteo API for weather imperial")
         weather = get_wx_meteo(str(location[0]), str(location[1]))
     elif use_meteo_wxApi:
-        logger.debug(f"System: Bot Returning Open-Meteo API for weather metric")
+        logger.debug("System: Bot Returning Open-Meteo API for weather metric")
         weather = get_wx_meteo(str(location[0]), str(location[1]), 1)
     elif not use_meteo_wxApi and "wxc" in cmd or use_metric:
-        logger.debug(f"System: Bot Returning NOAA API for weather metric")
+        logger.debug("System: Bot Returning NOAA API for weather metric")
         weather = get_weather(str(location[0]), str(location[1]), 1)
     else:
-        logger.debug(f"System: Bot Returning NOAA API for weather imperial")
+        logger.debug("System: Bot Returning NOAA API for weather imperial")
         weather = get_weather(str(location[0]), str(location[1]))
     return weather
 
@@ -537,9 +537,9 @@ def handle_history(nodeid, deviceID, lheard=False):
                 prettyTime = str(round(prettyTime/1440)) + "d"
 
             # history display output
-            if nodeid in bbs_admin_list and not cmdHistory[i]['nodeID'] in lheardCmdIgnoreNode:
+            if nodeid in bbs_admin_list and cmdHistory[i]['nodeID'] not in lheardCmdIgnoreNode:
                 buffer.append((get_name_from_number(cmdHistory[i]['nodeID'], 'short', deviceID), cmdHistory[i]['cmd'], prettyTime))
-            elif cmdHistory[i]['nodeID'] == nodeid and not cmdHistory[i]['nodeID'] in lheardCmdIgnoreNode:
+            elif cmdHistory[i]['nodeID'] == nodeid and cmdHistory[i]['nodeID'] not in lheardCmdIgnoreNode:
                 buffer.append((get_name_from_number(nodeid, 'short', deviceID), cmdHistory[i]['cmd'], prettyTime))
         # message for output of the last commands
         buffer.reverse()
@@ -562,7 +562,7 @@ def handle_history(nodeid, deviceID, lheard=False):
             else:
                 prettyTime = str(round(prettyTime/1440)) + "d"
 
-            if not cmdHistory[i]['nodeID'] in lheardCmdIgnoreNode:
+            if cmdHistory[i]['nodeID'] not in lheardCmdIgnoreNode:
                 # add line to a new list for display
                 nodeName = get_name_from_number(cmdHistory[i]['nodeID'], 'short', deviceID)
                 if not any(d[0] == nodeName for d in buffer):
@@ -636,7 +636,7 @@ def onDisconnect(interface):
     rxType = type(interface).__name__
     if rxType == 'SerialInterface':
         rxInterface = interface.__dict__.get('devPath', 'unknown')
-        logger.critical(f"System: Lost Connection to Device {rxInterface}")
+        logger.critical("System: Lost Connection to Device {rxInterface}")
         if port1 in rxInterface:
             retry_int1 = True
         elif interface2_enabled and port2 in rxInterface:
@@ -644,14 +644,14 @@ def onDisconnect(interface):
 
     if rxType == 'TCPInterface':
         rxHost = interface.__dict__.get('hostname', 'unknown')
-        logger.critical(f"System: Lost Connection to Device {rxHost}")
+        logger.critical("System: Lost Connection to Device {rxHost}")
         if hostname1 in rxHost and interface1_type == 'tcp':
             retry_int1 = True
         elif interface2_enabled and hostname2 in rxHost and interface2_type == 'tcp':
             retry_int2 = True
     
     if rxType == 'BLEInterface':
-        logger.critical(f"System: Lost Connection to Device BLE")
+        logger.critical("System: Lost Connection to Device BLE")
         if interface1_type == 'ble':
             retry_int1 = True
         elif interface2_enabled and interface2_type == 'ble':
@@ -936,26 +936,26 @@ async def start_rx():
         logger.info(f"System: Autoresponder Started for Device2 {get_name_from_number(myNodeNum2, 'long', 2)},"
                     f"{get_name_from_number(myNodeNum2, 'short', 2)}. NodeID: {myNodeNum2}, {decimal_to_hex(myNodeNum2)}")
     if log_messages_to_file:
-        logger.debug(f"System: Logging Messages to disk")
+        logger.debug("System: Logging Messages to disk")
     if syslog_to_file:
-        logger.debug(f"System: Logging System Logs to disk")
+        logger.debug("System: Logging System Logs to disk")
     if bbs_enabled:
-        logger.debug(f"System: BBS Enabled, {bbsdb} has {len(bbs_messages)} messages. Direct Mail Messages waiting: {(len(bbs_dm) - 1)}")
+        logger.debug("System: BBS Enabled, {bbsdb} has {len(bbs_messages)} messages. Direct Mail Messages waiting: {(len(bbs_dm) - 1)}")
     if solar_conditions_enabled:
-        logger.debug(f"System: Celestial Telemetry Enabled")
+        logger.debug("System: Celestial Telemetry Enabled")
     if location_enabled:
         if use_meteo_wxApi:
-            logger.debug(f"System: Location Telemetry Enabled using Open-Meteo API")
+            logger.debug("System: Location Telemetry Enabled using Open-Meteo API")
         else:
-            logger.debug(f"System: Location Telemetry Enabled using NOAA API")
+            logger.debug("System: Location Telemetry Enabled using NOAA API")
     if dad_jokes_enabled:
-        logger.debug(f"System: Dad Jokes Enabled!")
+        logger.debug("System: Dad Jokes Enabled!")
     if games_enabled:
-        logger.debug(f"System: Games Enabled!")
+        logger.debug("System: Games Enabled!")
     if wikipedia_enabled:
-        logger.debug(f"System: Wikipedia search Enabled")
+        logger.debug("System: Wikipedia search Enabled")
     if motd_enabled:
-        logger.debug(f"System: MOTD Enabled using {MOTD}")
+        logger.debug("System: MOTD Enabled using {MOTD}")
     if sentry_enabled:
         logger.debug(f"System: Sentry Mode Enabled {sentry_radius}m radius reporting to channel:{secure_channel}")
     if store_forward_enabled:
