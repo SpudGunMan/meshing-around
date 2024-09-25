@@ -17,8 +17,8 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     global cmdHistory
     #Auto response to messages
     message_lower = message.lower()
-    bot_response = "I'm sorry, I'm afraid I can't do that."
     if isDM:
+        bot_response = "I'm sorry, I'm afraid I can't do that."
         command_handler = {
             "ping": lambda: handle_ping(message, hop, snr, rssi),
             "pong": lambda: "🏓PING!!",
@@ -60,6 +60,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
             "whoami": lambda: handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus)
         }
     else:
+        bot_response = ""
         command_handler = {
             "ping": lambda: handle_ping(message, hop, snr, rssi),
             "pong": lambda: "🏓PING!!",
