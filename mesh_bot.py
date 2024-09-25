@@ -48,7 +48,6 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "bbsdelete": lambda: handle_bbsdelete(message, message_from_id),
     "messages": lambda: handle_messages(deviceID, channel_number, msg_history, publicChannel),
     "cmd": lambda: help_message,
-    "cmd?": lambda: help_message,
     "history": lambda: handle_history(message_from_id, deviceID),
     "sun": lambda: handle_sun(message_from_id, deviceID, channel_number),
     "hfcond": hf_band_conditions,
@@ -67,8 +66,14 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     # set the command handler
     command_handler = default_commands
     cmds = [] # list to hold the commands found in the message
+    # check the message for commands words list, processed after system.messageTrap
     for key in command_handler:
-        if key in message_lower.split(' '):
+        word = message_lower.split(' ')
+        if key in word:
+            # append all the commands found in the message to the cmds list
+            cmds.append({'cmd': key, 'index': message_lower.index(key)})
+        # check for commands with a question mark
+        if key + "?" in word:
             # append all the commands found in the message to the cmds list
             cmds.append({'cmd': key, 'index': message_lower.index(key)})
 
@@ -783,6 +788,7 @@ def onReceive(packet, interface):
                 isDM = True
                 # check if the message contains a trap word, DMs are always responded to
                 if messageTrap(message_string):
+                    # log the message to the message log
                     logger.info(f"Device:{rxNode} Channel: {channel_number} " + CustomFormatter.green + f"Received DM: " + CustomFormatter.white + f"{message_string} " + CustomFormatter.purple +\
                                 "From: " + CustomFormatter.white + f"{get_name_from_number(message_from_id, 'long', rxNode)}")
                     # respond with DM

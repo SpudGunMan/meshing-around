@@ -581,11 +581,21 @@ def get_wikipedia_summary(search_term):
     return summary
 
 def messageTrap(msg):
-    # Check if the message contains a trap word
+    # Check if the message contains a trap word, this is the first filter for listning to messages
+    # after this the message is passed to the command_handler in the bot.py which is switch case filter for applying word to function
+
+    # Split Message on assumed words spaces m for m = msg.split(" ")
+    # t in trap_list, built by the config and system.py not the user
     message_list=msg.split(" ")
     for m in message_list:
         for t in trap_list:
+            # if word in message is in the trap list, return True
             if t.lower() == m.lower():
+                return True
+    # if no trap words found, run a search for near misses like ping? or cmd?
+    for m in message_list:
+        for t in range(len(trap_list)):
+            if m.endswith('?') and m[:-1].lower() == trap_list[t]:
                 return True
     return False
 
