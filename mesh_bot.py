@@ -761,7 +761,7 @@ def onReceive(packet, interface):
 
                 hop = f"{hop_count} hops"
             
-            if message_string == help_message or message_string == welcome_message or "CMD?:" in message_string.lower():
+            if message_string == help_message or message_string == welcome_message or "cmd?:" in message_string.lower():
                 # ignore help and welcome messages
                 logger.warning(f"Got Own Welcome/Help header. From: {get_name_from_number(message_from_id, 'long', rxNode)}")
                 return
