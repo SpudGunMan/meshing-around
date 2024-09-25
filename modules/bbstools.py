@@ -16,7 +16,7 @@ def load_bbsdb():
     try:
         with open('bbsdb.pkl', 'rb') as f:
             bbs_messages = pickle.load(f)
-    except:
+    except Exception as e:
         bbs_messages = [[1, "Welcome to meshBBS", "Welcome to the BBS, please post a message!",0]]
         logger.debug("System: Creating new bbsdb.pkl")
         with open('bbsdb.pkl', 'wb') as f:
