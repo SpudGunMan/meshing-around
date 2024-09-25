@@ -138,7 +138,7 @@ def success_rate(card, obj_h):
             l_rate -= 99
         msg += f"If Hit, chance {100-l_rate}% failure, and {l_rate}% success"
     else:
-        msg += f"If Hit, a low chance of success."
+        msg += "If Hit, a low chance of success."
     return msg
 
 def hits(obj_de):
@@ -405,15 +405,15 @@ def playBlackJack(nodeID, message):
             # Check who wins
             if push(p_hand, d_hand):
                 draw += 1
-                msg += f"👌PUSH"
+                msg += "👌PUSH"
             elif player_wins(p_hand, d_hand, p_chips):
                 p_win += 1
-                msg += f"🎉PLAYER WINS🎰"
+                msg += "🎉PLAYER WINS🎰"
             elif dealer_wins(p_hand, d_hand, p_chips):
                 d_win += 1
-                msg += f"👎DEALER WINS"
+                msg += "👎DEALER WINS"
         else:
-            msg += f"👎DEALER WINS"
+            msg += "👎DEALER WINS"
 
         # Display the Game Stats
         msg += gameStats(str(p_win), str(d_win), str(draw))
@@ -421,7 +421,7 @@ def playBlackJack(nodeID, message):
         # Display the chips left
         if p_chips.total < 1:
             if p_chips.total > 0:
-                msg += f"🪙Keep the change you filthy animal!"
+                msg += "🪙Keep the change you filthy animal!"
             else:
                 msg += "💸NO MORE MONEY! Game Over!"
                 p_chips.total = jack_starting_cash
