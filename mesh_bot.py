@@ -57,9 +57,9 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "whereami": lambda: handle_whereami(message_from_id, deviceID, channel_number),
     "tide": lambda: handle_tide(message_from_id, deviceID, channel_number),
     "moon": lambda: handle_moon(message_from_id, deviceID, channel_number),
-    "ack": lambda: handle_ack(hop, snr, rssi),
-    "testing": lambda: handle_testing(message, hop, snr, rssi),
-    "test": lambda: handle_testing(message, hop, snr, rssi),
+    "ack": lambda:  handle_ping(hop, snr, rssi),
+    "testing": lambda:  handle_ping(message, hop, snr, rssi),
+    "test": lambda:  handle_ping(message, hop, snr, rssi),
     "whoami": lambda: handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus)
     }
 
@@ -98,23 +98,32 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     return bot_response
 
 def handle_ping(message, hop, snr, rssi, isDM):
+    msg = ""
+    if "ping" in message:
+        msg = "🏓PONG, "
+    elif "test" in message or "testing" in message:
+        msg = random.choice("🎙Testing 1,2,3 ", "🎙Testing ", "🎙Testing, testing ",\
+                            "🎙Ah-wun, ah-two...", "🎙Is this thing on?", "🎙Roger that.")
+    elif "ack" in message:
+        msg = "✋ACK-ACK! "
+
     if  "?" in message and isDM:
-        msg = "Ping command returns SNR and RSSI, or hopcount from your message. Try adding e.g. @place or #1/3 to your message"
+        return "Ping, test, or ack command returns SNR and RSSI, or hopcount from your message. Try adding e.g. @place or #1/3 to your message"
     elif "@" in message:
         if hop == "Direct":
-            return "🏓PONG, " + f"SNR:{snr} RSSI:{rssi}" + " at: " + message.split("@")[1]
+            return msg + f"SNR:{snr} RSSI:{rssi}" + " at: " + message.split("@")[1]
         else:
-            return "🏓PONG, " + hop + " at: " + message.split("@")[1]
+            return msg + hop + " at: " + message.split("@")[1]
     elif "#" in message:
         if hop == "Direct":
-            return "🏓PONG, " + f"SNR:{snr} RSSI:{rssi}" + " #" + message.split("#")[1]
+            return msg + f"SNR:{snr} RSSI:{rssi}" + " #" + message.split("#")[1]
         else:
-            return "🏓PONG, " + hop + " #" + message.split("#")[1]
+            return msg + hop + " #" + message.split("#")[1]
     else:
         if hop == "Direct":
-            return "🏓PONG, " + f"SNR:{snr} RSSI:{rssi}"
+            return msg + f"SNR:{snr} RSSI:{rssi}"
         else:
-            return "🏓PONG, " + hop
+            return msg + hop
 
 def handle_motd(message, message_from_id, isDM):
     global MOTD
