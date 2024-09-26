@@ -87,7 +87,7 @@ printf "\n service files updated\n"
 echo "Do you want to install the emoji font for debian linux? (y/n)"
 read emoji
 if [ $emoji == "y" ]; then
-    sudo apt-get install fonts-noto-color-emoji
+    sudo apt-get install -y fonts-noto-color-emoji
     echo "Emoji font installed!, reboot to load the font"
 fi
 
@@ -124,7 +124,7 @@ if [ $ollama == "y" ]; then
     echo "Do you want to install the Gemma2:2b components? (y/n)"
     read gemma
     if [ $gemma == "y" ]; then
-        olamma pull gemma2:2b
+        ollama pull gemma2:2b
     fi
 fi
 
