@@ -39,6 +39,8 @@ printf "\nMeshing Around Installer\n"
 if ! python3 -m venv --help &> /dev/null
 then
     printf "Python3 venv module not found, please install python3-venv with your OS\n"
+    sudo apt-get install python3-venv
+    exit 1
 else
     printf "Python3 venv module found\n"
 fi
