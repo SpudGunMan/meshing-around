@@ -59,9 +59,8 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "moon": lambda: handle_moon(message_from_id, deviceID, channel_number),
     "ack": lambda:  handle_ping(message, hop, snr, rssi, isDM),
     "testing": lambda:  handle_ping(message, hop, snr, rssi, isDM),
-    "test": lambda:  
-    .(message, hop, snr, rssi, isDM),
-    "whoami": lambda: handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus)
+    "test": lambda:  handle_ping(message, hop, snr, rssi, isDM),
+    "whoami": lambda: handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus),
     }
 
     # set the command handler
