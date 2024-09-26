@@ -104,6 +104,7 @@ def handle_ping(message, hop, snr, rssi, isDM):
     
     if "ping" in message:
         msg = msg + "🏓PONG, "
+        logger.debug(msg)
     elif "test" in message or "testing" in message:
         msg = msg + random.choice(["🎙Testing 1,2,3 \n", "🎙Testing \n",\
                             "🎙Testing, testing \n",\
@@ -112,15 +113,21 @@ def handle_ping(message, hop, snr, rssi, isDM):
     elif "ack" in message:
         msg = msg + "✋ACK-ACK!, n"
     
+    logger.debug(msg)
+
     if hop == "Direct":
         msg = msg + f"SNR:{snr} RSSI:{rssi}"
     else:
         msg = msg + hop
 
+    logger.debug(msg)
+
     if "@" in message:
         msg = msg + " @" + message.split("@")[1]
     elif "#" in message:
         msg = msg + " #" + message.split("#")[1]
+
+    logger.debug(msg)
 
     return msg
 
