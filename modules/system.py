@@ -117,7 +117,7 @@ if games_enabled is True:
     help_message = help_message + ", games"
     trap_list = trap_list + ("games",)
     gTnW_enabled = True
-    gamesCmdList = "Play via DM! CMD: "
+    gamesCmdList = "Play via DM🕹️ CMD: "
     if dopewars_enabled:
         gamesCmdList += "DopeWars, "
     if lemonade_enabled:
