@@ -11,8 +11,8 @@ Type=simple
 User=pi
 Group=pi
 WorkingDirectory=/dir/
-ExecStart=/usr/bin/bash python3 pong_bot.py
-ExecStop=/usr/bin/bash pkill -f pong_bot.py
+ExecStart=python3 pong_bot.py
+ExecStop=pkill -f pong_bot.py
 
 # Disable Python's buffering of STDOUT and STDERR, so that output from the
 # service shows up immediately in systemd's logs

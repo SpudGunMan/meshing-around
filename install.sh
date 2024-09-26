@@ -2,6 +2,9 @@
 
 # install.sh
 cd "$(dirname "$0")"
+program_path=$(pwd)
+cp etc/pong_bot.tmp etc/pong_bot.service
+cp etc/mesh_bot.tmp etc/mesh_bot.service
 
 printf "\nMeshing Around Installer\n"
 printf "\nThis script will install the Meshing Around bot and its dependencies works best in debian/ubuntu\n"
@@ -58,13 +61,9 @@ if [ $venv == "y" ]; then
         fi
 
         # config service files for virtual environment
-        replace="s|python3 mesh_bot.py|/dir/launch.sh mesh|g"
+        replace="s|python3 mesh_bot.py|launch.sh mesh|g"
         sed -i "$replace" etc/mesh_bot.service
-        replace="s|python3 pong_bot.py|/dir/launch.sh pong|g"
-        sed -i "$replace" etc/pong_bot.service
-        replace="s|pkill -f mesh_bot.py|pkill -f launch.sh|g"
-        sed -i "$replace" etc/mesh_bot.service
-        replace="s|pkill -f pong_bot.py|pkill -f launch.sh|g"
+        replace="s|python3 pong_bot.py|launch.sh pong|g"
         sed -i "$replace" etc/pong_bot.service
 
         # install dependencies
@@ -86,10 +85,6 @@ printf "\n\n"
 echo "Which bot do you want to install as a service? Pong Mesh or None? (pong/mesh/n)"
 read bot
 
-#set the correct path in the service file
-program_path=$(pwd)
-cp etc/pong_bot.tmp etc/pong_bot.service
-cp etc/mesh_bot.tmp etc/mesh_bot.service
 # set the correct path in the service file
 replace="s|/dir/|$program_path/|g"
 sed -i $replace etc/pong_bot.service
