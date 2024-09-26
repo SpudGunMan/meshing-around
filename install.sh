@@ -59,6 +59,14 @@ if [ $venv == "y" ]; then
         python3 -m venv venv
         source venv/bin/activate
 
+        if [ -f venv/bin/activate ]; then
+            printf "\nVirtual environment created\n"
+        else
+            sudo apt-get install python3-venv
+            printf "\nVirtual environment not created please install python3-venv\n"
+            exit 1
+        fi
+
     # config service files for virtual environment
     replace="python3 mesh_bot.py|/dir/launch.sh mesh"
     sed -i $replace etc/mesh_bot.service
