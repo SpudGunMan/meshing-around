@@ -25,7 +25,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     # Command List
     default_commands = {
     "ping": lambda: handle_ping(message, hop, snr, rssi, isDM),
-    "pong": lambda: "/n                 PING!! 🏓",
+    "pong": lambda: "\n                 PING!! 🏓",
     "motd": lambda: handle_motd(message, message_from_id, isDM),
     "bbshelp": bbs_help,
     "wxalert": lambda: handle_wxalert(message_from_id, deviceID, message),
@@ -102,34 +102,28 @@ def handle_ping(message, hop, snr, rssi, isDM):
         return message.split("?")[0].title() + " command returns SNR and RSSI, or hopcount from your message. Try adding e.g. @place or #1/3 to your message"
     
     msg = ""
-    
-    if "ping" in message:
-        msg = "🏓PONG, "
-    elif "test" in message or "testing" in message:
-        msg = msg + random.choice(["🎙Testing 1,2,3 \n", "🎙Testing \n",\
+
+    if "ping" in message.lower():
+        msg = "🏓PONG \n"
+    elif "test" in message.lower() or "testing" in message.lower():
+        msg = random.choice(["🎙Testing 1,2,3 \n", "🎙Testing \n",\
                             "🎙Testing, testing \n",\
                             "🎙Ah-wun, ah-two... \n", "🎙Is this thing on? \n",\
                             "🎙Roger that. \n", "Ack to you! \n"])
-    elif "ack" in message:
-        msg += "✋ACK-ACK!, n"
+    elif "ack" in message.lower():
+        msg = "✋ACK-ACK!, n"
     else:
         msg = ""
-    
-    logger.debug(msg)
 
     if hop == "Direct":
         msg = msg + f"SNR:{snr} RSSI:{rssi}"
     else:
         msg = msg + hop
 
-    logger.debug(msg)
-
     if "@" in message:
         msg = msg + " @" + message.split("@")[1]
     elif "#" in message:
         msg = msg + " #" + message.split("#")[1]
-
-    logger.debug(msg)
 
     return msg
 
