@@ -36,13 +36,11 @@ printf "\nConfig file generated\n"
 printf "\nMeshing Around Installer\n"
 
 #check if python3 has venv module
-if ! python3 -m venv --help &> /dev/null
-then
-    printf "Python3 venv module not found, please install python3-venv with your OS\n"
+if [ -f venv/bin/activate ]; then
+    printf "\nFpund virtual environment for python\n"
+else
     sudo apt-get install python3-venv
     exit 1
-else
-    printf "Python3 venv module found\n"
 fi
 
 echo "Do you want to install the bot in a virtual environment? (y/n)"
@@ -59,26 +57,18 @@ if [ $venv == "y" ]; then
         python3 -m venv venv
         source venv/bin/activate
 
-        if [ -f venv/bin/activate ]; then
-            printf "\nVirtual environment created\n"
-        else
-            sudo apt-get install python3-venv
-            printf "\nVirtual environment not created please install python3-venv\n"
-            exit 1
-        fi
+        # config service files for virtual environment
+        replace="python3 mesh_bot.py|/dir/launch.sh mesh"
+        sed -i $replace etc/mesh_bot.service
+        replace="python3 pong_bot.py|/dir/launch.sh pong"
+        sed -i $replace etc/pong_bot.service
+        replace="pkill -f mesh_bot.py|pkill -f launch.sh"
+        sed -i $replace etc/mesh_bot.service
+        replace="pkill -f pong_bot.py|pkill -f launch.sh"
+        sed -i $replace etc/pong_bot.service
 
-    # config service files for virtual environment
-    replace="python3 mesh_bot.py|/dir/launch.sh mesh"
-    sed -i $replace etc/mesh_bot.service
-    replace="python3 pong_bot.py|/dir/launch.sh pong"
-    sed -i $replace etc/pong_bot.service
-    replace="pkill -f mesh_bot.py|pkill -f launch.sh"
-    sed -i $replace etc/mesh_bot.service
-    replace="pkill -f pong_bot.py|pkill -f launch.sh"
-    sed -i $replace etc/pong_bot.service
-
-    # install dependencies
-    pip install -U -r requirements.txt
+        # install dependencies
+        pip install -U -r requirements.txt
     fi
 else
     printf "\nSkipping virtual environment...\n"
