@@ -25,7 +25,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     # Command List
     default_commands = {
     "ping": lambda: handle_ping(message, hop, snr, rssi, isDM),
-    "pong": lambda: "\n                 PING!! 🏓",
+    "pong": lambda: "\n                             PING!! 🏓",
     "motd": lambda: handle_motd(message, message_from_id, isDM),
     "bbshelp": bbs_help,
     "wxalert": lambda: handle_wxalert(message_from_id, deviceID, message),
@@ -104,14 +104,14 @@ def handle_ping(message, hop, snr, rssi, isDM):
     msg = ""
 
     if "ping" in message.lower():
-        msg = "🏓PONG \n"
+        msg = "🏓 PONG \n"
     elif "test" in message.lower() or "testing" in message.lower():
         msg = random.choice(["🎙Testing 1,2,3 \n", "🎙Testing \n",\
                             "🎙Testing, testing \n",\
                             "🎙Ah-wun, ah-two... \n", "🎙Is this thing on? \n",\
-                            "🎙Roger that. \n", "Ack to you! \n"])
+                            "🎙Roger that. \n",])
     elif "ack" in message.lower():
-        msg = "✋ACK-ACK!, n"
+        msg = random.choice(["✋ACK-ACK!\n", "Ack to you!\n"])
     else:
         msg = ""
 
@@ -640,28 +640,6 @@ def handle_moon(message_from_id, deviceID, channel_number):
     location = get_node_location(message_from_id, deviceID, channel_number)
     return get_moon(str(location[0]), str(location[1]))
 
-def handle_ack(hop, snr, rssi):
-    if hop == "Direct":
-        return "✋ACK-ACK! " + f"SNR:{snr} RSSI:{rssi}"
-    else:
-        return "✋ACK-ACK! " + hop
-
-def handle_testing(message, hop, snr, rssi):
-    if "@" in message:
-        if hop == "Direct":
-            return "🎙Testing, " + f"SNR:{snr} RSSI:{rssi}" + " at: " + message.split("@")[1]
-        else:
-            return "🎙Testing, " + hop + " at: " + message.split("@")[1]
-    elif "#" in message:
-        if hop == "Direct":
-            return "🎙Testing " + f"SNR:{snr} RSSI:{rssi}" + " #" + message.split("#")[1]
-        else:
-            return "🎙Testing  " + hop + " #" + message.split("#")[1]
-    else:
-        if hop == "Direct":
-            return "🎙Testing 1,2,3 " + f"SNR:{snr} RSSI:{rssi}"
-        else:
-            return "🎙Testing 1,2,3 " + hop
 
 def handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus):
     loc = []
