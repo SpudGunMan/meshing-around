@@ -118,11 +118,11 @@ def handle_ping(message, hop, snr, rssi, isDM):
         msg = msg + hop
 
     if "@" in message:
-        return msg + "@" + message.split("@")[1]
+        msg = msg + "@" + message.split("@")[1]
     elif "#" in message:
-        return msg + "#" + message.split("#")[1]
-    else:
-        return msg
+        msg = msg + "#" + message.split("#")[1]
+
+    return msg
 
 def handle_motd(message, message_from_id, isDM):
     global MOTD
