@@ -57,9 +57,9 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "whereami": lambda: handle_whereami(message_from_id, deviceID, channel_number),
     "tide": lambda: handle_tide(message_from_id, deviceID, channel_number),
     "moon": lambda: handle_moon(message_from_id, deviceID, channel_number),
-    "ack": lambda:  handle_ping(hop, snr, rssi),
-    "testing": lambda:  handle_ping(message, hop, snr, rssi),
-    "test": lambda:  handle_ping(message, hop, snr, rssi),
+    "ack": lambda:  handle_ping(message, hop, snr, rssi, isDM),
+    "testing": lambda:  handle_ping(message, hop, snr, rssi, isDM),
+    "test": lambda:  handle_ping(message, hop, snr, rssi, isDM),
     "whoami": lambda: handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus)
     }
 
