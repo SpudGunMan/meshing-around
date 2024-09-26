@@ -25,7 +25,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     # Command List
     default_commands = {
     "ping": lambda: handle_ping(message, hop, snr, rssi, isDM),
-    "pong": lambda: "🏓PING!!",
+    "pong": lambda: "                 PING!! 🏓",
     "motd": lambda: handle_motd(message, message_from_id, isDM),
     "bbshelp": bbs_help,
     "wxalert": lambda: handle_wxalert(message_from_id, deviceID, message),
@@ -59,7 +59,8 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "moon": lambda: handle_moon(message_from_id, deviceID, channel_number),
     "ack": lambda:  handle_ping(message, hop, snr, rssi, isDM),
     "testing": lambda:  handle_ping(message, hop, snr, rssi, isDM),
-    "test": lambda:  handle_ping(message, hop, snr, rssi, isDM),
+    "test": lambda:  
+    .(message, hop, snr, rssi, isDM),
     "whoami": lambda: handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus)
     }
 
@@ -98,32 +99,31 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     return bot_response
 
 def handle_ping(message, hop, snr, rssi, isDM):
+    if  "?" in message and isDM:
+        return message.split("?")[0].title() + " command returns SNR and RSSI, or hopcount from your message. Try adding e.g. @place or #1/3 to your message"
+    
     msg = ""
     if "ping" in message:
-        msg = "🏓PONG, "
+        msg = "🏓PONG\n"
     elif "test" in message or "testing" in message:
-        msg = random.choice("🎙Testing 1,2,3 ", "🎙Testing ", "🎙Testing, testing ",\
-                            "🎙Ah-wun, ah-two...", "🎙Is this thing on?", "🎙Roger that.")
+        msg = random.choice(["🎙Testing 1,2,3\n", "🎙Testing\n",\
+                            "🎙Testing, testing\n",\
+                            "🎙Ah-wun, ah-two...\n", "🎙Is this thing on?\n",\
+                            "🎙Roger that.\n", "Ack to you!\n"])
     elif "ack" in message:
-        msg = "✋ACK-ACK! "
-
-    if  "?" in message and isDM:
-        return "Ping, test, or ack command returns SNR and RSSI, or hopcount from your message. Try adding e.g. @place or #1/3 to your message"
-    elif "@" in message:
-        if hop == "Direct":
-            return msg + f"SNR:{snr} RSSI:{rssi}" + " at: " + message.split("@")[1]
-        else:
-            return msg + hop + " at: " + message.split("@")[1]
-    elif "#" in message:
-        if hop == "Direct":
-            return msg + f"SNR:{snr} RSSI:{rssi}" + " #" + message.split("#")[1]
-        else:
-            return msg + hop + " #" + message.split("#")[1]
+        msg = "✋ACK-ACK!\n"
+    
+    if hop == "Direct":
+        msg = msg + f"SNR:{snr} RSSI:{rssi}"
     else:
-        if hop == "Direct":
-            return msg + f"SNR:{snr} RSSI:{rssi}"
-        else:
-            return msg + hop
+        msg = msg + hop
+
+    if "@" in message:
+        return msg + "@" + message.split("@")[1]
+    elif "#" in message:
+        return msg + "#" + message.split("#")[1]
+    else:
+        return msg
 
 def handle_motd(message, message_from_id, isDM):
     global MOTD
