@@ -98,10 +98,10 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     return bot_response
 
 def handle_ping(message, hop, snr, rssi, isDM):
+    msg = ""
     if  "?" in message and isDM:
         return message.split("?")[0].title() + " command returns SNR and RSSI, or hopcount from your message. Try adding e.g. @place or #1/3 to your message"
     
-    msg = ""
     if "ping" in message:
         msg = msg + "🏓PONG\n"
     elif "test" in message or "testing" in message:
@@ -118,11 +118,11 @@ def handle_ping(message, hop, snr, rssi, isDM):
         msg = msg + hop
 
     if "@" in message:
-        return msg + "@" + message.split("@")[1]
+        msg = msg + "@" + message.split("@")[1]
     elif "#" in message:
-        return msg + "#" + message.split("#")[1]
-    else:
-        return msg
+        msg = msg + "#" + message.split("#")[1]
+
+    return msg
 
 def handle_motd(message, message_from_id, isDM):
     global MOTD
