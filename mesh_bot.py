@@ -53,7 +53,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "hfcond": hf_band_conditions,
     "solar": lambda: drap_xray_conditions() + "\n" + solar_conditions(),
     "lheard": lambda: handle_lheard(message_from_id, deviceID, isDM),
-    "sitrep": lambda: handle_lheard(message_from_id, deviceID),
+    "sitrep": lambda: handle_lheard(message_from_id, deviceID, isDM),
     "whereami": lambda: handle_whereami(message_from_id, deviceID, channel_number),
     "tide": lambda: handle_tide(message_from_id, deviceID, channel_number),
     "moon": lambda: handle_moon(message_from_id, deviceID, channel_number),
