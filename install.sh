@@ -57,6 +57,12 @@ if [ $venv == "y" ]; then
         python3 -m venv venv
         source venv/bin/activate
 
+    # config service files for virtual environment
+    replace="python3 mesh_bot.py|/dir/launch.sh mesh"
+    sed -i $replace etc/mesh_bot.service
+    replace="python3 pong_bot.py|/dir/launch.sh pong"
+    sed -i $replace etc/pong_bot.service
+
     # install dependencies
     pip install -U -r requirements.txt
     fi
@@ -96,11 +102,13 @@ fi
 if [ $bot == "pong" ]; then
     # install service for pong bot
     sudo cp etc/pong_bot.service /etc/systemd/system/
+    sudo systemctl enable pong_bot.service
 fi
 
 if [ $bot == "mesh" ]; then
     # install service for mesh bot
     sudo cp etc/mesh_bot.service /etc/systemd/system/
+    sudo systemctl enable mesh_bot.service
 fi
 
 if [ $bot == "n" ]; then
