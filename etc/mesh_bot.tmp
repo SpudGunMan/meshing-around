@@ -7,8 +7,12 @@ Description=MESH-BOT
 After=network.target
 
 [Service]
+Type=simple
+User=pi
+Group=pi
 WorkingDirectory=/dir/
-ExecStart=/usr/bin/bash /dir/launch.sh mesh
+ExecStart=python3 mesh_bot.py
+ExecStop=pkill -f mesh_bot.py
 
 # Disable Python's buffering of STDOUT and STDERR, so that output from the
 # service shows up immediately in systemd's logs
