@@ -562,9 +562,8 @@ def handle_history(message, nodeid, deviceID, isDM, lheard=False):
     if  "?" in message and isDM:
         msg = "List of recent commands this node has received."
         return msg
-    else:
-    # show the last commands from the user to the bot
-    if not lheard:
+        # show the last commands from the user to the bot
+    elif not lheard:
         for i in range(len(cmdHistory)):
             prettyTime = round((time.time() - cmdHistory[i]['time']) / 600) * 5
             if prettyTime < 60:
