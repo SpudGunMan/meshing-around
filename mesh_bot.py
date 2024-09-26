@@ -46,7 +46,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "bbspost": lambda: handle_bbspost(message, message_from_id, deviceID),
     "bbsread": lambda: handle_bbsread(message),
     "bbsdelete": lambda: handle_bbsdelete(message, message_from_id),
-    "messages": lambda: handle_messages(deviceID, channel_number, msg_history, publicChannel, isDM),
+    "messages": lambda: handle_messages(message, deviceID, channel_number, msg_history, publicChannel, isDM),
     "cmd": lambda: help_message,
     "history": lambda: handle_history(message, message_from_id, deviceID, isDM),
     "sun": lambda: handle_sun(message_from_id, deviceID, channel_number),
@@ -491,7 +491,7 @@ def handle_bbsdelete(message, message_from_id):
     elif not "example:" in message:
         return "Please add a message number example: bbsdelete #14"
 
-def handle_messages(deviceID, channel_number, msg_history, publicChannel, isDM):
+def handle_messages(message, deviceID, channel_number, msg_history, publicChannel, isDM):
     if  "?" in message and isDM:
         msg = "Command returns the last " & list.msg_history.count() & " messages sent on a channel."
         return msg
