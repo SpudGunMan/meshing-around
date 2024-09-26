@@ -58,13 +58,13 @@ if [ $venv == "y" ]; then
         fi
 
         # config service files for virtual environment
-        replace="python3 mesh_bot.py|/dir/launch.sh mesh"
+        replace="s|python3 mesh_bot.py|/dir/launch.sh mesh|g"
         sed -i $replace etc/mesh_bot.service
-        replace="python3 pong_bot.py|/dir/launch.sh pong"
+        replace="s|python3 pong_bot.py|/dir/launch.sh pong|g"
         sed -i $replace etc/pong_bot.service
-        replace="pkill -f mesh_bot.py|pkill -f launch.sh"
+        replace="s|pkill -f mesh_bot.py|pkill -f launch.sh|g"
         sed -i $replace etc/mesh_bot.service
-        replace="pkill -f pong_bot.py|pkill -f launch.sh"
+        replace="s|pkill -f pong_bot.py|pkill -f launch.sh|g"
         sed -i $replace etc/pong_bot.service
 
         # install dependencies
