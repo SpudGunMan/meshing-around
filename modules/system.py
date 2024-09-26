@@ -45,6 +45,8 @@ if solar_conditions_enabled:
     from modules.solarconditions import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + trap_list_solarconditions # items hfcond, solar, sun, moon
     help_message = help_message + ", sun, hfcond, solar, moon"
+else:
+    hf_band_conditions = False
 
 # Command History Configuration
 if enableCmdHistory:
@@ -63,12 +65,16 @@ if location_enabled:
     else:
         # NOAA only features
         help_message = help_message + ", wxa, tide"
-
+        
 # BBS Configuration
 if bbs_enabled:
     from modules.bbstools import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + trap_list_bbs # items bbslist, bbspost, bbsread, bbsdelete, bbshelp
     help_message = help_message + ", bbslist, bbshelp"
+else:
+    bbs_help = False
+    bbs_list_messages = False
+
 
 # Dad Jokes Configuration
 if dad_jokes_enabled:
