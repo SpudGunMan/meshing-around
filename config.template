@@ -25,7 +25,7 @@ port = /dev/ttyUSB0
 [general]
 # if False will respond on all channels but the default channel
 respond_by_dm_only = True
-# defaultChannel is the meshtastic default public channel
+# defaultChannel is the meshtastic default public channel, e.g. LongFast
 defaultChannel = 0
 # motd is reset to this value on boot
 motd = Thanks for using MeshBOT! Have a good day!

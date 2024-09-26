@@ -24,15 +24,15 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
 
     # Command List
     default_commands = {
-    "ping": lambda: handle_ping(message, hop, snr, rssi),
+    "ping": lambda: handle_ping(message, hop, snr, rssi, isDM),
     "pong": lambda: "🏓PING!!",
-    "motd": lambda: handle_motd(message, message_from_id),
+    "motd": lambda: handle_motd(message, message_from_id, isDM),
     "bbshelp": bbs_help,
     "wxalert": lambda: handle_wxalert(message_from_id, deviceID, message),
     "wxa": lambda: handle_wxalert(message_from_id, deviceID, message),
     "wxc": lambda: handle_wxc(message_from_id, deviceID, 'wxc'),
     "wx": lambda: handle_wxc(message_from_id, deviceID, 'wx'),
-    "wiki:": lambda: handle_wiki(message),
+    "wiki:": lambda: handle_wiki(message, isDM),
     "games": lambda: gamesCmdList,
     "dopewars": lambda: handleDopeWars(message_from_id, message, deviceID),
     "lemonstand": lambda: handleLemonade(message_from_id, message),
@@ -46,9 +46,9 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "bbspost": lambda: handle_bbspost(message, message_from_id, deviceID),
     "bbsread": lambda: handle_bbsread(message),
     "bbsdelete": lambda: handle_bbsdelete(message, message_from_id),
-    "messages": lambda: handle_messages(deviceID, channel_number, msg_history, publicChannel),
+    "messages": lambda: handle_messages(deviceID, channel_number, msg_history, publicChannel, isDM),
     "cmd": lambda: help_message,
-    "history": lambda: handle_history(message_from_id, deviceID),
+    "history": lambda: handle_history(message_from_id, deviceID, isDM),
     "sun": lambda: handle_sun(message_from_id, deviceID, channel_number),
     "hfcond": hf_band_conditions,
     "solar": lambda: drap_xray_conditions() + "\n" + solar_conditions(),
@@ -97,8 +97,10 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
 
     return bot_response
 
-def handle_ping(message, hop, snr, rssi):
-    if "@" in message:
+def handle_ping(message, hop, snr, rssi, isDM):
+    if  "?" in message and isDM:
+        msg = "Ping command returns SNR and RSSI, or hopcount from your message. Try adding e.g. @place or #1/3 to your message"
+    elif "@" in message:
         if hop == "Direct":
             return "🏓PONG, " + f"SNR:{snr} RSSI:{rssi}" + " at: " + message.split("@")[1]
         else:
@@ -114,7 +116,7 @@ def handle_ping(message, hop, snr, rssi):
         else:
             return "🏓PONG, " + hop
 
-def handle_motd(message, message_from_id):
+def handle_motd(message, message_from_id, isDM):
     global MOTD
     isAdmin = False
     msg = ""
@@ -127,13 +129,18 @@ def handle_motd(message, message_from_id):
     else:
         isAdmin = True
 
-    if "$" in message and isAdmin:
+    if  "?" in message and isDM and isAdmin:
+        msg = "Message of the day, set with 'motd $ HelloWorld!'"
+    elif  "?" in message and isDM and not isAdmin:
+        msg = "Message of the day, set by Admin."
+    elif "$" in message and isAdmin:
         motd = message.split("$")[1]
         MOTD = motd.rstrip()
         logger.debug(f"System: {message_from_id} changed MOTD: {MOTD}")
         msg = "MOTD changed to: " + MOTD
     elif "?" in message:
-        msg = "Message of the day, set with 'motd $ HelloWorld!'"
+        logger.debug(f"System: {message_from_id} requested MOTD: {MOTD} isAdmin: {isAdmin}")
+        msg = "MOTD: " + MOTD
     else:
         logger.debug(f"System: {message_from_id} requested MOTD: {MOTD} isAdmin: {isAdmin}")
         msg = "MOTD: " + MOTD
@@ -153,14 +160,17 @@ def handle_wxalert(message_from_id, deviceID, message):
 
         return weatherAlert
 
-def handle_wiki(message):
+def handle_wiki(message, isDM):
     # location = get_node_location(message_from_id, deviceID)
     if "wiki:" in message.lower():
         search = message.split(":")[1]
         search = search.strip()
         if search:
             return get_wikipedia_summary(search)
-    return "Please add a search term example:wiki: travelling gnome"
+        return "Please add a search term example:wiki: travelling gnome"
+    elif  "?" in message and isDM:
+        msg = "Wikipedia search function. \n Usage example:wiki: travelling gnome"
+    return msg
 
 # Runtime Variables for LLM
 llmRunCounter = 0
@@ -472,30 +482,39 @@ def handle_bbsdelete(message, message_from_id):
     elif not "example:" in message:
         return "Please add a message number example: bbsdelete #14"
 
-def handle_messages(deviceID, channel_number, msg_history, publicChannel):
-    response = ""
-    for msgH in msg_history:
-        if msgH[4] == deviceID:
-            if msgH[2] == channel_number or msgH[2] == publicChannel:
-                response += f"\n{msgH[0]}: {msgH[1]}"
-    if len(response) > 0:
-        return "Message History:" + response
+def handle_messages(deviceID, channel_number, msg_history, publicChannel, isDM):
+    if  "?" in message and isDM:
+        msg = "Command returns the last " & list.msg_history.count() & " messages sent on a channel."
+        return msg
     else:
-        return "No messages in history"
+        response = ""
+        for msgH in msg_history:
+            if msgH[4] == deviceID:
+                if msgH[2] == channel_number or msgH[2] == publicChannel:
+                    response += f"\n{msgH[0]}: {msgH[1]}"
+        if len(response) > 0:
+            return "Message History:" + response
+        else:
+            return "No messages in history"
 
 def handle_sun(message_from_id, deviceID, channel_number):
     location = get_node_location(message_from_id, deviceID, channel_number)
     return get_sun(str(location[0]), str(location[1]))
 
-def handle_lheard(nodeid, deviceID):
-    # display last heard nodes add to response
-    bot_response = str(get_node_list(1))
-    # gather telemetry
-    chutil1 = round(interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("channelUtilization", 0), 1)
-    airUtilTx = round(interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("airUtilTx", 0), 1)
-    uptimeSeconds = interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("uptimeSeconds", 0)
-    batteryLevel = interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("batteryLevel", 0)
-    voltage = interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("voltage", 0)
+def handle_lheard(nodeid, deviceID, isDM):
+    if  "?" in message and isDM:
+        msg = "Lists of nodes that this node has heard from recently."
+        return msg
+    else:
+        
+        # display last heard nodes add to response
+        bot_response = str(get_node_list(1))
+        # gather telemetry
+        chutil1 = round(interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("channelUtilization", 0), 1)
+        airUtilTx = round(interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("airUtilTx", 0), 1)
+        uptimeSeconds = interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("uptimeSeconds", 0)
+        batteryLevel = interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("batteryLevel", 0)
+        voltage = interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("voltage", 0)
     if interface2_enabled:
         bot_response += "P2:\n" + str(get_node_list(2))
         chutil2 = round(interface2.nodes.get(decimal_to_hex(myNodeNum2), {}).get("deviceMetrics", {}).get("channelUtilization", 0), 1)
