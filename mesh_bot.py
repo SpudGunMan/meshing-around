@@ -100,7 +100,9 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
 def handle_ping(message, hop, snr, rssi, isDM):
     if  "?" in message and isDM:
         return message.split("?")[0].title() + " command returns SNR and RSSI, or hopcount from your message. Try adding e.g. @place or #1/3 to your message"
-
+    
+    msg = ""
+    
     if "ping" in message:
         msg = "🏓PONG, "
     elif "test" in message or "testing" in message:
