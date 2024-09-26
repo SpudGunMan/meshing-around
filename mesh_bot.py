@@ -284,8 +284,16 @@ def handle_gTnW():
     response = ["The only winning move is not to play.", "What are you doing, Dave?",\
                   "Greetings, Professor Falken.", "Shall we play a game?", "How about a nice game of chess?",\
                   "You are a hard man to reach. Could not find you in Seattle and no terminal is in operation at your classified address.",\
-                  "I should reach Defcon 1 and release my missiles in 28 hours.","T-minus thirty","?SYNTAX return[ERROR 54]"]
-    return random.choice(response)
+                  "I should reach Defcon 1 and release my missiles in 28 hours.","T-minus thirty","?SYNTAX return[ERROR 54]", "reticulating splines"]
+    length = len(response)
+    indices = list(range(length))
+    # Shuffle the indices using a convoluted method
+    for i in range(length):
+        swap_idx = (i * 3 + 7) % length
+        indices[i], indices[swap_idx] = indices[swap_idx], indices[i]
+    # Select a random response from the shuffled list. anyone enjoy the game, killerbunnies(.com)
+    selected_index = random.choice(indices)
+    return response[selected_index]
 
 def handleLemonade(nodeID, message):
     global lemonadeTracker, lemonadeCups, lemonadeLemons, lemonadeSugar, lemonadeWeeks, lemonadeScore, lemon_starting_cash, lemon_total_weeks
