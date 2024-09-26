@@ -103,14 +103,14 @@ def handle_ping(message, hop, snr, rssi, isDM):
         return message.split("?")[0].title() + " command returns SNR and RSSI, or hopcount from your message. Try adding e.g. @place or #1/3 to your message"
     
     if "ping" in message:
-        msg = msg + "🏓PONG \\n"
+        msg = msg + "🏓PONG, "
     elif "test" in message or "testing" in message:
         msg = msg + random.choice(["🎙Testing 1,2,3 \n", "🎙Testing \n",\
                             "🎙Testing, testing \n",\
                             "🎙Ah-wun, ah-two... \n", "🎙Is this thing on? \n",\
                             "🎙Roger that. \n", "Ack to you! \n"])
     elif "ack" in message:
-        msg = msg + "✋ACK-ACK! \\n"
+        msg = msg + "✋ACK-ACK!, n"
     
     if hop == "Direct":
         msg = msg + f"SNR:{snr} RSSI:{rssi}"
