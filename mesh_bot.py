@@ -507,7 +507,7 @@ def handle_bbsdelete(message, message_from_id):
 
 def handle_messages(message, deviceID, channel_number, msg_history, publicChannel, isDM):
     if  "?" in message and isDM:
-        msg = "Command returns the last " & storeFlimit & " messages sent on a channel."
+        msg = "Command returns the last " + str(storeFlimit) + " messages sent on a channel."
         return msg
     else:
         response = ""
