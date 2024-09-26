@@ -35,27 +35,27 @@ printf "\nConfig file generated\n"
 # set virtual environment and install dependencies
 printf "\nMeshing Around Installer\n"
 
-#check if python3 has venv module
-if [ -f venv/bin/activate ]; then
-    printf "\nFpund virtual environment for python\n"
-else
-    sudo apt-get install python3-venv
-    exit 1
-fi
-
 echo "Do you want to install the bot in a virtual environment? (y/n)"
 read venv
 
 if [ $venv == "y" ]; then
     # set virtual environment
-    if ! python3 -m venv --help &> /dev/null
-    then
+    if ! python3 -m venv --help &> /dev/null; then
         printf "Python3 venv module not found, please install python3-venv with your OS\n"
         exit 1
     else
         echo "Creating virtual environment..."
         python3 -m venv venv
         source venv/bin/activate
+
+        #check if python3 has venv module
+        if [ -f venv/bin/activate ]; then
+            printf "\nFpund virtual environment for python\n"
+        else
+            sudo apt-get install python3-venv
+            printf "\nPython3 venv module not found, please install python3-venv with your OS if not already done. re-run the script\n"
+            exxt 1
+        fi
 
         # config service files for virtual environment
         replace="python3 mesh_bot.py|/dir/launch.sh mesh"
