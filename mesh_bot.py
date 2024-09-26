@@ -33,6 +33,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "wxc": lambda: handle_wxc(message_from_id, deviceID, 'wxc'),
     "wx": lambda: handle_wxc(message_from_id, deviceID, 'wx'),
     "wiki:": lambda: handle_wiki(message, isDM),
+    "wiki?": lambda: handle_wiki(message, isDM),
     "games": lambda: gamesCmdList,
     "dopewars": lambda: handleDopeWars(message_from_id, message, deviceID),
     "lemonstand": lambda: handleLemonade(message_from_id, message),
@@ -140,8 +141,10 @@ def handle_motd(message, message_from_id, isDM):
     else:
         isAdmin = True
 
+    # admin help via DM
     if  "?" in message and isDM and isAdmin:
         msg = "Message of the day, set with 'motd $ HelloWorld!'"
+    # non-admin help via DM
     elif  "?" in message and isDM and not isAdmin:
         msg = "Message of the day, set by Admin."
     elif "$" in message and isAdmin:
@@ -149,6 +152,7 @@ def handle_motd(message, message_from_id, isDM):
         MOTD = motd.rstrip()
         logger.debug(f"System: {message_from_id} changed MOTD: {MOTD}")
         msg = "MOTD changed to: " + MOTD
+    # just return the MOTD for non-DM
     elif "?" in message:
         logger.debug(f"System: {message_from_id} requested MOTD: {MOTD} isAdmin: {isAdmin}")
         msg = "MOTD: " + MOTD
@@ -180,7 +184,7 @@ def handle_wiki(message, isDM):
             return get_wikipedia_summary(search)
         return "Please add a search term example:wiki: travelling gnome"
     elif  "?" in message and isDM:
-        msg = "Wikipedia search function. \n Usage example:wiki: travelling gnome"
+        msg = "Wikipedia search function. \nUsage example:wiki: travelling gnome"
     return msg
 
 # Runtime Variables for LLM
@@ -503,7 +507,7 @@ def handle_bbsdelete(message, message_from_id):
 
 def handle_messages(message, deviceID, channel_number, msg_history, publicChannel, isDM):
     if  "?" in message and isDM:
-        msg = "Command returns the last " & list.msg_history.count() & " messages sent on a channel."
+        msg = "Command returns the last " & storeFlimit & " messages sent on a channel."
         return msg
     else:
         response = ""
@@ -522,8 +526,8 @@ def handle_sun(message_from_id, deviceID, channel_number):
 
 def handle_lheard(message, nodeid, deviceID, isDM):
     if  "?" in message and isDM:
-        msg = "Lists of nodes that this node has heard from recently."
-        return msg
+        return message.split("?")[0].title() + " command returns a list of nodes that have been heard recently"
+
     else:
         # display last heard nodes add to response
         bot_response = str(get_node_list(1))
@@ -579,8 +583,8 @@ def handle_history(message, nodeid, deviceID, isDM, lheard=False):
     buffer = []
     
     if  "?" in message and isDM:
-        msg = "List of recent commands this node has received."
-        return msg
+        return message.split("?")[0].title() + " command returns a list of commands received."
+
         # show the last commands from the user to the bot
     elif not lheard:
         for i in range(len(cmdHistory)):
