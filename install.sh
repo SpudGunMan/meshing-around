@@ -4,6 +4,8 @@
 cd "$(dirname "$0")"
 
 printf "\nMeshing Around Installer\n"
+printf "\nThis script will install the Meshing Around bot and its dependencies works best in debian/ubuntu\n"
+printf "\nChecking for dependencies\n"
 
 
 # add user to groups for serial access
@@ -61,7 +63,7 @@ if [ $venv == "y" ]; then
 else
     printf "\nSkipping virtual environment...\n"
     # install dependencies
-    printf "Are you on Raspberry Pi?\nshould we add --break-system-packages to the pip install command? (y/n)"
+    printf "Are you on Raspberry Pi(debian/ubuntu)?\nshould we add --break-system-packages to the pip install command? (y/n)"
     read rpi
     if [ $rpi == "y" ]; then
         pip install -U -r requirements.txt --break-system-packages
@@ -84,7 +86,7 @@ sed -i $replace etc/mesh_bot.service
 printf "\n service files updated\n"
 
 # ask if emoji font should be installed for linux
-echo "Do you want to install the emoji font for debian linux? (y/n)"
+echo "Do you want to install the emoji font for debian/ubuntu linux? (y/n)"
 read emoji
 if [ $emoji == "y" ]; then
     sudo apt-get install -y fonts-noto-color-emoji
@@ -94,13 +96,11 @@ fi
 if [ $bot == "pong" ]; then
     # install service for pong bot
     sudo cp etc/pong_bot.service /etc/systemd/system/
-    exit 0
 fi
 
 if [ $bot == "mesh" ]; then
     # install service for mesh bot
     sudo cp etc/mesh_bot.service /etc/systemd/system/
-    exit 0
 fi
 
 if [ $bot == "n" ]; then
@@ -128,7 +128,10 @@ if [ $ollama == "y" ]; then
     fi
 fi
 
+echo "Good time to reboot? (y/n)"
+read reboot
+if [ $reboot == "y" ]; then
+    sudo reboot
+fi
 
-
-printf "\nGoodbye!"
 exit 0
