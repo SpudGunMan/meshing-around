@@ -549,7 +549,7 @@ def handle_lheard(message, nodeid, deviceID, isDM):
     if interface2_enabled and  not batteryLevel2 == 101:
         bot_response += f" P2: Bat: {batteryLevel2}% Volt: {voltage2}"
     # show last users of the bot with the cmdHistory list
-    history = handle_history(nodeid, deviceID, lheard=True)
+    history = handle_history(message, nodeid, deviceID, isDM, lheard=True)
     if history:
         bot_response += f'\n{history}'
     return bot_response
