@@ -48,12 +48,12 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "bbsdelete": lambda: handle_bbsdelete(message, message_from_id),
     "messages": lambda: handle_messages(deviceID, channel_number, msg_history, publicChannel, isDM),
     "cmd": lambda: help_message,
-    "history": lambda: handle_history(message_from_id, deviceID, isDM),
+    "history": lambda: handle_history(message, message_from_id, deviceID, isDM),
     "sun": lambda: handle_sun(message_from_id, deviceID, channel_number),
     "hfcond": hf_band_conditions,
     "solar": lambda: drap_xray_conditions() + "\n" + solar_conditions(),
-    "lheard": lambda: handle_lheard(message_from_id, deviceID, isDM),
-    "sitrep": lambda: handle_lheard(message_from_id, deviceID, isDM),
+    "lheard": lambda: handle_lheard(message, message_from_id, deviceID, isDM),
+    "sitrep": lambda: handle_lheard(message, message_from_id, deviceID, isDM),
     "whereami": lambda: handle_whereami(message_from_id, deviceID, channel_number),
     "tide": lambda: handle_tide(message_from_id, deviceID, channel_number),
     "moon": lambda: handle_moon(message_from_id, deviceID, channel_number),
@@ -501,12 +501,11 @@ def handle_sun(message_from_id, deviceID, channel_number):
     location = get_node_location(message_from_id, deviceID, channel_number)
     return get_sun(str(location[0]), str(location[1]))
 
-def handle_lheard(nodeid, deviceID, isDM):
+def handle_lheard(message, nodeid, deviceID, isDM):
     if  "?" in message and isDM:
         msg = "Lists of nodes that this node has heard from recently."
         return msg
     else:
-        
         # display last heard nodes add to response
         bot_response = str(get_node_list(1))
         # gather telemetry
@@ -555,11 +554,15 @@ def handle_lheard(nodeid, deviceID, isDM):
         bot_response += f'\n{history}'
     return bot_response
 
-def handle_history(nodeid, deviceID, lheard=False):
+def handle_history(message, nodeid, deviceID, isDM, lheard=False):
     global cmdHistory, lheardCmdIgnoreNode, bbs_admin_list
     msg = ""
     buffer = []
     
+    if  "?" in message and isDM:
+        msg = "List of recent commands this node has received."
+        return msg
+    else:
     # show the last commands from the user to the bot
     if not lheard:
         for i in range(len(cmdHistory)):
