@@ -102,6 +102,7 @@ sed -i $replace etc/mesh_bot.service
 replace="s|Group=pi|Group=$whoami|g"
 sed -i $replace etc/pong_bot.service
 sed -i $replace etc/mesh_bot.service
+sudo systemctl daemon-reload
 printf "\n service files updated\n"
 
 # ask if emoji font should be installed for linux
