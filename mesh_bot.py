@@ -107,15 +107,9 @@ def handle_ping(message, hop, snr, rssi, isDM):
         msg = "🏓 PONG \n"
     elif "test" in message.lower() or "testing" in message.lower():
         msg = random.choice(["🎙Testing 1,2,3 \n", "🎙Testing \n",\
-<<<<<<< HEAD
                              "🎙Testing, testing \n",\
                              "🎙Ah-wun, ah-two... \n", "🎙Is this thing on? \n",\
                              "🎙Roger that. \n",])
-=======
-                            "🎙Testing, testing \n",\
-                            "🎙Ah-wun, ah-two... \n", "🎙Is this thing on? \n",\
-                            "🎙Roger that. \n",])
->>>>>>> 0baec883219657cd42be51b43751a63caf8c0560
     elif "ack" in message.lower():
         msg = random.choice(["✋ACK-ACK!\n", "Ack to you!\n"])
     else:
