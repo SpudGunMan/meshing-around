@@ -96,7 +96,10 @@ sed -i $replace etc/pong_bot.service
 sed -i $replace etc/mesh_bot.service
 # set the correct user in the service file?
 whoami=$(whoami)
-replace="s|user=pi|user=$whoami|g"
+replace="s|User=pi|User=$whoami|g"
+sed -i $replace etc/pong_bot.service
+sed -i $replace etc/mesh_bot.service
+replace="s|Group=pi|Group=$whoami|g"
 sed -i $replace etc/pong_bot.service
 sed -i $replace etc/mesh_bot.service
 printf "\n service files updated\n"
