@@ -62,6 +62,10 @@ if [ $venv == "y" ]; then
     sed -i $replace etc/mesh_bot.service
     replace="python3 pong_bot.py|/dir/launch.sh pong"
     sed -i $replace etc/pong_bot.service
+    replace="pkill -f mesh_bot.py|pkill -f launch.sh"
+    sed -i $replace etc/mesh_bot.service
+    replace="pkill -f pong_bot.py|pkill -f launch.sh"
+    sed -i $replace etc/pong_bot.service
 
     # install dependencies
     pip install -U -r requirements.txt
@@ -86,7 +90,13 @@ read bot
 program_path=$(pwd)
 cp etc/pong_bot.tmp etc/pong_bot.service
 cp etc/mesh_bot.tmp etc/mesh_bot.service
+# set the correct path in the service file
 replace="s|/dir/|$program_path/|g"
+sed -i $replace etc/pong_bot.service
+sed -i $replace etc/mesh_bot.service
+# set the correct user in the service file?
+whoami=$(whoami)
+replace="s|user=pi|user=$whoami|g"
 sed -i $replace etc/pong_bot.service
 sed -i $replace etc/mesh_bot.service
 printf "\n service files updated\n"
