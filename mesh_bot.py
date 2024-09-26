@@ -507,8 +507,7 @@ def handle_bbsdelete(message, message_from_id):
 
 def handle_messages(message, deviceID, channel_number, msg_history, publicChannel, isDM):
     if  "?" in message and isDM:
-        msg = "Command returns the last " + str(storeFlimit) + " messages sent on a channel."
-        return msg
+        return message.split("?")[0].title() + " command returns the last " + str(storeFlimit) + " messages sent on a channel."
     else:
         response = ""
         for msgH in msg_history:
@@ -526,7 +525,7 @@ def handle_sun(message_from_id, deviceID, channel_number):
 
 def handle_lheard(message, nodeid, deviceID, isDM):
     if  "?" in message and isDM:
-        return message.split("?")[0].title() + " command returns a list of nodes that have been heard recently"
+        return message.split("?")[0].title() + " command returns a list of the last " + storeFlimit + " nodes that have been heard recently"
 
     else:
         # display last heard nodes add to response
