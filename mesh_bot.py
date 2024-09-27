@@ -47,6 +47,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "bbspost": lambda: handle_bbspost(message, message_from_id, deviceID),
     "bbsread": lambda: handle_bbsread(message),
     "bbsdelete": lambda: handle_bbsdelete(message, message_from_id),
+    "bbsinfo": lambda: get_bbs_stats(),
     "messages": lambda: handle_messages(message, deviceID, channel_number, msg_history, publicChannel, isDM),
     "cmd": lambda: help_message,
     "history": lambda: handle_history(message, message_from_id, deviceID, isDM),

@@ -4,7 +4,7 @@
 import pickle # pip install pickle
 from modules.log import *
 
-trap_list_bbs = ("bbslist", "bbspost", "bbsread", "bbsdelete", "bbshelp")
+trap_list_bbs = ("bbslist", "bbspost", "bbsread", "bbsdelete", "bbshelp", "bbsinfo")
 
 # global message list, later we will use a pickle on disk
 bbs_messages = []
@@ -129,6 +129,11 @@ def bbs_post_dm(toNode, message, fromNode):
     # save the bbsdb
     save_bbsdm()
     return "BBS DM Posted for node " + str(toNode)
+
+def get_bbs_stats():
+    global bbs_messages, bbs_dm
+    # Return some stats on the bbs pending messages and total posted messages
+    return f"📡{bbsdb} has {len(bbs_messages)} messages. Direct Mail Messages waiting: {(len(bbs_dm) - 1)}"
 
 def bbs_check_dm(toNode):
     global bbs_dm
