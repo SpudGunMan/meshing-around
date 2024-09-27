@@ -543,22 +543,12 @@ def handle_lheard(message, nodeid, deviceID, isDM):
     if interface2_enabled:
         bot_response += " P2:" + str(chutil2) + "%" + "/" + str(airUtilTx2) + "%"
     # convert uptime to minutes, hours, or days
-    if uptimeSeconds > 0 or uptimeSeconds2 > 0:
-        uptimeSeconds = round(uptimeSeconds / 60)
-        uptimeSeconds2 = round(uptimeSeconds2 / 60)
-        designator = "m"
-    if uptimeSeconds > 60 or uptimeSeconds2 > 60:
-        uptimeSeconds = round(uptimeSeconds / 60)
-        uptimeSeconds2 = round(uptimeSeconds2 / 60)
-        designator = "h"
-    if uptimeSeconds > 24 or uptimeSeconds2 > 24:
-        uptimeSeconds = round(uptimeSeconds / 24)
-        uptimeSeconds2 = round(uptimeSeconds2 / 24)
-        designator = "d"
+    uptimeSeconds = getPrettyTime(uptimeSeconds)
+    uptimeSeconds2 = getPrettyTime(uptimeSeconds2)
     # add uptime and battery info to the bot response
-    bot_response += "\nUptime:" + str(uptimeSeconds) + designator
+    bot_response += "\nUptime:" + str(uptimeSeconds)
     if interface2_enabled:
-        bot_response += f" P2:" + {uptimeSeconds2} + {designator}
+        bot_response += f" P2:" + {uptimeSeconds2}
     if not batteryLevel == 101:
         bot_response += f" Bat: {batteryLevel}% Volt: {voltage}"
     if interface2_enabled and  not batteryLevel2 == 101:
@@ -580,13 +570,8 @@ def handle_history(message, nodeid, deviceID, isDM, lheard=False):
         # show the last commands from the user to the bot
     elif not lheard:
         for i in range(len(cmdHistory)):
-            prettyTime = round((time.time() - cmdHistory[i]['time']) / 600) * 5
-            if prettyTime < 60:
-                prettyTime = str(prettyTime) + "m"
-            elif prettyTime < 1440:
-                prettyTime = str(round(prettyTime/60)) + "h"
-            else:
-                prettyTime = str(round(prettyTime/1440)) + "d"
+            cmdTime = round((time.time() - cmdHistory[i]['time']) / 600) * 5
+            prettyTime = getPrettyTime(cmdTime)
 
             # history display output
             if nodeid in bbs_admin_list and cmdHistory[i]['nodeID'] not in lheardCmdIgnoreNode:
@@ -606,13 +591,8 @@ def handle_history(message, nodeid, deviceID, isDM, lheard=False):
     else:
         # sort the cmdHistory list by time, return the username and time into a new list which used for display
         for i in range(len(cmdHistory)):
-            prettyTime = round((time.time() - cmdHistory[i]['time']) / 600) * 5
-            if prettyTime < 60:
-                prettyTime = str(prettyTime) + "m"
-            elif prettyTime < 1440:
-                prettyTime = str(round(prettyTime/60)) + "h"
-            else:
-                prettyTime = str(round(prettyTime/1440)) + "d"
+            cmdTime = round((time.time() - cmdHistory[i]['time']) / 600) * 5
+            prettyTime = getPrettyTime(cmdTime)
 
             if cmdHistory[i]['nodeID'] not in lheardCmdIgnoreNode:
                 # add line to a new list for display
