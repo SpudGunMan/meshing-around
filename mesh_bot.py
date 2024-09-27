@@ -468,42 +468,43 @@ def handle_bbspost(message, message_from_id, deviceID):
             logger.info(f"System: BBS Post: {subject} Body: {body}")
             return bbs_post_message(subject, body, message_from_id)
         elif not "example:" in message:
-            return "example: bbspost $subject #message"
+            return "example: bbspost $subject #✉️message"
     elif "@" in message and not "example:" in message:
         toNode = message.split("@")[1].split("#")[0]
         toNode = toNode.rstrip()
-        # if toNode preceded by !, or is 8 characters long try to interpret as hex
-        if "!" in toNode or len(toNode) == 8:
+        if toNode.startswith("!") and len(toNode) == 8:
+            # mesh !hex
             try:
                 toNode = int(toNode.strip("!"),16)
             except ValueError as e:
-                logger.debug("toNode is not hex, error: {e}")
-        # if toNode is all alpha or not totally numeric, see if it is a shortname
+                toNode = 0
         elif toNode.isalpha() or not toNode.isnumeric():
+            # try short name
             toNode = get_num_from_short_name(toNode, deviceID)
+
+        if "#" in message:
             if toNode == 0:
                 return "Node not found " + message.split("@")[1].split("#")[0]
-        if "#" in message:
             body = message.split("#")[1]
             return bbs_post_dm(toNode, body, message_from_id)
         else:
-            return "example: bbspost @nodeNumber/ShortName #message"
+            return "example: bbspost @nodeNumber/ShortName/!hex #✉️message"
     elif not "example:" in message:
-        return "example: bbspost $subject #message, or bbspost @node #message"
+        return "example: bbspost $subject #✉️message, or bbspost @node #✉️message"
 
 def handle_bbsread(message):
     if "#" in message and not "example:" in message:
         messageID = int(message.split("#")[1])
         return bbs_read_message(messageID)
     elif not "example:" in message:
-        return "Please add a message number example: bbsread #14"
+        return "Please add a ✉️message number example: bbsread #14"
 
 def handle_bbsdelete(message, message_from_id):
     if "#" in message and not "example:" in message:
         messageID = int(message.split("#")[1])
         return bbs_delete_message(messageID, message_from_id)
     elif not "example:" in message:
-        return "Please add a message number example: bbsdelete #14"
+        return "Please add a ✉️message number example: bbsdelete #14"
 
 def handle_messages(message, deviceID, channel_number, msg_history, publicChannel, isDM):
     if  "?" in message and isDM:
