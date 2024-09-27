@@ -586,6 +586,23 @@ def get_wikipedia_summary(search_term):
     
     return summary
 
+def getPrettyTime(seconds):
+    # convert unix time to minutes, hours, or days, or years for simple display
+    designator = "s"
+    if seconds > 0:
+        seconds = round(seconds / 60)
+        designator = "m"
+    if seconds > 60:
+        seconds = round(seconds / 60)
+        designator = "h"
+    if seconds > 24:
+        seconds = round(seconds / 24)
+        designator = "d"
+    if seconds > 365:
+        seconds = round(seconds / 365)
+        designator = "y"
+    return str(seconds) + designator
+
 def messageTrap(msg):
     # Check if the message contains a trap word, this is the first filter for listning to messages
     # after this the message is passed to the command_handler in the bot.py which is switch case filter for applying word to function

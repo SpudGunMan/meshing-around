@@ -25,7 +25,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     # Command List
     default_commands = {
     "ping": lambda: handle_ping(message, hop, snr, rssi, isDM),
-    "pong": lambda: "\n                             PING!! 🏓",
+    "pong": lambda: "🏓PING!!",
     "motd": lambda: handle_motd(message, message_from_id, isDM),
     "bbshelp": bbs_help,
     "wxalert": lambda: handle_wxalert(message_from_id, deviceID, message),
@@ -100,19 +100,19 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
 
 def handle_ping(message, hop, snr, rssi, isDM):
     if  "?" in message and isDM:
-        return message.split("?")[0].title() + " command returns SNR and RSSI, or hopcount from your message. Try adding e.g. @place or #1/3 to your message"
+        return message.split("?")[0].title() + " command returns SNR and RSSI, or hopcount from your message. Try adding e.g. @place or #tag"
     
     msg = ""
 
     if "ping" in message.lower():
-        msg = "🏓 PONG \n"
+        msg = "🏓PONG, "
     elif "test" in message.lower() or "testing" in message.lower():
-        msg = random.choice(["🎙 Testing 1,2,3\n", "🎙 Testing\n",\
-                             "🎙 Testing, testing\n",\
-                             "🎙 Ah-wun, ah-two...\n", "🎙 Is this thing on?\n",\
-                             "🎙 Roger that\n",])
+        msg = random.choice(["🎙Testing 1,2,3\n", "🎙Testing, ",\
+                             "🎙Testing, testing, ",\
+                             "🎙Ah-wun, ah-two... ", "🎙Is this thing on? ",\
+                             "🎙Roger that! ",])
     elif "ack" in message.lower():
-        msg = random.choice(["✋ACK-ACK!\n", "Ack to you!\n"])
+        msg = random.choice(["✋ACK-ACK!\n", "✋Ack to you!\n"])
     else:
         msg = ""
 
@@ -144,22 +144,16 @@ def handle_motd(message, message_from_id, isDM):
     # admin help via DM
     if  "?" in message and isDM and isAdmin:
         msg = "Message of the day, set with 'motd $ HelloWorld!'"
-    # non-admin help via DM
     elif  "?" in message and isDM and not isAdmin:
-        msg = "Message of the day, set by Admin."
+        # non-admin help via DM
+        msg = "Message of the day"
     elif "$" in message and isAdmin:
         motd = message.split("$")[1]
         MOTD = motd.rstrip()
         logger.debug(f"System: {message_from_id} changed MOTD: {MOTD}")
         msg = "MOTD changed to: " + MOTD
-    # just return the MOTD for non-DM
-    elif "?" in message:
-        logger.debug(f"System: {message_from_id} requested MOTD: {MOTD} isAdmin: {isAdmin}")
-        msg = "MOTD: " + MOTD
     else:
-        logger.debug(f"System: {message_from_id} requested MOTD: {MOTD} isAdmin: {isAdmin}")
         msg = "MOTD: " + MOTD
-
     return msg
 
 def handle_wxalert(message_from_id, deviceID, message):
@@ -177,14 +171,13 @@ def handle_wxalert(message_from_id, deviceID, message):
 
 def handle_wiki(message, isDM):
     # location = get_node_location(message_from_id, deviceID)
+    msg = "Wikipedia search function. \nUsage example:📲wiki: travelling gnome"
     if "wiki:" in message.lower():
         search = message.split(":")[1]
         search = search.strip()
         if search:
             return get_wikipedia_summary(search)
-        return "Please add a search term example:wiki: travelling gnome"
-    elif  "?" in message and isDM:
-        msg = "Wikipedia search function. \nUsage example:wiki: travelling gnome"
+        return "Please add a search term example:📲wiki: travelling gnome"
     return msg
 
 # Runtime Variables for LLM
@@ -557,22 +550,12 @@ def handle_lheard(message, nodeid, deviceID, isDM):
     if interface2_enabled:
         bot_response += " P2:" + str(chutil2) + "%" + "/" + str(airUtilTx2) + "%"
     # convert uptime to minutes, hours, or days
-    if uptimeSeconds > 0 or uptimeSeconds2 > 0:
-        uptimeSeconds = round(uptimeSeconds / 60)
-        uptimeSeconds2 = round(uptimeSeconds2 / 60)
-        designator = "m"
-    if uptimeSeconds > 60 or uptimeSeconds2 > 60:
-        uptimeSeconds = round(uptimeSeconds / 60)
-        uptimeSeconds2 = round(uptimeSeconds2 / 60)
-        designator = "h"
-    if uptimeSeconds > 24 or uptimeSeconds2 > 24:
-        uptimeSeconds = round(uptimeSeconds / 24)
-        uptimeSeconds2 = round(uptimeSeconds2 / 24)
-        designator = "d"
+    uptimeSeconds = getPrettyTime(uptimeSeconds)
+    uptimeSeconds2 = getPrettyTime(uptimeSeconds2)
     # add uptime and battery info to the bot response
-    bot_response += "\nUptime:" + str(uptimeSeconds) + designator
+    bot_response += "\nUptime:" + str(uptimeSeconds)
     if interface2_enabled:
-        bot_response += f" P2:" + {uptimeSeconds2} + {designator}
+        bot_response += f" P2:" + {uptimeSeconds2}
     if not batteryLevel == 101:
         bot_response += f" Bat: {batteryLevel}% Volt: {voltage}"
     if interface2_enabled and  not batteryLevel2 == 101:
@@ -594,13 +577,8 @@ def handle_history(message, nodeid, deviceID, isDM, lheard=False):
         # show the last commands from the user to the bot
     elif not lheard:
         for i in range(len(cmdHistory)):
-            prettyTime = round((time.time() - cmdHistory[i]['time']) / 600) * 5
-            if prettyTime < 60:
-                prettyTime = str(prettyTime) + "m"
-            elif prettyTime < 1440:
-                prettyTime = str(round(prettyTime/60)) + "h"
-            else:
-                prettyTime = str(round(prettyTime/1440)) + "d"
+            cmdTime = round((time.time() - cmdHistory[i]['time']) / 600) * 5
+            prettyTime = getPrettyTime(cmdTime)
 
             # history display output
             if nodeid in bbs_admin_list and cmdHistory[i]['nodeID'] not in lheardCmdIgnoreNode:
@@ -620,13 +598,8 @@ def handle_history(message, nodeid, deviceID, isDM, lheard=False):
     else:
         # sort the cmdHistory list by time, return the username and time into a new list which used for display
         for i in range(len(cmdHistory)):
-            prettyTime = round((time.time() - cmdHistory[i]['time']) / 600) * 5
-            if prettyTime < 60:
-                prettyTime = str(prettyTime) + "m"
-            elif prettyTime < 1440:
-                prettyTime = str(round(prettyTime/60)) + "h"
-            else:
-                prettyTime = str(round(prettyTime/1440)) + "d"
+            cmdTime = round((time.time() - cmdHistory[i]['time']) / 600) * 5
+            prettyTime = getPrettyTime(cmdTime)
 
             if cmdHistory[i]['nodeID'] not in lheardCmdIgnoreNode:
                 # add line to a new list for display

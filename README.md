@@ -48,11 +48,11 @@ Any messages that are over 160 characters are chunked into 160 message bytes to 
   - `lheard` returns the last 5 heard nodes with SNR, can also use `sitrep`
   - `history` returns the last commands ran by user(s)
   - `cmd` returns the list of commands (the help message)
-- Games
-  - `lemonstand` plays the classic Lemonade Stand Finance game via DM
-  - `dopewars` plays the classic drug trader game via DM
-  - `blackjack` BlackJack
-  - `videopoker` Video Poker
+- Games - via DM
+  - `lemonstand` plays the classic Lemonade Stand Finance 
+  - `dopewars` plays the classic drug trader
+  - `blackjack` BlackJack, Casino 21
+  - `videopoker` Video Poker, basic 5 card hold
 
 ## pong_bot.sh
 Stripped-down bot, mostly around for archive purposes. The mesh-bot enhanced modules can be disabled by config to disable features.
