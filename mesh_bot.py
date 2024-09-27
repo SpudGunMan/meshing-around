@@ -473,7 +473,7 @@ def handle_bbspost(message, message_from_id, deviceID):
     elif "@" in message and not "example:" in message:
         toNode = message.split("@")[1].split("#")[0]
         toNode = toNode.rstrip()
-        if toNode.startswith("!") and len(toNode) == 8:
+        if toNode.startswith("!") and len(toNode) == 9:
             # mesh !hex
             try:
                 toNode = int(toNode.strip("!"),16)
