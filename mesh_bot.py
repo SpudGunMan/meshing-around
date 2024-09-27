@@ -144,22 +144,16 @@ def handle_motd(message, message_from_id, isDM):
     # admin help via DM
     if  "?" in message and isDM and isAdmin:
         msg = "Message of the day, set with 'motd $ HelloWorld!'"
-    # non-admin help via DM
     elif  "?" in message and isDM and not isAdmin:
-        msg = "Message of the day, set by Admin."
+        # non-admin help via DM
+        msg = "Message of the day"
     elif "$" in message and isAdmin:
         motd = message.split("$")[1]
         MOTD = motd.rstrip()
         logger.debug(f"System: {message_from_id} changed MOTD: {MOTD}")
         msg = "MOTD changed to: " + MOTD
-    # just return the MOTD for non-DM
-    elif "?" in message:
-        logger.debug(f"System: {message_from_id} requested MOTD: {MOTD} isAdmin: {isAdmin}")
-        msg = "MOTD: " + MOTD
     else:
-        logger.debug(f"System: {message_from_id} requested MOTD: {MOTD} isAdmin: {isAdmin}")
         msg = "MOTD: " + MOTD
-
     return msg
 
 def handle_wxalert(message_from_id, deviceID, message):
