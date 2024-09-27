@@ -479,12 +479,13 @@ def handle_bbspost(message, message_from_id, deviceID):
     elif "@" in message and not "example:" in message:
         toNode = message.split("@")[1].split("#")[0]
         toNode = toNode.rstrip()
-        if "!" in toNode:
+        # if toNode preceded by !, or is 8 characters long try to interpret as hex
+        if "!" in toNode or len(toNode) == 8:
             try:
-                int(toNode.strip("!"),16)
                 toNode = int(toNode.strip("!"),16)
             except ValueError as e:
                 logger.debug("toNode is not hex, error: {e}")
+        # if toNode is all alpha or not totally numeric, see if it is a shortname
         elif toNode.isalpha() or not toNode.isnumeric():
             toNode = get_num_from_short_name(toNode, deviceID)
             if toNode == 0:
