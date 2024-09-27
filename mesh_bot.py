@@ -25,7 +25,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     # Command List
     default_commands = {
     "ping": lambda: handle_ping(message, hop, snr, rssi, isDM),
-    "pong": lambda: "\n                             PING!! 🏓",
+    "pong": lambda: "PING!! 🏓",
     "motd": lambda: handle_motd(message, message_from_id, isDM),
     "bbshelp": bbs_help,
     "wxalert": lambda: handle_wxalert(message_from_id, deviceID, message),
