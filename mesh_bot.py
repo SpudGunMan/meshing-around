@@ -171,14 +171,13 @@ def handle_wxalert(message_from_id, deviceID, message):
 
 def handle_wiki(message, isDM):
     # location = get_node_location(message_from_id, deviceID)
+    msg = "Wikipedia search function. \nUsage example:wiki: travelling gnome"
     if "wiki:" in message.lower():
         search = message.split(":")[1]
         search = search.strip()
         if search:
             return get_wikipedia_summary(search)
         return "Please add a search term example:wiki: travelling gnome"
-    elif  "?" in message and isDM:
-        msg = "Wikipedia search function. \nUsage example:wiki: travelling gnome"
     return msg
 
 # Runtime Variables for LLM
