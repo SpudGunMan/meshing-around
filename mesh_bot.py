@@ -370,8 +370,9 @@ def handleBlackJack(nodeID, message):
         else:
             highScore = {'nodeID': 0, 'highScore': 0}
             highScore = loadHSJack()
-            if highScore['nodeID'] != 0:
-                msg += f" Ranking🥇:{get_name_from_number(highScore['nodeID'])} with {highScore['highScore']} chips. "
+            if highScore != 0:
+                if highScore['nodeID'] != 0:
+                    msg += f" Ranking🥇:{get_name_from_number(highScore['nodeID'])} with {highScore['highScore']} chips. "
     time.sleep(1)
     return msg
 
@@ -401,8 +402,9 @@ def handleVideoPoker(nodeID, message):
         if last_cmd == "new":
             highScore = {'nodeID': 0, 'highScore': 0}
             highScore = loadHSVp()
-            if highScore['nodeID'] != 0:
-                msg += f" Ranking🥇:{get_name_from_number(highScore['nodeID'])} with {highScore['highScore']} chips. "
+            if highScore != 0:
+                if highScore['nodeID'] != 0:
+                    msg += f" Ranking🥇:{get_name_from_number(highScore['nodeID'])} with {highScore['highScore']} chips. "
     
         if last_cmd != "":
             logger.debug(f"System: VideoPoker: {nodeID} last command: {last_cmd}")
