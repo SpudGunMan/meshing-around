@@ -24,15 +24,16 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
 
     # Command List
     default_commands = {
-    "ping": lambda: handle_ping(message, hop, snr, rssi),
-    "pong": lambda: "🏓PING!!",
-    "motd": lambda: handle_motd(message, message_from_id),
+    "ping": lambda: handle_ping(message, hop, snr, rssi, isDM),
+    "pong": lambda: "\n                             PING!! 🏓",
+    "motd": lambda: handle_motd(message, message_from_id, isDM),
     "bbshelp": bbs_help,
     "wxalert": lambda: handle_wxalert(message_from_id, deviceID, message),
     "wxa": lambda: handle_wxalert(message_from_id, deviceID, message),
     "wxc": lambda: handle_wxc(message_from_id, deviceID, 'wxc'),
     "wx": lambda: handle_wxc(message_from_id, deviceID, 'wx'),
-    "wiki:": lambda: handle_wiki(message),
+    "wiki:": lambda: handle_wiki(message, isDM),
+    "wiki?": lambda: handle_wiki(message, isDM),
     "games": lambda: gamesCmdList,
     "dopewars": lambda: handleDopeWars(message_from_id, message, deviceID),
     "lemonstand": lambda: handleLemonade(message_from_id, message),
@@ -46,21 +47,21 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "bbspost": lambda: handle_bbspost(message, message_from_id, deviceID),
     "bbsread": lambda: handle_bbsread(message),
     "bbsdelete": lambda: handle_bbsdelete(message, message_from_id),
-    "messages": lambda: handle_messages(deviceID, channel_number, msg_history, publicChannel),
+    "messages": lambda: handle_messages(message, deviceID, channel_number, msg_history, publicChannel, isDM),
     "cmd": lambda: help_message,
-    "history": lambda: handle_history(message_from_id, deviceID),
+    "history": lambda: handle_history(message, message_from_id, deviceID, isDM),
     "sun": lambda: handle_sun(message_from_id, deviceID, channel_number),
     "hfcond": hf_band_conditions,
     "solar": lambda: drap_xray_conditions() + "\n" + solar_conditions(),
-    "lheard": lambda: handle_lheard(message_from_id, deviceID),
-    "sitrep": lambda: handle_lheard(message_from_id, deviceID),
+    "lheard": lambda: handle_lheard(message, message_from_id, deviceID, isDM),
+    "sitrep": lambda: handle_lheard(message, message_from_id, deviceID, isDM),
     "whereami": lambda: handle_whereami(message_from_id, deviceID, channel_number),
     "tide": lambda: handle_tide(message_from_id, deviceID, channel_number),
     "moon": lambda: handle_moon(message_from_id, deviceID, channel_number),
-    "ack": lambda: handle_ack(hop, snr, rssi),
-    "testing": lambda: handle_testing(message, hop, snr, rssi),
-    "test": lambda: handle_testing(message, hop, snr, rssi),
-    "whoami": lambda: handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus)
+    "ack": lambda:  handle_ping(message, hop, snr, rssi, isDM),
+    "testing": lambda:  handle_ping(message, hop, snr, rssi, isDM),
+    "test": lambda:  handle_ping(message, hop, snr, rssi, isDM),
+    "whoami": lambda: handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus),
     }
 
     # set the command handler
@@ -97,24 +98,37 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
 
     return bot_response
 
-def handle_ping(message, hop, snr, rssi):
-    if "@" in message:
-        if hop == "Direct":
-            return "🏓PONG, " + f"SNR:{snr} RSSI:{rssi}" + " at: " + message.split("@")[1]
-        else:
-            return "🏓PONG, " + hop + " at: " + message.split("@")[1]
-    elif "#" in message:
-        if hop == "Direct":
-            return "🏓PONG, " + f"SNR:{snr} RSSI:{rssi}" + " #" + message.split("#")[1]
-        else:
-            return "🏓PONG, " + hop + " #" + message.split("#")[1]
-    else:
-        if hop == "Direct":
-            return "🏓PONG, " + f"SNR:{snr} RSSI:{rssi}"
-        else:
-            return "🏓PONG, " + hop
+def handle_ping(message, hop, snr, rssi, isDM):
+    if  "?" in message and isDM:
+        return message.split("?")[0].title() + " command returns SNR and RSSI, or hopcount from your message. Try adding e.g. @place or #1/3 to your message"
+    
+    msg = ""
 
-def handle_motd(message, message_from_id):
+    if "ping" in message.lower():
+        msg = "🏓 PONG \n"
+    elif "test" in message.lower() or "testing" in message.lower():
+        msg = random.choice(["🎙 Testing 1,2,3\n", "🎙 Testing\n",\
+                             "🎙 Testing, testing\n",\
+                             "🎙 Ah-wun, ah-two...\n", "🎙 Is this thing on?\n",\
+                             "🎙 Roger that\n",])
+    elif "ack" in message.lower():
+        msg = random.choice(["✋ACK-ACK!\n", "Ack to you!\n"])
+    else:
+        msg = ""
+
+    if hop == "Direct":
+        msg = msg + f"SNR:{snr} RSSI:{rssi}"
+    else:
+        msg = msg + hop
+
+    if "@" in message:
+        msg = msg + " @" + message.split("@")[1]
+    elif "#" in message:
+        msg = msg + " #" + message.split("#")[1]
+
+    return msg
+
+def handle_motd(message, message_from_id, isDM):
     global MOTD
     isAdmin = False
     msg = ""
@@ -127,13 +141,21 @@ def handle_motd(message, message_from_id):
     else:
         isAdmin = True
 
-    if "$" in message and isAdmin:
+    # admin help via DM
+    if  "?" in message and isDM and isAdmin:
+        msg = "Message of the day, set with 'motd $ HelloWorld!'"
+    # non-admin help via DM
+    elif  "?" in message and isDM and not isAdmin:
+        msg = "Message of the day, set by Admin."
+    elif "$" in message and isAdmin:
         motd = message.split("$")[1]
         MOTD = motd.rstrip()
         logger.debug(f"System: {message_from_id} changed MOTD: {MOTD}")
         msg = "MOTD changed to: " + MOTD
+    # just return the MOTD for non-DM
     elif "?" in message:
-        msg = "Message of the day, set with 'motd $ HelloWorld!'"
+        logger.debug(f"System: {message_from_id} requested MOTD: {MOTD} isAdmin: {isAdmin}")
+        msg = "MOTD: " + MOTD
     else:
         logger.debug(f"System: {message_from_id} requested MOTD: {MOTD} isAdmin: {isAdmin}")
         msg = "MOTD: " + MOTD
@@ -153,14 +175,17 @@ def handle_wxalert(message_from_id, deviceID, message):
 
         return weatherAlert
 
-def handle_wiki(message):
+def handle_wiki(message, isDM):
     # location = get_node_location(message_from_id, deviceID)
     if "wiki:" in message.lower():
         search = message.split(":")[1]
         search = search.strip()
         if search:
             return get_wikipedia_summary(search)
-    return "Please add a search term example:wiki: travelling gnome"
+        return "Please add a search term example:wiki: travelling gnome"
+    elif  "?" in message and isDM:
+        msg = "Wikipedia search function. \nUsage example:wiki: travelling gnome"
+    return msg
 
 # Runtime Variables for LLM
 llmRunCounter = 0
@@ -480,30 +505,37 @@ def handle_bbsdelete(message, message_from_id):
     elif not "example:" in message:
         return "Please add a message number example: bbsdelete #14"
 
-def handle_messages(deviceID, channel_number, msg_history, publicChannel):
-    response = ""
-    for msgH in msg_history:
-        if msgH[4] == deviceID:
-            if msgH[2] == channel_number or msgH[2] == publicChannel:
-                response += f"\n{msgH[0]}: {msgH[1]}"
-    if len(response) > 0:
-        return "Message History:" + response
+def handle_messages(message, deviceID, channel_number, msg_history, publicChannel, isDM):
+    if  "?" in message and isDM:
+        return message.split("?")[0].title() + " command returns the last " + str(storeFlimit) + " messages sent on a channel."
     else:
-        return "No messages in history"
+        response = ""
+        for msgH in msg_history:
+            if msgH[4] == deviceID:
+                if msgH[2] == channel_number or msgH[2] == publicChannel:
+                    response += f"\n{msgH[0]}: {msgH[1]}"
+        if len(response) > 0:
+            return "Message History:" + response
+        else:
+            return "No messages in history"
 
 def handle_sun(message_from_id, deviceID, channel_number):
     location = get_node_location(message_from_id, deviceID, channel_number)
     return get_sun(str(location[0]), str(location[1]))
 
-def handle_lheard(nodeid, deviceID):
-    # display last heard nodes add to response
-    bot_response = str(get_node_list(1))
-    # gather telemetry
-    chutil1 = round(interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("channelUtilization", 0), 1)
-    airUtilTx = round(interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("airUtilTx", 0), 1)
-    uptimeSeconds = interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("uptimeSeconds", 0)
-    batteryLevel = interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("batteryLevel", 0)
-    voltage = interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("voltage", 0)
+def handle_lheard(message, nodeid, deviceID, isDM):
+    if  "?" in message and isDM:
+        return message.split("?")[0].title() + " command returns a list of the nodes that have been heard recently"
+
+    else:
+        # display last heard nodes add to response
+        bot_response = str(get_node_list(1))
+        # gather telemetry
+        chutil1 = round(interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("channelUtilization", 0), 1)
+        airUtilTx = round(interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("airUtilTx", 0), 1)
+        uptimeSeconds = interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("uptimeSeconds", 0)
+        batteryLevel = interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("batteryLevel", 0)
+        voltage = interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("voltage", 0)
     if interface2_enabled:
         bot_response += "P2:\n" + str(get_node_list(2))
         chutil2 = round(interface2.nodes.get(decimal_to_hex(myNodeNum2), {}).get("deviceMetrics", {}).get("channelUtilization", 0), 1)
@@ -539,18 +571,21 @@ def handle_lheard(nodeid, deviceID):
     if interface2_enabled and  not batteryLevel2 == 101:
         bot_response += f" P2: Bat: {batteryLevel2}% Volt: {voltage2}"
     # show last users of the bot with the cmdHistory list
-    history = handle_history(nodeid, deviceID, lheard=True)
+    history = handle_history(message, nodeid, deviceID, isDM, lheard=True)
     if history:
         bot_response += f'\n{history}'
     return bot_response
 
-def handle_history(nodeid, deviceID, lheard=False):
+def handle_history(message, nodeid, deviceID, isDM, lheard=False):
     global cmdHistory, lheardCmdIgnoreNode, bbs_admin_list
     msg = ""
     buffer = []
     
-    # show the last commands from the user to the bot
-    if not lheard:
+    if  "?" in message and isDM:
+        return message.split("?")[0].title() + " command returns a list of commands received."
+
+        # show the last commands from the user to the bot
+    elif not lheard:
         for i in range(len(cmdHistory)):
             prettyTime = round((time.time() - cmdHistory[i]['time']) / 600) * 5
             if prettyTime < 60:
@@ -616,28 +651,6 @@ def handle_moon(message_from_id, deviceID, channel_number):
     location = get_node_location(message_from_id, deviceID, channel_number)
     return get_moon(str(location[0]), str(location[1]))
 
-def handle_ack(hop, snr, rssi):
-    if hop == "Direct":
-        return "✋ACK-ACK! " + f"SNR:{snr} RSSI:{rssi}"
-    else:
-        return "✋ACK-ACK! " + hop
-
-def handle_testing(message, hop, snr, rssi):
-    if "@" in message:
-        if hop == "Direct":
-            return "🎙Testing, " + f"SNR:{snr} RSSI:{rssi}" + " at: " + message.split("@")[1]
-        else:
-            return "🎙Testing, " + hop + " at: " + message.split("@")[1]
-    elif "#" in message:
-        if hop == "Direct":
-            return "🎙Testing " + f"SNR:{snr} RSSI:{rssi}" + " #" + message.split("#")[1]
-        else:
-            return "🎙Testing  " + hop + " #" + message.split("#")[1]
-    else:
-        if hop == "Direct":
-            return "🎙Testing 1,2,3 " + f"SNR:{snr} RSSI:{rssi}"
-        else:
-            return "🎙Testing 1,2,3 " + hop
 
 def handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus):
     loc = []
