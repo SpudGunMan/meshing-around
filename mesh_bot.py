@@ -290,7 +290,7 @@ def handleDopeWars(nodeID, message, rxNode):
         msg = 'Welcome to 💊Dope Wars!💉 You have ' + str(total_days) + ' days to make as much 💰 as possible! '
         high_score = getHighScoreDw()
         msg += 'The High Score is $' + "{:,}".format(high_score.get('cash')) + ' by user ' + get_name_from_number(high_score.get('userID') , 'short', rxNode)
-        msg += 'Game Played via Direct Message.' + f'.\n'
+        msg += 'Game ' + f'.\n'
         msg += playDopeWars(nodeID, message)
     else:
         logger.debug("System: DopeWars: last_cmd: " + str(last_cmd))
@@ -335,7 +335,7 @@ def handleLemonade(nodeID, message):
     # create new player if not in tracker
     if last_cmd == "":
         create_player(nodeID)
-        msg += "Welcome to 🍋Lemonade Stand!🍋 Game Played via Direct Message."
+        msg += "Welcome to 🍋Lemonade Stand!🍋"
     
     msg += start_lemonade(nodeID=nodeID, message=message, celsius=False)
     # wait a second to keep from message collision
@@ -355,37 +355,23 @@ def handleBlackJack(nodeID, message):
     # if player sends a L for leave table
     if message.lower().startswith("l"):
         logger.debug(f"System: BlackJack: {nodeID} is leaving the table")
-        # add 16 hours to the player time to leave the table, this will be detected by bot logic as player leaving
         msg = "You have left the table."
         for i in range(len(jackTracker)):
             if jackTracker[i]['nodeID'] == nodeID:
-                jackTracker[i]['time'] = time.time() - 57600
-                jackTracker[i]['cmd'] = "new"
-                jackTracker[i]['p_cards'] = []
-                jackTracker[i]['d_cards'] = []
-                jackTracker[i]['p_hand'] = []
-                jackTracker[i]['d_hand'] = []
+                jackTracker.pop(i)
         return msg
 
-    else:
-        # find higest dollar amount in tracker for high score
-        if last_cmd == "new":
-            high_score = 0
-            for i in range(len(jackTracker)):
-                if jackTracker[i]['cash'] > high_score:
-                    high_score = int(jackTracker[i]['cash'])
-                    user = jackTracker[i]['nodeID']
-            if user != 0:
-                highScore = {'nodeID': 0, 'highScore': 0}
-                highScore = loadHSJack()
-                if highScore['nodeID'] != 0:
-                    msg += f" Ranking🥇:{get_name_from_number(highScore['nodeID'])} with {highScore['highScore']} chips. "
-                    
+    else:  
         # Play BlackJack
         msg = playBlackJack(nodeID=nodeID, message=message)
     
         if last_cmd != "":
             logger.debug(f"System: BlackJack: {nodeID} last command: {last_cmd}")
+        else:
+            highScore = {'nodeID': 0, 'highScore': 0}
+            highScore = loadHSJack()
+            if highScore['nodeID'] != 0:
+                msg += f" Ranking🥇:{get_name_from_number(highScore['nodeID'])} with {highScore['highScore']} chips. "
     time.sleep(1)
     return msg
 
@@ -396,12 +382,10 @@ def handleVideoPoker(nodeID, message):
     # if player sends a L for leave table
     if message.lower().startswith("l"):
         logger.debug(f"System: VideoPoker: {nodeID} is leaving the table")
-        # add 16 hours to the player time to leave the table, this will be detected by bot logic as player leaving
         msg = "You have left the table."
         for i in range(len(vpTracker)):
             if vpTracker[i]['nodeID'] == nodeID:
-                vpTracker[i]['time'] = time.time() - 57600
-                vpTracker[i]['cmd'] = "new"
+                vpTracker.pop(i)
         return msg
     else:
         # Play Video Poker
@@ -415,17 +399,10 @@ def handleVideoPoker(nodeID, message):
 
         # find higest dollar amount in tracker for high score
         if last_cmd == "new":
-            high_score = 0
-            user = 0
-            for i in range(len(vpTracker)):
-                if vpTracker[i]['highScore'] > high_score:
-                    high_score = vpTracker[i]['highScore']
-                    user = vpTracker[i]['nodeID']
-            if user != 0:
-                highScore = {'nodeID': 0, 'highScore': 0}
-                highScore = loadHSVp()
-                if high_score['nodeID'] != 0:
-                    msg += f" Ranking🥇:{get_name_from_number(highScore['nodeID'])} with {highScore['highScore']} chips. "
+            highScore = {'nodeID': 0, 'highScore': 0}
+            highScore = loadHSVp()
+            if highScore['nodeID'] != 0:
+                msg += f" Ranking🥇:{get_name_from_number(highScore['nodeID'])} with {highScore['highScore']} chips. "
     
         if last_cmd != "":
             logger.debug(f"System: VideoPoker: {nodeID} last command: {last_cmd}")
