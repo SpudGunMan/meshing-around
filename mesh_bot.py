@@ -478,8 +478,10 @@ def handle_bbspost(message, message_from_id, deviceID):
             return "example: bbspost $subject #message"
     elif "@" in message and not "example:" in message:
         toNode = message.split("@")[1].split("#")[0]
-        toNode = toNode.rstrip().strip("!")
-        if toNode.isalpha() or not toNode.isnumeric():
+        toNode = toNode.rstrip()
+        if "!" in toNode and toNode.strip("!").ishex():
+            toNode = toNode.strip("!")
+        elif toNode.isalpha() or not toNode.isnumeric():
             toNode = get_num_from_short_name(toNode, deviceID)
             if toNode == 0:
                 return "Node not found " + message.split("@")[1].split("#")[0]
