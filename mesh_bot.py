@@ -100,17 +100,17 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
 
 def handle_ping(message, hop, snr, rssi, isDM):
     if  "?" in message and isDM:
-        return message.split("?")[0].title() + " command returns SNR and RSSI, or hopcount from your message. Try adding e.g. @place or #1/3 to your message"
+        return message.split("?")[0].title() + " command returns SNR and RSSI, or hopcount from your message. Try adding e.g. @place or #tag"
     
     msg = ""
 
     if "ping" in message.lower():
         msg = "🏓PONG, "
     elif "test" in message.lower() or "testing" in message.lower():
-        msg = random.choice(["🎙Testing 1,2,3\n", "🎙Testing\n",\
-                             "🎙Testing, testing\n",\
-                             "🎙Ah-wun, ah-two...\n", "🎙 Is this thing on?\n",\
-                             "🎙Roger that\n",])
+        msg = random.choice(["🎙Testing 1,2,3\n", "🎙Testing, ",\
+                             "🎙Testing, testing, ",\
+                             "🎙Ah-wun, ah-two... ", "🎙Is this thing on? ",\
+                             "🎙Roger that! ",])
     elif "ack" in message.lower():
         msg = random.choice(["✋ACK-ACK!\n", "✋Ack to you!\n"])
     else:
