@@ -25,7 +25,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     # Command List
     default_commands = {
     "ping": lambda: handle_ping(message, hop, snr, rssi, isDM),
-    "pong": lambda: "PING!! 🏓",
+    "pong": lambda: "🏓PING!!",
     "motd": lambda: handle_motd(message, message_from_id, isDM),
     "bbshelp": bbs_help,
     "wxalert": lambda: handle_wxalert(message_from_id, deviceID, message),
@@ -105,7 +105,7 @@ def handle_ping(message, hop, snr, rssi, isDM):
     msg = ""
 
     if "ping" in message.lower():
-        msg = "🏓 PONG \n"
+        msg = "🏓PONG, "
     elif "test" in message.lower() or "testing" in message.lower():
         msg = random.choice(["🎙 Testing 1,2,3\n", "🎙 Testing\n",\
                              "🎙 Testing, testing\n",\
