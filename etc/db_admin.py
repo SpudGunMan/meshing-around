@@ -11,7 +11,7 @@ except Exception as e:
         with open('bbsdb.pkl', 'rb') as f:
             bbs_messages = pickle.load(f)
     except Exception as e:
-        print ("\nSystem: bbsdb.pkl not found")
+        bbs_messages = "System: bbsdb.pkl not found"
 
 try:
     with open('../bbsdm.pkl', 'rb') as f:
@@ -21,7 +21,7 @@ except Exception as e:
         with open('bbsdm.pkl', 'rb') as f:
             bbs_dm = pickle.load(f)
     except Exception as e:
-        print ("\nSystem: bbsdm.pkl not found")
+        bbs_dm = "System: bbsdm.pkl not found"
 
 # Game HS tables
 try:
@@ -32,7 +32,7 @@ except Exception as e:
         with open('lemonade_hs.pkl', 'rb') as f:
             lemon_score = pickle.load(f)
     except Exception as e:
-        print ("\nSystem: lemonade_hs.pkl not found")
+        lemon_score = "System: lemonade_hs.pkl not found"
 
 try:
     with open('../dopewar_hs.pkl', 'rb') as f:
@@ -42,13 +42,36 @@ except Exception as e:
         with open('dopewar_hs.pkl', 'rb') as f:
             dopewar_score = pickle.load(f)
     except Exception as e:
-        print ("\nSystem: dopewar_hs.pkl not found")
+        dopewar_score = "System: dopewar_hs.pkl not found"
 
+try:
+    with open('../blackjack_hs.pkl', 'rb') as f:
+        blackjack_score = pickle.load(f)
+except Exception as e:
+    try:
+        with open('blackjack_hs.pkl', 'rb') as f:
+            blackjack_score = pickle.load(f)
+    except Exception as e:
+        blackjack_score = "System: blackjack_hs.pkl not found"
 
-print ("\nSystem: bbs_messages")
+try:
+    with open('../videopoker_hs.pkl', 'rb') as f:
+        videopoker_score = pickle.load(f)
+except Exception as e:
+    try:
+        with open('videopoker_hs.pkl', 'rb') as f:
+            videopoker_score = pickle.load(f)
+    except Exception as e:
+        videopoker_score = "System: videopoker_hs.pkl not found"
+
+print ("\n Meshing-Around Database Admin Tool\n")
+print ("System: bbs_messages")
 print (bbs_messages)
-print ("\nSystem: bbs_dm")
+print ("System: bbs_dm")
 print (bbs_dm)
-print ("Game HS tables")
+print (f"\n\nGame HS tables\n")
 print (f"lemon:{lemon_score}")
 print (f"dopewar:{dopewar_score}")
+print (f"blackjack:{blackjack_score}")
+print (f"videopoker:{videopoker_score}")
+print ("\n")

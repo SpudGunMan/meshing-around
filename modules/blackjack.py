@@ -4,6 +4,7 @@
 from random import choices, shuffle
 from modules.log import *
 import time
+import pickle
 
 jack_starting_cash = 100  # Replace 100 with your desired starting cash value
 jackTracker= [{'nodeID': 0, 'cmd': 'new', 'time': time.time(), 'cash': jack_starting_cash,\
@@ -113,15 +114,6 @@ class jackChips:
         self.total -= self.bet
         self.winnings -= 1
 
-def take_bet(bet_amount, player_money):
-    try:
-        if bet_amount >= player_money or bet_amount <= 0:
-            return f"Enter a bet amount between 1 and {player_money}"
-        return bet_amount
-
-    except TypeError:
-        return "Invalid bet amount"
-
 def success_rate(card, obj_h):
     """ Calculate Success rate of 'HIT' new cards """
     msg = ""
@@ -216,6 +208,29 @@ def setLastCmdJack(nodeID, cmd):
             return True
     return False
 
+def saveHSJack(nodeID, highScore):
+    # Save the game state to pickle
+    highScore = {'nodeID': nodeID, 'highScore': highScore}
+    try:
+        with open('blackjack_hs.pkl', 'wb') as file:
+            pickle.dump(highScore, file)
+    except FileNotFoundError:
+        logger.debug("System: BlackJack: Creating new blackjack_hs.pkl file")
+        with open('blackjack_hs.pkl', 'wb') as file:
+            pickle.dump(highScore, file)
+
+def loadHSJack():
+    try:
+        with open('blackjack_hs.pkl', 'rb') as file:
+            highScore = pickle.load(file)
+            return highScore
+    except FileNotFoundError:
+        logger.debug("System: BlackJack: Creating new blackjack_hs.pkl file")
+        highScore = {'nodeID': 0, 'highScore': 0}
+        with open('blackjack_hs.pkl', 'wb') as file:
+            pickle.dump(highScore, file)
+        return 0
+
 def playBlackJack(nodeID, message):
     # Initalize the Game
     msg, last_cmd = '', None
@@ -243,8 +258,8 @@ def playBlackJack(nodeID, message):
             d_win = jackTracker[i]['gameStats']['d_win']
             draw = jackTracker[i]['gameStats']['draw']
             bet_money = jackTracker[i]['bet']
-            p_chips.bet = bet_money
             if last_cmd == "playing":
+                p_chips.bet = bet_money
                 p_cards = jackTracker[i]['p_cards']
                 d_cards = jackTracker[i]['d_cards']
                 p_hand = jackTracker[i]['p_hand']
@@ -262,24 +277,24 @@ def playBlackJack(nodeID, message):
         # Place Bet
         try:
             # handle B letter
-            if message == "b":
+            if message.lower() == "b":
                 if bet_money == 0:
                     bet_money = 5
-                else:
-                    bet_money = bet_money
             else:
-                bet_money = int(message)
+                try:
+                    bet_money = int(message)
+                except ValueError:
+                    return "Invalid Bet, please enter a valid number."
 
-            if bet_money <= p_chips.total or bet_money <= 1:
-                p_chips.bet = take_bet(bet_money, p_chips.total)
+            if bet_money <= p_chips.total and bet_money >= 1:
+                p_chips.bet = bet_money
             else:
-                return f"Invalid Bet, the maximum bet you can place is {p_chips.total}"
+                return f"Invalid Bet, the maximum bet you can place is {p_chips.total} and the minimum bet is 1."
         except ValueError:
             return f"Invalid Bet, the maximum bet, {p_chips.total}"
 
         # Show the cards
         msg += show_some(p_cards, d_cards, p_hand)
-
         # check for blackjack 21 and only two cards
         if p_hand.value == 21 and len(p_hand.cards) == 2:
             msg += "Player 🎰 BLAAAACKJACKKKK 💰"
@@ -288,7 +303,7 @@ def playBlackJack(nodeID, message):
             # Save the game state
             for i in range(len(jackTracker)):
                 if jackTracker[i]['nodeID'] == nodeID:
-                    jackTracker[i]['cash'] = p_chips.total
+                    jackTracker[i]['cash'] = int(p_chips.total)
                     break
         else:
             # Display the statistics
@@ -357,11 +372,11 @@ def playBlackJack(nodeID, message):
         # Save the game state
         for i in range(len(jackTracker)):
             if jackTracker[i]['nodeID'] == nodeID:
-                jackTracker[i]['cash'] = p_chips.total
-                jackTracker[i]['bet'] = p_chips.bet
-                jackTracker[i]['gameStats']['p_win'] = p_win
-                jackTracker[i]['gameStats']['d_win'] = d_win
-                jackTracker[i]['gameStats']['draw'] = draw
+                jackTracker[i]['cash'] = int(p_chips.total)
+                jackTracker[i]['bet'] = int(p_chips.bet)
+                jackTracker[i]['gameStats']['p_win'] = int(p_win)
+                jackTracker[i]['gameStats']['d_win'] = int(d_win)
+                jackTracker[i]['gameStats']['draw'] = int(draw)
                 jackTracker[i]['p_cards'] = p_cards
                 jackTracker[i]['d_cards'] = d_cards
                 jackTracker[i]['p_hand'] = p_hand
@@ -378,10 +393,10 @@ def playBlackJack(nodeID, message):
         # recall the game state
         for i in range(len(jackTracker)):
             if jackTracker[i]['nodeID'] == nodeID:
-                p_chips.total = int(jackTracker[i]['cash'])
-                p_chips.bet = int(jackTracker[i]['bet'])
-                p_win = int(jackTracker[i]['gameStats']['p_win'])
-                d_win = int(jackTracker[i]['gameStats']['d_win'])
+                p_chips.total = jackTracker[i]['cash']
+                p_chips.bet = jackTracker[i]['bet']
+                p_win = jackTracker[i]['gameStats']['p_win']
+                d_win = jackTracker[i]['gameStats']['d_win']
                 draw = jackTracker[i]['gameStats']['draw']
                 p_cards = jackTracker[i]['p_cards']
                 d_cards = jackTracker[i]['d_cards']
@@ -426,7 +441,13 @@ def playBlackJack(nodeID, message):
                 msg += "💸NO MORE MONEY! Game Over!"
                 p_chips.total = jack_starting_cash
         else:
-            msg += f"💰You have {p_chips.total} chips left"
+            # check high score
+            highScore = loadHSJack()
+            if highScore != 0 and p_chips.total > highScore['highScore']:
+                msg += f"🎉New High Score! {p_chips.total} "
+                saveHSJack(nodeID, p_chips.total)
+            else:
+                msg += f"💰You have {p_chips.total} chips "
 
         msg += "(B)et or (L)eave table."
 

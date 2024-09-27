@@ -367,14 +367,6 @@ def handleBlackJack(nodeID, message):
                 jackTracker[i]['d_hand'] = []
         return msg
 
-        # # Save the game state to pickle
-        # try:
-        #     with open('blackjack_hs.pkl', 'wb') as file:
-        #         pickle.dump(jackTracker, file)
-        # except FileNotFoundError:
-        #     logger.debug("System: BlackJack: Creating new blackjack_hs.pkl file")
-        #     with open('blackjack_hs.pkl', 'wb') as file:
-        #         pickle.dump(jackTracker, file)
     else:
         # find higest dollar amount in tracker for high score
         if last_cmd == "new":
@@ -384,8 +376,11 @@ def handleBlackJack(nodeID, message):
                     high_score = int(jackTracker[i]['cash'])
                     user = jackTracker[i]['nodeID']
             if user != 0:
-                msg += f" Ranking🥇:{get_name_from_number(user)} with {high_score} chips. "
-
+                highScore = {'nodeID': 0, 'highScore': 0}
+                highScore = loadHSJack()
+                if highScore['nodeID'] != 0:
+                    msg += f" Ranking🥇:{get_name_from_number(highScore['nodeID'])} with {highScore['highScore']} chips. "
+                    
         # Play BlackJack
         msg = playBlackJack(nodeID=nodeID, message=message)
     
@@ -427,16 +422,10 @@ def handleVideoPoker(nodeID, message):
                     high_score = vpTracker[i]['highScore']
                     user = vpTracker[i]['nodeID']
             if user != 0:
-                msg += f"\nHigh Score: {high_score} by {get_name_from_number(user)}"
-
-                # # Save the game high_score to pickle
-                # try:
-                #     with open('videopoker_hs.pkl', 'wb') as file:
-                #         pickle.dump(high_score, file)
-                # except FileNotFoundError:
-                #     logger.debug("System: BlackJack: Creating new videopoker_hs.pkl file")
-                #     with open('videopoker_hs.pkl', 'wb') as file:
-                #         pickle.dump(high_score, file)
+                highScore = {'nodeID': 0, 'highScore': 0}
+                highScore = loadHSVp()
+                if high_score['nodeID'] != 0:
+                    msg += f" Ranking🥇:{get_name_from_number(highScore['nodeID'])} with {highScore['highScore']} chips. "
     
         if last_cmd != "":
             logger.debug(f"System: VideoPoker: {nodeID} last command: {last_cmd}")

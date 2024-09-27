@@ -2,6 +2,7 @@
 # Adapted for Meshtastic mesh-bot by K7MHI Kelly Keeton 2024
 import random
 import time
+import pickle
 from modules.log import *
 
 vpStartingCash = 20
@@ -272,6 +273,30 @@ def setLastCmdVp(nodeID, cmd):
         if vpTracker[i]['nodeID'] == nodeID:
             vpTracker[i]['cmd'] = cmd
 
+def saveHSVp(nodeID, highScore):
+    # Save the game high_score to pickle
+    highScore = {'nodeID': nodeID, 'highScore': highScore}
+    try:
+        with open('videopoker_hs.pkl', 'wb') as file:
+            pickle.dump(highScore, file)
+    except FileNotFoundError:
+        logger.debug("System: BlackJack: Creating new videopoker_hs.pkl file")
+        with open('videopoker_hs.pkl', 'wb') as file:
+            pickle.dump(highScore, file)
+
+def loadHSVp():
+    # Load the game high_score from pickle
+    try:
+        with open('videopoker_hs.pkl', 'rb') as file:
+            highScore = pickle.load(file)
+            return highScore
+    except FileNotFoundError:
+        logger.debug("System: VideoPoker: Creating new videopoker_hs.pkl file")
+        highScore = {'nodeID': 0, 'highScore': 0}
+        with open('videopoker_hs.pkl', 'wb') as file:
+            pickle.dump(highScore, file)
+        return 0
+
 def playVideoPoker(nodeID, message):
     msg = ""
 
@@ -406,6 +431,8 @@ def playVideoPoker(nodeID, message):
         elif player.bankroll > vpTracker[i]['highScore']:
             vpTracker[i]['highScore'] = player.bankroll
             msg += " 🎉HighScore!"
+            # save high score
+            saveHSVp(nodeID, vpTracker[i]['highScore'])
 
         msg += f"\nPlace your Bet, 'L' to leave the game."
 
