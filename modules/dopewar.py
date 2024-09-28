@@ -421,7 +421,7 @@ def render_game_screen(userID, day_play, total_day, loc_choice, event_number, pr
         if dwCashDb[i].get('userID') == userID:
             cash = dwCashDb[i].get('cash')
 
-    msg += "🗺️" + loc[int(loc_choice) - 1] + " 📆" + str(day_play) + '/' + str(total_day) +  " 🎒" + str(inventory) + "/100" + "💵" + "{:,}".format(cash) + f"\n"
+    msg += "🗺️" + loc[int(loc_choice) - 1] + " 📆" + str(day_play) + '/' + str(total_day) +  " 🎒" + str(inventory) + "/100" + " 💵" + "{:,}".format(cash) + f"\n"
     
     for i, drug in enumerate(my_drugs, 1):
         qty = amount[i-1]
