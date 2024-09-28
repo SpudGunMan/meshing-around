@@ -124,13 +124,11 @@ def success_rate(card, obj_h):
 
     if rate < 100:
         msg += f"If Hit, chance {int(rate)}% failure, {100-int(rate)}% success."
-    elif rate > 100:
+    else:
         l_rate = int(rate - (rate - 99))  # Round to 99
         if card[0][1] == "A":
             l_rate -= 99
         msg += f"If Hit, chance {100-l_rate}% failure, and {l_rate}% success"
-    else:
-        msg += "If Hit, a low chance of success."
     return msg
 
 def hits(obj_de):
@@ -234,6 +232,7 @@ def loadHSJack():
 def playBlackJack(nodeID, message):
     # Initalize the Game
     msg, last_cmd = '', None
+    blackJack = False
     p_win, d_win, draw = 0, 0, 0
     p_chips = jackChips()
     p_hand = jackHand()
@@ -300,7 +299,6 @@ def playBlackJack(nodeID, message):
         # Show the cards
         msg += show_some(p_cards, d_cards, p_hand)
         # check for blackjack 21 and only two cards
-        blackJack = False
         if p_hand.value == 21 and len(p_hand.cards) == 2:
             msg += "Player 🎰 BLAAAACKJACKKKK 💰"
             p_chips.total += round(p_chips.bet * 1.5)
