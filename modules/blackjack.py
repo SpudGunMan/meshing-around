@@ -444,7 +444,7 @@ def playBlackJack(nodeID, message):
             if p_chips.total > 0:
                 msg += "🪙Keep the change you filthy animal!"
             else:
-                msg += "💸NO MORE MONEY! Game Over!"
+                msg += "💸NO MORE MONEY!🏧💳"
                 p_chips.total = jack_starting_cash
         else:
             # check high score
@@ -455,7 +455,7 @@ def playBlackJack(nodeID, message):
             else:
                 msg += f"💰You have {p_chips.total} chips "
 
-        msg += "place a bet?"
+        msg += " Bet or Leave?"
 
         # Reset the game
         setLastCmdJack(nodeID, "new")
