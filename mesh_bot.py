@@ -346,7 +346,7 @@ def handleLemonade(nodeID, message):
                 if nodeName.isnumeric() and interface2_enabled:
                     nodeName = get_name_from_number(highScore['nodeID'], 'long', 2)
     
-                msg += f" HighScore🥇{nodeName} 💰{high_score['cash']} with %{high_score['success']}"
+                msg += f" HighScore🥇{nodeName} 💰{high_score['cash']}k with %{high_score['success']}"
     
     msg += start_lemonade(nodeID=nodeID, message=message, celsius=False)
     # wait a second to keep from message collision
