@@ -815,11 +815,8 @@ def onReceive(packet, interface):
                                     # play the game
                                     send_message(handleVideoPoker(message_from_id, message_string), channel_number, message_from_id, rxNode)
                             else:
-                                # reset the player if the time exceeds 8 hours
-                                vpTracker[i]['cmd'] = "gameOver"
-                                vpTracker[i]['player'] = None
-                                vpTracker[i]['deck'] = None
-                        
+                                # pop if the time exceeds 8 hours
+                                vpTracker.pop(i)
                         for i in range(0, len(jackTracker)):
                             if jackTracker[i].get('nodeID') == message_from_id:
                                 # check if the player has played in the last 8 hours
@@ -832,12 +829,8 @@ def onReceive(packet, interface):
                                     # play the game
                                     send_message(handleBlackJack(message_from_id, message_string), channel_number, message_from_id, rxNode)
                                 else:
-                                    # reset the player if the time exceeds 8 hours
-                                    jackTracker[i]['cmd'] = "new"
-                                    jackTracker[i]['p_cards'] = []
-                                    jackTracker[i]['d_cards'] = []
-                                    jackTracker[i]['p_hand'] = []
-                                    jackTracker[i]['d_hand'] = []
+                                    # pop if the time exceeds 8 hours
+                                    jackTracker.pop(i)
                     else:
                         playingGame = False
 
@@ -856,23 +849,26 @@ def onReceive(packet, interface):
             else:
                 # message is on a channel
                 if messageTrap(message_string):
-                    # message is for bot to respond to
-                    logger.info(f"Device:{rxNode} Channel:{channel_number} " + CustomFormatter.green + "Received: " + CustomFormatter.white + f"{message_string} " + CustomFormatter.purple +\
-                                 "From: " + CustomFormatter.white + f"{get_name_from_number(message_from_id, 'long', rxNode)}")
-                    if useDMForResponse:
-                        # respond to channel message via direct message
-                        send_message(auto_response(message_string, snr, rssi, hop, pkiStatus, message_from_id, channel_number, rxNode, isDM), channel_number, message_from_id, rxNode)
+                    if ignoreDefaultChannel and channel_number == publicChannel:
+                        logger.debug(f"System: ignoreDefaultChannel CMD:{message_string} From: {get_name_from_number(message_from_id, 'short', rxNode)}")
                     else:
-                        # or respond to channel message on the channel itself
-                        if channel_number == publicChannel and antiSpam:
-                            # warning user spamming default channel
-                            logger.error(f"System: AntiSpam protection, sending DM to: {get_name_from_number(message_from_id, 'long', rxNode)}")
-                        
+                        # message is for bot to respond to
+                        logger.info(f"Device:{rxNode} Channel:{channel_number} " + CustomFormatter.green + "Received: " + CustomFormatter.white + f"{message_string} " + CustomFormatter.purple +\
+                                    "From: " + CustomFormatter.white + f"{get_name_from_number(message_from_id, 'long', rxNode)}")
+                        if useDMForResponse:
                             # respond to channel message via direct message
                             send_message(auto_response(message_string, snr, rssi, hop, pkiStatus, message_from_id, channel_number, rxNode, isDM), channel_number, message_from_id, rxNode)
                         else:
-                            # respond to channel message on the channel itself
-                            send_message(auto_response(message_string, snr, rssi, hop, pkiStatus, message_from_id, channel_number, rxNode, isDM), channel_number, 0, rxNode)
+                            # or respond to channel message on the channel itself
+                            if channel_number == publicChannel and antiSpam:
+                                # warning user spamming default channel
+                                logger.error(f"System: AntiSpam protection, sending DM to: {get_name_from_number(message_from_id, 'long', rxNode)}")
+                            
+                                # respond to channel message via direct message
+                                send_message(auto_response(message_string, snr, rssi, hop, pkiStatus, message_from_id, channel_number, rxNode, isDM), channel_number, message_from_id, rxNode)
+                            else:
+                                # respond to channel message on the channel itself
+                                send_message(auto_response(message_string, snr, rssi, hop, pkiStatus, message_from_id, channel_number, rxNode, isDM), channel_number, 0, rxNode)
                 else:
                     # message is not for bot to respond to
                     # ignore the message but add it to the message history list

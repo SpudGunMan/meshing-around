@@ -27,6 +27,8 @@ port = /dev/ttyUSB0
 respond_by_dm_only = True
 # defaultChannel is the meshtastic default public channel, e.g. LongFast
 defaultChannel = 0
+# ignoreDefaultChannel, the bot will ignore the default channel set above
+ignoreDefaultChannel = False
 # motd is reset to this value on boot
 motd = Thanks for using MeshBOT! Have a good day!
 welcome_message = MeshBot, here for you like a friend who is not. Try sending: ping @foo or, cmd
