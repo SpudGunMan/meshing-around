@@ -12,7 +12,7 @@ The bot is also capable of using dual radio/nodes, so you can monitor two networ
 
 Look up data using wiki results, or interact with [Ollama](https://ollama.com) LLM AI see the [OllamaDocs](https://github.com/ollama/ollama/tree/main/docs) If Ollama is enabled you can DM the bot directly. The default model for mesh-bot which is currently `gemma2:2b`
 
-The bot will report on anyone who is getting close to the configured lat/long, if in a remote location.
+The bot will report on anyone who is getting close to the configured lat/long, if in a remote location. For example having the bot in your camp site alerts when members arive back at camp.
 
 Store and forward-like message re-play with `messages`, and there is a repeater module for dual radio bots to cross post messages. Messages are also logged locally to disk.
 
