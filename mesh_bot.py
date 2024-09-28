@@ -335,7 +335,14 @@ def handleLemonade(nodeID, message):
     # create new player if not in tracker
     if last_cmd == "":
         create_player(nodeID)
-        msg += "Welcome to 🍋Lemonade Stand!🍋"
+        msg += "Welcome🍋🥤"
+
+        # high score
+        highScore = {'nodeID': 0, 'value': 0}
+        highScore = loadHSLemon()
+        if highScore != 0:
+            if highScore['nodeID'] != 0:
+                msg += f" HighScore🥇{get_name_from_number(highScore['nodeID'])} with ${highScore['value']}."
     
     msg += start_lemonade(nodeID=nodeID, message=message, celsius=False)
     # wait a second to keep from message collision
