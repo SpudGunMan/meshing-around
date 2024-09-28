@@ -46,7 +46,7 @@ def getHighScoreLemon():
     except FileNotFoundError:
         logger.debug("System: Lemonade: No high score table found")
         # high score pickle file is a touple of the nodeID and the high score
-        high_score = ({"userID": 4258675309, "cash": 2, "success": 0})
+        high_score = ({"userID": 0, "cash": 0, "success": 0})
         # write a new high score file if one is not found
         with open('lemonade_hs.pkl', 'wb') as file:
             pickle.dump(high_score, file)

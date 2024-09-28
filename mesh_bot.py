@@ -338,11 +338,15 @@ def handleLemonade(nodeID, message):
         msg += "Welcome🍋🥤"
 
         # high score
-        highScore = {'nodeID': 0, 'value': 0}
+        highScore = {"userID": 0, "cash": 0, "success": 0}
         highScore = getHighScoreLemon()
         if highScore != 0:
-            if highScore['nodeID'] != 0:
-                msg += f" HighScore🥇{get_name_from_number(highScore['nodeID'])} with ${highScore['value']}."
+            if highScore['userID'] != 0:
+                nodeName = get_name_from_number(highScore['nodeID'])
+                if nodeName.isnumeric() and interface2_enabled:
+                    nodeName = get_name_from_number(highScore['nodeID'], 'long', 2)
+    
+                msg += f" HighScore🥇{nodeName} 💰{high_score['cash']} with %{high_score['success']}"
     
     msg += start_lemonade(nodeID=nodeID, message=message, celsius=False)
     # wait a second to keep from message collision
@@ -379,7 +383,10 @@ def handleBlackJack(nodeID, message):
             highScore = loadHSJack()
             if highScore != 0:
                 if highScore['nodeID'] != 0:
-                    msg += f" HighScore🥇{get_name_from_number(highScore['nodeID'])} with {highScore['highScore']} chips. "
+                    nodeName = get_name_from_number(highScore['nodeID'])
+                    if nodeName.isnumeric() and interface2_enabled:
+                        nodeName = get_name_from_number(highScore['nodeID'], 'long', 2)
+                    msg += f" HighScore🥇{nodeName} with {highScore['highScore']} chips. "
     time.sleep(1.5) # short answers with long replies can cause message collision added wait
     return msg
 
@@ -411,7 +418,10 @@ def handleVideoPoker(nodeID, message):
             highScore = loadHSVp()
             if highScore != 0:
                 if highScore['nodeID'] != 0:
-                    msg += f" HighScore🥇{get_name_from_number(highScore['nodeID'])} with {highScore['highScore']} chips. "
+                    nodeName = get_name_from_number(highScore['nodeID'])
+                    if nodeName.isnumeric() and interface2_enabled:
+                        nodeName = get_name_from_number(highScore['nodeID'], 'long', 2)
+                    msg += f" HighScore🥇{nodeName} with {highScore['highScore']} coins. "
     
         if last_cmd != "":
             logger.debug(f"System: VideoPoker: {nodeID} last command: {last_cmd}")
