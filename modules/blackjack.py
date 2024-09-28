@@ -450,7 +450,7 @@ def playBlackJack(nodeID, message):
             # check high score
             highScore = loadHSJack()
             if highScore != 0 and p_chips.total > highScore['highScore']:
-                msg += f"💰💰High Score{p_chips.total} "
+                msg += f"💰HighScore💰{p_chips.total} "
                 saveHSJack(nodeID, p_chips.total)
             else:
                 msg += f"💰You have {p_chips.total} chips "
