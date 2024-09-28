@@ -444,7 +444,7 @@ def playBlackJack(nodeID, message):
             if p_chips.total > 0:
                 msg += "🪙Keep the change you filthy animal!"
             else:
-                msg += "💸NO MORE MONEY!🏧💳"
+                msg += "💸NO MORE CHIPS!🏧💳"
                 p_chips.total = jack_starting_cash
         else:
             # check high score
