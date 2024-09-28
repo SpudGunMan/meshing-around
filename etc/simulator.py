@@ -8,6 +8,7 @@ import random
 projectName = "example_handler" # name of _handler function to match the function name under test
 randomNode = False # Set to True to use random node IDs
 
+# bot.py Simulated functions
 def get_NodeID():
     nodeList = [4258675309, 1212121212, 1234567890, 9876543210]
     if randomNode: 
@@ -15,6 +16,10 @@ def get_NodeID():
     else:
         nodeID = nodeList[0]
     return nodeID
+def get_name_from_number(nodeID, length='short', interface=1):
+    # return random name for nodeID
+    names = ["Max","Molly","Jake"]
+    return names[random.randint(0, len(names)-1)]
 # # end Initialization of the tool
 
 # # Function to handle, or the project in test
