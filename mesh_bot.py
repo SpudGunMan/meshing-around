@@ -804,10 +804,6 @@ def onReceive(packet, interface):
                                     send_message(handleLemonade(message_from_id, message_string), channel_number, message_from_id, rxNode)
 
                         for i in range(0, len(vpTracker)):
-                            print("debug")
-                            print(vpTracker)
-                            print(i)
-                            print(vpTracker[i])
                             if vpTracker[i].get('nodeID') == message_from_id:
                                 # check if the player has played in the last 8 hours
                                 if vpTracker[i].get('time') > (time.time() - GAMEDELAY):
