@@ -369,7 +369,7 @@ def playVideoPoker(nodeID, message):
                 vpTracker[i]['deck'] = deck
                 vpTracker[i]['drawCount'] = drawCount
 
-        msg += f"\nDeal new card? \nex: 1,3,4 or (N)o,(A)ll"
+        msg += f"\nDeal new card? \nex: 1,3,4 or (N)o,(A)ll (H)and"
         setLastCmdVp(nodeID, "redraw")
         return msg
     

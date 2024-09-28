@@ -280,6 +280,10 @@ def playBlackJack(nodeID, message):
             if message.lower() == "b":
                 if bet_money == 0:
                     bet_money = 5
+            elif message.lower() == "r":
+                #resend the hand
+                msg += show_some(p_cards, d_cards, p_hand)
+                return msg
             else:
                 try:
                     bet_money = int(message)
@@ -314,7 +318,7 @@ def playBlackJack(nodeID, message):
 
     if getLastCmdJack(nodeID) == "betPlaced":
         setLastCmdJack(nodeID, "playing")
-        msg += "(H)it,(S)tand,(F)orfit,(D)ouble"
+        msg += "(H)it,(S)tand,(F)orfit,(D)ouble,(R)esend,(L)eave table"
 
         # save the game state
         for i in range(len(jackTracker)):
@@ -356,18 +360,20 @@ def playBlackJack(nodeID, message):
                 setLastCmdJack(nodeID, "dealerTurn")
             else:
                 return "You can't Double Down, dont have enough chips"
+        elif choice == "resend" or choice == "r":
+            msg += show_some(p_hand.cards, d_cards, p_hand)
         else:
-            return "Invalid Choice please choose [H,S,F,D]"
+            return "(H)it,(S)tand,(F)orfit,(D)ouble,(R)esend,(L)eave table"
 
         # Check if player bust
         if player_bust(p_hand, p_chips):
             d_win += 1
-            msg += "Player:BUST💥"
+            msg += "💥PlayerBUST💥"
             setLastCmdJack(nodeID, "dealerTurn")
         
         if getLastCmdJack(nodeID) == "playing":
             msg += stats
-            msg += "[H,S,F,D,L]"
+            msg += "[H,S,F,D]"
 
         # Save the game state
         for i in range(len(jackTracker)):
@@ -412,7 +418,7 @@ def playBlackJack(nodeID, message):
                 d_hand.add_cards(d_card)
                 if dealer_bust(d_hand, p_hand, p_chips):
                     p_win += 1
-                    msg += "Dealer:BUST💥"
+                    msg += "💰DealerBUST💥"
                     break
             # Show all cards
             msg += show_all(p_hand.cards, d_hand.cards, p_hand, d_hand)
@@ -444,12 +450,12 @@ def playBlackJack(nodeID, message):
             # check high score
             highScore = loadHSJack()
             if highScore != 0 and p_chips.total > highScore['highScore']:
-                msg += f"🎉New High Score! {p_chips.total} "
+                msg += f"💰💰High Score{p_chips.total} "
                 saveHSJack(nodeID, p_chips.total)
             else:
                 msg += f"💰You have {p_chips.total} chips "
 
-        msg += "(B)et or (L)eave table."
+        msg += "place a bet?"
 
         # Reset the game
         setLastCmdJack(nodeID, "new")

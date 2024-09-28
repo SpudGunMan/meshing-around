@@ -67,7 +67,7 @@ except Exception as e:
 print ("\n Meshing-Around Database Admin Tool\n")
 print ("System: bbs_messages")
 print (bbs_messages)
-print ("System: bbs_dm")
+print ("\nSystem: bbs_dm")
 print (bbs_dm)
 print (f"\n\nGame HS tables\n")
 print (f"lemon:{lemon_score}")
