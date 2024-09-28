@@ -339,7 +339,7 @@ def handleLemonade(nodeID, message):
 
         # high score
         highScore = {'nodeID': 0, 'value': 0}
-        highScore = loadHSLemon()
+        highScore = getHighScoreLemon()
         if highScore != 0:
             if highScore['nodeID'] != 0:
                 msg += f" HighScore🥇{get_name_from_number(highScore['nodeID'])} with ${highScore['value']}."
