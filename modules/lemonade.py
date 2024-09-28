@@ -38,15 +38,13 @@ def get_sales_amount(potential, unit, price):
     return math.floor(potential * (unit / (price ** 1.5)))
 
 def getHighScoreLemon():
-    global high_score
+    high_score = {"userID": 0, "cash": 0, "success": 0}
     # Load high score table
     try:
         with open('lemonade_hs.pkl', 'rb') as file:
             high_score = pickle.load(file)
     except FileNotFoundError:
         logger.debug("System: Lemonade: No high score table found")
-        # high score pickle file is a touple of the nodeID and the high score
-        high_score = ({"userID": 0, "cash": 0, "success": 0})
         # write a new high score file if one is not found
         with open('lemonade_hs.pkl', 'wb') as file:
             pickle.dump(high_score, file)
