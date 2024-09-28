@@ -271,7 +271,7 @@ def playBlackJack(nodeID, message):
         logger.debug(f"System: BlackJack: New Player {nodeID}")
         jackTracker.append({'nodeID': nodeID, 'cmd': 'new', 'time': time.time(), 'cash': jack_starting_cash,\
             'bet': 0, 'gameStats': {'p_win': p_win, 'd_win': d_win, 'draw': draw}, 'p_cards':p_cards, 'd_cards':d_cards, 'p_hand':p_hand.cards, 'd_hand':d_hand.cards, 'next_card':next_card})
-        return f"Welcome to BlackJack!♠️♥️♣️♦️ you have {p_chips.total} chips.   Whats your bet?"
+        return f"Welcome to ♠️♥️BlackJack♣️♦️ you have {p_chips.total} chips.   Whats your bet?"
 
     if getLastCmdJack(nodeID) == "new":
         # Place Bet

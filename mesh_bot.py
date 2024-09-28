@@ -372,7 +372,7 @@ def handleBlackJack(nodeID, message):
             highScore = loadHSJack()
             if highScore != 0:
                 if highScore['nodeID'] != 0:
-                    msg += f" HighScore🥇:{get_name_from_number(highScore['nodeID'])} with {highScore['highScore']} chips. "
+                    msg += f" HighScore🥇{get_name_from_number(highScore['nodeID'])} with {highScore['highScore']} chips. "
     time.sleep(1)
     return msg
 

@@ -305,7 +305,7 @@ def playVideoPoker(nodeID, message):
         # create new player if not in tracker
         logger.debug(f"System: VideoPoker: New Player {nodeID}")
         vpTracker.append({'nodeID': nodeID, 'cmd': 'new', 'time': time.time(), 'cash': vpStartingCash, 'player': None, 'deck': None, 'highScore': 0, 'drawCount': 0})
-        return f"Welcome to 🎰VideoPoker! you have {vpStartingCash} coins, Whats your bet?"
+        return f"Welcome to 🎰VideoPoker♥️ you have {vpStartingCash} coins, Whats your bet?"
     
     # Gather the player's bet
     if getLastCmdVp(nodeID) == "new" or getLastCmdVp(nodeID) == "gameOver":
