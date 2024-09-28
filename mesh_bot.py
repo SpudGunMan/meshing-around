@@ -373,7 +373,7 @@ def handleBlackJack(nodeID, message):
             if highScore != 0:
                 if highScore['nodeID'] != 0:
                     msg += f" HighScore🥇{get_name_from_number(highScore['nodeID'])} with {highScore['highScore']} chips. "
-    time.sleep(1)
+    time.sleep(1.5) # short answers with long replies can cause message collision added wait
     return msg
 
 def handleVideoPoker(nodeID, message):
@@ -408,7 +408,7 @@ def handleVideoPoker(nodeID, message):
     
         if last_cmd != "":
             logger.debug(f"System: VideoPoker: {nodeID} last command: {last_cmd}")
-    time.sleep(1)
+    time.sleep(1.5) # short answers with long replies can cause message collision added wait
     return msg
 
 def handle_wxc(message_from_id, deviceID, cmd):
