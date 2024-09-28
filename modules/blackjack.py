@@ -300,10 +300,12 @@ def playBlackJack(nodeID, message):
         # Show the cards
         msg += show_some(p_cards, d_cards, p_hand)
         # check for blackjack 21 and only two cards
+        blackJack = False
         if p_hand.value == 21 and len(p_hand.cards) == 2:
             msg += "Player 🎰 BLAAAACKJACKKKK 💰"
             p_chips.total += round(p_chips.bet * 1.5)
             setLastCmdJack(nodeID, "dealerTurn")
+            blackJack = True
             # Save the game state
             for i in range(len(jackTracker)):
                 if jackTracker[i]['nodeID'] == nodeID:
@@ -314,7 +316,6 @@ def playBlackJack(nodeID, message):
             stats = success_rate(next_card, p_hand)
             msg += stats
             setLastCmdJack(nodeID, "betPlaced")
-
 
     if getLastCmdJack(nodeID) == "betPlaced":
         setLastCmdJack(nodeID, "playing")
@@ -396,20 +397,22 @@ def playBlackJack(nodeID, message):
         return msg
 
     if getLastCmdJack(nodeID) == "dealerTurn":
+        # Dealers Turn
+        if not blackJack:
         # recall the game state
-        for i in range(len(jackTracker)):
-            if jackTracker[i]['nodeID'] == nodeID:
-                p_chips.total = jackTracker[i]['cash']
-                p_chips.bet = jackTracker[i]['bet']
-                p_win = jackTracker[i]['gameStats']['p_win']
-                d_win = jackTracker[i]['gameStats']['d_win']
-                draw = jackTracker[i]['gameStats']['draw']
-                p_cards = jackTracker[i]['p_cards']
-                d_cards = jackTracker[i]['d_cards']
-                p_hand = jackTracker[i]['p_hand']
-                d_hand = jackTracker[i]['d_hand']
-                next_card = jackTracker[i]['next_card']
-                break
+            for i in range(len(jackTracker)):
+                if jackTracker[i]['nodeID'] == nodeID:
+                    p_chips.total = jackTracker[i]['cash']
+                    p_chips.bet = jackTracker[i]['bet']
+                    p_win = jackTracker[i]['gameStats']['p_win']
+                    d_win = jackTracker[i]['gameStats']['d_win']
+                    draw = jackTracker[i]['gameStats']['draw']
+                    p_cards = jackTracker[i]['p_cards']
+                    d_cards = jackTracker[i]['d_cards']
+                    p_hand = jackTracker[i]['p_hand']
+                    d_hand = jackTracker[i]['d_hand']
+                    next_card = jackTracker[i]['next_card']
+                    break
 
         if p_hand.value <= 21:
             # Dealer's Turn
