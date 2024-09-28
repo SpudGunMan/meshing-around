@@ -228,7 +228,7 @@ def buy_func(nodeID, price_list, choice=0, value='0'):
         cash -= buy_amount * price_list[drug_choice]
         inventory += buy_amount
         msg += "You bought " + str(buy_amount) + " " + my_drugs[drug_choice].name + '. Remaining cash: $' + str(cash)
-        msg += f"\nBuy Sell Fly?"
+        msg += f"\nBuy💸, Sell💰, Fly🛫?"
     else:
         msg = "You don't have enough cash!😭"
         return msg
@@ -425,7 +425,7 @@ def render_game_screen(userID, day_play, total_day, loc_choice, event_number, pr
     
     for i, drug in enumerate(my_drugs, 1):
         qty = amount[i-1]
-        msg += f'#{str(i)}.{drug.name}/${"{:,}".format(price_list[i-1])}({qty})    '
+        msg += f'#{str(i)}.{drug.name}${"{:,}".format(price_list[i-1])}({qty})    '
 
     return msg
 
@@ -516,7 +516,7 @@ def playDopeWars(nodeID, cmd):
                 dwPlayerTracker[i]['cmd'] = 'location'
 
     if last_cmd == 'ask_bsf':
-        msg = 'example Buy: b,Drug,Qty or Sell s,1,10. Fly: f. Price list: p or end'
+        msg = f'example buy:\nb,drug#,qty# or Sell: s,1,10 qty can be (m)ax\n f,p or end'
         menu_choice = cmd.lower()
         if ',' in menu_choice or '.' in menu_choice:
             #split the choice into a letter and a number for the buy/sell functions
@@ -539,7 +539,7 @@ def playDopeWars(nodeID, cmd):
                         menu_choice[2] = int(menu_choice[2])
                 
             except ValueError:
-                msg = 'a value was bad, example dopeware Buy or Sell b,1,10 or s,1,m'
+                msg = f'a value was bad, example dopeware Buy or Sell\n b,1,10 or s,1,m'
                 return msg
 
             if menu_choice[0] == 'b':
@@ -589,7 +589,7 @@ def playDopeWars(nodeID, cmd):
                 msg = endGameDw(nodeID)
                 return msg
         else:
-            msg = 'example Buy: b,Drug,Qty or Sell s,1,10. Fly: f. Price list: p or end'
+            msg = f'example buy:\nb,drug#,qty# or Sell: s,1,10 qty can be (m)ax\n f,p or end'
             return msg
         
     # Buy
@@ -639,7 +639,7 @@ def playDopeWars(nodeID, cmd):
     # Display Main Game Screen and ask for buy, sell, or fly
     if last_cmd == 'display_main':
         msg = dopeWarGameDay(nodeID, game_day, total_days)
-        msg += f"\nBuy💸, Sell💰, Fly🛫? (P)riceList?"
+        msg += f"\nBuy💸, Sell💰, (F)ly🛫? (P)riceList?"
         # set the player's last command
         for i in range(0, len(dwPlayerTracker)):
             if dwPlayerTracker[i].get('userID') == nodeID:
