@@ -193,20 +193,6 @@ googleSearchResults = 3 # number of google search results to include in the cont
 llm_history_limit = 6 # limit the history to 3 messages (come in pairs) more results = more compute time
 ```
 
-Logging messages to disk or Syslog to disk uses the python native logging function. Take a look at the [/modules/log.py](/modules/log.py) you can set the file logger for syslog to INFO for example to not log DEBUG messages to file log, or modify the stdOut level.
-```
-[general]
-# logging to file of the non Bot messages
-LogMessagesToFile = True
-# Logging of system messages to file
-SyslogToFile = True
-```
-Example to log to disk only INFO and higher (ignore DEBUG)
-```
-*log.py
-file_handler.setLevel(logging.INFO) # DEBUG used by default for system logs to disk example here shows INFO
-```
-
 The Scheduler is enabled in the [settings.py](modules/settings.py) by setting `scheduler_enabled = True` the actions and settings are via code only at this time. see [mesh_bot.py](mesh_bot.py) around line [425](https://github.com/SpudGunMan/meshing-around/blob/22983133ee4db3df34f66699f565e506de296197/mesh_bot.py#L425-L435) to edit schedule its most flexible to edit raw code right now.  See https://schedule.readthedocs.io/en/stable/ for more.
 
 ```

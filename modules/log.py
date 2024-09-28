@@ -59,14 +59,14 @@ stdout_handler.setFormatter(CustomFormatter(logFormat))
 logger.addHandler(stdout_handler)
 if syslog_to_file:
     # Create file handler for logging to a file
-    file_handler = logging.FileHandler('system{}.log'.format(today.strftime('%Y_%m_%d')))
+    file_handler = logging.FileHandler('logs/system{}.log'.format(today.strftime('%Y_%m_%d')))
     file_handler.setLevel(logging.DEBUG) # DEBUG used by default for system logs to disk
     file_handler.setFormatter(logging.Formatter(logFormat))
     logger.addHandler(file_handler)
 
 if log_messages_to_file:
     # Create file handler for logging to a file
-    file_handler = logging.FileHandler('messages{}.log'.format(today.strftime('%Y_%m_%d')))
+    file_handler = logging.FileHandler('logs/messages{}.log'.format(today.strftime('%Y_%m_%d')))
     file_handler.setLevel(logging.INFO) # INFO used for messages to disk
     file_handler.setFormatter(logging.Formatter(msgLogFormat))
     msgLogger.addHandler(file_handler)
