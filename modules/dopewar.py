@@ -204,7 +204,7 @@ def buy_func(nodeID, price_list, choice=0, value='0'):
         if drug_choice in range(1, len(my_drugs) + 1):
             drug_choice = drug_choice - 1
             msg = my_drugs[drug_choice].name + ": you have🎒 " + str(amount[drug_choice]) + " "
-            msg += " The going price is: $" + str(price_list[drug_choice]) + " "
+            msg += " The going price is: $" + "{:,}".format(price_list[drug_choice]) + " "
 
     buy_amount = value
     if buy_amount == 'm':
@@ -294,7 +294,7 @@ def sell_func(nodeID, price_list, choice=0, value='0'):
                 cash += sell_amount * price_list[drug_choice]
                 inventory -= sell_amount
                 msg += " You sold " + str(sell_amount) + " " + my_drugs[drug_choice].name + ' for $' +\
-                    str(sell_amount * price_list[drug_choice]) + '. Total cash: $' + str(cash)
+                    str(sell_amount * price_list[drug_choice]) + '. Total cash: $' + "{:,}".format(cash)
             else:
                 msg = "You don't have that much"
                 return msg
@@ -421,11 +421,11 @@ def render_game_screen(userID, day_play, total_day, loc_choice, event_number, pr
         if dwCashDb[i].get('userID') == userID:
             cash = dwCashDb[i].get('cash')
 
-    msg += "Location: " + loc[int(loc_choice) - 1] + ", Day:" + str(day_play) + '/' + str(total_day) +  " 🎒: " + str(inventory) + "/100" + ", $" + str(cash) + f"\n"
+    msg += "🗺️" + loc[int(loc_choice) - 1] + " 📆" + str(day_play) + '/' + str(total_day) +  " 🎒" + str(inventory) + "/100" + "💵" + "{:,}".format(cash) + f"\n"
     
     for i, drug in enumerate(my_drugs, 1):
         qty = amount[i-1]
-        msg += f'#{str(i)}.{drug.name}/${price_list[i-1]}({qty})    '
+        msg += f'#{str(i)}.{drug.name}/${"{:,}".format(price_list[i-1])}({qty})    '
 
     return msg
 
@@ -639,7 +639,7 @@ def playDopeWars(nodeID, cmd):
     # Display Main Game Screen and ask for buy, sell, or fly
     if last_cmd == 'display_main':
         msg = dopeWarGameDay(nodeID, game_day, total_days)
-        msg += f"\nBuy, Sell, Fly? Price list?"
+        msg += f"\nBuy💸, Sell💰, Fly🛫? (P)riceList?"
         # set the player's last command
         for i in range(0, len(dwPlayerTracker)):
             if dwPlayerTracker[i].get('userID') == nodeID:

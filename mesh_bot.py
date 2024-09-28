@@ -288,9 +288,9 @@ def handleDopeWars(nodeID, message, rxNode):
     
     # welcome new player
     if not last_cmd:
-        msg = 'Welcome to 💊Dope Wars!💉 You have ' + str(total_days) + ' days to make as much 💰 as possible! '
+        msg = 'Welcome to 💊Dope Wars💉 You have ' + str(total_days) + ' days to make as much 💰 as possible! '
         high_score = getHighScoreDw()
-        msg += 'The High Score is $' + "{:,}".format(high_score.get('cash')) + ' by user ' + get_name_from_number(high_score.get('userID') , 'short', rxNode)
+        msg += 'The High Score is $' + "{:,}".format(high_score.get('cash')) + ' by user ' + get_name_from_number(high_score.get('userID') , 'short', rxNode) +'\n'
         msg += playDopeWars(nodeID, message)
     else:
         logger.debug("System: DopeWars: last_cmd: " + str(last_cmd))
