@@ -608,9 +608,9 @@ def handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus):
           str(get_name_from_number(message_from_id, 'long', deviceID) + " AKA, " +\
             str(get_name_from_number(message_from_id, 'short', deviceID)) + " AKA, " +\
             str(decimal_to_hex(message_from_id)) + f"\n")
-    msg += f"I see the signal strength is {rssi} and the SNR is {snr} with hop count of {hop} \n"
+    msg += f"I see the signal strength is {rssi} and the SNR is {snr} with hop count of {hop}"
     if pkiStatus[1] != 'ABC':
-        msg += f"Your PKI bit is {pkiStatus[0]} pubKey: {pkiStatus[1]}"
+        msg += f"\nYour PKI bit is {pkiStatus[0]} pubKey: {pkiStatus[1]}"
 
     loc = get_node_location(message_from_id, deviceID)
     if loc != [latitudeValue,longitudeValue]:
