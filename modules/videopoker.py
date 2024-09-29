@@ -231,7 +231,6 @@ class PlayerVP:
             if resetHand:
                 self.bankroll += self.bet_size * payoff[hand_name]
         elif 2 in points_repeat: # find pair
-            logger.debug(f"System: VideoPoker: 235 self.bankroll: {self.bankroll} bet_size: {self.bet_size}")
             hand_name = "Pair👯"
             if resetHand:
                 self.bankroll += self.bet_size * payoff[hand_name]
