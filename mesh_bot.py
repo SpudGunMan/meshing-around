@@ -633,6 +633,77 @@ def handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus):
         msg += f"\nYou are at: lat:{loc[0]} lon:{loc[1]}"
     return msg
 
+def checkPlayingGame(message_from_id, message_string, rxNode, channel_number):
+    # Checks if in a game used for, LLM disable for duration of game plays the game.
+    # Also handles stale games and resets the player if the game is older than 8 hours
+    playingGame = False
+    game = "None"
+    
+    for i in range(0, len(dwPlayerTracker)):
+        if dwPlayerTracker[i].get('userID') == message_from_id:
+            # check if the player has played in the last 8 hours
+            if dwPlayerTracker[i].get('last_played') > (time.time() - GAMEDELAY):
+                playingGame = True
+                game = "DopeWars"
+                if llm_enabled:
+                    logger.debug(f"System: LLM Disabled for {message_from_id} for duration of Dope Wars")
+                
+                #if time exceeds 8 hours reset the player
+                if dwPlayerTracker[i].get('last_played') < (time.time() - GAMEDELAY):
+                    logger.debug(f"System: DopeWars: Resetting player {message_from_id}")
+                    dwPlayerTracker.pop(i)
+                
+                # play the game
+                send_message(handleDopeWars(message_from_id, message_string, rxNode), channel_number, message_from_id, rxNode)
+
+    for i in range(0, len(lemonadeTracker)):
+        if lemonadeTracker[i].get('nodeID') == message_from_id:
+            # check if the player has played in the last 8 hours
+            if lemonadeTracker[i].get('time') > (time.time() - GAMEDELAY):
+                playingGame = True
+                game = "LemonadeStand"
+                if llm_enabled:
+                    logger.debug(f"System: LLM Disabled for {message_from_id} for duration of Lemonade Stand")
+
+                #if time exceeds 8 hours reset the player
+                if lemonadeTracker[i].get('time') < (time.time() - GAMEDELAY):
+                    logger.debug(f"System: LemonadeStand: Resetting player {message_from_id}")
+                    lemonadeTracker.pop(i)
+                
+                # play the game
+                send_message(handleLemonade(message_from_id, message_string), channel_number, message_from_id, rxNode)
+
+    for i in range(0, len(vpTracker)):
+        if vpTracker[i].get('nodeID') == message_from_id:
+            # check if the player has played in the last 8 hours
+            if vpTracker[i].get('time') > (time.time() - GAMEDELAY):
+                playingGame = True
+                game = "VideoPoker"
+                if llm_enabled:
+                    logger.debug(f"System: LLM Disabled for {message_from_id} for duration of VideoPoker")
+                
+                # play the game
+                send_message(handleVideoPoker(message_from_id, message_string), channel_number, message_from_id, rxNode)
+            else:
+                # pop if the time exceeds 8 hours
+                vpTracker.pop(i)
+    for i in range(0, len(jackTracker)):
+        if jackTracker[i].get('nodeID') == message_from_id:
+            # check if the player has played in the last 8 hours
+            if jackTracker[i].get('time') > (time.time() - GAMEDELAY):
+                playingGame = True
+                game = "BlackJack"
+                if llm_enabled:
+                    logger.debug(f"System: LLM Disabled for {message_from_id} for duration of BlackJack")
+                
+                # play the game
+                send_message(handleBlackJack(message_from_id, message_string), channel_number, message_from_id, rxNode)
+            else:
+                # pop if the time exceeds 8 hours
+                jackTracker.pop(i)
+    #logger.debug(f"System: {message_from_id} is playing {game}")
+    return playingGame
+
 
 def onDisconnect(interface):
     global retry_int1, retry_int2
@@ -661,6 +732,7 @@ def onDisconnect(interface):
             retry_int2 = True
 
 def onReceive(packet, interface):
+    # Priocess the incoming packet, handles the responses to the packet
     # extract interface  defailts from interface object
     rxType = type(interface).__name__
     rxNode = 0
@@ -783,72 +855,7 @@ def onReceive(packet, interface):
                 else:
                     # DM is useful for games or LLM
                     if games_enabled:
-                        playingGame = False
-                        # if in a game we cant use LLM disable for duration of game
-                        for i in range(0, len(dwPlayerTracker)):
-                            if dwPlayerTracker[i].get('userID') == message_from_id:
-                                # check if the player has played in the last 8 hours
-                                if dwPlayerTracker[i].get('last_played') > (time.time() - GAMEDELAY):
-                                    playingGame = True
-                                    game = "DopeWars"
-                                    if llm_enabled:
-                                        logger.debug(f"System: LLM Disabled for {message_from_id} for duration of Dope Wars")
-                                    
-                                    #if time exceeds 8 hours reset the player
-                                    if dwPlayerTracker[i].get('last_played') < (time.time() - GAMEDELAY):
-                                        logger.debug(f"System: DopeWars: Resetting player {message_from_id}")
-                                        dwPlayerTracker.pop(i)
-                                    
-                                    # play the game
-                                    send_message(handleDopeWars(message_from_id, message_string, rxNode), channel_number, message_from_id, rxNode)
-
-                        for i in range(0, len(lemonadeTracker)):
-                            if lemonadeTracker[i].get('nodeID') == message_from_id:
-                                # check if the player has played in the last 8 hours
-                                if lemonadeTracker[i].get('time') > (time.time() - GAMEDELAY):
-                                    playingGame = True
-                                    game = "LemonadeStand"
-                                    if llm_enabled:
-                                        logger.debug(f"System: LLM Disabled for {message_from_id} for duration of Lemonade Stand")
-
-                                    #if time exceeds 8 hours reset the player
-                                    if lemonadeTracker[i].get('time') < (time.time() - GAMEDELAY):
-                                        logger.debug(f"System: LemonadeStand: Resetting player {message_from_id}")
-                                        lemonadeTracker.pop(i)
-                                    
-                                    # play the game
-                                    send_message(handleLemonade(message_from_id, message_string), channel_number, message_from_id, rxNode)
-
-                        for i in range(0, len(vpTracker)):
-                            if vpTracker[i].get('nodeID') == message_from_id:
-                                # check if the player has played in the last 8 hours
-                                if vpTracker[i].get('time') > (time.time() - GAMEDELAY):
-                                    playingGame = True
-                                    game = "VideoPoker"
-                                    if llm_enabled:
-                                        logger.debug(f"System: LLM Disabled for {message_from_id} for duration of VideoPoker")
-                                    
-                                    # play the game
-                                    send_message(handleVideoPoker(message_from_id, message_string), channel_number, message_from_id, rxNode)
-                                else:
-                                    # pop if the time exceeds 8 hours
-                                    vpTracker.pop(i)
-                        for i in range(0, len(jackTracker)):
-                            if jackTracker[i].get('nodeID') == message_from_id:
-                                # check if the player has played in the last 8 hours
-                                if jackTracker[i].get('time') > (time.time() - GAMEDELAY):
-                                    playingGame = True
-                                    game = "BlackJack"
-                                    if llm_enabled:
-                                        logger.debug(f"System: LLM Disabled for {message_from_id} for duration of BlackJack")
-                                    
-                                    # play the game
-                                    send_message(handleBlackJack(message_from_id, message_string), channel_number, message_from_id, rxNode)
-                                else:
-                                    # pop if the time exceeds 8 hours
-                                    jackTracker.pop(i)
-                    else:
-                        playingGame = False
+                        playingGame = checkPlayingGame(message_from_id, message_string, rxNode, channel_number)
 
                     if not playingGame:
                         if llm_enabled:
@@ -920,8 +927,7 @@ def onReceive(packet, interface):
                                 send_message(rMsg, channel_number, 0, 1)
     except KeyError as e:
         logger.critical(f"System: Error processing packet: {e} Device:{rxNode}")
-        print(packet) # print the packet for debugging
-        print("END of packet \n")
+        logger.critical(f"System: Packet: {packet}")
 
 async def start_rx():
     print (CustomFormatter.bold_white + f"\nMeshtastic Autoresponder Bot CTL+C to exit\n" + CustomFormatter.reset)
