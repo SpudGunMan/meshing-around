@@ -600,7 +600,7 @@ def handle_history(message, nodeid, deviceID, isDM, lheard=False):
         # create the message from the buffer list
         buffer.reverse() # reverse the list to show the latest first
         for i in range(0, len(buffer)):
-            msg += f"{buffer[i][0]} seen {buffer[i][1]} ago"
+            msg += f"{buffer[i][0]}, {buffer[i][1]} ago"
             if i < len(buffer) - 1: msg += "\n" # add a new line if not the last line
             if i > 3: break # only return the last 4 nodes
     return msg
