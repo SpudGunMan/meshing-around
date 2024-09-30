@@ -141,10 +141,12 @@ def playGameMMind(diff, secret_code, turn_count, nodeID, message):
         msg += check_guess
         if won == True:
             msg += "\n🎉🧠 You guessed the code! {}".format(getEmojiMMind(secret_code))
-            endGameMMind(nodeID)
+            msg += "\nIt took you {} turns to guess the code.".format(turn_count)
+            msg += "\nWould you like to play again? Start guessing or'end' to quit."
         elif turn_count >= 11 and won == False:
             msg += "\nGame Over! The code was: {}".format(getEmojiMMind(secret_code))
-            endGameMMind(nodeID)
+            msg += "\nYou have run out of turns."
+            msg += "\nWould you like to play again? Start guessing or 'end' to quit."
         turn_count += 1
         # store turn count in tracker
         for i in range(len(mindTracker)):
