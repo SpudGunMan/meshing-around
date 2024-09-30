@@ -214,8 +214,10 @@ def compareCodeMMind(secret_code, user_guess):
         msg += f"Guess:{getEmojiMMind(user_guess)}\n"
 
     if perfect_pins > 0 and game_won == False:
-        msg += "✅ color ✅ position: {}\n".format(perfect_pins)
+        msg += "✅ color ✅ position: {}".format(perfect_pins)
+
     if wrong_position > 0:
+        if "✅" in msg:msg += f"\n"
         msg += "✅ color 🚫 position: {}".format(wrong_position)
     
     if "✅" not in msg and game_won == False:
