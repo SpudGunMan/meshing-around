@@ -100,6 +100,10 @@ def get_wx_meteo(lat=0, lon=0, unit=0):
 			code_string = "Partly Cloudy"
 		elif daily_weather_code[i] == 3:
 			code_string = "Overcast"
+		elif daily_weather_code[i] == 5:
+			code_string = "Haze"
+		elif daily_weather_code[i] == 10:
+			code_string = "Mist"
 		elif daily_weather_code[i] == 45:
 			code_string = "Fog"
 		elif daily_weather_code[i] == 48:
@@ -132,6 +136,10 @@ def get_wx_meteo(lat=0, lon=0, unit=0):
 			code_string = "Snow: Heavy"
 		elif daily_weather_code[i] == 77:
 			code_string = "Snow Grains"
+		elif daily_weather_code[i] == 78:
+			code_string = "Ice Crystals"
+		elif daily_weather_code[i] == 79:
+			code_string = "Ice Pellets"
 		elif daily_weather_code[i] == 80:
 			code_string = "Rain showers: Slight"
 		elif daily_weather_code[i] == 81:
@@ -146,6 +154,8 @@ def get_wx_meteo(lat=0, lon=0, unit=0):
 			code_string = "Thunderstorm"
 		elif daily_weather_code[i] == 96:
 			code_string = "Hailstorm"
+		elif daily_weather_code[i] == 97:
+			code_string = "Thunderstorm Heavy"
 		elif daily_weather_code[i] == 99:
 			code_string = "Hailstorm Heavy"
 
