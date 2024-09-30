@@ -66,6 +66,8 @@ dopeWars = True
 lemonade = True
 blackjack = True
 videopoker = True
+mastermind = True
+golfsim = True
 
 [sentry]
 # detect anyone close to the bot

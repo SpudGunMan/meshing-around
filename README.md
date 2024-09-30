@@ -54,6 +54,8 @@ Any messages that are over 160 characters are chunked into 160 message bytes to 
   - `dopewars` plays the classic drug trader
   - `blackjack` BlackJack, Casino 21
   - `videopoker` Video Poker, basic 5 card hold
+  - `mastermind` Classic code-breaking game
+  - `golfsim` Golf Simulator, 9 Hole
 
 ## pong_bot.sh
 Stripped-down bot, mostly around for archive purposes. The mesh-bot enhanced modules can be disabled by config to disable features.

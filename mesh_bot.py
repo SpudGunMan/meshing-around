@@ -40,6 +40,8 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "lemonstand": lambda: handleLemonade(message_from_id, message),
     "blackjack": lambda: handleBlackJack(message_from_id, message),
     "videopoker": lambda: handleVideoPoker(message_from_id, message),
+    "mastermind": lambda: handleMmind(message_from_id, message),
+    "golfsim": lambda: handleGolf(message_from_id, message),
     "globalthermonuclearwar": lambda: handle_gTnW(),
     "ask:": lambda: handle_llm(message_from_id, channel_number, deviceID, message, publicChannel),
     "askai": lambda: handle_llm(message_from_id, channel_number, deviceID, message, publicChannel),
@@ -308,7 +310,7 @@ def handle_gTnW():
     indices = list(range(length))
     # Shuffle the indices using a convoluted method
     for i in range(length):
-        swap_idx = (i * 3 + 7) % length
+        swap_idx = random.randint(0, length - 1)
         indices[i], indices[swap_idx] = indices[swap_idx], indices[i]
     # Select a random response from the shuffled list. anyone enjoy the game, killerbunnies(.com)
     selected_index = random.choice(indices)
@@ -425,6 +427,60 @@ def handleVideoPoker(nodeID, message):
         if last_cmd != "":
             logger.debug(f"System: VideoPoker: {nodeID} last command: {last_cmd}")
     time.sleep(1.5) # short answers with long replies can cause message collision added wait
+    return msg
+
+def handleMmind(nodeID, message):
+    global mindTracker
+    msg = ''
+
+    if "end" in message.lower() or message.lower().startswith("e"):
+        logger.debug(f"System: MasterMind: {nodeID} is leaving the game")
+        msg = "You have left the Game."
+        for i in range(len(mindTracker)):
+            if mindTracker[i]['nodeID'] == nodeID:
+                mindTracker.pop(i)
+        return msg
+
+    # get player's last command from tracker if not new player
+    last_cmd = ""
+    for i in range(len(mindTracker)):
+        if mindTracker[i]['nodeID'] == nodeID:
+            last_cmd = mindTracker[i]['cmd']
+
+    if last_cmd == "":
+        # create new player
+        logger.debug("System: MasterMind: New Player: " + str(nodeID))
+        mindTracker.append({'nodeID': nodeID, 'last_played': time.time(), 'cmd': 'new', 'secret_code': 'RYGB', 'diff': 'n', 'turns': 1})
+        msg = "Welcome to 🟡🔴🔵🟢MasterMind!🧠"
+        msg += "Each Guess hints to correct colors, correct position, wrong position."
+        msg += "You have 10 turns to guess the code. Choose a difficulty: (N)ormal or (H)ard"
+        return msg
+
+    msg += start_mMind(nodeID=nodeID, message=message)
+    # wait a second to keep from message collision
+    time.sleep(1)
+    return msg
+
+def handleGolf(nodeID, message):
+    global golfTracker
+    msg = ''
+
+    # get player's last command from tracker if not new player
+    last_cmd = ""
+    for i in range(len(golfTracker)):
+        if golfTracker[i]['nodeID'] == nodeID:
+            last_cmd = golfTracker[i]['cmd']
+
+    if last_cmd == "":
+        # create new player
+        logger.debug("System: GolfSim: New Player: " + str(nodeID))
+        golfTracker.append({'nodeID': nodeID, 'last_played': time.time(), 'cmd': 'new', 'hole': 1, 'distance_remaining': 0, 'hole_shots': 0, 'hole_strokes': 0, 'hole_to_par': 0, 'total_strokes': 0, 'total_to_par': 0})
+        msg = "Welcome to 🏌️GolfSim⛳️"
+        msg += f"Clubs: (D)river, (H)igh Iron, (M)id Iron, (L)ow Iron, (G)ap Wedge, Lob (W)edge\n"
+    
+    msg += playGolf(nodeID=nodeID, message=message)
+    # wait a second to keep from message collision
+    time.sleep(1)
     return msg
 
 def handle_wxc(message_from_id, deviceID, cmd):
@@ -701,6 +757,37 @@ def checkPlayingGame(message_from_id, message_string, rxNode, channel_number):
             else:
                 # pop if the time exceeds 8 hours
                 jackTracker.pop(i)
+                
+    for i in range(0, len(mindTracker)):
+        if mindTracker[i].get('nodeID') == message_from_id:
+            # check if the player has played in the last 8 hours
+            if mindTracker[i].get('last_played') > (time.time() - GAMEDELAY):
+                playingGame = True
+                game = "MasterMind"
+                if llm_enabled:
+                    logger.debug(f"System: LLM Disabled for {message_from_id} for duration of MasterMind")
+                
+                # play the game
+                send_message(handleMmind(message_from_id, message_string), channel_number, message_from_id, rxNode)
+            else:
+                # pop if the time exceeds 8 hours
+                mindTracker.pop(i)
+    
+    for i in range(0, len(golfTracker)):
+        if golfTracker[i].get('nodeID') == message_from_id:
+            # check if the player has played in the last 8 hours
+            if golfTracker[i].get('last_played') > (time.time() - GAMEDELAY):
+                playingGame = True
+                game = "GolfSim"
+                if llm_enabled:
+                    logger.debug(f"System: LLM Disabled for {message_from_id} for duration of GolfSim")
+                
+                # play the game
+                send_message(handleGolf(message_from_id, message_string), channel_number, message_from_id, rxNode)
+            else:
+                # pop if the time exceeds 8 hours
+                golfTracker.pop(i)
+    
     #logger.debug(f"System: {message_from_id} is playing {game}")
     return playingGame
 

@@ -117,6 +117,16 @@ if videoPoker_enabled:
     from modules.videopoker import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + ("videopoker",)
     games_enabled = True
+
+if mastermind_enabled:
+    from modules.mmind import * # from the spudgunman/meshing-around repo
+    trap_list = trap_list + ("mastermind",)
+    games_enabled = True
+
+if golfSim_enabled:
+    from modules.golfsim import * # from the spudgunman/meshing-around repo
+    trap_list = trap_list + ("golfsim",)
+    games_enabled = True
     
 # Games Configuration
 if games_enabled is True:
@@ -125,15 +135,19 @@ if games_enabled is True:
     gTnW_enabled = True
     gamesCmdList = "Play via DM🕹️ CMD: "
     if dopewars_enabled:
-        gamesCmdList += "DopeWars, "
+        gamesCmdList += "dopeWars, "
     if lemonade_enabled:
-        gamesCmdList += "LemonStand, "
+        gamesCmdList += "lemonStand, "
     if gTnW_enabled:
         trap_list = trap_list + ("globalthermonuclearwar",)
     if blackjack_enabled:
-        gamesCmdList += "BlackJack, "
+        gamesCmdList += "blackJack, "
     if videoPoker_enabled:
-        gamesCmdList += "VideoPoker, "
+        gamesCmdList += "videoPoker, "
+    if mastermind_enabled:
+        gamesCmdList += "masterMind, "
+    if golfSim_enabled:
+        gamesCmdList += "golfSim, "
     gamesCmdList = gamesCmdList[:-2] # remove the last comma
 else:
     gamesCmdList = ""

@@ -155,6 +155,8 @@ try:
     lemonade_enabled = config['games'].getboolean('lemonade', True)
     blackjack_enabled = config['games'].getboolean('blackjack', True)
     videoPoker_enabled = config['games'].getboolean('videoPoker', True)
+    mastermind_enabled = config['games'].getboolean('mastermind', True)
+    golfSim_enabled = config['games'].getboolean('golfSim', True)
 
     # messaging settings
     responseDelay = config['messagingSettings'].getfloat('responseDelay', 0.7) # default 0.7
