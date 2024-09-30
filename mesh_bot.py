@@ -10,7 +10,7 @@ from modules.log import *
 from modules.system import *
 
 # list of commands to remove from the default list for DM only
-restrictedCommands = ["blackjack", "videopoker", "dopewars", "lemonstand"]
+restrictedCommands = ["blackjack", "videopoker", "dopewars", "lemonstand", "golfsim", "mastermind"]
 restrictedResponse = "🤖only available in a Direct Message📵" # "" for none
 
 # Global Variables
@@ -751,6 +751,7 @@ def checkPlayingGame(message_from_id, message_string, rxNode, channel_number):
             else:
                 # pop if the time exceeds 8 hours
                 vpTracker.pop(i)
+
     for i in range(0, len(jackTracker)):
         if jackTracker[i].get('nodeID') == message_from_id:
             # check if the player has played in the last 8 hours
