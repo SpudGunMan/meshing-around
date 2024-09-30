@@ -217,7 +217,7 @@ def compareCodeMMind(secret_code, user_guess):
         msg += "✅ color ✅ position: {}".format(perfect_pins)
 
     if wrong_position > 0:
-        if "✅" in msg:msg += f"\n"
+        if "✅" in msg: msg += f"\n"
         msg += "✅ color 🚫 position: {}".format(wrong_position)
     
     if "✅" not in msg and game_won == False:
