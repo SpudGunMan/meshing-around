@@ -267,6 +267,7 @@ def playGolf(nodeID, message):
                 golfTracker[i]['total_to_par'] = total_to_par
                 golfTracker[i]['hole'] = hole
                 golfTracker[i]['cmd'] = 'new'
+                golfTracker[i]['last_played'] = time.time()
 
         if hole >= 9:
             # Final score messages & exit prompt

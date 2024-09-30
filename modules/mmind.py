@@ -202,6 +202,7 @@ def start_mMind(nodeID, message):
             if mindTracker[i]['nodeID'] == nodeID:
                 mindTracker[i]['cmd'] = 'playGame'
                 mindTracker[i]['secret_code'] = secret_code
+                mindTracker[i]['last_played'] = time.time()
     
     if last_cmd == "playGame":
         # get difficulty, secret code, and turn count from tracker
