@@ -56,6 +56,13 @@ def finish_hole():
     finish = random.choice(putt_outcomes)
     return finish
 
+def endGameGolf(nodeID):
+    # pop player from tracker
+    for i in range(len(golfTracker)):
+        if golfTracker[i]['nodeID'] == nodeID:
+            golfTracker.pop(i)
+    logger.debug("System: GolfSim: Player " + str(nodeID) + " has ended their round.")
+
 # Main game loop
 def playGolf(nodeID, message):
     msg = ''

@@ -471,6 +471,14 @@ def handleGolf(nodeID, message):
         if golfTracker[i]['nodeID'] == nodeID:
             last_cmd = golfTracker[i]['cmd']
 
+    if "end" in message.lower() or message.lower().startswith("e"):
+        logger.debug(f"System: GolfSim: {nodeID} is leaving the game")
+        msg = "You have left the Game."
+        for i in range(len(golfTracker)):
+            if golfTracker[i]['nodeID'] == nodeID:
+                golfTracker.pop(i)
+        return msg
+
     if last_cmd == "":
         # create new player
         logger.debug("System: GolfSim: New Player: " + str(nodeID))
