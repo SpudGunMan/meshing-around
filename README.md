@@ -253,6 +253,8 @@ Games Ported from..
 - https://github.com/Reconfirefly/drugwars
 - https://github.com/Himan10/BlackJack
 - https://github.com/devtronvarma/Video-Poker-Terminal-Game
+- https://github.com/pwdkramer/pythonMastermind/
+- https://github.com/danfriedman30/pythongame (Golf)
 
 GitHub user Nestpebble, for new ideas and enhancments, mrpatrick1991 For Docker configs, PiDiBi looking at test functions and other suggestions like wxc, CPU use, and alerting ideas
 Discord and Mesh user Cisien, bitflip, and github Hailo1999, for testing and feature ideas! Lots of individuals on the Meshtastic discord who have tossed out ideas and tested code!
