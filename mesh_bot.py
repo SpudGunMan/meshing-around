@@ -488,7 +488,7 @@ def handleGolf(nodeID, message):
         logger.debug("System: GolfSim: New Player: " + str(nodeID))
         golfTracker.append({'nodeID': nodeID, 'last_played': time.time(), 'cmd': 'new', 'hole': 1, 'distance_remaining': 0, 'hole_shots': 0, 'hole_strokes': 0, 'hole_to_par': 0, 'total_strokes': 0, 'total_to_par': 0})
         msg = f"Welcome to 🏌️GolfSim⛳️\n"
-        msg += f"Clubs: (D)river, (H)igh Iron, (M)id Iron, (L)ow Iron, (G)ap Wedge, Lob (W)edge\n"
+        msg += f"Clubs: (D)river, (L)ow Iron, (M)id Iron, (H)igh Iron, (G)ap Wedge, Lob (W)edge\n"
     
     msg += playGolf(nodeID=nodeID, message=message)
     # wait a second to keep from message collision
