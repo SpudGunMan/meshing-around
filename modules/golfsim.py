@@ -207,7 +207,7 @@ def playGolf(nodeID, message):
                 last_cmd = 'putt'
             else:
                 msg += "You have " + str(distance_remaining) + " yards left."
-                msg += "Club?[D, H, M, L, G, W]🏌️"
+                msg += f"\nClub?[D, H, M, L, G, W]🏌️"
 
                 # save player's current game state, keep stroking
                 for i in range(len(golfTracker)):

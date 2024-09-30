@@ -16,10 +16,10 @@ def chooseDifficultyMMind(message):
         msg += "Please enter either '(N)ormal' or '(H)ard'"
 
     if usrInput == "n":
-        msg += "The colors to choose from are: R🔴, Y🟡, G🟢, B🔵"
+        msg += f"The colors to choose from are:\nR🔴, Y🟡, G🟢, B🔵"
     elif usrInput == "h":
         valid_colorsMMind += "OP"
-        msg += "The colors to choose from are R🔴, Y🟡, G🟢, B🔵, O🟠, P🟣"
+        msg += f"The colors to choose from are\nR🔴, Y🟡, G🟢, B🔵, O🟠, P🟣"
     return msg
 
 
