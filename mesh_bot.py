@@ -40,7 +40,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "lemonstand": lambda: handleLemonade(message_from_id, message),
     "blackjack": lambda: handleBlackJack(message_from_id, message),
     "videopoker": lambda: handleVideoPoker(message_from_id, message),
-    "mastermind": lambda: handleMmind(message_from_id, message),
+    "mastermind": lambda: handleMmind(message_from_id, deviceID, message),
     "golfsim": lambda: handleGolf(message_from_id, message),
     "globalthermonuclearwar": lambda: handle_gTnW(),
     "ask:": lambda: handle_llm(message_from_id, channel_number, deviceID, message, publicChannel),
@@ -429,7 +429,7 @@ def handleVideoPoker(nodeID, message):
     time.sleep(1.5) # short answers with long replies can cause message collision added wait
     return msg
 
-def handleMmind(nodeID, message):
+def handleMmind(nodeID, deviceID, message):
     global mindTracker
     msg = ''
 
@@ -439,6 +439,10 @@ def handleMmind(nodeID, message):
         for i in range(len(mindTracker)):
             if mindTracker[i]['nodeID'] == nodeID:
                 mindTracker.pop(i)
+        highscore = getHighScoreMMind(0, 0, 'n')
+        if highscore != 0:
+            nodeName = get_name_from_number(highscore[0]['nodeID'],'long',deviceID)
+            msg += f"🧠HighScore🥇{nodeName} with {highscore[0]['turns']} turns difficulty {highscore[0]['diff'].upper()}"
         return msg
 
     # get player's last command from tracker if not new player
@@ -453,7 +457,7 @@ def handleMmind(nodeID, message):
         mindTracker.append({'nodeID': nodeID, 'last_played': time.time(), 'cmd': 'new', 'secret_code': 'RYGB', 'diff': 'n', 'turns': 1})
         msg = "Welcome to 🟡🔴🔵🟢MasterMind!🧠"
         msg += "Each Guess hints to correct colors, correct position, wrong position."
-        msg += "You have 10 turns to guess the code. Choose a difficulty: (N)ormal or (H)ard"
+        msg += "You have 10 turns to guess the code. Choose a difficulty: (N)ormal (H)ard e(X)pert"
         return msg
 
     msg += start_mMind(nodeID=nodeID, message=message)
@@ -777,7 +781,7 @@ def checkPlayingGame(message_from_id, message_string, rxNode, channel_number):
                     logger.debug(f"System: LLM Disabled for {message_from_id} for duration of MasterMind")
                 
                 # play the game
-                send_message(handleMmind(message_from_id, message_string), channel_number, message_from_id, rxNode)
+                send_message(handleMmind(message_from_id, rxNode, message_string), channel_number, message_from_id, rxNode)
             else:
                 # pop if the time exceeds 8 hours
                 mindTracker.pop(i)

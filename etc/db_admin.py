@@ -64,6 +64,16 @@ except Exception as e:
     except Exception as e:
         videopoker_score = "System: videopoker_hs.pkl not found"
 
+try:
+    with open('../mmind_hs.pkl', 'rb') as f:
+        mmind_score = pickle.load(f)
+except Exception as e:
+    try:
+        with open('mmind_hs.pkl', 'rb') as f:
+            mmind_score = pickle.load(f)
+    except Exception as e:
+        mmind_score = "System: mmind_hs.pkl not found"
+
 print ("\n Meshing-Around Database Admin Tool\n")
 print ("System: bbs_messages")
 print (bbs_messages)
@@ -74,4 +84,5 @@ print (f"lemon:{lemon_score}")
 print (f"dopewar:{dopewar_score}")
 print (f"blackjack:{blackjack_score}")
 print (f"videopoker:{videopoker_score}")
+print (f"mmind:{mmind_score}")
 print ("\n")
