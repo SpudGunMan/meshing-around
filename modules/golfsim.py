@@ -325,8 +325,7 @@ def playGolf(nodeID, message, finishedHole=False):
             total_strokes += hole_strokes
             total_to_par += hole_to_par
 
-            debug = f"System: GolfSim: Player {nodeID} finished hole {hole} with {hole_strokes} strokes,{hole_shots}+{putts} putts, and {hole_to_par} to {hole_strokes}-{par}par"
-            print(debug)
+
             if not critter:
                 # Show player hole/round scoring info
                 if putts == 0 and hole_strokes == 1:
