@@ -217,39 +217,39 @@ def playGolf(nodeID, message, finishedHole=False):
 
             if club == "driver" or club.startswith("d"):
                 shot_distance = hit_driver()
-                msg += "🏌️Hit D " + str(shot_distance) + "yd."
+                msg += "🏌️Hit D " + str(shot_distance) + "yd. "
                 distance_remaining = abs(distance_remaining - shot_distance)
                 hole_shots += 1
             elif "low" in club or club.startswith("l"):
                 shot_distance = hit_low_iron()
-                msg += "🏌️Hit L Iron " + str(shot_distance) + "yd."
+                msg += "🏌️Hit L Iron " + str(shot_distance) + "yd. "
                 distance_remaining = abs(distance_remaining - shot_distance)
                 hole_shots += 1
             elif "mid" in club or club.startswith("m"):
                 shot_distance = hit_mid_iron()
-                msg += "🏌️Hit M Iron " + str(shot_distance) + "yd."
+                msg += "🏌️Hit M Iron " + str(shot_distance) + "yd. "
                 distance_remaining = abs(distance_remaining - shot_distance)
                 hole_shots += 1
             elif "high" in club or club.startswith("h"):
                 shot_distance = hit_high_iron()
-                msg += "🏌️Hit H Iron " + str(shot_distance) + "yd."
+                msg += "🏌️Hit H Iron " + str(shot_distance) + "yd. "
                 distance_remaining = abs(distance_remaining - shot_distance)
                 hole_shots += 1
             elif "gap" in club or club.startswith("g"):
                 shot_distance = hit_gap_wedge()
-                msg += "🏌️Hit G Wedge " + str(shot_distance) + "yd."
+                msg += "🏌️Hit G Wedge " + str(shot_distance) + "yd ."
                 distance_remaining = abs(distance_remaining - shot_distance)
                 hole_shots += 1
             elif "wedge" in club or club.startswith("w"):
                 shot_distance = hit_lob_wedge()
-                msg += "🏌️Hit L Wedge " + str(shot_distance) + "yd."
+                msg += "🏌️Hit L Wedge " + str(shot_distance) + "yd. "
                 distance_remaining = abs(distance_remaining - shot_distance)
                 hole_shots += 1
             elif club == "caddy" or club.startswith("c"):
                 # Show player the club distances
                 msg += f"Caddy Guess:\nD:{hit_driver()} L:{hit_low_iron()} M:{hit_mid_iron()} H:{hit_high_iron()} G:{hit_gap_wedge()} W:{hit_lob_wedge()}"
             else:
-                msg += "Didnt get your club 🥪♣️ choice"
+                msg += "Didnt get your club 🥪♣️🪩 choice"
                 return msg
 
             if distance_remaining - pin_distance > pin_distance or shot_distance > pin_distance:
@@ -272,7 +272,7 @@ def playGolf(nodeID, message, finishedHole=False):
                     distance_remaining = 0
                 # Check for critters
                 if skill_factor > 8 and critter_factor < 40 and wind_factor > 2 and hole_in_one_chance > 5:
-                    msg += random.choice(["A 🐿️ steals your ball!😡","You Hit a 🦅 soring past", "🐊 need we say more?", "hit a 🪟 of a 🏡"])
+                    msg += random.choice(["A 🐿️ steals your ball!😡 ","You Hit a 🦅 soring past ", "🐊 need we say more? ", "hit a 🪟 of a 🏡 "])
                     distance_remaining = -1
                 # Handle hazard
                 if hazard == "Water" and skill_factor < 7:
