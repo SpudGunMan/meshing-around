@@ -288,8 +288,11 @@ def playGolf(nodeID, message, finishedHole=False):
                     msg += "In the parking lot!🚗"
                     distance_remaining += random.randint(10, 30)
                 
-                # Send to putting
-                last_cmd = 'putt'
+                # Check we didnt go off the green or into a hazard
+                if distance_remaining < 20:
+                    last_cmd = 'putt'
+                else:
+                    last_cmd = 'stroking'
             else:
                 msg += "\nYou have " + str(distance_remaining) + "yd. ⛳️"
                 msg += "\nClub?[D, L, M, H, G, W]🏌️"
@@ -344,7 +347,7 @@ def playGolf(nodeID, message, finishedHole=False):
                 total_to_par = 0
                 hole_strokes = 0
             else:
-                msg += f"Got new ball at pro-shop, marshal put you back at " # flow into same hole haha
+                msg += f"Got a new ball at Pro-Shop, marshal put you @" # flow into same hole haha
         
         # Save player's current game state
         for i in range(len(golfTracker)):
