@@ -462,7 +462,7 @@ def handleMmind(nodeID, deviceID, message):
 
     msg += start_mMind(nodeID=nodeID, message=message)
     # wait a second to keep from message collision
-    time.sleep(1)
+    time.sleep(1.5)
     return msg
 
 def handleGolf(nodeID, message):
@@ -486,13 +486,13 @@ def handleGolf(nodeID, message):
     if last_cmd == "":
         # create new player
         logger.debug("System: GolfSim: New Player: " + str(nodeID))
-        golfTracker.append({'nodeID': nodeID, 'last_played': time.time(), 'cmd': 'new', 'hole': 1, 'distance_remaining': 0, 'hole_shots': 0, 'hole_strokes': 0, 'hole_to_par': 0, 'total_strokes': 0, 'total_to_par': 0})
+        golfTracker.append({'nodeID': nodeID, 'last_played': time.time(), 'cmd': 'new', 'hole': 1, 'distance_remaining': 0, 'hole_shots': 0, 'hole_strokes': 0, 'hole_to_par': 0, 'total_strokes': 0, 'total_to_par': 0, 'par': 0, 'hazard': ''})
         msg = f"Welcome to 🏌️GolfSim⛳️\n"
         msg += f"Clubs: (D)river, (L)ow Iron, (M)id Iron, (H)igh Iron, (G)ap Wedge, Lob (W)edge\n"
     
     msg += playGolf(nodeID=nodeID, message=message)
     # wait a second to keep from message collision
-    time.sleep(1)
+    time.sleep(1.5)
     return msg
 
 def handle_wxc(message_from_id, deviceID, cmd):

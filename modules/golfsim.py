@@ -25,7 +25,7 @@ par4_5_range = par4_range + par5_range
 
 # Player setup
 playingHole = False
-golfTracker = [{'nodeID': 0, 'last_played': time.time(), 'cmd': '', 'hole': 0, 'distance_remaining': 0, 'hole_shots': 0, 'hole_strokes': 0, 'hole_to_par': 0, 'total_strokes': 0, 'total_to_par': 0}]
+golfTracker = [{'nodeID': 0, 'last_played': time.time(), 'cmd': '', 'hole': 0, 'distance_remaining': 0, 'hole_shots': 0, 'hole_strokes': 0, 'hole_to_par': 0, 'total_strokes': 0, 'total_to_par': 0, 'par': 0, 'hazard': ''}]
 
 # Club functions
 def hit_driver():
@@ -63,10 +63,53 @@ def endGameGolf(nodeID):
             golfTracker.pop(i)
     logger.debug("System: GolfSim: Player " + str(nodeID) + " has ended their round.")
 
+def getScorecardGolf(scorecard):
+    # Scorecard messages, convert score to message comment
+    msg = ""
+    if scorecard == 8:
+        # Quadruple bogey
+        msg += " +Quad Bogey☃️ "
+    elif scorecard == 7:
+        # Triple bogey
+        msg += " +Triple Bogey "
+    elif scorecard == 6:
+        # Double bogey
+        msg += " +Double Bogey "
+    elif scorecard == 5:
+        # Bogey
+        msg += " +Bogey "
+    elif scorecard > 0:
+        # Over par
+        msg += f" +Par {str(scorecard)} "
+    elif scorecard == 0:
+        # Even par
+        msg += " Even Par💪 "
+    elif scorecard == -1:
+        # Birdie
+        msg += " -Birdie🐦 "
+    elif scorecard == -2:
+        # Eagle
+        msg += " -Eagle🦅 "
+    elif scorecard == -3:
+        # Albatross
+        msg += " -Albatross🦅🦅 "
+    else:
+        # Under par
+        msg += f" -Par {str(abs(scorecard))} "
+    return msg
+
 # Main game loop
-def playGolf(nodeID, message):
+def playGolf(nodeID, message, finishedHole=False):
     msg = ''
     global golfTracker
+    # Course setup
+    par3_count = 0
+    par4_count = 0
+    par5_count = 0
+    # Scorecard setup
+    total_strokes = 0
+    total_to_par = 0
+    par = 0
 
     # get player's last command from tracker if not new player
     last_cmd = ""
@@ -74,15 +117,14 @@ def playGolf(nodeID, message):
         if golfTracker[i]['nodeID'] == nodeID:
             last_cmd = golfTracker[i]['cmd']
             hole = golfTracker[i]['hole']
+            distance_remaining = golfTracker[i]['distance_remaining']
+            hole_shots = golfTracker[i]['hole_shots']
+            par = golfTracker[i]['par']
+            total_strokes = golfTracker[i]['total_strokes']
+            total_to_par = golfTracker[i]['total_to_par']
 
     if last_cmd == "" or last_cmd == "new":
-        par3_count = 0
-        par4_count = 0
-        par5_count = 0
-        # Scorecard setup
-        total_strokes = 0
-        total_to_par = 0
-
+        # Start a new hole
         if hole <= 9:
             # Set up hole count restrictions on par
             if par3_count < 2 and par4_count < 5 and par5_count < 2:
@@ -111,6 +153,20 @@ def playGolf(nodeID, message):
                 par = 5
                 par5_count += 1
 
+            # roll for chance of hazard
+            hazard_chance = random.randint(1, 100)
+            weather_chance = random.randint(1, 100)
+            # have low chances of hazards and weather
+            hasHazard = False
+            hazard = ""
+            if hazard_chance < 10:
+                # Further reduce chance of hazards with weather
+                if weather_chance < 10:
+                    # randomly calculate a hazard for the hole sand, water, trees, buildings, etc
+                    hazard = random.choice(["Sand", "Water", "Trees", "Buildings"])
+                    hasHazard = True
+                    
+
             # Set initial parameters before starting a hole
             distance_remaining = hole_length
             hole_shots = 0
@@ -123,12 +179,16 @@ def playGolf(nodeID, message):
                     golfTracker[i]['par'] = par
                     golfTracker[i]['total_strokes'] = total_strokes
                     golfTracker[i]['total_to_par'] = total_to_par
+                    golfTracker[i]['hazard'] = hazard
 
             # Show player the hole information
             msg += "⛳️#" + str(hole) + " is a " + str(hole_length) + "-yard Par " + str(par) + "."
-            # add weather conditions with random choice from list
-            msg += " Cond:" + random.choice(["Calm", "Breezy", "Calm", "Calm", "Gusty", "Windy", "Calm"]) + "."
-            msg += f"\nChoose your club."
+            if hasHazard: msg += "⚠️" + hazard + "."
+
+            if not finishedHole:
+                # add weather conditions with random choice from list, this is fluff
+                msg += " Cond:" + random.choice(["Calm", "Breezy", "Calm", "Calm", "Gusty", "Windy", "Calm"]) + "."
+                msg += f"\nChoose your club."
 
             return msg
 
@@ -143,6 +203,7 @@ def playGolf(nodeID, message):
                 par = golfTracker[i]['par']
                 total_strokes = golfTracker[i]['total_strokes']
                 total_to_par = golfTracker[i]['total_to_par']
+                hazard = golfTracker[i]['hazard']
 
         # Start loop to be able to choose clubs while at least 20 yards away
         if distance_remaining >= 20:
@@ -154,40 +215,42 @@ def playGolf(nodeID, message):
 
             if club == "driver" or club.startswith("d"):
                 shot_distance = hit_driver()
-                msg += "You hit your Driver " + str(shot_distance) + " yards."
+                msg += "🏌️Hit D " + str(shot_distance) + "yd."
                 distance_remaining = abs(distance_remaining - shot_distance)
                 hole_shots += 1
             elif "low" in club or club.startswith("l"):
                 shot_distance = hit_low_iron()
-                msg += "You hit your Low Iron " + str(shot_distance) + " yards."
+                msg += "🏌️Hit L Iron " + str(shot_distance) + "yd."
                 distance_remaining = abs(distance_remaining - shot_distance)
                 hole_shots += 1
             elif "mid" in club or club.startswith("m"):
                 shot_distance = hit_mid_iron()
-                msg += "You hit your Mid Iron " + str(shot_distance) + " yards."
+                msg += "🏌️Hit M Iron " + str(shot_distance) + "yd."
                 distance_remaining = abs(distance_remaining - shot_distance)
                 hole_shots += 1
             elif "high" in club or club.startswith("h"):
                 shot_distance = hit_high_iron()
-                msg += "You hit your High Iron " + str(shot_distance) + " yards."
+                msg += "🏌️Hit H Iron " + str(shot_distance) + "yd."
                 distance_remaining = abs(distance_remaining - shot_distance)
                 hole_shots += 1
             elif "gap" in club or club.startswith("g"):
                 shot_distance = hit_gap_wedge()
-                msg += "You hit your Gap Wedge " + str(shot_distance) + " yards."
+                msg += "🏌️Hit G Wedge " + str(shot_distance) + "yd."
                 distance_remaining = abs(distance_remaining - shot_distance)
                 hole_shots += 1
             elif "wedge" in club or club.startswith("w"):
                 shot_distance = hit_lob_wedge()
-                msg += "You hit your Lob Wedge " + str(shot_distance) + " yards."
+                msg += "🏌️Hit L Wedge " + str(shot_distance) + "yd."
                 distance_remaining = abs(distance_remaining - shot_distance)
                 hole_shots += 1
 
             if distance_remaining - pin_distance > pin_distance or shot_distance > pin_distance:
-                msg += "You've hit it past the hole!😖"
-
+                # Check for over-shooting the hole
+                if distance_remaining > 20:
+                    # did it go off the "green"?
+                    msg += "Overshot the green!🚀"
             if distance_remaining == 0:
-                msg += "💰Perfect shot! "
+                msg += "🎯Perfect shot! "
                 last_cmd = 'putt'
             elif distance_remaining < 20:
                 # Roll Dice
@@ -195,25 +258,40 @@ def playGolf(nodeID, message):
                 wind_factor = random.randint(1, 10)
                 skill_factor = random.randint(1, 10)
                 critter_factor = random.randint(1, 50)
+
                 # Check for hole in one
                 if hole_in_one_chance <= 5 and wind_factor > 7 and skill_factor > 8:
                     distance_remaining = 0
                 # Check for critters
                 if skill_factor > 8 and critter_factor < 40 and wind_factor > 2 and hole_in_one_chance > 5:
-                    msg += random.choice["A 🐿️ steals your ball!😡","You Hit a 🦅 soring past"]
+                    msg += random.choice(["A 🐿️ steals your ball!😡","You Hit a 🦅 soring past", "🐊 need we say more?", "hit a 🪟 of a 🏡"])
                     distance_remaining = -1
-
+                # Handle hazard
+                if hazard == "Water" and skill_factor < 7:
+                    msg += "In the water!🌊"
+                    distance_remaining = -1
+                if hazard == "Sand" and skill_factor < 5:
+                    msg += "In the sand!🏖️"
+                    distance_remaining = random.randint(5, 10)
+                if hazard == "Trees" and skill_factor < 3:
+                    msg += "In the trees!🌲"
+                    distance_remaining += random.randint(5, 20)
+                if hazard == "Buildings" and skill_factor < 2:
+                    msg += "In the parking lot!🚗"
+                    distance_remaining += random.randint(10, 30)
+                
                 # Send to putting
                 last_cmd = 'putt'
             else:
-                msg += "You have " + str(distance_remaining) + " yards left."
-                msg += f"\nClub?[D, L, M, H, G, W]🏌️"
+                msg += "\nYou have " + str(distance_remaining) + "yd. ⛳️"
+                msg += "\nClub?[D, L, M, H, G, W]🏌️"
 
                 # save player's current game state, keep stroking
                 for i in range(len(golfTracker)):
                     if golfTracker[i]['nodeID'] == nodeID:
                         golfTracker[i]['distance_remaining'] = distance_remaining
                         golfTracker[i]['hole_shots'] = hole_shots
+                        golfTracker[i]['total_strokes'] = total_strokes
                         golfTracker[i]['cmd'] = 'stroking'
 
                 return msg
@@ -230,13 +308,13 @@ def playGolf(nodeID, message):
             else:
                 putts = finish_hole()
 
-            if not critter:
-                # Calculate hole and round scores
-                hole_strokes = hole_shots + putts
-                hole_to_par = hole_strokes - par
-                total_strokes += hole_strokes
-                total_to_par += hole_to_par
+            # Calculate hole and round scores
+            hole_strokes = hole_shots + putts
+            hole_to_par = hole_strokes - par
+            total_strokes += hole_strokes
+            total_to_par += hole_to_par
 
+            if not critter:
                 # Show player hole/round scoring info
                 if putts == 0 and hole_strokes == 1:
                     msg += "🎯Hole in one!⛳️"
@@ -244,26 +322,17 @@ def playGolf(nodeID, message):
                     msg += "You're in the hole at " + str(hole_strokes) + " strokes!"
                 else:
                     msg += "You're on the green! After " + str(putts) + " putt(s), you're in for " + str(hole_strokes) + " strokes."
-                
-                if hole_to_par > 0:
-                    msg += "Your score for the hole is +" + str(hole_to_par) + " to par."
-                elif hole_to_par == 0:
-                    msg += "Your score for the hole is even to par."
-                else:
-                    msg += "Your score for the hole is " + str(hole_to_par) + " to par."
+                msg += getScorecardGolf(hole_to_par)
 
-                msg += "You've hit a total of " + str(total_strokes) + " strokes so far."
-                if total_to_par > 0:
-                    msg += "Your score for the round is +" + str(total_to_par) + " to par."
-                elif total_to_par == 0:
-                    msg += "Your score for the round is even to par."
-                else:
-                    msg += "Your score for the round is " + str(total_to_par) + " to par."
+                if hole not in [1, 10]:
+                    # Show player total scoring info for the round, except hole 1 and 10
+                    msg += "\nYou've hit a total of " + str(total_strokes) + " strokes today, for"
+                    msg += getScorecardGolf(total_to_par)
 
                 # Move to next hole
                 hole += 1
             else:
-                msg += "🐿️ you ran to the pro-shop to get a new ball, they put you back at the same hole"
+                msg += f"Got new ball at pro-shop, marshal put you back at " # flow into same hole haha
         
         # Save player's current game state
         for i in range(len(golfTracker)):
@@ -278,20 +347,15 @@ def playGolf(nodeID, message):
 
         if hole >= 9:
             # Final score messages & exit prompt
-            msg += f"\n🎉Finished 9-hole round⛳️"
-            msg += "Total strokes " + str(total_strokes) + "."
-            if total_to_par > 0:
-                msg += "Your score for the day is +" + str(total_to_par) + " to par."
-            elif total_to_par == 0:
-                msg += "Your score for the day is even to par."
-            else:
-                msg += "Your score for the day is " + str(total_to_par) + " to par."
+            msg += f"🎉Finished 9-hole round⛳️"
             # pop player from tracker
             for i in range(len(golfTracker)):
                 if golfTracker[i]['nodeID'] == nodeID:
                     golfTracker.pop(i)
             logger.debug("System: GolfSim: Player " + str(nodeID) + " has finished their round.")
         else:
-            msg += "⛳️#" + str(hole) + " is next, keep playing? or (E)nd the round."
+            # Show player the next hole
+            msg += playGolf(nodeID, 'new', True)
+            msg += "\n🏌️‍♀️[D, L, M, H, G, W, End]🏌️"
             
     return msg
