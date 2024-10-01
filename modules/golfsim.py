@@ -159,9 +159,9 @@ def playGolf(nodeID, message, finishedHole=False):
             # have low chances of hazards and weather
             hasHazard = False
             hazard = ""
-            if hazard_chance < 10:
+            if hazard_chance < 25:
                 # Further reduce chance of hazards with weather
-                if weather_chance < 10:
+                if weather_chance < 15:
                     # randomly calculate a hazard for the hole sand, water, trees, buildings, etc
                     hazard = random.choice(["Sand", "Water", "Trees", "Buildings"])
                     hasHazard = True
@@ -247,7 +247,10 @@ def playGolf(nodeID, message, finishedHole=False):
                 hole_shots += 1
             elif club == "caddy" or club.startswith("c"):
                 # Show player the club distances
-                msg += f"Caddy Guess: D:{hit_driver()} L:{hit_low_iron()} M:{hit_mid_iron()} H:{hit_high_iron()} G:{hit_gap_wedge()} W:{hit_lob_wedge()}"
+                msg += f"Caddy Guess:\nD:{hit_driver()} L:{hit_low_iron()} M:{hit_mid_iron()} H:{hit_high_iron()} G:{hit_gap_wedge()} W:{hit_lob_wedge()}"
+            else:
+                msg += "Didnt get your club 🥪♣️ choice"
+                return msg
 
             if distance_remaining - pin_distance > pin_distance or shot_distance > pin_distance:
                 # Check for over-shooting the hole
@@ -336,6 +339,10 @@ def playGolf(nodeID, message, finishedHole=False):
 
                 # Move to next hole
                 hole += 1
+                # Scorecard reset
+                hole_to_par = 0
+                total_to_par = 0
+                hole_strokes = 0
             else:
                 msg += f"Got new ball at pro-shop, marshal put you back at " # flow into same hole haha
         
