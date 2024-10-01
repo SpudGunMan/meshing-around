@@ -3,6 +3,7 @@
 
 import random
 import time
+import pickle
 from modules.log import *
 
 # Clubs setup
@@ -97,6 +98,28 @@ def getScorecardGolf(scorecard):
         # Under par
         msg += f" -Par {str(abs(scorecard))} "
     return msg
+
+def getHighScoreGolf(nodeID, strokes, par):
+    # check if player is in high score list
+    try:
+        with open('golfsim_hs.pkl', 'rb') as f:
+            golfHighScore = pickle.load(f)
+    except:
+        logger.debug("System: GolfSim: High Score file not found.")
+        golfHighScore = [{'nodeID': nodeID, 'strokes': strokes, 'par': par}]
+        with open('golfsim_hs.pkl', 'wb') as f:
+            pickle.dump(golfHighScore, f)
+
+    if strokes > golfHighScore[0]['strokes']:
+        # player got new low score which is high score
+        golfHighScore[0]['nodeID'] = nodeID
+        golfHighScore[0]['strokes'] = strokes
+        golfHighScore[0]['par'] = par
+        with open('golfsim_hs.pkl', 'wb') as f:
+            pickle.dump(golfHighScore, f)
+        return golfHighScore
+    
+    return 0
 
 # Main game loop
 def playGolf(nodeID, message, finishedHole=False):
@@ -369,6 +392,10 @@ def playGolf(nodeID, message, finishedHole=False):
         if hole >= 9:
             # Final score messages & exit prompt
             msg += f"🎉Finished 9-hole round⛳️"
+            #HighScore Display
+            highscore = getHighScoreGolf(nodeID, total_strokes, total_to_par)
+            if highscore != 0:
+                msg += "\n🏆New Club Record🏆"
             # pop player from tracker
             for i in range(len(golfTracker)):
                 if golfTracker[i]['nodeID'] == nodeID:
