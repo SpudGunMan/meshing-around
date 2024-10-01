@@ -209,9 +209,9 @@ def compareCodeMMind(secret_code, user_guess):
                     break
     # display feedback
     if game_won:
-        msg += f"Correct Guess:\n{getEmojiMMind(user_guess)}"
+        msg += f"Correct{getEmojiMMind(user_guess)}\n"
     else:
-        msg += f"Guess:{getEmojiMMind(user_guess)}\n"
+        msg += f"Guess{getEmojiMMind(user_guess)}\n"
 
     if perfect_pins > 0 and game_won == False:
         msg += "✅ color ✅ position: {}".format(perfect_pins)
@@ -243,13 +243,13 @@ def playGameMMind(diff, secret_code, turn_count, nodeID, message):
         msg += check_guess
     
         if won == True:
-            msg += f"\n🎉🧠 in {turn_count} turns"
+            msg += f"\n🎉🧠 you win 🥷🤯"
             # get high score
             high_score = getHighScoreMMind(nodeID, turn_count, diff)
             if high_score != 0:
-                msg += f"\n🏆 High Score: {high_score[0]['turns']} turns, Difficulty:{high_score[0]['diff'].upper()}"
+                msg += f"\n🏆 High Score:{high_score[0]['turns']} turns, Difficulty:{high_score[0]['diff'].upper()}"
             
-            msg += "\nWould you like to play again? (N)ormal, (H)ard, or e(X)pert?"
+            msg += "\nWould you like to play again?\n(N)ormal, (H)ard, e(X)pert?"
             # reset turn count in tracker
             for i in range(len(mindTracker)):
                 if mindTracker[i]['nodeID'] == nodeID:
