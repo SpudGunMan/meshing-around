@@ -183,11 +183,13 @@ def playGolf(nodeID, message, finishedHole=False):
 
             # Show player the hole information
             msg += "⛳️#" + str(hole) + " is a " + str(hole_length) + "-yard Par " + str(par) + "."
-            if hasHazard: msg += "⚠️" + hazard + "."
+            if hasHazard: 
+                msg += "⚠️" + hazard + "."
+            else:
+                # add weather conditions with random choice from list, this is fluff
+                msg += random.choice(["☀️", "💨", "☀️", "☀️", "⛅️", "☁️", "☀️"])
 
             if not finishedHole:
-                # add weather conditions with random choice from list, this is fluff
-                msg += " Cond:" + random.choice(["Calm", "Breezy", "Calm", "Calm", "Gusty", "Windy", "Calm"]) + "."
                 msg += f"\nChoose your club."
 
             return msg
@@ -243,6 +245,9 @@ def playGolf(nodeID, message, finishedHole=False):
                 msg += "🏌️Hit L Wedge " + str(shot_distance) + "yd."
                 distance_remaining = abs(distance_remaining - shot_distance)
                 hole_shots += 1
+            elif club == "caddy" or club.startswith("c"):
+                # Show player the club distances
+                msg += f"Caddy Guess: D:{hit_driver()} L:{hit_low_iron()} M:{hit_mid_iron()} H:{hit_high_iron()} G:{hit_gap_wedge()} W:{hit_lob_wedge()}"
 
             if distance_remaining - pin_distance > pin_distance or shot_distance > pin_distance:
                 # Check for over-shooting the hole
