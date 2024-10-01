@@ -610,10 +610,13 @@ def handle_lheard(message, nodeid, deviceID, isDM):
     bot_response += "\nUptime:" + str(uptimeSeconds)
     if interface2_enabled:
         bot_response += f" P2:" + {uptimeSeconds2}
+    # add battery info to the bot response
+    emji = "🔌" if batteryLevel == 101 else "🪫" if batteryLevel < 10 else "🔋"
+    emji2 = "🔌" if batteryLevel2 == 101 else "🪫" if batteryLevel2 < 10 else "🔋"
     if not batteryLevel == 101:
-        bot_response += f" Bat: {batteryLevel}% Volt: {voltage}"
-    if interface2_enabled and  not batteryLevel2 == 101:
-        bot_response += f" P2: Bat: {batteryLevel2}% Volt: {voltage2}"
+        bot_response += f" {emji}{batteryLevel}% Volt:{voltage}"
+    if interface2_enabled and not batteryLevel2 == 101:
+        bot_response += f" P2:{emji2}{batteryLevel2}% Volt:{voltage2}"
     # show last users of the bot with the cmdHistory list
     history = handle_history(message, nodeid, deviceID, isDM, lheard=True)
     if history:
