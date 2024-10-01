@@ -162,8 +162,8 @@ def playGolf(nodeID, message, finishedHole=False):
             if hazard_chance < 25:
                 # Further reduce chance of hazards with weather
                 if weather_chance < 15:
-                    # randomly calculate a hazard for the hole sand, water, trees, buildings, etc
-                    hazard = random.choice(["Sand", "Water", "Trees", "Buildings"])
+                    # randomly calculate a hazard for the hole sand, 🌊, 🌲, 🏘️, etc
+                    hazard = random.choice(["🏖️", "🌊", "🌲", "🏘️"])
                     hasHazard = True
                     
 
@@ -180,6 +180,9 @@ def playGolf(nodeID, message, finishedHole=False):
                     golfTracker[i]['total_strokes'] = total_strokes
                     golfTracker[i]['total_to_par'] = total_to_par
                     golfTracker[i]['hazard'] = hazard
+                    golfTracker[i]['hole'] = hole
+                    golfTracker[i]['last_played'] = time.time()
+                    golfTracker[i]['hole_shots'] = hole_shots
 
             # Show player the hole information
             msg += "⛳️#" + str(hole) + " is a " + str(hole_length) + "-yard Par " + str(par) + "."
@@ -275,16 +278,16 @@ def playGolf(nodeID, message, finishedHole=False):
                     msg += random.choice(["A 🐿️ steals your ball!😡 ","You Hit a 🦅 soring past ", "🐊 need we say more? ", "hit a 🪟 of a 🏡 "])
                     distance_remaining = -1
                 # Handle hazard
-                if hazard == "Water" and skill_factor < 7:
+                if hazard == "🌊" and skill_factor < 7:
                     msg += "In the water!🌊"
                     distance_remaining = -1
-                if hazard == "Sand" and skill_factor < 5:
+                if hazard == "🏖️" and skill_factor < 5:
                     msg += "In the sand!🏖️"
                     distance_remaining = random.randint(5, 10)
-                if hazard == "Trees" and skill_factor < 3:
+                if hazard == "🌲" and skill_factor < 3:
                     msg += "In the trees!🌲"
                     distance_remaining += random.randint(5, 20)
-                if hazard == "Buildings" and skill_factor < 2:
+                if hazard == "🏘️" and skill_factor < 2:
                     msg += "In the parking lot!🚗"
                     distance_remaining += random.randint(10, 30)
                 
@@ -343,12 +346,14 @@ def playGolf(nodeID, message, finishedHole=False):
 
                 # Move to next hole
                 hole += 1
-                # Scorecard reset
-                hole_to_par = 0
-                total_to_par = 0
-                hole_strokes = 0
             else:
                 msg += f"Got a new ball at Pro-Shop, marshal put you @" # flow into same hole haha
+
+            # Scorecard reset
+            hole_to_par = 0
+            total_to_par = 0
+            hole_strokes = 0
+            hole_shots = 0
         
         # Save player's current game state
         for i in range(len(golfTracker)):
