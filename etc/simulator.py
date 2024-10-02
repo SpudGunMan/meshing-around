@@ -51,7 +51,7 @@ if __name__ == '__main__': # represents the bot's main loop
         packet = input(f"CLIENT {nodeID} INPUT: " ) # Emulate the client input
         if packet != "":
             #try:
-            projectResponse = globals()[projectName](nodeID, packet) # Call the project handler under test
+            projectResponse = globals()[projectName](nodeID, deviceID=nodeInt, message=packet) # Call the project handler under test
             # except Exception as e:
             #     logger.error(f"System: Handler: {e}")
             #     projectResponse = "Error in handler"
