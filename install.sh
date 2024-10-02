@@ -15,6 +15,7 @@ printf "\nChecking for dependencies\n"
 printf "\nAdding user to dialout and tty groups for serial access\n"
 sudo usermod -a -G dialout $USER
 sudo usermod -a -G tty $USER
+sudo usermod -a -G bluetooth $USER
 
 # check for pip
 if ! command -v pip &> /dev/null
