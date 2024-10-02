@@ -18,8 +18,8 @@ def get_NodeID():
     return nodeID
 def get_name_from_number(nodeID, length='short', interface=1):
     # return random name for nodeID
-    names = ["Max","Molly","Jake"]
-    return names[random.randint(0, len(names)-1)]
+    names = ["Max","Molly","Jake","Kelly"]
+    return names[nodeID % len(names)]
 # # end Initialization of the tool
 
 # # Function to handle, or the project in test
