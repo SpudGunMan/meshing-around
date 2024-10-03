@@ -10,7 +10,7 @@ Along with network testing, this bot has a lot of other fun features, like simpl
 
 The bot is also capable of using dual radio/nodes, so you can monitor two networks at the same time and send messages to nodes using the same `bbspost @nodeNumber #message` or `bbspost @nodeShortName #message` function. There is a small message board to fit in the constraints of Meshtastic for posting bulletin messages with `bbspost $subject #message`.
 
-Look up data using wiki results, or interact with [Ollama](https://ollama.com) LLM AI see the [OllamaDocs](https://github.com/ollama/ollama/tree/main/docs) If Ollama is enabled you can DM the bot directly. The default model for mesh-bot which is currently `gemma2:2b`
+Look up data using wiki results, or interact with [Ollama](https://github.com/ollama/ollama/tree/main/docs) LLM AI. If Ollama is enabled you can DM the bot directly. The default model for mesh-bot which is currently `gemma2:2b`
 
 The bot will report on anyone who is getting close to the configured lat/long, if in a remote location. For example having the bot in your camp site alerts when members arive back at camp.
 
@@ -21,6 +21,8 @@ There is a small collection of games to play like DopeWars, Lemonade Stand, and 
 The bot can also be used to monitor a radio frequency and let you know when high SNR RF activity is seen. Using Hamlib(rigctld) to watch the S meter on a connected radio. You can send alerts to channels when a frequency is detected for 20 seconds within the thresholds set in config.ini
 
 Any messages that are over 160 characters are chunked into 160 message bytes to help traverse hops, in testing, this keeps delivery success higher.
+
+But wait there is more! There is a nice data reporting html generator for reatime glance at the bot traffic and data flows!
 
 ## Full list of commands for the bot
 
@@ -177,7 +179,7 @@ Ollama Settings, for Ollama to work the command line `ollama run 'model'` needs 
 
 Enable History, set via code readme Ollama Config in [Settings](https://github.com/SpudGunMan/meshing-around?tab=readme-ov-file#configurations) and [llm.py](https://github.com/SpudGunMan/meshing-around/blob/eb3bbdd3c5e0f16fe3c465bea30c781bd132d2d3/modules/llm.py#L12)
 
-Tested models are `llama3.1, gemma2 (and variants), phi3.5, mistrial` other models may not handle the template as well.
+Tested models are `llama3.x, gemma2 (and variants), phi3.x, mistrial` other models may not handle the template as well.
 
 ```
 # Enable ollama LLM see more at https://ollama.com
@@ -257,7 +259,7 @@ Games Ported from..
 - https://github.com/pwdkramer/pythonMastermind/
 - https://github.com/danfriedman30/pythongame (Golf)
 
-GitHub user Nestpebble, for new ideas and enhancments, mrpatrick1991 For Docker configs, PiDiBi looking at test functions and other suggestions like wxc, CPU use, and alerting ideas
+GitHub user xdep for the reporting tools, Nestpebble for new ideas and enhancments, mrpatrick1991 For Docker configs, PiDiBi looking at test functions and other suggestions like wxc, CPU use, and alerting ideas
 Discord and Mesh user Cisien, bitflip, and github Hailo1999, for testing and feature ideas! Lots of individuals on the Meshtastic discord who have tossed out ideas and tested code!
 
 Tool to manage node-backups
