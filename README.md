@@ -38,6 +38,7 @@ But wait there is more! There is a nice data reporting html generator for reatim
   - `bbsdelete` delete a message example use: `bbsdelete #4`
   - `bbsinfo` Stats on BBS delivery and messages (sysop)
 - Other functions
+  - `ping` `ack` `test` will return data for signal, you can also `ping 15 #DrivingI5` to (activate auto-ping every 20 seconds for count 15)
   - `whereami` returns the address of location of sender if known
   - `whoami` returns some details of the node asking
   - `tide` returns the local tides, NOAA data source
