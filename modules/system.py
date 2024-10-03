@@ -36,7 +36,7 @@ if motd_enabled:
 
 # whoami Configuration
 if whoami_enabled:
-    trap_list_whoami = ("whoami",)
+    trap_list_whoami = ("whoami", "📍")
     trap_list = trap_list + trap_list_whoami
     help_message = help_message + ", whoami"
 

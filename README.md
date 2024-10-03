@@ -40,7 +40,7 @@ But wait there is more! There is a nice data reporting html generator for reatim
 - Other functions
   - `ping` `ack` `test` will return data for signal, you can also `ping 15 #DrivingI5` to (activate auto-ping every 20 seconds for count 15)
   - `whereami` returns the address of location of sender if known
-  - `whoami` returns some details of the node asking
+  - `whoami` returns some details of the node asking, also returned when position exchanged 📍
   - `tide` returns the local tides, NOAA data source
   - `wx` and `wxc` returns local weather forecast, (wxc is metric value), NOAA or Open Meteo for weather forecasting.
   - `wxa` and `wxalert` return NOAA alerts. Short title or expanded details

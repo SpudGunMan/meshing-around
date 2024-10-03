@@ -67,6 +67,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "testing": lambda:  handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM),
     "test": lambda:  handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM),
     "whoami": lambda: handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus),
+    "📍": lambda: handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus)
     }
 
     # set the command handler
