@@ -1,0 +1,25 @@
+# /etc/systemd/system/mesh_bot.service
+# sudo systemctl daemon-reload
+# sudo systemctl start mesh_bot.service
+
+[Unit]
+Description=MESH-BOT-Reporting
+After=network.target
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+WorkingDirectory=/dir/
+ExecStart=python3 logs/mesh_network_analyzer.py
+ExecStop=pkill -f mesh_network_analyzer.py
+
+# Disable Python's buffering of STDOUT and STDERR, so that output from the
+# service shows up immediately in systemd's logs
+Environment=PYTHONUNBUFFERED=1
+
+Restart=on-failure
+Type=notify #try simple if any problems
+
+[Install]
+WantedBy=default.target
