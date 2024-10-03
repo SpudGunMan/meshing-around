@@ -164,7 +164,7 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM):
 
 def handle_alertBell(message_from_id, deviceID, message):
     msg = ""
-    msg = "what this 🤖 needs is more 🐮🔔"
+    msg = "the only prescription is more 🐮🔔🐄🛎️"
     return msg
 
 def handle_motd(message, message_from_id, isDM):
