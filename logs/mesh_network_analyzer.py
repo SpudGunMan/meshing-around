@@ -6,6 +6,10 @@ import json
 import platform
 import subprocess
 
+# global variables
+LOG_PATH = '/opt/meshing-around/logs'
+W3_PATH = '/var/www/html'
+
 def parse_log_file(file_path):
     with open(file_path, 'r') as file:
         lines = file.readlines()
@@ -515,7 +519,7 @@ def generate_hosts_html(system_info):
     return template.safe_substitute(system_info)
 
 def main():
-    log_dir = '/opt/meshing-around/logs'
+    log_dir = LOG_PATH
     today = datetime.now().strftime('%Y_%m_%d')
     log_file = f'meshbot{today}.log'
     log_path = os.path.join(log_dir, log_file)
@@ -527,7 +531,7 @@ def main():
     network_map_html = generate_network_map_html(log_data)
     hosts_html = generate_hosts_html(system_info)
 
-    output_dir = '/var/www/html'
+    output_dir = W3_PATH
     index_path = os.path.join(output_dir, 'index.html')
     
     try:

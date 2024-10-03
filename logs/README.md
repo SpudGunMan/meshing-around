@@ -13,3 +13,5 @@ Example to log to disk only INFO and higher (ignore DEBUG)
 *log.py
 file_handler.setLevel(logging.INFO) # DEBUG used by default for system logs to disk example here shows INFO
 ```
+
+Reporting is via [logs/mesh_network_analyzer.py](logs/mesh_network_analyzer.py) static log analysis to a HTML report file.
