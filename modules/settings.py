@@ -47,7 +47,7 @@ if config.sections() == []:
     print (f"System: Config file created, check {config_file} or review the config.template")
 
 if 'sentry' not in config:
-        config['Sentry'] = {'SentryEnabled': 'False', 'SentryChannel': '2', 'SentryHoldoff': '9', 'sentryIgnoreList': '', 'SentryRadius': '100'}
+        config['sentry'] = {'SentryEnabled': 'False', 'SentryChannel': '2', 'SentryHoldoff': '9', 'sentryIgnoreList': '', 'SentryRadius': '100'}
         config.write(open(config_file, 'w'))
 
 if 'location' not in config:
