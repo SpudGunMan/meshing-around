@@ -56,6 +56,7 @@ Any messages that are over 160 characters are chunked into 160 message bytes to 
   - `videopoker` Video Poker, basic 5 card hold
   - `mastermind` Classic code-breaking game
   - `golfsim` Golf Simulator, 9 Hole
+  - `uno` Uno cardgame, play against the bot or with others on mesh near you!
 
 ## pong_bot.sh
 Stripped-down bot, mostly around for archive purposes. The mesh-bot enhanced modules can be disabled by config to disable features.
@@ -258,4 +259,8 @@ Games Ported from..
 
 GitHub user Nestpebble, for new ideas and enhancments, mrpatrick1991 For Docker configs, PiDiBi looking at test functions and other suggestions like wxc, CPU use, and alerting ideas
 Discord and Mesh user Cisien, bitflip, and github Hailo1999, for testing and feature ideas! Lots of individuals on the Meshtastic discord who have tossed out ideas and tested code!
+
+Tool to manage node-backups
+https://github.com/SpudGunMan/node-slurper
+
 

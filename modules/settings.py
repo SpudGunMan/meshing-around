@@ -27,6 +27,7 @@ scheduler_enabled = False # enable the scheduler currently config via code only
 wiki_return_limit = 3 # limit the number of sentences returned off the first paragraph first hit
 playingGame = False
 GAMEDELAY = 28800 # 8 hours in seconds for game mode holdoff
+multiPingList = [{'message_from_id': 0, 'count': 0, 'type': '', 'deviceID': 0}]
 
 # Read the config file, if it does not exist, create basic config file
 config = configparser.ConfigParser() 
@@ -157,6 +158,7 @@ try:
     videoPoker_enabled = config['games'].getboolean('videoPoker', True)
     mastermind_enabled = config['games'].getboolean('mastermind', True)
     golfSim_enabled = config['games'].getboolean('golfSim', True)
+    uno_enabled = config['games'].getboolean('uno', True)
 
     # messaging settings
     responseDelay = config['messagingSettings'].getfloat('responseDelay', 0.7) # default 0.7

@@ -10,7 +10,7 @@ from modules.log import *
 from modules.system import *
 
 # list of commands to remove from the default list for DM only
-restrictedCommands = ["blackjack", "videopoker", "dopewars", "lemonstand", "golfsim", "mastermind"]
+restrictedCommands = ["blackjack", "videopoker", "dopewars", "lemonstand", "golfsim", "mastermind", "uno"]
 restrictedResponse = "🤖only available in a Direct Message📵" # "" for none
 
 # Global Variables
@@ -25,7 +25,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
 
     # Command List
     default_commands = {
-    "ping": lambda: handle_ping(message, hop, snr, rssi, isDM),
+    "ping": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM),
     "pong": lambda: "🏓PING!!",
     "motd": lambda: handle_motd(message, message_from_id, isDM),
     "bbshelp": bbs_help,
@@ -42,6 +42,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "videopoker": lambda: handleVideoPoker(message_from_id, message),
     "mastermind": lambda: handleMmind(message_from_id, deviceID, message),
     "golfsim": lambda: handleGolf(message_from_id, message),
+    "playuno": lambda: handleUno(message_from_id, deviceID, message),
     "globalthermonuclearwar": lambda: handle_gTnW(),
     "ask:": lambda: handle_llm(message_from_id, channel_number, deviceID, message, publicChannel),
     "askai": lambda: handle_llm(message_from_id, channel_number, deviceID, message, publicChannel),
@@ -102,23 +103,28 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
 
     return bot_response
 
-def handle_ping(message, hop, snr, rssi, isDM):
+def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM):
+    global multiPing
     if  "?" in message and isDM:
         return message.split("?")[0].title() + " command returns SNR and RSSI, or hopcount from your message. Try adding e.g. @place or #tag"
     
     msg = ""
+    type = ''
 
     if "ping" in message.lower():
         msg = "🏓PONG, "
+        type = "🏓PING"
     elif "test" in message.lower() or "testing" in message.lower():
         msg = random.choice(["🎙Testing 1,2,3\n", "🎙Testing, ",\
                              "🎙Testing, testing, ",\
                              "🎙Ah-wun, ah-two... ", "🎙Is this thing on? ",\
                              "🎙Roger that! ",])
+        type = "🎙TEST"
     elif "ack" in message.lower():
         msg = random.choice(["✋ACK-ACK!\n", "✋Ack to you!\n"])
+        type = "✋ACK"
     else:
-        msg = ""
+        msg = "🔊 Can you hear me now?"
 
     if hop == "Direct":
         msg = msg + f"SNR:{snr} RSSI:{rssi}"
@@ -127,8 +133,30 @@ def handle_ping(message, hop, snr, rssi, isDM):
 
     if "@" in message:
         msg = msg + " @" + message.split("@")[1]
+        type = type + " @" + message.split("@")[1]
     elif "#" in message:
         msg = msg + " #" + message.split("#")[1]
+        type = type + " #" + message.split("#")[1]
+
+    # check for multi ping request
+    if " " in message:
+        # if stop multi ping
+        if "stop" in message.lower():
+            for i in range(0, len(multiPingList)):
+                if multiPingList[i].get('message_from_id') == message_from_id:
+                    multiPingList.pop(i)
+                    msg = "🛑 auto-ping"
+        try:
+            pingCount = int(message.split(" ")[1])
+            if pingCount > 51:
+                pingCount = 50
+        except:
+            pingCount = -1
+    
+        if pingCount > 1:
+            multiPingList.append({'message_from_id': message_from_id, 'count': pingCount + 1, 'type': type, 'deviceID': deviceID})
+            msg = f"🚦Initalizing {pingCount} auto-ping"
+            
 
     return msg
 
@@ -495,6 +523,27 @@ def handleGolf(nodeID, message):
     time.sleep(1.5)
     return msg
 
+def handleUno(nodeID, deviceID, message):
+    global unoTracker
+    msg = ''
+
+    # get player's last command from tracker if not new player
+    last_cmd = ""
+    for i in range(len(unoTracker)):
+        if unoTracker[i]['nodeID'] == nodeID:
+            last_cmd = unoTracker[i]['cmd']
+
+    if last_cmd == "" and nodeID != 0:
+        # create new player
+        logger.debug("System: Uno: New Player: " + str(nodeID) + " " + get_name_from_number(nodeID))
+        unoTracker.append({'nodeID': nodeID, 'last_played': time.time(), 'cmd': '', 'playerName': get_name_from_number(nodeID)})
+        msg = "Welcome to 🃏 Uno!, waiting for others to join, (S)tart when ready"
+    
+    msg += playUno(nodeID, message=message)
+    # wait a second to keep from message collision
+    time.sleep(1)
+    return msg
+
 def handle_wxc(message_from_id, deviceID, cmd):
     location = get_node_location(message_from_id, deviceID)
     if use_meteo_wxApi and not "wxc" in cmd and not use_metric:
@@ -803,6 +852,30 @@ def checkPlayingGame(message_from_id, message_string, rxNode, channel_number):
             else:
                 # pop if the time exceeds 8 hours
                 golfTracker.pop(i)
+
+    for i in range(0, len(unoTracker)):
+        if unoTracker[i].get('nodeID') == message_from_id:
+            # check if the player has played in the last 8 hours
+            if unoTracker[i].get('last_played') > (time.time() - GAMEDELAY):
+                playingGame = True
+                game = "Uno"
+                if llm_enabled:
+                    logger.debug(f"System: LLM Disabled for {message_from_id} for duration of Uno")
+                
+                # get the game play string
+                gameMsg = handleUno(message_from_id, rxNode, message_string)
+                # identify messages for multiple players when starts with 👯
+                if gameMsg.startswith("👯"):
+                    gameMsg = gameMsg[1:]
+                    for playerID in getUnoIDs():
+                        send_message(gameMsg, channel_number, playerID, rxNode)
+                else:
+                    # play the game just normal message
+                    send_message(gameMsg, channel_number, message_from_id, rxNode)
+            
+            else:
+                # pop if the time exceeds 8 hours
+                unoTracker.pop(i)
     
     #logger.debug(f"System: {message_from_id} is playing {game}")
     return playingGame

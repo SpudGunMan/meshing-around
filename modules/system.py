@@ -127,6 +127,11 @@ if golfSim_enabled:
     from modules.golfsim import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + ("golfsim",)
     games_enabled = True
+
+if uno_enabled:
+    from modules.uno import * # from the spudgunman/meshing-around repo
+    trap_list = trap_list + ("playuno",)
+    games_enabled = True
     
 # Games Configuration
 if games_enabled is True:
@@ -148,6 +153,8 @@ if games_enabled is True:
         gamesCmdList += "masterMind, "
     if golfSim_enabled:
         gamesCmdList += "golfSim, "
+    if uno_enabled:
+        gamesCmdList += "playuno, "
     gamesCmdList = gamesCmdList[:-2] # remove the last comma
 else:
     gamesCmdList = ""
@@ -756,7 +763,7 @@ async def retry_interface(nodeID=1):
         logger.error(f"System: opening interface2: {e}")
 
 async def watchdog():
-    global retry_int1, retry_int2
+    global retry_int1, retry_int2, multiPingList
     if sentry_enabled:
         sentry_loop = 0
         lastSpotted = ""
@@ -768,7 +775,9 @@ async def watchdog():
     while True:
         await asyncio.sleep(20)
         #print(f"MeshBot System: watchdog running\r", end="")
+
         if interface1 is not None and not retry_int1:
+            # getmetadata request to check if the interface is still connected
             try:
                 # this is a workaround because .localNode.getMetadata spits out a lot of debug info which cant be suppressed
                 with contextlib.redirect_stdout(None):
@@ -802,7 +811,29 @@ async def watchdog():
                     lastSpotted = enemySpotted
                 else:
                     sentry_loop += 1
-        
+
+            # multiPing handler
+            if len(multiPingList) > 1:
+                mPlCpy = multiPingList.copy()
+                for i in range(len(mPlCpy)):
+                    message_id_from = mPlCpy[i]['message_from_id']
+                    count = mPlCpy[i]['count']
+                    type = mPlCpy[i]['type']
+                    deviceID = mPlCpy[i]['deviceID']
+
+                    if count > 1 and deviceID == 1:
+                        count -= 1
+                        # update count in the list
+                        multiPingList[i]['count'] = count
+
+                        send_message(f"🔂{count} {type}", publicChannel, message_id_from, 1)
+                        if count < 2:
+                            # remove the item from the list
+                            for j in range(len(multiPingList)):
+                                if multiPingList[j]['message_from_id'] == message_id_from:
+                                    multiPingList.pop(j)
+                                    break
+
         if retry_int1:
             try:
                 await retry_interface(1)
@@ -843,6 +874,28 @@ async def watchdog():
                         lastSpotted2 = enemySpotted2
                     else:
                         sentry_loop2 += 1
+
+            # multiPing handler
+            if len(multiPingList) > 1:
+                mPlCpy = multiPingList.copy()
+                for i in range(len(mPlCpy)):
+                    message_id_from = mPlCpy[i]['message_from_id']
+                    count = mPlCpy[i]['count']
+                    type = mPlCpy[i]['type']
+                    deviceID = mPlCpy[i]['deviceID']
+
+                    if count > 1 and deviceID == 2:
+                        count -= 1
+                        # update count in the list
+                        multiPingList[i]['count'] = count
+
+                        send_message(f"🔂{count} {type}", publicChannel, message_id_from, 2)
+                        if count < 2:
+                            # remove the item from the list
+                            for j in range(len(multiPingList)):
+                                if multiPingList[j]['message_from_id'] == message_id_from:
+                                    multiPingList.pop(j)
+                                    break
         
             if retry_int2:
                 try:
