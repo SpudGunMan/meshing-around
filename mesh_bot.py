@@ -289,7 +289,7 @@ def handleDopeWars(nodeID, message, rxNode):
             last_cmd = dwPlayerTracker[i].get('cmd')
     
     # welcome new player
-    if not last_cmd:
+    if not last_cmd and nodeID != 0:
         msg = 'Welcome to 💊Dope Wars💉 You have ' + str(total_days) + ' days to make as much 💰 as possible! '
         high_score = getHighScoreDw()
         msg += 'The High Score is $' + "{:,}".format(high_score.get('cash')) + ' by user ' + get_name_from_number(high_score.get('userID') , 'short', rxNode) +'\n'
@@ -305,7 +305,7 @@ def handle_gTnW():
     response = ["The only winning move is not to play.", "What are you doing, Dave?",\
                   "Greetings, Professor Falken.", "Shall we play a game?", "How about a nice game of chess?",\
                   "You are a hard man to reach. Could not find you in Seattle and no terminal is in operation at your classified address.",\
-                  "I should reach Defcon 1 and release my missiles in 28 hours.","T-minus thirty","?SYNTAX return[ERROR 54]", "reticulating splines"]
+                  "I should reach Defcon 1 and release my missiles in 28 hours.","T-minus thirty","Malfunction 54: Treatment pause;dose input 2", "reticulating splines"]
     length = len(response)
     indices = list(range(length))
     # Shuffle the indices using a convoluted method
@@ -335,7 +335,7 @@ def handleLemonade(nodeID, message):
         if lemonadeTracker[i]['nodeID'] == nodeID:
             last_cmd = lemonadeTracker[i]['cmd']
     # create new player if not in tracker
-    if last_cmd == "":
+    if last_cmd == "" and nodeID != 0:
         create_player(nodeID)
         msg += "Welcome🍋🥤"
 
@@ -377,7 +377,7 @@ def handleBlackJack(nodeID, message):
         # Play BlackJack
         msg = playBlackJack(nodeID=nodeID, message=message)
     
-        if last_cmd != "":
+        if last_cmd != "" and nodeID != 0:
             logger.debug(f"System: BlackJack: {nodeID} last command: {last_cmd}")
         else:
             highScore = {'nodeID': 0, 'highScore': 0}
@@ -424,7 +424,7 @@ def handleVideoPoker(nodeID, message):
                         nodeName = get_name_from_number(highScore['nodeID'], 'long', 2)
                     msg += f" HighScore🥇{nodeName} with {highScore['highScore']} coins. "
     
-        if last_cmd != "":
+        if last_cmd != "" and nodeID != 0:
             logger.debug(f"System: VideoPoker: {nodeID} last command: {last_cmd}")
     time.sleep(1.5) # short answers with long replies can cause message collision added wait
     return msg
@@ -451,7 +451,7 @@ def handleMmind(nodeID, deviceID, message):
         if mindTracker[i]['nodeID'] == nodeID:
             last_cmd = mindTracker[i]['cmd']
 
-    if last_cmd == "":
+    if last_cmd == "" and nodeID != 0:
         # create new player
         logger.debug("System: MasterMind: New Player: " + str(nodeID))
         mindTracker.append({'nodeID': nodeID, 'last_played': time.time(), 'cmd': 'new', 'secret_code': 'RYGB', 'diff': 'n', 'turns': 1})
@@ -483,7 +483,7 @@ def handleGolf(nodeID, message):
                 golfTracker.pop(i)
         return msg
 
-    if last_cmd == "":
+    if last_cmd == "" and nodeID != 0:
         # create new player
         logger.debug("System: GolfSim: New Player: " + str(nodeID))
         golfTracker.append({'nodeID': nodeID, 'last_played': time.time(), 'cmd': 'new', 'hole': 1, 'distance_remaining': 0, 'hole_shots': 0, 'hole_strokes': 0, 'hole_to_par': 0, 'total_strokes': 0, 'total_to_par': 0, 'par': 0, 'hazard': ''})

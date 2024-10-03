@@ -110,7 +110,7 @@ def getHighScoreGolf(nodeID, strokes, par):
         with open('golfsim_hs.pkl', 'wb') as f:
             pickle.dump(golfHighScore, f)
 
-    if strokes > golfHighScore[0]['strokes']:
+    if strokes < golfHighScore[0]['strokes']:
         # player got new low score which is high score
         golfHighScore[0]['nodeID'] = nodeID
         golfHighScore[0]['strokes'] = strokes

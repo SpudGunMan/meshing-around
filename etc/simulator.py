@@ -42,7 +42,7 @@ if __name__ == '__main__': # represents the bot's main loop
     nodeInt = 1 # represents the device/node number
     logger.info(f"System: Meshing-Around Simulator Starting for {projectName}")
     nodeID = get_NodeID() # assign a nodeID
-    projectResponse = globals()[projectName](0, " ") # Call the project handler under test
+    projectResponse = globals()[projectName](0, 0, " ") # Call the project handler under test
     while True: # represents the onReceive() loop in the bot.py
         projectResponse = ""
         responseLength = 0
@@ -51,7 +51,7 @@ if __name__ == '__main__': # represents the bot's main loop
         packet = input(f"CLIENT {nodeID} INPUT: " ) # Emulate the client input
         if packet != "":
             #try:
-            projectResponse = globals()[projectName](nodeID, packet) # Call the project handler under test
+            projectResponse = globals()[projectName](nodeID, deviceID=nodeInt, message=packet) # Call the project handler under test
             # except Exception as e:
             #     logger.error(f"System: Handler: {e}")
             #     projectResponse = "Error in handler"
