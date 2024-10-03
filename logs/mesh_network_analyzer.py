@@ -9,10 +9,35 @@ import subprocess
 # global variables
 LOG_PATH = '/opt/meshing-around/logs'
 W3_PATH = '/var/www/html'
+multiLogReader = False
 
 def parse_log_file(file_path):
-    with open(file_path, 'r') as file:
-        lines = file.readlines()
+    lines = []
+    # check if the file exists
+    if not os.path.exists(file_path):
+        # set file_path to the cwd of the script
+        file_path = os.path.dirname(os.path.realpath(__file__))
+        
+        # see if many logs are present
+        if multiLogReader:
+            log_files = [f for f in os.listdir(file_path) if f.endswith('.log')]
+            if log_files:
+                log_files.sort()
+
+                for logFile in log_files:
+                    if logFile.startswith('messages'):
+                        with open(os.path.join(file_path, logFile), 'r') as file:
+                            lines = file.readlines()
+                            if len(lines) > 1:
+                                file_path = os.path.join(file_path, logFile)
+                                break
+        else:
+            print(f"No log file(s) found")
+            return
+    else:
+        # read the file for the day
+        with open(file_path, 'r') as file:
+            lines = file.readlines()
 
     log_data = {
         'command_counts': Counter(),
@@ -425,20 +450,24 @@ def generate_main_html(log_data, system_info):
 
     from string import Template
     template = Template(html_template)
-    return template.safe_substitute(
-        date=datetime.now().strftime('%Y_%m_%d'),
-        command_data=json.dumps(log_data['command_counts']),
-        message_data=json.dumps(log_data['message_types']),
-        activity_data=json.dumps(log_data['hourly_activity']),
-        bbs_messages=log_data['bbs_messages'],
-        total_messages=log_data['total_messages'],
-        gps_coordinates=json.dumps(log_data['gps_coordinates']),
-        unique_users='\n'.join(f'<li>{user}</li>' for user in log_data['unique_users']),
-        warnings='\n'.join(f'<li>{warning}</li>' for warning in log_data['warnings']),
-        errors='\n'.join(f'<li>{error}</li>' for error in log_data['errors']),
-        command_timestamps='\n'.join(f'<li>{timestamp}: {cmd}</li>' for timestamp, cmd in reversed(log_data['command_timestamps'][-50:])),
-        message_timestamps='\n'.join(f'<li>{timestamp}: {msg_type}</li>' for timestamp, msg_type in reversed(log_data['message_timestamps'][-50:]))
-    )
+    
+    try:
+        return template.safe_substitute(
+            date=datetime.now().strftime('%Y_%m_%d'),
+            command_data=json.dumps(log_data['command_counts']),
+            message_data=json.dumps(log_data['message_types']),
+            activity_data=json.dumps(log_data['hourly_activity']),
+            bbs_messages=log_data['bbs_messages'],
+            total_messages=log_data['total_messages'],
+            gps_coordinates=json.dumps(log_data['gps_coordinates']),
+            unique_users='\n'.join(f'<li>{user}</li>' for user in log_data['unique_users']),
+            warnings='\n'.join(f'<li>{warning}</li>' for warning in log_data['warnings']),
+            errors='\n'.join(f'<li>{error}</li>' for error in log_data['errors']),
+            command_timestamps='\n'.join(f'<li>{timestamp}: {cmd}</li>' for timestamp, cmd in reversed(log_data['command_timestamps'][-50:])),
+            message_timestamps='\n'.join(f'<li>{timestamp}: {msg_type}</li>' for timestamp, msg_type in reversed(log_data['message_timestamps'][-50:]))
+        )
+    except Exception as e:
+        print(f"An error occurred while generating the main HTML: {str(e)}")
 
 def generate_network_map_html(log_data):
     html_template = """
@@ -482,7 +511,11 @@ def generate_network_map_html(log_data):
 
     from string import Template
     template = Template(html_template)
-    return template.safe_substitute(gps_coordinates=json.dumps(log_data['gps_coordinates']))
+    try:
+        if log_data is not None:
+            return template.safe_substitute(gps_coordinates=json.dumps(log_data['gps_coordinates']))
+    except Exception as e:
+        print(f"An error occurred while generating the network map HTML: {str(e)}")
 
 def generate_hosts_html(system_info):
     html_template = """
@@ -516,12 +549,15 @@ def generate_hosts_html(system_info):
 
     from string import Template
     template = Template(html_template)
-    return template.safe_substitute(system_info)
+    try:
+        return template.safe_substitute(system_info)
+    except Exception as e:
+        print(f"An error occurred while generating the hosts HTML: {str(e)}")
 
 def main():
     log_dir = LOG_PATH
     today = datetime.now().strftime('%Y_%m_%d')
-    log_file = f'meshbot{today}.log'
+    log_file = f'messages{today}.log'
     log_path = os.path.join(log_dir, log_file)
 
     log_data = parse_log_file(log_path)
@@ -535,6 +571,11 @@ def main():
     index_path = os.path.join(output_dir, 'index.html')
     
     try:
+        if not os.path.exists(index_path):
+            # switch to local directory
+            output_dir = os.path.dirname(os.path.realpath(__file__))
+            index_path = os.path.join(output_dir, 'index.html')
+
         # Create backup of existing index.html if it exists
         if os.path.exists(index_path):
             backup_path = os.path.join(output_dir, f'index_backup_{today}.html')
@@ -542,18 +583,19 @@ def main():
             print(f"Existing index.html backed up to {backup_path}")
 
         # Write main HTML to index.html
-        with open(index_path, 'w') as f:
-            f.write(main_html)
-        print(f"Main dashboard written to {index_path}")
+        if main_html is not None:
+            with open(index_path, 'w') as f:
+                f.write(main_html)
+            print(f"Main dashboard written to {index_path}")
 
-        # Write other HTML files
-        with open(os.path.join(output_dir, f'network_map_{today}.html'), 'w') as f:
-            f.write(network_map_html)
-        
-        with open(os.path.join(output_dir, f'hosts_{today}.html'), 'w') as f:
-            f.write(hosts_html)
+            # Write other HTML files
+            with open(os.path.join(output_dir, f'network_map_{today}.html'), 'w') as f:
+                f.write(network_map_html)
+            
+            with open(os.path.join(output_dir, f'hosts_{today}.html'), 'w') as f:
+                f.write(hosts_html)
 
-        print(f"HTML reports generated for {today} in {output_dir}")
+            print(f"HTML reports generated for {today} in {output_dir}")
 
     except PermissionError:
         print("Error: Permission denied. Please run the script with appropriate permissions (e.g., using sudo).")
