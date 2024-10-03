@@ -67,7 +67,8 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "testing": lambda:  handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM),
     "test": lambda:  handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM),
     "whoami": lambda: handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus),
-    "📍": lambda: handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus)
+    "📍": lambda: handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus),
+    "🔔": lambda: handle_alertBell(message_from_id, deviceID, message),
     }
 
     # set the command handler
@@ -159,6 +160,11 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM):
             msg = f"🚦Initalizing {pingCount} auto-ping"
             
 
+    return msg
+
+def handle_alertBell(message_from_id, deviceID, message):
+    msg = ""
+    msg = "what this 🤖 needs is more 🐮🔔"
     return msg
 
 def handle_motd(message, message_from_id, isDM):
