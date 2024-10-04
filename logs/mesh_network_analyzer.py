@@ -226,6 +226,18 @@ def get_system_info():
         'cli_local': cli_local
     }
 
+def get_wall_of_shame():
+    # Get the wall of shame
+    return {
+        'shame': "N/A",
+    }
+
+def get_database_info():
+    # Get the database information
+    return {
+        'database': "N/A",
+    }
+
 def generate_main_html(log_data, system_info):
     html_template = """
     <!DOCTYPE html>
@@ -342,6 +354,8 @@ def generate_main_html(log_data, system_info):
             <ul>
                 <li><a href="#" onclick="showDashboard(); return false;">Dashboard</a></li>
                 <li><a href="#" onclick="showIframe('network_map_${date}.html'); return false;">Network Map</a></li>
+                <li><a href="#" onclick="showIframe('wall_of_shame_${date}.html'); return false;">Wall of Shame</a></li>
+                <li><a href="#" onclick="showIframe('database_${date}.html'); return false;">Database</a></li>
                 <li><a href="#" onclick="showIframe('hosts_${date}.html'); return false;">System Host</a></li>
             </ul>
         </div>
@@ -639,6 +653,58 @@ def generate_sys_hosts_html(system_info):
     template = Template(html_template)
     return template.safe_substitute(system_info)
 
+def generate_wall_of_shame_html(shame_info):
+    html_template = """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Wall Of Shame</title>
+        <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; }
+            h1 { color: #333; }
+            table { border-collapse: collapse; width: 100%; }
+            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            th { background-color: #f2f2f2; }
+        </style>
+    </head>
+    <body>
+        <h1>Put Shame Here</h1>
+        <table>
+            <tr><th>Shame Metric</th><th>Value</th></tr>
+            <tr><td>shame</td><td>${shame}</td></tr>
+        </table>
+    </body>
+    </html>
+    """
+
+    template = Template(html_template)
+    return template.safe_substitute(shame_info)
+
+def generate_database_html(database_info):
+    html_template = """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Database Information</title>
+        <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; }
+            h1 { color: #333; }
+        </style>
+    </head>
+    <body>
+        <h1>Database Information</h1>
+        <p>${database}</p>
+    </body>
+    </html>
+    """
+
+    template = Template(html_template)
+    return template.safe_substitute(database_info)
+
 def main():
     log_dir = LOG_PATH
     today = datetime.now().strftime('%Y_%m_%d')
@@ -652,10 +718,14 @@ def main():
 
     log_data = parse_log_file(log_path)
     system_info = get_system_info()
+    shame_info = get_wall_of_shame()
+    database_info = get_database_info()
 
     main_html = generate_main_html(log_data, system_info)
     network_map_html = generate_network_map_html(log_data)
     hosts_html = generate_sys_hosts_html(system_info)
+    wall_of_shame = generate_wall_of_shame_html(shame_info)
+    database_html = generate_database_html(database_info)
 
     output_dir = W3_PATH
     index_path = os.path.join(output_dir, 'index.html')
@@ -683,6 +753,12 @@ def main():
         
         with open(os.path.join(output_dir, f'hosts_{today}.html'), 'w') as f:
             f.write(hosts_html)
+
+        with open(os.path.join(output_dir, f'wall_of_shame_{today}.html'), 'w') as f:
+            f.write(wall_of_shame)
+        
+        with open(os.path.join(output_dir, f'database_{today}.html'), 'w') as f:
+            f.write(database_html)
 
         print(f"HTML reports generated for {today} in {output_dir}")
 
