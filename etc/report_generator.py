@@ -1,6 +1,7 @@
 import os
 import re
 import sys
+import glob
 import json
 import pickle
 import platform
@@ -14,33 +15,41 @@ from collections import Counter, defaultdict
 # global variables
 LOG_PATH = '/opt/meshing-around/logs'
 W3_PATH = '/var/www/html'
-multiLogReader = False
+multiLogReader = True
 shameWordList = ['password', 'combo', 'key', 'hidden', 'secret', 'pass', 'token', 'login', 'username', 'admin', 'root']
 
 def parse_log_file(file_path):
     global log_data
     lines = ['']
-    # check if the file exists
-    print(f"Checking log file: {file_path}")
-        
+
     # see if many logs are present
     if multiLogReader:
-        log_files = [f for f in os.listdir(file_path) if f.endswith('.log')]
+        # set file_path to the cwd of the default project ../log
+        log_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'logs')
+        log_files = glob.glob(os.path.join(log_dir, 'meshbot*.log'))
+        print(f"Checking log files: {log_files}")
+
         if log_files:
             log_files.sort()
 
             for logFile in log_files:
-                if logFile.startswith('meshbot'):
-                    with open(os.path.join(file_path, logFile), 'r') as file:
-                        lines += file.readlines()
+                with open(os.path.join(log_dir, logFile), 'r') as file:
+                    lines += file.readlines()
     else:
-        # read the file for the day
-        with open(file_path, 'r') as file:
-            lines = file.readlines()
+        try:
+            print(f"Checking log file: {file_path}")
+            with open(file_path, 'r') as file:
+                lines = file.readlines()
+        except FileNotFoundError:
+            print(f"Error: File not found at {file_path}")
+            sys.exit(1)
+
+    print(f"Consumed {len(lines)} lines from log file(s) {lines}")
 
     log_data = {
         'command_counts': Counter(),
         'message_types': Counter(),
+        'llm_queries': Counter(),
         'unique_users': set(),
         'warnings': [],
         'errors': [],
@@ -68,7 +77,12 @@ def parse_log_file(file_path):
             timestamp = datetime.strptime(timestamp_match.group(1), '%Y-%m-%d %H:%M:%S')
             log_data['hourly_activity'][timestamp.strftime('%Y-%m-%d %H:00:00')] += 1
 
-        if 'Bot detected Commands' in line:
+        if 'Bot detected Commands' in line or 'LLM Query:' in line:
+            if 'LLM Query:' in line:
+                log_data['message_types']['LLM Query'] += 1
+                log_data['command_counts']['LLM Query'] += 1
+                log_data['command_timestamps'].append((timestamp.isoformat(), 'LLM Query'))
+            
             command = re.search(r"'cmd': '(\w+)'", line)
             if command:
                 cmd = command.group(1)
@@ -80,7 +94,7 @@ def parse_log_file(file_path):
             log_data['total_messages'] += 1
             log_data['message_timestamps'].append((timestamp.isoformat(), 'Outgoing DM'))
 
-        if 'Received DM:' in line or 'Ignoring DM:' in line or 'Ignoring Message:' in line or 'ReceivedChannel:' in line:
+        if 'Received DM:' in line or 'Ignoring DM:' in line or 'Ignoring Message:' in line or 'ReceivedChannel:' in line or 'LLM Query:' in line:
             log_data['message_types']['Incoming DM'] += 1
             log_data['total_messages'] += 1
             log_data['message_timestamps'].append((timestamp.isoformat(), 'Incoming DM'))
@@ -89,6 +103,7 @@ def parse_log_file(file_path):
                 if word in line.lower():
                     if line not in log_data['shameList']:
                         log_data['shameList'].append(line)
+                        
 
         user_match = re.search(r'From: (\w+)', line)
         if user_match:
@@ -625,6 +640,7 @@ def generate_main_html(log_data, system_info):
         bbs_messages=log_data['bbs_messages'],
         messages_waiting=log_data['messages_waiting'],
         total_messages=log_data['total_messages'],
+        total_llm_queries=log_data['message_types']['LLM Query'],
         gps_coordinates=json.dumps(log_data['gps_coordinates']),
         unique_users='\n'.join(f'<li>{user}</li>' for user in log_data['unique_users']),
         warnings='\n'.join(f'<li>{warning}</li>' for warning in log_data['warnings']),
