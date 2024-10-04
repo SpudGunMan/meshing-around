@@ -779,22 +779,37 @@ def generate_hosts_html(system_info):
     return template.safe_substitute(system_info)
 
 def main():
-    log_dir = '/opt/meshing-around/logs'
+    log_dir = LOG_PATH
     today = datetime.now().strftime('%Y_%m_%d')
     log_file = f'meshbot{today}.log'
     log_path = os.path.join(log_dir, log_file)
 
+    if not os.path.exists(log_path):
+        # set file_path to the cwd of the default project ../log
+        file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'logs')
+        file_path = os.path.abspath(file_path)
+        log_path = os.path.join(file_path, log_file)
+
     log_data = parse_log_file(log_path)
     system_info = get_system_info()
+    shame_info = get_wall_of_shame()
+    database_info = get_database_info()
 
     main_html = generate_main_html(log_data, system_info)
     network_map_html = generate_network_map_html(log_data)
-    hosts_html = generate_hosts_html(system_info)
+    hosts_html = generate_sys_hosts_html(system_info)
+    wall_of_shame = generate_wall_of_shame_html(shame_info)
+    database_html = generate_database_html(database_info)
 
-    output_dir = '/var/www/html'
+    output_dir = W3_PATH
     index_path = os.path.join(output_dir, 'index.html')
     
     try:
+        if not os.path.exists(output_dir):
+            output_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'www')
+            output_dir = os.path.abspath(output_dir)
+            index_path = os.path.join(output_dir, 'index.html')
+
         # Create backup of existing index.html if it exists
         if os.path.exists(index_path):
             backup_path = os.path.join(output_dir, f'index_backup_{today}.html')
@@ -812,6 +827,12 @@ def main():
         
         with open(os.path.join(output_dir, f'hosts_{today}.html'), 'w') as f:
             f.write(hosts_html)
+
+        with open(os.path.join(output_dir, f'wall_of_shame_{today}.html'), 'w') as f:
+            f.write(wall_of_shame)
+        
+        with open(os.path.join(output_dir, f'database_{today}.html'), 'w') as f:
+            f.write(database_html)
 
         print(f"HTML reports generated for {today} in {output_dir}")
 
