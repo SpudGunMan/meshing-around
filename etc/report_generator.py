@@ -275,6 +275,7 @@ def get_database_info():
         f.close()
 
     except Exception as e:
+        print(f"Error with database: {str(e)}")
         pass
 
     return {
