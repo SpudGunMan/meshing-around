@@ -1,14 +1,15 @@
 import os
 import re
 import sys
-from datetime import datetime
-from collections import Counter, defaultdict
-from string import Template
 import json
+import pickle
 import platform
-import subprocess
 import requests
+import subprocess
+from string import Template
+from datetime import datetime
 from importlib.metadata import version
+from collections import Counter, defaultdict
 
 # global variables
 LOG_PATH = '/opt/meshing-around/logs'
@@ -237,8 +238,44 @@ def get_wall_of_shame():
 
 def get_database_info():
     # Get the database information
+
+    # collect high scores from the database
+    try:
+        with open('../lemonade_hs.pkl', 'rb') as f:
+            lemon_score = pickle.load(f)
+        f.close()
+
+        with open('../dopewar_hs.pkl', 'rb') as f:
+            dopewar_score = pickle.load(f)
+        f.close()
+
+        with open('../blackjack_hs.pkl', 'rb') as f:
+            blackjack_score = pickle.load(f)
+        f.close()
+
+        with open('../videopoker_hs.pkl', 'rb') as f:
+            videopoker_score = pickle.load(f)
+        f.close()
+
+        with open('../mmind_hs.pkl', 'rb') as f:
+            mmind_score = pickle.load(f)
+        f.close()
+
+        with open('../golfsim_hs.pkl', 'rb') as f:
+            golfsim_score = pickle.load(f)
+        f.close()
+
+    except Exception as e:
+        pass
+
     return {
         'database': "N/A",
+        'lemon_score': lemon_score,
+        'dopewar_score': dopewar_score,
+        'blackjack_score': blackjack_score,
+        'videopoker_score': videopoker_score,
+        'mmind_score': mmind_score,
+        'golfsim_score': golfsim_score
     }
 
 def generate_main_html(log_data, system_info):
@@ -702,6 +739,15 @@ def generate_database_html(database_info):
     <body>
         <h1>Database Information</h1>
         <p>${database}</p>
+        <table>
+            <tr><th>Game</th><th>High Score</th></tr>
+            <tr><td>Lemonade Stand</td><td>${lemon_score}</td></tr>
+            <tr><td>Dopewars</td><td>${dopewar_score}</td></tr>
+            <tr><td>Blackjack</td><td>${blackjack_score}</td></tr>
+            <tr><td>Video Poker</td><td>${videopoker_score}</td></tr>
+            <tr><td>Mastermind</td><td>${mmind_score}</td></tr>
+            <tr><td>Golf Simulator</td><td>${golfsim_score}</td></tr>
+        </table>
     </body>
     </html>
     """
