@@ -720,7 +720,7 @@ def generate_network_map_html(log_data):
         <script>
             var map = L.map('map').setView([0, 0], 2);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: 'Â© OpenStreetMap contributors'
+                attribution: '© OpenStreetMap contributors'
             }).addTo(map);
 
             var gpsCoordinates = ${gps_coordinates};
@@ -740,18 +740,17 @@ def generate_network_map_html(log_data):
     </html>
     """
 
-    from string import Template
     template = Template(html_template)
     return template.safe_substitute(gps_coordinates=json.dumps(log_data['gps_coordinates']))
 
-def generate_hosts_html(system_info):
+def generate_sys_hosts_html(system_info):
     html_template = """
     <!DOCTYPE html>
     <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Host Information</title>
+        <title>System Host Information</title>
         <style>
             body { font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; }
             h1 { color: #333; }
@@ -761,22 +760,95 @@ def generate_hosts_html(system_info):
         </style>
     </head>
     <body>
-        <h1>Host Information</h1>
+        <h1>System Host Information</h1>
         <table>
-            <tr><th>Metric</th><th>Value</th></tr>
+            <tr><th>OS Metric</th><th>Value</th></tr>
             <tr><td>Uptime</td><td>${uptime}</td></tr>
             <tr><td>Total Memory</td><td>${memory_total}</td></tr>
             <tr><td>Available Memory</td><td>${memory_available}</td></tr>
             <tr><td>Total Disk Space</td><td>${disk_total}</td></tr>
             <tr><td>Free Disk Space</td><td>${disk_free}</td></tr>
+            <tr><th>Meshtastic Metric</th><th>Value</th></tr>
+            <tr><td>API Version/Latest</td><td>${cli_local} / ${cli_web}</td></tr>
+            <tr><td>Int1 Name ID</td><td>${node1_name} (${node1_ID})</td></tr>
+            <tr><td>Int1 Stat</td><td>${node1_uptime}</td></tr>
+            <tr><td>Int1 FW Version</td><td>${interface1_version}</td></tr>
+            <tr><td>Int2 Name ID</td><td>${node2_name} (${node2_ID})</td></tr>
+            <tr><td>Int2 Stat</td><td>${node2_uptime}</td></tr>
+            <tr><td>Int2 FW Version</td><td>${interface2_version}</td></tr>
         </table>
     </body>
     </html>
     """
 
-    from string import Template
     template = Template(html_template)
     return template.safe_substitute(system_info)
+
+def generate_wall_of_shame_html(shame_info):
+    html_template = """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Wall Of Shame</title>
+        <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; }
+            h1 { color: #333; }
+            table { border-collapse: collapse; width: 100%; }
+            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            th { background-color: #f2f2f2; }
+        </style>
+    </head>
+    <body>
+        <h1>Collected Shame</h1>
+        <table>
+            <tr><th>Shame Metric</th><th>Value</th></tr>
+            <tr><td>Shamefull words</td><td>${shame}</td></tr>
+            <tr><td>Shamefull messages</td><td>${shameList}</td></tr>
+        </table>
+    </body>
+    </html>
+    """
+
+    template = Template(html_template)
+    return template.safe_substitute(shame_info)
+
+def generate_database_html(database_info):
+    html_template = """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Database Information</title>
+        <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; }
+            h1 { color: #333; }
+        </style>
+    </head>
+    <body>
+        <h1>Database Information</h1>
+        <p>${database}</p>
+        <h1>BBS Message Database</h1>
+        <p>BBSdb: ${bbsdb}</p>
+        <p>BBSdm: ${bbsdm}</p>
+        <h1>High Scores</h1>
+        <table>
+            <tr><th>Game</th><th>High Score</th></tr>
+            <tr><td>Lemonade Stand</td><td>${lemon_score}</td></tr>
+            <tr><td>Dopewars</td><td>${dopewar_score}</td></tr>
+            <tr><td>Blackjack</td><td>${blackjack_score}</td></tr>
+            <tr><td>Video Poker</td><td>${videopoker_score}</td></tr>
+            <tr><td>Mastermind</td><td>${mmind_score}</td></tr>
+            <tr><td>Golf Simulator</td><td>${golfsim_score}</td></tr>
+        </table>
+    </body>
+    </html>
+    """
+
+    template = Template(html_template)
+    return template.safe_substitute(database_info)
 
 def main():
     log_dir = LOG_PATH
