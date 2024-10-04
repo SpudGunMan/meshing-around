@@ -1066,10 +1066,13 @@ def generate_database_html(database_info):
     </head>
     <body>
         <h1>Database Information</h1>
-        <p>${database}</p>
+        <p>Place Holder Value Mostly to remind that this isnt readable on a high-contrast iframe, how come? ${database}</p>
         <h1>BBS Message Database</h1>
-        <p>BBSdb: ${bbsdb}</p>
-        <p>BBSdm: ${bbsdm}</p>
+        <table>
+            <tr><th>Database</th><th>Contents</th></tr>
+            <tr><td>BBSdb</td><td>${bbsdb}</td></tr>
+            <tr><td>BBSdm</td><td>${bbsdm}</td></tr>
+        </table>
         <h1>High Scores</h1>
         <table>
             <tr><th>Game</th><th>High Score</th></tr>
