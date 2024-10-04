@@ -81,11 +81,11 @@ def parse_log_file(file_path):
         user_match = re.search(r'From: (\w+)', line)
         if user_match:
             log_data['unique_users'].add(user_match.group(1))
-
-        if '| WARNING |' in line:
+            
+        if 'WARNING |' in line:
             log_data['warnings'].append(line.strip())
 
-        if '| ERROR |' in line:
+        if 'ERROR |' in line or 'CRITICAL |' in line:
             log_data['errors'].append(line.strip())
 
         bbs_match = re.search(r'📡BBSdb has (\d+) messages', line)
