@@ -609,6 +609,7 @@ def generate_main_html(log_data, system_info):
             left: 4px;
             bottom: 4px;
             transition: .4s;
+            background-color: white;
             border-radius: 50%;
         }
 
