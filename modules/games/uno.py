@@ -194,7 +194,7 @@ def playUno(nodeID, message):
     global unoTracker, unoGameTable, unoLobby
     playing = False
     nextPlayerNodeID = 0
-    msg = 'Feature Not Implemented'
+    msg = 'Not implemented yet'
 
-
+    
     return msg

@@ -97,40 +97,40 @@ if llm_enabled:
 
 # DopeWars Configuration
 if dopewars_enabled:
-    from modules.dopewar import * # from the spudgunman/meshing-around repo
+    from modules.games.dopewar import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + ("dopewars",)
     games_enabled = True
 
 # Lemonade Stand Configuration
 if lemonade_enabled:
-    from modules.lemonade import * # from the spudgunman/meshing-around repo
+    from modules.games.lemonade import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + ("lemonstand",)
     games_enabled = True
 
 # BlackJack Configuration
 if blackjack_enabled:
-    from modules.blackjack import * # from the spudgunman/meshing-around repo
+    from modules.games.blackjack import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + ("blackjack",)
     games_enabled = True
 
 # Video Poker Configuration
 if videoPoker_enabled:
-    from modules.videopoker import * # from the spudgunman/meshing-around repo
+    from modules.games.videopoker import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + ("videopoker",)
     games_enabled = True
 
 if mastermind_enabled:
-    from modules.mmind import * # from the spudgunman/meshing-around repo
+    from modules.games.mmind import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + ("mastermind",)
     games_enabled = True
 
 if golfSim_enabled:
-    from modules.golfsim import * # from the spudgunman/meshing-around repo
+    from modules.games.golfsim import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + ("golfsim",)
     games_enabled = True
 
 if uno_enabled:
-    from modules.uno import * # from the spudgunman/meshing-around repo
+    from modules.games.uno import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + ("playuno",)
     games_enabled = True
     
