@@ -545,14 +545,18 @@ def generate_main_html(log_data, system_info):
             right: 0;
             bottom: 0;
             background: var(--card-background);
+            background-color: var(--card-background);
             z-index: 900;
             box-shadow: var(--shadow);
+            color: var(--text-color);
         }
 
         iframe {
             width: 100%;
             height: 100%;
             border: none;
+            background-color: var(--card-background);
+            color: var(--text-color);
         }
 
         .timestamp-list {
