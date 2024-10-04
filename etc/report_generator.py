@@ -240,7 +240,6 @@ def get_system_info():
 def get_wall_of_shame():
     # Get the wall of shame out of the log data
     logShameList = log_data['shameList']
-    print(f"Shame List: {logShameList}")
 
     # future space for other ideas
 
