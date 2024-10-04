@@ -13,6 +13,7 @@ W3_PATH = '/var/www/html'
 multiLogReader = False
 
 def parse_log_file(file_path):
+    global log_data
     lines = ['']
     # check if the file exists
     print(f"Checking log file: {file_path}")
@@ -44,6 +45,8 @@ def parse_log_file(file_path):
         'gps_coordinates': defaultdict(list),
         'command_timestamps': [],
         'message_timestamps': [],
+        'firmware1_version': "N/A",
+        'firmware2_version': "N/A",
     }
 
     for line in lines:
@@ -87,6 +90,18 @@ def parse_log_file(file_path):
         if gps_match:
             node_id, lat, lon = gps_match.groups()
             log_data['gps_coordinates'][node_id].append((float(lat), float(lon)))
+        
+        # get firmware version for nodes
+        if 'Interface1 Node Firmware:' in line:
+            firmware1_match = re.search(r'Interface1 Node Firmware: (\S+)', line)
+            if firmware1_match:
+                firmware1_version = firmware1_match.group(1)
+                log_data['firmware1_version'] = firmware1_version
+        if 'Interface2 Node Firmware:' in line:
+            firmware2_match = re.search(r'Interface2 Node Firmware: (\S+)', line)
+            if firmware2_match:
+                firmware2_version = firmware2_match.group(1)
+                log_data['firmware2_version'] = firmware2_version
 
     log_data['unique_users'] = list(log_data['unique_users'])
     return log_data
@@ -97,6 +112,10 @@ def get_system_info():
             return subprocess.check_output(command, shell=True).decode('utf-8').strip()
         except subprocess.CalledProcessError:
             return "N/A"
+        
+    # Capture some system information from log_data firmware1_version, firmware2_version
+    firmware1_version = log_data['firmware1_version']
+    firmware2_version = log_data['firmware2_version']
 
 
     if platform.system() == "Linux":
@@ -118,6 +137,8 @@ def get_system_info():
             'memory_available': "N/A",
             'disk_total': "N/A",
             'disk_free': "N/A",
+            'interface1_version': "N/A",
+            'interface2_version': "N/A",
         }
 
     return {
@@ -126,6 +147,8 @@ def get_system_info():
         'memory_available': f"{memory_available} MB" if memory_available != "N/A" else "N/A",
         'disk_total': disk_total,
         'disk_free': disk_free,
+        'interface1_version': firmware1_version,
+        'interface2_version': firmware2_version,
     }
 
 def generate_main_html(log_data, system_info):
@@ -530,7 +553,8 @@ def generate_sys_hosts_html(system_info):
             <tr><td>Latest Version</td><td>${latest_version}</td></tr>
             <tr><td>Meshbot Node ID</td><td>${node_id}</td></tr>
             <tr><td>Meshbot Name</td><td>${node_name}</td></tr>
-            <tr><td>Meshbot Firmware</td><td>${firmware_version}</td></tr>
+            <tr><td>Int1 FW Version</td><td>${interface1_version}</td></tr>
+            <tr><td>Int2 FW Version</td><td>${interface2_version}</td></tr>
             <tr><td>Meshbot Up Time</td><td>${node_uptime}</td></tr>
         </table>
     </body>
