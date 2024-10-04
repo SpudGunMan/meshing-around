@@ -47,6 +47,12 @@ def parse_log_file(file_path):
         'message_timestamps': [],
         'firmware1_version': "N/A",
         'firmware2_version': "N/A",
+        'node1_uptime': "N/A",
+        'node2_uptime': "N/A",
+        'node1_name': "N/A",
+        'node2_name': "N/A",
+        'node1_ID': "N/A",
+        'node2_ID': "N/A"
     }
 
     for line in lines:
@@ -88,6 +94,7 @@ def parse_log_file(file_path):
 
         gps_match = re.search(r'location data for (\d+) is ([-\d.]+),([-\d.]+)', line)
         if gps_match:
+            node_id = None
             node_id, lat, lon = gps_match.groups()
             log_data['gps_coordinates'][node_id].append((float(lat), float(lon)))
         
@@ -103,6 +110,34 @@ def parse_log_file(file_path):
                 firmware2_version = firmware2_match.group(1)
                 log_data['firmware2_version'] = firmware2_version
 
+        # get uptime for nodes
+        if 'Uptime:' in line:
+            node_id = None
+            uptime_match = re.search(r'Device:(\d+).*?(SNR:.*?)(?= To:)', line)
+            if uptime_match:
+                node_id = uptime_match.group(1)
+                snr_and_more = uptime_match.group(2)
+                if node_id == '1':
+                    log_data['node1_uptime'] = snr_and_more
+                elif node_id == '2':
+                    log_data['node2_uptime'] = snr_and_more
+        
+        # get name and nodeID for devices
+        if 'Autoresponder Started for Device' in line:
+            device_match = re.search(r'Autoresponder Started for Device(\d+)\s+([^\s,]+).*?NodeID: (\d+)', line)
+            if device_match:
+                device_id = device_match.group(1)
+                device_name = device_match.group(2)
+                node_id = device_match.group(3)
+                if device_id == '1':
+                    log_data['node1_name'] = device_name
+                    log_data['node1_ID'] = node_id
+                elif device_id == '2':
+                    log_data['node2_name'] = device_name
+                    log_data['node2_ID'] = node_id
+        
+            
+
     log_data['unique_users'] = list(log_data['unique_users'])
     return log_data
 
@@ -113,10 +148,15 @@ def get_system_info():
         except subprocess.CalledProcessError:
             return "N/A"
         
-    # Capture some system information from log_data firmware1_version, firmware2_version
+    # Capture some system information from log_data
     firmware1_version = log_data['firmware1_version']
     firmware2_version = log_data['firmware2_version']
-
+    node1_uptime = log_data['node1_uptime']
+    node2_uptime = log_data['node2_uptime']
+    node1_name = log_data['node1_name']
+    node2_name = log_data['node2_name']
+    node1_ID = log_data['node1_ID']
+    node2_ID = log_data['node2_ID']
 
     if platform.system() == "Linux":
         uptime = get_command_output("uptime -p")
@@ -139,6 +179,12 @@ def get_system_info():
             'disk_free': "N/A",
             'interface1_version': "N/A",
             'interface2_version': "N/A",
+            'node1_uptime': "N/A",
+            'node2_uptime': "N/A",
+            'node1_name': "N/A",
+            'node2_name': "N/A",
+            'node1_ID': "N/A",
+            'node2_ID': "N/A"
         }
 
     return {
@@ -149,6 +195,12 @@ def get_system_info():
         'disk_free': disk_free,
         'interface1_version': firmware1_version,
         'interface2_version': firmware2_version,
+        'node1_uptime': node1_uptime,
+        'node2_uptime': node2_uptime,
+        'node1_name': node1_name,
+        'node2_name': node2_name,
+        'node1_ID': node1_ID,
+        'node2_ID': node2_ID
     }
 
 def generate_main_html(log_data, system_info):
@@ -551,11 +603,12 @@ def generate_sys_hosts_html(system_info):
             <tr><th>Meshtastic CLI/API</th><th>Value</th></tr>
             <tr><td>CLI Version</td><td>${cli_version}</td></tr>
             <tr><td>Latest Version</td><td>${latest_version}</td></tr>
-            <tr><td>Meshbot Node ID</td><td>${node_id}</td></tr>
-            <tr><td>Meshbot Name</td><td>${node_name}</td></tr>
+            <tr><td>Int1 Name ID</td><td>${node1_name} (${node1_ID})</td></tr>
+            <tr><td>Int1 Stat</td><td>${node1_uptime}</td></tr>
             <tr><td>Int1 FW Version</td><td>${interface1_version}</td></tr>
+            <tr><td>Int2 Name ID</td><td>${node2_name} (${node2_ID})</td></tr>
+            <tr><td>Int2 Stat</td><td>${node2_uptime}</td></tr>
             <tr><td>Int2 FW Version</td><td>${interface2_version}</td></tr>
-            <tr><td>Meshbot Up Time</td><td>${node_uptime}</td></tr>
         </table>
     </body>
     </html>
