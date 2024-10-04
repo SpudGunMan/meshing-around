@@ -649,7 +649,7 @@ def generate_main_html(log_data, system_info):
                     <li><a href="#" onclick="showDashboard(); return false;">Dashboard</a></li>
                     <li><a href="#" onclick="showIframe('network_map_${date}.html'); return false;">Network Map</a></li>
                     <li><a href="#" onclick="showIframe('wall_of_shame_${date}.html'); return false;">Wall of Shame</a></li>
-                    <li><a href="#" onclick="showIframe('database_info_${date}.html'); return false;">Database Info</a></li>
+                    <li><a href="#" onclick="showIframe('database_${date}.html'); return false;">Database Info</a></li>
                     <li><a href="#" onclick="showIframe('hosts_${date}.html'); return false;">Host</a></li>
                 </ul>
                 <div class="theme-switch">
