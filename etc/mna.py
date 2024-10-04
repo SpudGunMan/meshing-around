@@ -738,11 +738,11 @@ def generate_main_html(log_data, system_info):
         const messageData = ${message_data};
         const activityData = ${activity_data};
         const messageCountData = {
-            labels: ['BBSdb Messages', 'Total Messages'],
+            labels: ['BBSdm Messages', 'BBSdb Messages', 'Channel Messages'],
             datasets: [{
                 label: 'Message Counts',
-                data: [${bbs_messages}, ${total_messages}],
-                backgroundColor: ['rgba(255, 206, 86, 0.6)', 'rgba(75, 192, 192, 0.6)']
+                data: [${messages_waiting}, ${bbs_messages}, ${total_messages}],
+                backgroundColor: ['rgba(255, 206, 86, 0.6)', 'rgba(75, 192, 192, 0.6)', 'rgba(54, 162, 235, 0.6)']
             }]
         };
 
