@@ -1,28 +1,75 @@
 # -*- coding: utf-8 -*-
 import os
 import re
-from datetime import datetime
-from collections import Counter, defaultdict
+import sys
+import glob
 import json
+import pickle
 import platform
+import requests
 import subprocess
+from string import Template
+from datetime import datetime
+from importlib.metadata import version
+from collections import Counter, defaultdict
+
+# global variables
+LOG_PATH = '/opt/meshing-around/logs'
+W3_PATH = '/var/www/html'
+multiLogReader = True
+shameWordList = ['password', 'combo', 'key', 'hidden', 'secret', 'pass', 'token', 'login', 'username', 'admin', 'root']
 
 def parse_log_file(file_path):
-    with open(file_path, 'r') as file:
-        lines = file.readlines()
+    global log_data
+    lines = ['']
+
+    # see if many logs are present
+    if multiLogReader:
+        # set file_path to the cwd of the default project ../log
+        log_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'logs')
+        log_files = glob.glob(os.path.join(log_dir, 'meshbot*.log'))
+        print(f"Checking log files: {log_files}")
+
+        if log_files:
+            log_files.sort()
+
+            for logFile in log_files:
+                with open(os.path.join(log_dir, logFile), 'r') as file:
+                    lines += file.readlines()
+    else:
+        try:
+            print(f"Checking log file: {file_path}")
+            with open(file_path, 'r') as file:
+                lines = file.readlines()
+        except FileNotFoundError:
+            print(f"Error: File not found at {file_path}")
+            sys.exit(1)
+
+    print(f"Consumed {len(lines)} lines from log file(s)")
 
     log_data = {
         'command_counts': Counter(),
         'message_types': Counter(),
+        'llm_queries': Counter(),
         'unique_users': set(),
         'warnings': [],
         'errors': [],
         'hourly_activity': defaultdict(int),
         'bbs_messages': 0,
+        'messages_waiting': 0,
         'total_messages': 0,
         'gps_coordinates': defaultdict(list),
         'command_timestamps': [],
         'message_timestamps': [],
+        'firmware1_version': "N/A",
+        'firmware2_version': "N/A",
+        'node1_uptime': "N/A",
+        'node2_uptime': "N/A",
+        'node1_name': "N/A",
+        'node2_name': "N/A",
+        'node1_ID': "N/A",
+        'node2_ID': "N/A",
+        'shameList': []
     }
 
     for line in lines:
@@ -31,41 +78,106 @@ def parse_log_file(file_path):
             timestamp = datetime.strptime(timestamp_match.group(1), '%Y-%m-%d %H:%M:%S')
             log_data['hourly_activity'][timestamp.strftime('%Y-%m-%d %H:00:00')] += 1
 
-        if 'Bot detected Commands' in line:
+        if 'Bot detected Commands' in line or 'LLM Query:' in line:
+            if 'LLM Query:' in line:
+                log_data['command_counts']['LLM Query'] += 1
+                log_data['command_timestamps'].append((timestamp.isoformat(), 'LLM Query'))
+            
             command = re.search(r"'cmd': '(\w+)'", line)
+            user = re.search(r"From: (\w+)", line)
+            if user:
+                user = user.group(1)
             if command:
                 cmd = command.group(1)
                 log_data['command_counts'][cmd] += 1
-                log_data['command_timestamps'].append((timestamp.isoformat(), cmd))
+                # include the user who sent the command
+                log_data['command_timestamps'].append((timestamp.isoformat(), cmd + f' from {user}'))
 
-        if 'Sending DM:' in line or 'Sending Multi-Chunk DM:' in line:
+        if 'Sending DM:' in line or 'Sending Multi-Chunk DM:' in line or 'SendingChannel:' in line or 'Sending Multi-Chunk Message:' in line:
             log_data['message_types']['Outgoing DM'] += 1
             log_data['total_messages'] += 1
             log_data['message_timestamps'].append((timestamp.isoformat(), 'Outgoing DM'))
 
-        if 'Received DM:' in line:
+        if 'Received DM:' in line or 'Ignoring DM:' in line or 'Ignoring Message:' in line or 'ReceivedChannel:' in line or 'LLM Query:' in line:
             log_data['message_types']['Incoming DM'] += 1
             log_data['total_messages'] += 1
-            log_data['message_timestamps'].append((timestamp.isoformat(), 'Incoming DM'))
+            # include a little of the message
+            if 'Ignoring Message:' in line:
+                log_data['message_timestamps'].append((timestamp.isoformat(), f'Incoming: {line.split("Ignoring Message:")[1][:90]}'))
+            elif 'Ignoring DM:' in line:
+                log_data['message_timestamps'].append((timestamp.isoformat(), f'Incoming: {line.split("Ignoring DM:")[1][:90]}'))
+            elif 'LLM Query:' in line:
+                log_data['message_timestamps'].append((timestamp.isoformat(), f'Incoming: {line.split("LLM Query:")[1][:90]}'))
+            else:
+                log_data['message_timestamps'].append((timestamp.isoformat(), 'Incoming:'))
+            # check for shame words in the message
+            for word in shameWordList:
+                if word in line.lower():
+                    if line not in log_data['shameList']:
+                        log_data['shameList'].append(line)
+                        
 
         user_match = re.search(r'From: (\w+)', line)
         if user_match:
             log_data['unique_users'].add(user_match.group(1))
-
-        if '| WARNING |' in line:
+            
+        if 'WARNING |' in line:
             log_data['warnings'].append(line.strip())
 
-        if '| ERROR |' in line:
+        if 'ERROR |' in line or 'CRITICAL |' in line:
             log_data['errors'].append(line.strip())
 
-        bbs_match = re.search(r'ð¡BBSdb has (\d+) messages', line)
+        # bbs messages
+        bbs_match = re.search(r'📡BBSdb has (\d+) messages.*?Messages waiting: (\d+)', line)
         if bbs_match:
-            log_data['bbs_messages'] = int(bbs_match.group(1))
+            bbs_messages = int(bbs_match.group(1))
+            messages_waiting = int(bbs_match.group(2))
+            log_data['bbs_messages'] = bbs_messages
+            log_data['messages_waiting'] = messages_waiting
 
         gps_match = re.search(r'location data for (\d+) is ([-\d.]+),([-\d.]+)', line)
         if gps_match:
+            node_id = None
             node_id, lat, lon = gps_match.groups()
             log_data['gps_coordinates'][node_id].append((float(lat), float(lon)))
+        
+        # get firmware version for nodes
+        if 'Interface1 Node Firmware:' in line:
+            firmware1_match = re.search(r'Interface1 Node Firmware: (\S+)', line)
+            if firmware1_match:
+                firmware1_version = firmware1_match.group(1)
+                log_data['firmware1_version'] = firmware1_version
+        if 'Interface2 Node Firmware:' in line:
+            firmware2_match = re.search(r'Interface2 Node Firmware: (\S+)', line)
+            if firmware2_match:
+                firmware2_version = firmware2_match.group(1)
+                log_data['firmware2_version'] = firmware2_version
+
+        # get uptime for nodes
+        if 'Uptime:' in line:
+            node_id = None
+            uptime_match = re.search(r'Device:(\d+).*?(SNR:.*?)(?= To:)', line)
+            if uptime_match:
+                node_id = uptime_match.group(1)
+                snr_and_more = uptime_match.group(2)
+                if node_id == '1':
+                    log_data['node1_uptime'] = snr_and_more
+                elif node_id == '2':
+                    log_data['node2_uptime'] = snr_and_more
+        
+        # get name and nodeID for devices
+        if 'Autoresponder Started for Device' in line:
+            device_match = re.search(r'Autoresponder Started for Device(\d+)\s+([^\s,]+).*?NodeID: (\d+)', line)
+            if device_match:
+                device_id = device_match.group(1)
+                device_name = device_match.group(2)
+                node_id = device_match.group(3)
+                if device_id == '1':
+                    log_data['node1_name'] = device_name
+                    log_data['node1_ID'] = node_id
+                elif device_id == '2':
+                    log_data['node2_name'] = device_name
+                    log_data['node2_ID'] = node_id
 
     log_data['unique_users'] = list(log_data['unique_users'])
     return log_data
@@ -76,6 +188,32 @@ def get_system_info():
             return subprocess.check_output(command, shell=True).decode('utf-8').strip()
         except subprocess.CalledProcessError:
             return "N/A"
+        
+    # Capture some system information from log_data
+    firmware1_version = log_data['firmware1_version']
+    firmware2_version = log_data['firmware2_version']
+    node1_uptime = log_data['node1_uptime']
+    node2_uptime = log_data['node2_uptime']
+    node1_name = log_data['node1_name']
+    node2_name = log_data['node2_name']
+    node1_ID = log_data['node1_ID']
+    node2_ID = log_data['node2_ID']
+
+    # get Meshtastic CLI version on web
+    try:
+        url = "https://pypi.org/pypi/meshtastic/json"
+        data = requests.get(url, timeout=5).json()
+        pypi_version = data["info"]["version"]
+        cli_web = f"v{pypi_version}"
+    except Exception:
+        pass
+    # get Meshtastic CLI version on local
+    try:
+        if "importlib.metadata" in sys.modules:
+            cli_local = version("meshtastic")
+    except:
+        pass # Python 3.7 and below, meh.. 
+
 
     if platform.system() == "Linux":
         uptime = get_command_output("uptime -p")
@@ -96,6 +234,16 @@ def get_system_info():
             'memory_available': "N/A",
             'disk_total': "N/A",
             'disk_free': "N/A",
+            'interface1_version': "N/A",
+            'interface2_version': "N/A",
+            'node1_uptime': "N/A",
+            'node2_uptime': "N/A",
+            'node1_name': "N/A",
+            'node2_name': "N/A",
+            'node1_ID': "N/A",
+            'node2_ID': "N/A",
+            'cli_web': "N/A",
+            'cli_local': "N/A"
         }
 
     return {
@@ -104,6 +252,80 @@ def get_system_info():
         'memory_available': f"{memory_available} MB" if memory_available != "N/A" else "N/A",
         'disk_total': disk_total,
         'disk_free': disk_free,
+        'interface1_version': firmware1_version,
+        'interface2_version': firmware2_version,
+        'node1_uptime': node1_uptime,
+        'node2_uptime': node2_uptime,
+        'node1_name': node1_name,
+        'node2_name': node2_name,
+        'node1_ID': node1_ID,
+        'node2_ID': node2_ID,
+        'cli_web': cli_web,
+        'cli_local': cli_local
+    }
+
+def get_wall_of_shame():
+    # Get the wall of shame out of the log data
+    logShameList = log_data['shameList']
+
+    # future space for other ideas
+
+    return {
+        'shame': ', '.join(shameWordList),
+        'shameList': '\n'.join(f'<li>{line}</li>' for line in logShameList),
+    }
+
+def get_database_info():
+    # Get the database information
+
+    # collect high scores from the database
+    try:
+        with open('../lemonade_hs.pkl', 'rb') as f:
+            lemon_score = pickle.load(f)
+        f.close()
+
+        with open('../dopewar_hs.pkl', 'rb') as f:
+            dopewar_score = pickle.load(f)
+        f.close()
+
+        with open('../blackjack_hs.pkl', 'rb') as f:
+            blackjack_score = pickle.load(f)
+        f.close()
+
+        with open('../videopoker_hs.pkl', 'rb') as f:
+            videopoker_score = pickle.load(f)
+        f.close()
+
+        with open('../mmind_hs.pkl', 'rb') as f:
+            mmind_score = pickle.load(f)
+        f.close()
+
+        with open('../golfsim_hs.pkl', 'rb') as f:
+            golfsim_score = pickle.load(f)
+        f.close()
+
+        with open('../bbsdb.pkl', 'rb') as f:
+            bbsdb = pickle.load(f)
+        f.close()
+
+        with open('../bbsdm.pkl', 'rb') as f:
+            bbsdm = pickle.load(f)
+        f.close()
+
+    except Exception as e:
+        print(f"Error with database: {str(e)}")
+        pass
+
+    return {
+        'database': "N/A",
+        "bbsdb": bbsdb,
+        "bbsdm": bbsdm,
+        'lemon_score': lemon_score,
+        'dopewar_score': dopewar_score,
+        'blackjack_score': blackjack_score,
+        'videopoker_score': videopoker_score,
+        'mmind_score': mmind_score,
+        'golfsim_score': golfsim_score
     }
 
 def generate_main_html(log_data, system_info):
