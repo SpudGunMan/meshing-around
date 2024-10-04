@@ -335,7 +335,7 @@ def generate_main_html(log_data, system_info):
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meshbot (BBS) Network Statistics</title>
+    <title>MeshBot Meshtastic BBS, Tools</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
@@ -371,11 +371,11 @@ def generate_main_html(log_data, system_info):
 
         [data-theme="high-contrast"] {
             --primary-color: #000000;
-            --secondary-color: #ffffff;
+            --secondary-color: #000000;
             --background-color: #000000;
             --card-background: #000000;
             --text-color: #ffffff;
-            --sidebar-text-color: #000000;
+            --sidebar-text-color: #ffffff;
             --accent-color-1: #ff0000;
             --accent-color-2: #00ff00;
             --accent-color-3: #ffff00;
@@ -397,21 +397,22 @@ def generate_main_html(log_data, system_info):
         }
 
         .header {
-    background-color: var(--secondary-color);
-    color: var(--sidebar-text-color);
-    padding: 1rem;
-    font-size: 1.5rem;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 1000;
-    box-shadow: var(--shadow);
-	}
+            background-color: var(--secondary-color);
+            color: var(--sidebar-text-color);
+            padding: 1rem;
+            font-size: 1.5rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow);
+            }
+                
         .main-container {
             display: flex;
             margin-top: 3.5rem;
-        }
+            }
 
         .sidebar {
             width: 250px;
@@ -467,6 +468,9 @@ def generate_main_html(log_data, system_info):
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 1.5rem;
             flex-grow: 1;
+            background-color: var(--background-color);
+            transition: var(--transition);
+            color: var(--text-color);
         }
 
         .chart-container {
