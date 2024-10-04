@@ -7,6 +7,8 @@ import json
 import platform
 import subprocess
 
+print("use the alpha branch of the project (lab) for better results it will all be pushed to main soon")
+
 def parse_log_file(file_path):
     with open(file_path, 'r') as file:
         lines = file.readlines()
