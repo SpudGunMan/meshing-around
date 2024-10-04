@@ -43,6 +43,7 @@ def parse_log_file(file_path):
         'errors': [],
         'hourly_activity': defaultdict(int),
         'bbs_messages': 0,
+        'messages_waiting': 0,
         'total_messages': 0,
         'gps_coordinates': defaultdict(list),
         'command_timestamps': [],
@@ -90,9 +91,13 @@ def parse_log_file(file_path):
         if 'ERROR |' in line or 'CRITICAL |' in line:
             log_data['errors'].append(line.strip())
 
-        bbs_match = re.search(r'📡BBSdb has (\d+) messages', line)
+        # bbs messages
+        bbs_match = re.search(r'📡BBSdb has (\d+) messages.*?Messages waiting: (\d+)', line)
         if bbs_match:
-            log_data['bbs_messages'] = int(bbs_match.group(1))
+            bbs_messages = int(bbs_match.group(1))
+            messages_waiting = int(bbs_match.group(2))
+            log_data['bbs_messages'] = bbs_messages
+            log_data['messages_waiting'] = messages_waiting
 
         gps_match = re.search(r'location data for (\d+) is ([-\d.]+),([-\d.]+)', line)
         if gps_match:
@@ -137,8 +142,6 @@ def parse_log_file(file_path):
                 elif device_id == '2':
                     log_data['node2_name'] = device_name
                     log_data['node2_ID'] = node_id
-        
-            
 
     log_data['unique_users'] = list(log_data['unique_users'])
     return log_data
@@ -431,11 +434,11 @@ def generate_main_html(log_data, system_info):
             const messageData = ${message_data};
             const activityData = ${activity_data};
             const messageCountData = {
-                labels: ['BBSdb Messages', 'Total Messages'],
+                labels: ['BBSdm Messages', 'BBSdb Messages', 'Channel Messages'],
                 datasets: [{
                     label: 'Message Counts',
-                    data: [${bbs_messages}, ${total_messages}],
-                    backgroundColor: ['rgba(255, 206, 86, 0.6)', 'rgba(75, 192, 192, 0.6)']
+                    data: [${messages_waiting}, ${bbs_messages}, ${total_messages}],
+                    backgroundColor: ['rgba(255, 206, 86, 0.6)', 'rgba(75, 192, 192, 0.6)', 'rgba(54, 162, 235, 0.6)']
                 }]
             };
 
@@ -560,6 +563,7 @@ def generate_main_html(log_data, system_info):
         message_data=json.dumps(log_data['message_types']),
         activity_data=json.dumps(log_data['hourly_activity']),
         bbs_messages=log_data['bbs_messages'],
+        messages_waiting=log_data['messages_waiting'],
         total_messages=log_data['total_messages'],
         gps_coordinates=json.dumps(log_data['gps_coordinates']),
         unique_users='\n'.join(f'<li>{user}</li>' for user in log_data['unique_users']),
