@@ -713,8 +713,8 @@ def generate_sys_hosts_html(system_info):
         <title>System Host Information</title>
         <style>
             body { font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; }
-            h1 { color: #333; }
-            table { border-collapse: collapse; width: 100%; }
+            h1 { color: #00ff00; }
+            table { border-collapse: collapse; width: 100%; background-color: #d3d3d3; }
             th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
             th { background-color: #f2f2f2; }
         </style>
@@ -754,8 +754,8 @@ def generate_wall_of_shame_html(shame_info):
         <title>Wall Of Shame</title>
         <style>
             body { font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; }
-            h1 { color: #333; }
-            table { border-collapse: collapse; width: 100%; }
+            h1 { color: #00ff00; }
+            table { border-collapse: collapse; width: 100%; background-color: #d3d3d3; }
             th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
             th { background-color: #f2f2f2; }
         </style>
@@ -784,7 +784,10 @@ def generate_database_html(database_info):
         <title>Database Information</title>
         <style>
             body { font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; }
-            h1 { color: #333; }
+            h1 { color: #00ff00; }
+            table { border-collapse: collapse; width: 100%; background-color: #d3d3d3; }
+            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            th { background-color: #f2f2f2; }
         </style>
     </head>
     <body>
