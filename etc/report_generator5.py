@@ -608,7 +608,6 @@ def generate_main_html(log_data, system_info):
             width: 26px;
             left: 4px;
             bottom: 4px;
-            background-color: white;
             transition: .4s;
             border-radius: 50%;
         }
@@ -986,13 +985,18 @@ def generate_sys_hosts_html(system_info):
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>System Host Information</title>
         <style>
-            body { font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; }
-            h1 { color: #333; }
-            table { border-collapse: collapse; width: 100%; }
-            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-            th { background-color: #f2f2f2; }
         </style>
     </head>
+    <script type="text/javascript">
+    window.onload = function() {
+        if (parent) {
+            var oHead = document.getElementsByTagName("head")[0];
+            var arrStyleSheets = parent.document.getElementsByTagName("style");
+            for (var i = 0; i < arrStyleSheets.length; i++)
+                oHead.appendChild(arrStyleSheets[i].cloneNode(true));
+        }
+    }
+    </script>
     <body>
         <h1>System Host Information</h1>
         <table>
