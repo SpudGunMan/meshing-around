@@ -73,12 +73,12 @@ def parse_log_file(file_path):
                 log_data['command_counts'][cmd] += 1
                 log_data['command_timestamps'].append((timestamp.isoformat(), cmd))
 
-        if 'Sending DM:' in line or 'Sending Multi-Chunk DM:' in line:
+        if 'Sending DM:' in line or 'Sending Multi-Chunk DM:' in line or 'SendingChannel:' in line or 'Sending Multi-Chunk Message:' in line:
             log_data['message_types']['Outgoing DM'] += 1
             log_data['total_messages'] += 1
             log_data['message_timestamps'].append((timestamp.isoformat(), 'Outgoing DM'))
 
-        if 'Received DM:' in line:
+        if 'Received DM:' in line or 'Ignoring DM:' in line or 'Ignoring Message:' in line or 'ReceivedChannel:' in line:
             log_data['message_types']['Incoming DM'] += 1
             log_data['total_messages'] += 1
             log_data['message_timestamps'].append((timestamp.isoformat(), 'Incoming DM'))
@@ -232,6 +232,7 @@ def get_system_info():
 
 def get_wall_of_shame():
     # Get the wall of shame
+
     return {
         'shame': "N/A",
     }
@@ -265,11 +266,21 @@ def get_database_info():
             golfsim_score = pickle.load(f)
         f.close()
 
+        with open('../bbsdb.pkl', 'rb') as f:
+            bbsdb = pickle.load(f)
+        f.close()
+
+        with open('../bbsdm.pkl', 'rb') as f:
+            bbsdm = pickle.load(f)
+        f.close()
+
     except Exception as e:
         pass
 
     return {
         'database': "N/A",
+        "bbsdb": bbsdb,
+        "bbsdm": bbsdm,
         'lemon_score': lemon_score,
         'dopewar_score': dopewar_score,
         'blackjack_score': blackjack_score,
@@ -739,6 +750,10 @@ def generate_database_html(database_info):
     <body>
         <h1>Database Information</h1>
         <p>${database}</p>
+        <h1>BBS Message Database</h1>
+        <p>BBSdb: ${bbsdb}</p>
+        <p>BBSdm: ${bbsdm}</p>
+        <h1>High Scores</h1>
         <table>
             <tr><th>Game</th><th>High Score</th></tr>
             <tr><td>Lemonade Stand</td><td>${lemon_score}</td></tr>
