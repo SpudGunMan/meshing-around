@@ -1,8 +1,5 @@
-# Custom logger for MeshBot and PongBot
-# you can change the sdtout_handler level to logging.INFO to only show INFO level logs
-# stdout_handler.setLevel(logging.INFO)vs stdout_handler.setLevel(logging.DEBUG)
-# 2024 Kelly Keeton K7MHI
 import logging
+import re
 from datetime import datetime
 from modules.settings import *
 
@@ -33,6 +30,13 @@ class CustomFormatter(logging.Formatter):
         log_fmt = self.FORMATS.get(record.levelno)
         formatter = logging.Formatter(log_fmt)
         return formatter.format(record)
+    
+class plainFormatter(logging.Formatter):
+    ansi_escape = re.compile(r'\x1b\[([0-9]+)(;[0-9]+)*m')
+
+    def format(self, record):
+        message = super().format(record)
+        return self.ansi_escape.sub('', message)
 
 # Create logger
 logger = logging.getLogger("MeshBot System Logger")
@@ -54,15 +58,15 @@ stdout_handler = logging.StreamHandler()
 stdout_handler.setLevel(logging.DEBUG)
 # Set format for stdout handler
 stdout_handler.setFormatter(CustomFormatter(logFormat))
-
 # Add handlers to the logger
 logger.addHandler(stdout_handler)
+
 if syslog_to_file:
     # Create file handler for logging to a file
-    file_handler = logging.FileHandler('logs/meshbot{}.log'.format(today.strftime('%Y_%m_%d')))
-    file_handler.setLevel(logging.DEBUG) # DEBUG used by default for system logs to disk
-    file_handler.setFormatter(logging.Formatter(logFormat))
-    logger.addHandler(file_handler)
+    file_handler_sys = logging.FileHandler('logs/meshbot{}.log'.format(today.strftime('%Y_%m_%d')))
+    file_handler_sys.setLevel(logging.DEBUG) # DEBUG used by default for system logs to disk
+    file_handler_sys.setFormatter(plainFormatter(logFormat))
+    logger.addHandler(file_handler_sys)
 
 if log_messages_to_file:
     # Create file handler for logging to a file
