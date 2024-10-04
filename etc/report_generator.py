@@ -712,8 +712,9 @@ def main():
     log_path = os.path.join(log_dir, log_file)
 
     if not os.path.exists(log_path):
-        # set file_path to the cwd of the script
-        file_path = os.path.dirname(os.path.realpath(__file__))
+        # set file_path to the cwd of the default project ../log
+        file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'logs')
+        file_path = os.path.abspath(file_path)
         log_path = os.path.join(file_path, log_file)
 
     log_data = parse_log_file(log_path)
