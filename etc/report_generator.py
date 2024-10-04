@@ -15,6 +15,7 @@ from collections import Counter, defaultdict
 LOG_PATH = '/opt/meshing-around/logs'
 W3_PATH = '/var/www/html'
 multiLogReader = False
+shameWordList = ['password', 'combo', 'key', 'hidden', 'secret', 'pass', 'token', 'login', 'username', 'admin', 'root']
 
 def parse_log_file(file_path):
     global log_data
@@ -57,7 +58,8 @@ def parse_log_file(file_path):
         'node1_name': "N/A",
         'node2_name': "N/A",
         'node1_ID': "N/A",
-        'node2_ID': "N/A"
+        'node2_ID': "N/A",
+        'shameList': []
     }
 
     for line in lines:
@@ -82,6 +84,11 @@ def parse_log_file(file_path):
             log_data['message_types']['Incoming DM'] += 1
             log_data['total_messages'] += 1
             log_data['message_timestamps'].append((timestamp.isoformat(), 'Incoming DM'))
+            # check for shame words in the message
+            for word in shameWordList:
+                if word in line.lower():
+                    if line not in log_data['shameList']:
+                        log_data['shameList'].append(line)
 
         user_match = re.search(r'From: (\w+)', line)
         if user_match:
@@ -231,10 +238,15 @@ def get_system_info():
     }
 
 def get_wall_of_shame():
-    # Get the wall of shame
+    # Get the wall of shame out of the log data
+    logShameList = log_data['shameList']
+    print(f"Shame List: {logShameList}")
+
+    # future space for other ideas
 
     return {
-        'shame': "N/A",
+        'shame': ', '.join(shameWordList),
+        'shameList': '\n'.join(f'<li>{line}</li>' for line in logShameList),
     }
 
 def get_database_info():
@@ -690,7 +702,7 @@ def generate_sys_hosts_html(system_info):
             <tr><td>Available Memory</td><td>${memory_available}</td></tr>
             <tr><td>Total Disk Space</td><td>${disk_total}</td></tr>
             <tr><td>Free Disk Space</td><td>${disk_free}</td></tr>
-            <tr><th>Meshtastic CLI/API</th><th>Value</th></tr>
+            <tr><th>Meshtastic Metric</th><th>Value</th></tr>
             <tr><td>API Version/Latest</td><td>${cli_local} / ${cli_web}</td></tr>
             <tr><td>Int1 Name ID</td><td>${node1_name} (${node1_ID})</td></tr>
             <tr><td>Int1 Stat</td><td>${node1_uptime}</td></tr>
@@ -723,10 +735,11 @@ def generate_wall_of_shame_html(shame_info):
         </style>
     </head>
     <body>
-        <h1>Put Shame Here</h1>
+        <h1>Collected Shame</h1>
         <table>
             <tr><th>Shame Metric</th><th>Value</th></tr>
-            <tr><td>shame</td><td>${shame}</td></tr>
+            <tr><td>Shamefull words</td><td>${shame}</td></tr>
+            <tr><td>Shamefull messages</td><td>${shameList}</td></tr>
         </table>
     </body>
     </html>
