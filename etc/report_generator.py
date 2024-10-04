@@ -83,7 +83,9 @@ def parse_log_file(file_path):
                 log_data['command_timestamps'].append((timestamp.isoformat(), 'LLM Query'))
             
             command = re.search(r"'cmd': '(\w+)'", line)
-            user = re.search(r"'user': '(\w+)'", line)
+            user = re.search(r"From: (\w+)", line)
+            if user:
+                user = user.group(1)
             if command:
                 cmd = command.group(1)
                 log_data['command_counts'][cmd] += 1
