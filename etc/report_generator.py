@@ -431,7 +431,7 @@ def generate_main_html(log_data, system_info):
                 border: none;
             }
             .timestamp-list {
-                height: 200px;
+                height: 400px;
                 overflow-y: auto;
                 font-size: 12px;
             }
