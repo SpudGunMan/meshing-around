@@ -7,6 +7,7 @@ import meshtastic.ble_interface
 import time
 import asyncio
 import contextlib # for suppressing output on watchdog
+import io # for suppressing output on watchdog
 from modules.log import *
 
 # Global Variables
@@ -763,7 +764,9 @@ async def retry_interface(nodeID=1):
         logger.error(f"System: opening interface2: {e}")
 
 async def watchdog():
-    global retry_int1, retry_int2, multiPingList
+    global retry_int1, retry_int2, multiPingList, int1_version, int2_version
+    int1_version = ''
+    int2_version = ''
     if sentry_enabled:
         sentry_loop = 0
         lastSpotted = ""
@@ -780,9 +783,14 @@ async def watchdog():
             # getmetadata request to check if the interface is still connected
             try:
                 # this is a workaround because .localNode.getMetadata spits out a lot of debug info which cant be suppressed
-                with contextlib.redirect_stdout(None):
+                # Create a StringIO object to capture the output
+                output_capture = io.StringIO()
+                with contextlib.redirect_stdout(output_capture):
                     interface1.localNode.getMetadata()
-                    print(f"System: if you see this upgrade python to >3.4")
+                console_output = output_capture.getvalue()
+                if "firmware_version" in console_output and int1_version == '':
+                    int1_version = console_output.split("firmware_version: ")[1].split("\n")[0]
+                    logger.debug(f"System: Interface1 Node Firmware: {int1_version}")
             except Exception as e:
                 logger.error(f"System: communicating with interface1, trying to reconnect: {e}")
                 retry_int1 = True
@@ -843,9 +851,15 @@ async def watchdog():
         if interface2_enabled:
             if interface2 is not None and not retry_int2:
                 try:
-                    with contextlib.redirect_stdout(None):
+                    # this is a workaround because .localNode.getMetadata spits out a lot of debug info which cant be suppressed
+                    # Create a StringIO object to capture the output
+                    output_capture = io.StringIO()
+                    with contextlib.redirect_stdout(output_capture):
                         interface2.localNode.getMetadata()
-                        print(f"System: if you see this upgrade python to >3.4")
+                    console_output = output_capture.getvalue()
+                    if "firmware_version" in console_output and int2_version == '':
+                        int2_version = console_output.split("firmware_version: ")[1].split("\n")[0]
+                        logger.debug(f"System: Interface2 Node Firmware: {int2_version}")
                 except Exception as e:
                     logger.error(f"System: communicating with interface2, trying to reconnect: {e}")
                     retry_int2 = True
