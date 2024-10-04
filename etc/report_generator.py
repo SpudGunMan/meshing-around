@@ -79,7 +79,6 @@ def parse_log_file(file_path):
 
         if 'Bot detected Commands' in line or 'LLM Query:' in line:
             if 'LLM Query:' in line:
-                log_data['message_types']['LLM Query'] += 1
                 log_data['command_counts']['LLM Query'] += 1
                 log_data['command_timestamps'].append((timestamp.isoformat(), 'LLM Query'))
             
