@@ -343,41 +343,43 @@ def generate_main_html(log_data, system_info):
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #2c3e50; /* Dark Slate Gray */
-            --secondary-color: #3498db; /* Light Blue */
-            --background-color: #ecf0f1; /* Light Gray */
-            --card-background: #ffffff; /* White */
-            --text-color: #34495e; /* Dark Slate Gray */
-            --sidebar-text-color: #ecf0f1; /* Light Gray */
-            --accent-color-1: #e74c3c; /* Red */
-            --accent-color-2: #2ecc71; /* Green */
-            --accent-color-3: #f39c12; /* Orange */
-            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Light Shadow */
-            --transition: all 0.3s ease; /* Smooth Transition */
-            
-            [data-theme="dark"] {
-            --primary-color: #1a2639; /* Dark Navy Blue */
-            --secondary-color: #2980b9; /* Medium Blue */
-            --background-color: #2c3e50; /* Dark Slate Gray */
-            --card-background: #34495e; /* Dark Slate Gray */
-            --text-color: #ecf0f1; /* Light Gray */
-            --sidebar-text-color: #ecf0f1; /* Light Gray */
-            --accent-color-1: #c0392b; /* Dark Red */
-            --accent-color-2: #27ae60; /* Medium Green */
-            --accent-color-3: #d35400; /* Dark Orange */
-            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3); /* Darker Shadow */
-            }
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --background-color: #ecf0f1;
+            --card-background: #ffffff;
+            --text-color: #34495e;
+            --sidebar-text-color: #ecf0f1;
+            --accent-color-1: #e74c3c;
+            --accent-color-2: #2ecc71;
+            --accent-color-3: #f39c12;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        [data-theme="dark"] {
+            --primary-color: #1a2639;
+            --secondary-color: #2980b9;
+            --background-color: #2c3e50;
+            --card-background: #34495e;
+            --text-color: #ecf0f1;
+            --sidebar-text-color: #ecf0f1;
+            --accent-color-1: #c0392b;
+            --accent-color-2: #27ae60;
+            --accent-color-3: #d35400;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
         [data-theme="high-contrast"] {
-            --primary-color: #ffffff; /* White */
-            --secondary-color: #e0e0e0; /* Light Gray */
-            --background-color: #000000; /* Black */
-            --card-background: #1a1a1a; /* Dark Gray */
-            --text-color: #ffffff; /* White */
-            --sidebar-text-color: #e0e0e0; /* Light Gray */
-            --accent-color-1: #ff4500; /* Orange Red */
-            --accent-color-2: #32cd32; /* Lime Green */
-            --accent-color-3: #ffd700; /* Gold */
-            --shadow: 0 0 0 2px #ffffff; /* White */
+            --primary-color: #000000;
+            --secondary-color: #ffffff;
+            --background-color: #000000;
+            --card-background: #000000;
+            --text-color: #ffffff;
+            --sidebar-text-color: #000000;
+            --accent-color-1: #ff0000;
+            --accent-color-2: #00ff00;
+            --accent-color-3: #ffff00;
+            --shadow: 0 0 0 2px #ffffff;
         }
 
         * {
