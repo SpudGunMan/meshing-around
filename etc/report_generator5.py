@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# HTML5
 import os
 import re
 import sys
