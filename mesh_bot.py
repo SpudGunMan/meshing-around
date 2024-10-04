@@ -88,7 +88,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     if len(cmds) > 0:
         # sort the commands by index value
         cmds = sorted(cmds, key=lambda k: k['index'])
-        logger.debug(f"System: Bot detected Commands:{cmds}")
+        logger.debug(f"System: Bot detected Commands:{cmds} From: {get_name_from_number(message_from_id)}")
         # check the command isnt a isDM only command
         if cmds[0]['cmd'] in restrictedCommands and not isDM:
             bot_response = restrictedResponse

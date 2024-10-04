@@ -83,10 +83,12 @@ def parse_log_file(file_path):
                 log_data['command_timestamps'].append((timestamp.isoformat(), 'LLM Query'))
             
             command = re.search(r"'cmd': '(\w+)'", line)
+            user = re.search(r"'user': '(\w+)'", line)
             if command:
                 cmd = command.group(1)
                 log_data['command_counts'][cmd] += 1
-                log_data['command_timestamps'].append((timestamp.isoformat(), cmd))
+                # include the user who sent the command
+                log_data['command_timestamps'].append((timestamp.isoformat(), cmd + f' from {user}'))
 
         if 'Sending DM:' in line or 'Sending Multi-Chunk DM:' in line or 'SendingChannel:' in line or 'Sending Multi-Chunk Message:' in line:
             log_data['message_types']['Outgoing DM'] += 1
@@ -96,7 +98,15 @@ def parse_log_file(file_path):
         if 'Received DM:' in line or 'Ignoring DM:' in line or 'Ignoring Message:' in line or 'ReceivedChannel:' in line or 'LLM Query:' in line:
             log_data['message_types']['Incoming DM'] += 1
             log_data['total_messages'] += 1
-            log_data['message_timestamps'].append((timestamp.isoformat(), 'Incoming DM'))
+            # include a little of the message
+            if 'Ignoring Message:' in line:
+                log_data['message_timestamps'].append((timestamp.isoformat(), f'Incoming: {line.split("Ignoring Message:")[1][:90]}'))
+            elif 'Ignoring DM:' in line:
+                log_data['message_timestamps'].append((timestamp.isoformat(), f'Incoming: {line.split("Ignoring DM:")[1][:90]}'))
+            elif 'LLM Query:' in line:
+                log_data['message_timestamps'].append((timestamp.isoformat(), f'Incoming: {line.split("LLM Query:")[1][:90]}'))
+            else:
+                log_data['message_timestamps'].append((timestamp.isoformat(), 'Incoming:'))
             # check for shame words in the message
             for word in shameWordList:
                 if word in line.lower():
@@ -460,7 +470,7 @@ def generate_main_html(log_data, system_info):
                 </div>
             </div>
             <div class="chart-container">
-                <div class="chart-title">Message Counts</div>
+                <div class="chart-title">BBS Stored Message Counts</div>
                 <div class="chart-content">
                     <canvas id="messageCountChart"></canvas>
                 </div>
