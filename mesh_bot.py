@@ -1067,7 +1067,7 @@ def onReceive(packet, interface):
                             # or respond to channel message on the channel itself
                             if channel_number == publicChannel and antiSpam:
                                 # warning user spamming default channel
-                                logger.error(f"System: AntiSpam protection, sending DM to: {get_name_from_number(message_from_id, 'long', rxNode)}")
+                                logger.warning(f"System: AntiSpam protection, sending DM to: {get_name_from_number(message_from_id, 'long', rxNode)}")
                             
                                 # respond to channel message via direct message
                                 send_message(auto_response(message_string, snr, rssi, hop, pkiStatus, message_from_id, channel_number, rxNode, isDM), channel_number, message_from_id, rxNode)

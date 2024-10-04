@@ -395,7 +395,7 @@ def get_node_location(number, nodeInt=1, channel=0):
                             latitude = node['position']['latitude']
                             longitude = node['position']['longitude']
                         except Exception as e:
-                            logger.error(f"System: Error getting location data for {number}")
+                            logger.warning(f"System: Error getting location data for {number}")
                         logger.debug(f"System: location data for {number} is {latitude},{longitude}")
                         position = [latitude,longitude]
                         return position
@@ -423,7 +423,7 @@ def get_node_location(number, nodeInt=1, channel=0):
                             latitude = node['position']['latitude']
                             longitude = node['position']['longitude']
                         except Exception as e:
-                            logger.error(f"System: Error getting location data for {number}")
+                            logger.warning(f"System: Error getting location data for {number}")
                         logger.info(f"System: location data for {number} is {latitude},{longitude}")
                         position = [latitude,longitude]
                         return position
@@ -602,7 +602,7 @@ def get_wikipedia_summary(search_term):
         logger.warning(f"System: Wikipedia Page Error for:{search_term} {e} trying {wikipedia_search[0]}")
         summary = wikipedia.summary(wikipedia_search[0], sentences=wiki_return_limit, auto_suggest=True, redirect=True)
     except Exception as e:
-        logger.error(f"System: Error with Wikipedia for:{search_term} {e}")
+        logger.warning(f"System: Error with Wikipedia for:{search_term} {e}")
         return ERROR_FETCHING_DATA
     
     return summary
