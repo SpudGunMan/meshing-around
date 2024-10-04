@@ -8,6 +8,7 @@ import json
 import platform
 import subprocess
 import requests
+from importlib.metadata import version
 
 # global variables
 LOG_PATH = '/opt/meshing-around/logs'
@@ -173,7 +174,6 @@ def get_system_info():
         pass
     # get Meshtastic CLI version on local
     try:
-        from importlib.metadata import version
         if "importlib.metadata" in sys.modules:
             cli_local = version("meshtastic")
     except:
@@ -248,7 +248,7 @@ def generate_main_html(log_data, system_info):
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Meshbot (BBS) Network Statistics</title>
+        <title>MeshBot (BBS) Web Dashboard</title>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
@@ -736,9 +736,9 @@ def main():
     index_path = os.path.join(output_dir, 'index.html')
     
     try:
-        # if the output directory does not exist or is not writable, try the script's directory
         if not os.path.exists(output_dir):
-            output_dir = os.path.dirname(os.path.realpath(__file__))
+            output_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'www')
+            output_dir = os.path.abspath(output_dir)
             index_path = os.path.join(output_dir, 'index.html')
 
         # Create backup of existing index.html if it exists
