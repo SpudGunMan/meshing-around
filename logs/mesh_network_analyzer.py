@@ -2,6 +2,7 @@ import os
 import re
 from datetime import datetime
 from collections import Counter, defaultdict
+from string import Template
 import json
 import platform
 import subprocess
@@ -23,13 +24,9 @@ def parse_log_file(file_path):
             log_files.sort()
 
             for logFile in log_files:
-                if logFile.startswith('messages'):
+                if logFile.startswith('meshbot'):
                     with open(os.path.join(file_path, logFile), 'r') as file:
-                        lines = file.readlines()
-                        if len(lines) > 1:
-                            file_path = os.path.join(file_path, logFile)
-                            break
-                            
+                        lines += file.readlines()
     else:
         # read the file for the day
         with open(file_path, 'r') as file:
@@ -100,6 +97,7 @@ def get_system_info():
             return subprocess.check_output(command, shell=True).decode('utf-8').strip()
         except subprocess.CalledProcessError:
             return "N/A"
+
 
     if platform.system() == "Linux":
         uptime = get_command_output("uptime -p")
@@ -246,7 +244,7 @@ def generate_main_html(log_data, system_info):
             <ul>
                 <li><a href="#" onclick="showDashboard(); return false;">Dashboard</a></li>
                 <li><a href="#" onclick="showIframe('network_map_${date}.html'); return false;">Network Map</a></li>
-                <li><a href="#" onclick="showIframe('hosts_${date}.html'); return false;">Host</a></li>
+                <li><a href="#" onclick="showIframe('hosts_${date}.html'); return false;">System Host</a></li>
             </ul>
         </div>
         <div class="content" id="dashboard-content">
@@ -443,8 +441,6 @@ def generate_main_html(log_data, system_info):
     </body>
     </html>
     """
-
-    from string import Template
     template = Template(html_template)
     return template.safe_substitute(
         date=datetime.now().strftime('%Y_%m_%d'),
@@ -501,18 +497,17 @@ def generate_network_map_html(log_data):
     </html>
     """
 
-    from string import Template
     template = Template(html_template)
     return template.safe_substitute(gps_coordinates=json.dumps(log_data['gps_coordinates']))
 
-def generate_hosts_html(system_info):
+def generate_sys_hosts_html(system_info):
     html_template = """
     <!DOCTYPE html>
     <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Host Information</title>
+        <title>System Host Information</title>
         <style>
             body { font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; }
             h1 { color: #333; }
@@ -522,20 +517,26 @@ def generate_hosts_html(system_info):
         </style>
     </head>
     <body>
-        <h1>Host Information</h1>
+        <h1>System Host Information - ${os_name}</h1>
         <table>
-            <tr><th>Metric</th><th>Value</th></tr>
+            <tr><th>OS Metric</th><th>Value</th></tr>
             <tr><td>Uptime</td><td>${uptime}</td></tr>
             <tr><td>Total Memory</td><td>${memory_total}</td></tr>
             <tr><td>Available Memory</td><td>${memory_available}</td></tr>
             <tr><td>Total Disk Space</td><td>${disk_total}</td></tr>
             <tr><td>Free Disk Space</td><td>${disk_free}</td></tr>
+            <tr><th>Meshtastic CLI/API</th><th>Value</th></tr>
+            <tr><td>CLI Version</td><td>${cli_version}</td></tr>
+            <tr><td>Latest Version</td><td>${latest_version}</td></tr>
+            <tr><td>Meshbot Node ID</td><td>${node_id}</td></tr>
+            <tr><td>Meshbot Name</td><td>${node_name}</td></tr>
+            <tr><td>Meshbot Firmware</td><td>${firmware_version}</td></tr>
+            <tr><td>Meshbot Up Time</td><td>${node_uptime}</td></tr>
         </table>
     </body>
     </html>
     """
 
-    from string import Template
     template = Template(html_template)
     return template.safe_substitute(system_info)
 
@@ -555,7 +556,7 @@ def main():
 
     main_html = generate_main_html(log_data, system_info)
     network_map_html = generate_network_map_html(log_data)
-    hosts_html = generate_hosts_html(system_info)
+    hosts_html = generate_sys_hosts_html(system_info)
 
     output_dir = W3_PATH
     index_path = os.path.join(output_dir, 'index.html')
