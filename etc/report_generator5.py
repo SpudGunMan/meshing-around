@@ -988,7 +988,7 @@ def generate_sys_hosts_html(system_info):
         <style>
             body { font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; }
             h1 { color: #333; }
-            table { border-collapse: collapse; width: 100%; }
+            table { border-collapse: collapse; width: 100%; background-color: #d3d3d3; }
             th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
             th { background-color: #f2f2f2; }
         </style>
@@ -1029,7 +1029,7 @@ def generate_wall_of_shame_html(shame_info):
         <style>
             body { font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; }
             h1 { color: #333; }
-            table { border-collapse: collapse; width: 100%; }
+            table { border-collapse: collapse; width: 100%; background-color: #d3d3d3; }
             th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
             th { background-color: #f2f2f2; }
         </style>
@@ -1059,7 +1059,7 @@ def generate_database_html(database_info):
         <style>
             body { font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; }
             h1 { color: #333; }
-            table { border-collapse: collapse; width: 100%; }
+            table { border-collapse: collapse; width: 100%; background-color: #d3d3d3; }
             th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
             th { background-color: #f2f2f2; }
         </style>
