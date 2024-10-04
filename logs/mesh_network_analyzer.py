@@ -1,11 +1,13 @@
 import os
 import re
+import sys
 from datetime import datetime
 from collections import Counter, defaultdict
 from string import Template
 import json
 import platform
 import subprocess
+import requests
 
 # global variables
 LOG_PATH = '/opt/meshing-around/logs'
@@ -158,6 +160,23 @@ def get_system_info():
     node1_ID = log_data['node1_ID']
     node2_ID = log_data['node2_ID']
 
+    # get Meshtastic CLI version on web
+    try:
+        url = "https://pypi.org/pypi/meshtastic/json"
+        data = requests.get(url, timeout=5).json()
+        pypi_version = data["info"]["version"]
+        cli_web = f"v{pypi_version}"
+    except Exception:
+        pass
+    # get Meshtastic CLI version on local
+    try:
+        from importlib.metadata import version
+        if "importlib.metadata" in sys.modules:
+            cli_local = version("meshtastic")
+    except:
+        pass # Python 3.7 and below, meh.. 
+
+
     if platform.system() == "Linux":
         uptime = get_command_output("uptime -p")
         memory_total = get_command_output("free -m | awk '/Mem:/ {print $2}'")
@@ -184,7 +203,9 @@ def get_system_info():
             'node1_name': "N/A",
             'node2_name': "N/A",
             'node1_ID': "N/A",
-            'node2_ID': "N/A"
+            'node2_ID': "N/A",
+            'cli_web': "N/A",
+            'cli_local': "N/A"
         }
 
     return {
@@ -200,7 +221,9 @@ def get_system_info():
         'node1_name': node1_name,
         'node2_name': node2_name,
         'node1_ID': node1_ID,
-        'node2_ID': node2_ID
+        'node2_ID': node2_ID,
+        'cli_web': cli_web,
+        'cli_local': cli_local
     }
 
 def generate_main_html(log_data, system_info):
@@ -592,7 +615,7 @@ def generate_sys_hosts_html(system_info):
         </style>
     </head>
     <body>
-        <h1>System Host Information - ${os_name}</h1>
+        <h1>System Host Information</h1>
         <table>
             <tr><th>OS Metric</th><th>Value</th></tr>
             <tr><td>Uptime</td><td>${uptime}</td></tr>
@@ -601,8 +624,7 @@ def generate_sys_hosts_html(system_info):
             <tr><td>Total Disk Space</td><td>${disk_total}</td></tr>
             <tr><td>Free Disk Space</td><td>${disk_free}</td></tr>
             <tr><th>Meshtastic CLI/API</th><th>Value</th></tr>
-            <tr><td>CLI Version</td><td>${cli_version}</td></tr>
-            <tr><td>Latest Version</td><td>${latest_version}</td></tr>
+            <tr><td>API Version/Latest</td><td>${cli_local} / ${cli_web}</td></tr>
             <tr><td>Int1 Name ID</td><td>${node1_name} (${node1_ID})</td></tr>
             <tr><td>Int1 Stat</td><td>${node1_uptime}</td></tr>
             <tr><td>Int1 FW Version</td><td>${interface1_version}</td></tr>
