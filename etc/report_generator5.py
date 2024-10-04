@@ -391,7 +391,7 @@ def generate_main_html(log_data, system_info):
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--background-color);
-            color: var(--text-color);
+            color: var(--text-color) !important;
             line-height: 1.6;
             transition: var(--transition);
         }
