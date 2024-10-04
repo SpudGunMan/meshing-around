@@ -12,11 +12,16 @@ Game Rules:
 8. Players can use the 'whereami' command to check their current location and update their position in the game.
 """
 
+import random
+import time
 import pickle
+from modules.log import *
+
+
 from datetime import datetime, timedelta
 from geopy.distance import geodesic
 import os
-import logging
+
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
