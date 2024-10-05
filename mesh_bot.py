@@ -337,7 +337,7 @@ def handleDopeWars(nodeID, message, rxNode):
         msg += 'The High Score is $' + "{:,}".format(high_score.get('cash')) + ' by user ' + get_name_from_number(high_score.get('userID') , 'short', rxNode) +'\n'
         msg += playDopeWars(nodeID, message)
     else:
-        logger.debug("System: DopeWars: last_cmd: " + str(last_cmd))
+        logger.debug(f"System: {nodeID} PlayingGame dopewars last_cmd: {last_cmd}")
         msg = playDopeWars(nodeID, message)
     # wait a second to keep from message collision
     time.sleep(1)
@@ -376,6 +376,8 @@ def handleLemonade(nodeID, message):
     for i in range(len(lemonadeTracker)):
         if lemonadeTracker[i]['nodeID'] == nodeID:
             last_cmd = lemonadeTracker[i]['cmd']
+
+    logger.debug(f"System: {nodeID} PlayingGame lemonstand last_cmd: {last_cmd}")
     # create new player if not in tracker
     if last_cmd == "" and nodeID != 0:
         create_player(nodeID)
@@ -420,7 +422,7 @@ def handleBlackJack(nodeID, message):
         msg = playBlackJack(nodeID=nodeID, message=message)
     
         if last_cmd != "" and nodeID != 0:
-            logger.debug(f"System: BlackJack: {nodeID} last command: {last_cmd}")
+            logger.debug(f"System: {nodeID} PlayingGame blackjack last_cmd: {last_cmd}")
         else:
             highScore = {'nodeID': 0, 'highScore': 0}
             highScore = loadHSJack()
@@ -467,7 +469,7 @@ def handleVideoPoker(nodeID, message):
                     msg += f" HighScore🥇{nodeName} with {highScore['highScore']} coins. "
     
         if last_cmd != "" and nodeID != 0:
-            logger.debug(f"System: VideoPoker: {nodeID} last command: {last_cmd}")
+            logger.debug(f"System: {nodeID} PlayingGame videopoker last_cmd: {last_cmd}")
     time.sleep(1.5) # short answers with long replies can cause message collision added wait
     return msg
 
@@ -492,6 +494,8 @@ def handleMmind(nodeID, deviceID, message):
     for i in range(len(mindTracker)):
         if mindTracker[i]['nodeID'] == nodeID:
             last_cmd = mindTracker[i]['cmd']
+
+    logger.debug(f"System: {nodeID} PlayingGame mastermind last_cmd: {last_cmd}")
 
     if last_cmd == "" and nodeID != 0:
         # create new player
@@ -525,6 +529,8 @@ def handleGolf(nodeID, message):
                 golfTracker.pop(i)
         return msg
 
+    logger.debug(f"System: {nodeID} PlayingGame golfsim last_cmd: {last_cmd}")
+
     if last_cmd == "" and nodeID != 0:
         # create new player
         logger.debug("System: GolfSim: New Player: " + str(nodeID))
@@ -546,6 +552,8 @@ def handleUno(nodeID, deviceID, message):
     for i in range(len(unoTracker)):
         if unoTracker[i]['nodeID'] == nodeID:
             last_cmd = unoTracker[i]['cmd']
+
+    logger.debug(f"System: {nodeID} PlayingGame uno last_cmd: {last_cmd}")
 
     if last_cmd == "" and nodeID != 0:
         # create new player

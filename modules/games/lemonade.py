@@ -236,8 +236,6 @@ def start_lemonade(nodeID, message, celsius=False):
             score.value = lemonadeScore[i]['value']
             score.total = lemonadeScore[i]['total']
 
-    logger.debug("System: Lemonade: Last Command: " + last_cmd)
-
     # Start the main loop
     if (weeks.current <= weeks.total):
 

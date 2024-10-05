@@ -77,20 +77,21 @@ def parse_log_file(file_path):
             timestamp = datetime.strptime(timestamp_match.group(1), '%Y-%m-%d %H:%M:%S')
             log_data['hourly_activity'][timestamp.strftime('%Y-%m-%d %H:00:00')] += 1
 
-        if 'Bot detected Commands' in line or 'LLM Query:' in line:
+        if 'Bot detected Commands' in line or 'LLM Query:' in line or 'PlayingGame' in line:
+            # get the command and user from the line
+            command = re.search(r"'cmd': '(\w+)'", line)
+            user = re.search(r"From: (\w+)", line)
+
             if 'LLM Query:' in line:
                 log_data['command_counts']['LLM Query'] += 1
                 log_data['command_timestamps'].append((timestamp.isoformat(), 'LLM Query'))
-            
-            command = re.search(r"'cmd': '(\w+)'", line)
-            user = re.search(r"From: (\w+)", line)
-            if user:
-                user = user.group(1)
-            if command:
-                cmd = command.group(1)
-                log_data['command_counts'][cmd] += 1
-                # include the user who sent the command
-                log_data['command_timestamps'].append((timestamp.isoformat(), cmd + f' from {user}'))
+
+            if 'PlayingGame' in line:
+                #log line looks like this. 2024-10-04 20:24:53,381 |    DEBUG | System: 862418040 PlayingGame BlackJack last_cmd: new
+                game = re.search(r'PlayingGame (\w+)', line)
+                user = re.search(r'System: (\d+)', line)
+                log_data['command_counts'][game.group(1)] += 1
+                log_data['command_timestamps'].append((timestamp.isoformat(), game))
 
         if 'Sending DM:' in line or 'Sending Multi-Chunk DM:' in line or 'SendingChannel:' in line or 'Sending Multi-Chunk Message:' in line:
             log_data['message_types']['Outgoing DM'] += 1

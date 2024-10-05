@@ -296,8 +296,6 @@ def start_mMind(nodeID, message):
         if mindTracker[i]['nodeID'] == nodeID:
             last_cmd = mindTracker[i]['cmd']
 
-    logger.debug("System: MasterMind: last_cmd: " + str(last_cmd))
-
     if last_cmd == "new":
         if message.lower().startswith("n") or message.lower().startswith("h") or message.lower().startswith("x"):
             diff = message.lower()[0]
