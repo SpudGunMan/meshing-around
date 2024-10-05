@@ -42,7 +42,11 @@ if config.sections() == []:
 LOG_PATH = config['reporting'].get('log_path', LOG_PATH)
 W3_PATH = config['reporting'].get('w3_path', W3_PATH)
 multiLogReader = config['reporting'].getboolean('multi_log_reader', multiLogReader)
-shameWordList = config['reporting'].get('shame_word_list', shameWordList)
+# config['reporting']['shame_word_list'] is a comma-separated string
+shameWordList = config['reporting'].get('shame_word_list', '')
+if isinstance(shameWordList, str):
+    shameWordList = shameWordList.split(', ')
+    
 
 def parse_log_file(file_path):
     global log_data
