@@ -106,7 +106,7 @@ def parse_log_file(file_path):
         if 'Bot detected Commands' in line or 'LLM Query:' in line or 'PlayingGame' in line:
             # get the command and user from the line
             command = re.search(r"'cmd': '(\w+)'", line)
-            user = re.search(r"From: (\w+)", line)
+            user = re.search(r"From: (.+)$", line)
 
             if 'LLM Query:' in line:
                 log_data['command_counts']['LLM Query'] += 1
