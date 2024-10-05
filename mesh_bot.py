@@ -1044,8 +1044,11 @@ def onReceive(packet, interface):
                     send_message(auto_response(message_string, snr, rssi, hop, pkiStatus, message_from_id, channel_number, rxNode, isDM), channel_number, message_from_id, rxNode)
                 else:
                     # DM is useful for games or LLM
-                    if games_enabled:
+                    if games_enabled and (hop == "Direct" or hop_count < game_hop_limit):
                         playingGame = checkPlayingGame(message_from_id, message_string, rxNode, channel_number)
+                    else:
+                        playingGame = False
+                        logger.warning(f"Device:{rxNode} Ignoring Request to Play Game: {message_string} From: {get_name_from_number(message_from_id, 'long', rxNode)} with hop count: {hop}")
 
                     if not playingGame:
                         if llm_enabled:

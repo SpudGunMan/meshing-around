@@ -164,6 +164,7 @@ try:
     responseDelay = config['messagingSettings'].getfloat('responseDelay', 0.7) # default 0.7
     splitDelay = config['messagingSettings'].getfloat('splitDelay', 0) # default 0
     MESSAGE_CHUNK_SIZE = config['messagingSettings'].getint('MESSAGE_CHUNK_SIZE', 160) # default 160
+    game_hop_limit = config['messagingSettings'].getint('game_hop_limit', 5) # default 3 hops
 
 except KeyError as e:
     print(f"System: Error reading config file: {e}")
