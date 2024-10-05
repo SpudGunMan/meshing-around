@@ -561,7 +561,7 @@ def generate_main_html(log_data, system_info):
         }
 
         .timestamp-list {
-            height: 200px;
+            height: 400px;
             overflow-y: auto;
             font-size: 0.85rem;
         }
