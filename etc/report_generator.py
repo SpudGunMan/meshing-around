@@ -7,6 +7,7 @@ import pickle
 import platform
 import requests
 import subprocess
+import configparser
 from string import Template
 from datetime import datetime
 from importlib.metadata import version
@@ -288,9 +289,20 @@ def get_wall_of_shame():
     }
 
 def get_database_info():
-    # Get the database information
+    # ../config.ini location to script path
+    config_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'config.ini')
+    # get config.ini variables
+    config = configparser.ConfigParser()
+    config.read(config_path)
+    # for section in config.sections():
+    #     print(f"Section: {section}")
+    #     for key in config[section]:
+    #         print(f"Key: {key}, Value: {config[section][key]}")
+    banList = config['bbs'].get('bbs_ban_list', 'none')
+    adminList = config['bbs'].get('bbs_admin_list', 'none')
+    sentryIgnoreList = config['sentry'].get('sentryIgnoreList', 'none')
 
-    # collect high scores from the database
+    # Get the database information
     try:
         with open('../lemonade_hs.pkl', 'rb') as f:
             lemon_score = pickle.load(f)
@@ -315,7 +327,7 @@ def get_database_info():
         with open('../golfsim_hs.pkl', 'rb') as f:
             golfsim_score = pickle.load(f)
         f.close()
-        
+
         with open('../bbsdm.pkl', 'rb') as f:
             bbsdm = pickle.load(f)
         f.close()
@@ -347,7 +359,7 @@ def get_database_info():
         pass
 
     return {
-        'database': "N/A",
+        'database': "Connected",
         "bbsdb": prettyBBSdb,
         "bbsdm": prettyBBSdm,
         'lemon_score': lemon_score,
@@ -355,7 +367,10 @@ def get_database_info():
         'blackjack_score': blackjack_score,
         'videopoker_score': videopoker_score,
         'mmind_score': mmind_score,
-        'golfsim_score': golfsim_score
+        'golfsim_score': golfsim_score,
+        'banList': banList,
+        'adminList': adminList,
+        'sentryIgnoreList': sentryIgnoreList
     }
 
 def generate_main_html(log_data, system_info):
@@ -823,7 +838,13 @@ def generate_database_html(database_info):
     </head>
     <body>
         <h1>Database Information</h1>
-        <p>${database}</p>
+        <p>Connection ${database}</p>
+        <table>
+            <tr><th>config.ini Settings</th><th>Value</th></tr>
+            <tr><td>Admin List</td><td>${adminList}</td></tr>
+            <tr><td>Ban List</td><td>${banList}</td></tr>
+            <tr><td>Sentry Ignore List</td><td>${sentryIgnoreList}</td></tr>
+        </table>
         <h1>BBS Message Database</h1>
         <p>BBSdb: ${bbsdb}</p>
         <p>BBSdm: ${bbsdm}</p>
