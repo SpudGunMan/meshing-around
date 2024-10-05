@@ -117,16 +117,25 @@ def parse_log_file(file_path):
                     if line not in log_data['shameList']:
                         log_data['shameList'].append(line)
                         
-
+        # get the user who sent the message
         user_match = re.search(r'From: (\w+)', line)
         if user_match:
             log_data['unique_users'].add(user_match.group(1))
-            
+        
+        # Error Logs
         if 'WARNING |' in line:
-            log_data['warnings'].append(line.strip())
+            # remove some junk from the line
+            line.replace('  ', ' ')
+            line.replace('| WARNING |', '')
+            line.replace('System:', '')
+            log_data['warnings'].insert(0, line)
 
         if 'ERROR |' in line or 'CRITICAL |' in line:
-            log_data['errors'].append(line.strip())
+            # remove some junk from the line
+            line.replace('  ', ' ')
+            line.replace('| ERROR |', '')
+            line.replace('System:', '')
+            log_data['errors'].insert(0, line)
 
         # bbs messages
         bbs_match = re.search(r'📡BBSdb has (\d+) messages.*?Messages waiting: (\d+)', line)
@@ -336,7 +345,7 @@ def generate_main_html(log_data, system_info):
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MeshBot Meshtastic BBS, Tools</title>
+    <title>MeshBot (BBS) Web Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
@@ -650,7 +659,7 @@ def generate_main_html(log_data, system_info):
     </style>
 </head>
 <body>
-    <header class="header">MeshBot (BBS) Network Statistics</header>
+    <header class="header">MeshBot (BBS) Web Dashboard</header>
     <div class="main-container">
         <nav class="sidebar">
             <div class="sidebar-nav">
@@ -670,7 +679,7 @@ def generate_main_html(log_data, system_info):
                 </div>
             </div>
             <div class="sidebar-footer">
-                <p>&copy; 2024 Meshbot Dashboard</p>
+                <p>&copy; 2024 MeshBot Dashboard</p>
                 <p>Version 1.0</p>
             </div>
         </nav>

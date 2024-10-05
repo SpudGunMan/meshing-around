@@ -116,15 +116,25 @@ def parse_log_file(file_path):
                         log_data['shameList'].append(line)
                         
 
+        # get the user who sent the message
         user_match = re.search(r'From: (\w+)', line)
         if user_match:
             log_data['unique_users'].add(user_match.group(1))
-            
+        
+        # Error Logs
         if 'WARNING |' in line:
-            log_data['warnings'].append(line.strip())
+            # remove some junk from the line
+            line.replace('  ', ' ')
+            line.replace('| WARNING |', '')
+            line.replace('System:', '')
+            log_data['warnings'].insert(0, line)
 
         if 'ERROR |' in line or 'CRITICAL |' in line:
-            log_data['errors'].append(line.strip())
+            # remove some junk from the line
+            line.replace('  ', ' ')
+            line.replace('| ERROR |', '')
+            line.replace('System:', '')
+            log_data['errors'].insert(0, line)
 
         # bbs messages
         bbs_match = re.search(r'📡BBSdb has (\d+) messages.*?Messages waiting: (\d+)', line)
@@ -438,7 +448,7 @@ def generate_main_html(log_data, system_info):
         </style>
     </head>
     <body>
-        <div class="header">Meshbot (BBS) Network Statistics</div>
+        <div class="header">MeshBot (BBS) Web Dashboard</div>
         <div class="sidebar">
             <ul>
                 <li><a href="#" onclick="showDashboard(); return false;">Dashboard</a></li>
