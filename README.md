@@ -22,7 +22,8 @@ The bot can also be used to monitor a radio frequency and let you know when high
 
 Any messages that are over 160 characters are chunked into 160 message bytes to help traverse hops, in testing, this keeps delivery success higher.
 
-But wait there is more! There is a nice [data reporting](logs/README.md) html generator for reatime glance at the bot traffic and data flows!
+### But wait there is more! 
+There is a nice [data reporting](logs/README.md) html generator for visualizing the bot traffic and data flows!
 
 ## Full list of commands for the bot
 
