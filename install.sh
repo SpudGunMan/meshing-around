@@ -5,6 +5,7 @@ cd "$(dirname "$0")"
 program_path=$(pwd)
 cp etc/pong_bot.tmp etc/pong_bot.service
 cp etc/mesh_bot.tmp etc/mesh_bot.service
+cp etc/mesh_bot_reporting.tmp etc/mesh_bot_reporting.service
 
 printf "\nMeshing Around Installer\n"
 printf "\nThis script will install the Meshing Around bot and its dependencies works best in debian/ubuntu\n"
@@ -90,14 +91,17 @@ read bot
 replace="s|/dir/|$program_path/|g"
 sed -i $replace etc/pong_bot.service
 sed -i $replace etc/mesh_bot.service
+sed -i $replace etc/mesh_bot_reporting.service
 # set the correct user in the service file?
 whoami=$(whoami)
 replace="s|User=pi|User=$whoami|g"
 sed -i $replace etc/pong_bot.service
 sed -i $replace etc/mesh_bot.service
+sed -i $replace etc/mesh_bot_reporting.service
 replace="s|Group=pi|Group=$whoami|g"
 sed -i $replace etc/pong_bot.service
 sed -i $replace etc/mesh_bot.service
+sed -i $replace etc/mesh_bot_reporting.service
 sudo systemctl daemon-reload
 printf "\n service files updated\n"
 

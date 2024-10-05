@@ -58,7 +58,7 @@ urlTimeout = 10
 # logging to file of the non Bot messages
 LogMessagesToFile = False
 # Logging of system messages to file
-SyslogToFile = False
+SyslogToFile = True
 
 [games]
 # if hop limit for the user exceeds this value, the message will be dropped
