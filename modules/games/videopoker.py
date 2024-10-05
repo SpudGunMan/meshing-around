@@ -433,7 +433,7 @@ def playVideoPoker(nodeID, message):
             # save high score
             saveHSVp(nodeID, vpTracker[i]['highScore'])
 
-        msg += f"\nPlace your Bet, 'L' to leave the game."
+        msg += f"\nPlace your Bet, or (L)eave Table."
 
         setLastCmdVp(nodeID, "gameOver")
         # reset player and deck in tracker
