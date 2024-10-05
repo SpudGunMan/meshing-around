@@ -124,7 +124,11 @@ def parse_log_file(file_path):
             for word in shameWordList:
                 if word in line.lower():
                     if line not in log_data['shameList']:
-                        log_data['shameList'].append(line)
+                        line = line.replace('Ignoring Message:', '')
+                        line = line.replace('|', '')
+                        line = line.replace('INFO', '')
+                        line = line.replace('DEBUG', '')
+                        log_data['shameList'].append(0, line)
                         
         # get the user who sent the message
         user_match = re.search(r'From: (\w+)', line)
