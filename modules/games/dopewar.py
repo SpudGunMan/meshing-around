@@ -110,38 +110,67 @@ def officer(nodeID):
             cash = dwCashDb[i].get('cash')
 
     # rolls to see if the officer takes drugs from you
-    # odds are (1 - event chance) * (officer chance) * (confiscation chance)
-    # currently (1 - 0.35) * (0.20) * (0.35) = 4.55%
-    # chance is approximate, not sure how randint handles endpoints, close enough for my purposes
-    if random.randint(0, 100) > 65: # confiscation chance
-        k = 0
-        j = 0
-        # removes all drugs from inventory tally and individual class attirbute
+    if random.randint(0, 100) > 65: # confiscation chance is 35%
+        j, k = 0, 0
         for i in range(0, len(my_drugs)):
             j = amount[i]
             amount[i] = 0
             k += j
-        inventory -= k
-        # sends 'conf' for confiscated. sending a string is better than a number here
+        # set the cash_taken to conf for confiscation not of cash
         cash_taken = 'conf'
+        # Update the inventory_db
+        inventory -= k
+        for i in range(0, len(dwInventoryDb)):
+            if dwInventoryDb[i].get('userID') == nodeID:
+                dwInventoryDb[i]['inventory'] = inventory
+                amount = dwInventoryDb[i].get('amount')
         return cash_taken
-    # rolls to see if the officer takes cash from you
-    # odds are (1 - event chance) * (officer chance) * (1 - confiscation chance)
-    # currently (1 - 0.35) * (0.20) * (0.65) = 8.45%
-    # chance is approximate, not sure how randint handles endpoints, close enough for my purposes
+    # rolls to see how much cash the officer takes
     cash_taken = random.randint(1, cash-1)
     cash -= cash_taken
-    
     # Update the cash_db and inventory_db
     for i in range(0, len(dwCashDb)):
         if dwCashDb[i].get('userID') == nodeID:
             dwCashDb[i]['cash'] = cash
+    return cash_taken
+
+def get_found_items(nodeID):
+    global dwInventoryDb, dwCashDb
+    msg = ''
+    # get the inventory for the user
     for i in range(0, len(dwInventoryDb)):
         if dwInventoryDb[i].get('userID') == nodeID:
-            dwInventoryDb[i]['inventory'] = inventory
-            amount = dwInventoryDb[i].get('amount')
+            inventory = dwInventoryDb[i].get('inventory')
+    amount = check_inv(nodeID)
 
-    return cash_taken
+    # get the cash for the user
+    for i in range(0, len(dwCashDb)):
+        if dwCashDb[i].get('userID') == nodeID:
+            cash = dwCashDb[i].get('cash')
+
+    if random.randint(0, 100) > 50: # 50% chance to find cash or drugs
+        if random.randint(0, 100) > 30: # 30% chance to find drugs
+            found = random.choice(range(len(my_drugs)))
+            # rolls to see how much of the drug the user finds
+            qty =random.randint(1, 80 - inventory)
+            amount[found] += qty
+            inventory += qty
+            for i in range(0, len(dwInventoryDb)):
+                if dwInventoryDb[i].get('userID') == nodeID:
+                    dwInventoryDb[i]['inventory'] = inventory
+                    dwInventoryDb[i]['amount'] = amount
+            msg = "💊You found " + str(qty) + " of " + my_drugs[found]
+    else:
+        # rolls to see how much cash the user finds
+        cash_found = random.randint(1, 977)
+        cash += cash_found
+        # Update the cash_db
+        for i in range(0, len(dwCashDb)):
+            if dwCashDb[i].get('userID') == nodeID:
+                dwCashDb[i]['cash'] = cash
+        msg = "You found $" + str(cash_found) + "💸"
+        
+    return msg
 
 
 def price_change(event_number):
@@ -317,7 +346,6 @@ def sell_func(nodeID, price_list, choice=0, value='0'):
     
     return msg
 
-
 def get_location_table(nodeID, choice=0):
     global dwLocationDb
     # get the location for the user
@@ -331,7 +359,6 @@ def get_location_table(nodeID, choice=0):
             loc_table_string += str(i+1) + '. ' + loc[i] + '  ' 
     loc_table_string += ' Where do you want to 🛫?#'
     return loc_table_string
-
 
 def endGameDw(nodeID):
     global dwCashDb, dwInventoryDb, dwLocationDb, dwGameDayDb, dwHighScore
@@ -375,8 +402,6 @@ def endGameDw(nodeID):
         return msg
     if cash < starting_cash:
         msg = "You lost money, better go get a real job.💸"
-
-    logger.debug("System: DopeWars: Game Over for user: " + str(nodeID) + " with cash: " + str(cash))
     
     return msg
 
@@ -395,20 +420,24 @@ def getHighScoreDw():
             pickle.dump(dwHighScore, file)
     return dwHighScore
 
-def render_game_screen(userID, day_play, total_day, loc_choice, event_number, price_list, cash_stolen):
+def render_game_screen(userID, day_play, total_day, loc_choice, event_number, price_list, cash_stolen, found_items):
     global dwCashDb, dwInventoryDb, dwLocationDb
     msg = ''
     # get the location for the user
     for i in range(0, len(dwLocationDb)):
         if dwLocationDb[i].get('userID') == userID:
             loc = dwLocationDb[i].get('location')
-    
+
     if event_number != -1:
         msg += event_list[event_number].text + f"\n"
-    if event_number == -1 and cash_stolen != 0 and cash_stolen != 'conf':
-        msg += "🚔Officer Leroy stopped you and took $" + str(cash_stolen) + "💸" + f"\n"
-    if event_number == -1 and cash_stolen == 'conf':
-        msg += "🚔Officer Leroy stopped you and took all of your drugs.🚭" + f"\n"
+    elif event_number == -1 and cash_stolen != 0 and cash_stolen != 'conf':
+        msg += random.choice([f"You got high and spent ${str(cash_stolen)}💊💸\n", 
+                              f"You got mugged and lost ${str(cash_stolen)}💸🔫\n",
+                              f"You got a new tattoo and spent ${str(cash_stolen)}💉💸\n",])
+    elif event_number == -1 and cash_stolen == 'conf':
+        msg += f"🚔Officer Bob stopped you and took all of your drugs.🚭\n"
+    elif event_number == -1 and found_items != 'nothing':
+        msg += found_items + f"\n"
 
     # get the inventory for the user
     for i in range(0, len(dwInventoryDb)):
@@ -429,10 +458,10 @@ def render_game_screen(userID, day_play, total_day, loc_choice, event_number, pr
 
     return msg
 
-
 def dopeWarGameDay(nodeID, day_play, total_day):
     global dwCashDb, dwLocationDb, dwInventoryDb
     cash_stolen = 0
+    found_items = 'nothing'
 
     # roll for the event of the day
     event_number = generate_event()
@@ -443,12 +472,14 @@ def dopeWarGameDay(nodeID, day_play, total_day):
             loc = dwLocationDb[i].get('location')
             loc_choice = dwLocationDb[i].get('loc_choice')
 
-    # rolls to see if the officer event happens
-    # odds are (1 - event chance) * (officer chance)
-    # currently (1 - 0.35) * (0.20) = 13%
-    # chance is approximate, not sure how randint handles endpoints, close enough for my purposes
-    if event_number == -1 and random.randint(0, 100) > 80:
-        cash_stolen = officer(nodeID)
+    # rolls to see if event happens
+    if event_number == -1 and random.randint(0, 100) > 80: # 20% chance to have an event
+        if random.randint(0, 100) > 50: # 50% chance to have an officer encounter
+            cash_stolen = officer(nodeID)
+        else:
+            # find items
+            found_items = get_found_items(nodeID)
+
 
     price_list = price_change(event_number)
 
@@ -460,7 +491,7 @@ def dopeWarGameDay(nodeID, day_play, total_day):
     check_inv(nodeID)
 
     # main game display print
-    msg = render_game_screen(nodeID, day_play, total_day, loc_choice, event_number, price_list, cash_stolen)
+    msg = render_game_screen(nodeID, day_play, total_day, loc_choice, event_number, price_list, cash_stolen, found_items)
     
     return msg
 
