@@ -160,7 +160,10 @@ def parse_log_file(file_path):
                         log_data['shameList'].insert(0, line)
                         
         # get the user who sent the message
-        user_match = re.search(r'From: (\w+)', line)
+        if 'To: ' in line:
+            user_match = re.search(r"From: '([^']+)'(?: To:|$)", line)
+        else:
+            user_match = re.search(r"From: (.+)$", line)
         if user_match:
             log_data['unique_users'].add(user_match.group(1))
         
