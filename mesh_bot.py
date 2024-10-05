@@ -69,6 +69,8 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "whoami": lambda: handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus),
     "📍": lambda: handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus),
     "🔔": lambda: handle_alertBell(message_from_id, deviceID, message),
+    "CQCQ": lambda: handle_cq(message_from_id, deviceID, channel_number),
+    "CQCQCQ": lambda: handle_cq(message_from_id, deviceID, channel_number),
     }
 
     # set the command handler
@@ -159,12 +161,18 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM):
             multiPingList.append({'message_from_id': message_from_id, 'count': pingCount + 1, 'type': type, 'deviceID': deviceID})
             msg = f"🚦Initalizing {pingCount} auto-ping"
             
-
     return msg
 
 def handle_alertBell(message_from_id, deviceID, message):
     msg = ["the only prescription is more 🐮🔔🐄🛎️", "what this 🤖 needs is more 🐮🔔🐄🛎️", "🎤ring my bell🛎️🔔🎶"]
     return random.choice(msg)
+
+def handle_cq(message_from_id, deviceID, channel_number):
+    if deviceID == 1:
+        myname = get_name_from_number(myNodeNum1, 'short', 1)
+    elif deviceID == 2:
+        myname = get_name_from_number(myNodeNum2, 'short', 2)
+    msg = f"QSP QSL OM DE  {myname}   K"
 
 def handle_motd(message, message_from_id, isDM):
     global MOTD

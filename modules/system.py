@@ -19,7 +19,7 @@ games_enabled = False
 # Ping Configuration
 if ping_enabled:
     # ping, pinging, ack, testing, test, pong
-    trap_list_ping = ("ping", "pinging", "ack", "testing", "test", "pong", "🔔")
+    trap_list_ping = ("ping", "pinging", "ack", "testing", "test", "pong", "🔔", "CQCQ", "CQCQCQ")
     trap_list = trap_list + trap_list_ping
     help_message = help_message + "ping"
 
