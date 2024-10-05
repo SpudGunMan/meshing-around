@@ -206,7 +206,6 @@ def compareCodeMMind(secret_code, user_guess):
                 if temp_guess[i] == temp_code[j]:
                     wrong_position += 1
                     temp_code[j] = "0"
-                    break
     # display feedback
     if game_won:
         msg += f"Correct{getEmojiMMind(user_guess)}\n"
