@@ -133,7 +133,7 @@ def bbs_post_dm(toNode, message, fromNode):
 def get_bbs_stats():
     global bbs_messages, bbs_dm
     # Return some stats on the bbs pending messages and total posted messages
-    return f"📡BBSdb has {len(bbs_messages)} messages. Direct ✉️ Messages waiting: {(len(bbs_dm) - 1)}"
+    return f"📡BBSdb has {len(bbs_messages)} messages.\nDirect ✉️ Messages waiting: {(len(bbs_dm) - 1)}"
 
 def bbs_check_dm(toNode):
     global bbs_dm
