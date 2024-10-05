@@ -151,7 +151,7 @@ try:
     signalCooldown = config['radioMon'].getint('signalCooldown', 5) # default 1 second
     signalCycleLimit = config['radioMon'].getint('signalCycleLimit', 5) # default 5 cycles, used with SIGNAL_COOLDOWN
     
-    # 
+    # games
     game_hop_limit = config['messagingSettings'].getint('game_hop_limit', 5) # default 3 hops
     dopewars_enabled = config['games'].getboolean('dopeWars', True)
     lemonade_enabled = config['games'].getboolean('lemonade', True)
