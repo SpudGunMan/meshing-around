@@ -128,7 +128,7 @@ def parse_log_file(file_path):
                         line = line.replace('|', '')
                         line = line.replace('INFO', '')
                         line = line.replace('DEBUG', '')
-                        log_data['shameList'].append(line)
+                        log_data['shameList'].insert(0, line)
                         
         # get the user who sent the message
         user_match = re.search(r'From: (\w+)', line)
