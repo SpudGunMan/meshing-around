@@ -1,6 +1,6 @@
 Logs will collect here.
 
-Reporting is via [etc/report_generator5.py](etc/report_generator5.py), run it from the etc/ working directory. The report_generator5 has newer feel and HTML5 coding. The index.html output is published in [../etc/www](../etc/www)
+Reporting is via [etc/report_generator5.py](../etc/report_generator5.p), run it from the etc/ working directory. The report_generator5 has newer feel and HTML5 coding. The index.html output is published in [../etc/www](../etc/www)
  - Make sure to have `SyslogToFile = True` and default of DEBUG log level to fully enable reporting! ‼️
  - provided serviceTimer templates in etc/
 
