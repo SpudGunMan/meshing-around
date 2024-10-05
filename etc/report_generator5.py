@@ -326,13 +326,22 @@ def get_database_info():
             golfsim_score = pickle.load(f)
         f.close()
 
+        with open('../bbsdm.pkl', 'rb') as f:
+            bbsdm = pickle.load(f)
+        f.close()
+
         with open('../bbsdb.pkl', 'rb') as f:
             bbsdb = pickle.load(f)
         f.close()
 
-        with open('../bbsdm.pkl', 'rb') as f:
-            bbsdm = pickle.load(f)
-        f.close()
+        # pretty print the bbsdb
+        prettyBBSdb = ""
+        try:
+            for i in range(len(bbsdb)):
+                prettyBBSdb += f'<li>{bbsdb[i]}</li>'
+        except Exception as e:
+            print(f"Error with database: {str(e)}")
+            pass
 
     except Exception as e:
         print(f"Error with database: {str(e)}")
@@ -340,7 +349,7 @@ def get_database_info():
 
     return {
         'database': "N/A",
-        "bbsdb": bbsdb,
+        "bbsdb": prettyBBSdb,
         "bbsdm": bbsdm,
         'lemon_score': lemon_score,
         'dopewar_score': dopewar_score,
@@ -937,7 +946,6 @@ options: {
 </html>    
 """
 
-    from string import Template
     template = Template(html_template)
     return template.safe_substitute(
         date=datetime.now().strftime('%Y_%m_%d'),

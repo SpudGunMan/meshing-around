@@ -315,14 +315,23 @@ def get_database_info():
         with open('../golfsim_hs.pkl', 'rb') as f:
             golfsim_score = pickle.load(f)
         f.close()
+        
+        with open('../bbsdm.pkl', 'rb') as f:
+            bbsdm = pickle.load(f)
+        f.close()
 
         with open('../bbsdb.pkl', 'rb') as f:
             bbsdb = pickle.load(f)
         f.close()
 
-        with open('../bbsdm.pkl', 'rb') as f:
-            bbsdm = pickle.load(f)
-        f.close()
+        # pretty print the bbsdb
+        prettyBBSdb = ""
+        try:
+            for i in range(len(bbsdb)):
+                prettyBBSdb += f'<li>{bbsdb[i]}</li>'
+        except Exception as e:
+            print(f"Error with database: {str(e)}")
+            pass
 
     except Exception as e:
         print(f"Error with database: {str(e)}")
