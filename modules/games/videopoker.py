@@ -326,15 +326,15 @@ def playVideoPoker(nodeID, message):
         try:
             bet = int(message)
         except ValueError:
-            msg += "Please enter a valid bet amount. 1 to 5 coins."
+            msg += f"Please enter a valid bet, 1 to 5 coins. you have {player.bankroll} coins."
 
         # Check if bet is valid
         if bet > player.bankroll:
-            msg += "You can only bet the money you have. No strip poker here..."
+            msg += f"You can only bet the money you have. {player.bankroll} coins, No strip poker here..."
         elif bet < 1:
-            msg += "You must bet at least 1 coin."
+            msg += "You must bet at least 1 coin.🪙"
         elif bet > 5:
-            msg += "You can only bet up to 5 coins."
+            msg += "The 🎰 coin slot only fits 5 coins max."
 
         # if msg contains an error, return it
         if msg is not None and msg != '':
