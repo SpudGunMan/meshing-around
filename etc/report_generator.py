@@ -124,16 +124,15 @@ def parse_log_file(file_path):
         # Error Logs
         if 'WARNING |' in line:
             # remove some junk from the line
-            line.replace('  ', ' ')
-            line.replace('| WARNING |', '')
-            line.replace('System:', '')
+            line = line.replace('|', '')
+            line = line.replace('  ', ' ')
             log_data['warnings'].insert(0, line)
 
         if 'ERROR |' in line or 'CRITICAL |' in line:
             # remove some junk from the line
-            line.replace('  ', ' ')
-            line.replace('| ERROR |', '')
-            line.replace('System:', '')
+            line = line.replace('System:', '')
+            line = line.replace('|', '')
+            line = line.replace('  ', ' ')
             log_data['errors'].insert(0, line)
 
         # bbs messages
