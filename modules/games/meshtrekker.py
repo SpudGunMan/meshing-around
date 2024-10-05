@@ -1,6 +1,5 @@
 """
 Mesh Trekker Game
-
 Game Rules:
 1. Players compete to cover the most distance over time using their Meshtastic devices.
 2. The game tracks players' movements via GPS coordinates sent by their devices.
@@ -12,20 +11,10 @@ Game Rules:
 8. Players can use the 'whereami' command to check their current location and update their position in the game.
 """
 
-import random
-import time
 import pickle
 from modules.log import *
-
-
 from datetime import datetime, timedelta
 from geopy.distance import geodesic
-import os
-
-
-# Set up logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
 
 class MeshTrekkerError(Exception):
     """Base class for exceptions in this module."""
@@ -62,14 +51,11 @@ class MeshTrekker:
 
     def load_data(self):
         try:
-            if os.path.exists(self.data_file):
-                with open(self.data_file, 'rb') as f:
-                    return pickle.load(f)
-            else:
-                logger.info(f"Data file {self.data_file} not found. Initializing new data.")
-                return self.initialize_data()
+            with open(self.data_file, 'rb') as f:
+                return pickle.load(f)
         except (pickle.PickleError, EOFError, FileNotFoundError) as e:
-            raise DataLoadError(f"Error loading data: {e}")
+            logger.info(f"Data file {self.data_file} not found. Initializing new data.")
+            return self.initialize_data()
 
     def save_data(self):
         try:
@@ -222,31 +208,40 @@ class MeshTrekker:
         except Exception as e:
             logger.error(f"Error retrieving achievements for user {user_id}: {e}")
             return []
-
-# Integrating the handle_whereami function
-def get_node_location(message_from_id, deviceID, channel_number):
-    # This function should be implemented to get the location from the Meshtastic device
-    # For now, we'll use a placeholder implementation
-    return (0, 0)  # Placeholder coordinates
-
-def where_am_i(latitude, longitude):
-    # This function should return a human-readable location description
-    # For now, we'll just return the coordinates
-    return f"You are at coordinates: {latitude}, {longitude}"
-
-def handle_whereami(message_from_id, deviceID, channel_number):
-    location = get_node_location(message_from_id, deviceID, channel_number)
-    return where_am_i(str(location[0]), str(location[1]))
-
-# Main game handler
+        
+# Initialize the game
 game = MeshTrekker()
 
-def process_whereami_command(user_id, deviceID, channel_number):
-    location_info = handle_whereami(user_id, deviceID, channel_number)
+def handle_meshtrekker(user_id, deviceID, channel_number, location_info=(0,0)):
+    # Process GPS data from Meshtastic devices
     latitude, longitude = location_info.split(": ")[1].split(", ")
     
     current_time = datetime.now()
     new_distance = game.process_gps_data(user_id, latitude, longitude, current_time)
+
+
+    # # Create and join teams
+    # game.create_team("Team A", "user1")
+    # game.join_team("Team A", "user2")
+
+    # # Get individual leaderboard
+    # print("\nAll-time individual leaderboard:")
+    # for user, distance in game.get_leaderboard():
+    #     print(f"{user}: {distance:.2f} km")
+
+    # # Get team leaderboard
+    # print("\nTeam leaderboard:")
+    # for team, distance in game.get_team_leaderboard():
+    #     print(f"{team}: {distance:.2f} km")
+
+    # # Get user stats
+    # user_stats = game.get_user_stats("user1")
+    # print(f"\nUser1 stats: {user_stats}")
+
+    # # Get achievements
+    # achievements = game.get_achievements("user1")
+    # print(f"User1 achievements: {achievements}")
+
     
     if new_distance is not None:
         new_achievements = game.check_achievements(user_id, new_distance)
@@ -258,36 +253,3 @@ def process_whereami_command(user_id, deviceID, channel_number):
     
     return response
 
-# Usage example
-if __name__ == "__main__":
-    try:
-        # Simulating 'whereami' commands from users
-        print(process_whereami_command("user1", "device1", 1))
-        print(process_whereami_command("user1", "device1", 1))
-        print(process_whereami_command("user2", "device2", 1))
-        print(process_whereami_command("user2", "device2", 1))
-
-        # Create and join teams
-        game.create_team("Team A", "user1")
-        game.join_team("Team A", "user2")
-
-        # Get individual leaderboard
-        print("\nAll-time individual leaderboard:")
-        for user, distance in game.get_leaderboard():
-            print(f"{user}: {distance:.2f} km")
-
-        # Get team leaderboard
-        print("\nTeam leaderboard:")
-        for team, distance in game.get_team_leaderboard():
-            print(f"{team}: {distance:.2f} km")
-
-        # Get user stats
-        user_stats = game.get_user_stats("user1")
-        print(f"\nUser1 stats: {user_stats}")
-
-        # Get achievements
-        achievements = game.get_achievements("user1")
-        print(f"User1 achievements: {achievements}")
-
-    except Exception as e:
-        logger.error(f"An unexpected error occurred: {e}")
