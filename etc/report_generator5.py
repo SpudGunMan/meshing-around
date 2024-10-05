@@ -343,6 +343,15 @@ def get_database_info():
             print(f"Error with database: {str(e)}")
             pass
 
+        # pretty print the bbsdm
+        prettyBBSdm = ""
+        try:
+            for i in range(len(bbsdm)):
+                prettyBBSdm += f'<li>{bbsdm[i]}</li>'
+        except Exception as e:
+            print(f"Error with database: {str(e)}")
+            pass
+
     except Exception as e:
         print(f"Error with database: {str(e)}")
         pass
@@ -350,7 +359,7 @@ def get_database_info():
     return {
         'database': "N/A",
         "bbsdb": prettyBBSdb,
-        "bbsdm": bbsdm,
+        "bbsdm": prettyBBSdm,
         'lemon_score': lemon_score,
         'dopewar_score': dopewar_score,
         'blackjack_score': blackjack_score,
