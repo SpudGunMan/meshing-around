@@ -61,6 +61,8 @@ LogMessagesToFile = False
 SyslogToFile = False
 
 [games]
+# if hop limit for the user exceeds this value, the message will be dropped
+game_hop_limit = 5
 # enable or disable the games module(s)
 dopeWars = True
 lemonade = True
@@ -133,5 +135,4 @@ responseDelay = 0.7
 splitDelay = 0.0
 # message chunk size for sending at high success rate
 MESSAGE_CHUNK_SIZE = 160
-# if hop limit for the user exceeds this value, the message will be dropped
-game_hop_limit = 5
+
