@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os
 import re
 import sys
@@ -14,10 +15,34 @@ from importlib.metadata import version
 from collections import Counter, defaultdict
 
 # global variables
-LOG_PATH = '/opt/meshing-around/logs'
-W3_PATH = '/var/www/html'
+LOG_PATH = '/opt/meshing-around/logs' # override path to log files (defaults to ../log)
+W3_PATH = '/var/www/html/' # override path to web server root (defaults to ../www)
 multiLogReader = True
 shameWordList = ['password', 'combo', 'key', 'hidden', 'secret', 'pass', 'token', 'login', 'username', 'admin', 'root']
+
+# system variables
+script_dir = os.path.dirname(os.path.realpath(__file__))
+www_dir = os.path.join(script_dir, 'www')
+config_file = os.path.join(script_dir, 'web_reporter.cfg')
+
+# set up report.cfg as ini file
+config = configparser.ConfigParser()
+try:
+    config.read(config_file)
+except Exception as e:
+    print(f"Error reading web_reporter.cfg: {str(e)} generating default config")
+
+if config.sections() == []:
+    print(f"web_reporter.cfg is empty or does not exist, generating default config")
+    config['reporting'] = {'log_path': script_dir, 'w3_path': www_dir, 'multi_log_reader': 'True', 'shame_word_list': 'password, combo, key, hidden, secret, pass, token, login, username, admin, root'}
+    with open(config_file, 'w') as configfile:
+        config.write(configfile)
+
+# read config file
+LOG_PATH = config['reporting'].get('log_path', LOG_PATH)
+W3_PATH = config['reporting'].get('w3_path', W3_PATH)
+multiLogReader = config['reporting'].getboolean('multi_log_reader', multiLogReader)
+shameWordList = config['reporting'].get('shame_word_list', shameWordList)
 
 def parse_log_file(file_path):
     global log_data
