@@ -15,7 +15,7 @@ LogMessagesToFile = False
 SyslogToFile = True
 ```
 
-To change the stdout (what you see on the console) logging level (default is DEBUG) see the following example, line is in [/modules/log.py](/modules/log.py)
+To change the stdout (what you see on the console) logging level (default is DEBUG) see the following example, line is in [../modules/log.py](/modules/log.py)
 
 ```
 # Set level for stdout handler
