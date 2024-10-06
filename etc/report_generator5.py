@@ -198,30 +198,22 @@ def parse_log_file(file_path):
             node_id, lat, lon = gps_match.groups()
             log_data['gps_coordinates'][node_id].append((float(lat), float(lon)))
         
-        # get firmware version for nodes
-        if 'Interface1 Node Firmware:' in line:
-            firmware1_match = re.search(r'Interface1 Node Firmware: (\S+)', line)
-            if firmware1_match:
-                firmware1_version = firmware1_match.group(1)
-                log_data['firmware1_version'] = firmware1_version
-        if 'Interface2 Node Firmware:' in line:
-            firmware2_match = re.search(r'Interface2 Node Firmware: (\S+)', line)
-            if firmware2_match:
-                firmware2_version = firmware2_match.group(1)
-                log_data['firmware2_version'] = firmware2_version
+        # get telemetry data
+        # example, System: int1:2.5.2.771cb52, Nodes:2, Telemetry: ChUse/Tx 0.0%/0.0%  Uptime:10d Volt:4.311
+        telemetry_match = re.search(r'System: int(\d+):(\d+\.\d+\.\d+\.\w+), Nodes:(\d+), Telemetry: ChUse/Tx (\d+\.\d+)%/(\d+\.\d+)%  Uptime:(\d+d).{1} Volt:(\d+\.\d+)', line)
+        if telemetry_match:
+            interface_number, firmware_version, nodes, chUse, tx, uptime, voltage = telemetry_match.groups()
+            data = f"Nodes {nodes}, Uptime{uptime}, ChUse {chUse}%, Tx {tx}%, Voltage {voltage}"
+            print(f"Interface {interface_number} Firmware {firmware_version} {data}")
+            if interface_number == '1':
+                log_data['firmware1_version'] = firmware_version
+                log_data['node1_uptime'] = data
+                #log_data['nodeCount1'] = nodes
+            elif interface_number == '2':
+                log_data['firmware2_version'] = firmware_version
+                log_data['node2_uptime'] = data 
+                #log_data['nodeCount2'] = nodes
 
-        # get uptime for nodes
-        if 'Uptime:' in line:
-            node_id = None
-            uptime_match = re.search(r'Device:(\d+).*?(SNR:.*?)(?= To:)', line)
-            if uptime_match:
-                node_id = uptime_match.group(1)
-                snr_and_more = uptime_match.group(2)
-                if node_id == '1':
-                    log_data['node1_uptime'] = snr_and_more
-                elif node_id == '2':
-                    log_data['node2_uptime'] = snr_and_more
-        
         # get name and nodeID for devices
         if 'Autoresponder Started for Device' in line:
             device_match = re.search(r'Autoresponder Started for Device(\d+)\s+([^\s,]+).*?NodeID: (\d+)', line)
