@@ -479,7 +479,7 @@ def get_closest_nodes(nodeInt=1,returnCount=3):
             # return the first 3 closest nodes by default
             return node_list[:returnCount]
         else:
-            logger.error(f"System: No nodes found in closest_nodes on interface {nodeInt}")
+            logger.warning(f"System: No nodes found in closest_nodes on interface {nodeInt}")
             return ERROR_FETCHING_DATA
 
     if nodeInt == 2:
@@ -511,7 +511,7 @@ def get_closest_nodes(nodeInt=1,returnCount=3):
             # return the first 3 closest nodes by default
             return node_list[:returnCount]
         else:
-            logger.error(f"System: No nodes found in closest_nodes on interface {nodeInt}")
+            logger.warning(f"System: No nodes found in closest_nodes on interface {nodeInt}")
             return ERROR_FETCHING_DATA
         
 def send_message(message, ch, nodeid=0, nodeInt=1):
@@ -876,10 +876,9 @@ async def retry_interface(nodeID=1):
     except Exception as e:
         logger.error(f"System: opening interface2: {e}")
 
-async def handleSentinel(deviceID=1, loop=0):
+async def handleSentinel(deviceID=1):
     # Locate Closest Nodes and report them to a secure channel
     # async function for possibly demanding back location data
-    sentry_loop = loop
     lastSpotted = ""
     enemySpotted = ""
     try:
@@ -892,7 +891,9 @@ async def handleSentinel(deviceID=1, loop=0):
                 enemySpotted += ", " + decimal_to_hex(closest_nodes[0]['id'])
                 enemySpotted += f" at {closest_nodes[0]['distance']}m"
     except Exception as e:
+        logger.warning(f"System: Error getting closest nodes: {e}")
         pass
+    print(f"System: Sentry Enemy Spotted: {enemySpotted} Last Spotted: {lastSpotted}")
     if sentry_loop >= sentry_holdoff and lastSpotted != enemySpotted:
         logger.warning(f"System: {enemySpotted} is close to your location on Interface1")
         send_message(f"Sentry{deviceID}: {enemySpotted}", secure_channel, 0, deviceID)
@@ -902,7 +903,6 @@ async def handleSentinel(deviceID=1, loop=0):
 async def watchdog():
     global retry_int1, retry_int2
     int1Data, int2Data = "", ""
-    sentryLoop = 0
     while True:
         await asyncio.sleep(20)
         #print(f"MeshBot System: watchdog running\r", end="")
@@ -918,7 +918,7 @@ async def watchdog():
             if not retry_int1:
                 # Locate Closest Nodes and report them to a secure channel
                 if sentry_enabled:
-                    await handleSentinel(1, sentryLoop + 1)
+                    await handleSentinel(1)
 
                 # multiPing handler
                 handleMultiPing(0,1)
@@ -946,7 +946,7 @@ async def watchdog():
                 if not retry_int2:
                     # Locate Closest Nodes and report them to a secure channel
                     if sentry_enabled:
-                        handleSentinel(2, sentryLoop + 1)
+                        await handleSentinel(2)
 
                     # multiPing handler
                     handleMultiPing(0,2)
