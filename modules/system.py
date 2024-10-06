@@ -893,18 +893,17 @@ async def handleSentinel(deviceID=1, loop=0):
                 enemySpotted += f" at {closest_nodes[0]['distance']}m"
     except Exception as e:
         pass
-    
+    print(f"System: Sentry Loop: {sentry_loop} Enemy Spotted: {enemySpotted} Last Spotted: {lastSpotted}")
     if sentry_loop >= sentry_holdoff and lastSpotted != enemySpotted:
         logger.warning(f"System: {enemySpotted} is close to your location on Interface1")
-        send_message(f"Sentry1: {enemySpotted}", secure_channel, 0, deviceID)
+        send_message(f"Sentry{deviceID}: {enemySpotted}", secure_channel, 0, deviceID)
         sentry_loop = 0
         lastSpotted = enemySpotted
-    else:
-        sentry_loop += 1
 
 async def watchdog():
     global retry_int1, retry_int2
     int1Data, int2Data = "", ""
+    sentryLoop = 0
     while True:
         await asyncio.sleep(20)
         #print(f"MeshBot System: watchdog running\r", end="")
@@ -920,15 +919,15 @@ async def watchdog():
             if not retry_int1:
                 # Locate Closest Nodes and report them to a secure channel
                 if sentry_enabled:
-                    await handleSentinel(1)
+                    await handleSentinel(1, sentryLoop + 1)
 
                 # multiPing handler
                 handleMultiPing(0,1)
 
                 # Telemetry data
-                int1Data = getNodeTelemetry(0, 1) +f" Firmware:{firmware}"
+                int1Data = getNodeTelemetry(0, 1)
                 if int1Data != -1:
-                    logger.debug(int1Data)
+                    logger.debug(int1Data + f" Firmware:{firmware}")
 
         if retry_int1:
             try:
@@ -948,15 +947,15 @@ async def watchdog():
                 if not retry_int2:
                     # Locate Closest Nodes and report them to a secure channel
                     if sentry_enabled:
-                        handleSentinel(2)
+                        handleSentinel(2, sentryLoop + 1)
 
                     # multiPing handler
                     handleMultiPing(0,2)
 
                 # Telemetry data
-                int2Data = getNodeTelemetry(0, 2) + f" Firmware:{firmware2}"
+                int2Data = getNodeTelemetry(0, 2)
                 if int1Data != -1:
-                    logger.debug(int2Data)
+                    logger.debug(int2Data + f" Firmware:{firmware2}")
         
             if retry_int2:
                 try:
