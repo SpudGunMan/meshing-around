@@ -936,19 +936,29 @@ options: {
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap contributors'
             }).addTo(map);
-
+        
             var gpsCoordinates = ${gps_coordinates};
-            for (var nodeId in gpsCoordinates) {
-                var coords = gpsCoordinates[nodeId][0];
-                L.marker(coords).addTo(map)
-                    .bindPopup("Node ID: " + nodeId);
-            }
-
             var bounds = [];
+            var defaultCoordinate = [0, 0]; // Set your default coordinate here
+        
             for (var nodeId in gpsCoordinates) {
-                bounds.push(gpsCoordinates[nodeId][0]);
+                if (gpsCoordinates[nodeId] && gpsCoordinates[nodeId][0]) {
+                    var coords = gpsCoordinates[nodeId][0];
+                    L.marker(coords).addTo(map)
+                        .bindPopup("Node ID: " + nodeId);
+                    bounds.push(coords);
+                } else {
+                    // Optionally, handle the case where coordinates are missing
+                    // bounds.push(defaultCoordinate);
+                }
             }
-            map.fitBounds(bounds);
+        
+            if (bounds.length > 0) {
+                map.fitBounds(bounds);
+            } else {
+                // Optionally, set the view to the default coordinate if no valid bounds are found
+                map.setView(defaultCoordinate, 2);
+            }
         }
 
         function showIframe(src) {
@@ -1217,7 +1227,7 @@ def main():
     index_path = os.path.join(output_dir, 'index.html')
 
     print(f"\n\nMeshBot (BBS) Web Dashboard Report Generator")
-    print(f"\nMain dashboard: file://{index_path}\n")
+    print(f"\nMain dashboard: file:/{index_path}\n")
     
     try:
         if not os.path.exists(output_dir):
