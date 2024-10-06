@@ -37,7 +37,7 @@ def where_am_i(lat=0, lon=0, short=False):
             address = location.raw['address']
             address_components = ['city', 'state', 'postcode', 'county', 'country']
             whereIam += ' '.join([address.get(component, '') for component in address_components if component in address])
-            whereIam += " Grid: " + grid
+            whereIam += " .Grid: " + grid
         else:
             location = geolocator.reverse(lat + ", " + lon)
             address = location.raw['address']
