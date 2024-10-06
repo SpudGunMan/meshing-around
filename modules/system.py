@@ -893,7 +893,6 @@ async def handleSentinel(deviceID=1, loop=0):
                 enemySpotted += f" at {closest_nodes[0]['distance']}m"
     except Exception as e:
         pass
-    print(f"System: Sentry Loop: {sentry_loop} Enemy Spotted: {enemySpotted} Last Spotted: {lastSpotted}")
     if sentry_loop >= sentry_holdoff and lastSpotted != enemySpotted:
         logger.warning(f"System: {enemySpotted} is close to your location on Interface1")
         send_message(f"Sentry{deviceID}: {enemySpotted}", secure_channel, 0, deviceID)
