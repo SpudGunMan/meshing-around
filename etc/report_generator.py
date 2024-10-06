@@ -74,7 +74,10 @@ def parse_log_file(file_path):
             print(f"Error: File not found at {file_path}")
             sys.exit(1)
 
-    print(f"Consumed {len(lines)} lines from log file(s)")
+    if multiLogReader:
+        print(f"Consumed {len(lines)} lines from {len(log_files)} log files")
+    else:
+        print(f"Consumed {len(lines)} lines from {file_path}")
 
     log_data = {
         'command_counts': Counter(),
