@@ -876,29 +876,30 @@ async def retry_interface(nodeID=1):
     except Exception as e:
         logger.error(f"System: opening interface2: {e}")
 
+
+handleSentinel_spotted = ""
+handleSentinel_loop = 0
 async def handleSentinel(deviceID=1):
+    global handleSentinel_spotted, handleSentinel_loop
     # Locate Closest Nodes and report them to a secure channel
     # async function for possibly demanding back location data
-    lastSpotted = ""
     enemySpotted = ""
-    try:
-        closest_nodes = get_closest_nodes(deviceID)
-        if closest_nodes != ERROR_FETCHING_DATA:
-            if closest_nodes[0]['id'] is not None:
-                enemySpotted = get_name_from_number(closest_nodes[0]['id'], 'long', 1)
-                enemySpotted += ", " + get_name_from_number(closest_nodes[0]['id'], 'short', 1)
-                enemySpotted += ", " + str(closest_nodes[0]['id'])
-                enemySpotted += ", " + decimal_to_hex(closest_nodes[0]['id'])
-                enemySpotted += f" at {closest_nodes[0]['distance']}m"
-    except Exception as e:
-        logger.warning(f"System: Error getting closest nodes: {e}")
-        pass
-    print(f"System: Sentry Enemy Spotted: {enemySpotted} Last Spotted: {lastSpotted}")
-    if sentry_loop >= sentry_holdoff and lastSpotted != enemySpotted:
+    closest_nodes = get_closest_nodes(deviceID)
+    if closest_nodes != ERROR_FETCHING_DATA and closest_nodes:
+        if closest_nodes[0]['id'] is not None:
+            enemySpotted = get_name_from_number(closest_nodes[0]['id'], 'long', 1)
+            enemySpotted += ", " + get_name_from_number(closest_nodes[0]['id'], 'short', 1)
+            enemySpotted += ", " + str(closest_nodes[0]['id'])
+            enemySpotted += ", " + decimal_to_hex(closest_nodes[0]['id'])
+            enemySpotted += f" at {closest_nodes[0]['distance']}m"
+
+    if handleSentinel_loop >= sentry_holdoff and handleSentinel_spotted != enemySpotted:
         logger.warning(f"System: {enemySpotted} is close to your location on Interface1")
         send_message(f"Sentry{deviceID}: {enemySpotted}", secure_channel, 0, deviceID)
-        sentry_loop = 0
-        lastSpotted = enemySpotted
+        handleSentinel_loop = 0
+        handleSentinel_spotted = enemySpotted
+    else:
+        handleSentinel_loop += 1
 
 async def watchdog():
     global retry_int1, retry_int2
