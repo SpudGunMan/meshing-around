@@ -17,7 +17,6 @@ asyncLoop = asyncio.new_event_loop()
 games_enabled = False
 multiPingList = [{'message_from_id': 0, 'count': 0, 'type': '', 'deviceID': 0}]
 lastTelemetryRequest = 0
-numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr = 0, 0, 0, 0
 
 # Ping Configuration
 if ping_enabled:
@@ -672,7 +671,7 @@ def getNodeTelemetry(nodeID=0, rxNode=1):
     global lastTelemetryRequest, numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr
     # throttle the telemetry requests to prevent spamming the device
     if time.time() - lastTelemetryRequest < 1200:
-        print(f"numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr: {numPacketsTx}, {numPacketsRx}, {numPacketsTxErr}, {numPacketsRxErr}")
+        print(f"watchDog numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr: {numPacketsTx}, {numPacketsRx}, {numPacketsTxErr}, {numPacketsRxErr}")
         return -1
     lastTelemetryRequest = time.time()
     # get the telemetry data for a node
