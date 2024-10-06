@@ -705,8 +705,9 @@ def getNodeTelemetry(nodeID=0, rxNode=0):
     if numPacketsTx[1] == 1:
         dataResponse += f" numPacketsTx:{numPacketsTx[0]} numPacketsRx:{numPacketsRx[0]} numPacketsTxErr:{numPacketsTxErr[0]} numPacketsRxErr:{numPacketsRxErr[0]}"
     elif numPacketsTx[1] == 2:
-        dataResponse += f" numPacketsTx:{numPacketsTx[0]} numPacketsRx:{numPacketsRx[0]} numPacketsTxErr:{numPacketsTxErr[0]} numPacketsRxErr:{numPacketsRxErr[0]} "
-    
+        dataResponse += f" numPacketsTx:{numPacketsTx[0]} numPacketsRx:{numPacketsRx[0]} numPacketsTxErr:{numPacketsTxErr[0]} numPacketsRxErr:{numPacketsRxErr[0]}"
+    else:
+        dataResponse += f" numPacketsTx:-1 numPacketsRx:-1 numPacketsTxErr:-1 numPacketsRxErr:-1"
     # Channel utilization and airUtilTx
     dataResponse += " ChUtil%:" + str(round(chutil, 2)) + " AirTx%:" + str(round(airUtilTx, 2))
 
