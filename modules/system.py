@@ -700,6 +700,7 @@ def getNodeTelemetry(nodeID=0, rxNode=1):
     
     # packet telemetry
     if numPacketsRx != 0:
+        print(f"sys     numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr: {numPacketsTx}, {numPacketsRx}, {numPacketsTxErr}, {numPacketsRxErr}")
         if numPacketsTx[1] == 1:
             dataResponse += f"Telemetry:{rxNode} numPacketsTx:{numPacketsTx[0]} numPacketsRx:{numPacketsRx[0]} numPacketsTxErr:{numPacketsTxErr[0]} numPacketsRxErr:{numPacketsRxErr[0]}"
         elif numPacketsTx[1] == 2:
