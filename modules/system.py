@@ -669,15 +669,15 @@ def getNodeFirmware(nodeID=0, nodeInt=1):
         return -1
     return fwVer
 
-def getNodeTelemetry(nodeID=0, rxNode=1):
+def getNodeTelemetry(nodeID=0, rxNode=0):
     global lastTelemetryRequest, numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr
     # throttle the telemetry requests to prevent spamming the device
     if time.time() - lastTelemetryRequest < 1200:
-        print(f"watchDog numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr: {numPacketsTx}, {numPacketsRx}, {numPacketsTxErr}, {numPacketsRxErr}")
+        if numPacketsRx[1] != -1:
+            print(f"watchDog numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr: {numPacketsTx}, {numPacketsRx}, {numPacketsTxErr}, {numPacketsRxErr}")
         return -1
     lastTelemetryRequest = time.time()
     # get the telemetry data for a node
-    dataResponse = ""
     if rxNode == 1:
         chutil = round(interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("channelUtilization", 0), 1)
         airUtilTx = round(interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("airUtilTx", 0), 1)
@@ -699,14 +699,14 @@ def getNodeTelemetry(nodeID=0, rxNode=1):
     else:
         return -1
     
+    dataResponse = f"Telemetry:{rxNode} "
+
     # packet telemetry
-    if numPacketsRx != 0:
-        print(f"set new value     numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr: {numPacketsTx}, {numPacketsRx}, {numPacketsTxErr}, {numPacketsRxErr}")
-        if numPacketsTx[1] == 1:
-            dataResponse += f"Telemetry:{rxNode} numPacketsTx:{numPacketsTx[0]} numPacketsRx:{numPacketsRx[0]} numPacketsTxErr:{numPacketsTxErr[0]} numPacketsRxErr:{numPacketsRxErr[0]}"
-        elif numPacketsTx[1] == 2:
-            dataResponse += f"Telemetry:{rxNode} numPacketsTx:{numPacketsTx[0]} numPacketsRx:{numPacketsRx[0]} numPacketsTxErr:{numPacketsTxErr[0]} numPacketsRxErr:{numPacketsRxErr[0]} "
-        
+    if numPacketsTx[1] == 1:
+        dataResponse += f" numPacketsTx:{numPacketsTx[0]} numPacketsRx:{numPacketsRx[0]} numPacketsTxErr:{numPacketsTxErr[0]} numPacketsRxErr:{numPacketsRxErr[0]}"
+    elif numPacketsTx[1] == 2:
+        dataResponse += f" numPacketsTx:{numPacketsTx[0]} numPacketsRx:{numPacketsRx[0]} numPacketsTxErr:{numPacketsTxErr[0]} numPacketsRxErr:{numPacketsRxErr[0]} "
+    
     # Channel utilization and airUtilTx
     dataResponse += " ChUtil%:" + str(round(chutil, 2)) + " AirTx%:" + str(round(airUtilTx, 2))
 

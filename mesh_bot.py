@@ -956,7 +956,7 @@ def onReceive(packet, interface):
             localStats = telemetry_packet['localStats']
             if localStats.get('numPacketsTx') and localStats.get('numPacketsRx') != 0:
                 if numPacketsRx != 0:
-                    print(f"injest numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr: {numPacketsTx}, {numPacketsRx}, {numPacketsTxErr}, {numPacketsRxErr}")
+                    print(f"packet {telemetry_packet}")
                 # Assign the values and include rxNode
                 numPacketsTx = (localStats['numPacketsTx'], rxNode)
                 numPacketsRx = (localStats['numPacketsRx'], rxNode)
