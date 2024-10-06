@@ -228,7 +228,7 @@ schedule.every().wednesday.at("19:00").do(lambda: send_message("Net Starting Now
 ```
 
 ### Requirements
-Python 3.10 or later is needed. The following can be installed with `pip install -r requirements.txt` or using the [install.sh](install.sh) "/Users/kkeeton/Documents/GitHub/meshing-around/install.sh") script for venv and automation:
+Python 3.8? or later is needed (dev on latest). The following can be installed with `pip install -r requirements.txt` or using the [install.sh](install.sh) "/Users/kkeeton/Documents/GitHub/meshing-around/install.sh") script for venv and automation:
 
 ```sh
 pip install meshtastic
