@@ -902,16 +902,16 @@ def onDisconnect(interface):
         elif interface2_enabled and interface2_type == 'ble':
             retry_int2 = True
 
+numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr = [0,0], [0,0], [0,0], [0,0]
 def onReceive(packet, interface):
-    # Priocess the incoming packet, handles the responses to the packet
-    # extract interface  defailts from interface object
+    # Priocess the incoming packet, handles the responses to the packet with auto_response()
+    # Sends the packet to the correct handler for processing
+
+    # extract interface details from inbound packet
     rxType = type(interface).__name__
-    rxNode = 0
-    message_from_id = 0
-    snr = 0
-    rssi = 0
-    hop = 0
-    hop_away = 0
+
+    # Valies assinged to the packet
+    rxNode, message_from_id, snr, rssi, hop, hop_away = 0, 0, 0, 0, 0, 0
     pkiStatus = (False, 'ABC')
     isDM = False
 
@@ -922,6 +922,8 @@ def onReceive(packet, interface):
         # Debug print the packet for debugging
         logger.debug(f"Packet Received\n {packet} \n END of packet \n")
 
+
+    # set the value for the incomming interface
     if rxType == 'SerialInterface':
         rxInterface = interface.__dict__.get('devPath', 'unknown')
         if port1 in rxInterface:
@@ -942,18 +944,19 @@ def onReceive(packet, interface):
         elif interface2_enabled and interface2_type == 'ble':
             rxNode = 2
 
-    # TELEMETRY
+    # TELEMETRY packets
+    global numPacketsRx, numPacketsTx, numPacketsRxErr, numPacketsTxErr
     if packet.get('decoded') and packet['decoded']['portnum'] == 'TELEMETRY_APP':
         #print(f"Telemetry Packet: {packet}")
         # get the telemetry data
-        telemetry = packet['decoded']['telemetry']
-        if telemetry.get('deviceMetrics'):
-            deviceMetrics = telemetry['deviceMetrics']
-            #print(f"deviceMetrics: {deviceMetrics}")
-        if telemetry.get('localStats'):
-            localStats = telemetry['localStats']
-            if localStats.get('numPacketsTx') and localStats.get('numPacketsRx'):
-                global numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr
+        telemetry_packet = packet['decoded']['telemetry']
+        # if telemetry_packet.get('deviceMetrics'):
+        #     deviceMetrics = telemetry_packet['deviceMetrics']
+        #     #print(f"deviceMetrics: {deviceMetrics}")
+        if telemetry_packet.get('localStats'):
+            localStats = telemetry_packet['localStats']
+            if localStats.get('numPacketsTx') and localStats.get('numPacketsRx') != 0:
+                #print(f"numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr: {numPacketsTx}, {numPacketsRx}, {numPacketsTxErr}, {numPacketsRxErr}")
                 # Assign the values and include rxNode
                 numPacketsTx = (localStats['numPacketsTx'], rxNode)
                 numPacketsRx = (localStats['numPacketsRx'], rxNode)
@@ -961,10 +964,10 @@ def onReceive(packet, interface):
                     numPacketsTxErr = (localStats['numPacketsTxErr'], rxNode)
                     numPacketsRxErr = (localStats['numPacketsRxErr'], rxNode)
                 except KeyError:
-                    numPacketsTxErr = (0, rxNode)
-                    numPacketsRxErr = (0, rxNode)
+                    numPacketsTxErr = (-1, rxNode)
+                    numPacketsRxErr = (-1, rxNode)
                 #airUtilTx = (round(localStats['airUtilTx'], 2), rxNode)
-        
+                
     # check for BBS DM for mail delivery
     if bbs_enabled and 'decoded' in packet:
         message_from_id = packet['from']

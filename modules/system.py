@@ -668,15 +668,16 @@ def getNodeFirmware(nodeID=0, nodeInt=1):
         return -1
     return fwVer
 
-def getNodeTelemetry(nodeID=0, nodeInt=1):
-    # throttle the telemetry requests to prevent spamming the device
+def getNodeTelemetry(nodeID=0, rxNode=1):
     global lastTelemetryRequest, numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr
-    if time.time() - lastTelemetryRequest < 600:
+    # throttle the telemetry requests to prevent spamming the device
+    if time.time() - lastTelemetryRequest < 1200:
+        print(f"numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr: {numPacketsTx}, {numPacketsRx}, {numPacketsTxErr}, {numPacketsRxErr}")
         return -1
     lastTelemetryRequest = time.time()
     # get the telemetry data for a node
     dataResponse = ""
-    if nodeInt == 1:
+    if rxNode == 1:
         chutil = round(interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("channelUtilization", 0), 1)
         airUtilTx = round(interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("airUtilTx", 0), 1)
         uptimeSeconds = interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("uptimeSeconds", 0)
@@ -685,7 +686,7 @@ def getNodeTelemetry(nodeID=0, nodeInt=1):
         #numPacketsRx = interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("localStats", {}).get("numPacketsRx", 0)
         #numPacketsTx = interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("localStats", {}).get("numPacketsTx", 0)
         numTotalNodes = len(interface1.nodes) 
-    elif nodeInt == 2:
+    elif rxNode == 2:
         chutil = round(interface2.nodes.get(decimal_to_hex(myNodeNum2), {}).get("deviceMetrics", {}).get("channelUtilization", 0), 1)
         airUtilTx = round(interface2.nodes.get(decimal_to_hex(myNodeNum2), {}).get("deviceMetrics", {}).get("airUtilTx", 0), 1)
         uptimeSeconds = interface2.nodes.get(decimal_to_hex(myNodeNum2), {}).get("deviceMetrics", {}).get("uptimeSeconds", 0)
@@ -698,20 +699,20 @@ def getNodeTelemetry(nodeID=0, nodeInt=1):
         return -1
     
     # packet telemetry
-    if nodeInt == 1:
-        dataResponse += f"Telemetry:{nodeInt} numPacketsTx:{numPacketsTx} numPacketsRx:{numPacketsRx} numPacketsTxErr:{numPacketsTxErr} numPacketsRxErr:{numPacketsRxErr}"
-    if nodeInt == 2:
-        dataResponse += f"Telemetry:{nodeInt} numPacketsTx:{numPacketsTx2} numPacketsRx:{numPacketsRx2} numPacketsTxErr:{numPacketsTxErr2} numPacketsRxErr:{numPacketsRxErr2}"
-    
-    
+    if numPacketsRx != 0:
+        if numPacketsTx[1] == 1:
+            dataResponse += f"Telemetry:{rxNode} numPacketsTx:{numPacketsTx[0]} numPacketsRx:{numPacketsRx[0]} numPacketsTxErr:{numPacketsTxErr[0]} numPacketsRxErr:{numPacketsRxErr[0]}"
+        elif numPacketsTx[1] == 2:
+            dataResponse += f"Telemetry:{rxNode} numPacketsTx:{numPacketsTx[0]} numPacketsRx:{numPacketsRx[0]} numPacketsTxErr:{numPacketsTxErr[0]} numPacketsRxErr:{numPacketsRxErr[0]} "
+        
     # Channel utilization and airUtilTx
     dataResponse += " ChUtil%:" + str(round(chutil, 2)) + " AirTx%:" + str(round(airUtilTx, 2))
 
     if chutil > 40:
-        logger.warning(f"System: High Channel Utilization {chutil}% on Device: {nodeInt}")
+        logger.warning(f"System: High Channel Utilization {chutil}% on Device: {rxNode}")
 
     if airUtilTx > 25:
-        logger.warning(f"System: High Air Utilization {airUtilTx}% on Device: {nodeInt}")
+        logger.warning(f"System: High Air Utilization {airUtilTx}% on Device: {rxNode}")
     
     # add packet Rx/Tx info to the response
     dataResponse += f" Rx#:{numPacketsRx} Tx#:{numPacketsTx}"
@@ -728,10 +729,9 @@ def getNodeTelemetry(nodeID=0, nodeInt=1):
     dataResponse += f" Volt:{round(voltage, 1)}"
 
     if batteryLevel < 25:
-        logger.warning(f"System: Low Battery Level: {batteryLevel}{emji} on Device: {nodeInt}")
+        logger.warning(f"System: Low Battery Level: {batteryLevel}{emji} on Device: {rxNode}")
     elif batteryLevel < 10:
-        logger.critical(f"System: Critical Battery Level: {batteryLevel}{emji} on Device: {nodeInt}")
-
+        logger.critical(f"System: Critical Battery Level: {batteryLevel}{emji} on Device: {rxNode}")
     return dataResponse
 
 def handleMultiPing(nodeID=0, deviceID=1):
