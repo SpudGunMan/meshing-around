@@ -1227,7 +1227,7 @@ def main():
     index_path = os.path.join(output_dir, 'index.html')
 
     print(f"\n\nMeshBot (BBS) Web Dashboard Report Generator")
-    print(f"\nMain dashboard: file:/{index_path}\n")
+    print(f"\nMain dashboard: file://{index_path}\n")
     
     try:
         if not os.path.exists(output_dir):
