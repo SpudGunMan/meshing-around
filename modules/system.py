@@ -17,6 +17,8 @@ asyncLoop = asyncio.new_event_loop()
 games_enabled = False
 multiPingList = [{'message_from_id': 0, 'count': 0, 'type': '', 'deviceID': 0}]
 lastTelemetryRequest = 0
+numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr = ([-1, -1],) * 4
+
 
 # Ping Configuration
 if ping_enabled:

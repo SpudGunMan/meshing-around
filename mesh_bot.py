@@ -902,7 +902,6 @@ def onDisconnect(interface):
         elif interface2_enabled and interface2_type == 'ble':
             retry_int2 = True
 
-numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr = ([-1, -1],) * 4
 def onReceive(packet, interface):
     # Priocess the incoming packet, handles the responses to the packet with auto_response()
     # Sends the packet to the correct handler for processing
