@@ -1,6 +1,6 @@
 # Mesh Bot for Network Testing and BBS Activities
 
-Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance your [Meshtastic](https://meshtastic.org/docs/introduction/) network experience with a variety of powerful tools and fun features. Whether you're looking to perform network tests, send messages, or even play games, this bot has you covered.
+Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance your [Meshtastic](https://meshtastic.org/docs/introduction/) network experience with a variety of powerful tools and fun features, connectivity and utility through text-based message delivery. Whether you're looking to perform network tests, send messages, or even play games, this bot has you covered.
 
 ![Example Use](etc/pong-bot.jpg "Example Use")
 
