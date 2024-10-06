@@ -15,6 +15,7 @@ trap_list = ("cmd","cmd?") # default trap list
 help_message = "CMD?:"
 asyncLoop = asyncio.new_event_loop()
 games_enabled = False
+multiPingList = [{'message_from_id': 0, 'count': 0, 'type': '', 'deviceID': 0}]
 
 # Ping Configuration
 if ping_enabled:
@@ -868,7 +869,8 @@ async def handleSentinel(deviceID=1, loop=0):
         sentry_loop += 1
 
 async def watchdog():
-    global retry_int1, retry_int2, int1Data, int2Data
+    global retry_int1, retry_int2
+    int1Data, int2Data = "", ""
     while True:
         await asyncio.sleep(20)
         #print(f"MeshBot System: watchdog running\r", end="")
@@ -889,8 +891,11 @@ async def watchdog():
                 # multiPing handler
                 handleMultiPing(0,1)
 
-                # status data
-                int1Data = f" int1:{firmware}, Nodes:{len(interface1.nodes)}, Telemetry:{getNodeTelemetry(0, 1)}"
+                # Telemetry data
+                tmp = int1Data
+                int1Data = f"int1:{firmware}, Nodes:{len(interface1.nodes)}, Telemetry:{getNodeTelemetry(0, 1)}"
+                if tmp[:-4] != int1Data[:-4]:
+                    logger.debug(f"System: {int1Data}")
 
         if retry_int1:
             try:
@@ -915,8 +920,11 @@ async def watchdog():
                     # multiPing handler
                     handleMultiPing(0,2)
 
-                    # status data
-                    int2Data = f" int2:{firmware2}, Nodes:{len(interface2.nodes)}, Telemetry:{getNodeTelemetry(0, 2)}"
+                    # Telemetry data
+                    tmp = int2Data[:-4]
+                    int2Data = f"int2:{firmware2}, Nodes:{len(interface2.nodes)}, Telemetry:{getNodeTelemetry(0, 2)}"
+                    if tmp[:-4] != int2Data[:-4]:
+                        logger.debug(f"System: {int2Data}")
         
             if retry_int2:
                 try:
