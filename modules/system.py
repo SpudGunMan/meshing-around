@@ -643,6 +643,85 @@ def messageTrap(msg):
                 return True
     return False
 
+def getNodeFirmware(nodeID=0, nodeInt=1):
+    # get the firmware version of the node
+    # this is a workaround because .localNode.getMetadata spits out a lot of debug info which cant be suppressed
+    # Create a StringIO object to capture the 
+    if nodeInt == 1:
+        output_capture = io.StringIO()
+        with contextlib.redirect_stdout(output_capture):
+            interface1.localNode.getMetadata()
+        console_output = output_capture.getvalue()
+        if "firmware_version" in console_output:
+            fwVer = console_output.split("firmware_version: ")[1].split("\n")[0]
+    elif nodeInt == 2:
+        output_capture = io.StringIO()
+        with contextlib.redirect_stdout(output_capture):
+            interface2.localNode.getMetadata()
+        console_output = output_capture.getvalue()
+        if "firmware_version" in console_output:
+            fwVer = console_output.split("firmware_version: ")[1].split("\n")[0]
+    else:
+        return -1
+    return fwVer
+
+def getNodeTelemetry(nodeID=0, nodeInt=1):
+    dataResponse = ""
+    # get the telemetry data for a node
+    if nodeInt == 1:
+        chutil = round(interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("channelUtilization", 0), 1)
+        airUtilTx = round(interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("airUtilTx", 0), 1)
+        uptimeSeconds = interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("uptimeSeconds", 0)
+        batteryLevel = interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("batteryLevel", 0)
+        voltage = interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("voltage", 0)
+    elif nodeInt == 2:
+        chutil = round(interface2.nodes.get(decimal_to_hex(myNodeNum2), {}).get("deviceMetrics", {}).get("channelUtilization", 0), 1)
+        airUtilTx = round(interface2.nodes.get(decimal_to_hex(myNodeNum2), {}).get("deviceMetrics", {}).get("airUtilTx", 0), 1)
+        uptimeSeconds = interface2.nodes.get(decimal_to_hex(myNodeNum2), {}).get("deviceMetrics", {}).get("uptimeSeconds", 0)
+        batteryLevel = interface2.nodes.get(decimal_to_hex(myNodeNum2), {}).get("deviceMetrics", {}).get("batteryLevel", 0)
+        voltage = interface2.nodes.get(decimal_to_hex(myNodeNum2), {}).get("deviceMetrics", {}).get("voltage", 0)
+    else:
+        return -1
+    
+    # Channel utilization and airUtilTx
+    dataResponse += " ChUse/Tx " + str(chutil) + "%" + "/" + str(airUtilTx) + "%" + " "
+
+    # Uptime
+    uptimeSeconds = getPrettyTime(uptimeSeconds)
+    dataResponse += " Uptime:" + str(uptimeSeconds)
+
+    # add battery info to the response
+    emji = "🔌" if batteryLevel == 101 else "🪫" if batteryLevel < 10 else "🔋"
+    if batteryLevel == 101:
+        dataResponse += f" {emji}Volt:{voltage}"
+    else:
+        dataResponse += f" {emji}{batteryLevel}% Volt:{voltage}"
+   
+    return dataResponse
+
+def handleMultiPing(nodeID=0, deviceID=1):
+    global multiPingList
+    if len(multiPingList) > 1:
+        mPlCpy = multiPingList.copy()
+        for i in range(len(mPlCpy)):
+            message_id_from = mPlCpy[i]['message_from_id']
+            count = mPlCpy[i]['count']
+            type = mPlCpy[i]['type']
+            deviceID = mPlCpy[i]['deviceID']
+
+            if count > 1 and deviceID == 1:
+                count -= 1
+                # update count in the list
+                multiPingList[i]['count'] = count
+
+                send_message(f"🔂{count} {type}", publicChannel, message_id_from, 1)
+                if count < 2:
+                    # remove the item from the list
+                    for j in range(len(multiPingList)):
+                        if multiPingList[j]['message_from_id'] == message_id_from:
+                            multiPingList.pop(j)
+                            break
+
 def exit_handler():
     # Close the interface and save the BBS messages
     logger.debug(f"System: Closing Autoresponder")
@@ -721,7 +800,6 @@ async def retry_interface(nodeID=1):
             except Exception as e:
                 logger.error(f"System: closing interface2: {e}")
     
-   
     logger.debug(f"System: Retrying interface in 15 seconds")
     if max_retry_count1 == 0:
         logger.critical(f"System: Max retry count reached for interface1")
@@ -763,84 +841,56 @@ async def retry_interface(nodeID=1):
     except Exception as e:
         logger.error(f"System: opening interface2: {e}")
 
-async def watchdog():
-    global retry_int1, retry_int2, multiPingList, int1_version, int2_version
-    int1_version = ''
-    int2_version = ''
-    if sentry_enabled:
+async def handleSentinel(deviceID=1, loop=0):
+    # Locate Closest Nodes and report them to a secure channel
+    # async function for possibly demanding back location data
+    sentry_loop = loop
+    lastSpotted = ""
+    enemySpotted = ""
+    try:
+        closest_nodes = get_closest_nodes(deviceID)
+        if closest_nodes != ERROR_FETCHING_DATA:
+            if closest_nodes[0]['id'] is not None:
+                enemySpotted = get_name_from_number(closest_nodes[0]['id'], 'long', 1)
+                enemySpotted += ", " + get_name_from_number(closest_nodes[0]['id'], 'short', 1)
+                enemySpotted += ", " + str(closest_nodes[0]['id'])
+                enemySpotted += ", " + decimal_to_hex(closest_nodes[0]['id'])
+                enemySpotted += f" at {closest_nodes[0]['distance']}m"
+    except Exception as e:
+        pass
+    
+    if sentry_loop >= sentry_holdoff and lastSpotted != enemySpotted:
+        logger.warning(f"System: {enemySpotted} is close to your location on Interface1")
+        send_message(f"Sentry1: {enemySpotted}", secure_channel, 0, deviceID)
         sentry_loop = 0
-        lastSpotted = ""
-        enemySpotted = ""
-        sentry_loop2 = 0
-        lastSpotted2 = ""
-        enemySpotted2 = ""
-    # watchdog for connection to the interface
+        lastSpotted = enemySpotted
+    else:
+        sentry_loop += 1
+
+async def watchdog():
+    global retry_int1, retry_int2, int1Data, int2Data
     while True:
         await asyncio.sleep(20)
         #print(f"MeshBot System: watchdog running\r", end="")
 
         if interface1 is not None and not retry_int1:
-            # getmetadata request to check if the interface is still connected
+            # getting firmware is a heartbeat to check if the interface is still connected
             try:
-                # this is a workaround because .localNode.getMetadata spits out a lot of debug info which cant be suppressed
-                # Create a StringIO object to capture the output
-                output_capture = io.StringIO()
-                with contextlib.redirect_stdout(output_capture):
-                    interface1.localNode.getMetadata()
-                console_output = output_capture.getvalue()
-                if "firmware_version" in console_output and int1_version == '':
-                    int1_version = console_output.split("firmware_version: ")[1].split("\n")[0]
-                    logger.debug(f"System: Interface1 Node Firmware: {int1_version}")
+                firmware = getNodeFirmware(0, 1)
             except Exception as e:
                 logger.error(f"System: communicating with interface1, trying to reconnect: {e}")
                 retry_int1 = True
-        
-            # Locate Closest Nodes and report them to a secure channel
-            if sentry_enabled:
-                try:
-                    closest_nodes1 = get_closest_nodes(1)
-                    if closest_nodes1 != ERROR_FETCHING_DATA:
-                        if closest_nodes1[0]['id'] is not None:
-                            enemySpotted = get_name_from_number(closest_nodes1[0]['id'], 'long', 1)
-                            enemySpotted += ", " + get_name_from_number(closest_nodes1[0]['id'], 'short', 1)
-                            enemySpotted += ", " + str(closest_nodes1[0]['id'])
-                            enemySpotted += ", " + decimal_to_hex(closest_nodes1[0]['id'])
-                            enemySpotted += f" at {closest_nodes1[0]['distance']}m"
-                except Exception as e:
-                    pass
-                
-                if sentry_loop >= sentry_holdoff and lastSpotted != enemySpotted:
-                    logger.warning(f"System: {enemySpotted} is close to your location on Interface1")
-                    send_message(f"Sentry1: {enemySpotted}", secure_channel, 0, 1)
-                    if interface2_enabled:
-                        await asyncio.sleep(1.5)
-                        send_message(f"Sentry1: {enemySpotted}", secure_channel, 0, 2)
-                    sentry_loop = 0
-                    lastSpotted = enemySpotted
-                else:
-                    sentry_loop += 1
 
-            # multiPing handler
-            if len(multiPingList) > 1:
-                mPlCpy = multiPingList.copy()
-                for i in range(len(mPlCpy)):
-                    message_id_from = mPlCpy[i]['message_from_id']
-                    count = mPlCpy[i]['count']
-                    type = mPlCpy[i]['type']
-                    deviceID = mPlCpy[i]['deviceID']
+            if not retry_int1:
+                # Locate Closest Nodes and report them to a secure channel
+                if sentry_enabled:
+                    await handleSentinel(1)
 
-                    if count > 1 and deviceID == 1:
-                        count -= 1
-                        # update count in the list
-                        multiPingList[i]['count'] = count
+                # multiPing handler
+                handleMultiPing(0,1)
 
-                        send_message(f"🔂{count} {type}", publicChannel, message_id_from, 1)
-                        if count < 2:
-                            # remove the item from the list
-                            for j in range(len(multiPingList)):
-                                if multiPingList[j]['message_from_id'] == message_id_from:
-                                    multiPingList.pop(j)
-                                    break
+                # status data
+                int1Data = f" int1:{firmware}, Nodes:{len(interface1.nodes)}, Telemetry:{getNodeTelemetry(0, 1)}"
 
         if retry_int1:
             try:
@@ -850,66 +900,23 @@ async def watchdog():
 
         if interface2_enabled:
             if interface2 is not None and not retry_int2:
+                # getting firmware is a heartbeat to check if the interface is still connected
                 try:
-                    # this is a workaround because .localNode.getMetadata spits out a lot of debug info which cant be suppressed
-                    # Create a StringIO object to capture the output
-                    output_capture = io.StringIO()
-                    with contextlib.redirect_stdout(output_capture):
-                        interface2.localNode.getMetadata()
-                    console_output = output_capture.getvalue()
-                    if "firmware_version" in console_output and int2_version == '':
-                        int2_version = console_output.split("firmware_version: ")[1].split("\n")[0]
-                        logger.debug(f"System: Interface2 Node Firmware: {int2_version}")
+                    firmware2 = getNodeFirmware(0, 1)
                 except Exception as e:
-                    logger.error(f"System: communicating with interface2, trying to reconnect: {e}")
+                    logger.error(f"System: communicating with interface1, trying to reconnect: {e}")
                     retry_int2 = True
-                
-                # Locate Closest Nodes and report them to a secure channel
-                if sentry_enabled:
-                    try:
-                        closest_nodes2 = get_closest_nodes(2)
-                        if closest_nodes2 != ERROR_FETCHING_DATA:
-                            if closest_nodes2[0]['id'] is not None:
-                                enemySpotted2 = get_name_from_number(closest_nodes2[0]['id'], 'long', 2)
-                                enemySpotted2 += ", " + get_name_from_number(closest_nodes2[0]['id'], 'short', 2)
-                                enemySpotted2 += ", " + str(closest_nodes2[0]['id'])
-                                enemySpotted2 += ", " + decimal_to_hex(closest_nodes2[0]['id'])
-                                enemySpotted2 += f" at {closest_nodes2[0]['distance']}m"
-                    except Exception as e:
-                        pass
-                    
-                    if sentry_loop2 >= sentry_holdoff and lastSpotted2 != enemySpotted2:
-                        logger.warning(f"System: {enemySpotted2} is close to your location on Interface2")
-                        # send to secure channel on both interfaces
-                        send_message(f"Sentry2: {enemySpotted2}", secure_channel, 0, 1)
-                        await asyncio.sleep(1.5)
-                        send_message(f"Sentry2: {enemySpotted2}", secure_channel, 0, 2)
-                        sentry_loop2 = 0
-                        lastSpotted2 = enemySpotted2
-                    else:
-                        sentry_loop2 += 1
 
-            # multiPing handler
-            if len(multiPingList) > 1:
-                mPlCpy = multiPingList.copy()
-                for i in range(len(mPlCpy)):
-                    message_id_from = mPlCpy[i]['message_from_id']
-                    count = mPlCpy[i]['count']
-                    type = mPlCpy[i]['type']
-                    deviceID = mPlCpy[i]['deviceID']
+                if not retry_int2:
+                    # Locate Closest Nodes and report them to a secure channel
+                    if sentry_enabled:
+                        handleSentinel(2)
 
-                    if count > 1 and deviceID == 2:
-                        count -= 1
-                        # update count in the list
-                        multiPingList[i]['count'] = count
+                    # multiPing handler
+                    handleMultiPing(0,2)
 
-                        send_message(f"🔂{count} {type}", publicChannel, message_id_from, 2)
-                        if count < 2:
-                            # remove the item from the list
-                            for j in range(len(multiPingList)):
-                                if multiPingList[j]['message_from_id'] == message_id_from:
-                                    multiPingList.pop(j)
-                                    break
+                    # status data
+                    int2Data = f" int2:{firmware2}, Nodes:{len(interface2.nodes)}, Telemetry:{getNodeTelemetry(0, 2)}"
         
             if retry_int2:
                 try:

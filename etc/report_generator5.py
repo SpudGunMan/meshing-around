@@ -345,62 +345,94 @@ def get_database_info():
 
     # Get the database information
     try:
-        with open('../lemonade_hs.pkl', 'rb') as f:
+        with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'data', 'lemonstand.pkl'), 'rb') as f:
             lemon_score = pickle.load(f)
-        f.close()
+    except Exception as e:
+        print(f"Error with database: {str(e)}")
+        lemon_score = 'no data'
+        pass
 
-        with open('../dopewar_hs.pkl', 'rb') as f:
+    try:
+        with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'data', 'dopewar.pkl'), 'rb') as f:
             dopewar_score = pickle.load(f)
-        f.close()
+    except Exception as e:
+        print(f"Error with database: {str(e)}")
+        dopewar_score = 'no data'
+        pass
 
-        with open('../blackjack_hs.pkl', 'rb') as f:
+    try:
+        with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'data', 'blackjack.pkl'), 'rb') as f:
             blackjack_score = pickle.load(f)
-        f.close()
+    except Exception as e:
+        print(f"Error with database: {str(e)}")
+        blackjack_score = 'no data'
+        pass
 
-        with open('../videopoker_hs.pkl', 'rb') as f:
+    try:
+        with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'data', 'videopoker.pkl'), 'rb') as f:
             videopoker_score = pickle.load(f)
-        f.close()
+    except Exception as e:
+        print(f"Error with database: {str(e)}")
+        videopoker_score = 'no data'
+        pass
 
-        with open('../mmind_hs.pkl', 'rb') as f:
+    try:
+        with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'data', 'mmind.pkl'), 'rb') as f:
             mmind_score = pickle.load(f)
-        f.close()
-
-        with open('../golfsim_hs.pkl', 'rb') as f:
+    except Exception as e:
+        print(f"Error with database: {str(e)}")
+        mmind_score = 'no data'
+    
+    try:
+        with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'data', 'golfsim.pkl'), 'rb') as f:
             golfsim_score = pickle.load(f)
-        f.close()
+    except Exception as e:
+        print(f"Error with database: {str(e)}")
+        golfsim_score = 'no data'
+        pass
 
-        with open('../bbsdm.pkl', 'rb') as f:
-            bbsdm = pickle.load(f)
-        f.close()
-
-        with open('../bbsdb.pkl', 'rb') as f:
+    # Get the BBSdb and BBSdm
+    try:
+        with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'data', 'bbsdb.pkl'), 'rb') as f:
             bbsdb = pickle.load(f)
-        f.close()
+    except Exception as e:
+        print(f"Error with database: {str(e)}")
+        bbsdb = []
+        pass
 
-        # pretty print the bbsdb
-        prettyBBSdb = ""
-        try:
-            for i in range(len(bbsdb)):
-                prettyBBSdb += f'<li>{bbsdb[i]}</li>'
-        except Exception as e:
-            print(f"Error with database: {str(e)}")
-            pass
+    try:
+        with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'data', 'bbsdm.pkl'), 'rb') as f:
+            bbsdm = pickle.load(f)
+    except Exception as e:
+        print(f"Error with database: {str(e)}")
+        bbsdm = []
+        pass
 
-        # pretty print the bbsdm
-        prettyBBSdm = ""
-        try:
-            for i in range(len(bbsdm)):
-                prettyBBSdm += f'<li>{bbsdm[i]}</li>'
-        except Exception as e:
-            print(f"Error with database: {str(e)}")
-            pass
-
+    # pretty print the bbsdb
+    prettyBBSdb = ""
+    try:
+        for i in range(len(bbsdb)):
+            prettyBBSdb += f'<li>{bbsdb[i]}</li>'
     except Exception as e:
         print(f"Error with database: {str(e)}")
         pass
 
+    # pretty print the bbsdm
+    prettyBBSdm = ""
+    try:
+        for i in range(len(bbsdm)):
+            prettyBBSdm += f'<li>{bbsdm[i]}</li>'
+    except Exception as e:
+        print(f"Error with database: {str(e)}")
+        pass
+
+    if 'no data' in [lemon_score, dopewar_score, blackjack_score, videopoker_score, mmind_score, golfsim_score]:
+        database = "Error(s) Detected"
+    else:
+        database = " Online"
+
     return {
-        'database': "Connected",
+        'database': database,
         "bbsdb": prettyBBSdb,
         "bbsdm": prettyBBSdm,
         'lemon_score': lemon_score,

@@ -390,7 +390,7 @@ def endGameDw(nodeID):
     # checks if the player's score is higher than the high score and writes a new high score if it is
     if cash > dwHighScore.get('cash'):
         dwHighScore = ({'userID': nodeID, 'cash': round(cash, 2)})
-        with open('dopewar_hs.pkl', 'wb') as file:
+        with open('data/dopewar_hs.pkl', 'wb') as file:
             pickle.dump(dwHighScore, file)
         msg = "You finished with $" + str(cash) + " and beat the high score!🎉💰"
         return msg
@@ -409,14 +409,14 @@ def getHighScoreDw():
     global dwHighScore
     # Load high score table
     try:
-        with open('dopewar_hs.pkl', 'rb') as file:
+        with open('data/dopewar_hs.pkl', 'rb') as file:
             dwHighScore = pickle.load(file)
     except FileNotFoundError:
         logger.debug("System: DopeWars: No high score table found")
         # high score pickle file is a touple of the nodeID and the high score
         dwHighScore = ({"userID": 4258675309, "cash": 100})
         # write a new high score file if one is not found
-        with open('dopewar_hs.pkl', 'wb') as file:
+        with open('data/dopewar_hs.pkl', 'wb') as file:
             pickle.dump(dwHighScore, file)
     return dwHighScore
 

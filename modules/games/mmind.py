@@ -248,7 +248,7 @@ def playGameMMind(diff, secret_code, turn_count, nodeID, message):
             if high_score != 0:
                 msg += f"\n🏆 High Score:{high_score[0]['turns']} turns, Difficulty:{high_score[0]['diff'].upper()}"
             
-            msg += "\nWould you like to play again?\n(N)ormal, (H)ard, e(X)pert?"
+            msg += "\nWould you like to play again?\n(N)ormal, (H)ard, e(X)pert (E)nd?"
             # reset turn count in tracker
             for i in range(len(mindTracker)):
                 if mindTracker[i]['nodeID'] == nodeID:

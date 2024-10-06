@@ -276,23 +276,23 @@ def saveHSVp(nodeID, highScore):
     # Save the game high_score to pickle
     highScore = {'nodeID': nodeID, 'highScore': highScore}
     try:
-        with open('videopoker_hs.pkl', 'wb') as file:
+        with open('data/videopoker_hs.pkl', 'wb') as file:
             pickle.dump(highScore, file)
     except FileNotFoundError:
-        logger.debug("System: BlackJack: Creating new videopoker_hs.pkl file")
-        with open('videopoker_hs.pkl', 'wb') as file:
+        logger.debug("System: BlackJack: Creating new data/videopoker_hs.pkl file")
+        with open('data/videopoker_hs.pkl', 'wb') as file:
             pickle.dump(highScore, file)
 
 def loadHSVp():
     # Load the game high_score from pickle
     try:
-        with open('videopoker_hs.pkl', 'rb') as file:
+        with open('data/videopoker_hs.pkl', 'rb') as file:
             highScore = pickle.load(file)
             return highScore
     except FileNotFoundError:
-        logger.debug("System: VideoPoker: Creating new videopoker_hs.pkl file")
+        logger.debug("System: VideoPoker: Creating new data/videopoker_hs.pkl file")
         highScore = {'nodeID': 0, 'highScore': 0}
-        with open('videopoker_hs.pkl', 'wb') as file:
+        with open('data/videopoker_hs.pkl', 'wb') as file:
             pickle.dump(highScore, file)
         return 0
 

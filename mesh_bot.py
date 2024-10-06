@@ -652,46 +652,19 @@ def handle_lheard(message, nodeid, deviceID, isDM):
     if  "?" in message and isDM:
         return message.split("?")[0].title() + " command returns a list of the nodes that have been heard recently"
 
-    else:
-        # display last heard nodes add to response
-        bot_response = str(get_node_list(1))
-        # gather telemetry
-        chutil1 = round(interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("channelUtilization", 0), 1)
-        airUtilTx = round(interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("airUtilTx", 0), 1)
-        uptimeSeconds = interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("uptimeSeconds", 0)
-        batteryLevel = interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("batteryLevel", 0)
-        voltage = interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("voltage", 0)
-    if interface2_enabled:
-        bot_response += "P2:\n" + str(get_node_list(2))
-        chutil2 = round(interface2.nodes.get(decimal_to_hex(myNodeNum2), {}).get("deviceMetrics", {}).get("channelUtilization", 0), 1)
-        airUtilTx2 = round(interface2.nodes.get(decimal_to_hex(myNodeNum2), {}).get("deviceMetrics", {}).get("airUtilTx", 0), 1)
-        uptimeSeconds2 = interface2.nodes.get(decimal_to_hex(myNodeNum2), {}).get("deviceMetrics", {}).get("uptimeSeconds", 0)
-        batteryLevel2 = interface2.nodes.get(decimal_to_hex(myNodeNum2), {}).get("deviceMetrics", {}).get("batteryLevel", 0)
-        voltage2 = interface2.nodes.get(decimal_to_hex(myNodeNum2), {}).get("deviceMetrics", {}).get("voltage", 0)
-    else:
-        chutil2, airUtilTx2, uptimeSeconds2, batteryLevel2, voltage2 = 0, 0, 0, 0, 0
-    # add the channel utilization and airUtilTx to the bot response
-    bot_response += "\nUse/Tx " + str(chutil1) + "%" + "/" + str(airUtilTx) + "%"
-    if interface2_enabled:
-        bot_response += " P2:" + str(chutil2) + "%" + "/" + str(airUtilTx2) + "%"
-    # convert uptime to minutes, hours, or days
-    uptimeSeconds = getPrettyTime(uptimeSeconds)
-    uptimeSeconds2 = getPrettyTime(uptimeSeconds2)
-    # add uptime and battery info to the bot response
-    bot_response += "\nUptime:" + str(uptimeSeconds)
-    if interface2_enabled:
-        bot_response += f" P2:" + {uptimeSeconds2}
-    # add battery info to the bot response
-    emji = "🔌" if batteryLevel == 101 else "🪫" if batteryLevel < 10 else "🔋"
-    emji2 = "🔌" if batteryLevel2 == 101 else "🪫" if batteryLevel2 < 10 else "🔋"
-    if not batteryLevel == 101:
-        bot_response += f" {emji}{batteryLevel}% Volt:{voltage}"
-    if interface2_enabled and not batteryLevel2 == 101:
-        bot_response += f" P2:{emji2}{batteryLevel2}% Volt:{voltage2}"
+    # display last heard nodes add to response
+    bot_response = "Last Heard\n"
+    bot_response += str(get_node_list(1))
+
     # show last users of the bot with the cmdHistory list
     history = handle_history(message, nodeid, deviceID, isDM, lheard=True)
     if history:
-        bot_response += f'\n{history}'
+        bot_response += f'LastSeen\n{history}'
+    else:
+        # trim the last \n
+        bot_response = bot_response[:-1]
+
+    # bot_response += getNodeTelemetry(deviceID)
     return bot_response
 
 def handle_history(message, nodeid, deviceID, isDM, lheard=False):

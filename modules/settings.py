@@ -55,7 +55,7 @@ if 'location' not in config:
         config.write(open(config_file, 'w'))
 
 if 'bbs' not in config:
-        config['bbs'] = {'enabled': 'False', 'bbsdb': 'bbsdb.pkl', 'bbs_ban_list': '', 'bbs_admin_list': ''}
+        config['bbs'] = {'enabled': 'False', 'bbsdb': 'data/bbsdb.pkl', 'bbs_ban_list': '', 'bbs_admin_list': ''}
         config.write(open(config_file, 'w'))
 
 if 'repeater' not in config:
@@ -134,7 +134,7 @@ try:
    
     # bbs
     bbs_enabled = config['bbs'].getboolean('enabled', False)
-    bbsdb = config['bbs'].get('bbsdb', 'bbsdb.pkl')
+    bbsdb = config['bbs'].get('bbsdb', 'data/bbsdb.pkl')
     bbs_ban_list = config['bbs'].get('bbs_ban_list', '').split(',')
     bbs_admin_list = config['bbs'].get('bbs_admin_list', '').split(',')
 
