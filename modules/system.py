@@ -699,7 +699,7 @@ def getNodeTelemetry(nodeID=0, rxNode=0):
     else:
         return -1
     
-    dataResponse = f"Telemetry:{rxNode} "
+    dataResponse = f"Telemetry:{rxNode}"
 
     # packet telemetry
     if numPacketsTx[1] == 1:
