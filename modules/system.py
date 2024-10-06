@@ -885,7 +885,6 @@ async def handleSentinel(deviceID=1):
     # async function for possibly demanding back location data
     enemySpotted = ""
     closest_nodes = get_closest_nodes(deviceID)
-    print(f"Closest Nodes: {closest_nodes}")
     if closest_nodes != ERROR_FETCHING_DATA and closest_nodes:
         if closest_nodes[0]['id'] is not None:
             enemySpotted = get_name_from_number(closest_nodes[0]['id'], 'long', 1)
