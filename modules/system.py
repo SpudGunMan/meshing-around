@@ -717,7 +717,7 @@ def getNodeTelemetry(nodeID=0, rxNode=0):
         logger.warning(f"System: High Air Utilization {airUtilTx}% on Device: {rxNode}")
     
     # add packet Rx/Tx info to the response
-    dataResponse += f" Rx#:{numPacketsRx} Tx#:{numPacketsTx}"
+    dataResponse += f" Rx#:{numPacketsRx[0]} Tx#:{numPacketsTx[0]}"
 
     # Number of nodes
     dataResponse += " Nodes:" + str(numTotalNodes)
