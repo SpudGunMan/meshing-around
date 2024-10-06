@@ -902,7 +902,7 @@ def onDisconnect(interface):
         elif interface2_enabled and interface2_type == 'ble':
             retry_int2 = True
 
-numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr = [0,0], [0,0], [0,0], [0,0]
+numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr = ([-1, -1],) * 4
 def onReceive(packet, interface):
     # Priocess the incoming packet, handles the responses to the packet with auto_response()
     # Sends the packet to the correct handler for processing
@@ -956,7 +956,8 @@ def onReceive(packet, interface):
         if telemetry_packet.get('localStats'):
             localStats = telemetry_packet['localStats']
             if localStats.get('numPacketsTx') and localStats.get('numPacketsRx') != 0:
-                #print(f"numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr: {numPacketsTx}, {numPacketsRx}, {numPacketsTxErr}, {numPacketsRxErr}")
+                if numPacketsRx != 0:
+                    print(f"numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr: {numPacketsTx}, {numPacketsRx}, {numPacketsTxErr}, {numPacketsRxErr}")
                 # Assign the values and include rxNode
                 numPacketsTx = (localStats['numPacketsTx'], rxNode)
                 numPacketsRx = (localStats['numPacketsRx'], rxNode)
