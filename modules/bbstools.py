@@ -100,20 +100,20 @@ def bbs_read_message(messageID = 0):
 def save_bbsdm():
     global bbs_dm
     # save the bbs messages to the database file
-    logger.debug("System: Saving Updated BBS Direct Messages data/bbsdm.pkll")
-    with open('data/bbsdm.pkll', 'wb') as f:
+    logger.debug("System: Saving Updated BBS Direct Messages data/bbsdm.pkl")
+    with open('data/bbsdm.pkl', 'wb') as f:
         pickle.dump(bbs_dm, f)
 
 def load_bbsdm():
     global bbs_dm
     # load the bbs messages from the database file
     try:
-        with open('data/bbsdm.pkll', 'rb') as f:
+        with open('data/bbsdm.pkl', 'rb') as f:
             bbs_dm = pickle.load(f)
     except:
         bbs_dm = [[1234567890, "Message", 1234567890]]
-        logger.debug("System: Creating new data/bbsdm.pkll")
-        with open('data/bbsdm.pkll', 'wb') as f:
+        logger.debug("System: Creating new data/bbsdm.pkl")
+        with open('data/bbsdm.pkl', 'wb') as f:
             pickle.dump(bbs_dm, f)
 
 def bbs_post_dm(toNode, message, fromNode):

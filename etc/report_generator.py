@@ -334,71 +334,58 @@ def get_database_info():
     adminList = config['bbs'].get('bbs_admin_list', 'none')
     sentryIgnoreList = config['sentry'].get('sentryIgnoreList', 'none')
 
-    # Get the database information
-    try:
-        with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'data', 'lemonstand.pkl'), 'rb') as f:
-            lemon_score = pickle.load(f)
-    except Exception as e:
-        print(f"Error with database: {str(e)}")
-        lemon_score = 'no data'
-        pass
+  # Define the base directory
+    base_dir = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'data'))
 
-    try:
-        with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'data', 'dopewar.pkl'), 'rb') as f:
-            dopewar_score = pickle.load(f)
-    except Exception as e:
-        print(f"Error with database: {str(e)}")
-        dopewar_score = 'no data'
-        pass
-
-    try:
-        with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'data', 'blackjack.pkl'), 'rb') as f:
-            blackjack_score = pickle.load(f)
-    except Exception as e:
-        print(f"Error with database: {str(e)}")
-        blackjack_score = 'no data'
-        pass
-
-    try:
-        with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'data', 'videopoker.pkl'), 'rb') as f:
-            videopoker_score = pickle.load(f)
-    except Exception as e:
-        print(f"Error with database: {str(e)}")
-        videopoker_score = 'no data'
-        pass
-
-    try:
-        with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'data', 'mmind.pkl'), 'rb') as f:
-            mmind_score = pickle.load(f)
-    except Exception as e:
-        print(f"Error with database: {str(e)}")
-        mmind_score = 'no data'
+    # data files
+    databaseFiles = [os.path.join(base_dir, 'lemonstand.pkl'),
+                     os.path.join(base_dir, 'dopewar.pkl'),
+                     os.path.join(base_dir, 'blackjack.pkl'),
+                     os.path.join(base_dir, 'videopoker.pkl'),
+                     os.path.join(base_dir, 'mmind.pkl'),
+                     os.path.join(base_dir, 'golfsim.pkl'),
+                     os.path.join(base_dir, 'bbsdb.pkl'),
+                     os.path.join(base_dir, 'bbsdm.pkl')]
     
-    try:
-        with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'data', 'golfsim.pkl'), 'rb') as f:
-            golfsim_score = pickle.load(f)
-    except Exception as e:
-        print(f"Error with database: {str(e)}")
-        golfsim_score = 'no data'
-        pass
-
-    # Get the BBSdb and BBSdm
-    try:
-        with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'data', 'bbsdb.pkl'), 'rb') as f:
-            bbsdb = pickle.load(f)
-    except Exception as e:
-        print(f"Error with database: {str(e)}")
-        bbsdb = []
-        pass
-
-    try:
-        with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'data', 'bbsdm.pkl'), 'rb') as f:
-            bbsdm = pickle.load(f)
-    except Exception as e:
-        print(f"Error with database: {str(e)}")
-        bbsdm = []
-        pass
-
+    for file in databaseFiles:
+        try:
+            with open(file, 'rb') as f:
+                if 'lemonstand' in file:
+                    lemon_score = pickle.load(f)
+                elif 'dopewar' in file:
+                    dopewar_score = pickle.load(f)
+                elif 'blackjack' in file:
+                    blackjack_score = pickle.load(f)
+                elif 'videopoker' in file:
+                    videopoker_score = pickle.load(f)
+                elif 'mmind' in file:
+                    mmind_score = pickle.load(f)
+                elif 'golfsim' in file:
+                    golfsim_score = pickle.load(f)
+                elif 'bbsdb' in file:
+                    bbsdb = pickle.load(f)
+                elif 'bbsdm' in file:
+                    bbsdm = pickle.load(f)
+        except Exception as e:
+            print(f"Error reading database file: {str(e)}")
+            if 'lemonstand' in file:
+                lemon_score = 'no data'
+            elif 'dopewar' in file:
+                dopewar_score = 'no data'
+            elif 'blackjack' in file:
+                blackjack_score = 'no data'
+            elif 'videopoker' in file:
+                videopoker_score = 'no data'
+            elif 'mmind' in file:
+                mmind_score = 'no data'
+            elif 'golfsim' in file:
+                golfsim_score = 'no data'
+            elif 'bbsdb' in file:
+                bbsdb = 'no data'
+            elif 'bbsdm' in file:
+                bbsdm = 'no data'
+            pass
+        
     # pretty print the bbsdb
     prettyBBSdb = ""
     try:

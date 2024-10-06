@@ -14,14 +14,14 @@ except Exception as e:
         bbs_messages = "System: data/bbsdb.pkl not found"
 
 try:
-    with open('../data/bbsdm.pkll', 'rb') as f:
+    with open('../data/bbsdm.pkl', 'rb') as f:
         bbs_dm = pickle.load(f)
 except Exception as e:
     try:
-        with open('data/bbsdm.pkll', 'rb') as f:
+        with open('data/bbsdm.pkl', 'rb') as f:
             bbs_dm = pickle.load(f)
     except Exception as e:
-        bbs_dm = "System: data/bbsdm.pkll not found"
+        bbs_dm = "System: data/bbsdm.pkl not found"
 
 # Game HS tables
 try:
