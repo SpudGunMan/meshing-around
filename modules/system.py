@@ -16,6 +16,8 @@ help_message = "CMD?:"
 asyncLoop = asyncio.new_event_loop()
 games_enabled = False
 multiPingList = [{'message_from_id': 0, 'count': 0, 'type': '', 'deviceID': 0}]
+lastTelemetryRequest = 0
+numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr = 0, 0, 0, 0
 
 # Ping Configuration
 if ping_enabled:
@@ -667,25 +669,55 @@ def getNodeFirmware(nodeID=0, nodeInt=1):
     return fwVer
 
 def getNodeTelemetry(nodeID=0, nodeInt=1):
-    dataResponse = ""
+    # throttle the telemetry requests to prevent spamming the device
+    global lastTelemetryRequest, numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr
+    if time.time() - lastTelemetryRequest < 600:
+        return -1
+    lastTelemetryRequest = time.time()
     # get the telemetry data for a node
+    dataResponse = ""
     if nodeInt == 1:
         chutil = round(interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("channelUtilization", 0), 1)
         airUtilTx = round(interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("airUtilTx", 0), 1)
         uptimeSeconds = interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("uptimeSeconds", 0)
         batteryLevel = interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("batteryLevel", 0)
         voltage = interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("voltage", 0)
+        #numPacketsRx = interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("localStats", {}).get("numPacketsRx", 0)
+        #numPacketsTx = interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("localStats", {}).get("numPacketsTx", 0)
+        numTotalNodes = len(interface1.nodes) 
     elif nodeInt == 2:
         chutil = round(interface2.nodes.get(decimal_to_hex(myNodeNum2), {}).get("deviceMetrics", {}).get("channelUtilization", 0), 1)
         airUtilTx = round(interface2.nodes.get(decimal_to_hex(myNodeNum2), {}).get("deviceMetrics", {}).get("airUtilTx", 0), 1)
         uptimeSeconds = interface2.nodes.get(decimal_to_hex(myNodeNum2), {}).get("deviceMetrics", {}).get("uptimeSeconds", 0)
         batteryLevel = interface2.nodes.get(decimal_to_hex(myNodeNum2), {}).get("deviceMetrics", {}).get("batteryLevel", 0)
         voltage = interface2.nodes.get(decimal_to_hex(myNodeNum2), {}).get("deviceMetrics", {}).get("voltage", 0)
+        #numPacketsRx = interface2.nodes.get(decimal_to_hex(myNodeNum2), {}).get("localStats", {}).get("numPacketsRx", 0)
+        #numPacketsTx = interface2.nodes.get(decimal_to_hex(myNodeNum2), {}).get("localStats", {}).get("numPacketsTx", 0)
+        numTotalNodes = len(interface2.nodes)
     else:
         return -1
     
+    # packet telemetry
+    if nodeInt == 1:
+        dataResponse += f"Telemetry:{nodeInt} numPacketsTx:{numPacketsTx} numPacketsRx:{numPacketsRx} numPacketsTxErr:{numPacketsTxErr} numPacketsRxErr:{numPacketsRxErr}"
+    if nodeInt == 2:
+        dataResponse += f"Telemetry:{nodeInt} numPacketsTx:{numPacketsTx2} numPacketsRx:{numPacketsRx2} numPacketsTxErr:{numPacketsTxErr2} numPacketsRxErr:{numPacketsRxErr2}"
+    
+    
     # Channel utilization and airUtilTx
-    dataResponse += " ChUse/Tx " + str(chutil) + "%" + "/" + str(airUtilTx) + "%" + " "
+    dataResponse += " ChUtil%:" + str(round(chutil, 2)) + " AirTx%:" + str(round(airUtilTx, 2))
+
+    if chutil > 40:
+        logger.warning(f"System: High Channel Utilization {chutil}% on Device: {nodeInt}")
+
+    if airUtilTx > 25:
+        logger.warning(f"System: High Air Utilization {airUtilTx}% on Device: {nodeInt}")
+    
+    # add packet Rx/Tx info to the response
+    dataResponse += f" Rx#:{numPacketsRx} Tx#:{numPacketsTx}"
+
+    # Number of nodes
+    dataResponse += " Nodes:" + str(numTotalNodes)
 
     # Uptime
     uptimeSeconds = getPrettyTime(uptimeSeconds)
@@ -693,11 +725,13 @@ def getNodeTelemetry(nodeID=0, nodeInt=1):
 
     # add battery info to the response
     emji = "🔌" if batteryLevel == 101 else "🪫" if batteryLevel < 10 else "🔋"
-    if batteryLevel == 101:
-        dataResponse += f" Volt:{round(voltage, 1)}"
-    else:
-        dataResponse += f" {emji}{batteryLevel}% Volt:{round(voltage, 1)}"
-   
+    dataResponse += f" Volt:{round(voltage, 1)}"
+
+    if batteryLevel < 25:
+        logger.warning(f"System: Low Battery Level: {batteryLevel}{emji} on Device: {nodeInt}")
+    elif batteryLevel < 10:
+        logger.critical(f"System: Critical Battery Level: {batteryLevel}{emji} on Device: {nodeInt}")
+
     return dataResponse
 
 def handleMultiPing(nodeID=0, deviceID=1):
@@ -892,10 +926,9 @@ async def watchdog():
                 handleMultiPing(0,1)
 
                 # Telemetry data
-                tmp = int1Data
-                int1Data = f"int1:{firmware}, Nodes:{len(interface1.nodes)}, Telemetry:{getNodeTelemetry(0, 1)}"
-                if tmp[:-4] != int1Data[:-4]:
-                    logger.debug(f"System: {int1Data}")
+                int1Data = getNodeTelemetry(0, 1) +f" Firmware:{firmware}"
+                if int1Data != -1:
+                    logger.debug(int1Data)
 
         if retry_int1:
             try:
@@ -920,11 +953,10 @@ async def watchdog():
                     # multiPing handler
                     handleMultiPing(0,2)
 
-                    # Telemetry data
-                    tmp = int2Data[:-4]
-                    int2Data = f"int2:{firmware2}, Nodes:{len(interface2.nodes)}, Telemetry:{getNodeTelemetry(0, 2)}"
-                    if tmp[:-4] != int2Data[:-4]:
-                        logger.debug(f"System: {int2Data}")
+                # Telemetry data
+                int2Data = getNodeTelemetry(0, 2) + f" Firmware:{firmware2}"
+                if int1Data != -1:
+                    logger.debug(int2Data)
         
             if retry_int2:
                 try:

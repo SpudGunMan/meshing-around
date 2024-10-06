@@ -942,6 +942,29 @@ def onReceive(packet, interface):
         elif interface2_enabled and interface2_type == 'ble':
             rxNode = 2
 
+    # TELEMETRY
+    if packet.get('decoded') and packet['decoded']['portnum'] == 'TELEMETRY_APP':
+        #print(f"Telemetry Packet: {packet}")
+        # get the telemetry data
+        telemetry = packet['decoded']['telemetry']
+        if telemetry.get('deviceMetrics'):
+            deviceMetrics = telemetry['deviceMetrics']
+            #print(f"deviceMetrics: {deviceMetrics}")
+        if telemetry.get('localStats'):
+            localStats = telemetry['localStats']
+            if localStats.get('numPacketsTx') and localStats.get('numPacketsRx'):
+                global numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr
+                # Assign the values and include rxNode
+                numPacketsTx = (localStats['numPacketsTx'], rxNode)
+                numPacketsRx = (localStats['numPacketsRx'], rxNode)
+                try:
+                    numPacketsTxErr = (localStats['numPacketsTxErr'], rxNode)
+                    numPacketsRxErr = (localStats['numPacketsRxErr'], rxNode)
+                except KeyError:
+                    numPacketsTxErr = (0, rxNode)
+                    numPacketsRxErr = (0, rxNode)
+                #airUtilTx = (round(localStats['airUtilTx'], 2), rxNode)
+        
     # check for BBS DM for mail delivery
     if bbs_enabled and 'decoded' in packet:
         message_from_id = packet['from']
