@@ -962,9 +962,11 @@ def onReceive(packet, interface):
                 numPacketsRx = (localStats['numPacketsRx'], rxNode)
                 try:
                     numPacketsTxErr = (localStats['numPacketsTxErr'], rxNode)
-                    numPacketsRxErr = (localStats['numPacketsRxErr'], rxNode)
                 except KeyError:
                     numPacketsTxErr = (-1, rxNode)
+                try:
+                    numPacketsRxErr = (localStats['numPacketsRxErr'], rxNode)
+                except KeyError:
                     numPacketsRxErr = (-1, rxNode)
                 #airUtilTx = (round(localStats['airUtilTx'], 2), rxNode)
                 
