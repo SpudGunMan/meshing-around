@@ -273,40 +273,51 @@ sudo apt-get install fonts-noto-color-emoji
 
 ## Full list of commands for the bot
 
-- Various solar details for radio propagation (spaceWeather module)
-  - `sun` and `moon` return info on rise and set local time
-  - `solar` gives an idea of the x-ray flux
-  - `hfcond` returns a table of HF solar conditions
-- Bulletin Board (BBS) functions
-  - `bbshelp` returns the following
-  - `bbslist` list the messages by ID and subject
-  - `bbsread` read a message example use: `bbsread #1`
-  - `bbspost` post a message to public board or send a DM example use: `bbspost $subject #message, or bbspost @nodeNumber #message or bbspost @nodeShortName #message`
-  - `bbsdelete` delete a message example use: `bbsdelete #4`
-  - `bbsinfo` Stats on BBS delivery and messages (sysop)
-- Other functions
-  - `ping` `ack` `test` will return data for signal, you can also `ping 15 #DrivingI5` to (activate auto-ping every 20 seconds for count 15)
-  - `whereami` returns the address of location of sender if known
-  - `whoami` returns some details of the node asking, also returned when position exchanged 📍
-  - `tide` returns the local tides, NOAA data source
-  - `wx` and `wxc` returns local weather forecast, (wxc is metric value), NOAA or Open Meteo for weather forecasting.
-  - `wxa` and `wxalert` return NOAA alerts. Short title or expanded details
-  - `joke` tells a joke
-  - `wiki: ` will search wikipedia, return the first few sentances of first result if a match `wiki: lora radio`
-  - `askai` and `ask:` will ask Ollama LLM AI for a response `askai what temp do I cook chicken`
-  - `messages` Replay the last messages heard, like Store and Forward
-  - `motd` or to set the message `motd $New Message Of the day`
-  - `lheard` returns the last 5 heard nodes with SNR, can also use `sitrep`
-  - `history` returns the last commands ran by user(s)
-  - `cmd` returns the list of commands (the help message)
-- Games - via DM
-  - `lemonstand` plays the classic Lemonade Stand Finance 
-  - `dopewars` plays the classic drug trader
-  - `blackjack` BlackJack, Casino 21
-  - `videopoker` Video Poker, basic 5 card hold
-  - `mastermind` Classic code-breaking game
-  - `golfsim` Golf Simulator, 9 Hole
-  - `uno` Uno cardgame, play against the bot or with others on mesh near you!
+### Solar Details for Radio Propagation (spaceWeather module)
+| Command | Description |
+|---------|-------------|
+| `sun` and `moon` | Return info on rise and set local time |
+| `solar` | Gives an idea of the x-ray flux |
+| `hfcond` | Returns a table of HF solar conditions |
+
+### Bulletin Board (BBS) Functions
+| Command | Description |
+|---------|-------------|
+| `bbshelp` | Returns the following help message |
+| `bbslist` | Lists the messages by ID and subject |
+| `bbsread` | Reads a message. Example: `bbsread #1` |
+| `bbspost` | Posts a message to the public board or sends a DM. Examples: `bbspost $subject #message`, `bbspost @nodeNumber #message`, `bbspost @nodeShortName #message` |
+| `bbsdelete` | Deletes a message. Example: `bbsdelete #4` |
+| `bbsinfo` | Provides stats on BBS delivery and messages (sysop) |
+
+### Other Functions
+| Command | Description |
+|---------|-------------|
+| `ping`, `ack`, `test` | Return data for signal. Example: `ping 15 #DrivingI5` (activates auto-ping every 20 seconds for count 15) |
+| `whereami` | Returns the address of the sender's location if known |
+| `whoami` | Returns details of the node asking, also returned when position exchanged 📍 |
+| `tide` | Returns the local tides (NOAA data source) |
+| `wx` and `wxc` | Return local weather forecast (wxc is metric value), NOAA or Open Meteo for weather forecasting |
+| `wxa` and `wxalert` | Return NOAA alerts. Short title or expanded details |
+| `joke` | Tells a joke |
+| `wiki:` | Searches Wikipedia and returns the first few sentences of the first result if a match. Example: `wiki: lora radio` |
+| `askai` and `ask:` | Ask Ollama LLM AI for a response. Example: `askai what temp do I cook chicken` |
+| `messages` | Replays the last messages heard, like Store and Forward |
+| `motd` | Displays the message of the day or sets it. Example: `motd $New Message Of the day` |
+| `lheard` | Returns the last 5 heard nodes with SNR. Can also use `sitrep` |
+| `history` | Returns the last commands run by user(s) |
+| `cmd` | Returns the list of commands (the help message) |
+
+### Games (via DM)
+| Command | Description |
+|---------|-------------|
+| `lemonstand` | Plays the classic Lemonade Stand finance game |
+| `dopewars` | Plays the classic drug trader game |
+| `blackjack` | Plays Blackjack (Casino 21) |
+| `videopoker` | Plays basic 5-card hold Video Poker |
+| `mastermind` | Plays the classic code-breaking game |
+| `golfsim` | Plays a 9-hole Golf Simulator |
+| `uno` | Plays Uno card game against the bot or with others on the mesh near you! |
 
 # Recognition
 
