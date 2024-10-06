@@ -1,29 +1,275 @@
-# meshing-around
-Random Mesh Scripts for Network Testing and BBS Activities for Use with [Meshtastic](https://meshtastic.org/docs/introduction/) Nodes
+# Mesh Bot for Network Testing and BBS Activities
 
-![alt text](etc/pong-bot.jpg "Example Use")
+Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance your [Meshtastic](https://meshtastic.org/docs/introduction/) network experience with a variety of powerful tools and fun features. Whether you're looking to perform network tests, send messages, or even play games, this bot has you covered.
 
-## mesh_bot.sh
-The feature-rich bot requires the internet for full functionality. These responder bots will trap keywords like ping and respond to a DM (direct message) with pong! The script will also monitor the group channels for keywords to trap. You can also `Ping @Data to Echo` as an example.
+![Example Use](etc/pong-bot.jpg "Example Use")
 
-Along with network testing, this bot has a lot of other fun features, like simple mail messaging you can leave for another device, and when that device is seen, it can send the mail as a DM. Or a scheduler to send weather or a reminder weekly for the VHF net.
+## Key Features
 
-The bot is also capable of using dual radio/nodes, so you can monitor two networks at the same time and send messages to nodes using the same `bbspost @nodeNumber #message` or `bbspost @nodeShortName #message` function. There is a small message board to fit in the constraints of Meshtastic for posting bulletin messages with `bbspost $subject #message`.
+### Intelligent Keyword Responder
+- **Automated Responses**: The bot traps keywords like "ping" and responds with "pong" in direct messages (DMs) or group channels.
+- **Customizable Triggers**: Monitor group channels for specific keywords and set custom responses.
 
-Look up data using wiki results, or interact with [Ollama](https://github.com/ollama/ollama/tree/main/docs) LLM AI. If Ollama is enabled you can DM the bot directly. The default model for mesh-bot which is currently `gemma2:2b`
+### Dual Radio/Node Support
+- **Simultaneous Monitoring**: Monitor two networks at the same time.
+- **Flexible Messaging**: send mail between networks.
 
-The bot will report on anyone who is getting close to the configured lat/long, if in a remote location. For example having the bot in your camp site alerts when members arive back at camp.
+### Advanced Messaging Capabilities
+- **Mail Messaging**: Leave messages for other devices, which are sent as DMs when the device is seen.
+- **Scheduler**: Schedule messages like weather updates or reminders for weekly VHF nets.
+- **Store and Forward**: Replay messages with the `messages` command, and log messages locally to disk.
+- **Send Mail**: Send mail to nodes using `bbspost @nodeNumber #message` or `bbspost @nodeShortName #message`.
 
-Store and forward-like message re-play with `messages`, and there is a repeater module for dual radio bots to cross post messages. Messages are also logged locally to disk.
+### Interactive AI and Data Lookup
+- **Wiki Integration**: Look up data using Wikipedia results.
+- **Ollama LLM AI**: Interact with the [Ollama](https://github.com/ollama/ollama/tree/main/docs) LLM AI for advanced queries and responses.
 
-There is a small collection of games to play like DopeWars, Lemonade Stand, and BlackJack or VideoPoker to name a few, issuing `games` displays help
+### Proximity Alerts
+- **Location-Based Alerts**: Get notified when members arrive back at a configured lat/long, perfect for remote locations like campsites.
 
-The bot can also be used to monitor a radio frequency and let you know when high SNR RF activity is seen. Using Hamlib(rigctld) to watch the S meter on a connected radio. You can send alerts to channels when a frequency is detected for 20 seconds within the thresholds set in config.ini
+### Fun and Games
+- **Built-in Games**: Enjoy games like DopeWars, Lemonade Stand, BlackJack, and VideoPoker.
+- **Command-Based Gameplay**: Issue `games` to display help and start playing.
 
-Any messages that are over 160 characters are chunked into 160 message bytes to help traverse hops, in testing, this keeps delivery success higher.
+### Radio Frequency Monitoring
+- **SNR RF Activity Alerts**: Monitor a radio frequency and get alerts when high SNR RF activity is detected.
+- **Hamlib Integration**: Use Hamlib (rigctld) to watch the S meter on a connected radio.
 
-### But wait there is more! 
-There is a nice [data reporting](logs/README.md) html generator for visualizing the bot traffic and data flows!
+### Data Reporting
+- **HTML Generator**: Visualize bot traffic and data flows with a built-in HTML generator for [data reporting](logs/README.md).
+
+### Robust Message Handling
+- **Message Chunking**: Automatically chunk messages over 160 characters to ensure higher delivery success across hops.
+
+## Getting Started
+This project is developed on Linux (specifically a Raspberry Pi) but should work on any platform where the [Meshtastic protobuf API](https://meshtastic.org/docs/software/python/cli/) modules are supported, and with any compatible [Meshtastic](https://meshtastic.org/docs/getting-started/) hardware.
+
+### Installation
+
+#### Clone the Repository
+```sh
+git clone https://github.com/spudgunman/meshing-around
+```
+The code is under active development, so make sure to pull the latest changes regularly!
+
+#### Optional Automation of setup
+- **Automated Installation**: `install.sh` will automate optional venv and requirements installation.
+- **Launch Script**: `launch.sh` will activate and launch the app in the venv
+
+#### Docker Installation
+If you prefer to use Docker, follow these steps:
+
+1. Ensure your serial port is properly shared and the GPU is configured if using LLM with [NVIDIA](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/docker-specialized.html).
+2. Build the Docker image:
+    ```sh
+    cd meshing-around
+    docker build -t meshing-around .
+    ```
+3. Run the Docker container:
+    ```sh
+    docker run --rm -it --device=/dev/ttyUSB0 meshing-around
+    ```
+
+#### Custom Install
+Install the required dependencies using pip:
+```sh
+pip install -r requirements.txt
+```
+
+Copy the configuration template to `config.ini` and edit it to suit your needs:
+```sh
+cp config.template config.ini
+```
+
+### Configuration
+Copy the [config.template](config.template) to `config.ini` and set the appropriate interface for your method (serial/ble/tcp). While BLE and TCP will work, they are not as reliable as serial connections. There is a watchdog to reconnect TCP if possible. To get the BLE MAC address, use:
+```sh
+meshtastic --ble-scan
+```
+
+**Note**: The code has been tested with a single BLE device and is written to support only one BLE port.
+
+```ini
+# config.ini
+# type can be serial, tcp, or ble.
+# port is the serial port to use; commented out will try to auto-detect
+# hostname is the IP address of the device to connect to for TCP type
+# mac is the MAC address of the device to connect to for BLE type
+
+[interface]
+type = serial
+# port = '/dev/ttyUSB0'
+# hostname = 192.168.0.1
+# mac = 00:11:22:33:44:55
+
+# Additional interface for dual radio support. See config.template for more.
+[interface2]
+enabled = False
+```
+
+### General Settings
+The following settings determine how the bot responds. By default, the bot will not spam the default channel. Setting `respond_by_dm_only` to `True` will force all messages to be sent via DM, which may not be desired. Setting it to [`False`] will allow responses in the channel for all to see.
+
+```ini
+[general]
+respond_by_dm_only = True
+defaultChannel = 0
+```
+
+### Location Settings
+The weather forecasting defaults to NOAA, but for locations outside the USA, you can set `UseMeteoWxAPI` "Go to definition") to `True` to use a global weather API. The `lat` and `lon` are default values when a node has no location data. It is also the default used for Sentry.
+
+```ini
+[location]
+enabled = True
+lat = 48.50
+lon = -123.0
+UseMeteoWxAPI = True
+```
+
+### Module Settings
+Modules can be enabled or disabled as needed.
+
+```ini
+[bbs]
+enabled = False
+
+[general]
+DadJokes = False
+StoreForward = False
+```
+
+### History 
+The history command shows the last commands the user ran, and [`lheard`] reflects the last users on the bot.
+
+```ini
+# history command 
+enableCmdHistory = True
+# command history ignore list ex: 2813308004,4258675309
+lheardCmdIgnoreNodes =
+```
+
+### Sentry Settings
+
+Sentry Bot detects anyone coming close to the bot-node.
+
+```ini
+# detect anyone close to the bot
+SentryEnabled = True
+# radius in meters to detect someone close to the bot
+SentryRadius = 100
+# holdoff time multiplied by seconds(20) of the watchdog
+SentryChannel = 9
+# channel to send a message to when the watchdog is triggered
+SentryHoldoff = 2
+# list of ignored nodes numbers ex: 2813308004,4258675309
+sentryIgnoreList = 
+```
+
+### Repeater Settings
+A repeater function for two different nodes and cross-posting messages. The [`repeater_channels`] is a list of repeater channels that will be consumed and rebroadcast on the same number channel on the other device, node, or interface. Each node should have matching channel numbers. The channel names and PSK do not need to be the same on the nodes. Use this feature responsibly to avoid creating a feedback loop.
+
+```ini
+# repeater module
+[repeater]
+enabled = True
+repeater_channels = [2, 3]
+```
+
+### Radio Monitoring
+A module allowing a Hamlib compatible radio to connect to the bot. When functioning, it will message the configured channel with a message of in use. **Requires hamlib/rigctld to be running as a service.**
+
+```ini
+[radioMon]
+enabled = False
+rigControlServerAddress = localhost:4532
+# channel to broadcast to can be 2,3
+sigWatchBroadcastCh = 2
+# minimum SNR as reported by radio via hamlib
+signalDetectionThreshold = -10
+# hold time for high SNR
+signalHoldTime = 10
+# the following are combined to reset the monitor
+signalCooldown = 5
+signalCycleLimit = 5
+```
+
+### Ollama (LLM/AI) Settings
+For Ollama to work, the command line `ollama run 'model'` needs to work properly. Ensure you have enough RAM and your GPU is working as expected. The default model for this project is set to `gemma2:2b`.
+
+```ini
+# Enable ollama LLM see more at https://ollama.com
+ollama = True
+# Ollama model to use (defaults to gemma2:2b)
+ollamaModel = gemma2
+#ollamaModel = llama3.1
+```
+
+Also see `llm.py` for changing the defaults of:
+
+```ini
+# LLM System Variables
+llmEnableHistory = False # enable history for the LLM model to use in responses adds to compute time
+llmContext_fromGoogle = True # enable context from google search results adds to compute time but really helps with responses accuracy
+googleSearchResults = 3 # number of google search results to include in the context more results = more compute time
+llm_history_limit = 6 # limit the history to 3 messages (come in pairs) more results = more compute time
+```
+
+### Scheduler
+The Scheduler is enabled in the `settings.py` by setting `scheduler_enabled = True`. The actions and settings are via code only at this time. See mesh_bot.py around line [425](https://github.com/SpudGunMan/meshing-around/blob/22983133ee4db3df34f66699f565e506de296197/mesh_bot.py#L425-L435) to edit the schedule. See [schedule documentation](https://schedule.readthedocs.io/en/stable/) for more.
+
+```python
+#Send WX every Morning at 08:00 using handle_wxc function to channel 2 on device 1
+schedule.every().day.at("08:00").do(lambda: send_message(handle_wxc(0, 1, 'wx'), 2, 0, 1))
+
+#Send a Net Starting Now Message Every Wednesday at 19:00 using send_message function to channel 2 on device 1
+schedule.every().wednesday.at("19:00").do(lambda: send_message("Net Starting Now", 2, 0, 1))
+```
+
+### Requirements
+Python 3.10 or later is needed. The following can be installed with `pip install -r requirements.txt` or using the [install.sh](install.sh) "/Users/kkeeton/Documents/GitHub/meshing-around/install.sh") script for venv and automation:
+
+```sh
+pip install meshtastic
+pip install pubsub
+```
+
+Mesh-bot enhancements:
+
+```sh
+pip install pyephem
+pip install requests
+pip install geopy
+pip install maidenhead
+pip install beautifulsoup4
+pip install dadjokes
+pip install geopy
+pip install schedule
+pip install wikipedia
+```
+
+For open-meteo use:
+
+```sh
+pip install openmeteo_requests
+pip install retry_requests
+pip install numpy
+```
+
+For the Ollama LLM:
+
+```sh
+pip install langchain
+pip install langchain-ollama
+pip install ollama
+pip install googlesearch-python
+```
+
+To enable emoji in the Debian console, install the fonts:
+
+```sh
+sudo apt-get install fonts-noto-color-emoji
+```
 
 ## Full list of commands for the bot
 
@@ -62,209 +308,32 @@ There is a nice [data reporting](logs/README.md) html generator for visualizing 
   - `golfsim` Golf Simulator, 9 Hole
   - `uno` Uno cardgame, play against the bot or with others on mesh near you!
 
-## pong_bot.sh
-Stripped-down bot, mostly around for archive purposes. The mesh-bot enhanced modules can be disabled by config to disable features.
-
-## Hardware
-The project is written on Linux on a Pi and should work anywhere [Meshtastic](https://meshtastic.org/docs/software/python/cli/) Python modules will function, with any supported [Meshtastic](https://meshtastic.org/docs/getting-started/) hardware. While BLE and TCP will work, they are not as reliable as serial connections.
-
-## Install
-Clone the project with `git clone https://github.com/spudgunman/meshing-around`
-code is under a lot of development, so check back often with `git pull`
-Copy [config.template](config.template) to `config.ini` and edit for your needs.
-`pip install -r requirements.txt` 
-
-Optionally:
-- `install.sh` will automate optional venv and requirements installation.
-- `launch.sh` will activate and launch the app in the venv if built.
-
-For Docker:
-Check you have serial port properly shared and the GPU if using LLM with [NVidia](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/docker-specialized.html)
-- `git clone https://github.com/spudgunman/meshing-around`
-- `cd meshing-around && docker build -t meshing-around`
-- `docker run meshing-around`
-
-### Configurations
-Copy the [config.template](config.template) to `config.ini` and set the appropriate interface for your method (serial/ble/tcp). While BLE and TCP will work, they are not as reliable as serial connections. There is a watchdog to reconnect tcp if possible. To get BLE mac `meshtastic --ble-scan` **NOTE** I have only tested with a single BLE device and the code is written to only have one interface be a BLE port
-
-```
-#config.ini
-# type can be serial, tcp, or ble.
-# port is the serial port to use; commented out will try to auto-detect
-# hostname is the IP address of the device to connect to for TCP type
-# mac is the MAC address of the device to connect to for ble type
-
-[interface]
-type = serial
-# port = '/dev/ttyUSB0'
-# hostname = 192.168.0.1
-# mac = 00:11:22:33:44:55
-
-# Additional interface for dual radio support See config.template for more.
-[interface2]
-enabled = False
-```
-The following pair of settings determine how to respond: The default action is to not spam the default channel. Setting'respond_by_DM_only'` will force all messages to be sent to DM, which may not be wanted. Setting the value to False will allow responses in the channel for all to see.
-
-Setting the default channel is the channel that won't be spammed by the bot. It's the public default channel 0 on the new Meshtastic firmware. Anti-Spam is hard-coded into the responder to prevent abuse of the public channel.
-```
-[general]
-respond_by_dm_only = True
-defaultChannel = 0
-```
-The weather forecasting defaults to NOAA but for outside the USA you can set UseMeteoWxAPI `True` to use a world weather API. The lat and lon are for defaults when a node has no location data to use.
-```
-[location]
-enabled = True
-lat = 48.50
-lon = -123.0
-UseMeteoWxAPI = True
-```
-
-Modules can be disabled or enabled.
-```
-[bbs]
-enabled = False
-
-[general]
-DadJokes = False
-StoreForward = False
-```
-History command is like a linix terminal, shows the last commands the user ran and the `lheard` reflects last users on the bot.
-```
-# history command 
-enableCmdHistory = True
-# command history ignore list ex: 2813308004,4258675309
-lheardCmdIgnoreNodes =
-```
-Sentry Bot detects anyone coming close to the bot-node
-```
-# detect anyone close to the bot
-SentryEnabled = True
-# radius in meters to detect someone close to the bot
-SentryRadius = 100
-# holdoff time multiplied by seconds(20) of the watchdog
-SentryChannel = 9
-# channel to send a message to when the watchdog is triggered
-SentryHoldoff = 2
-# list of ignored nodes numbers ex: 2813308004,4258675309
-sentryIgnoreList = 
-```
-The BBS has admin and block lists; see the [config.template](config.template)
-
-A repeater function for two different nodes and cross-posting messages. The'repeater_channels` is a list of repeater channel(s) that will be consumed and rebroadcast on the same number channel on the other device, node, or interface. Each node should have matching channel numbers. The channel names and PSK do not need to be the same on the nodes. With great power comes great responsibility; danger could lurk in the use of this feature! If you have the two nodes in the same radio configuration, you could create a feedback loop!!!
-
-```
-# repeater module
-[repeater]
-enabled = True
-repeater_channels = [2, 3]
-```
-A module allowing a Hamlib compatible radio to connect to the bot, when functioning it will message the channel configured with a message of in use. **Requires hamlib/rigctld to be running as a service.**
-
-```
-[radioMon]
-enabled = False
-rigControlServerAddress = localhost:4532
-# channel to broadcast to can be 2,3
-sigWatchBroadcastCh = 2
-# minimum SNR as reported by radio via hamlib
-signalDetectionThreshold = -10
-# hold time for high SNR
-signalHoldTime = 10
-# the following are combined to reset the monitor
-signalCooldown = 5
-signalCycleLimit = 5
-```
-Ollama Settings, for Ollama to work the command line `ollama run 'model'` needs to work properly. Check that you have enough RAM and your GPU are working as expected. The default model for this project, is set to `gemma2:2b` (run `ollama pull gemma2:2b` on command line, to download and setup) 
- - From the command terminal of your system with mesh-bot, download the default model for mesh-bot which is currently `ollama pull gemma2:2b`
-
-Enable History, set via code readme Ollama Config in [Settings](https://github.com/SpudGunMan/meshing-around?tab=readme-ov-file#configurations) and [llm.py](https://github.com/SpudGunMan/meshing-around/blob/eb3bbdd3c5e0f16fe3c465bea30c781bd132d2d3/modules/llm.py#L12)
-
-Tested models are `llama3.x, gemma2 (and variants), phi3.x, mistrial` other models may not handle the template as well.
-
-```
-# Enable ollama LLM see more at https://ollama.com
-ollama = True
-# Ollama model to use (defaults to gemma2:2b)
-ollamaModel = gemma2
-#ollamaModel = llama3.1
-```
-
-also see llm.py for changing the defaults of
-```
-# LLM System Variables
-llmEnableHistory = False # enable history for the LLM model to use in responses adds to compute time
-llmContext_fromGoogle = True # enable context from google search results adds to compute time but really helps with responses accuracy
-googleSearchResults = 3 # number of google search results to include in the context more results = more compute time
-llm_history_limit = 6 # limit the history to 3 messages (come in pairs) more results = more compute time
-```
-
-The Scheduler is enabled in the [settings.py](modules/settings.py) by setting `scheduler_enabled = True` the actions and settings are via code only at this time. see [mesh_bot.py](mesh_bot.py) around line [425](https://github.com/SpudGunMan/meshing-around/blob/22983133ee4db3df34f66699f565e506de296197/mesh_bot.py#L425-L435) to edit schedule its most flexible to edit raw code right now.  See https://schedule.readthedocs.io/en/stable/ for more.
-
-```
-# Send WX every Morning at 08:00 using handle_wxc function to channel 2 on device 1
-#schedule.every().day.at("08:00").do(lambda: send_message(handle_wxc(0, 1, 'wx'), 2, 0, 1))
-
-# Send a Net Starting Now Message Every Wednesday at 19:00 using send_message function to channel 2 on device 1
-#schedule.every().wednesday.at("19:00").do(lambda: send_message("Net Starting Now", 2, 0, 1))
-```
-# requirements
-Python 3.10 minimally is needed, developed on latest release.
-
-The following can also be installed with `pip install -r requirements.txt` or using the install.sh script for venv and automation
-
-```
-pip install meshtastic
-pip install pubsub
-```
-mesh-bot enhancements
-
-```
-pip install pyephem
-pip install requests
-pip install geopy
-pip install maidenhead
-pip install beautifulsoup4
-pip install dadjokes
-pip install geopy
-pip install schedule
-pip install wikipedia
-```
-The following is needed for open-meteo use
-```
-pip install openmeteo_requests
-pip install retry_requests
-pip install numpy
-```
-The following is for the Ollama LLM
-```
-pip install langchain
-pip install langchain-ollama
-pip install ollama
-pip install googlesearch-python
-```
-
-To enable emoji in the Debian console, install the fonts `sudo apt-get install fonts-noto-color-emoji`
-
 # Recognition
+
 I used ideas and snippets from other responder bots and want to call them out!
-- https://github.com/Murturtle/MeshLink
-- https://github.com/pdxlocations/meshtastic-Python-Examples
-- https://github.com/geoffwhittington/meshtastic-matrix-relay
 
-Games Ported from..
-- https://github.com/tigerpointe/Lemonade-Stand/
-- https://github.com/Reconfirefly/drugwars
-- https://github.com/Himan10/BlackJack
-- https://github.com/devtronvarma/Video-Poker-Terminal-Game
-- https://github.com/pwdkramer/pythonMastermind/
-- https://github.com/danfriedman30/pythongame (Golf)
+### Inspiration and Code Snippets
+- [MeshLink](https://github.com/Murturtle/MeshLink)
+- [Meshtastic Python Examples](https://github.com/pdxlocations/meshtastic-Python-Examples)
+- [Meshtastic Matrix Relay](https://github.com/geoffwhittington/meshtastic-matrix-relay)
 
-GitHub user xdep for the reporting tools, Nestpebble for new ideas and enhancments, mrpatrick1991 For Docker configs, PiDiBi looking at test functions and other suggestions like wxc, CPU use, and alerting ideas
-Discord and Mesh user Cisien, bitflip, and github Hailo1999, for testing and feature ideas! Lots of individuals on the Meshtastic discord who have tossed out ideas and tested code!
+### Games Ported From
+- [Lemonade Stand](https://github.com/tigerpointe/Lemonade-Stand/)
+- [Drug Wars](https://github.com/Reconfirefly/drugwars)
+- [BlackJack](https://github.com/Himan10/BlackJack)
+- [Video Poker Terminal Game](https://github.com/devtronvarma/Video-Poker-Terminal-Game)
+- [Python Mastermind](https://github.com/pwdkramer/pythonMastermind/)
+- [Golf](https://github.com/danfriedman30/pythongame)
 
-Tool to manage node-backups
-https://github.com/SpudGunMan/node-slurper
+### Special Thanks
+- **xdep**: For the reporting tools.
+- **Nestpebble**: For new ideas and enhancements.
+- **mrpatrick1991**: For Docker configurations.
+- **PiDiBi**: For looking at test functions and other suggestions like wxc, CPU use, and alerting ideas.
+- **Cisien, bitflip, and Hailo1999**: For testing and feature ideas on Discord and GitHub.
+- **Meshtastic Discord Community**: For tossing out ideas and testing code.
+
+### Tools
+- **Node Backup Management**: [Node Slurper](https://github.com/SpudGunMan/node-slurper)
 
 
