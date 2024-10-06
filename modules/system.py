@@ -694,9 +694,9 @@ def getNodeTelemetry(nodeID=0, nodeInt=1):
     # add battery info to the response
     emji = "🔌" if batteryLevel == 101 else "🪫" if batteryLevel < 10 else "🔋"
     if batteryLevel == 101:
-        dataResponse += f" {emji}Volt:{voltage}"
+        dataResponse += f" Volt:{round(voltage, 1)}. {emji}"
     else:
-        dataResponse += f" {emji}{batteryLevel}% Volt:{voltage}"
+        dataResponse += f" {emji}{batteryLevel}% Volt:{round(voltage, 1)}"
    
     return dataResponse
 
