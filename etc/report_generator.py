@@ -338,12 +338,12 @@ def get_database_info():
     base_dir = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'data'))
 
     # data files
-    databaseFiles = [os.path.join(base_dir, 'lemonstand.pkl'),
-                     os.path.join(base_dir, 'dopewar.pkl'),
-                     os.path.join(base_dir, 'blackjack.pkl'),
-                     os.path.join(base_dir, 'videopoker.pkl'),
-                     os.path.join(base_dir, 'mmind.pkl'),
-                     os.path.join(base_dir, 'golfsim.pkl'),
+    databaseFiles = [os.path.join(base_dir, 'lemonstand_hs.pkl'),
+                     os.path.join(base_dir, 'dopewar_hs.pkl'),
+                     os.path.join(base_dir, 'blackjack_hs.pkl'),
+                     os.path.join(base_dir, 'videopoker_hs.pkl'),
+                     os.path.join(base_dir, 'mmind_hs.pkl'),
+                     os.path.join(base_dir, 'golfsim_hs.pkl'),
                      os.path.join(base_dir, 'bbsdb.pkl'),
                      os.path.join(base_dir, 'bbsdm.pkl')]
     
@@ -369,23 +369,22 @@ def get_database_info():
         except Exception as e:
             print(f"Error reading database file: {str(e)}")
             if 'lemonstand' in file:
-                lemon_score = 'no data'
+                lemon_score = "no data"
             elif 'dopewar' in file:
-                dopewar_score = 'no data'
+                dopewar_score = "no data"
             elif 'blackjack' in file:
-                blackjack_score = 'no data'
+                blackjack_score = "no data"
             elif 'videopoker' in file:
-                videopoker_score = 'no data'
+                videopoker_score = "no data"
             elif 'mmind' in file:
-                mmind_score = 'no data'
+                mmind_score = "no data"
             elif 'golfsim' in file:
-                golfsim_score = 'no data'
+                golfsim_score = "no data"
             elif 'bbsdb' in file:
-                bbsdb = 'no data'
+                bbsdb = "no data"
             elif 'bbsdm' in file:
-                bbsdm = 'no data'
-            pass
-        
+                bbsdm = "no data"
+
     # pretty print the bbsdb
     prettyBBSdb = ""
     try:
