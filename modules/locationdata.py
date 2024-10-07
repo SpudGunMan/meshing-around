@@ -75,7 +75,7 @@ def getRepeaterBook(lat=0, lon=0):
     try:
         msg = ''
         response = requests.get(repeater_url)
-        soup = BeautifulSoup(response.text, 'html.parser')
+        soup = bs(response.text, 'html.parser')
         table = soup.find('table', attrs={'class': 'w3-table w3-striped w3-responsive w3-mobile w3-auto sortable'})
         if table is not None:
             cells = table.find_all('td')
