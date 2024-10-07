@@ -757,30 +757,22 @@ async def handleSignalWatcher():
         await asyncio.sleep(1)
         pass
 
-    
 
 async def retry_interface(nodeID=1):
     global interface1, interface2, retry_int1, retry_int2, max_retry_count1, max_retry_count2
+    interface = interface1 if nodeID == 1 else interface2
+    retry_int = retry_int1 if nodeID == 1 else retry_int2
     # retry connecting to the interface
     # add a check to see if the interface is already open or trying to open
-    if nodeID==1:
-        if interface1 is not None:
-            retry_int1 = True
-            max_retry_count1 -= 1
-            try:
-                interface1.close()
-            except Exception as e:
-                logger.error(f"System: closing interface1: {e}")
-    if nodeID==2:
-        if interface2 is not None:
-            retry_int2 = True
-            max_retry_count2 -= 1
-            try:
-                interface2.close()
-            except Exception as e:
-                logger.error(f"System: closing interface2: {e}")
+    if interface is not None:
+        retry_int = True
+        max_retry_count1 -= 1
+        try:
+            interface.close()
+        except Exception as e:
+            logger.error(f"System: closing interface{nodeID}: {e}")
     
-    logger.debug(f"System: Retrying interface in 15 seconds")
+    logger.debug(f"System: Retrying interface{nodeID} in 15 seconds")
     if max_retry_count1 == 0:
         logger.critical(f"System: Max retry count reached for interface1")
         exit_handler()
@@ -792,34 +784,25 @@ async def retry_interface(nodeID=1):
 
     # retry the interface
     try:
-        if nodeID==1 and retry_int1:
-            interface1 = None
-            logger.debug(f"System: Retrying Interface1")
-            if interface1_type == 'serial':
+        if retry_int:
+            interface = None
+            if nodeID == 1:
+                interface1 = None
+            if nodeID == 2:
+                interface2 = None
+            logger.debug(f"System: Retrying Interface{nodeID}")
+            interface_type = interface1_type if nodeID == 1 else interface2_type
+            if interface_type == 'serial':
                 interface1 = meshtastic.serial_interface.SerialInterface(port1)
-            elif interface1_type == 'tcp':
+            elif interface_type == 'tcp':
                 interface1 = meshtastic.tcp_interface.TCPInterface(hostname1)
-            elif interface1_type == 'ble':
+            elif interface_type == 'ble':
                 interface1 = meshtastic.ble_interface.BLEInterface(mac1)
             logger.debug(f"System: Interface1 Opened!")
             retry_int1 = False
     except Exception as e:
-        logger.error(f"System: opening interface1 on: {e}")
-    
-    try:
-        if nodeID==2 and retry_int2:
-            interface2 = None
-            logger.debug(f"System: Retrying Interface2")
-            if interface2_type == 'serial':
-                interface2 = meshtastic.serial_interface.SerialInterface(port2)
-            elif interface2_type == 'tcp':
-                interface2 = meshtastic.tcp_interface.TCPInterface(hostname2)
-            elif interface2_type == 'ble':
-                interface2 = meshtastic.ble_interface.BLEInterface(mac2)
-            logger.debug(f"System: Interface2 Opened!")
-            retry_int2 = False
-    except Exception as e:
-        logger.error(f"System: opening interface2: {e}")
+        logger.error(f"System: Error Opening interface{nodeID} on: {e}")
+
 
 
 handleSentinel_spotted = ""
