@@ -104,7 +104,7 @@ def getRepeaterBook(lat=0, lon=0):
     # Limit the output to the first 4 repeaters
     for repeater in data[:4]:
         msg += f"{repeater['call_sign']}📶{repeater['frequency']}{repeater['offset']},{repeater['tone']}🧭{repeater['direction']}"
-        if repeater != data[-1]: msg += '\n'
+        if repeater != data[:4][-1]: msg += '\n'
     return msg
 
 def getArtSciRepeaters(lat=0, lon=0):
