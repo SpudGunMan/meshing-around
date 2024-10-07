@@ -12,7 +12,7 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 
 ### Dual Radio/Node Support
 - **Simultaneous Monitoring**: Monitor two networks at the same time.
-- **Flexible Messaging**: send mail between networks.
+- **Flexible Messaging**: send mail and messages, between networks.
 
 ### Advanced Messaging Capabilities
 - **Mail Messaging**: Leave messages for other devices, which are sent as DMs when the device is seen.
