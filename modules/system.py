@@ -514,69 +514,86 @@ def get_closest_nodes(nodeInt=1,returnCount=3):
         else:
             logger.warning(f"System: No nodes found in closest_nodes on interface {nodeInt}")
             return ERROR_FETCHING_DATA
+
+def messageChunker(message):
+    parts = message.split('\n')
+    current_chunk = ''
+    message_list = []
+    
+    if len(message) > MESSAGE_CHUNK_SIZE:
+        for part in parts:
+            part = part.strip()
+            if not part:
+                continue
+            sentences = part.split('. ')
+            for sentence in sentences:
+                sentence = sentence.strip()
+                sentence = sentence.replace('  ', ' ')
+                if not sentence:
+                    continue
+                while len(sentence) > MESSAGE_CHUNK_SIZE:
+                    # Split the sentence if it's too long
+                    message_list.append(sentence[:MESSAGE_CHUNK_SIZE])
+                    sentence = sentence[MESSAGE_CHUNK_SIZE:]
+                if len(current_chunk) + len(sentence) <= MESSAGE_CHUNK_SIZE:
+                    current_chunk += sentence
+                else:
+                    if current_chunk:
+                        message_list.append(current_chunk.strip())
+                    current_chunk = sentence
+        if current_chunk:
+            # Add the last chunk
+            message_list.append(current_chunk.strip())
+  
+        # Calculate the total length of the message
+        total_length = sum(len(chunk) for chunk in message_list)
+        num_chunks = len(message_list)
+        logger.debug(f"System: Splitting #chunks: {num_chunks}, Total length: {total_length}")
+        return message_list
+
+    return message
         
 def send_message(message, ch, nodeid=0, nodeInt=1):
     if message == "" or message == None or len(message) == 0:
-        return
-    # if message over MESSAGE_CHUNK_SIZE characters, split it into multiple messages
-    if len(message) > MESSAGE_CHUNK_SIZE:
-        logger.debug(f"System: Splitting Message, Message Length: {len(message)}")
+        return False
+    interface = interface1 if nodeInt == 1 else interface2
+    # Split the message into chunks if it exceeds the MESSAGE_CHUNK_SIZE
+    message_list = messageChunker(message)
 
-        # split the message into MESSAGE_CHUNK_SIZE 160 character chunks
-        message = message.replace('\n', ' NEWLINE ') # replace newlines with NEWLINE to keep them in split chunks
-
-        split_message = message.split()
-        line = ''
-        message_list = []
-
-        for word in split_message:
-            if len(line + word) < MESSAGE_CHUNK_SIZE:
-                if 'NEWLINE' in word or '\n' in word or '\r' in word:
-                    # chunk by newline if it exists
-                    message_list.append(line)
-                    line = ''
-                else:
-                    line += word + ' '
-            else:
-                message_list.append(line)
-                line = word + ' '
-
-        message_list.append(line) # needed add contents of the last 'line' into the list
-        message_list = [m.replace('NEWLINE', '') for m in message_list]
-
+    if isinstance(message_list, list):
+        # Send the message to the channel or DM
+        total_length = sum(len(chunk) for chunk in message_list)
+        num_chunks = len(message_list)
         for m in message_list:
+            chunkOf = f"{message_list.index(m)+1}/{num_chunks}"
             if nodeid == 0:
                 # Send to channel
-                logger.info(f"Device:{nodeInt} Channel:{ch} " + CustomFormatter.red + "Sending Multi-Chunk Message: " + CustomFormatter.white + m.replace('\n', ' '))
-                if nodeInt == 1:
-                    interface1.sendText(text=m, channelIndex=ch)
-                if nodeInt == 2:
-                    interface2.sendText(text=m, channelIndex=ch)
+                logger.info(f"Device:{nodeInt} Channel:{ch} " + CustomFormatter.red + f"Chunker{chunkOf} SendingChannel: " + CustomFormatter.white + m.replace('\n', ' '))
+                interface.sendText(text=m, channelIndex=ch)
             else:
                 # Send to DM
-                logger.info(f"Device:{nodeInt} " + CustomFormatter.red + "Sending Multi-Chunk DM: " + CustomFormatter.white + m.replace('\n', ' ') + CustomFormatter.purple +\
+                logger.info(f"Device:{nodeInt} " + CustomFormatter.red + f"Chunker{chunkOf} Sending DM: " + CustomFormatter.white + m.replace('\n', ' ') + CustomFormatter.purple +\
                              " To: " + CustomFormatter.white + f"{get_name_from_number(nodeid, 'long', nodeInt)}")
-                if nodeInt == 1:
-                    interface1.sendText(text=m, channelIndex=ch, destinationId=nodeid)
-                if nodeInt == 2:
-                    interface2.sendText(text=m, channelIndex=ch, destinationId=nodeid)
-            time.sleep(splitDelay) # wait an amout of time between sending each split message
+                interface.sendText(text=m, channelIndex=ch, destinationId=nodeid)
+
+            # Throttle the message sending to prevent spamming the device
+            if (message_list.index(m)+1) % 4 == 0:
+                logger.warning(f"System: throttling rate Interface{nodeInt} on {chunkOf}")
+                time.sleep(1)
+
+            # wait an amout of time between sending each split message
+            time.sleep(splitDelay)
     else: # message is less than MESSAGE_CHUNK_SIZE characters
         if nodeid == 0:
             # Send to channel
             logger.info(f"Device:{nodeInt} Channel:{ch} " + CustomFormatter.red + "SendingChannel: " + CustomFormatter.white + message.replace('\n', ' '))
-            if nodeInt == 1:
-                interface1.sendText(text=message, channelIndex=ch)
-            if nodeInt == 2:
-                interface2.sendText(text=message, channelIndex=ch)
+            interface.sendText(text=message, channelIndex=ch)
         else:
             # Send to DM
             logger.info(f"Device:{nodeInt} " + CustomFormatter.red + "Sending DM: " + CustomFormatter.white + message.replace('\n', ' ') + CustomFormatter.purple +\
                          " To: " + CustomFormatter.white + f"{get_name_from_number(nodeid, 'long', nodeInt)}")
-            if nodeInt == 1:
-                interface1.sendText(text=message, channelIndex=ch, destinationId=nodeid)
-            if nodeInt == 2:
-                interface2.sendText(text=message, channelIndex=ch, destinationId=nodeid)
+            interface.sendText(text=message, channelIndex=ch, destinationId=nodeid)
+    return True
 
 def tell_joke():
     # tell a dad joke, does it need an explanationn :)
