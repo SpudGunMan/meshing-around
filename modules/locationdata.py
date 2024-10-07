@@ -106,9 +106,11 @@ def getArtSciRepeaters(lat=0, lon=0):
             elif len(repeater) == 4:
                 msg += f"Freq:{repeater[1]}, PL:{repeater[2]}, ID: {repeater[3]}\n"
             elif len(repeater) == 5:
-                msg += f"Freq:{repeater[1]}, PL:{repeater[2]}, ID:{repeater[3]}, Dist:{repeater[4]}\n"
+                msg += f"Freq:{repeater[1]}, PL:{repeater[2]}, ID:{repeater[3]}.\n"
             elif len(repeater) == 6:
-                msg += f"Freq:{repeater[1]}, PL:{repeater[2]}, ID:{repeater[3]}, Dist:{repeater[4]}. {repeater[5]}\n"
+                msg += f"Freq:{repeater[1]}, PL:{repeater[2]}, ID:{repeater[3]}. {repeater[5]}"
+            if repeater != repeaters[-1]:
+                msg += "\n"
     else:
         msg = f"no results.. sorry"
     return msg
