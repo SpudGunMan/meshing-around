@@ -621,7 +621,7 @@ numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr = ([-1, -1],) * 4
 def getNodeTelemetry(nodeID=0, rxNode=0):
     interface = interface1 if rxNode == 1 else interface2
     global numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr, lastTelemetryRequest
-    print(f"DEBUG watchDog(getNodeTelemetry) numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr: {numPacketsTx}, {numPacketsRx}, {numPacketsTxErr}, {numPacketsRxErr}")
+    print(f"DEBUG watchDog(getNodeTelemetry) numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr: {numPacketsTx}, {numPacketsRx}, {numPacketsTxErr}, {numPacketsRxErr}\r", end="")
     # throttle the telemetry requests to prevent spamming the device
     if rxNode == 1:
         if time.time() - lastTelemetryRequest[0]['interface1'] < 600:
