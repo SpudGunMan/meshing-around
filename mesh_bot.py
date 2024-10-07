@@ -955,8 +955,6 @@ def onReceive(packet, interface):
         if telemetry_packet.get('localStats'):
             localStats = telemetry_packet['localStats']
             if localStats.get('numPacketsTx') and localStats.get('numPacketsRx') != 0:
-                if numPacketsRx != 0:
-                    print(f"packet {telemetry_packet}")
                 # Assign the values and include rxNode
                 numPacketsTx = (localStats['numPacketsTx'], rxNode)
                 numPacketsRx = (localStats['numPacketsRx'], rxNode)
@@ -969,8 +967,10 @@ def onReceive(packet, interface):
                 except KeyError:
                     numPacketsRxErr = (-1, rxNode)
                 #airUtilTx = (round(localStats['airUtilTx'], 2), rxNode)
+                print(f"packet {telemetry_packet}")
+                print(f"injest numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr: {numPacketsTx}, {numPacketsRx}, {numPacketsTxErr}, {numPacketsRxErr}")
                 
-    # check for BBS DM for mail delivery
+    # BBS DM MAIL CHECKER
     if bbs_enabled and 'decoded' in packet:
         message_from_id = packet['from']
 
