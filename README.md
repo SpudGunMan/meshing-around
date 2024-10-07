@@ -12,7 +12,7 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 
 ### Dual Radio/Node Support
 - **Simultaneous Monitoring**: Monitor two networks at the same time.
-- **Flexible Messaging**: send mail between networks.
+- **Flexible Messaging**: send mail and messages, between networks.
 
 ### Advanced Messaging Capabilities
 - **Mail Messaging**: Leave messages for other devices, which are sent as DMs when the device is seen.
@@ -21,7 +21,7 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 - **Send Mail**: Send mail to nodes using `bbspost @nodeNumber #message` or `bbspost @nodeShortName #message`.
 
 ### Interactive AI and Data Lookup
-- **NOAA location Data**: Get localized weather(alerts) and Tide information.
+- **NOAA location Data**: Get localized weather(alerts) and Tide information. Open-Meteo is used for wx only outside NOAA coverage. 
 - **Wiki Integration**: Look up data using Wikipedia results.
 - **Ollama LLM AI**: Interact with the [Ollama](https://github.com/ollama/ollama/tree/main/docs) LLM AI for advanced queries and responses.
 
