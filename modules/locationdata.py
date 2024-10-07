@@ -33,17 +33,30 @@ def where_am_i(lat=0, lon=0, short=False):
         
         if float(lat) == latitudeValue and float(lon) == longitudeValue:
             # redacted address when no GPS and using default location
-            location = geolocator.reverse(lat + ", " + lon)
+            location = geolocator.reverse(str(lat) + ", " + str(lon))
             address = location.raw['address']
-            address_components = ['city', 'state', 'postcode', 'county', 'country']
-            whereIam += ' '.join([address.get(component, '') for component in address_components if component in address])
-            whereIam += " .Grid: " + grid
+            address_components = {
+                'city': 'City',
+                'state': 'State',
+                'postcode': 'Zip',
+                'county': 'County',
+                'country': 'Country'
+            }
+            whereIam += ', '.join([f"{label}: {address.get(component, '')}" for component, label in address_components.items() if component in address])
         else:
             location = geolocator.reverse(lat + ", " + lon)
             address = location.raw['address']
-            address_components = ['house_number', 'road', 'city', 'state', 'postcode', 'county', 'country']
-            whereIam += ' '.join([address.get(component, '') for component in address_components if component in address])
-            whereIam += " Grid: " + grid
+            address_components = {
+                'house_number': 'Number',
+                'road': 'Road',
+                'city': 'City',
+                'state': 'State',
+                'postcode': 'Zip',
+                'county': 'County',
+                'country': 'Country'
+            }
+            whereIam += ', '.join([f"{label}: {address.get(component, '')}" for component, label in address_components.items() if component in address])
+            whereIam += f", Grid: " + grid
         return whereIam
     except Exception as e:
         logger.debug("Location:Error fetching location data with whereami, likely network error")
