@@ -671,10 +671,10 @@ def getNodeFirmware(nodeID=0, nodeInt=1):
 
 def getNodeTelemetry(nodeID=0, rxNode=0):
     global lastTelemetryRequest, numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr
+    if numPacketsRx != [-1, -1]:
+        print(f"watchDog numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr: {numPacketsTx}, {numPacketsRx}, {numPacketsTxErr}, {numPacketsRxErr}")
     # throttle the telemetry requests to prevent spamming the device
     if time.time() - lastTelemetryRequest < 1200:
-        if numPacketsRx[1] != -1:
-            print(f"watchDog numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr: {numPacketsTx}, {numPacketsRx}, {numPacketsTxErr}, {numPacketsRxErr}")
         return -1
     lastTelemetryRequest = time.time()
     # get the telemetry data for a node
