@@ -676,8 +676,8 @@ def handle_history(message, nodeid, deviceID, isDM, lheard=False):
     if  "?" in message and isDM:
         return message.split("?")[0].title() + " command returns a list of commands received."
 
-        # show the last commands from the user to the bot
-    elif not lheard:
+    # show the last commands from the user to the bot
+    if not lheard:
         for i in range(len(cmdHistory)):
             cmdTime = round((time.time() - cmdHistory[i]['time']) / 600) * 5
             prettyTime = getPrettyTime(cmdTime)
@@ -734,7 +734,6 @@ def handle_repeaterQuery(message_from_id, deviceID, channel_number):
     else:
         return "Repeater lookup not enabled"
 
-
 def handle_tide(message_from_id, deviceID, channel_number):
     location = get_node_location(message_from_id, deviceID, channel_number)
     return get_tide(str(location[0]), str(location[1]))
@@ -759,159 +758,45 @@ def handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus):
         msg += f"\nYou are at: lat:{loc[0]} lon:{loc[1]}"
     return msg
 
+def check_and_play_game(tracker, message_from_id, message_string, rxNode, channel_number, game_name, handle_game_func):
+    global llm_enabled
+
+    for i in range(len(tracker)):
+        if tracker[i].get('nodeID') == message_from_id or tracker[i].get('userID') == message_from_id:
+            last_played_key = 'last_played' if 'last_played' in tracker[i] else 'time'
+            if tracker[i].get(last_played_key) > (time.time() - GAMEDELAY):
+                if llm_enabled:
+                    logger.debug(f"System: LLM Disabled for {message_from_id} for duration of {game_name}")
+
+                # play the game
+                send_message(handle_game_func(message_from_id, message_string, rxNode), channel_number, message_from_id, rxNode)
+                return True, game_name
+            else:
+                # pop if the time exceeds 8 hours
+                tracker.pop(i)
+                return False, game_name
+    return False, "None"
+
 def checkPlayingGame(message_from_id, message_string, rxNode, channel_number):
-    # Checks if in a game used for, LLM disable for duration of game plays the game.
-    # Also handles stale games and resets the player if the game is older than 8 hours
     playingGame = False
     game = "None"
-    
-    for i in range(0, len(dwPlayerTracker)):
-        if dwPlayerTracker[i].get('userID') == message_from_id:
-            # check if the player has played in the last 8 hours
-            if dwPlayerTracker[i].get('last_played') > (time.time() - GAMEDELAY):
-                playingGame = True
-                game = "DopeWars"
-                if llm_enabled:
-                    logger.debug(f"System: LLM Disabled for {message_from_id} for duration of Dope Wars")
-                
-                #if time exceeds 8 hours reset the player
-                if dwPlayerTracker[i].get('last_played') < (time.time() - GAMEDELAY):
-                    logger.debug(f"System: DopeWars: Resetting player {message_from_id}")
-                    dwPlayerTracker.pop(i)
-                
-                # play the game
-                send_message(handleDopeWars(message_from_id, message_string, rxNode), channel_number, message_from_id, rxNode)
 
-    for i in range(0, len(lemonadeTracker)):
-        if lemonadeTracker[i].get('nodeID') == message_from_id:
-            # check if the player has played in the last 8 hours
-            if lemonadeTracker[i].get('time') > (time.time() - GAMEDELAY):
-                playingGame = True
-                game = "LemonadeStand"
-                if llm_enabled:
-                    logger.debug(f"System: LLM Disabled for {message_from_id} for duration of Lemonade Stand")
+    trackers = [
+        (dwPlayerTracker, "DopeWars", handleDopeWars),
+        (lemonadeTracker, "LemonadeStand", handleLemonade),
+        (vpTracker, "VideoPoker", handleVideoPoker),
+        (jackTracker, "BlackJack", handleBlackJack),
+        (mindTracker, "MasterMind", handleMmind),
+        (golfTracker, "GolfSim", handleGolf),
+        (unoTracker, "Uno", handleUno)
+    ]
 
-                #if time exceeds 8 hours reset the player
-                if lemonadeTracker[i].get('time') < (time.time() - GAMEDELAY):
-                    logger.debug(f"System: LemonadeStand: Resetting player {message_from_id}")
-                    lemonadeTracker.pop(i)
-                
-                # play the game
-                send_message(handleLemonade(message_from_id, message_string), channel_number, message_from_id, rxNode)
+    for tracker, game_name, handle_game_func in trackers:
+        playingGame, game = check_and_play_game(tracker, message_from_id, message_string, rxNode, channel_number, game_name, handle_game_func)
+        if playingGame:
+            break
 
-    for i in range(0, len(vpTracker)):
-        if vpTracker[i].get('nodeID') == message_from_id:
-            # check if the player has played in the last 8 hours
-            if vpTracker[i].get('time') > (time.time() - GAMEDELAY):
-                playingGame = True
-                game = "VideoPoker"
-                if llm_enabled:
-                    logger.debug(f"System: LLM Disabled for {message_from_id} for duration of VideoPoker")
-                
-                # play the game
-                send_message(handleVideoPoker(message_from_id, message_string), channel_number, message_from_id, rxNode)
-            else:
-                # pop if the time exceeds 8 hours
-                vpTracker.pop(i)
-
-    for i in range(0, len(jackTracker)):
-        if jackTracker[i].get('nodeID') == message_from_id:
-            # check if the player has played in the last 8 hours
-            if jackTracker[i].get('time') > (time.time() - GAMEDELAY):
-                playingGame = True
-                game = "BlackJack"
-                if llm_enabled:
-                    logger.debug(f"System: LLM Disabled for {message_from_id} for duration of BlackJack")
-                
-                # play the game
-                send_message(handleBlackJack(message_from_id, message_string), channel_number, message_from_id, rxNode)
-            else:
-                # pop if the time exceeds 8 hours
-                jackTracker.pop(i)
-                
-    for i in range(0, len(mindTracker)):
-        if mindTracker[i].get('nodeID') == message_from_id:
-            # check if the player has played in the last 8 hours
-            if mindTracker[i].get('last_played') > (time.time() - GAMEDELAY):
-                playingGame = True
-                game = "MasterMind"
-                if llm_enabled:
-                    logger.debug(f"System: LLM Disabled for {message_from_id} for duration of MasterMind")
-                
-                # play the game
-                send_message(handleMmind(message_from_id, rxNode, message_string), channel_number, message_from_id, rxNode)
-            else:
-                # pop if the time exceeds 8 hours
-                mindTracker.pop(i)
-    
-    for i in range(0, len(golfTracker)):
-        if golfTracker[i].get('nodeID') == message_from_id:
-            # check if the player has played in the last 8 hours
-            if golfTracker[i].get('last_played') > (time.time() - GAMEDELAY):
-                playingGame = True
-                game = "GolfSim"
-                if llm_enabled:
-                    logger.debug(f"System: LLM Disabled for {message_from_id} for duration of GolfSim")
-                
-                # play the game
-                send_message(handleGolf(message_from_id, message_string), channel_number, message_from_id, rxNode)
-            else:
-                # pop if the time exceeds 8 hours
-                golfTracker.pop(i)
-
-    for i in range(0, len(unoTracker)):
-        if unoTracker[i].get('nodeID') == message_from_id:
-            # check if the player has played in the last 8 hours
-            if unoTracker[i].get('last_played') > (time.time() - GAMEDELAY):
-                playingGame = True
-                game = "Uno"
-                if llm_enabled:
-                    logger.debug(f"System: LLM Disabled for {message_from_id} for duration of Uno")
-                
-                # get the game play string
-                gameMsg = handleUno(message_from_id, rxNode, message_string)
-                # identify messages for multiple players when starts with 👯
-                if gameMsg.startswith("👯"):
-                    gameMsg = gameMsg[1:]
-                    for playerID in getUnoIDs():
-                        send_message(gameMsg, channel_number, playerID, rxNode)
-                else:
-                    # play the game just normal message
-                    send_message(gameMsg, channel_number, message_from_id, rxNode)
-            
-            else:
-                # pop if the time exceeds 8 hours
-                unoTracker.pop(i)
-    
-    #logger.debug(f"System: {message_from_id} is playing {game}")
     return playingGame
-
-
-def onDisconnect(interface):
-    global retry_int1, retry_int2
-    rxType = type(interface).__name__
-    if rxType == 'SerialInterface':
-        rxInterface = interface.__dict__.get('devPath', 'unknown')
-        logger.critical("System: Lost Connection to Device {rxInterface}")
-        if port1 in rxInterface:
-            retry_int1 = True
-        elif interface2_enabled and port2 in rxInterface:
-            retry_int2 = True
-
-    if rxType == 'TCPInterface':
-        rxHost = interface.__dict__.get('hostname', 'unknown')
-        logger.critical("System: Lost Connection to Device {rxHost}")
-        if hostname1 in rxHost and interface1_type == 'tcp':
-            retry_int1 = True
-        elif interface2_enabled and hostname2 in rxHost and interface2_type == 'tcp':
-            retry_int2 = True
-    
-    if rxType == 'BLEInterface':
-        logger.critical("System: Lost Connection to Device BLE")
-        if interface1_type == 'ble':
-            retry_int1 = True
-        elif interface2_enabled and interface2_type == 'ble':
-            retry_int2 = True
 
 def onReceive(packet, interface):
     # Priocess the incoming packet, handles the responses to the packet with auto_response()

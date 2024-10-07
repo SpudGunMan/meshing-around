@@ -579,28 +579,48 @@ def messageTrap(msg):
     return False
 
 def getNodeFirmware(nodeID=0, nodeInt=1):
+    interface = interface1 if nodeInt == 1 else interface2
     # get the firmware version of the node
     # this is a workaround because .localNode.getMetadata spits out a lot of debug info which cant be suppressed
     # Create a StringIO object to capture the 
-    if nodeInt == 1:
-        output_capture = io.StringIO()
-        with contextlib.redirect_stdout(output_capture):
-            interface1.localNode.getMetadata()
-        console_output = output_capture.getvalue()
-        if "firmware_version" in console_output:
-            fwVer = console_output.split("firmware_version: ")[1].split("\n")[0]
-    elif nodeInt == 2:
-        output_capture = io.StringIO()
-        with contextlib.redirect_stdout(output_capture):
-            interface2.localNode.getMetadata()
-        console_output = output_capture.getvalue()
-        if "firmware_version" in console_output:
-            fwVer = console_output.split("firmware_version: ")[1].split("\n")[0]
-    else:
-        return -1
-    return fwVer
+    output_capture = io.StringIO()
+    with contextlib.redirect_stdout(output_capture):
+        interface.localNode.getMetadata()
+    console_output = output_capture.getvalue()
+    if "firmware_version" in console_output:
+        fwVer = console_output.split("firmware_version: ")[1].split("\n")[0]
+        return fwVer
+    return -1
+
+def onDisconnect(interface):
+    global retry_int1, retry_int2
+    rxType = type(interface).__name__
+    if rxType == 'SerialInterface':
+        rxInterface = interface.__dict__.get('devPath', 'unknown')
+        logger.critical("System: Lost Connection to Device {rxInterface}")
+        if port1 in rxInterface:
+            retry_int1 = True
+        elif interface2_enabled and port2 in rxInterface:
+            retry_int2 = True
+
+    if rxType == 'TCPInterface':
+        rxHost = interface.__dict__.get('hostname', 'unknown')
+        logger.critical("System: Lost Connection to Device {rxHost}")
+        if hostname1 in rxHost and interface1_type == 'tcp':
+            retry_int1 = True
+        elif interface2_enabled and hostname2 in rxHost and interface2_type == 'tcp':
+            retry_int2 = True
+    
+    if rxType == 'BLEInterface':
+        logger.critical("System: Lost Connection to Device BLE")
+        if interface1_type == 'ble':
+            retry_int1 = True
+        elif interface2_enabled and interface2_type == 'ble':
+            retry_int2 = True
+    
 
 def getNodeTelemetry(nodeID=0, rxNode=0):
+    interface = interface1 if rxNode == 1 else interface2
     global lastTelemetryRequest, numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr
     if numPacketsRx != [-1, -1]:
         print(f"watchDog numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr: {numPacketsTx}, {numPacketsRx}, {numPacketsTxErr}, {numPacketsRxErr}")
@@ -609,26 +629,15 @@ def getNodeTelemetry(nodeID=0, rxNode=0):
         return -1
     lastTelemetryRequest = time.time()
     # get the telemetry data for a node
-    if rxNode == 1:
-        chutil = round(interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("channelUtilization", 0), 1)
-        airUtilTx = round(interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("airUtilTx", 0), 1)
-        uptimeSeconds = interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("uptimeSeconds", 0)
-        batteryLevel = interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("batteryLevel", 0)
-        voltage = interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("voltage", 0)
-        #numPacketsRx = interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("localStats", {}).get("numPacketsRx", 0)
-        #numPacketsTx = interface1.nodes.get(decimal_to_hex(myNodeNum1), {}).get("localStats", {}).get("numPacketsTx", 0)
-        numTotalNodes = len(interface1.nodes) 
-    elif rxNode == 2:
-        chutil = round(interface2.nodes.get(decimal_to_hex(myNodeNum2), {}).get("deviceMetrics", {}).get("channelUtilization", 0), 1)
-        airUtilTx = round(interface2.nodes.get(decimal_to_hex(myNodeNum2), {}).get("deviceMetrics", {}).get("airUtilTx", 0), 1)
-        uptimeSeconds = interface2.nodes.get(decimal_to_hex(myNodeNum2), {}).get("deviceMetrics", {}).get("uptimeSeconds", 0)
-        batteryLevel = interface2.nodes.get(decimal_to_hex(myNodeNum2), {}).get("deviceMetrics", {}).get("batteryLevel", 0)
-        voltage = interface2.nodes.get(decimal_to_hex(myNodeNum2), {}).get("deviceMetrics", {}).get("voltage", 0)
-        #numPacketsRx = interface2.nodes.get(decimal_to_hex(myNodeNum2), {}).get("localStats", {}).get("numPacketsRx", 0)
-        #numPacketsTx = interface2.nodes.get(decimal_to_hex(myNodeNum2), {}).get("localStats", {}).get("numPacketsTx", 0)
-        numTotalNodes = len(interface2.nodes)
-    else:
-        return -1
+
+    chutil = round(interface.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("channelUtilization", 0), 1)
+    airUtilTx = round(interface.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("airUtilTx", 0), 1)
+    uptimeSeconds = interface.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("uptimeSeconds", 0)
+    batteryLevel = interface.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("batteryLevel", 0)
+    voltage = interface.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("voltage", 0)
+    #numPacketsRx = interface.nodes.get(decimal_to_hex(myNodeNum1), {}).get("localStats", {}).get("numPacketsRx", 0)
+    #numPacketsTx = interface.nodes.get(decimal_to_hex(myNodeNum1), {}).get("localStats", {}).get("numPacketsTx", 0)
+    numTotalNodes = len(interface.nodes) 
     
     dataResponse = f"Telemetry:{rxNode}"
 
@@ -747,6 +756,8 @@ async def handleSignalWatcher():
 
         await asyncio.sleep(1)
         pass
+
+    
 
 async def retry_interface(nodeID=1):
     global interface1, interface2, retry_int1, retry_int2, max_retry_count1, max_retry_count2
@@ -896,3 +907,5 @@ async def watchdog():
                     await retry_interface(2)
                 except Exception as e:
                     logger.error(f"System: retrying interface2: {e}")
+
+
