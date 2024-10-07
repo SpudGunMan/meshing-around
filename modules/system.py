@@ -514,44 +514,57 @@ def get_closest_nodes(nodeInt=1,returnCount=3):
         else:
             logger.warning(f"System: No nodes found in closest_nodes on interface {nodeInt}")
             return ERROR_FETCHING_DATA
-
+        
 def messageChunker(message):
-    parts = message.split('\n')
-    current_chunk = ''
     message_list = []
-    
     if len(message) > MESSAGE_CHUNK_SIZE:
+        parts = message.split('\n')
         for part in parts:
             part = part.strip()
+            # remove empty parts
             if not part:
                 continue
-            sentences = part.split('. ')
-            for sentence in sentences:
-                sentence = sentence.strip()
-                sentence = sentence.replace('  ', ' ')
-                if not sentence:
-                    continue
-                while len(sentence) > MESSAGE_CHUNK_SIZE:
-                    # Split the sentence if it's too long
-                    message_list.append(sentence[:MESSAGE_CHUNK_SIZE])
-                    sentence = sentence[MESSAGE_CHUNK_SIZE:]
-                if len(current_chunk) + len(sentence) <= MESSAGE_CHUNK_SIZE:
-                    current_chunk += sentence
-                else:
-                    if current_chunk:
-                        message_list.append(current_chunk.strip())
-                    current_chunk = sentence
-        if current_chunk:
-            # Add the last chunk
-            message_list.append(current_chunk.strip())
-  
-        # Calculate the total length of the message
-        total_length = sum(len(chunk) for chunk in message_list)
-        num_chunks = len(message_list)
-        logger.debug(f"System: Splitting #chunks: {num_chunks}, Total length: {total_length}")
-        return message_list
+            # if part is under the MESSAGE_CHUNK_SIZE, add it to the list
+            if len(part) < MESSAGE_CHUNK_SIZE:
+                message_list.append(part)
+            else:
+                # split the part into chunks
+                current_chunk = ''
+                sentences = part.split('. ')
+                for sentence in sentences:
+                    sentence = sentence.strip()
+                    sentence = sentence.replace('  ', ' ')
+                    # remove empty sentences
+                    if not sentence:
+                        continue
 
-    return message
+                    # if sentence is too long, split it by words
+                    if len(current_chunk) + len(sentence) > MESSAGE_CHUNK_SIZE:
+                        message_list.append(current_chunk)
+                        current_chunk = sentence
+                    else:
+                        if current_chunk:
+                            current_chunk += ' '
+                        current_chunk += sentence
+                if current_chunk:
+                    message_list.append(current_chunk)
+
+        # Ensure no chunk exceeds MESSAGE_CHUNK_SIZE
+        final_message_list = []
+        for chunk in message_list:
+            while len(chunk) > MESSAGE_CHUNK_SIZE:
+                final_message_list.append(chunk[:MESSAGE_CHUNK_SIZE])
+                chunk = chunk[MESSAGE_CHUNK_SIZE:]
+            if chunk:
+                final_message_list.append(chunk)
+
+        # Calculate the total length of the message
+        total_length = sum(len(chunk) for chunk in final_message_list)
+        num_chunks = len(final_message_list)
+        logger.debug(f"System: Splitting #chunks: {num_chunks}, Total length: {total_length}")
+        return final_message_list
+
+    return [message]
         
 def send_message(message, ch, nodeid=0, nodeInt=1):
     if message == "" or message == None or len(message) == 0:
