@@ -103,7 +103,8 @@ def getRepeaterBook(lat=0, lon=0):
         msg = "No repeaters found 😔"
     # Limit the output to the first 4 repeaters
     for repeater in data[:4]:
-        msg += f"{repeater['call_sign']}📶{repeater['frequency']}{repeater['offset']},{repeater['tone']}🧭{repeater['direction']}"
+        tmpTone = repeater['tone'].replace(" /", "")
+        msg += f"{repeater['call_sign']}📶{repeater['frequency']}{repeater['offset']},{tmpTone}.{repeater['mode']}"
         if repeater != data[:4][-1]: msg += '\n'
     return msg
 
