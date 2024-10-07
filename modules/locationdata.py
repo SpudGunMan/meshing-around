@@ -100,13 +100,13 @@ def getArtSciRepeaters(lat=0, lon=0):
             # format is ['City', 'Frequency', 'Offset', 'PL', 'Call', 'Notes']
             # there might be missing elements or only one element
             if len(repeater) == 2:
-                msg += f"Freq:{repeater[1]}\n"
+                msg += f"Freq:{repeater[1]}"
             elif len(repeater) == 3:
-                msg += f"Freq:{repeater[1]}, PL:{repeater[2]}\n"
+                msg += f"Freq:{repeater[1]}, PL:{repeater[2]}"
             elif len(repeater) == 4:
-                msg += f"Freq:{repeater[1]}, PL:{repeater[2]}, ID: {repeater[3]}\n"
+                msg += f"Freq:{repeater[1]}, PL:{repeater[2]}, ID: {repeater[3]}"
             elif len(repeater) == 5:
-                msg += f"Freq:{repeater[1]}, PL:{repeater[2]}, ID:{repeater[3]}.\n"
+                msg += f"Freq:{repeater[1]}, PL:{repeater[2]}, ID:{repeater[3]}"
             elif len(repeater) == 6:
                 msg += f"Freq:{repeater[1]}, PL:{repeater[2]}, ID:{repeater[3]}. {repeater[5]}"
             if repeater != repeaters[-1]:
