@@ -188,7 +188,8 @@ if radio_detection_enabled:
 if interface1_type == 'ble' and interface2_type == 'ble':
     logger.critical(f"System: BLE Interface1 and Interface2 cannot both be BLE. Exiting")
     exit()
-    
+
+#initialize_interfaces():
 # Interface1 Configuration
 try:
     logger.debug(f"System: Initializing Interface1")
@@ -240,120 +241,73 @@ if interface2_enabled:
 else:
     myNodeNum2 = 777
 
-# functions below
+
+#### FUN-ctions ####
 
 def decimal_to_hex(decimal_number):
     return f"!{decimal_number:08x}"
 
 def get_name_from_number(number, type='long', nodeInt=1):
+    interface = interface1 if nodeInt == 1 else interface2
     name = ""
-    if nodeInt == 1:
-        for node in interface1.nodes.values():
-            if number == node['num']:
-                if type == 'long':
-                    name = node['user']['longName']
-                    return name
-                elif type == 'short':
-                    name = node['user']['shortName']
-                    return name
-                else:
-                    pass
-            else:
-                name =  str(decimal_to_hex(number))  # If name not found, use the ID as string
-        return name
     
-    if nodeInt == 2:
-        for node in interface2.nodes.values():
-            if number == node['num']:
-                if type == 'long':
-                    name = node['user']['longName']
-                    return name
-                elif type == 'short':
-                    name = node['user']['shortName']
-                    return name
-                else:
-                    pass
-            else:
-                name =  str(decimal_to_hex(number))  # If name not found, use the ID as string
-        return name
-    return number
+    for node in interface.nodes.values():
+        if number == node['num']:
+            if type == 'long':
+                name = node['user']['longName']
+                return name
+            elif type == 'short':
+                name = node['user']['shortName']
+                return name
+        else:
+            name =  str(decimal_to_hex(number))  # If name not found, use the ID as string
+    return name
+
 
 def get_num_from_short_name(short_name, nodeInt=1):
+    interface = interface1 if nodeInt == 1 else interface2
     # Get the node number from the short name, converting all to lowercase for comparison (good practice?)
     logger.debug(f"System: Getting Node Number from Short Name: {short_name} on Device: {nodeInt}")
-    if nodeInt == 1:
-        for node in interface1.nodes.values():
-            #logger.debug(f"System: Checking Node: {node['user']['shortName']} against {short_name} for number {node['num']}")
-            if short_name == node['user']['shortName']:
-                return node['num']
-            elif str(short_name.lower()) == node['user']['shortName'].lower():
-                return node['num']
-            else:
-                # try other interface
-                if interface2_enabled:
-                    for node in interface2.nodes.values():
-                        if short_name == node['user']['shortName']:
-                            return node['num']
-                        elif str(short_name.lower()) == node['user']['shortName'].lower():
-                            return node['num']
-    if nodeInt == 2:
-        for node in interface2.nodes.values():
-            if short_name == node['user']['shortName']:
-                return node['num']
-            elif str(short_name.lower()) == node['user']['shortName'].lower():
-                return node['num']
-            else:
-                # try other interface
-                if interface2_enabled:
-                    for node in interface1.nodes.values():
-                        if short_name == node['user']['shortName']:
-                            return node['num']
-                        elif str(short_name.lower()) == node['user']['shortName'].lower():
-                            return node['num']
+    for node in interface.nodes.values():
+        #logger.debug(f"System: Checking Node: {node['user']['shortName']} against {short_name} for number {node['num']}")
+        if short_name == node['user']['shortName']:
+            return node['num']
+        elif str(short_name.lower()) == node['user']['shortName'].lower():
+            return node['num']
+        else:
+            if interface2_enabled:
+                interface = interface2 if nodeInt == 1 else interface1 # check the other interface
+                for node in interface.nodes.values():
+                    if short_name == node['user']['shortName']:
+                        return node['num']
+                    elif str(short_name.lower()) == node['user']['shortName'].lower():
+                        return node['num']
     return 0
     
 def get_node_list(nodeInt=1):
+    interface = interface1 if nodeInt == 1 else interface2
     # Get a list of nodes on the device
     node_list = ""
     node_list1 = []
     node_list2 = []
     short_node_list = []
     last_heard = 0
-    if nodeInt == 1:
-        if interface1.nodes:
-            for node in interface1.nodes.values():
-                # ignore own
-                if node['num'] != myNodeNum2 and node['num'] != myNodeNum1:
-                    node_name = get_name_from_number(node['num'], 'long', nodeInt)
-                    snr = node.get('snr', 0)
+    if interface.nodes:
+        for node in interface.nodes.values():
+            # ignore own
+            if node['num'] != myNodeNum2 and node['num'] != myNodeNum1:
+                node_name = get_name_from_number(node['num'], 'long', nodeInt)
+                snr = node.get('snr', 0)
 
-                    # issue where lastHeard is not always present
-                    last_heard = node.get('lastHeard', 0)
-                    
-                    # make a list of nodes with last heard time and SNR
-                    item = (node_name, last_heard, snr)
-                    node_list1.append(item)
-        else:
-            logger.warning(f"System: No nodes found")
-            return ERROR_FETCHING_DATA
-        
-    if nodeInt == 2:
-        if interface2.nodes:
-            for node in interface2.nodes.values():
-                # ignore own
-                if node['num'] != myNodeNum2 and node['num'] != myNodeNum1:
-                    node_name = get_name_from_number(node['num'], 'long', nodeInt)
-                    snr = node.get('snr', 0)
-
-                    # issue where lastHeard is not always present
-                    last_heard = node.get('lastHeard', 0)
-                    
-                    # make a list of nodes with last heard time and SNR
-                    item = (node_name, last_heard, snr)
-                    node_list2.append(item)
-        else:
-            logger.warning(f"System: No nodes found")
-            return ERROR_FETCHING_DATA
+                # issue where lastHeard is not always present
+                last_heard = node.get('lastHeard', 0)
+                
+                # make a list of nodes with last heard time and SNR
+                item = (node_name, last_heard, snr)
+                node_list1.append(item)
+    else:
+        logger.warning(f"System: No nodes found")
+        return ERROR_FETCHING_DATA
     
     try:
         #print (f"Node List: {node_list1[:5]}\n")
@@ -385,135 +339,82 @@ def get_node_list(nodeInt=1):
     return node_list
 
 def get_node_location(number, nodeInt=1, channel=0):
+    interface = interface1 if nodeInt == 1 else interface2
     # Get the location of a node by its number from nodeDB on device
     latitude = latitudeValue
     longitude = longitudeValue
     position = [latitudeValue,longitudeValue]
     lastheard = 0
-    if nodeInt == 1:
-        if interface1.nodes:
-            for node in interface1.nodes.values():
-                if number == node['num']:
-                    if 'position' in node:
-                        try:
-                            latitude = node['position']['latitude']
-                            longitude = node['position']['longitude']
-                        except Exception as e:
-                            logger.warning(f"System: Error getting location data for {number}")
-                        logger.debug(f"System: location data for {number} is {latitude},{longitude}")
-                        position = [latitude,longitude]
-                        return position
-                    else:
-                        logger.warning(f"System: No location data for {number} using default location")
-                        # request location data
-                        # try:
-                        #     logger.debug(f"System: Requesting location data for {number}")
-                        #     if nodeInt == 1:
-                        #         interface1.sendPosition(destinationId=number, wantResponse=False, channelIndex=channel)
-                        #     if nodeInt == 2:
-                        #         interface2.sendPosition(destinationId=number, wantResponse=False, channelIndex=channel)
-                        # except Exception as e:
-                        #     logger.error(f"System: Error requesting location data for {number}. Error: {e}")
-                        return position
+    if interface.nodes:
+        for node in interface.nodes.values():
+            if number == node['num']:
+                if 'position' in node:
+                    try:
+                        latitude = node['position']['latitude']
+                        longitude = node['position']['longitude']
+                    except Exception as e:
+                        logger.warning(f"System: Error getting location data for {number}")
+                    logger.debug(f"System: location data for {number} is {latitude},{longitude}")
+                    position = [latitude,longitude]
+                    return position
+                else:
+                    logger.warning(f"System: No location data for {number} using default location")
+                    # request location data
+                    # try:
+                    #     logger.debug(f"System: Requesting location data for {number}")
+                    #     interface.sendPosition(destinationId=number, wantResponse=False, channelIndex=channel)
+                    # except Exception as e:
+                    #     logger.error(f"System: Error requesting location data for {number}. Error: {e}")
+                    return position
         else:
             logger.warning(f"System: No nodes found")
             return position
-    if nodeInt == 2:
-        if interface2.nodes:
-            for node in interface2.nodes.values():
-                if number == node['num']:
-                    if 'position' in node:
-                        try:
-                            latitude = node['position']['latitude']
-                            longitude = node['position']['longitude']
-                        except Exception as e:
-                            logger.warning(f"System: Error getting location data for {number}")
-                        logger.info(f"System: location data for {number} is {latitude},{longitude}")
-                        position = [latitude,longitude]
-                        return position
-                    else:
-                        logger.warning(f"System: No location data for {number}")
-                        return position
-        else:
-            logger.warning(f"System: No nodes found")
-            return position
-    return position
+
 
 def get_closest_nodes(nodeInt=1,returnCount=3):
+    interface = interface1 if nodeInt == 1 else interface2
     node_list = []
 
-    if nodeInt == 1:
-        if interface1.nodes:
-            for node in interface1.nodes.values():
-                if 'position' in node:
-                    try:
-                        nodeID = node['num']
-                        latitude = node['position']['latitude']
-                        longitude = node['position']['longitude']
+    if interface.nodes:
+        for node in interface.nodes.values():
+            if 'position' in node:
+                try:
+                    nodeID = node['num']
+                    latitude = node['position']['latitude']
+                    longitude = node['position']['longitude']
 
-                        #lastheard time in unix time
-                        lastheard = node.get('lastHeard', 0)
-                        #if last heard is over 24 hours ago, ignore the node
-                        if lastheard < (time.time() - 86400):
-                            continue
+                    #lastheard time in unix time
+                    lastheard = node.get('lastHeard', 0)
+                    #if last heard is over 24 hours ago, ignore the node
+                    if lastheard < (time.time() - 86400):
+                        continue
 
-                        # Calculate distance to node from config.ini location
-                        distance = round(geopy.distance.geodesic((latitudeValue, longitudeValue), (latitude, longitude)).m, 2)
-                        
-                        if (distance < sentry_radius):
-                            if nodeID != myNodeNum1 and myNodeNum2 and str(nodeID) not in sentryIgnoreList:
-                                node_list.append({'id': nodeID, 'latitude': latitude, 'longitude': longitude, 'distance': distance})
-                                
-                    except Exception as e:
-                        pass
-                # else:
-                #     # request location data
-                #     try:
-                #         logger.debug(f"System: Requesting location data for {node['id']}")
-                #         interface1.sendPosition(destinationId=node['id'], wantResponse=False, channelIndex=publicChannel)
-                #     except Exception as e:
-                #         logger.error(f"System: Error requesting location data for {node['id']}. Error: {e}")
+                    # Calculate distance to node from config.ini location
+                    distance = round(geopy.distance.geodesic((latitudeValue, longitudeValue), (latitude, longitude)).m, 2)
+                    
+                    if (distance < sentry_radius):
+                        if nodeID != myNodeNum1 and myNodeNum2 and str(nodeID) not in sentryIgnoreList:
+                            node_list.append({'id': nodeID, 'latitude': latitude, 'longitude': longitude, 'distance': distance})
+                            
+                except Exception as e:
+                    pass
+            # else:
+            #     # request location data
+            #     try:
+            #         logger.debug(f"System: Requesting location data for {node['id']}")
+            #         interface.sendPosition(destinationId=node['id'], wantResponse=False, channelIndex=publicChannel)
+            #     except Exception as e:
+            #         logger.error(f"System: Error requesting location data for {node['id']}. Error: {e}")
 
-            # sort by distance closest
-            #node_list.sort(key=lambda x: (x['latitude']-latitudeValue)**2 + (x['longitude']-longitudeValue)**2)
-            node_list.sort(key=lambda x: x['distance'])
-            # return the first 3 closest nodes by default
-            return node_list[:returnCount]
-        else:
-            logger.warning(f"System: No nodes found in closest_nodes on interface {nodeInt}")
-            return ERROR_FETCHING_DATA
+        # sort by distance closest
+        #node_list.sort(key=lambda x: (x['latitude']-latitudeValue)**2 + (x['longitude']-longitudeValue)**2)
+        node_list.sort(key=lambda x: x['distance'])
+        # return the first 3 closest nodes by default
+        return node_list[:returnCount]
+    else:
+        logger.warning(f"System: No nodes found in closest_nodes on interface {nodeInt}")
+        return ERROR_FETCHING_DATA
 
-    if nodeInt == 2:
-        if interface2.nodes:
-            for node in interface2.nodes.values():
-                if 'position' in node:
-                    try:
-                        nodeID = node['num']
-                        latitude = node['position']['latitude']
-                        longitude = node['position']['longitude']
-
-                        #lastheard time in unix time
-                        lastheard = node.get('lastHeard', 0)
-                        #if last heard is over 24 hours ago, ignore the node
-                        if lastheard < (time.time() - 86400):
-                            continue
-
-                        # Calculate distance to node from config.ini location
-                        distance = round(geopy.distance.geodesic((latitudeValue, longitudeValue), (latitude, longitude)).m, 2)
-                        
-                        if (distance < sentry_radius):
-                            if nodeID != myNodeNum1 and myNodeNum2 and str(nodeID) not in sentryIgnoreList:
-                                node_list.append({'id': nodeID, 'latitude': latitude, 'longitude': longitude, 'distance': distance})
-                                
-                    except Exception as e:
-                        pass
-            # sort by distance closest
-            node_list.sort(key=lambda x: x['distance'])
-            # return the first 3 closest nodes by default
-            return node_list[:returnCount]
-        else:
-            logger.warning(f"System: No nodes found in closest_nodes on interface {nodeInt}")
-            return ERROR_FETCHING_DATA
         
 def messageChunker(message):
     message_list = []
@@ -564,7 +465,7 @@ def messageChunker(message):
         logger.debug(f"System: Splitting #chunks: {num_chunks}, Total length: {total_length}")
         return final_message_list
 
-    return [message]
+    return message
         
 def send_message(message, ch, nodeid=0, nodeInt=1):
     if message == "" or message == None or len(message) == 0:
