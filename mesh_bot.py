@@ -850,23 +850,25 @@ def onReceive(packet, interface):
         #     #print(f"deviceMetrics: {deviceMetrics}")
         if telemetry_packet.get('localStats'):
             localStats = telemetry_packet['localStats']
+            print(f"DEBUG localStats found: {localStats}")
             # Check if 'numPacketsTx' and 'numPacketsRx' exist and are not zero
-            if localStats[0].get('numPacketsTx') is not None and localStats[0].get('numPacketsRx') is not None and localStats[0]['numPacketsRx'] != 0:
+            if localStats.get('numPacketsTx') is not None and localStats.get('numPacketsRx') is not None and localStats['numPacketsRx'] != 0:
                 # Assign the values and include rxNode
-                numPacketsTx = (localStats[0]['numPacketsTx'], rxNode)
-                numPacketsRx = (localStats[0]['numPacketsRx'], rxNode)
+                numPacketsTx = (localStats['numPacketsTx'], rxNode)
+                numPacketsRx = (localStats['numPacketsRx'], rxNode)
                 try:
-                    numPacketsTxErr = (localStats[0]['numPacketsTxErr'], rxNode)
+                    numPacketsTxErr = (localStats['numPacketsTxErr'], rxNode)
                 except KeyError:
                     numPacketsTxErr = (-1, rxNode)
                 try:
-                    numPacketsRxErr = (localStats[0]['numPacketsRxErr'], rxNode)
+                    numPacketsRxErr = (localStats['numPacketsRxErr'], rxNode)
                 except KeyError:
                     numPacketsRxErr = (-1, rxNode)
-                # airUtilTx = (round(localStats[0]['airUtilTx'], 2), rxNode)
+                # airUtilTx = (round(localStats['airUtilTx'], 2), rxNode)
                 print(f"DEBUG packet {telemetry_packet}")
                 print(f"DEBUG injest numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr: {numPacketsTx}, {numPacketsRx}, {numPacketsTxErr}, {numPacketsRxErr}")
-
+    
+    
     # BBS DM MAIL CHECKER
     if bbs_enabled and 'decoded' in packet:
         message_from_id = packet['from']
