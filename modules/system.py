@@ -888,7 +888,7 @@ async def watchdog():
 
                 # Telemetry data
                 int2Data = getNodeTelemetry(0, 2)
-                if int1Data != -1:
+                if int2Data != -1:
                     logger.debug(int2Data + f" Firmware:{firmware2}")
         
             if retry_int2:
