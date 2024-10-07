@@ -16,8 +16,6 @@ help_message = "CMD?:"
 asyncLoop = asyncio.new_event_loop()
 games_enabled = False
 multiPingList = [{'message_from_id': 0, 'count': 0, 'type': '', 'deviceID': 0}]
-lastTelemetryRequest = 0
-numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr = ([-1, -1],) * 4
 
 
 # Ping Configuration
@@ -618,18 +616,23 @@ def onDisconnect(interface):
         elif interface2_enabled and interface2_type == 'ble':
             retry_int2 = True
     
-
+lastTelemetryRequest = [{'interface1': 0, 'interface2': 0, 'lastAlert1': '', 'lastAlert2': ''}]
+numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr = ([-1, -1],) * 4
 def getNodeTelemetry(nodeID=0, rxNode=0):
     interface = interface1 if rxNode == 1 else interface2
-    global lastTelemetryRequest, numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr
-    if numPacketsRx != [-1, -1]:
-        print(f"watchDog numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr: {numPacketsTx}, {numPacketsRx}, {numPacketsTxErr}, {numPacketsRxErr}")
+    global numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr, lastTelemetryRequest
+    print(f"DEBUG watchDog(getNodeTelemetry) numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr: {numPacketsTx}, {numPacketsRx}, {numPacketsTxErr}, {numPacketsRxErr}")
     # throttle the telemetry requests to prevent spamming the device
-    if time.time() - lastTelemetryRequest < 1200:
-        return -1
-    lastTelemetryRequest = time.time()
-    # get the telemetry data for a node
+    if rxNode == 1:
+        if time.time() - lastTelemetryRequest[0]['interface1'] < 600:
+            return -1
+        lastTelemetryRequest[0]['interface1'] = time.time()
+    elif rxNode == 2:
+        if time.time() - lastTelemetryRequest[0]['interface2'] < 600:
+            return -1
+        lastTelemetryRequest[0]['interface2'] = time.time()
 
+    # get the telemetry data for a node
     chutil = round(interface.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("channelUtilization", 0), 1)
     airUtilTx = round(interface.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("airUtilTx", 0), 1)
     uptimeSeconds = interface.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("uptimeSeconds", 0)
@@ -830,7 +833,7 @@ async def handleSentinel(deviceID=1):
         handleSentinel_loop += 1
 
 async def watchdog():
-    global retry_int1, retry_int2
+    global retry_int1, retry_int2, lastTelemetryRequest
     int1Data, int2Data = "", ""
     while True:
         await asyncio.sleep(20)
@@ -854,8 +857,9 @@ async def watchdog():
 
                 # Telemetry data
                 int1Data = getNodeTelemetry(0, 1)
-                if int1Data != -1:
+                if int1Data != -1 and lastTelemetryRequest[0]['lastAlert1'] != int1Data:
                     logger.debug(int1Data + f" Firmware:{firmware}")
+                    lastTelemetryRequest[0]['lastAlert1'] = int1Data
 
         if retry_int1:
             try:
@@ -882,8 +886,9 @@ async def watchdog():
 
                 # Telemetry data
                 int2Data = getNodeTelemetry(0, 2)
-                if int2Data != -1:
+                if int2Data != -1 and lastTelemetryRequest[0]['lastAlert2'] != int2Data:
                     logger.debug(int2Data + f" Firmware:{firmware2}")
+                    lastTelemetryRequest[0]['lastAlert2'] = int2Data
         
             if retry_int2:
                 try:
