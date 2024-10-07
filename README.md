@@ -21,7 +21,7 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 - **Send Mail**: Send mail to nodes using `bbspost @nodeNumber #message` or `bbspost @nodeShortName #message`.
 
 ### Interactive AI and Data Lookup
-- **NOAA location Data**: Get localized weather(alerts) and Tide information.
+- **NOAA location Data**: Get localized weather(alerts) and Tide information. Open-Meteo is used for wx only outside NOAA coverage. 
 - **Wiki Integration**: Look up data using Wikipedia results.
 - **Ollama LLM AI**: Interact with the [Ollama](https://github.com/ollama/ollama/tree/main/docs) LLM AI for advanced queries and responses.
 
