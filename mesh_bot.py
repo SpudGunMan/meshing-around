@@ -727,7 +727,13 @@ def handle_whereami(message_from_id, deviceID, channel_number):
 
 def handle_repeaterQuery(message_from_id, deviceID, channel_number):
     location = get_node_location(message_from_id, deviceID, channel_number)
-    return getArtSciRepeaters(str(location[0]), str(location[1]))
+    if repeater_lookup == "rbook":
+        return getRepeaterBook(str(location[0]), str(location[1]))
+    elif repeaterLookup == "artsci":
+        return getArtSciRepeaters(str(location[0]), str(location[1]))
+    else:
+        return "Repeater lookup not enabled"
+
 
 def handle_tide(message_from_id, deviceID, channel_number):
     location = get_node_location(message_from_id, deviceID, channel_number)

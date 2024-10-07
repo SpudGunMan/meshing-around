@@ -104,6 +104,8 @@ NOAAalertCount = 2
 UseMeteoWxAPI = False
 # Default to metric units rather than imperial
 useMetric = False
+# repeaterList lookup location (rbook / artsci)
+repeaterLookup = rbook
 
 # repeater module
 [repeater]

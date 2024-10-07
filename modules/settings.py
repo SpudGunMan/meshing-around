@@ -130,6 +130,7 @@ try:
     forecastDuration = config['location'].getint('NOAAforecastDuration', 4) # NOAA forcast days
     numWxAlerts = config['location'].getint('NOAAalertCount', 2) # default 2 alerts
     wxAlertsEnabled = config['location'].getboolean('NOAAalertsEnabled', True) # default True not enabled yet
+    repeater_lookup = config['location'].get('repeaterLookup', 'rbook') # default repeater lookup source
    
     # bbs
     bbs_enabled = config['bbs'].getboolean('enabled', False)

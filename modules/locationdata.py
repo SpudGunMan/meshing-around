@@ -68,6 +68,45 @@ def where_am_i(lat=0, lon=0, short=False, zip=False):
         logger.debug("Location:Error fetching location data with whereami, likely network error")
         return ERROR_FETCHING_DATA
     
+def getRepeaterBook(lat=0, lon=0):
+    grid = mh.to_maiden(float(lat), float(lon))
+    data = []
+    repeater_url = f"https://www.repeaterbook.com/repeaters/prox_result.php?city={grid}&lat=&long=&distance=50&Dunit=m&band%5B%5D=4&band%5B%5D=16&freq=&call=&mode%5B%5D=1&mode%5B%5D=2&mode%5B%5D=4&mode%5B%5D=64&status_id=1&use=%25&use=OPEN&order=distance_calc%2C+state_id+ASC"
+    try:
+        msg = ''
+        response = requests.get(repeater_url)
+        soup = BeautifulSoup(response.text, 'html.parser')
+        table = soup.find('table', attrs={'class': 'w3-table w3-striped w3-responsive w3-mobile w3-auto sortable'})
+        if table is not None:
+            cells = table.find_all('td')
+            data = []
+            for i in range(0, len(cells), 11):
+                if i + 10 < len(cells):  #avoid IndexError
+                    repeater = {
+                        'frequency': cells[i].text.strip() if i < len(cells) else 'N/A',
+                        'offset': cells[i + 1].text.strip() if i + 1 < len(cells) else 'N/A',
+                        'tone': cells[i + 2].text.strip() if i + 2 < len(cells) else 'N/A',
+                        'call_sign': cells[i + 3].text.strip() if i + 3 < len(cells) else 'N/A',
+                        'location': cells[i + 4].text.strip() if i + 4 < len(cells) else 'N/A',
+                        'state': cells[i + 5].text.strip() if i + 5 < len(cells) else 'N/A',
+                        'use': cells[i + 6].text.strip() if i + 6 < len(cells) else 'N/A',
+                        'mode': cells[i + 7].text.strip() if i + 7 < len(cells) else 'N/A',
+                        'distance': cells[i + 8].text.strip() if i + 8 < len(cells) else 'N/A',
+                        'direction': cells[i + 9].text.strip() if i + 9 < len(cells) else 'N/A'
+                    }
+                    data.append(repeater)
+                else:
+                    msg = "bug?Not enough columns"
+        else:
+            msg = "bug?Table not found"
+    except Exception as e:
+        msg = "No repeaters found 😔"
+    # Limit the output to the first 4 repeaters
+    for repeater in data[:4]:
+        msg += f"{repeater['call_sign']}📶{repeater['frequency']}{repeater['offset']},{repeater['tone']}🧭{repeater['direction']}"
+        if repeater != data[-1]: msg += '\n'
+    return msg
+
 def getArtSciRepeaters(lat=0, lon=0):
     # UK api_url = "https://api-beta.rsgb.online/all/systems"
     #grid = mh.to_maiden(float(lat), float(lon))
