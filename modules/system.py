@@ -732,16 +732,18 @@ def displayNodeTelemetry(nodeID=0, rxNode=0):
         logger.critical(f"System: Critical Battery Level: {batteryLevel}{emji} on Device: {rxNode}")
     return dataResponse
 
+positionMetadata = {}
 def consumeMetadata(packet, rxNode=0):
     # keep records of recent telemetry data
     debugMetadata = False
     packet_type = ''
     if packet.get('decoded'):
         packet_type = packet['decoded']['portnum']
+        nodeID = packet['from']
 
     # TELEMETRY packets
     if packet_type == 'TELEMETRY_APP':
-        if debugMetadata: print(f"DEBUG TELEMETRY_APP: {packet}\n\n")
+        #if debugMetadata: print(f"DEBUG TELEMETRY_APP: {packet}\n\n")
         # get the telemetry data
         telemetry_packet = packet['decoded']['telemetry']
         if telemetry_packet.get('deviceMetrics'):
@@ -768,34 +770,44 @@ def consumeMetadata(packet, rxNode=0):
     
     # POSITION_APP packets
     if packet_type == 'POSITION_APP':
-        if debugMetadata: print(f"DEBUG POSITION_APP: {packet}")
+        if debugMetadata: print(f"DEBUG POSITION_APP: {packet}\n\n")
+        # get the position data
+        if packet['decoded']['position']['altitude'] is not None:
+            altitude = packet['decoded']['position']['altitude']
+        if packet['decoded']['position']['ground_speed'] is not None:
+            ground_speed = packet['decoded']['position']['groundSpeed']
+        if packet['decoded']['position']['precision_bits'] is not None:
+            precision_bits = packet['decoded']['position']['precisionBits']
+        # put data into positionMetadata and keep it at 5 records
+        if len(positionMetadata) > 5:
+            positionMetadata.pop(0)
+        positionMetadata.append({'nodeID': nodeID, 'altitude': altitude, 'ground_speed': ground_speed, 'precision_bits': precision_bits})
+
 
     # WAYPOINT_APP packets
     if packet_type ==  'WAYPOINT_APP':
-        if debugMetadata: print(f"DEBUG WAYPOINT_APP: {packet}")
+        if debugMetadata: print(f"DEBUG WAYPOINT_APP: {packet}\n\n")
 
     # NEIGHBORINFO_APP
     if packet_type ==  'NEIGHBORINFO_APP':
-        if debugMetadata: print(f"DEBUG NEIGHBORINFO_APP: {packet}")
+        if debugMetadata: print(f"DEBUG NEIGHBORINFO_APP: {packet}\n\n")
     
     # TRACEROUTE_APP
     if packet_type ==  'TRACEROUTE_APP':
-        if debugMetadata: print(f"DEBUG TRACEROUTE_APP: {packet}")
+        if debugMetadata: print(f"DEBUG TRACEROUTE_APP: {packet}\n\n")
 
     # DETECTION_SENSOR_APP
     if packet_type ==  'DETECTION_SENSOR_APP':
-        if debugMetadata: print(f"DEBUG DETECTION_SENSOR_APP: {packet}")
+        if debugMetadata: print(f"DEBUG DETECTION_SENSOR_APP: {packet}\n\n")
 
     # PAXCOUNTER_APP
     if packet_type ==  'PAXCOUNTER_APP':
-        if debugMetadata: print(f"DEBUG PAXCOUNTER_APP: {packet}")
+        if debugMetadata: print(f"DEBUG PAXCOUNTER_APP: {packet}\n\n")
 
     # REMOTE_HARDWARE_APP
     if packet_type ==  'REMOTE_HARDWARE_APP':
-        if debugMetadata: print(f"DEBUG REMOTE_HARDWARE_APP: {packet}")
+        if debugMetadata: print(f"DEBUG REMOTE_HARDWARE_APP: {packet}\n\n")
     
-
-    #end consumeMetadata
 
 
 async def BroadcastScheduler():
