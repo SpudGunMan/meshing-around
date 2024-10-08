@@ -848,12 +848,11 @@ def onReceive(packet, interface):
         #     deviceMetrics = telemetry_packet['deviceMetrics']
         #     #print(f"DEBUG deviceMetrics: {deviceMetrics}")
         if telemetry_packet.get('localStats'):
-            print(f"DEBUG localStats: {telemetry_packet}")
+            #print(f"DEBUG localStats: {telemetry_packet}")
             localStats = telemetry_packet['localStats']
             # Check if 'numPacketsTx' and 'numPacketsRx' exist and are not zero
             if localStats.get('numPacketsTx') is not None and localStats.get('numPacketsRx') is not None and localStats['numPacketsTx'] != -1:
                 # Assign the values to the telemetry dictionary
-                print(f"DEBUG match: {localStats}")
                 if localStats.get('numPacketsTx') is not None:
                     telemetryData[rxNode]['numPacketsTx'] = localStats.get('numPacketsTx')
                 if localStats.get('numPacketsRx') is not None:
