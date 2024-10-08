@@ -852,7 +852,7 @@ def onReceive(packet, interface):
             localStats = telemetry_packet['localStats']
             print(f"DEBUG localStats found: {localStats}")
             # Check if 'numPacketsTx' and 'numPacketsRx' exist and are not zero
-            if localStats.get('numPacketsTx') is not None and localStats.get('numPacketsRx') is not None and localStats['numPacketsRx'] != 0:
+            if localStats.get('numPacketsTx') is not None and localStats.get('numPacketsRx') is not None and localStats['numPacketsTx'] != -1:
                 # Assign the values and include rxNode
                 numPacketsTx = (localStats['numPacketsTx'], rxNode)
                 numPacketsRx = (localStats['numPacketsRx'], rxNode)
@@ -865,7 +865,7 @@ def onReceive(packet, interface):
                 except KeyError:
                     numPacketsRxErr = (-1, rxNode)
                 # airUtilTx = (round(localStats['airUtilTx'], 2), rxNode)
-                print(f"DEBUG packet {telemetry_packet}")
+                #print(f"DEBUG packet {telemetry_packet}")
                 print(f"DEBUG injest numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr: {numPacketsTx}, {numPacketsRx}, {numPacketsTxErr}, {numPacketsRxErr}")
     
     
