@@ -746,8 +746,7 @@ def consumeMetadata(packet, rxNode=0):
                 # Assign the values to the telemetry dictionary
                 keys = [
                     'numPacketsTx', 'numPacketsRx', 'numOnlineNodes', 
-                    'numOfflineNodes', 'numPacketsTxErr', 'numPacketsRxErr', 'numTotalNodes'
-                ]
+                    'numOfflineNodes', 'numPacketsTxErr', 'numPacketsRxErr', 'numTotalNodes']
                 
                 for key in keys:
                     if localStats.get(key) is not None:
@@ -763,7 +762,10 @@ def consumeMetadata(packet, rxNode=0):
             # add the position data to the positionMetadata dictionary
             if nodeID not in positionMetadata:
                 positionMetadata[nodeID] = {}
-            positionMetadata[nodeID][key] = position_data[key]
+            
+            keys = ['altitude', 'groundSpeed', 'precisionBits']
+            for key in keys:
+                positionMetadata[nodeID][key] = position_data.get(key, 0)
 
         # put data into positionMetadata and keep it at 5 records
         if len(positionMetadata) > 5:
