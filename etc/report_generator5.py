@@ -18,7 +18,7 @@ from collections import Counter, defaultdict
 # global variables
 LOG_PATH = '/opt/meshing-around/logs' # override path to log files (defaults to ../log)
 W3_PATH = '/var/www/html/' # override path to web server root (defaults to ../www)
-multiLogReader = True
+multiLogReader = False # set to True to read all meshbot logs in ../log
 shameWordList = ['password', 'combo', 'key', 'hidden', 'secret', 'pass', 'token', 'login', 'username', 'admin', 'root']
 
 # system variables

@@ -867,6 +867,10 @@ def onReceive(packet, interface):
                     telemetryData[rxNode]['numPacketsRxErr'] = localStats.get('numPacketsRxErr')
                 if localStats.get('numTotalNodes') is not None:
                     telemetryData[rxNode]['numTotalNodes'] = localStats.get('numTotalNodes')
+    
+    # LOCATION packets
+    if packet.get('decoded') and packet['decoded']['portnum'] == 'POSITION_APP':
+        print(f"DEBUG POSITION_APP: {packet}")
 
     # BBS DM MAIL CHECKER
     if bbs_enabled and 'decoded' in packet:
