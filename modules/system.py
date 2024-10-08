@@ -741,15 +741,12 @@ def consumeMetadata(packet, rxNode=0):
 
     # TELEMETRY packets
     if packet_type == 'TELEMETRY_APP':
-        if debugMetadata: print(f"DEBUG TELEMETRY_APP: {packet}")
+        if debugMetadata: print(f"DEBUG TELEMETRY_APP: {packet}\n\n")
         # get the telemetry data
         telemetry_packet = packet['decoded']['telemetry']
-
         if telemetry_packet.get('deviceMetrics'):
             deviceMetrics = telemetry_packet['deviceMetrics']
-            if debugMetadata: print(f"DEBUG deviceMetrics: {deviceMetrics}")
         if telemetry_packet.get('localStats'):
-            if debugMetadata: print(f"DEBUG localStats: {telemetry_packet}")
             localStats = telemetry_packet['localStats']
             # Check if 'numPacketsTx' and 'numPacketsRx' exist and are not zero
             if localStats.get('numPacketsTx') is not None and localStats.get('numPacketsRx') is not None and localStats['numPacketsTx'] != -1:
@@ -770,31 +767,31 @@ def consumeMetadata(packet, rxNode=0):
                     telemetryData[rxNode]['numTotalNodes'] = localStats.get('numTotalNodes')
     
     # POSITION_APP packets
-    if packet.get('decoded') and packet['decoded']['portnum'] == 'POSITION_APP':
+    if packet_type == 'POSITION_APP':
         if debugMetadata: print(f"DEBUG POSITION_APP: {packet}")
 
     # WAYPOINT_APP packets
-    if packet.get('decoded') and packet['decoded']['portnum'] == 'WAYPOINT_APP':
+    if packet_type ==  'WAYPOINT_APP':
         if debugMetadata: print(f"DEBUG WAYPOINT_APP: {packet}")
 
     # NEIGHBORINFO_APP
-    if packet.get('decoded') and packet['decoded']['portnum'] == 'NEIGHBORINFO_APP':
+    if packet_type ==  'NEIGHBORINFO_APP':
         if debugMetadata: print(f"DEBUG NEIGHBORINFO_APP: {packet}")
     
     # TRACEROUTE_APP
-    if packet.get('decoded') and packet['decoded']['portnum'] == 'TRACEROUTE_APP':
+    if packet_type ==  'TRACEROUTE_APP':
         if debugMetadata: print(f"DEBUG TRACEROUTE_APP: {packet}")
 
     # DETECTION_SENSOR_APP
-    if packet.get('decoded') and packet['decoded']['portnum'] == 'DETECTION_SENSOR_APP':
+    if packet_type ==  'DETECTION_SENSOR_APP':
         if debugMetadata: print(f"DEBUG DETECTION_SENSOR_APP: {packet}")
 
     # PAXCOUNTER_APP
-    if packet.get('decoded') and packet['decoded']['portnum'] == 'PAXCOUNTER_APP':
+    if packet_type ==  'PAXCOUNTER_APP':
         if debugMetadata: print(f"DEBUG PAXCOUNTER_APP: {packet}")
 
     # REMOTE_HARDWARE_APP
-    if packet.get('decoded') and packet['decoded']['portnum'] == 'REMOTE_HARDWARE_APP':
+    if packet_type ==  'REMOTE_HARDWARE_APP':
         if debugMetadata: print(f"DEBUG REMOTE_HARDWARE_APP: {packet}")
     
 
