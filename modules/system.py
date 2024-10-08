@@ -631,11 +631,11 @@ def displayNodeTelemetry(nodeID=0, rxNode=0):
 
     # throttle the telemetry requests to prevent spamming the device
     if rxNode == 1:
-        if time.time() - telemetryData[0]['interface1'] < 120:
+        if time.time() - telemetryData[0]['interface1'] < 600:
             return -1
         telemetryData[0]['interface1'] = time.time()
     elif rxNode == 2:
-        if time.time() - telemetryData[0]['interface2'] < 120:
+        if time.time() - telemetryData[0]['interface2'] < 600:
             return -1
         telemetryData[0]['interface2'] = time.time()
 
@@ -661,7 +661,7 @@ def displayNodeTelemetry(nodeID=0, rxNode=0):
     dataResponse = f"Telemetry:{rxNode}"
 
     # packet info telemetry
-    dataResponse += f" numPacketsRx:{numPacketsRx} umPacketsRxErr:{numPacketsRxErr} numPacketsTxErr:{numPacketsTxErr} numPacketsTx:{numPacketsTx}"
+    dataResponse += f" numPacketsRx:{numPacketsRx} umPacketsRxErr:{numPacketsRxErr} numPacketsTx:{numPacketsTx} numPacketsTxErr:{numPacketsTxErr}"
 
     # Channel utilization and airUtilTx
     dataResponse += " ChUtil%:" + str(round(chutil, 2)) + " AirTx%:" + str(round(airUtilTx, 2))
