@@ -19,7 +19,7 @@ elif [ "$1" == "mesh" ]; then
     python3 mesh_bot.py
 elif [ "$1" == "html" ]; then
     python3 etc/report_generator.py
-elif [ "$1" == "html5" ]: then
+elif [ "$1" == "html5" ]; then
     python3 etc/report_generator5.py
 else
     echo "Please provide a bot to launch (pong/mesh)"
