@@ -24,7 +24,7 @@ def sendWithEmoji(message):
         'surfing': '🏄', 'swimming': '🏊', 'water polo': '🤽', 'cycling': '🚴', 'mountain biking': '🚵', 'horse riding': '🏇', 'kneeling': '🧎', 'weightlifting': '🏋️', 'gymnastics': '🤸', 'wrestling': '🤼', 'handball': '🤾',
         'juggling': '🤹', 'meditation': '🧘', 'sauna': '🧖', 'rock climbing': '🧗', 'stop': '🛑'
     }
-    
+    # type format to clean it up
     words = message.lower().split()
     words = words.replace('.', '').replace(',', '').replace('!', '').replace('?', '')
     i = 0

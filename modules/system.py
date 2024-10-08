@@ -763,16 +763,17 @@ def consumeMetadata(packet, rxNode=0):
     if packet_type == 'POSITION_APP':
         if debugMetadata: print(f"DEBUG POSITION_APP: {packet}\n\n")
         # get the position data
-        if packet['decoded']['position']['altitude'] is not None:
-            altitude = packet['decoded']['position'].get('altitude', 0)
-        if packet['decoded']['position']['groundSpeed'] is not None:
-            groundSpeed = packet['decoded']['position'].get('groundSpeed', 0)
-        if packet['decoded']['position']['precisionBits'] is not None:
-            precisionBits = packet['decoded']['position'].get('precisionBits', 0)
+        keys = ['altitude', 'groundSpeed', 'precisionBits']
+        position_data = packet['decoded']['position']
+        for key in keys:
+            # add the position data to the positionMetadata dictionary
+            if nodeID not in positionMetadata:
+                positionMetadata[nodeID] = {}
+            positionMetadata[nodeID][key] = position_data[key]
+
         # put data into positionMetadata and keep it at 5 records
         if len(positionMetadata) > 5:
             positionMetadata.pop(0)
-        positionMetadata.append({'nodeID': nodeID, 'altitude': altitude, 'groundSpeed': groundSpeed, 'precisionBits': precisionBits})
         print(f"DEBUG POSITION_METADATA: {positionMetadata}\n\n")
 
     # WAYPOINT_APP packets
