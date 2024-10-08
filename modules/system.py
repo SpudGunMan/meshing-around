@@ -671,9 +671,6 @@ def displayNodeTelemetry(nodeID=0, rxNode=0):
 
     if airUtilTx > 25:
         logger.warning(f"System: High Air Utilization {airUtilTx}% on Device: {rxNode}")
-    
-    # add packet Rx/Tx info to the response
-    dataResponse += f" Rx#:{numPacketsRx} Tx#:{numPacketsTx}"
 
     # Number of nodes
     dataResponse += " totalNodes:" + str(numTotalNodes) + " Online:" + str(totalOnlineNodes)
