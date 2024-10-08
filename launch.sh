@@ -18,7 +18,7 @@ if [ "$1" == "pong" ]; then
 elif [ "$1" == "mesh" ]; then
     python3 mesh_bot.py
 else
-    Please provide a bot to launch (pong/mesh)
+    echo "Please provide a bot to launch (pong/mesh)"
     exit 1
 fi
 
