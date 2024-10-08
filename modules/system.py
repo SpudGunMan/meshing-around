@@ -723,7 +723,7 @@ def displayNodeTelemetry(nodeID=0, rxNode=0):
         logger.critical(f"System: Critical Battery Level: {batteryLevel}{emji} on Device: {rxNode}")
     return dataResponse
 
-positionMetadata = [{}]
+positionMetadata = {}
 def consumeMetadata(packet, rxNode=0):
     # keep records of recent telemetry data
     debugMetadata = False
@@ -744,20 +744,14 @@ def consumeMetadata(packet, rxNode=0):
             # Check if 'numPacketsTx' and 'numPacketsRx' exist and are not zero
             if localStats.get('numPacketsTx') is not None and localStats.get('numPacketsRx') is not None and localStats['numPacketsTx'] != 0:
                 # Assign the values to the telemetry dictionary
-                if localStats.get('numPacketsTx') is not None:
-                    telemetryData[rxNode]['numPacketsTx'] = localStats.get('numPacketsTx')
-                if localStats.get('numPacketsRx') is not None:
-                    telemetryData[rxNode]['numPacketsRx'] = localStats.get('numPacketsRx')
-                if localStats.get('numOnlineNodes') is not None:
-                    telemetryData[rxNode]['numOnlineNodes'] = localStats.get('numOnlineNodes')
-                if localStats.get('numOfflineNodes') is not None:
-                    telemetryData[rxNode]['numOfflineNodes'] = localStats.get('numOfflineNodes')
-                if localStats.get('numPacketsTxErr') is not None:
-                    telemetryData[rxNode]['numPacketsTxErr'] = localStats.get('numPacketsTxErr')
-                if localStats.get('numPacketsRxErr') is not None:
-                    telemetryData[rxNode]['numPacketsRxErr'] = localStats.get('numPacketsRxErr')
-                if localStats.get('numTotalNodes') is not None:
-                    telemetryData[rxNode]['numTotalNodes'] = localStats.get('numTotalNodes')
+                keys = [
+                    'numPacketsTx', 'numPacketsRx', 'numOnlineNodes', 
+                    'numOfflineNodes', 'numPacketsTxErr', 'numPacketsRxErr', 'numTotalNodes'
+                ]
+                
+                for key in keys:
+                    if localStats.get(key) is not None:
+                        telemetryData[rxNode][key] = localStats.get(key)
     
     # POSITION_APP packets
     if packet_type == 'POSITION_APP':
