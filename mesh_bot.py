@@ -840,16 +840,15 @@ def onReceive(packet, interface):
             rxNode = 2
 
     # TELEMETRY packets
-    global numPacketsRx, numPacketsTx, numPacketsRxErr, numPacketsTxErr
     if packet.get('decoded') and packet['decoded']['portnum'] == 'TELEMETRY_APP':
-        #print(f"Telemetry Packet: {packet}")
+        #print(f"DEBUG TELEMETRY_APP: {packet}")
         # get the telemetry data
         telemetry_packet = packet['decoded']['telemetry']
         # if telemetry_packet.get('deviceMetrics'):
         #     deviceMetrics = telemetry_packet['deviceMetrics']
-        #     #print(f"deviceMetrics: {deviceMetrics}")
+        #     #print(f"DEBUG deviceMetrics: {deviceMetrics}")
         if telemetry_packet.get('localStats'):
-            #print(f"DEBUG packet {telemetry_packet}")
+            #print(f"DEBUG localStats: {telemetry_packet}")
             localStats = telemetry_packet['localStats']
             # Check if 'numPacketsTx' and 'numPacketsRx' exist and are not zero
             if localStats.get('numPacketsTx') is not None and localStats.get('numPacketsRx') is not None and localStats['numPacketsTx'] != -1:
@@ -873,6 +872,10 @@ def onReceive(packet, interface):
                 except KeyError:
                     numTotalNodes = (-1, rxNode)
                 print(f"----onReceive() numPacketsTx: {numPacketsTx} numPacketsRx: {numPacketsRx} numOnlineNodes: {numOnlineNodes} numPacketsTxErr: {numPacketsTxErr} numPacketsRxErr: {numPacketsRxErr} numTotalNodes: {numTotalNodes}")
+                # update the telemetry values
+                telemetry_values = [numPacketsTx, numPacketsRx, numOnlineNodes, numPacketsTxErr, numPacketsRxErr, numTotalNodes]
+                update_telemetry(rxNode, telemetry_values)
+    
     # BBS DM MAIL CHECKER
     if bbs_enabled and 'decoded' in packet:
         message_from_id = packet['from']

@@ -615,24 +615,45 @@ def onDisconnect(interface):
             retry_int1 = True
         elif interface2_enabled and interface2_type == 'ble':
             retry_int2 = True
-    
-lastTelemetryRequest = [{'interface1': 0, 'interface2': 0, 'lastAlert1': '', 'lastAlert2': ''}]
-numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr = ([-1, -1],) * 4
-def getNodeTelemetry(nodeID=0, rxNode=0):
+
+# Telemetry Functions
+lastTelemetryRequest = {}
+
+def initialize_telemetry():
+    lastTelemetryRequest[0] = {'interface1': 0, 'interface2': 0, 'lastAlert1': '', 'lastAlert2': ''}
+    lastTelemetryRequest[1] = {'numPacketsTx': 0, 'numPacketsRx': 0, 'numOnlineNodes': 0, 'numPacketsTxErr': 0, 'numPacketsRxErr': 0, 'numTotalNodes': 0}
+    lastTelemetryRequest[2] = {'numPacketsTx': 0, 'numPacketsRx': 0, 'numOnlineNodes': 0, 'numPacketsTxErr': 0, 'numPacketsRxErr': 0, 'numTotalNodes': 0}
+
+initialize_telemetry()
+def update_telemetry(interface_id, telemetry_data):
+    global lastTelemetryRequest
+    # update the telemetry data for the interface
+    for i in range(len(telemetry_data)):
+        if telemetry_data[i] != -1:
+            lastTelemetryRequest[interface_id][i] = telemetry_data[i]
+
+def displayNodeTelemetry(nodeID=0, rxNode=0):
     interface = interface1 if rxNode == 1 else interface2
-    global numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr, lastTelemetryRequest
-    if numPacketsTx[0] != -1:
-        print(f"onReceive() numPacketsTx: {numPacketsTx} numPacketsRx: {numPacketsRx} numOnlineNodes: {-1} numPacketsTxErr: {numPacketsTxErr} numPacketsRxErr: {numPacketsRxErr} numTotalNodes: {-1}")
-    
-    # # throttle the telemetry requests to prevent spamming the device
-    # if rxNode == 1:
-    #     if time.time() - lastTelemetryRequest[0]['interface1'] < 600:
-    #         return -1
-    #     lastTelemetryRequest[0]['interface1'] = time.time()
-    # elif rxNode == 2:
-    #     if time.time() - lastTelemetryRequest[0]['interface2'] < 600:
-    #         return -1
-    #     lastTelemetryRequest[0]['interface2'] = time.time()
+    global lastTelemetryRequest
+
+    # throttle the telemetry requests to prevent spamming the device
+    if rxNode == 1:
+        if time.time() - lastTelemetryRequest[0]['interface1'] < 600:
+            return -1
+        lastTelemetryRequest[0]['interface1'] = time.time()
+    elif rxNode == 2:
+        if time.time() - lastTelemetryRequest[0]['interface2'] < 600:
+            return -1
+        lastTelemetryRequest[0]['interface2'] = time.time()
+
+    # some telemetry data is not available in python-meshtastic?
+    # bring in values from the last telemetry request for the node
+    numPacketsTx = lastTelemetryRequest[rxNode]['numPacketsTx'], 1
+    numPacketsRx = lastTelemetryRequest[rxNode]['numPacketsRx'], 1
+    numPacketsTxErr = lastTelemetryRequest[rxNode]['numPacketsTxErr'], 1
+    numPacketsRxErr = lastTelemetryRequest[rxNode]['numPacketsRxErr'], 1
+    numTotalNodes = lastTelemetryRequest[rxNode]['numTotalNodes']
+    totalOnlineNodes = lastTelemetryRequest[rxNode]['numOnlineNodes']
 
     # get the telemetry data for a node
     chutil = round(interface.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("channelUtilization", 0), 1)
@@ -666,7 +687,7 @@ def getNodeTelemetry(nodeID=0, rxNode=0):
     dataResponse += f" Rx#:{numPacketsRx[0]} Tx#:{numPacketsTx[0]}"
 
     # Number of nodes
-    dataResponse += " Nodes:" + str(numTotalNodes)
+    dataResponse += " Nodes:" + str(numTotalNodes) + " Online:" + str(totalOnlineNodes)
 
     # Uptime
     uptimeSeconds = getPrettyTime(uptimeSeconds)
@@ -858,7 +879,7 @@ async def watchdog():
                 handleMultiPing(0,1)
 
                 # Telemetry data
-                int1Data = getNodeTelemetry(0, 1)
+                int1Data = displayNodeTelemetry(0, 1)
                 if int1Data != -1 and lastTelemetryRequest[0]['lastAlert1'] != int1Data:
                     logger.debug(int1Data + f" Firmware:{firmware}")
                     lastTelemetryRequest[0]['lastAlert1'] = int1Data
@@ -887,7 +908,7 @@ async def watchdog():
                     handleMultiPing(0,2)
 
                 # Telemetry data
-                int2Data = getNodeTelemetry(0, 2)
+                int2Data = displayNodeTelemetry(0, 2)
                 if int2Data != -1 and lastTelemetryRequest[0]['lastAlert2'] != int2Data:
                     logger.debug(int2Data + f" Firmware:{firmware2}")
                     lastTelemetryRequest[0]['lastAlert2'] = int2Data
