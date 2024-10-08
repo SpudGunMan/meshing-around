@@ -661,7 +661,7 @@ def displayNodeTelemetry(nodeID=0, rxNode=0):
     dataResponse = f"Telemetry:{rxNode}"
 
     # packet info telemetry
-    dataResponse += f" numPacketsRx:{numPacketsRx} umPacketsRxErr:{numPacketsRxErr} numPacketsTx:{numPacketsTx} numPacketsTxErr:{numPacketsTxErr}"
+    dataResponse += f" numPacketsRx:{numPacketsRx} numPacketsRxErr:{numPacketsRxErr} numPacketsTx:{numPacketsTx} numPacketsTxErr:{numPacketsTxErr}"
 
     # Channel utilization and airUtilTx
     dataResponse += " ChUtil%:" + str(round(chutil, 2)) + " AirTx%:" + str(round(airUtilTx, 2))
