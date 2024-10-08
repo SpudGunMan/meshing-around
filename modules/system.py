@@ -621,16 +621,18 @@ numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr = ([-1, -1],) * 4
 def getNodeTelemetry(nodeID=0, rxNode=0):
     interface = interface1 if rxNode == 1 else interface2
     global numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr, lastTelemetryRequest
-    print(f"DEBUG watchDog(getNodeTelemetry) numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr: {numPacketsTx}, {numPacketsRx}, {numPacketsTxErr}, {numPacketsRxErr}\r", end="")
-    # throttle the telemetry requests to prevent spamming the device
-    if rxNode == 1:
-        if time.time() - lastTelemetryRequest[0]['interface1'] < 600:
-            return -1
-        lastTelemetryRequest[0]['interface1'] = time.time()
-    elif rxNode == 2:
-        if time.time() - lastTelemetryRequest[0]['interface2'] < 600:
-            return -1
-        lastTelemetryRequest[0]['interface2'] = time.time()
+    if numPacketsTx[0] != -1:
+        print(f"onReceive() numPacketsTx: {numPacketsTx} numPacketsRx: {numPacketsRx} numOnlineNodes: {-1} numPacketsTxErr: {numPacketsTxErr} numPacketsRxErr: {numPacketsRxErr} numTotalNodes: {-1}")
+    
+    # # throttle the telemetry requests to prevent spamming the device
+    # if rxNode == 1:
+    #     if time.time() - lastTelemetryRequest[0]['interface1'] < 600:
+    #         return -1
+    #     lastTelemetryRequest[0]['interface1'] = time.time()
+    # elif rxNode == 2:
+    #     if time.time() - lastTelemetryRequest[0]['interface2'] < 600:
+    #         return -1
+    #     lastTelemetryRequest[0]['interface2'] = time.time()
 
     # get the telemetry data for a node
     chutil = round(interface.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("channelUtilization", 0), 1)
@@ -855,11 +857,73 @@ async def watchdog():
                 # multiPing handler
                 handleMultiPing(0,1)
 
-                # Telemetry data
-                int1Data = getNodeTelemetry(0, 1)
-                if int1Data != -1 and lastTelemetryRequest[0]['lastAlert1'] != int1Data:
-                    logger.debug(int1Data + f" Firmware:{firmware}")
-                    lastTelemetryRequest[0]['lastAlert1'] = int1Data
+            if rxType == 'TCPInterface':
+                rxHost = interface.__dict__.get('hostname', 'unknown')
+                if hostname1 in rxHost and interface1_type == 'tcp':
+                    rxNode = 1
+                elif interface2_enabled and hostname2 in rxHost and interface2_type == 'tcp':
+                    rxNode = 2
+            
+            if rxType == 'BLEInterface':
+                if interface1_type == 'ble':
+                    rxNode = 1
+                elif interface2_enabled and interface2_type == 'ble':
+                    rxNode = 2
+            
+            # TELEMETRY packets
+            global numPacketsRx, numPacketsTx, numPacketsRxErr, numPacketsTxErr, numOnlineNodes, numTotalNodes
+            if packet.get('decoded') and packet['decoded']['portnum'] == 'TELEMETRY_APP':
+                # get the telemetry data
+                telemetry_packet = packet['decoded']['telemetry']
+                if telemetry_packet.get('localStats'):
+                    localStats = telemetry_packet['localStats']
+                    # Check if 'numPacketsTx' and 'numPacketsRx' exist and are not zero
+                    if localStats.get('numPacketsTx') is not None and localStats.get('numPacketsRx') is not None and localStats['numPacketsTx'] != -1:
+                        # Assign the values and include rxNode
+                        numPacketsTx = (localStats['numPacketsTx'], rxNode)
+                        numPacketsRx = (localStats['numPacketsRx'], rxNode)
+                        try:
+                            numOnlineNodes = (localStats['numOnlineNodes'], rxNode)
+                        except KeyError:
+                            numOnlineNodes = (-1, rxNode)
+                        try:
+                            numPacketsTxErr = (localStats['numPacketsTxErr'], rxNode)
+                        except KeyError:
+                            numPacketsTxErr = (-1, rxNode)
+                        try:
+                            numPacketsRxErr = (localStats['numPacketsRxErr'], rxNode)
+                        except KeyError:
+                            numPacketsRxErr = (-1, rxNode)
+                        try:
+                            numTotalNodes = (localStats['numTotalNodes'], rxNode)
+                        except KeyError:
+                            numTotalNodes = (-1, rxNode)
+                        print(f"----onReceive() numPacketsTx: {numPacketsTx} numPacketsRx: {numPacketsRx} numOnlineNodes: {numOnlineNodes} numPacketsTxErr: {numPacketsTxErr} numPacketsRxErr: {numPacketsRxErr} numTotalNodes: {numTotalNodes}")
+                    else:
+                        print("DEBUG: localStats does not contain valid numPacketsTx or numPacketsRx")
+                else:
+                    print("DEBUG: telemetry_packet does not contain localStats")
+            else:
+                print("DEBUG: packet does not contain decoded data or portnum is not TELEMETRY_APP")
+            
+            # Example usage
+            packet = {
+                'decoded': {
+                    'portnum': 'TELEMETRY_APP',
+                    'telemetry': {
+                        'localStats': {
+                            'numPacketsTx': 79,
+                            'numPacketsRx': 113,
+                            'numOnlineNodes': 2,
+                            'numPacketsTxErr': -1,
+                            'numPacketsRxErr': -1,
+                            'numTotalNodes': 2
+                        }
+                    }
+                }
+            }
+            rxNode = 1
+            onReceive(packet, rxNode)
 
         if retry_int1:
             try:
