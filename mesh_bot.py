@@ -44,7 +44,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "golfsim": lambda: handleGolf(message_from_id, message),
     "hfcond": hf_band_conditions,
     "history": lambda: handle_history(message, message_from_id, deviceID, isDM),
-    "joke": tell_joke,
+    "joke": lambda: tell_joke(message_from_id),
     "lemonstand": lambda: handleLemonade(message_from_id, message),
     "lheard": lambda: handle_lheard(message, message_from_id, deviceID, isDM),
     "mastermind": lambda: handleMmind(message_from_id, deviceID, message),
@@ -1001,7 +1001,7 @@ def onReceive(packet, interface):
             consumeMetadata(packet, rxNode)    
     except KeyError as e:
         logger.critical(f"System: Error processing packet: {e} Device:{rxNode}")
-        logger.debug(f"System: Packet: {packet}")
+        logger.debug(f"System: Error Packet = {packet}")
 
 async def start_rx():
     print (CustomFormatter.bold_white + f"\nMeshtastic Autoresponder Bot CTL+C to exit\n" + CustomFormatter.reset)
