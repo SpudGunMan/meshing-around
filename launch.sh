@@ -19,6 +19,7 @@ elif [ "$1" == "mesh" ]; then
     python3 mesh_bot.py
 else
     printf "\nActivated virtual environment use 'deactivate' to exit\n"
+    exit 1
 fi
 
 deactivate
