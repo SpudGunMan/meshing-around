@@ -849,13 +849,17 @@ def onReceive(packet, interface):
         #     deviceMetrics = telemetry_packet['deviceMetrics']
         #     #print(f"deviceMetrics: {deviceMetrics}")
         if telemetry_packet.get('localStats'):
+            #print(f"DEBUG packet {telemetry_packet}")
             localStats = telemetry_packet['localStats']
-            print(f"DEBUG localStats found: {localStats}")
             # Check if 'numPacketsTx' and 'numPacketsRx' exist and are not zero
             if localStats.get('numPacketsTx') is not None and localStats.get('numPacketsRx') is not None and localStats['numPacketsTx'] != -1:
                 # Assign the values and include rxNode
                 numPacketsTx = (localStats['numPacketsTx'], rxNode)
                 numPacketsRx = (localStats['numPacketsRx'], rxNode)
+                try:
+                    numOnlineNodes = (localStats['numOnlineNodes'], rxNode)
+                except KeyError:
+                    numOnlineNodes = (-1, rxNode)
                 try:
                     numPacketsTxErr = (localStats['numPacketsTxErr'], rxNode)
                 except KeyError:
@@ -864,11 +868,11 @@ def onReceive(packet, interface):
                     numPacketsRxErr = (localStats['numPacketsRxErr'], rxNode)
                 except KeyError:
                     numPacketsRxErr = (-1, rxNode)
-                # airUtilTx = (round(localStats['airUtilTx'], 2), rxNode)
-                #print(f"DEBUG packet {telemetry_packet}")
-                print(f"DEBUG injest numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr: {numPacketsTx}, {numPacketsRx}, {numPacketsTxErr}, {numPacketsRxErr}")
-    
-    
+                try:
+                    numTotalNodes = (localStats['numTotalNodes'], rxNode)
+                except KeyError:
+                    numTotalNodes = (-1, rxNode)
+                print(f"----onReceive() numPacketsTx: {numPacketsTx} numPacketsRx: {numPacketsRx} numOnlineNodes: {numOnlineNodes} numPacketsTxErr: {numPacketsTxErr} numPacketsRxErr: {numPacketsRxErr} numTotalNodes: {numTotalNodes}")
     # BBS DM MAIL CHECKER
     if bbs_enabled and 'decoded' in packet:
         message_from_id = packet['from']
