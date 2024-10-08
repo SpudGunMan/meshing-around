@@ -25,7 +25,8 @@ def sendWithEmoji(message):
         'juggling': '🤹', 'meditation': '🧘', 'sauna': '🧖', 'rock climbing': '🧗', 'stop': '🛑'
     }
     
-    words = message.split()
+    words = message.lower().split()
+    words = words.replace('.', '').replace(',', '').replace('!', '').replace('?', '')
     i = 0
     while i < len(words):
         for phrase in sorted(wordToEmojiMap.keys(), key=len, reverse=True):
