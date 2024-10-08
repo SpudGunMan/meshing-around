@@ -22,7 +22,7 @@ elif [ "$1" == "html" ]; then
 elif [ "$1" == "html5" ]; then
     python3 etc/report_generator5.py
 else
-    echo "Please provide a bot to launch (pong/mesh)"
+    echo "Please provide a bot to launch (pong/mesh) or a report to generate (html/html5)"
     exit 1
 fi
 
