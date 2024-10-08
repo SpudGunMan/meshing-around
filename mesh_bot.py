@@ -839,39 +839,6 @@ def onReceive(packet, interface):
         elif interface2_enabled and interface2_type == 'ble':
             rxNode = 2
 
-    # TELEMETRY packets
-    if packet.get('decoded') and packet['decoded']['portnum'] == 'TELEMETRY_APP':
-        #print(f"DEBUG TELEMETRY_APP: {packet}")
-        # get the telemetry data
-        telemetry_packet = packet['decoded']['telemetry']
-        # if telemetry_packet.get('deviceMetrics'):
-        #     deviceMetrics = telemetry_packet['deviceMetrics']
-        #     #print(f"DEBUG deviceMetrics: {deviceMetrics}")
-        if telemetry_packet.get('localStats'):
-            #print(f"DEBUG localStats: {telemetry_packet}")
-            localStats = telemetry_packet['localStats']
-            # Check if 'numPacketsTx' and 'numPacketsRx' exist and are not zero
-            if localStats.get('numPacketsTx') is not None and localStats.get('numPacketsRx') is not None and localStats['numPacketsTx'] != -1:
-                # Assign the values to the telemetry dictionary
-                if localStats.get('numPacketsTx') is not None:
-                    telemetryData[rxNode]['numPacketsTx'] = localStats.get('numPacketsTx')
-                if localStats.get('numPacketsRx') is not None:
-                    telemetryData[rxNode]['numPacketsRx'] = localStats.get('numPacketsRx')
-                if localStats.get('numOnlineNodes') is not None:
-                    telemetryData[rxNode]['numOnlineNodes'] = localStats.get('numOnlineNodes')
-                if localStats.get('numOfflineNodes') is not None:
-                    telemetryData[rxNode]['numOfflineNodes'] = localStats.get('numOfflineNodes')
-                if localStats.get('numPacketsTxErr') is not None:
-                    telemetryData[rxNode]['numPacketsTxErr'] = localStats.get('numPacketsTxErr')
-                if localStats.get('numPacketsRxErr') is not None:
-                    telemetryData[rxNode]['numPacketsRxErr'] = localStats.get('numPacketsRxErr')
-                if localStats.get('numTotalNodes') is not None:
-                    telemetryData[rxNode]['numTotalNodes'] = localStats.get('numTotalNodes')
-    
-    # LOCATION packets
-    if packet.get('decoded') and packet['decoded']['portnum'] == 'POSITION_APP':
-        print(f"DEBUG POSITION_APP: {packet}")
-
     # BBS DM MAIL CHECKER
     if bbs_enabled and 'decoded' in packet:
         message_from_id = packet['from']
@@ -890,7 +857,7 @@ def onReceive(packet, interface):
             bbs_delete_dm(msg[0], msg[1])
             send_message(message, channel_number, message_from_id, rxNode)
 
-    # check for a message packet and process it
+    # handle TEXT_MESSAGE_APP
     try:
         if 'decoded' in packet and packet['decoded']['portnum'] == 'TEXT_MESSAGE_APP':
             message_bytes = packet['decoded']['payload']
@@ -1029,9 +996,12 @@ def onReceive(packet, interface):
                             elif rxNode == 2:
                                 logger.debug(f"Repeating message on Device1 Channel:{channel_number}")
                                 send_message(rMsg, channel_number, 0, 1)
+        else:
+            # Evaluate non TEXT_MESSAGE_APP packets
+            consumeMetadata(packet, rxNode)    
     except KeyError as e:
         logger.critical(f"System: Error processing packet: {e} Device:{rxNode}")
-        logger.critical(f"System: Packet: {packet}")
+        logger.debug(f"System: Packet: {packet}")
 
 async def start_rx():
     print (CustomFormatter.bold_white + f"\nMeshtastic Autoresponder Bot CTL+C to exit\n" + CustomFormatter.reset)

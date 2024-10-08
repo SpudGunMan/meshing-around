@@ -576,19 +576,28 @@ def messageTrap(msg):
                 return True
     return False
 
-def getNodeFirmware(nodeID=0, nodeInt=1):
-    interface = interface1 if nodeInt == 1 else interface2
-    # get the firmware version of the node
-    # this is a workaround because .localNode.getMetadata spits out a lot of debug info which cant be suppressed
-    # Create a StringIO object to capture the 
-    output_capture = io.StringIO()
-    with contextlib.redirect_stdout(output_capture):
-        interface.localNode.getMetadata()
-    console_output = output_capture.getvalue()
-    if "firmware_version" in console_output:
-        fwVer = console_output.split("firmware_version: ")[1].split("\n")[0]
-        return fwVer
-    return -1
+def handleMultiPing(nodeID=0, deviceID=1):
+    global multiPingList
+    if len(multiPingList) > 1:
+        mPlCpy = multiPingList.copy()
+        for i in range(len(mPlCpy)):
+            message_id_from = mPlCpy[i]['message_from_id']
+            count = mPlCpy[i]['count']
+            type = mPlCpy[i]['type']
+            deviceID = mPlCpy[i]['deviceID']
+
+            if count > 1 and deviceID == 1:
+                count -= 1
+                # update count in the list
+                multiPingList[i]['count'] = count
+
+                send_message(f"🔂{count} {type}", publicChannel, message_id_from, 1)
+                if count < 2:
+                    # remove the item from the list
+                    for j in range(len(multiPingList)):
+                        if multiPingList[j]['message_from_id'] == message_id_from:
+                            multiPingList.pop(j)
+                            break
 
 def onDisconnect(interface):
     global retry_int1, retry_int2
@@ -616,6 +625,26 @@ def onDisconnect(interface):
         elif interface2_enabled and interface2_type == 'ble':
             retry_int2 = True
 
+def exit_handler():
+    # Close the interface and save the BBS messages
+    logger.debug(f"System: Closing Autoresponder")
+    try:         
+        interface1.close()
+        logger.debug(f"System: Interface1 Closed")
+        if interface2_enabled:
+            interface2.close()
+            logger.debug(f"System: Interface2 Closed")
+    except Exception as e:
+        logger.error(f"System: closing: {e}")
+    if bbs_enabled:
+        save_bbsdb()
+        save_bbsdm()
+        logger.debug(f"System: BBS Messages Saved")
+    logger.debug(f"System: Exiting")
+    asyncLoop.stop()
+    asyncLoop.close()
+    exit (0)
+
 # Telemetry Functions
 telemetryData = {}
 def initialize_telemetryData():
@@ -624,6 +653,20 @@ def initialize_telemetryData():
     telemetryData[2] = {'numPacketsTx': 0, 'numPacketsRx': 0, 'numOnlineNodes': 0, 'numPacketsTxErr': 0, 'numPacketsRxErr': 0, 'numTotalNodes': 0}
 # indented to be called from the main loop
 initialize_telemetryData()
+
+def getNodeFirmware(nodeID=0, nodeInt=1):
+    interface = interface1 if nodeInt == 1 else interface2
+    # get the firmware version of the node
+    # this is a workaround because .localNode.getMetadata spits out a lot of debug info which cant be suppressed
+    # Create a StringIO object to capture the 
+    output_capture = io.StringIO()
+    with contextlib.redirect_stdout(output_capture):
+        interface.localNode.getMetadata()
+    console_output = output_capture.getvalue()
+    if "firmware_version" in console_output:
+        fwVer = console_output.split("firmware_version: ")[1].split("\n")[0]
+        return fwVer
+    return -1
 
 def displayNodeTelemetry(nodeID=0, rxNode=0):
     interface = interface1 if rxNode == 1 else interface2
@@ -689,48 +732,74 @@ def displayNodeTelemetry(nodeID=0, rxNode=0):
         logger.critical(f"System: Critical Battery Level: {batteryLevel}{emji} on Device: {rxNode}")
     return dataResponse
 
-def handleMultiPing(nodeID=0, deviceID=1):
-    global multiPingList
-    if len(multiPingList) > 1:
-        mPlCpy = multiPingList.copy()
-        for i in range(len(mPlCpy)):
-            message_id_from = mPlCpy[i]['message_from_id']
-            count = mPlCpy[i]['count']
-            type = mPlCpy[i]['type']
-            deviceID = mPlCpy[i]['deviceID']
+def consumeMetadata(packet, rxNode=0):
+    # keep records of recent telemetry data
+    debugMetadata = False
+    packet_type = ''
+    if packet.get('decoded'):
+        packet_type = packet['decoded']['portnum']
 
-            if count > 1 and deviceID == 1:
-                count -= 1
-                # update count in the list
-                multiPingList[i]['count'] = count
+    # TELEMETRY packets
+    if packet_type == 'TELEMETRY_APP':
+        if debugMetadata: print(f"DEBUG TELEMETRY_APP: {packet}")
+        # get the telemetry data
+        telemetry_packet = packet['decoded']['telemetry']
 
-                send_message(f"🔂{count} {type}", publicChannel, message_id_from, 1)
-                if count < 2:
-                    # remove the item from the list
-                    for j in range(len(multiPingList)):
-                        if multiPingList[j]['message_from_id'] == message_id_from:
-                            multiPingList.pop(j)
-                            break
+        if telemetry_packet.get('deviceMetrics'):
+            deviceMetrics = telemetry_packet['deviceMetrics']
+            if debugMetadata: print(f"DEBUG deviceMetrics: {deviceMetrics}")
+        if telemetry_packet.get('localStats'):
+            if debugMetadata: print(f"DEBUG localStats: {telemetry_packet}")
+            localStats = telemetry_packet['localStats']
+            # Check if 'numPacketsTx' and 'numPacketsRx' exist and are not zero
+            if localStats.get('numPacketsTx') is not None and localStats.get('numPacketsRx') is not None and localStats['numPacketsTx'] != -1:
+                # Assign the values to the telemetry dictionary
+                if localStats.get('numPacketsTx') is not None:
+                    telemetryData[rxNode]['numPacketsTx'] = localStats.get('numPacketsTx')
+                if localStats.get('numPacketsRx') is not None:
+                    telemetryData[rxNode]['numPacketsRx'] = localStats.get('numPacketsRx')
+                if localStats.get('numOnlineNodes') is not None:
+                    telemetryData[rxNode]['numOnlineNodes'] = localStats.get('numOnlineNodes')
+                if localStats.get('numOfflineNodes') is not None:
+                    telemetryData[rxNode]['numOfflineNodes'] = localStats.get('numOfflineNodes')
+                if localStats.get('numPacketsTxErr') is not None:
+                    telemetryData[rxNode]['numPacketsTxErr'] = localStats.get('numPacketsTxErr')
+                if localStats.get('numPacketsRxErr') is not None:
+                    telemetryData[rxNode]['numPacketsRxErr'] = localStats.get('numPacketsRxErr')
+                if localStats.get('numTotalNodes') is not None:
+                    telemetryData[rxNode]['numTotalNodes'] = localStats.get('numTotalNodes')
+    
+    # POSITION_APP packets
+    if packet.get('decoded') and packet['decoded']['portnum'] == 'POSITION_APP':
+        if debugMetadata: print(f"DEBUG POSITION_APP: {packet}")
 
-def exit_handler():
-    # Close the interface and save the BBS messages
-    logger.debug(f"System: Closing Autoresponder")
-    try:         
-        interface1.close()
-        logger.debug(f"System: Interface1 Closed")
-        if interface2_enabled:
-            interface2.close()
-            logger.debug(f"System: Interface2 Closed")
-    except Exception as e:
-        logger.error(f"System: closing: {e}")
-    if bbs_enabled:
-        save_bbsdb()
-        save_bbsdm()
-        logger.debug(f"System: BBS Messages Saved")
-    logger.debug(f"System: Exiting")
-    asyncLoop.stop()
-    asyncLoop.close()
-    exit (0)
+    # WAYPOINT_APP packets
+    if packet.get('decoded') and packet['decoded']['portnum'] == 'WAYPOINT_APP':
+        if debugMetadata: print(f"DEBUG WAYPOINT_APP: {packet}")
+
+    # NEIGHBORINFO_APP
+    if packet.get('decoded') and packet['decoded']['portnum'] == 'NEIGHBORINFO_APP':
+        if debugMetadata: print(f"DEBUG NEIGHBORINFO_APP: {packet}")
+    
+    # TRACEROUTE_APP
+    if packet.get('decoded') and packet['decoded']['portnum'] == 'TRACEROUTE_APP':
+        if debugMetadata: print(f"DEBUG TRACEROUTE_APP: {packet}")
+
+    # DETECTION_SENSOR_APP
+    if packet.get('decoded') and packet['decoded']['portnum'] == 'DETECTION_SENSOR_APP':
+        if debugMetadata: print(f"DEBUG DETECTION_SENSOR_APP: {packet}")
+
+    # PAXCOUNTER_APP
+    if packet.get('decoded') and packet['decoded']['portnum'] == 'PAXCOUNTER_APP':
+        if debugMetadata: print(f"DEBUG PAXCOUNTER_APP: {packet}")
+
+    # REMOTE_HARDWARE_APP
+    if packet.get('decoded') and packet['decoded']['portnum'] == 'REMOTE_HARDWARE_APP':
+        if debugMetadata: print(f"DEBUG REMOTE_HARDWARE_APP: {packet}")
+    
+
+    #end consumeMetadata
+
 
 async def BroadcastScheduler():
     # handle schedule checks for the broadcast of messages
