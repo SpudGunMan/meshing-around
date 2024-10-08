@@ -190,11 +190,11 @@ def parse_log_file(file_path):
             log_data['gps_coordinates'][node_id].append((float(lat), float(lon)))
         
         # get telemetry data
-        # example line =  | Telemetry:1 numPacketsTx:0 numPacketsRx:0 numPacketsTxErr:0 numPacketsRxErr:0 ChUtil%:0.0 AirTx%:0.0 Rx#:0 Tx#:0 Nodes:2 Uptime:10d Volt:4.3 Firmware:2.5.2.771cb52
-        telemetry_match = re.search(r'Telemetry:(-?\d+) numPacketsTx:(-?\d+) numPacketsRx:(-?\d+) numPacketsTxErr:(-?\d+) numPacketsRxErr:(-?\d+) ChUtil%:(\d+\.\d) AirTx%:(\d+\.\d) Rx#:(-?\d+) Tx#:(-?\d+) Nodes:(\d+) Uptime:(\d+\w) Volt:(\d+\.\d) Firmware:(\d+\.\d+\.\d+\.\w+)', line)
+        # example line =  | Telemetry:1 numPacketsTx:-1 numPacketsRx:-1 numPacketsTxErr:-1 numPacketsRxErr:-1 ChUtil%:0.0 AirTx%:0.0 Rx#:-1 Tx#:-1 Nodes:2 Uptime:11d Volt:4.3 Firmware:2.5.2.771cb52
+        telemetry_match = re.search(r'Telemetry:(\d+) numPacketsRx:(\d+) numPacketsRxErr:(\d+) numPacketsTx:(\d+) numPacketsTxErr:(\d+) ChUtil%:(\d+\.\d+) AirTx%:(\d+\.\d+) totalNodes:(\d+) Online:(\d+) Uptime:(\d+h) Volt:(\d+\.\d+) Firmware:(\d+\.\d+\.\d+\.\w+)', line)
         if telemetry_match:
-            interface_number, numPacketsTx, numPacketsRx, numPacketsTxErr, numPacketsRxErr, ChUtil, AirTx, Rx, Tx, nodes, uptime, volt, firmware_version = telemetry_match.groups()
-            data = f"Tx: {numPacketsTx}, Rx: {numPacketsRx}, TxErr: {numPacketsTxErr}, RxErr: {numPacketsRxErr}, ChUtil: {ChUtil}, AirTx: {AirTx}, Rx#: {Rx}, Tx#: {Tx}, Nodes: {nodes}, Uptime: {uptime}, Volt: {volt}"
+            interface_number, numPacketsRx, numPacketsRxErr, numPacketsTx, numPacketsTxErr, ChUtil, AirTx, nodes, online, uptime, volt, firmware_version = telemetry_match.groups()
+            data = f"Tx: {numPacketsTx} Rx: {numPacketsRx} Uptime: {uptime} Volt: {volt} numPacketsRxErr: {numPacketsRxErr} numPacketsTxErr: {numPacketsTxErr} ChUtil: {ChUtil} AirTx: {AirTx} Nodes: {nodes} Online: {online}"
             if interface_number == '1':
                 log_data['firmware1_version'] = firmware_version
                 log_data['node1_uptime'] = data
