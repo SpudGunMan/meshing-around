@@ -8,10 +8,7 @@ config.ini
 venv/
 
 # logs
-logs/
-
-# data
-data/
+logs/*.log
 
 # modified .service files
 etc/*.service
