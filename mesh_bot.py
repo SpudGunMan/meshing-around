@@ -848,34 +848,27 @@ def onReceive(packet, interface):
         #     deviceMetrics = telemetry_packet['deviceMetrics']
         #     #print(f"DEBUG deviceMetrics: {deviceMetrics}")
         if telemetry_packet.get('localStats'):
-            #print(f"DEBUG localStats: {telemetry_packet}")
+            print(f"DEBUG localStats: {telemetry_packet}")
             localStats = telemetry_packet['localStats']
             # Check if 'numPacketsTx' and 'numPacketsRx' exist and are not zero
             if localStats.get('numPacketsTx') is not None and localStats.get('numPacketsRx') is not None and localStats['numPacketsTx'] != -1:
-                # Assign the values and include rxNode
-                numPacketsTx = (localStats['numPacketsTx'], rxNode)
-                numPacketsRx = (localStats['numPacketsRx'], rxNode)
-                try:
-                    numOnlineNodes = (localStats['numOnlineNodes'], rxNode)
-                except KeyError:
-                    numOnlineNodes = (-1, rxNode)
-                try:
-                    numPacketsTxErr = (localStats['numPacketsTxErr'], rxNode)
-                except KeyError:
-                    numPacketsTxErr = (-1, rxNode)
-                try:
-                    numPacketsRxErr = (localStats['numPacketsRxErr'], rxNode)
-                except KeyError:
-                    numPacketsRxErr = (-1, rxNode)
-                try:
-                    numTotalNodes = (localStats['numTotalNodes'], rxNode)
-                except KeyError:
-                    numTotalNodes = (-1, rxNode)
-                print(f"----onReceive() numPacketsTx: {numPacketsTx} numPacketsRx: {numPacketsRx} numOnlineNodes: {numOnlineNodes} numPacketsTxErr: {numPacketsTxErr} numPacketsRxErr: {numPacketsRxErr} numTotalNodes: {numTotalNodes}")
-                # update the telemetry values
-                telemetry_values = [numPacketsTx, numPacketsRx, numOnlineNodes, numPacketsTxErr, numPacketsRxErr, numTotalNodes]
-                update_telemetry(rxNode, telemetry_values)
-    
+                # Assign the values to the telemetry dictionary
+                print(f"DEBUG match: {localStats}")
+                if localStats.get('numPacketsTx') is not None:
+                    telemetryData[rxNode]['numPacketsTx'] = localStats.get('numPacketsTx')
+                if localStats.get('numPacketsRx') is not None:
+                    telemetryData[rxNode]['numPacketsRx'] = localStats.get('numPacketsRx')
+                if localStats.get('numOnlineNodes') is not None:
+                    telemetryData[rxNode]['numOnlineNodes'] = localStats.get('numOnlineNodes')
+                if localStats.get('numOfflineNodes') is not None:
+                    telemetryData[rxNode]['numOfflineNodes'] = localStats.get('numOfflineNodes')
+                if localStats.get('numPacketsTxErr') is not None:
+                    telemetryData[rxNode]['numPacketsTxErr'] = localStats.get('numPacketsTxErr')
+                if localStats.get('numPacketsRxErr') is not None:
+                    telemetryData[rxNode]['numPacketsRxErr'] = localStats.get('numPacketsRxErr')
+                if localStats.get('numTotalNodes') is not None:
+                    telemetryData[rxNode]['numTotalNodes'] = localStats.get('numTotalNodes')
+
     # BBS DM MAIL CHECKER
     if bbs_enabled and 'decoded' in packet:
         message_from_id = packet['from']
