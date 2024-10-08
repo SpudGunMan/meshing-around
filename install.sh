@@ -59,7 +59,7 @@ if [ $venv == "y" ]; then
         else
             sudo apt-get install python3-venv
             printf "\nPython3 venv module not found, please install python3-venv with your OS if not already done. re-run the script\n"
-            exxt 1
+            exit 1
         fi
 
         # config service files for virtual environment
