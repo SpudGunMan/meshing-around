@@ -742,7 +742,7 @@ def consumeMetadata(packet, rxNode=0):
         if telemetry_packet.get('localStats'):
             localStats = telemetry_packet['localStats']
             # Check if 'numPacketsTx' and 'numPacketsRx' exist and are not zero
-            if localStats.get('numPacketsTx') is not None and localStats.get('numPacketsRx') is not None and localStats['numPacketsTx'] != -1:
+            if localStats.get('numPacketsTx') is not None and localStats.get('numPacketsRx') is not None and localStats['numPacketsTx'] != 0:
                 # Assign the values to the telemetry dictionary
                 if localStats.get('numPacketsTx') is not None:
                     telemetryData[rxNode]['numPacketsTx'] = localStats.get('numPacketsTx')
@@ -764,11 +764,11 @@ def consumeMetadata(packet, rxNode=0):
         if debugMetadata: print(f"DEBUG POSITION_APP: {packet}\n\n")
         # get the position data
         if packet['decoded']['position']['altitude'] is not None:
-            altitude = packet['decoded']['position']['altitude']
+            altitude = packet['decoded']['position'].get('altitude', 0)
         if packet['decoded']['position']['groundSpeed'] is not None:
-            groundSpeed = packet['decoded']['position']['groundSpeed']
+            groundSpeed = packet['decoded']['position'].get('groundSpeed', 0)
         if packet['decoded']['position']['precisionBits'] is not None:
-            precisionBits = packet['decoded']['position']['precisionBits']
+            precisionBits = packet['decoded']['position'].get('precisionBits', 0)
         # put data into positionMetadata and keep it at 5 records
         if len(positionMetadata) > 5:
             positionMetadata.pop(0)
