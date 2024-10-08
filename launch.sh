@@ -18,7 +18,7 @@ if [ "$1" == "pong" ]; then
 elif [ "$1" == "mesh" ]; then
     python3 mesh_bot.py
 else
-    printf "\nActivated virtual environment use 'deactivate' to exit\n"
+    Please provide a bot to launch (pong/mesh)
     exit 1
 fi
 
