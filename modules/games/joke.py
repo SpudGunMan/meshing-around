@@ -1,6 +1,8 @@
 from dadjokes import Dadjoke # pip install dadjokes
 from modules.log import *
 
+
+
 def sendWithEmoji(message):
     # this will take a string of text and replace any word or phrase that is in the word list with the corresponding emoji
     wordToEmojiMap = {
@@ -26,18 +28,19 @@ def sendWithEmoji(message):
     }
     # type format to clean it up
     words = message.lower().split()
-    words = words.replace('.', '').replace(',', '').replace('!', '').replace('?', '')
     i = 0
     while i < len(words):
         for phrase in sorted(wordToEmojiMap.keys(), key=len, reverse=True):
             phrase_words = phrase.split()
-            if words[i:i+len(phrase_words)] == phrase_words:
+            # Strip punctuation from the words
+            stripped_words = [word.strip('.,!?') for word in words[i:i+len(phrase_words)]]
+            if stripped_words == phrase_words:
                 logger.debug(f"System: Replaced the phrase '{phrase}' with '{wordToEmojiMap[phrase]}'")
                 words[i:i+len(phrase_words)] = [wordToEmojiMap[phrase]]
                 i += len(phrase_words) - 1
                 break
             # Check for plural forms
-            elif words[i:i+len(phrase_words)] == [word + 's' for word in phrase_words]:
+            elif stripped_words == [word + 's' for word in phrase_words]:
                 logger.debug(f"System: Replaced the plural phrase '{' '.join([word + 's' for word in phrase_words])}' with '{wordToEmojiMap[phrase]}'")
                 words[i:i+len(phrase_words)] = [wordToEmojiMap[phrase]]
                 i += len(phrase_words) - 1
