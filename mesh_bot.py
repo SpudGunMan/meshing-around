@@ -759,6 +759,7 @@ def handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus):
             msg += f"\nYou are at: lat:{loc[0]} lon:{loc[1]}"
 
             # check the positionMetadata for nodeID and get metadata
+            print(f"DEBUG: whoami: {positionMetadata}")
             if positionMetadata:
                 for i in range(len(positionMetadata)):
                     if positionMetadata[i].get('nodeID') == message_from_id:
@@ -766,7 +767,6 @@ def handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus):
     except Exception as e:
         logger.error(f"System: Error in whoami: {e}")
         msg = "Error in whoami"
-    
     return msg
 
 def check_and_play_game(tracker, message_from_id, message_string, rxNode, channel_number, game_name, handle_game_func):
