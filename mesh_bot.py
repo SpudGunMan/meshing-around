@@ -322,7 +322,7 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
     
     return response
 
-def handleDopeWars(message, nodeID, deviceID):
+def handleDopeWars(message, nodeID, rxNode):
     global dwPlayerTracker, dwHighScore
     
     # get player's last command
