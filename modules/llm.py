@@ -9,6 +9,14 @@ from langchain_core.prompts import ChatPromptTemplate # pip install langchain
 from langchain_core.messages import AIMessage, HumanMessage
 from googlesearch import search # pip install googlesearch-python
 
+# Ollama Client
+enableOllamaClient = False
+if enableOllamaClient:
+    # for cutsom remote host models
+    from ollama import Client as OllamaClient
+    OllamaClient(host='http://localhost:11434')
+    ollamaClient = OllamaClient()
+
 # LLM System Variables
 llmEnableHistory = False # enable history for the LLM model to use in responses adds to compute time
 llmContext_fromGoogle = True # enable context from google search results adds to compute time but really helps with responses accuracy
@@ -114,8 +122,12 @@ def llm_query(input, nodeID=0, location_name=None):
     location_name += f" at the current time of {datetime.now().strftime('%Y-%m-%d %H:%M:%S %Z')}"
 
     try:
-        result = chain_prompt_model.invoke({"input": input, "llmModel": llmModel, "userID": nodeID, \
-                                            "history": llmChat_history, "context": googleResults, "location_name": location_name})
+        if enableOllamaClient:
+            result = ollamaClient.generate(model=llmModel, prompt=input)
+            result = result.get("response")
+        else:
+            result = chain_prompt_model.invoke({"input": input, "llmModel": llmModel, "userID": nodeID, \
+                                                "history": llmChat_history, "context": googleResults, "location_name": location_name})
         #logger.debug(f"System: LLM Response: " + result.strip().replace('\n', ' '))
     except Exception as e:
         logger.warning(f"System: LLM failure: {e}")
