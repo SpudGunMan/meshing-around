@@ -117,13 +117,13 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM):
     type = ''
 
     if "ping" in message.lower():
-        msg = "🏓PONG, "
-        type = "🏓PING"
+        msg = "🏓PONG\n"
+        type = "🏓PING\n"
     elif "test" in message.lower() or "testing" in message.lower():
-        msg = random.choice(["🎙Testing 1,2,3\n", "🎙Testing, ",\
-                             "🎙Testing, testing, ",\
-                             "🎙Ah-wun, ah-two... ", "🎙Is this thing on? ",\
-                             "🎙Roger that! ",])
+        msg = random.choice(["🎙Testing 1,2,3\n", "🎙Testing\n",\
+                             "🎙Testing, testing\n",\
+                             "🎙Ah-wun, ah-two...\n", "🎙Is this thing on?\n",\
+                             "🎙Roger that!\n",])
         type = "🎙TEST"
     elif "ack" in message.lower():
         msg = random.choice(["✋ACK-ACK!\n", "✋Ack to you!\n"])
@@ -174,6 +174,7 @@ def handle_cq(message_from_id, deviceID, channel_number):
     elif deviceID == 2:
         myname = get_name_from_number(myNodeNum2, 'short', 2)
     msg = f"QSP QSL OM DE  {myname}   K"
+    return msg
 
 def handle_motd(message, message_from_id, isDM):
     global MOTD
