@@ -34,20 +34,20 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "bbslist": bbs_list_messages,
     "bbspost": lambda: handle_bbspost(message, message_from_id, deviceID),
     "bbsread": lambda: handle_bbsread(message),
-    "blackjack": lambda: handleBlackJack(message_from_id, message),
+    "blackjack": lambda: handleBlackJack(message_from_id, message, deviceID),
     "CQCQ": lambda: handle_cq(message_from_id, deviceID, channel_number),
     "CQCQCQ": lambda: handle_cq(message_from_id, deviceID, channel_number),
     "cmd": lambda: help_message,
     "dopewars": lambda: handleDopeWars(message_from_id, message, deviceID),
     "games": lambda: gamesCmdList,
     "globalthermonuclearwar": lambda: handle_gTnW(),
-    "golfsim": lambda: handleGolf(message_from_id, message),
+    "golfsim": lambda: handleGolf(message, message_from_id, deviceID),
     "hfcond": hf_band_conditions,
     "history": lambda: handle_history(message, message_from_id, deviceID, isDM),
     "joke": lambda: tell_joke(message_from_id),
-    "lemonstand": lambda: handleLemonade(message_from_id, message),
+    "lemonstand": lambda: handleLemonade(message_from_id, message, deviceID),
     "lheard": lambda: handle_lheard(message, message_from_id, deviceID, isDM),
-    "mastermind": lambda: handleMmind(message_from_id, deviceID, message),
+    "mastermind": lambda: handleMmind(message, message_from_id, deviceID),
     "messages": lambda: handle_messages(message, deviceID, channel_number, msg_history, publicChannel, isDM),
     "moon": lambda: handle_moon(message_from_id, deviceID, channel_number),
     "motd": lambda: handle_motd(message, message_from_id, isDM),
@@ -61,7 +61,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "test": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM),
     "testing": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM),
     "tide": lambda: handle_tide(message_from_id, deviceID, channel_number),
-    "videopoker": lambda: handleVideoPoker(message_from_id, message),
+    "videopoker": lambda: handleVideoPoker(message, message_from_id, deviceID),
     "whereami": lambda: handle_whereami(message_from_id, deviceID, channel_number),
     "whoami": lambda: handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus),
     "wiki:": lambda: handle_wiki(message, isDM),
@@ -322,7 +322,7 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
     
     return response
 
-def handleDopeWars(nodeID, message, rxNode):
+def handleDopeWars(message, nodeID, deviceID):
     global dwPlayerTracker, dwHighScore
     
     # get player's last command
@@ -359,7 +359,7 @@ def handle_gTnW():
     selected_index = random.choice(indices)
     return response[selected_index]
 
-def handleLemonade(nodeID, message):
+def handleLemonade(message, nodeID, deviceID):
     global lemonadeTracker, lemonadeCups, lemonadeLemons, lemonadeSugar, lemonadeWeeks, lemonadeScore, lemon_starting_cash, lemon_total_weeks
     msg = ""
     def create_player(nodeID):
@@ -399,7 +399,7 @@ def handleLemonade(nodeID, message):
     time.sleep(1)
     return msg
 
-def handleBlackJack(nodeID, message):
+def handleBlackJack(message, nodeID, deviceID)
     global jackTracker
     msg = ""
 
@@ -436,7 +436,7 @@ def handleBlackJack(nodeID, message):
     time.sleep(1.5) # short answers with long replies can cause message collision added wait
     return msg
 
-def handleVideoPoker(nodeID, message):
+def handleVideoPoker(message, nodeID, deviceID):
     global vpTracker
     msg = ""
 
@@ -474,7 +474,7 @@ def handleVideoPoker(nodeID, message):
     time.sleep(1.5) # short answers with long replies can cause message collision added wait
     return msg
 
-def handleMmind(nodeID, deviceID, message):
+def handleMmind(message, nodeID, deviceID):
     global mindTracker
     msg = ''
 
@@ -512,7 +512,7 @@ def handleMmind(nodeID, deviceID, message):
     time.sleep(1.5)
     return msg
 
-def handleGolf(nodeID, message):
+def handleGolf(message, nodeID, deviceID):
     global golfTracker
     msg = ''
 
@@ -544,7 +544,7 @@ def handleGolf(nodeID, message):
     time.sleep(1.5)
     return msg
 
-def handleUno(nodeID, deviceID, message):
+def handleUno(message, nodeID, deviceID):
     global unoTracker
     msg = ''
 
