@@ -199,26 +199,25 @@ def parse_log_file(file_path):
             log_data['gps_coordinates'][node_id].append((float(lat), float(lon)))
         
         # get telemetry data
-        # example line =  | Telemetry:1 numPacketsTx:-1 numPacketsRx:-1 numPacketsTxErr:-1 numPacketsRxErr:-1 ChUtil%:0.0 AirTx%:0.0 Rx#:-1 Tx#:-1 Nodes:2 Uptime:11d Volt:4.3 Firmware:2.5.2.771cb52
-        telemetry_match = re.search(r'Telemetry:(\d+) numPacketsRx:(\d+) numPacketsRxErr:(\d+) numPacketsTx:(\d+) numPacketsTxErr:(\d+) ChUtil%:(\d+\.\d+) AirTx%:(\d+\.\d+) totalNodes:(\d+) Online:(\d+) Uptime:(\d+h) Volt:(\d+\.\d+) Firmware:(\d+\.\d+\.\d+\.\w+)', line)
-        if telemetry_match:
-            interface_number, numPacketsRx, numPacketsRxErr, numPacketsTx, numPacketsTxErr, ChUtil, AirTx, nodes, online, uptime, volt, firmware_version = telemetry_match.groups()
-            data = f"Tx: {numPacketsTx} Rx: {numPacketsRx} Uptime: {uptime} Volt: {volt} numPacketsRxErr: {numPacketsRxErr} numPacketsTxErr: {numPacketsTxErr} ChUtil: {ChUtil} AirTx: {AirTx} Nodes: {nodes} Online: {online}"
-            if interface_number == '1':
-                log_data['firmware1_version'] = firmware_version
-                log_data['node1_uptime'] = data
-                log_data['nodeCount1'] = nodes
-                log_data['nodeCountOnline1'] = online
-                log_data['tx1'] = numPacketsTx
-                log_data['rx1'] = numPacketsRx
-
-            elif interface_number == '2':
-                log_data['firmware2_version'] = firmware_version
-                log_data['node2_uptime'] = data
-                log_data['nodeCount2'] = nodes
-                log_data['nodeCountOnline2'] = online
-                log_data['tx2'] = numPacketsTx
-                log_data['rx2'] = numPacketsRx
+        if '| Telemetry:' in line:
+            telemetry_match = re.search(r'Telemetry:(\d+) numPacketsRx:(\d+) numPacketsRxErr:(\d+) numPacketsTx:(\d+) numPacketsTxErr:(\d+) ChUtil%:(\d+\.\d+) AirTx%:(\d+\.\d+) totalNodes:(\d+) Online:(\d+) Uptime:(\d+d) Volt:(\d+\.\d+) Firmware:(\d+\.\d+\.\d+\.\w+)', line)
+            if telemetry_match:
+                interface_number, numPacketsRx, numPacketsRxErr, numPacketsTx, numPacketsTxErr, ChUtil, AirTx, totalNodes, online, uptime, volt, firmware_version = telemetry_match.groups()
+                data = f"Tx: {numPacketsTx} Rx: {numPacketsRx} Uptime: {uptime} Volt: {volt} numPacketsRxErr: {numPacketsRxErr} numPacketsTxErr: {numPacketsTxErr} ChUtil: {ChUtil} AirTx: {AirTx} totalNodes: {totalNodes} Online: {online}"
+                if interface_number == '1':
+                    log_data['firmware1_version'] = firmware_version
+                    log_data['node1_uptime'] = data
+                    log_data['nodeCount1'] = totalNodes
+                    log_data['nodeCountOnline1'] = online
+                    log_data['tx1'] = numPacketsTx
+                    log_data['rx1'] = numPacketsRx
+                elif interface_number == '2':
+                    log_data['firmware2_version'] = firmware_version
+                    log_data['node2_uptime'] = data
+                    log_data['nodeCount2'] = totalNodes
+                    log_data['nodeCountOnline2'] = online
+                    log_data['tx2'] = numPacketsTx
+                    log_data['rx2'] = numPacketsRx
 
         # get name and nodeID for devices
         if 'Autoresponder Started for Device' in line:
@@ -253,6 +252,9 @@ def get_system_info():
     node2_name = log_data['node2_name']
     node1_ID = log_data['node1_ID']
     node2_ID = log_data['node2_ID']
+
+    print(f"Node1: {node1_name} {node1_ID} {firmware1_version}")
+    print(f"Node2: {node2_name} {node2_ID} {firmware2_version}")
 
     # get Meshtastic CLI version on web
     try:
