@@ -207,7 +207,18 @@ def parse_log_file(file_path):
             if interface_number == '1':
                 log_data['firmware1_version'] = firmware_version
                 log_data['node1_uptime'] = data
-                #log_data['nodeCount1'] = nodes
+                log_data['nodeCount1'] = nodes
+                log_data['nodeCountOnline1'] = online
+                log_data['tx1'] = numPacketsTx
+                log_data['rx1'] = numPacketsRx
+
+            elif interface_number == '2':
+                log_data['firmware2_version'] = firmware_version
+                log_data['node2_uptime'] = data
+                log_data['nodeCount2'] = nodes
+                log_data['nodeCountOnline2'] = online
+                log_data['tx2'] = numPacketsTx
+                log_data['rx2'] = numPacketsRx
 
         # get name and nodeID for devices
         if 'Autoresponder Started for Device' in line:
