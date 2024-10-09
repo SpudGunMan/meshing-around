@@ -616,7 +616,7 @@ def playDopeWars(nodeID, cmd):
                 # render_game_screen
                 msg = render_game_screen(nodeID, game_day, total_days, loc_choice, -1, price_list, 0)
                 return msg
-        elif 'end' in menu_choice:
+        elif 'e' in menu_choice:
                 msg = endGameDw(nodeID)
                 return msg
         else:

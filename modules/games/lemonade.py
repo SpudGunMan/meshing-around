@@ -115,7 +115,7 @@ def start_lemonade(nodeID, message, celsius=False):
         logger.debug("System: Lemonade: Game Over for " + str(nodeID))
 
     # Check for end of game
-    if "end" in message.lower():
+    if message.lower().startswith("e"):
         endGame(nodeID)
         return "Goodbye!👋"
 
