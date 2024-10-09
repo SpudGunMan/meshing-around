@@ -13,6 +13,7 @@ from googlesearch import search # pip install googlesearch-python
 enableOllamaClient = False
 if enableOllamaClient:
     # for cutsom remote host models
+    # https://github.com/ollama/ollama/blob/main/docs/faq.md#how-do-i-configure-ollama-server
     from ollama import Client as OllamaClient
     OllamaClient(host='http://localhost:11434')
     ollamaClient = OllamaClient()
