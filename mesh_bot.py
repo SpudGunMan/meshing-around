@@ -746,7 +746,7 @@ def handle_moon(message_from_id, deviceID, channel_number):
 def handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus):
     loc = []
     msg = "You are " + str(message_from_id) + " AKA " +\
-          str(get_name_from_number(message_from_id, 'long', deviceID) + " AKA, " +\
+            str(get_name_from_number(message_from_id, 'long', deviceID) + " AKA, " +\
             str(get_name_from_number(message_from_id, 'short', deviceID)) + " AKA, " +\
             str(decimal_to_hex(message_from_id)) + f"\n")
     msg += f"I see the signal strength is {rssi} and the SNR is {snr} with hop count of {hop}"
