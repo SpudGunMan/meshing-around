@@ -10,12 +10,10 @@ from langchain_core.messages import AIMessage, HumanMessage
 from googlesearch import search # pip install googlesearch-python
 
 # Ollama Client
-enableOllamaClient = False
-if enableOllamaClient:
-    # for cutsom remote host models
-    from ollama import Client as OllamaClient
-    OllamaClient(host='http://localhost:11434')
-    ollamaClient = OllamaClient()
+enableOllamaClient = True  # Changed to True to enable remote client
+from ollama import Client as OllamaClient
+OllamaClient(host='http://your_remote_server_ip:11434')  # Replace with your remote server's IP or hostname
+ollamaClient = OllamaClient()
 
 # LLM System Variables
 llmEnableHistory = False # enable history for the LLM model to use in responses adds to compute time
@@ -25,6 +23,8 @@ llm_history_limit = 6 # limit the history to 3 messages (come in pairs) more res
 antiFloodLLM = []
 llmChat_history = []
 trap_list_llm = ("ask:", "askai")
+
+llmModel = "your_model_name"  # Replace with the name of the model you're using on the remote server
 
 meshBotAI = """
     FROM {llmModel}
@@ -71,8 +71,7 @@ if llmEnableHistory:
 
     """
 
-#ollama_model = OllamaLLM(model="phi3")
-ollama_model = OllamaLLM(model=llmModel)
+ollama_model = OllamaLLM(model=llmModel, base_url="http://your_remote_server_ip:11434")  # Updated to use remote server
 model_prompt = ChatPromptTemplate.from_template(meshBotAI)
 chain_prompt_model = model_prompt | ollama_model
 
@@ -82,9 +81,6 @@ def llm_query(input, nodeID=0, location_name=None):
     if not location_name:
         location_name = "no location provided "
 
-    # add the naughty list here to stop the function before we continue
-    # add a list of allowed nodes only to use the function
-
     # anti flood protection
     if nodeID in antiFloodLLM:
         return "Please wait before sending another message"
@@ -92,25 +88,16 @@ def llm_query(input, nodeID=0, location_name=None):
         antiFloodLLM.append(nodeID)
 
     if llmContext_fromGoogle:
-        # grab some context from the internet using google search hits (if available)
-        # localization details at https://pypi.org/project/googlesearch-python/
-
-        # remove common words from the search query
-        # commonWordsList = ["is", "for", "the", "of", "and", "in", "on", "at", "to", "with", "by", "from", "as", "a", "an", "that", "this", "these", "those", "there", "here", "where", "when", "why", "how", "what", "which", "who", "whom", "whose", "whom"]
-        # sanitizedSearch = ' '.join([word for word in input.split() if word.lower() not in commonWordsList])
-
         try:
             googleSearch = search(input, advanced=True, num_results=googleSearchResults)
             if googleSearch:
                 for result in googleSearch:
-                    # SearchResult object has url= title= description= just grab title and description
                     googleResults.append(f"{result.title} {result.description}")
             else:
                 googleResults = ['no other context provided']
         except Exception as e:
             logger.debug(f"System: LLM Query: context gathering failed, likely due to network issues")
             googleResults = ['no other context provided']
-
 
     if googleResults:
         logger.debug(f"System: Google-Enhanced LLM Query: {input} From:{nodeID}")
@@ -122,18 +109,12 @@ def llm_query(input, nodeID=0, location_name=None):
     location_name += f" at the current time of {datetime.now().strftime('%Y-%m-%d %H:%M:%S %Z')}"
 
     try:
-        if enableOllamaClient:
-            result = ollamaClient.generate(model=llmModel, prompt=input)
-            result = result.get("response")
-        else:
-            result = chain_prompt_model.invoke({"input": input, "llmModel": llmModel, "userID": nodeID, \
-                                                "history": llmChat_history, "context": googleResults, "location_name": location_name})
-        #logger.debug(f"System: LLM Response: " + result.strip().replace('\n', ' '))
+        result = ollamaClient.generate(model=llmModel, prompt=input)
+        result = result.get("response")
     except Exception as e:
         logger.warning(f"System: LLM failure: {e}")
         return "I am having trouble processing your request, please try again later."
     
-
     response = result.strip().replace('\n', ' ')
 
     # Store history of the conversation, with limit to prevent template growing too large causing speed issues
@@ -149,15 +130,3 @@ def llm_query(input, nodeID=0, location_name=None):
     antiFloodLLM.remove(nodeID)
 
     return response
-
-# import subprocess
-# def get_ollama_cpu():
-#     try:
-#         psOutput = subprocess.run(['ollama', 'ps'], capture_output=True, text=True)
-#         if "GPU" in psOutput.stdout:
-#             logger.debug(f"System: Ollama process with GPU")
-#         else:
-#             logger.debug(f"System: Ollama process with CPU, query time will be slower")
-#     except Exception as e:
-#         logger.debug(f"System: Ollama process not found, {e}")
-#         return False
