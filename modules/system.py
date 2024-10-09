@@ -21,7 +21,7 @@ multiPingList = [{'message_from_id': 0, 'count': 0, 'type': '', 'deviceID': 0}]
 # Ping Configuration
 if ping_enabled:
     # ping, pinging, ack, testing, test, pong
-    trap_list_ping = ("ping", "pinging", "ack", "testing", "test", "pong", "🔔", "CQCQ", "CQCQCQ")
+    trap_list_ping = ("ping", "pinging", "ack", "testing", "test", "pong", "🔔", "cq","cqcq", "cqcqcq")
     trap_list = trap_list + trap_list_ping
     help_message = help_message + "ping"
 

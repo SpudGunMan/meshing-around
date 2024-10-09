@@ -35,8 +35,9 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "bbspost": lambda: handle_bbspost(message, message_from_id, deviceID),
     "bbsread": lambda: handle_bbsread(message),
     "blackjack": lambda: handleBlackJack(message, message_from_id, deviceID),
-    "CQCQ": lambda: handle_cq(message_from_id, deviceID, channel_number),
-    "CQCQCQ": lambda: handle_cq(message_from_id, deviceID, channel_number),
+    "cq": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM),
+    "cqcq": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM),
+    "cqcqcq": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM),
     "cmd": lambda: help_message,
     "dopewars": lambda: handleDopeWars(message, message_from_id, deviceID),
     "games": lambda: gamesCmdList,
@@ -128,6 +129,12 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM):
     elif "ack" in message.lower():
         msg = random.choice(["✋ACK-ACK!\n", "✋Ack to you!\n"])
         type = "✋ACK"
+    elif "cqcq" in message.lower() or "cq" in message.lower() or "cqcqcq" in message.lower():
+        if deviceID == 1:
+            myname = get_name_from_number(myNodeNum1, 'short', 1)
+        elif deviceID == 2:
+            myname = get_name_from_number(myNodeNum2, 'short', 2)
+        msg = f"QSP QSL OM DE  {myname}   K\n"
     else:
         msg = "🔊 Can you hear me now?"
 
@@ -167,14 +174,6 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM):
 def handle_alertBell(message_from_id, deviceID, message):
     msg = ["the only prescription is more 🐮🔔🐄🛎️", "what this 🤖 needs is more 🐮🔔🐄🛎️", "🎤ring my bell🛎️🔔🎶"]
     return random.choice(msg)
-
-def handle_cq(message_from_id, deviceID, channel_number):
-    if deviceID == 1:
-        myname = get_name_from_number(myNodeNum1, 'short', 1)
-    elif deviceID == 2:
-        myname = get_name_from_number(myNodeNum2, 'short', 2)
-    msg = f"QSP QSL OM DE  {myname}   K"
-    return msg
 
 def handle_motd(message, message_from_id, isDM):
     global MOTD
@@ -779,7 +778,7 @@ def check_and_play_game(tracker, message_from_id, message_string, rxNode, channe
                     logger.debug(f"System: LLM Disabled for {message_from_id} for duration of {game_name}")
 
                 # play the game
-                send_message(handle_game_func(message_from_id, message_string, rxNode), channel_number, message_from_id, rxNode)
+                send_message(handle_game_func(message_string, message_from_id, rxNode), channel_number, message_from_id, rxNode)
                 return True, game_name
             else:
                 # pop if the time exceeds 8 hours
