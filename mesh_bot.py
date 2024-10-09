@@ -744,24 +744,29 @@ def handle_moon(message_from_id, deviceID, channel_number):
 
 
 def handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus):
-    loc = []
-    msg = "You are " + str(message_from_id) + " AKA " +\
-            str(get_name_from_number(message_from_id, 'long', deviceID) + " AKA, " +\
-            str(get_name_from_number(message_from_id, 'short', deviceID)) + " AKA, " +\
-            str(decimal_to_hex(message_from_id)) + f"\n")
-    msg += f"I see the signal strength is {rssi} and the SNR is {snr} with hop count of {hop}"
-    if pkiStatus[1] != 'ABC':
-        msg += f"\nYour PKI bit is {pkiStatus[0]} pubKey: {pkiStatus[1]}"
+    try:
+        loc = []
+        msg = "You are " + str(message_from_id) + " AKA " +\
+                str(get_name_from_number(message_from_id, 'long', deviceID) + " AKA, " +\
+                str(get_name_from_number(message_from_id, 'short', deviceID)) + " AKA, " +\
+                str(decimal_to_hex(message_from_id)) + f"\n")
+        msg += f"I see the signal strength is {rssi} and the SNR is {snr} with hop count of {hop}"
+        if pkiStatus[1] != 'ABC':
+            msg += f"\nYour PKI bit is {pkiStatus[0]} pubKey: {pkiStatus[1]}"
 
-    loc = get_node_location(message_from_id, deviceID)
-    if loc != [latitudeValue,longitudeValue]:
-        msg += f"\nYou are at: lat:{loc[0]} lon:{loc[1]}"
+        loc = get_node_location(message_from_id, deviceID)
+        if loc != [latitudeValue,longitudeValue]:
+            msg += f"\nYou are at: lat:{loc[0]} lon:{loc[1]}"
 
-        # check the positionMetadata for nodeID and get metadata
-        if positionMetadata:
-            for i in range(len(positionMetadata)):
-                if positionMetadata[i].get('nodeID') == message_from_id:
-                    msg += f" alt:{positionMetadata[i].get('altitude')}, speed:{positionMetadata[i].get('groundSpeed')} bit:{positionMetadata[i].get('precisionBits')}"
+            # check the positionMetadata for nodeID and get metadata
+            if positionMetadata:
+                for i in range(len(positionMetadata)):
+                    if positionMetadata[i].get('nodeID') == message_from_id:
+                        msg += f" alt:{positionMetadata[i].get('altitude')}, speed:{positionMetadata[i].get('groundSpeed')} bit:{positionMetadata[i].get('precisionBits')}"
+    except Exception as e:
+        logger.error(f"System: Error in whoami: {e}")
+        msg = "Error in whoami"
+    
     return msg
 
 def check_and_play_game(tracker, message_from_id, message_string, rxNode, channel_number, game_name, handle_game_func):
