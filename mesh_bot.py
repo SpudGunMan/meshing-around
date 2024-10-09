@@ -399,7 +399,7 @@ def handleLemonade(message, nodeID, deviceID):
     time.sleep(1)
     return msg
 
-def handleBlackJack(message, nodeID, deviceID)
+def handleBlackJack(message, nodeID, deviceID):
     global jackTracker
     msg = ""
 
