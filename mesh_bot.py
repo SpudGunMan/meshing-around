@@ -753,17 +753,15 @@ def handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus):
         msg += f"I see the signal strength is {rssi} and the SNR is {snr} with hop count of {hop}"
         if pkiStatus[1] != 'ABC':
             msg += f"\nYour PKI bit is {pkiStatus[0]} pubKey: {pkiStatus[1]}"
-
+    
         loc = get_node_location(message_from_id, deviceID)
-        if loc != [latitudeValue,longitudeValue]:
+        if loc != [latitudeValue, longitudeValue]:
             msg += f"\nYou are at: lat:{loc[0]} lon:{loc[1]}"
-
+    
             # check the positionMetadata for nodeID and get metadata
-            print(f"DEBUG: whoami: {positionMetadata}")
-            if positionMetadata:
-                for i in range(len(positionMetadata)):
-                    if positionMetadata[i].get('nodeID') == message_from_id:
-                        msg += f" alt:{positionMetadata[i].get('altitude')}, speed:{positionMetadata[i].get('groundSpeed')} bit:{positionMetadata[i].get('precisionBits')}"
+            if positionMetadata and message_from_id in positionMetadata:
+                metadata = positionMetadata[message_from_id]
+                msg += f" alt:{metadata.get('altitude')}, speed:{metadata.get('groundSpeed')} bit:{metadata.get('precisionBits')}"
     except Exception as e:
         logger.error(f"System: Error in whoami: {e}")
         msg = "Error in whoami"
