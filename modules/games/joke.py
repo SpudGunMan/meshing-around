@@ -1,10 +1,7 @@
 from dadjokes import Dadjoke # pip install dadjokes
 from modules.log import *
 
-
-
-def sendWithEmoji(message):
-    # this will take a string of text and replace any word or phrase that is in the word list with the corresponding emoji
+def tableOfContents():
     wordToEmojiMap = {
         'love': '❤️', 'heart': '❤️', 'happy': '😊', 'smile': '😊', 'sad': '😢', 'angry': '😠', 'mad': '😠', 'cry': '😢', 'laugh': '😂', 'funny': '😂', 'cool': '😎',
         'joy': '😂', 'kiss': '😘', 'hug': '🤗', 'wink': '😉', 'grin': '😁', 'bored': '😐', 'tired': '😴', 'sleepy': '😴', 'shocked': '😲', 'surprised': '😲',
@@ -53,16 +50,52 @@ def sendWithEmoji(message):
         'school': '🏫', 'department store': '🏬', 'factory': '🏭', 'japanese castle': '🏯', 'castle': '🏰', 'wedding': '💒', 'tokyo tower': '🗼', 'statue of liberty': '🗽', 'church': '⛪', 'mosque': '🕌',
         'hindu temple': '🛕', 'synagogue': '🕍', 'shinto shrine': '⛩️', 'kaaba': '🕋', 'fountain': '⛲', 'tent': '⛺', 'foggy': '🌁', 'night with stars': '🌃', 'sunrise over mountains': '🌄', 'sunrise': '🌅',
         'cityscape at dusk': '🌆', 'sunset': '🌇', 'cityscape': '🏙️', 'bridge at night': '🌉', 'hot springs': '♨️', 'carousel horse': '🎠', 'ferris wheel': '🎡', 'roller coaster': '🎢', 'barber pole': '💈',
-        'circus tent': '🎪', 'locomotive': '🚂', 'arm': '💪', 'leg': '🦵'
-    }   
+        'robot': '🤖', 'alien': '👽', 'ghost': '👻', 'skull': '💀', 'pumpkin': '🎃', 'clown': '🤡', 'wizard': '🧙', 'elf': '🧝', 'fairy': '🧚', 'mermaid': '🧜', 'vampire': '🧛',
+        'zombie': '🧟', 'genie': '🧞', 'superhero': '🦸', 'supervillain': '🦹', 'mage': '🧙', 'knight': '🛡️', 'ninja': '🥷', 'pirate': '🏴‍☠️', 'angel': '👼', 'devil': '😈', 'dragon': '🐉',
+        'unicorn': '🦄', 'phoenix': '🦅', 'griffin': '🦅', 'centaur': '🐎', 'minotaur': '🐂', 'cyclops': '👁️', 'medusa': '🐍', 'sphinx': '🦁', 'kraken': '🦑', 'yeti': '❄️', 'sasquatch': '🦧',
+        'loch ness monster': '🦕', 'chupacabra': '🐐', 'banshee': '👻', 'golem': '🗿', 'djinn': '🧞', 'basilisk': '🐍', 'hydra': '🐉', 'cerberus': '🐶', 'chimera': '🐐', 'manticore': '🦁', 'wyvern': '🐉',
+        'pegasus': '🦄', 'hippogriff': '🦅', 'kelpie': '🐎', 'selkie': '🦭', 'kitsune': '🦊', 'tanuki': '🦝', 'tengu': '🦅', 'oni': '👹', 'yokai': '👻', 'kappa': '🐢', 'yurei': '👻',
+        'kami': '👼', 'shinigami': '💀', 'bakemono': '👹', 'tsukumogami': '🧸', 'noppera-bo': '👤', 'rokurokubi': '🧛', 'yuki-onna': '❄️', 'jorogumo': '🕷️', 'nue': '🐍', 'ubume': '👼', 'tengu': '🦅'
+        'mermaid': '🧜', 'vampire': '🧛', 'zombie': '🧟', 'genie': '🧞', 'superhero': '🦸', 'supervillain': '🦹', 'mage': '🧙', 'knight': '🛡️', 'ninja': '🥷', 'pirate': '🏴‍☠️', 'angel': '👼', 'devil': '😈', 'dragon': '🐉',
+        'unicorn': '🦄', 'phoenix': '🦅', 'griffin': '🦅', 'centaur': '🐎', 'minotaur': '🐂', 'cyclops': '👁️', 'medusa': '🐍', 'sphinx': '🦁', 'kraken': '🦑', 'yeti': '❄️', 'sasquatch': '🦧',
+        'loch ness monster': '🦕', 'chupacabra': '🐐', 'banshee': '👻', 'golem': '🗿', 'djinn': '🧞', 'basilisk': '🐍', 'hydra': '🐉', 'cerberus': '🐶', 'chimera': '🐐', 'manticore': '🦁', 'wyvern': '🐉',
+        'pegasus': '🦄', 'hippogriff': '🦅', 'kelpie': '🐎', 'selkie': '🦭', 'kitsune': '🦊', 'tanuki': '🦝', 'tengu': '🦅', 'oni': '👹', 'yokai': '👻', 'kappa': '🐢', 'yurei': '👻',
+        'kami': '👼', 'shinigami': '💀', 'bakemono': '👹', 'tsukumogami': '🧸', 'noppera-bo': '👤', 'rokurokubi': '🧛', 'yuki-onna': '❄️', 'jorogumo': '🕷️', 'nue': '🐍', 'ubume': '👼', 'tengu': '🦅',
+        'phoenix': '🦅', 'griffin': '🦅', 'centaur': '🐎', 'minotaur': '🐂', 'cyclops': '👁️', 'medusa': '🐍', 'sphinx': '🦁', 'kraken': '🦑', 'yeti': '❄️', 'sasquatch': '🦧', 'loch ness monster': '🦕',
+        'chupacabra': '🐐', 'banshee': '👻', 'golem': '🗿', 'djinn': '🧞', 'basilisk': '🐍', 'hydra': '🐉', 'cerberus': '🐶', 'chimera': '🐐', 'manticore': '🦁', 'wyvern': '🐉', 'pegasus': '🦄',
+        'hippogriff': '🦅', 'kelpie': '🐎', 'selkie': '🦭', 'kitsune': '🦊', 'tanuki': '🦝', 'tengu': '🦅', 'oni': '👹', 'yokai': '👻', 'kappa': '🐢', 'yurei': '👻', 'kami': '👼',
+        'shinigami': '💀', 'bakemono': '👹', 'tsukumogami': '🧸', 'noppera-bo': '👤', 'rokurokubi': '🧛', 'yuki-onna': '❄️', 'jorogumo': '🕷️', 'nue': '🐍', 'ubume': '👼', 'tengu': '🦅'
+        'atom': '⚛️', 'dna': '🧬', 'microscope': '🔬', 'telescope': '🔭', 'rocket': '🚀', 'satellite': '🛰️', 'robot': '🤖', 'alien': '👽', 'spaceship': '🛸', 'planet': '🪐',
+        'black hole': '🕳️', 'galaxy': '🌌', 'comet': '☄️', 'star': '⭐', 'constellation': '🌠', 'lightning': '⚡', 'magnet': '🧲', 'battery': '🔋', 'computer': '💻', 'keyboard': '⌨️',
+        'mouse': '🖱️', 'printer': '🖨️', 'floppy disk': '💾', 'cd': '💿', 'dvd': '📀', 'smartphone': '📱', 'tablet': '📲', 'watch': '⌚', 'camera': '📷', 'video camera': '📹',
+        'projector': '📽️', 'radio': '📻', 'television': '📺', 'satellite dish': '📡', 'game controller': '🎮', 'joystick': '🕹️', 'vr headset': '🕶️', 'headphones': '🎧', 'speaker': '🔊',
+        'light bulb': '💡', 'flashlight': '🔦', 'circuit': '🔌', 'chip': '💻', 'server': '🖥️', 'database': '💾', 'cloud': '☁️', 'network': '🌐', 'code': '💻', 'bug': '🐛',
+        'virus': '🦠', 'bacteria': '🦠', 'lab coat': '🥼', 'safety goggles': '🥽', 'test tube': '🧪', 'petri dish': '🧫', 'beaker': '🧪', 'bunsen burner': '🔥', 'graduated cylinder': '🧪',
+        'pipette': '🧪', 'scalpel': '🔪', 'syringe': '💉', 'pill': '💊', 'stethoscope': '🩺', 'thermometer': '🌡️', 'x-ray': '🩻', 'dna': '🧬', 'brain': '🧠', 'heart': '❤️',
+        'lung': '🫁', 'bone': '🦴', 'muscle': '💪', 'robot arm': '🦾', 'robot leg': '🦿', 'prosthetic arm': '🦾', 'prosthetic leg': '🦿', 'wheelchair': '🦽', 'crutch': '🦯', 'hearing aid': '🦻',
+        'glasses': '👓', 'magnifying glass': '🔍', 'telescope': '🔭', 'microscope': '🔬', 'satellite': '🛰️', 'rocket': '🚀', 'spaceship': '🛸', 'planet': '🪐', 'star': '⭐', 'constellation': '🌠',
+        'galaxy': '🌌', 'black hole': '🕳️', 'comet': '☄️', 'lightning': '⚡', 'magnet': '🧲', 'battery': '🔋', 'computer': '💻', 'keyboard': '⌨️', 'mouse': '🖱️', 'printer': '🖨️',
+        'floppy disk': '💾', 'cd': '💿', 'dvd': '📀', 'smartphone': '📱', 'tablet': '📲', 'watch': '⌚', 'camera': '📷', 'video camera': '📹', 'projector': '📽️', 'radio': '📻',
+        'television': '📺', 'satellite dish': '📡', 'game controller': '🎮', 'joystick': '🕹️', 'vr headset': '🕶️', 'headphones': '🎧', 'speaker': '🔊', 'light bulb': '💡', 'flashlight': '🔦',
+        'circuit': '🔌', 'chip': '💻', 'server': '🖥️', 'database': '💾', 'cloud': '☁️', 'network': '🌐', 'code': '💻', 'bug': '🐛', 'virus': '🦠', 'bacteria': '🦠',
+        'lab coat': '🥼', 'safety goggles': '🥽', 'test tube': '🧪', 'petri dish': '🧫', 'beaker': '🧪', 'bunsen burner': '🔥', 'graduated cylinder': '🧪', 'pipette': '🧪', 'scalpel': '🔪',
+        'syringe': '💉', 'pill': '💊', 'stethoscope': '🩺', 'thermometer': '🌡️', 'x-ray': '🩻', 'dna': '🧬', 'brain': '🧠', 'heart': '❤️', 'lung': '🫁', 'bone': '🦴',
+        'muscle': '💪', 'robot arm': '🦾', 'robot leg': '🦿', 'prosthetic arm': '🦾', 'prosthetic leg': '🦿', 'wheelchair': '🦽', 'crutch': '🦯', 'hearing aid': '🦻', 'glasses': '👓',
+        'magnifying glass': '🔍', 'circus tent': '🎪', 'locomotive': '🚂', 'arm': '💪', 'leg': '🦵'
+    }
+    return wordToEmojiMap
+
+def sendWithEmoji(message):
+    # this will take a string of text and replace any word or phrase that is in the word list with the corresponding emoji
+    wordToEmojiMap = tableOfContents()
     # type format to clean it up
-    words = message.lower().split()
+    words = message.split()
     i = 0
     while i < len(words):
         for phrase in sorted(wordToEmojiMap.keys(), key=len, reverse=True):
             phrase_words = phrase.split()
             # Strip punctuation from the words
-            stripped_words = [word.strip('.,!?') for word in words[i:i+len(phrase_words)]]
+            stripped_words = [word.lower().strip('.,!?') for word in words[i:i+len(phrase_words)]]
             if stripped_words == phrase_words:
                 logger.debug(f"System: Replaced the phrase '{phrase}' with '{wordToEmojiMap[phrase]}'")
                 words[i:i+len(phrase_words)] = [wordToEmojiMap[phrase]]
