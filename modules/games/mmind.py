@@ -195,17 +195,19 @@ def compareCodeMMind(secret_code, user_guess):
         # check for perfect pins and right color wrong position
         temp_code = []
         temp_guess = []
-        for i in range(len(user_guess)): #check for perfect pins
+        # Check for perfect pins
+        for i in range(len(user_guess)):
             if user_guess[i] == secret_code[i]:
                 perfect_pins += 1
             else:
                 temp_code.append(secret_code[i])
                 temp_guess.append(user_guess[i])
-        for i in range(len(temp_guess)): #check for right color wrong position
-            for j in range(len(temp_code)):
-                if temp_guess[i] == temp_code[j]:
-                    wrong_position += 1
-                    temp_code[j] = "0"
+
+        # Check for right color wrong position
+        for guess in temp_guess:
+            if guess in temp_code:
+                wrong_position += 1
+                temp_code.remove(guess)  # Remove the first occurrence of the matched color
     # display feedback
     if game_won:
         msg += f"Correct{getEmojiMMind(user_guess)}\n"
