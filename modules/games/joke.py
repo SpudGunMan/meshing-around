@@ -67,7 +67,17 @@ def tableOfContents():
         'test tube': '🧪', 'petri dish': '🧫', 'beaker': '🧪', 'bunsen burner': '🔥', 'graduated cylinder': '🧪', 'pipette': '🧪', 'scalpel': '🔪', 'syringe': '💉', 'pill': '💊',
         'stethoscope': '🩺', 'thermometer': '🌡️', 'x-ray': '🩻', 'brain': '🧠', 'heart': '❤️', 'lung': '🫁', 'bone': '🦴', 'muscle': '💪', 'robot arm': '🦾', 'robot leg': '🦿',
         'prosthetic arm': '🦾', 'prosthetic leg': '🦿', 'wheelchair': '🦽', 'crutch': '🦯', 'hearing aid': '🦻', 'glasses': '👓', 'magnifying glass': '🔍', 'circus tent': '🎪',
-        'locomotive': '🚂', 'arm': '💪', 'leg': '🦵', 'sponge': '🧽',
+        'duck': '🦆', 'eagle': '🦅', 'owl': '🦉', 'bat': '🦇', 'shark': '🦈', 'butterfly': '🦋', 'snail': '🐌', 'bee': '🐝', 'beetle': '🐞', 'ant': '🐜', 'cricket': '🦗', 
+        'spider': '🕷️', 'scorpion': '🦂', 'turkey': '🦃', 'peacock': '🦚', 'parrot': '🦜', 'swan': '🦢', 'flamingo': '🦩', 'dodo': '🦤', 'sloth': '🦥', 'otter': '🦦', 
+        'skunk': '🦨', 'kangaroo': '🦘', 'badger': '🦡', 'beaver': '🦫', 'bison': '🦬', 'mammoth': '🦣', 'raccoon': '🦝', 'hedgehog': '🦔', 'squirrel': '🐿️', 'chipmunk': '🐿️', 
+        'porcupine': '🦔', 'llama': '🦙', 'giraffe': '🦒', 'zebra': '🦓', 'hippopotamus': '🦛', 'rhinoceros': '🦏', 'gorilla': '🦍', 'orangutan': '🦧', 'elephant': '🐘', 'camel': '🐫', 
+        'llama': '🦙', 'alpaca': '🦙', 'buffalo': '🐃', 'ox': '🐂', 'deer': '🦌', 'moose': '🦌', 'reindeer': '🦌', 'goat': '🐐', 'sheep': '🐑', 'ram': '🐏', 'lamb': '🐑', 'horse': '🐴', 
+        'unicorn': '🦄', 'zebra': '🦓', 'cow': '🐄', 'pig': '🐖', 'boar': '🐗', 'mouse': '🐁', 'rat': '🐀', 'hamster': '🐹', 'rabbit': '🐇', 'chipmunk': '🐿️', 'beaver': '🦫', 'hedgehog': '🦔', 
+        'bat': '🦇', 'bear': '🐻', 'koala': '🐨', 'panda': '🐼', 'sloth': '🦥', 'otter': '🦦', 'skunk': '🦨', 'kangaroo': '🦘', 'badger': '🦡', 'turkey': '🦃', 'chicken': '🐔', 'rooster': '🐓', 
+        'peacock': '🦚', 'parrot': '🦜', 'swan': '🦢', 'flamingo': '🦩', 'dodo': '🦤', 'crocodile': '🐊', 'turtle': '🐢', 'lizard': '🦎', 'snake': '🐍', 'dragon': '🐉', 'sauropod': '🦕', 't-rex': '🦖', 
+        'whale': '🐋', 'dolphin': '🐬', 'fish': '🐟', 'blowfish': '🐡', 'shark': '🦈', 'octopus': '🐙', 'shell': '🐚', 'crab': '🦀', 'lobster': '🦞', 'shrimp': '🦐', 'squid': '🦑', 'snail': '🐌', 'butterfly': '🦋', 
+        'bee': '🐝', 'beetle': '🐞', 'ant': '🐜', 'cricket': '🦗', 'spider': '🕷️', 'scorpion': '🦂', 'mosquito': '🦟', 'microbe': '🦠', 'locomotive': '🚂', 'arm': '💪', 'leg': '🦵', 'sponge': '🧽',
+
     }
 
     return wordToEmojiMap
