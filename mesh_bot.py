@@ -756,6 +756,12 @@ def handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus):
     loc = get_node_location(message_from_id, deviceID)
     if loc != [latitudeValue,longitudeValue]:
         msg += f"\nYou are at: lat:{loc[0]} lon:{loc[1]}"
+
+        # check the positionMetadata for nodeID and get metadata
+        if positionMetadata:
+            for i in range(len(positionMetadata)):
+                if positionMetadata[i].get('nodeID') == message_from_id:
+                    msg += f" alt:{positionMetadata[i].get('altitude')}, speed:{positionMetadata[i].get('groundSpeed')} bit:{positionMetadata[i].get('precisionBits')}"
     return msg
 
 def check_and_play_game(tracker, message_from_id, message_string, rxNode, channel_number, game_name, handle_game_func):
