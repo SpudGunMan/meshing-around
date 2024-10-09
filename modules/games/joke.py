@@ -1,3 +1,6 @@
+# This module is used to tell jokes to the user
+# The emoji table of contents is used to replace words in the joke with emojis
+# As a Ham, is this obsecuring the meaning of the joke? Or is it enhancing it?
 from dadjokes import Dadjoke # pip install dadjokes
 from modules.log import *
 
@@ -64,7 +67,7 @@ def tableOfContents():
         'test tube': '🧪', 'petri dish': '🧫', 'beaker': '🧪', 'bunsen burner': '🔥', 'graduated cylinder': '🧪', 'pipette': '🧪', 'scalpel': '🔪', 'syringe': '💉', 'pill': '💊',
         'stethoscope': '🩺', 'thermometer': '🌡️', 'x-ray': '🩻', 'brain': '🧠', 'heart': '❤️', 'lung': '🫁', 'bone': '🦴', 'muscle': '💪', 'robot arm': '🦾', 'robot leg': '🦿',
         'prosthetic arm': '🦾', 'prosthetic leg': '🦿', 'wheelchair': '🦽', 'crutch': '🦯', 'hearing aid': '🦻', 'glasses': '👓', 'magnifying glass': '🔍', 'circus tent': '🎪',
-        'locomotive': '🚂', 'arm': '💪', 'leg': '🦵',
+        'locomotive': '🚂', 'arm': '💪', 'leg': '🦵', 'sponge': '🧽',
     }
 
     return wordToEmojiMap
