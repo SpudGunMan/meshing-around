@@ -759,17 +759,18 @@ def consumeMetadata(packet, rxNode=0):
         keys = ['altitude', 'groundSpeed', 'precisionBits']
         position_data = packet['decoded']['position']
         try:
+            if nodeID not in positionMetadata:
+                positionMetadata[nodeID] = {}
+    
             for key in keys:
-                # add the position data to the positionMetadata dictionary
-                if nodeID not in positionMetadata:
-                    positionMetadata[nodeID] = {}
-                
-                for key in keys:
-                    positionMetadata[nodeID][key] = position_data.get(key, 0)
-
-            # put data into positionMetadata and keep it at 5 records
+                positionMetadata[nodeID][key] = position_data.get(key, 0)
+    
+            # Keep the positionMetadata dictionary at 5 records
             if len(positionMetadata) > 5:
-                positionMetadata.pop(0)
+                # Remove the oldest entry
+                oldest_nodeID = next(iter(positionMetadata))
+                del positionMetadata[oldest_nodeID]
+    
             print(f"DEBUG POSITION_METADATA: {positionMetadata}\n\n")
         except Exception as e:
             logger.debug(f"System: POSITION_APP decode error: {e} packet {packet}")
