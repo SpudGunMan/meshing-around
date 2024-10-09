@@ -770,8 +770,6 @@ def consumeMetadata(packet, rxNode=0):
                 # Remove the oldest entry
                 oldest_nodeID = next(iter(positionMetadata))
                 del positionMetadata[oldest_nodeID]
-    
-            print(f"DEBUG POSITION_METADATA: {positionMetadata}\n\n")
         except Exception as e:
             logger.debug(f"System: POSITION_APP decode error: {e} packet {packet}")
 
