@@ -77,7 +77,15 @@ def tableOfContents():
         'peacock': '🦚', 'parrot': '🦜', 'swan': '🦢', 'flamingo': '🦩', 'dodo': '🦤', 'crocodile': '🐊', 'turtle': '🐢', 'lizard': '🦎', 'snake': '🐍', 'dragon': '🐉', 'sauropod': '🦕', 't-rex': '🦖', 
         'whale': '🐋', 'dolphin': '🐬', 'fish': '🐟', 'blowfish': '🐡', 'shark': '🦈', 'octopus': '🐙', 'shell': '🐚', 'crab': '🦀', 'lobster': '🦞', 'shrimp': '🦐', 'squid': '🦑', 'snail': '🐌', 'butterfly': '🦋', 
         'bee': '🐝', 'beetle': '🐞', 'ant': '🐜', 'cricket': '🦗', 'spider': '🕷️', 'scorpion': '🦂', 'mosquito': '🦟', 'microbe': '🦠', 'locomotive': '🚂', 'arm': '💪', 'leg': '🦵', 'sponge': '🧽',
-
+        'toothbrush': '🪥', 'broom': '🧹', 'basket': '🧺', 'roll of paper': '🧻', 'bucket': '🪣', 'soap': '🧼', 'toilet paper': '🧻', 'shower': '🚿', 'bathtub': '🛁', 'razor': '🪒', 'lotion': '🧴',
+        'letter': '✉️', 'envelope': '✉️', 'mail': '📬', 'post': '📮', 'golf': '⛳️', 'golfing': '⛳️', 'office': '🏢', 'work': '💼', 'meeting': '📅', 'presentation': '📊', 'report': '📄', 'document': '📄',
+        'file': '📁', 'folder': '📂', 'sports': '🏅', 'athlete': '🏃', 'competition': '🏆', 'race': '🏁', 'tournament': '🏆', 'champion': '🏆', 'medal': '🏅', 'victory': '🏆', 'win': '🏆', 'lose': '😞',
+        'draw': '🤝', 'team': '👥', 'player': '👤', 'coach': '👨‍🏫', 'referee': '🧑‍⚖️', 'stadium': '🏟️', 'arena': '🏟️', 'field': '🏟️', 'court': '🏟️', 'track': '🏟️', 'gym': '🏋️', 'fitness': '🏋️', 'exercise': '🏋️', 
+        'workout': '🏋️', 'training': '🏋️', 'practice': '🏋️', 'game': '🎮', 'match': '🎮', 'score': '🏅', 'goal': '🥅', 'point': '🏅', 'basket': '🏀', 'home run': '⚾️', 'strike': '🎳', 'spare': '🎳', 'frame': '🎳', 
+        'inning': '⚾️', 'quarter': '🏈', 'half': '🏈', 'overtime': '🏈', 'penalty': '⚽️', 'foul': '⚽️', 'timeout': '⏱️', 'substitute': '🔄', 'bench': '🪑', 'sideline': '🏟️', 'dugout': '⚾️', 'locker room': '🚪', 'shower': '🚿', 
+        'uniform': '👕', 'jersey': '👕', 'cleats': '👟', 'helmet': '⛑️', 'pads': '🛡️', 'gloves': '🧤', 'bat': '⚾️', 'ball': '⚽️', 'puck': '🏒', 'stick': '🏒', 'net': '🥅', 'hoop': '🏀', 'goalpost': '🥅', 'whistle': '🔔', 
+        'scoreboard': '📊', 'fans': '👥', 'crowd': '👥', 'cheer': '📣', 'boo': '😠', 'applause': '👏', 'celebration': '🎉', 'parade': '🎉', 'trophy': '🏆', 'medal': '🏅', 'ribbon': '🎀', 'cup': '🏆', 'championship': '🏆', 
+        'league': '🏆', 'season': '🏆', 'playoffs': '🏆', 'finals': '🏆', 'champion': '🏆', 'runner-up': '🥈', 'third place': '🥉'
     }
 
     return wordToEmojiMap
