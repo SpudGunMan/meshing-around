@@ -768,7 +768,7 @@ def consumeMetadata(packet, rxNode=0):
                 positionMetadata[nodeID][key] = position_data.get(key, 0)
     
             # Keep the positionMetadata dictionary at 5 records
-            if len(positionMetadata) > 5:
+            if len(positionMetadata) > 20:
                 # Remove the oldest entry
                 oldest_nodeID = next(iter(positionMetadata))
                 del positionMetadata[oldest_nodeID]
@@ -913,9 +913,14 @@ async def handleSentinel(deviceID=1):
             enemySpotted += ", " + str(closest_nodes[0]['id'])
             enemySpotted += ", " + decimal_to_hex(closest_nodes[0]['id'])
             enemySpotted += f" at {closest_nodes[0]['distance']}m"
-
+    
     if handleSentinel_loop >= sentry_holdoff and handleSentinel_spotted != enemySpotted:
-        logger.warning(f"System: {enemySpotted} is close to your location on Interface1")
+        # check the positionMetadata for nodeID and get metadata
+        if positionMetadata and closest_nodes[0]['id'] in positionMetadata:
+            metadata = positionMetadata[closest_nodes[0]['id']]
+            resolution = metadata.get('precisionBits', 'na')
+
+        logger.warning(f"System: {enemySpotted} is close to your location on Interface1 Accuracy is {resolution}bits")
         send_message(f"Sentry{deviceID}: {enemySpotted}", secure_channel, 0, deviceID)
         handleSentinel_loop = 0
         handleSentinel_spotted = enemySpotted
