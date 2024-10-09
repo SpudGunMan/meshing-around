@@ -763,7 +763,6 @@ def consumeMetadata(packet, rxNode=0):
             if nodeID not in positionMetadata:
                 positionMetadata[nodeID] = {}
             
-            keys = ['altitude', 'groundSpeed', 'precisionBits']
             for key in keys:
                 positionMetadata[nodeID][key] = position_data.get(key, 0)
 
