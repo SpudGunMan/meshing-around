@@ -63,9 +63,8 @@ if llmEnableHistory:
 
     """
 
-def llm_readTextFiles(directory):
+def llm_readTextFiles():
     # read .txt files in ../data/rag
-    # return a list of strings
     try:
         import os
         # directory script path ../data/rag
@@ -80,7 +79,6 @@ def llm_readTextFiles(directory):
     except Exception as e:
         logger.debug(f"System: LLM readTextFiles: {e}")
         return False
-
 
 def embed_text(text):
     try:
@@ -139,13 +137,12 @@ def llm_query(input, nodeID=0, location_name=None):
         modelPrompt = meshBotAI.format(input=input, context='\n'.join(googleResults), location_name=location_name, llmModel=llmModel, history=history)
         
         # RAG context inclusion
-        # ragFolder = "data/rag"
-        # radData = langchain.retrieve_rag_data(ragFolder)
-        #ragContext = embed_text(llm_readTextFiles)
+        ragContext = embed_text(llm_readTextFiles())
         # #ragQuery = langchain.generate_prompt(modelPrompt)
+
         # Query the model
-        #result = ollamaClient.generate(model=llmModel, prompt=modelPrompt, context=ragContext)
-        result = ollamaClient.generate(model=llmModel, prompt=modelPrompt)
+        result = ollamaClient.generate(model=llmModel, prompt=modelPrompt, context=ragContext)
+        #result = ollamaClient.generate(model=llmModel, prompt=modelPrompt)
     
         # Condense the result to just needed
         result = result.get("response")
