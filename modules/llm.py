@@ -119,7 +119,6 @@ def llm_query(input, nodeID=0, location_name=None):
     try:
         # Build the query from the template
         modelPrompt = meshBotAI.format(input=input, context='\n'.join(googleResults), location_name=location_name, llmModel=llmModel, history=history)
-        print(modelPrompt)
         result = ollamaClient.generate(model=llmModel, prompt=modelPrompt)
         result = result.get("response")
 
