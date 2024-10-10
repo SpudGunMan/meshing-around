@@ -266,11 +266,11 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
                 if (channel_number == publicChannel and antiSpam) or useDMForResponse:
                     # send via DM
                     send_message(welcome_message, channel_number, message_from_id, deviceID)
-                    time.sleep(responseDelay)
+                    time.sleep(1) # wait a second to keep from message collision with llm welcome message
                 else:
                     # send via channel
                     send_message(welcome_message, channel_number, 0, deviceID)
-                    time.sleep(responseDelay)
+                    time.sleep(1) # wait a second to keep from message collision with llm welcome message
     
     # update the llmLocationTable for future use
     for i in range(0, len(llmLocationTable)):
@@ -947,6 +947,8 @@ def onReceive(packet, interface):
                             # respond with welcome message on DM
                             logger.warning(f"Device:{rxNode} Ignoring DM: {message_string} From: {get_name_from_number(message_from_id, 'long', rxNode)}")
                             send_message(welcome_message, channel_number, message_from_id, rxNode)
+                            time.sleep(responseDelay)
+                            
                     
                     # log the message to the message log
                     msgLogger.info(f"Device:{rxNode} Channel:{channel_number} | {get_name_from_number(message_from_id, 'long', rxNode)} | " + message_string.replace('\n', '-nl-'))
@@ -973,6 +975,7 @@ def onReceive(packet, interface):
                             else:
                                 # respond to channel message on the channel itself
                                 send_message(auto_response(message_string, snr, rssi, hop, pkiStatus, message_from_id, channel_number, rxNode, isDM), channel_number, 0, rxNode)
+
                 else:
                     # message is not for bot to respond to
                     # ignore the message but add it to the message history list
