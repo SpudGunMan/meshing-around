@@ -14,19 +14,19 @@ def load_bbsdb():
     global bbs_messages
     # load the bbs messages from the database file
     try:
-        with open('bbsdb.pkl', 'rb') as f:
+        with open('data/bbsdb.pkl', 'rb') as f:
             bbs_messages = pickle.load(f)
     except Exception as e:
         bbs_messages = [[1, "Welcome to meshBBS", "Welcome to the BBS, please post a message!",0]]
-        logger.debug("System: Creating new bbsdb.pkl")
-        with open('bbsdb.pkl', 'wb') as f:
+        logger.debug("System: Creating new data/bbsdb.pkl")
+        with open('data/bbsdb.pkl', 'wb') as f:
             pickle.dump(bbs_messages, f)
 
 def save_bbsdb():
     global bbs_messages
     # save the bbs messages to the database file
-    logger.debug("System: Saving bbsdb.pkl")
-    with open('bbsdb.pkl', 'wb') as f:
+    logger.debug("System: Saving data/bbsdb.pkl")
+    with open('data/bbsdb.pkl', 'wb') as f:
         pickle.dump(bbs_messages, f)
 
 def bbs_help():
@@ -100,20 +100,20 @@ def bbs_read_message(messageID = 0):
 def save_bbsdm():
     global bbs_dm
     # save the bbs messages to the database file
-    logger.debug("System: Saving Updated BBS Direct Messages bbsdm.pkl")
-    with open('bbsdm.pkl', 'wb') as f:
+    logger.debug("System: Saving Updated BBS Direct Messages data/bbsdm.pkl")
+    with open('data/bbsdm.pkl', 'wb') as f:
         pickle.dump(bbs_dm, f)
 
 def load_bbsdm():
     global bbs_dm
     # load the bbs messages from the database file
     try:
-        with open('bbsdm.pkl', 'rb') as f:
+        with open('data/bbsdm.pkl', 'rb') as f:
             bbs_dm = pickle.load(f)
     except:
         bbs_dm = [[1234567890, "Message", 1234567890]]
-        logger.debug("System: Creating new bbsdm.pkl")
-        with open('bbsdm.pkl', 'wb') as f:
+        logger.debug("System: Creating new data/bbsdm.pkl")
+        with open('data/bbsdm.pkl', 'wb') as f:
             pickle.dump(bbs_dm, f)
 
 def bbs_post_dm(toNode, message, fromNode):
@@ -133,7 +133,7 @@ def bbs_post_dm(toNode, message, fromNode):
 def get_bbs_stats():
     global bbs_messages, bbs_dm
     # Return some stats on the bbs pending messages and total posted messages
-    return f"📡BBSdb has {len(bbs_messages)} messages. Direct ✉️ Messages waiting: {(len(bbs_dm) - 1)}"
+    return f"📡BBSdb has {len(bbs_messages)} messages.\nDirect ✉️ Messages waiting: {(len(bbs_dm) - 1)}"
 
 def bbs_check_dm(toNode):
     global bbs_dm

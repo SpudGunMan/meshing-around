@@ -1,0 +1,10 @@
+[Unit]
+Description=MeshingAround-ReportingTask
+
+[Timer]
+OnUnitActiveSec=1h
+OnbootSec=5min
+Unit=mesh_bot_reporting.service
+
+[Install]
+WantedBy=timers.target

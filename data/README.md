@@ -1,0 +1,1 @@
+database admin tool is in [./etc/db_admin.py](../etc/db_admin.py)

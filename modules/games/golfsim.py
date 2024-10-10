@@ -102,12 +102,12 @@ def getScorecardGolf(scorecard):
 def getHighScoreGolf(nodeID, strokes, par):
     # check if player is in high score list
     try:
-        with open('golfsim_hs.pkl', 'rb') as f:
+        with open('data/golfsim_hs.pkl', 'rb') as f:
             golfHighScore = pickle.load(f)
     except:
         logger.debug("System: GolfSim: High Score file not found.")
         golfHighScore = [{'nodeID': nodeID, 'strokes': strokes, 'par': par}]
-        with open('golfsim_hs.pkl', 'wb') as f:
+        with open('data/golfsim_hs.pkl', 'wb') as f:
             pickle.dump(golfHighScore, f)
 
     if strokes < golfHighScore[0]['strokes']:
@@ -115,7 +115,7 @@ def getHighScoreGolf(nodeID, strokes, par):
         golfHighScore[0]['nodeID'] = nodeID
         golfHighScore[0]['strokes'] = strokes
         golfHighScore[0]['par'] = par
-        with open('golfsim_hs.pkl', 'wb') as f:
+        with open('data/golfsim_hs.pkl', 'wb') as f:
             pickle.dump(golfHighScore, f)
         return golfHighScore
     

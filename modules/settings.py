@@ -46,7 +46,7 @@ if config.sections() == []:
     print (f"System: Config file created, check {config_file} or review the config.template")
 
 if 'sentry' not in config:
-        config['Sentry'] = {'SentryEnabled': 'False', 'SentryChannel': '2', 'SentryHoldoff': '9', 'sentryIgnoreList': '', 'SentryRadius': '100'}
+        config['sentry'] = {'SentryEnabled': 'False', 'SentryChannel': '2', 'SentryHoldoff': '9', 'sentryIgnoreList': '', 'SentryRadius': '100'}
         config.write(open(config_file, 'w'))
 
 if 'location' not in config:
@@ -54,7 +54,7 @@ if 'location' not in config:
         config.write(open(config_file, 'w'))
 
 if 'bbs' not in config:
-        config['bbs'] = {'enabled': 'False', 'bbsdb': 'bbsdb.pkl', 'bbs_ban_list': '', 'bbs_admin_list': ''}
+        config['bbs'] = {'enabled': 'False', 'bbsdb': 'data/bbsdb.pkl', 'bbs_ban_list': '', 'bbs_admin_list': ''}
         config.write(open(config_file, 'w'))
 
 if 'repeater' not in config:
@@ -96,8 +96,8 @@ try:
     publicChannel = config['general'].getint('defaultChannel', 0) # the meshtastic public channel
     ignoreDefaultChannel = config['general'].getboolean('ignoreDefaultChannel', False)
     zuluTime = config['general'].getboolean('zuluTime', False) # aka 24 hour time
-    log_messages_to_file = config['general'].getboolean('LogMessagesToFile', True) # default True
-    syslog_to_file = config['general'].getboolean('SyslogToFile', False)
+    log_messages_to_file = config['general'].getboolean('LogMessagesToFile', False) # default off
+    syslog_to_file = config['general'].getboolean('SyslogToFile', True) # default on
     urlTimeoutSeconds = config['general'].getint('urlTimeout', 10) # default 10 seconds
     store_forward_enabled = config['general'].getboolean('StoreForward', True)
     storeFlimit = config['general'].getint('StoreLimit', 3) # default 3 messages for S&F
@@ -113,6 +113,7 @@ try:
     wikipedia_enabled = config['general'].getboolean('wikipedia', False)
     llm_enabled = config['general'].getboolean('ollama', False) # https://ollama.com
     llmModel = config['general'].get('ollamaModel', 'gemma2:2b') # default gemma2:2b
+    ollamaHostName = config['general'].get('ollamaHostName', 'http://localhost:11434') # default localhost
 
     # sentry
     sentry_enabled = config['sentry'].getboolean('SentryEnabled', False) # default False
@@ -130,10 +131,11 @@ try:
     forecastDuration = config['location'].getint('NOAAforecastDuration', 4) # NOAA forcast days
     numWxAlerts = config['location'].getint('NOAAalertCount', 2) # default 2 alerts
     wxAlertsEnabled = config['location'].getboolean('NOAAalertsEnabled', True) # default True not enabled yet
+    repeater_lookup = config['location'].get('repeaterLookup', 'rbook') # default repeater lookup source
    
     # bbs
     bbs_enabled = config['bbs'].getboolean('enabled', False)
-    bbsdb = config['bbs'].get('bbsdb', 'bbsdb.pkl')
+    bbsdb = config['bbs'].get('bbsdb', 'data/bbsdb.pkl')
     bbs_ban_list = config['bbs'].get('bbs_ban_list', '').split(',')
     bbs_admin_list = config['bbs'].get('bbs_admin_list', '').split(',')
 
@@ -151,12 +153,14 @@ try:
     signalCycleLimit = config['radioMon'].getint('signalCycleLimit', 5) # default 5 cycles, used with SIGNAL_COOLDOWN
     
     # games
+    game_hop_limit = config['messagingSettings'].getint('game_hop_limit', 5) # default 3 hops
     dopewars_enabled = config['games'].getboolean('dopeWars', True)
     lemonade_enabled = config['games'].getboolean('lemonade', True)
     blackjack_enabled = config['games'].getboolean('blackjack', True)
     videoPoker_enabled = config['games'].getboolean('videoPoker', True)
     mastermind_enabled = config['games'].getboolean('mastermind', True)
     golfSim_enabled = config['games'].getboolean('golfSim', True)
+    uno_enabled = config['games'].getboolean('uno', True)
 
     # messaging settings
     responseDelay = config['messagingSettings'].getfloat('responseDelay', 0.7) # default 0.7

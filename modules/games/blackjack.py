@@ -210,22 +210,22 @@ def saveHSJack(nodeID, highScore):
     # Save the game state to pickle
     highScore = {'nodeID': nodeID, 'highScore': highScore}
     try:
-        with open('blackjack_hs.pkl', 'wb') as file:
+        with open('data/blackjack_hs.pkl', 'wb') as file:
             pickle.dump(highScore, file)
     except FileNotFoundError:
-        logger.debug("System: BlackJack: Creating new blackjack_hs.pkl file")
-        with open('blackjack_hs.pkl', 'wb') as file:
+        logger.debug("System: BlackJack: Creating new data/blackjack_hs.pkl file")
+        with open('data/blackjack_hs.pkl', 'wb') as file:
             pickle.dump(highScore, file)
 
 def loadHSJack():
     try:
-        with open('blackjack_hs.pkl', 'rb') as file:
+        with open('data/blackjack_hs.pkl', 'rb') as file:
             highScore = pickle.load(file)
             return highScore
     except FileNotFoundError:
-        logger.debug("System: BlackJack: Creating new blackjack_hs.pkl file")
+        logger.debug("System: BlackJack: Creating new data/blackjack_hs.pkl file")
         highScore = {'nodeID': 0, 'highScore': 0}
-        with open('blackjack_hs.pkl', 'wb') as file:
+        with open('data/blackjack_hs.pkl', 'wb') as file:
             pickle.dump(highScore, file)
         return 0
 

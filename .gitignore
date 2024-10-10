@@ -7,6 +7,9 @@ config.ini
 # virtualenv
 venv/
 
+# logs
+logs/*.log
+
 # modified .service files
 etc/*.service
 

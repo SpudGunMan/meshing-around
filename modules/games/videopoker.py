@@ -276,23 +276,23 @@ def saveHSVp(nodeID, highScore):
     # Save the game high_score to pickle
     highScore = {'nodeID': nodeID, 'highScore': highScore}
     try:
-        with open('videopoker_hs.pkl', 'wb') as file:
+        with open('data/videopoker_hs.pkl', 'wb') as file:
             pickle.dump(highScore, file)
     except FileNotFoundError:
-        logger.debug("System: BlackJack: Creating new videopoker_hs.pkl file")
-        with open('videopoker_hs.pkl', 'wb') as file:
+        logger.debug("System: BlackJack: Creating new data/videopoker_hs.pkl file")
+        with open('data/videopoker_hs.pkl', 'wb') as file:
             pickle.dump(highScore, file)
 
 def loadHSVp():
     # Load the game high_score from pickle
     try:
-        with open('videopoker_hs.pkl', 'rb') as file:
+        with open('data/videopoker_hs.pkl', 'rb') as file:
             highScore = pickle.load(file)
             return highScore
     except FileNotFoundError:
-        logger.debug("System: VideoPoker: Creating new videopoker_hs.pkl file")
+        logger.debug("System: VideoPoker: Creating new data/videopoker_hs.pkl file")
         highScore = {'nodeID': 0, 'highScore': 0}
-        with open('videopoker_hs.pkl', 'wb') as file:
+        with open('data/videopoker_hs.pkl', 'wb') as file:
             pickle.dump(highScore, file)
         return 0
 
@@ -326,15 +326,15 @@ def playVideoPoker(nodeID, message):
         try:
             bet = int(message)
         except ValueError:
-            msg += "Please enter a valid bet amount. 1 to 5 coins."
+            msg += f"Please enter a valid bet, 1 to 5 coins. you have {player.bankroll} coins."
 
         # Check if bet is valid
         if bet > player.bankroll:
-            msg += "You can only bet the money you have. No strip poker here..."
+            msg += f"You can only bet the money you have. {player.bankroll} coins, No strip poker here..."
         elif bet < 1:
-            msg += "You must bet at least 1 coin."
+            msg += "You must bet at least 1 coin.🪙"
         elif bet > 5:
-            msg += "You can only bet up to 5 coins."
+            msg += "The 🎰 coin slot only fits 5 coins max."
 
         # if msg contains an error, return it
         if msg is not None and msg != '':
@@ -433,7 +433,7 @@ def playVideoPoker(nodeID, message):
             # save high score
             saveHSVp(nodeID, vpTracker[i]['highScore'])
 
-        msg += f"\nPlace your Bet, 'L' to leave the game."
+        msg += f"\nPlace your Bet, or (L)eave Table."
 
         setLastCmdVp(nodeID, "gameOver")
         # reset player and deck in tracker
