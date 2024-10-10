@@ -259,51 +259,51 @@ sudo apt-get install fonts-noto-color-emoji
 ## Full list of commands for the bot
 
 ### Solar Details for Radio Propagation
-| Command | Description |
-|---------|-------------|
-| `sun` and `moon` | Return info on rise and set local time |
-| `solar` | Gives an idea of the x-ray flux |
-| `hfcond` | Returns a table of HF solar conditions |
-| `repeaterlist` | Returns a table of nearby repeaters from RepeaterBook
+| Command | Description | ✅ Works Off-Grid |
+|---------|-------------|-------------------
+| `sun` and `moon` | Return info on rise and set local time | ✅ |
+| `solar` | Gives an idea of the x-ray flux | |
+| `hfcond` | Returns a table of HF solar conditions | |
+| `repeaterlist` | Returns a table of nearby repeaters from RepeaterBook | |
 
 ### Bulletin Board (BBS) Functions
-| Command | Description |
-|---------|-------------|
-| `bbshelp` | Returns the following help message |
-| `bbslist` | Lists the messages by ID and subject |
-| `bbsread` | Reads a message. Example: `bbsread #1` |
-| `bbspost` | Posts a message to the public board or sends a DM. Examples: `bbspost $subject #message`, `bbspost @nodeNumber #message`, `bbspost @nodeShortName #message` |
-| `bbsdelete` | Deletes a message. Example: `bbsdelete #4` |
-| `bbsinfo` | Provides stats on BBS delivery and messages (sysop) |
+| Command | Description | |
+|---------|-------------|-
+| `bbshelp` | Returns the following help message | ✅ |
+| `bbslist` | Lists the messages by ID and subject | ✅ |
+| `bbsread` | Reads a message. Example: `bbsread #1` | ✅ |
+| `bbspost` | Posts a message to the public board or sends a DM. Examples: `bbspost $subject #message`, `bbspost @nodeNumber #message`, `bbspost @nodeShortName #message` | ✅ |
+| `bbsdelete` | Deletes a message. Example: `bbsdelete #4` | ✅ |
+| `bbsinfo` | Provides stats on BBS delivery and messages (sysop) | ✅ |
 
 ### Other Functions
-| Command | Description |
-|---------|-------------|
-| `ping`, `ack`, `test` | Return data for signal. Example: `ping 15 #DrivingI5` (activates auto-ping every 20 seconds for count 15) |
+| Command | Description | |
+|---------|-------------|-
+| `ping`, `ack`, `test` | Return data for signal. Example: `ping 15 #DrivingI5` (activates auto-ping every 20 seconds for count 15) | ✅ |
 | `whereami` | Returns the address of the sender's location if known |
-| `whoami` | Returns details of the node asking, also returned when position exchanged 📍 |
+| `whoami` | Returns details of the node asking, also returned when position exchanged 📍 | ✅ |
 | `tide` | Returns the local tides (NOAA data source) |
 | `wx` and `wxc` | Return local weather forecast (wxc is metric value), NOAA or Open Meteo for weather forecasting |
 | `wxa` and `wxalert` | Return NOAA alerts. Short title or expanded details |
-| `joke` | Tells a joke |
+| `joke` | Tells a joke | ✅ |
 | `wiki:` | Searches Wikipedia and returns the first few sentences of the first result if a match. Example: `wiki: lora radio` |
-| `askai` and `ask:` | Ask Ollama LLM AI for a response. Example: `askai what temp do I cook chicken` |
-| `messages` | Replays the last messages heard, like Store and Forward |
-| `motd` | Displays the message of the day or sets it. Example: `motd $New Message Of the day` |
-| `lheard` | Returns the last 5 heard nodes with SNR. Can also use `sitrep` |
-| `history` | Returns the last commands run by user(s) |
-| `cmd` | Returns the list of commands (the help message) |
+| `askai` and `ask:` | Ask Ollama LLM AI for a response. Example: `askai what temp do I cook chicken` | ✅ |
+| `messages` | Replays the last messages heard, like Store and Forward | ✅ |
+| `motd` | Displays the message of the day or sets it. Example: `motd $New Message Of the day` | ✅ |
+| `lheard` | Returns the last 5 heard nodes with SNR. Can also use `sitrep` | ✅ |
+| `history` | Returns the last commands run by user(s) | ✅ |
+| `cmd` | Returns the list of commands (the help message) | ✅ |
 
 ### Games (via DM)
-| Command | Description |
-|---------|-------------|
-| `lemonstand` | Plays the classic Lemonade Stand finance game |
-| `dopewars` | Plays the classic drug trader game |
-| `blackjack` | Plays Blackjack (Casino 21) |
-| `videopoker` | Plays basic 5-card hold Video Poker |
-| `mastermind` | Plays the classic code-breaking game |
-| `golfsim` | Plays a 9-hole Golf Simulator |
-| `uno` | Plays Uno card game against the bot or with others on the mesh near you! |
+| Command | Description | ✅ Works Off-Grid |
+|---------|-------------|-
+| `lemonstand` | Plays the classic Lemonade Stand finance game | ✅ |
+| `dopewars` | Plays the classic drug trader game | ✅ |
+| `blackjack` | Plays Blackjack (Casino 21) | ✅ |
+| `videopoker` | Plays basic 5-card hold Video Poker | ✅ |
+| `mastermind` | Plays the classic code-breaking game | ✅ |
+| `golfsim` | Plays a 9-hole Golf Simulator | ✅ |
+| `uno` | Plays Uno card game against the bot or with others on the mesh near you! | ✅ |
 
 # Recognition
 
