@@ -7,7 +7,7 @@ from modules.log import *
 # Ollama Client
 # https://github.com/ollama/ollama/blob/main/docs/faq.md#how-do-i-configure-ollama-server
 from ollama import Client as OllamaClient
-#from langchain_ollama import OllamaLLM # pip install ollama langchain-ollama
+from langchain_ollama import OllamaEmbeddings # pip install ollama langchain-ollama
 from googlesearch import search # pip install googlesearch-python
 
 # LLM System Variables
@@ -19,6 +19,7 @@ googleSearchResults = 3 # number of google search results to include in the cont
 antiFloodLLM = []
 llmChat_history = {}
 trap_list_llm = ("ask:", "askai")
+embedding_model = OllamaEmbeddings(model=llmModel)
 
 meshBotAI = """
     FROM {llmModel}
@@ -61,6 +62,32 @@ if llmEnableHistory:
     {history}
 
     """
+
+def llm_readTextFiles(directory):
+    # read .txt files in ../data/rag
+    # return a list of strings
+    try:
+        import os
+        # directory script path ../data/rag
+        directory = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'data', 'rag')
+        files = os.listdir(directory)
+        text = []
+        for file in files:
+            if file.endswith(".txt"):
+                with open(f"{directory}/{file}", 'r') as f:
+                    text.append(f.read())
+        return text
+    except Exception as e:
+        logger.debug(f"System: LLM readTextFiles: {e}")
+        return False
+
+
+def embed_text(text):
+    try:
+        return embedding_model.embed_documents(text)
+    except Exception as e:
+        logger.debug(f"System: Embedding failed: {e}")
+        return False
 
 def llm_query(input, nodeID=0, location_name=None):
     global antiFloodLLM, llmChat_history
@@ -114,7 +141,7 @@ def llm_query(input, nodeID=0, location_name=None):
         # RAG context inclusion
         # ragFolder = "data/rag"
         # radData = langchain.retrieve_rag_data(ragFolder)
-        # ragContext = langchain.retrieve_context(radData)
+        #ragContext = embed_text(llm_readTextFiles)
         # #ragQuery = langchain.generate_prompt(modelPrompt)
         # Query the model
         #result = ollamaClient.generate(model=llmModel, prompt=modelPrompt, context=ragContext)
