@@ -144,8 +144,10 @@ def llm_query(input, nodeID=0, location_name=None):
             # #ragQuery = langchain.generate_prompt(modelPrompt)
 
             # Query the model with RAG context
-            #result = ollamaClient.generate(model=llmModel, prompt=modelPrompt, context=ragContext)
-            result = ollamaClient.generate(model=llmModel, prompt=modelPrompt)
+            if ragContext:
+                result = ollamaClient.generate(model=llmModel, prompt=modelPrompt, context=ragContext)
+            else:
+                result = ollamaClient.generate(model=llmModel, prompt=modelPrompt)
         else:
             # Query the model without RAG context
             result = ollamaClient.generate(model=llmModel, prompt=modelPrompt)
