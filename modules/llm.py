@@ -4,25 +4,22 @@
 # K7MHI Kelly Keeton 2024
 from modules.log import *
 
-# old langchain stuff, if needed for older/other models
+# Ollama Client
+# https://github.com/ollama/ollama/blob/main/docs/faq.md#how-do-i-configure-ollama-server
+from ollama import Client as OllamaClient
+from langchain import LangChain # pip install langchain
 # from langchain_ollama import OllamaLLM # pip install ollama langchain-ollama
-# from langchain_core.prompts import ChatPromptTemplate # pip install langchain
-# from langchain_core.messages import AIMessage, HumanMessage
 from googlesearch import search # pip install googlesearch-python
 
 # LLM System Variables
+OllamaClient(host=ollamaHostName)
+ollamaClient = OllamaClient()
 llmEnableHistory = True # enable last message history for the LLM model
 llmContext_fromGoogle = True # enable context from google search results adds to compute time but really helps with responses accuracy
 googleSearchResults = 3 # number of google search results to include in the context more results = more compute time
 antiFloodLLM = []
 llmChat_history = {}
 trap_list_llm = ("ask:", "askai")
-
-# Ollama Client
-# https://github.com/ollama/ollama/blob/main/docs/faq.md#how-do-i-configure-ollama-server
-from ollama import Client as OllamaClient
-OllamaClient(host=ollamaHostName)
-ollamaClient = OllamaClient()
 
 meshBotAI = """
     FROM {llmModel}
@@ -92,7 +89,6 @@ def llm_query(input, nodeID=0, location_name=None):
         # remove common words from the search query
         # commonWordsList = ["is", "for", "the", "of", "and", "in", "on", "at", "to", "with", "by", "from", "as", "a", "an", "that", "this", "these", "those", "there", "here", "where", "when", "why", "how", "what", "which", "who", "whom", "whose", "whom"]
         # sanitizedSearch = ' '.join([word for word in input.split() if word.lower() not in commonWordsList])
-
         try:
             googleSearch = search(input, advanced=True, num_results=googleSearchResults)
             if googleSearch:
@@ -121,9 +117,6 @@ def llm_query(input, nodeID=0, location_name=None):
         modelPrompt = meshBotAI.format(input=input, context='\n'.join(googleResults), location_name=location_name, llmModel=llmModel, history=history)
         result = ollamaClient.generate(model=llmModel, prompt=modelPrompt)
         result = result.get("response")
-
-        #result = chain_prompt_model.invoke({"input": input, "llmModel": llmModel, "userID": nodeID, "history": llmChat_history, "context": googleResults, "location_name": location_name})
-        
         #logger.debug(f"System: LLM Response: " + result.strip().replace('\n', ' '))
     except Exception as e:
         logger.warning(f"System: LLM failure: {e}")
