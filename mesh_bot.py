@@ -266,11 +266,11 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
                 if (channel_number == publicChannel and antiSpam) or useDMForResponse:
                     # send via DM
                     send_message(welcome_message, channel_number, message_from_id, deviceID)
-                    time.sleep(1) # wait a second to keep from message collision with llm welcome message
+                    time.sleep(responseDelay)
                 else:
                     # send via channel
                     send_message(welcome_message, channel_number, 0, deviceID)
-                    time.sleep(1) # wait a second to keep from message collision with llm welcome message
+                    time.sleep(responseDelay)
     
     # update the llmLocationTable for future use
     for i in range(0, len(llmLocationTable)):
@@ -341,7 +341,7 @@ def handleDopeWars(message, nodeID, rxNode):
         logger.debug(f"System: {nodeID} PlayingGame dopewars last_cmd: {last_cmd}")
         msg = playDopeWars(nodeID, message)
     # wait a second to keep from message collision
-    time.sleep(1)
+    time.sleep(responseDelay + 1)
     return msg
 
 def handle_gTnW():
@@ -396,7 +396,7 @@ def handleLemonade(message, nodeID, deviceID):
     
     msg += start_lemonade(nodeID=nodeID, message=message, celsius=False)
     # wait a second to keep from message collision
-    time.sleep(1)
+    time.sleep(responseDelay + 1)
     return msg
 
 def handleBlackJack(message, nodeID, deviceID):
@@ -433,7 +433,7 @@ def handleBlackJack(message, nodeID, deviceID):
                     if nodeName.isnumeric() and interface2_enabled:
                         nodeName = get_name_from_number(highScore['nodeID'], 'long', 2)
                     msg += f" HighScore🥇{nodeName} with {highScore['highScore']} chips. "
-    time.sleep(1.5) # short answers with long replies can cause message collision added wait
+    time.sleep(responseDelay + 1) # short answers with long replies can cause message collision added wait
     return msg
 
 def handleVideoPoker(message, nodeID, deviceID):
@@ -471,7 +471,7 @@ def handleVideoPoker(message, nodeID, deviceID):
     
         if last_cmd != "" and nodeID != 0:
             logger.debug(f"System: {nodeID} PlayingGame videopoker last_cmd: {last_cmd}")
-    time.sleep(1.5) # short answers with long replies can cause message collision added wait
+    time.sleep(responseDelay + 1) # short answers with long replies can cause message collision added wait
     return msg
 
 def handleMmind(message, nodeID, deviceID):
@@ -509,7 +509,7 @@ def handleMmind(message, nodeID, deviceID):
 
     msg += start_mMind(nodeID=nodeID, message=message)
     # wait a second to keep from message collision
-    time.sleep(1.5)
+    time.sleep(responseDelay + 1)
     return msg
 
 def handleGolf(message, nodeID, deviceID):
@@ -541,7 +541,7 @@ def handleGolf(message, nodeID, deviceID):
     
     msg += playGolf(nodeID=nodeID, message=message)
     # wait a second to keep from message collision
-    time.sleep(1.5)
+    time.sleep(responseDelay + 1)
     return msg
 
 def handleUno(message, nodeID, deviceID):
@@ -564,7 +564,7 @@ def handleUno(message, nodeID, deviceID):
     
     msg += playUno(nodeID, message=message)
     # wait a second to keep from message collision
-    time.sleep(1)
+    time.sleep(responseDelay + 1)
     return msg
 
 def handle_wxc(message_from_id, deviceID, cmd):
