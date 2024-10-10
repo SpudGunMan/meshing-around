@@ -234,6 +234,7 @@ def parse_log_file(file_path):
                     log_data['node2_ID'] = node_id
 
     log_data['unique_users'] = list(log_data['unique_users'])
+    log_data['unique_users'].reverse()
     return log_data
 
 def get_system_info():
