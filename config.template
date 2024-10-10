@@ -44,6 +44,8 @@ wikipedia = True
 ollama = False
 # Ollama model to use (defaults to gemma2:2b)
 # ollamaModel = llama3.1
+# server instance to use (defaults to local machine install)
+ollamaHostName = http://localhost:11434
 # StoreForward Enabled and Limits
 StoreForward = True
 StoreLimit = 3

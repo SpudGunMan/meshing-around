@@ -144,10 +144,8 @@ StoreForward = False
 The history command shows the last commands the user ran, and [`lheard`] reflects the last users on the bot.
 
 ```ini
-# history command 
-enableCmdHistory = True
-# command history ignore list ex: 2813308004,4258675309
-lheardCmdIgnoreNodes =
+enableCmdHistory = True # history command enabler
+lheardCmdIgnoreNodes = # command history ignore list ex: 2813308004,4258675309
 ```
 
 ### Sentry Settings
@@ -155,24 +153,18 @@ lheardCmdIgnoreNodes =
 Sentry Bot detects anyone coming close to the bot-node.
 
 ```ini
-# detect anyone close to the bot
-SentryEnabled = True
-# radius in meters to detect someone close to the bot
-SentryRadius = 100
-# holdoff time multiplied by seconds(20) of the watchdog
-SentryChannel = 9
-# channel to send a message to when the watchdog is triggered
-SentryHoldoff = 2
-# list of ignored nodes numbers ex: 2813308004,4258675309
-sentryIgnoreList = 
+SentryEnabled = True # detect anyone close to the bot
+SentryRadius = 100 # radius in meters to detect someone close to the bot
+SentryChannel = 9 # holdoff time multiplied by seconds(20) of the watchdog
+SentryHoldoff = 2 # channel to send a message to when the watchdog is triggered
+sentryIgnoreList = # list of ignored nodes numbers ex: 2813308004,4258675309
 ```
 
 ### Repeater Settings
 A repeater function for two different nodes and cross-posting messages. The [`repeater_channels`] is a list of repeater channels that will be consumed and rebroadcast on the same number channel on the other device, node, or interface. Each node should have matching channel numbers. The channel names and PSK do not need to be the same on the nodes. Use this feature responsibly to avoid creating a feedback loop.
 
 ```ini
-# repeater module
-[repeater]
+[repeater] # repeater module
 enabled = True
 repeater_channels = [2, 3]
 ```
@@ -184,36 +176,30 @@ A module allowing a Hamlib compatible radio to connect to the bot. When function
 [radioMon]
 enabled = False
 rigControlServerAddress = localhost:4532
-# channel to broadcast to can be 2,3
-sigWatchBroadcastCh = 2
-# minimum SNR as reported by radio via hamlib
-signalDetectionThreshold = -10
-# hold time for high SNR
-signalHoldTime = 10
-# the following are combined to reset the monitor
-signalCooldown = 5
+sigWatchBroadcastCh = 2 # channel to broadcast to can be 2,3
+signalDetectionThreshold = -10 # minimum SNR as reported by radio via hamlib
+signalHoldTime = 10 # hold time for high SNR
+signalCooldown = 5 # the following are combined to reset the monitor
 signalCycleLimit = 5
 ```
 
 ### Ollama (LLM/AI) Settings
-For Ollama to work, the command line `ollama run 'model'` needs to work properly. Ensure you have enough RAM and your GPU is working as expected. The default model for this project is set to `gemma2:2b`.
+For Ollama to work, the command line `ollama run 'model'` needs to work properly. Ensure you have enough RAM and your GPU is working as expected. The default model for this project is set to `gemma2:2b`. Ollama can be remote [Ollama Server](https://github.com/ollama/ollama/blob/main/docs/faq.md#how-do-i-configure-ollama-server)
 
 ```ini
 # Enable ollama LLM see more at https://ollama.com
-ollama = True
-# Ollama model to use (defaults to gemma2:2b)
-ollamaModel = gemma2
-#ollamaModel = llama3.1
+ollama = True # Ollama model to use (defaults to gemma2:2b)
+ollamaModel = gemma2 #ollamaModel = llama3.1
+ollamaHostName = http://localhost:11434 # server instance to use (defaults to local machine install)
 ```
 
 Also see `llm.py` for changing the defaults of:
 
 ```ini
 # LLM System Variables
-llmEnableHistory = False # enable history for the LLM model to use in responses adds to compute time
-llmContext_fromGoogle = True # enable context from google search results adds to compute time but really helps with responses accuracy
+llmEnableHistory = True # enable history for the LLM model to use in responses adds to compute time
+llmContext_fromGoogle = True # enable context from google search results helps with responses accuracy
 googleSearchResults = 3 # number of google search results to include in the context more results = more compute time
-llm_history_limit = 6 # limit the history to 3 messages (come in pairs) more results = more compute time
 ```
 
 ### Scheduler
@@ -260,8 +246,6 @@ pip install numpy
 For the Ollama LLM:
 
 ```sh
-pip install langchain
-pip install langchain-ollama
 pip install ollama
 pip install googlesearch-python
 ```

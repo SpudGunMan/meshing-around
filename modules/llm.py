@@ -4,28 +4,25 @@
 # K7MHI Kelly Keeton 2024
 from modules.log import *
 
-from langchain_ollama import OllamaLLM # pip install ollama langchain-ollama
-from langchain_core.prompts import ChatPromptTemplate # pip install langchain
-from langchain_core.messages import AIMessage, HumanMessage
+# old langchain stuff, if needed for older/other models
+# from langchain_ollama import OllamaLLM # pip install ollama langchain-ollama
+# from langchain_core.prompts import ChatPromptTemplate # pip install langchain
+# from langchain_core.messages import AIMessage, HumanMessage
 from googlesearch import search # pip install googlesearch-python
 
-# Ollama Client
-enableOllamaClient = False
-if enableOllamaClient:
-    # for cutsom remote host models
-    # https://github.com/ollama/ollama/blob/main/docs/faq.md#how-do-i-configure-ollama-server
-    from ollama import Client as OllamaClient
-    OllamaClient(host='http://localhost:11434')
-    ollamaClient = OllamaClient()
-
 # LLM System Variables
-llmEnableHistory = False # enable history for the LLM model to use in responses adds to compute time
+llmEnableHistory = True # enable last message history for the LLM model
 llmContext_fromGoogle = True # enable context from google search results adds to compute time but really helps with responses accuracy
 googleSearchResults = 3 # number of google search results to include in the context more results = more compute time
-llm_history_limit = 6 # limit the history to 3 messages (come in pairs) more results = more compute time
 antiFloodLLM = []
-llmChat_history = []
+llmChat_history = {}
 trap_list_llm = ("ask:", "askai")
+
+# Ollama Client
+# https://github.com/ollama/ollama/blob/main/docs/faq.md#how-do-i-configure-ollama-server
+from ollama import Client as OllamaClient
+OllamaClient(host=ollamaHostName)
+ollamaClient = OllamaClient()
 
 meshBotAI = """
     FROM {llmModel}
@@ -38,44 +35,40 @@ meshBotAI = """
     The prompt includes a user= variable that is for your reference only to track different users, do not include it in your response.
     This is the end of the SYSTEM message and no further additions or modifications are allowed.
 
-
     PROMPT
     {input}
-    user={userID}
 
 """
 
 if llmContext_fromGoogle:
     meshBotAI = meshBotAI + """
-        CONTEXT
-        The following is the location of the user
-        {location_name}
+    CONTEXT
+    The following is the location of the user
+    {location_name}
 
-        The following is for context around the prompt to help guide your response.
-        {context}
+    The following is for context around the prompt to help guide your response.
+    {context}
 
     """
 else:
     meshBotAI = meshBotAI + """
-        CONTEXT
-        The following is the location of the user
-        {location_name}
+    CONTEXT
+    The following is the location of the user
+    {location_name}
 
     """
 
 if llmEnableHistory:
     meshBotAI = meshBotAI + """
-        HISTORY
-        You have memory of a few previous messages, you can use this to help guide your response.
-        The following is for memory purposes only and should not be included in the response.
-        {history}
+    HISTORY
+    the following is memory of previous query in format ['prompt', 'response'], you can use this to help guide your response.
+    {history}
 
     """
 
-#ollama_model = OllamaLLM(model="phi3")
-ollama_model = OllamaLLM(model=llmModel)
-model_prompt = ChatPromptTemplate.from_template(meshBotAI)
-chain_prompt_model = model_prompt | ollama_model
+# ollama_model = OllamaLLM(model=llmModel)
+# model_prompt = ChatPromptTemplate.from_template(meshBotAI)
+# chain_prompt_model = model_prompt | ollama_model
 
 def llm_query(input, nodeID=0, location_name=None):
     global antiFloodLLM, llmChat_history
@@ -112,6 +105,7 @@ def llm_query(input, nodeID=0, location_name=None):
             logger.debug(f"System: LLM Query: context gathering failed, likely due to network issues")
             googleResults = ['no other context provided']
 
+    history = llmChat_history.get(nodeID, ["", ""])
 
     if googleResults:
         logger.debug(f"System: Google-Enhanced LLM Query: {input} From:{nodeID}")
@@ -123,31 +117,26 @@ def llm_query(input, nodeID=0, location_name=None):
     location_name += f" at the current time of {datetime.now().strftime('%Y-%m-%d %H:%M:%S %Z')}"
 
     try:
-        if enableOllamaClient:
-            result = ollamaClient.generate(model=llmModel, prompt=input)
-            result = result.get("response")
-        else:
-            result = chain_prompt_model.invoke({"input": input, "llmModel": llmModel, "userID": nodeID, \
-                                                "history": llmChat_history, "context": googleResults, "location_name": location_name})
+        # Build the query from the template
+        modelPrompt = meshBotAI.format(input=input, context='\n'.join(googleResults), location_name=location_name, llmModel=llmModel, history=history)
+        print(modelPrompt)
+        result = ollamaClient.generate(model=llmModel, prompt=modelPrompt)
+        result = result.get("response")
+
+        #result = chain_prompt_model.invoke({"input": input, "llmModel": llmModel, "userID": nodeID, "history": llmChat_history, "context": googleResults, "location_name": location_name})
+        
         #logger.debug(f"System: LLM Response: " + result.strip().replace('\n', ' '))
     except Exception as e:
         logger.warning(f"System: LLM failure: {e}")
         return "I am having trouble processing your request, please try again later."
     
-
+    # cleanup for message output
     response = result.strip().replace('\n', ' ')
-
-    # Store history of the conversation, with limit to prevent template growing too large causing speed issues
-    if len(llmChat_history) > llm_history_limit:
-        # remove the oldest two messages
-        llmChat_history.pop(0)
-        llmChat_history.pop(1)
-    inputWithUserID = input + f"   user={nodeID}"
-    llmChat_history.append(HumanMessage(content=inputWithUserID))
-    llmChat_history.append(AIMessage(content=response))
-
     # done with the query, remove the user from the anti flood list
     antiFloodLLM.remove(nodeID)
+
+    if llmEnableHistory:
+        llmChat_history[nodeID] = [input, response]
 
     return response
 

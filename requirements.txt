@@ -13,7 +13,5 @@ numpy
 geopy
 schedule
 wikipedia
-langchain
-langchain-ollama
 ollama
 googlesearch-python

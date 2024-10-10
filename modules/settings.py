@@ -113,6 +113,7 @@ try:
     wikipedia_enabled = config['general'].getboolean('wikipedia', False)
     llm_enabled = config['general'].getboolean('ollama', False) # https://ollama.com
     llmModel = config['general'].get('ollamaModel', 'gemma2:2b') # default gemma2:2b
+    ollamaHostName = config['general'].get('ollamaHostName', 'http://localhost:11434') # default localhost
 
     # sentry
     sentry_enabled = config['sentry'].getboolean('SentryEnabled', False) # default False
