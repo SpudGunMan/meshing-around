@@ -7,8 +7,7 @@ from modules.log import *
 # Ollama Client
 # https://github.com/ollama/ollama/blob/main/docs/faq.md#how-do-i-configure-ollama-server
 from ollama import Client as OllamaClient
-from langchain import LangChain # pip install langchain
-# from langchain_ollama import OllamaLLM # pip install ollama langchain-ollama
+#from langchain_ollama import OllamaLLM # pip install ollama langchain-ollama
 from googlesearch import search # pip install googlesearch-python
 
 # LLM System Variables
@@ -111,8 +110,19 @@ def llm_query(input, nodeID=0, location_name=None):
     try:
         # Build the query from the template
         modelPrompt = meshBotAI.format(input=input, context='\n'.join(googleResults), location_name=location_name, llmModel=llmModel, history=history)
+        
+        # RAG context inclusion
+        # ragFolder = "data/rag"
+        # radData = langchain.retrieve_rag_data(ragFolder)
+        # ragContext = langchain.retrieve_context(radData)
+        # #ragQuery = langchain.generate_prompt(modelPrompt)
+        # Query the model
+        #result = ollamaClient.generate(model=llmModel, prompt=modelPrompt, context=ragContext)
         result = ollamaClient.generate(model=llmModel, prompt=modelPrompt)
+    
+        # Condense the result to just needed
         result = result.get("response")
+
         #logger.debug(f"System: LLM Response: " + result.strip().replace('\n', ' '))
     except Exception as e:
         logger.warning(f"System: LLM failure: {e}")
