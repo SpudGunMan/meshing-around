@@ -247,6 +247,8 @@ For the Ollama LLM:
 
 ```sh
 pip install ollama
+pip install langchain
+pip install langchain-ollama
 pip install googlesearch-python
 ```
 
