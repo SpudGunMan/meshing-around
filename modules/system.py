@@ -489,7 +489,7 @@ def send_message(message, ch, nodeid=0, nodeInt=1):
 
             # Throttle the message sending to prevent spamming the device
             if (message_list.index(m)+1) % 4 == 0:
-                time.sleep(1)
+                time.sleep(responseDelay + 1)
                 if (message_list.index(m)+1) % 5 == 0:
                     logger.warning(f"System: throttling rate Interface{nodeInt} on {chunkOf}")
                 
