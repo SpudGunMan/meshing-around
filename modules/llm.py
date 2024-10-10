@@ -136,13 +136,18 @@ def llm_query(input, nodeID=0, location_name=None):
         # Build the query from the template
         modelPrompt = meshBotAI.format(input=input, context='\n'.join(googleResults), location_name=location_name, llmModel=llmModel, history=history)
         
-        # RAG context inclusion
-        ragContext = embed_text(llm_readTextFiles())
-        # #ragQuery = langchain.generate_prompt(modelPrompt)
+        # RAG context inclusion testing
+        ragData = llm_readTextFiles()
 
-        # Query the model
-        result = ollamaClient.generate(model=llmModel, prompt=modelPrompt, context=ragContext)
-        #result = ollamaClient.generate(model=llmModel, prompt=modelPrompt)
+        if ragData:
+            ragContext = embed_text(ragData)
+            # #ragQuery = langchain.generate_prompt(modelPrompt)
+
+            # Query the model with RAG context
+            result = ollamaClient.generate(model=llmModel, prompt=modelPrompt, context=ragContext)
+        else:
+            # Query the model without RAG context
+            result = ollamaClient.generate(model=llmModel, prompt=modelPrompt)
     
         # Condense the result to just needed
         result = result.get("response")
