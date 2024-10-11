@@ -274,7 +274,7 @@ sudo apt-get install fonts-noto-color-emoji
 | `bbshelp` | Returns the following help message | ✅ |
 | `bbslist` | Lists the messages by ID and subject | ✅ |
 | `bbsread` | Reads a message. Example: `bbsread #1` | ✅ |
-| `bbspost` | Posts a message to the public board or sends a DM. Examples: `bbspost $subject #message`, `bbspost @nodeNumber #message`, `bbspost @nodeShortName #message` | ✅ |
+| `bbspost` | Posts a message to the public board or sends a DM(Mail) Examples: `bbspost $subject #message`, `bbspost @nodeNumber #message`, `bbspost @nodeShortName #message` | ✅ |
 | `bbsdelete` | Deletes a message. Example: `bbsdelete #4` | ✅ |
 | `bbsinfo` | Provides stats on BBS delivery and messages (sysop) | ✅ |
 
