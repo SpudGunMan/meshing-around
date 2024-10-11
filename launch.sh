@@ -6,6 +6,9 @@ cd "$(dirname "$0")"
 # activate the virtual environment if it exists
 if [ -d "venv" ]; then
     source venv/bin/activate
+else
+    echo "Virtual environment not found, this tool just launches the .py in venv"
+    exit 1
 fi
 
 if [ ! -f "config.ini" ]; then
