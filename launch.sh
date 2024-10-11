@@ -3,16 +3,17 @@
 # launch.sh
 cd "$(dirname "$0")"
 
+
+if [ ! -f "config.ini" ]; then
+    cp config.template config.ini
+fi
+
 # activate the virtual environment if it exists
 if [ -d "venv" ]; then
     source venv/bin/activate
 else
     echo "Virtual environment not found, this tool just launches the .py in venv"
     exit 1
-fi
-
-if [ ! -f "config.ini" ]; then
-    cp config.template config.ini
 fi
 
 # launch the application
