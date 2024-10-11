@@ -260,7 +260,7 @@ sudo apt-get install fonts-noto-color-emoji
 
 ## Full list of commands for the bot
 
-### Solar Details for Radio Propagation
+### Radio Propagation & Celestial
 | Command | Description | ✅ Works Off-Grid |
 |---------|-------------|-------------------
 | `sun` and `moon` | Return info on rise and set local time | ✅ |
