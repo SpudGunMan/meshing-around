@@ -35,6 +35,7 @@ except Exception as e:
 
 if config.sections() == []:
     print(f"web_reporter.cfg is empty or does not exist, generating default config")
+    shameWordList = shameWordList_str = ', '.join(shameWordList)
     config['reporting'] = {'log_path': script_dir, 'w3_path': www_dir, 'multi_log_reader': 'True', 'shame_word_list': shameWordList}
     with open(config_file, 'w') as configfile:
         config.write(configfile)
