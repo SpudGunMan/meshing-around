@@ -12,7 +12,7 @@ from modules.log import *
 
 # Global Variables
 trap_list = ("cmd","cmd?") # default trap list
-help_message = "CMD?:"
+help_message = "Bot CMD?:\n"
 asyncLoop = asyncio.new_event_loop()
 games_enabled = False
 multiPingList = [{'message_from_id': 0, 'count': 0, 'type': '', 'deviceID': 0}]
@@ -60,7 +60,7 @@ if enableCmdHistory:
 if location_enabled:
     from modules.locationdata import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + trap_list_location # items tide, whereami, wxc, wx
-    help_message = help_message + ", whereami, wx, wxc"
+    help_message = help_message + ", whereami, wx, wxc, rlist"
     
     # Open-Meteo Configuration for worldwide weather
     if use_meteo_wxApi:

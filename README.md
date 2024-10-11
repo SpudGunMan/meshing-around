@@ -266,7 +266,7 @@ sudo apt-get install fonts-noto-color-emoji
 | `sun` and `moon` | Return info on rise and set local time | ✅ |
 | `solar` | Gives an idea of the x-ray flux | |
 | `hfcond` | Returns a table of HF solar conditions | |
-| `repeaterlist` | Returns a table of nearby repeaters from RepeaterBook | |
+| `rlist` | Returns a table of nearby repeaters from RepeaterBook | |
 
 ### Bulletin Board (BBS) Functions
 | Command | Description | |

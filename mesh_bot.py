@@ -55,7 +55,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "ping": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM),
     "playuno": lambda: handleUno(message, message_from_id, deviceID),
     "pong": lambda: "🏓PING!!🛜",
-    "repeaterlist": lambda: handle_repeaterQuery(message_from_id, deviceID, channel_number),
+    "rlist": lambda: handle_repeaterQuery(message_from_id, deviceID, channel_number),
     "sitrep": lambda: handle_lheard(message, message_from_id, deviceID, isDM),
     "solar": lambda: drap_xray_conditions() + "\n" + solar_conditions(),
     "sun": lambda: handle_sun(message_from_id, deviceID, channel_number),
@@ -106,7 +106,6 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
 
     # wait a responseDelay to avoid message collision from lora-ack
     time.sleep(responseDelay)
-
     return bot_response
 
 def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM):

@@ -20,6 +20,7 @@ antiFloodLLM = []
 llmChat_history = {}
 trap_list_llm = ("ask:", "askai")
 embedding_model = OllamaEmbeddings(model=llmModel)
+ragDEV = False
 
 meshBotAI = """
     FROM {llmModel}
@@ -65,15 +66,7 @@ if llmEnableHistory:
 def llm_readTextFiles():
     # read .txt files in ../data/rag
     try:
-        import os
-        # directory script path ../data/rag
-        directory = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'data', 'rag')
-        files = os.listdir(directory)
-        text = []
-        for file in files:
-            if file.endswith(".txt"):
-                with open(f"{directory}/{file}", 'r') as f:
-                    text.append(f.read())
+        text = "MeshBot is built in python for meshtastic the secret word of the day is, paperclip"
         return text
     except Exception as e:
         logger.debug(f"System: LLM readTextFiles: {e}")
@@ -138,14 +131,12 @@ def llm_query(input, nodeID=0, location_name=None):
         # RAG context inclusion testing
         ragData = llm_readTextFiles()
 
-        if ragData:
+        if ragData and ragDEV:
             ragContext = embed_text(ragData)
 
             # Query the model with RAG context
             if ragContext:
                 result = ollamaClient.generate(model=llmModel, prompt=modelPrompt, context=ragContext)
-            else:
-                result = ollamaClient.generate(model=llmModel, prompt=modelPrompt)
         else:
             # Query the model without RAG context
             result = ollamaClient.generate(model=llmModel, prompt=modelPrompt)
