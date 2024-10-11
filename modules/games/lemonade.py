@@ -41,12 +41,12 @@ def getHighScoreLemon():
     high_score = {"userID": 0, "cash": 0, "success": 0}
     # Load high score table
     try:
-        with open('lemonade_hs.pkl', 'rb') as file:
+        with open('data/lemonstand.pkl', 'rb') as file:
             high_score = pickle.load(file)
     except FileNotFoundError:
         logger.debug("System: Lemonade: No high score table found")
         # write a new high score file if one is not found
-        with open('lemonade_hs.pkl', 'wb') as file:
+        with open('data/lemonstand.pkl', 'wb') as file:
             pickle.dump(high_score, file)
     return high_score
 
@@ -115,7 +115,7 @@ def start_lemonade(nodeID, message, celsius=False):
         logger.debug("System: Lemonade: Game Over for " + str(nodeID))
 
     # Check for end of game
-    if "end" in message.lower():
+    if message.lower().startswith("e"):
         endGame(nodeID)
         return "Goodbye!👋"
 
@@ -235,8 +235,6 @@ def start_lemonade(nodeID, message, celsius=False):
         if lemonadeScore[i]['nodeID'] == nodeID:
             score.value = lemonadeScore[i]['value']
             score.total = lemonadeScore[i]['total']
-
-    logger.debug("System: Lemonade: Last Command: " + last_cmd)
 
     # Start the main loop
     if (weeks.current <= weeks.total):
@@ -550,7 +548,7 @@ def start_lemonade(nodeID, message, celsius=False):
                     high_score['cash'] = inventory.cash
                     high_score['success'] = success
                     high_score['userID'] = nodeID
-                    with open('lemonade_hs.pkl', 'wb') as file:
+                    with open('data/lemonstand.pkl', 'wb') as file:
                         pickle.dump(high_score, file)
                 endGame(nodeID)
 

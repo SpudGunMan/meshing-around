@@ -44,6 +44,8 @@ wikipedia = True
 ollama = False
 # Ollama model to use (defaults to gemma2:2b)
 # ollamaModel = llama3.1
+# server instance to use (defaults to local machine install)
+ollamaHostName = http://localhost:11434
 # StoreForward Enabled and Limits
 StoreForward = True
 StoreLimit = 3
@@ -58,9 +60,11 @@ urlTimeout = 10
 # logging to file of the non Bot messages
 LogMessagesToFile = False
 # Logging of system messages to file
-SyslogToFile = False
+SyslogToFile = True
 
 [games]
+# if hop limit for the user exceeds this value, the message will be dropped
+game_hop_limit = 5
 # enable or disable the games module(s)
 dopeWars = True
 lemonade = True
@@ -68,6 +72,7 @@ blackjack = True
 videopoker = True
 mastermind = True
 golfsim = True
+uno = True
 
 [sentry]
 # detect anyone close to the bot
@@ -101,6 +106,8 @@ NOAAalertCount = 2
 UseMeteoWxAPI = False
 # Default to metric units rather than imperial
 useMetric = False
+# repeaterList lookup location (rbook / artsci)
+repeaterLookup = rbook
 
 # repeater module
 [repeater]
@@ -132,3 +139,4 @@ responseDelay = 0.7
 splitDelay = 0.0
 # message chunk size for sending at high success rate
 MESSAGE_CHUNK_SIZE = 160
+

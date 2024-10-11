@@ -7,18 +7,21 @@ import meshtastic.ble_interface
 import time
 import asyncio
 import contextlib # for suppressing output on watchdog
+import io # for suppressing output on watchdog
 from modules.log import *
 
 # Global Variables
 trap_list = ("cmd","cmd?") # default trap list
-help_message = "CMD?:"
+help_message = "Bot CMD?:\n"
 asyncLoop = asyncio.new_event_loop()
 games_enabled = False
+multiPingList = [{'message_from_id': 0, 'count': 0, 'type': '', 'deviceID': 0}]
+
 
 # Ping Configuration
 if ping_enabled:
     # ping, pinging, ack, testing, test, pong
-    trap_list_ping = ("ping", "pinging", "ack", "testing", "test", "pong")
+    trap_list_ping = ("ping", "pinging", "ack", "testing", "test", "pong", "🔔", "cq","cqcq", "cqcqcq")
     trap_list = trap_list + trap_list_ping
     help_message = help_message + "ping"
 
@@ -36,7 +39,7 @@ if motd_enabled:
 
 # whoami Configuration
 if whoami_enabled:
-    trap_list_whoami = ("whoami",)
+    trap_list_whoami = ("whoami", "📍")
     trap_list = trap_list + trap_list_whoami
     help_message = help_message + ", whoami"
 
@@ -57,7 +60,7 @@ if enableCmdHistory:
 if location_enabled:
     from modules.locationdata import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + trap_list_location # items tide, whereami, wxc, wx
-    help_message = help_message + ", whereami, wx, wxc"
+    help_message = help_message + ", whereami, wx, wxc, rlist"
     
     # Open-Meteo Configuration for worldwide weather
     if use_meteo_wxApi:
@@ -75,10 +78,9 @@ else:
     bbs_help = False
     bbs_list_messages = False
 
-
 # Dad Jokes Configuration
 if dad_jokes_enabled:
-    from dadjokes import Dadjoke # pip install dadjokes
+    from modules.games.joke import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + ("joke",)
     help_message = help_message + ", joke"
 
@@ -96,36 +98,41 @@ if llm_enabled:
 
 # DopeWars Configuration
 if dopewars_enabled:
-    from modules.dopewar import * # from the spudgunman/meshing-around repo
+    from modules.games.dopewar import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + ("dopewars",)
     games_enabled = True
 
 # Lemonade Stand Configuration
 if lemonade_enabled:
-    from modules.lemonade import * # from the spudgunman/meshing-around repo
+    from modules.games.lemonade import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + ("lemonstand",)
     games_enabled = True
 
 # BlackJack Configuration
 if blackjack_enabled:
-    from modules.blackjack import * # from the spudgunman/meshing-around repo
+    from modules.games.blackjack import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + ("blackjack",)
     games_enabled = True
 
 # Video Poker Configuration
 if videoPoker_enabled:
-    from modules.videopoker import * # from the spudgunman/meshing-around repo
+    from modules.games.videopoker import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + ("videopoker",)
     games_enabled = True
 
 if mastermind_enabled:
-    from modules.mmind import * # from the spudgunman/meshing-around repo
+    from modules.games.mmind import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + ("mastermind",)
     games_enabled = True
 
 if golfSim_enabled:
-    from modules.golfsim import * # from the spudgunman/meshing-around repo
+    from modules.games.golfsim import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + ("golfsim",)
+    games_enabled = True
+
+if uno_enabled:
+    from modules.games.uno import * # from the spudgunman/meshing-around repo
+    trap_list = trap_list + ("playuno",)
     games_enabled = True
     
 # Games Configuration
@@ -148,6 +155,8 @@ if games_enabled is True:
         gamesCmdList += "masterMind, "
     if golfSim_enabled:
         gamesCmdList += "golfSim, "
+    if uno_enabled:
+        gamesCmdList += "playuno, "
     gamesCmdList = gamesCmdList[:-2] # remove the last comma
 else:
     gamesCmdList = ""
@@ -176,7 +185,8 @@ if radio_detection_enabled:
 if interface1_type == 'ble' and interface2_type == 'ble':
     logger.critical(f"System: BLE Interface1 and Interface2 cannot both be BLE. Exiting")
     exit()
-    
+
+#initialize_interfaces():
 # Interface1 Configuration
 try:
     logger.debug(f"System: Initializing Interface1")
@@ -228,120 +238,73 @@ if interface2_enabled:
 else:
     myNodeNum2 = 777
 
-# functions below
+
+#### FUN-ctions ####
 
 def decimal_to_hex(decimal_number):
     return f"!{decimal_number:08x}"
 
 def get_name_from_number(number, type='long', nodeInt=1):
+    interface = interface1 if nodeInt == 1 else interface2
     name = ""
-    if nodeInt == 1:
-        for node in interface1.nodes.values():
-            if number == node['num']:
-                if type == 'long':
-                    name = node['user']['longName']
-                    return name
-                elif type == 'short':
-                    name = node['user']['shortName']
-                    return name
-                else:
-                    pass
-            else:
-                name =  str(decimal_to_hex(number))  # If name not found, use the ID as string
-        return name
     
-    if nodeInt == 2:
-        for node in interface2.nodes.values():
-            if number == node['num']:
-                if type == 'long':
-                    name = node['user']['longName']
-                    return name
-                elif type == 'short':
-                    name = node['user']['shortName']
-                    return name
-                else:
-                    pass
-            else:
-                name =  str(decimal_to_hex(number))  # If name not found, use the ID as string
-        return name
-    return number
+    for node in interface.nodes.values():
+        if number == node['num']:
+            if type == 'long':
+                name = node['user']['longName']
+                return name
+            elif type == 'short':
+                name = node['user']['shortName']
+                return name
+        else:
+            name =  str(decimal_to_hex(number))  # If name not found, use the ID as string
+    return name
+
 
 def get_num_from_short_name(short_name, nodeInt=1):
+    interface = interface1 if nodeInt == 1 else interface2
     # Get the node number from the short name, converting all to lowercase for comparison (good practice?)
     logger.debug(f"System: Getting Node Number from Short Name: {short_name} on Device: {nodeInt}")
-    if nodeInt == 1:
-        for node in interface1.nodes.values():
-            #logger.debug(f"System: Checking Node: {node['user']['shortName']} against {short_name} for number {node['num']}")
-            if short_name == node['user']['shortName']:
-                return node['num']
-            elif str(short_name.lower()) == node['user']['shortName'].lower():
-                return node['num']
-            else:
-                # try other interface
-                if interface2_enabled:
-                    for node in interface2.nodes.values():
-                        if short_name == node['user']['shortName']:
-                            return node['num']
-                        elif str(short_name.lower()) == node['user']['shortName'].lower():
-                            return node['num']
-    if nodeInt == 2:
-        for node in interface2.nodes.values():
-            if short_name == node['user']['shortName']:
-                return node['num']
-            elif str(short_name.lower()) == node['user']['shortName'].lower():
-                return node['num']
-            else:
-                # try other interface
-                if interface2_enabled:
-                    for node in interface1.nodes.values():
-                        if short_name == node['user']['shortName']:
-                            return node['num']
-                        elif str(short_name.lower()) == node['user']['shortName'].lower():
-                            return node['num']
+    for node in interface.nodes.values():
+        #logger.debug(f"System: Checking Node: {node['user']['shortName']} against {short_name} for number {node['num']}")
+        if short_name == node['user']['shortName']:
+            return node['num']
+        elif str(short_name.lower()) == node['user']['shortName'].lower():
+            return node['num']
+        else:
+            if interface2_enabled:
+                interface = interface2 if nodeInt == 1 else interface1 # check the other interface
+                for node in interface.nodes.values():
+                    if short_name == node['user']['shortName']:
+                        return node['num']
+                    elif str(short_name.lower()) == node['user']['shortName'].lower():
+                        return node['num']
     return 0
     
 def get_node_list(nodeInt=1):
+    interface = interface1 if nodeInt == 1 else interface2
     # Get a list of nodes on the device
     node_list = ""
     node_list1 = []
     node_list2 = []
     short_node_list = []
     last_heard = 0
-    if nodeInt == 1:
-        if interface1.nodes:
-            for node in interface1.nodes.values():
-                # ignore own
-                if node['num'] != myNodeNum2 and node['num'] != myNodeNum1:
-                    node_name = get_name_from_number(node['num'], 'long', nodeInt)
-                    snr = node.get('snr', 0)
+    if interface.nodes:
+        for node in interface.nodes.values():
+            # ignore own
+            if node['num'] != myNodeNum2 and node['num'] != myNodeNum1:
+                node_name = get_name_from_number(node['num'], 'long', nodeInt)
+                snr = node.get('snr', 0)
 
-                    # issue where lastHeard is not always present
-                    last_heard = node.get('lastHeard', 0)
-                    
-                    # make a list of nodes with last heard time and SNR
-                    item = (node_name, last_heard, snr)
-                    node_list1.append(item)
-        else:
-            logger.warning(f"System: No nodes found")
-            return ERROR_FETCHING_DATA
-        
-    if nodeInt == 2:
-        if interface2.nodes:
-            for node in interface2.nodes.values():
-                # ignore own
-                if node['num'] != myNodeNum2 and node['num'] != myNodeNum1:
-                    node_name = get_name_from_number(node['num'], 'long', nodeInt)
-                    snr = node.get('snr', 0)
-
-                    # issue where lastHeard is not always present
-                    last_heard = node.get('lastHeard', 0)
-                    
-                    # make a list of nodes with last heard time and SNR
-                    item = (node_name, last_heard, snr)
-                    node_list2.append(item)
-        else:
-            logger.warning(f"System: No nodes found")
-            return ERROR_FETCHING_DATA
+                # issue where lastHeard is not always present
+                last_heard = node.get('lastHeard', 0)
+                
+                # make a list of nodes with last heard time and SNR
+                item = (node_name, last_heard, snr)
+                node_list1.append(item)
+    else:
+        logger.warning(f"System: No nodes found")
+        return ERROR_FETCHING_DATA
     
     try:
         #print (f"Node List: {node_list1[:5]}\n")
@@ -373,206 +336,177 @@ def get_node_list(nodeInt=1):
     return node_list
 
 def get_node_location(number, nodeInt=1, channel=0):
+    interface = interface1 if nodeInt == 1 else interface2
     # Get the location of a node by its number from nodeDB on device
     latitude = latitudeValue
     longitude = longitudeValue
     position = [latitudeValue,longitudeValue]
     lastheard = 0
-    if nodeInt == 1:
-        if interface1.nodes:
-            for node in interface1.nodes.values():
-                if number == node['num']:
-                    if 'position' in node:
-                        try:
-                            latitude = node['position']['latitude']
-                            longitude = node['position']['longitude']
-                        except Exception as e:
-                            logger.error(f"System: Error getting location data for {number}")
-                        logger.debug(f"System: location data for {number} is {latitude},{longitude}")
-                        position = [latitude,longitude]
-                        return position
-                    else:
-                        logger.warning(f"System: No location data for {number} using default location")
-                        # request location data
-                        # try:
-                        #     logger.debug(f"System: Requesting location data for {number}")
-                        #     if nodeInt == 1:
-                        #         interface1.sendPosition(destinationId=number, wantResponse=False, channelIndex=channel)
-                        #     if nodeInt == 2:
-                        #         interface2.sendPosition(destinationId=number, wantResponse=False, channelIndex=channel)
-                        # except Exception as e:
-                        #     logger.error(f"System: Error requesting location data for {number}. Error: {e}")
-                        return position
+    if interface.nodes:
+        for node in interface.nodes.values():
+            if number == node['num']:
+                if 'position' in node:
+                    try:
+                        latitude = node['position']['latitude']
+                        longitude = node['position']['longitude']
+                    except Exception as e:
+                        logger.warning(f"System: Error getting location data for {number}")
+                    logger.debug(f"System: location data for {number} is {latitude},{longitude}")
+                    position = [latitude,longitude]
+                    return position
+                else:
+                    logger.warning(f"System: No location data for {number} using default location")
+                    # request location data
+                    # try:
+                    #     logger.debug(f"System: Requesting location data for {number}")
+                    #     interface.sendPosition(destinationId=number, wantResponse=False, channelIndex=channel)
+                    # except Exception as e:
+                    #     logger.error(f"System: Error requesting location data for {number}. Error: {e}")
+                    return position
         else:
             logger.warning(f"System: No nodes found")
             return position
-    if nodeInt == 2:
-        if interface2.nodes:
-            for node in interface2.nodes.values():
-                if number == node['num']:
-                    if 'position' in node:
-                        try:
-                            latitude = node['position']['latitude']
-                            longitude = node['position']['longitude']
-                        except Exception as e:
-                            logger.error(f"System: Error getting location data for {number}")
-                        logger.info(f"System: location data for {number} is {latitude},{longitude}")
-                        position = [latitude,longitude]
-                        return position
-                    else:
-                        logger.warning(f"System: No location data for {number}")
-                        return position
-        else:
-            logger.warning(f"System: No nodes found")
-            return position
-    return position
+
 
 def get_closest_nodes(nodeInt=1,returnCount=3):
+    interface = interface1 if nodeInt == 1 else interface2
     node_list = []
 
-    if nodeInt == 1:
-        if interface1.nodes:
-            for node in interface1.nodes.values():
-                if 'position' in node:
-                    try:
-                        nodeID = node['num']
-                        latitude = node['position']['latitude']
-                        longitude = node['position']['longitude']
+    if interface.nodes:
+        for node in interface.nodes.values():
+            if 'position' in node:
+                try:
+                    nodeID = node['num']
+                    latitude = node['position']['latitude']
+                    longitude = node['position']['longitude']
 
-                        #lastheard time in unix time
-                        lastheard = node.get('lastHeard', 0)
-                        #if last heard is over 24 hours ago, ignore the node
-                        if lastheard < (time.time() - 86400):
-                            continue
+                    #lastheard time in unix time
+                    lastheard = node.get('lastHeard', 0)
+                    #if last heard is over 24 hours ago, ignore the node
+                    if lastheard < (time.time() - 86400):
+                        continue
 
-                        # Calculate distance to node from config.ini location
-                        distance = round(geopy.distance.geodesic((latitudeValue, longitudeValue), (latitude, longitude)).m, 2)
-                        
-                        if (distance < sentry_radius):
-                            if nodeID != myNodeNum1 and myNodeNum2 and str(nodeID) not in sentryIgnoreList:
-                                node_list.append({'id': nodeID, 'latitude': latitude, 'longitude': longitude, 'distance': distance})
-                                
-                    except Exception as e:
-                        pass
-                # else:
-                #     # request location data
-                #     try:
-                #         logger.debug(f"System: Requesting location data for {node['id']}")
-                #         interface1.sendPosition(destinationId=node['id'], wantResponse=False, channelIndex=publicChannel)
-                #     except Exception as e:
-                #         logger.error(f"System: Error requesting location data for {node['id']}. Error: {e}")
+                    # Calculate distance to node from config.ini location
+                    distance = round(geopy.distance.geodesic((latitudeValue, longitudeValue), (latitude, longitude)).m, 2)
+                    
+                    if (distance < sentry_radius):
+                        if nodeID != myNodeNum1 and myNodeNum2 and str(nodeID) not in sentryIgnoreList:
+                            node_list.append({'id': nodeID, 'latitude': latitude, 'longitude': longitude, 'distance': distance})
+                            
+                except Exception as e:
+                    pass
+            # else:
+            #     # request location data
+            #     try:
+            #         logger.debug(f"System: Requesting location data for {node['id']}")
+            #         interface.sendPosition(destinationId=node['id'], wantResponse=False, channelIndex=publicChannel)
+            #     except Exception as e:
+            #         logger.error(f"System: Error requesting location data for {node['id']}. Error: {e}")
 
-            # sort by distance closest
-            #node_list.sort(key=lambda x: (x['latitude']-latitudeValue)**2 + (x['longitude']-longitudeValue)**2)
-            node_list.sort(key=lambda x: x['distance'])
-            # return the first 3 closest nodes by default
-            return node_list[:returnCount]
-        else:
-            logger.error(f"System: No nodes found in closest_nodes on interface {nodeInt}")
-            return ERROR_FETCHING_DATA
+        # sort by distance closest
+        #node_list.sort(key=lambda x: (x['latitude']-latitudeValue)**2 + (x['longitude']-longitudeValue)**2)
+        node_list.sort(key=lambda x: x['distance'])
+        # return the first 3 closest nodes by default
+        return node_list[:returnCount]
+    else:
+        logger.warning(f"System: No nodes found in closest_nodes on interface {nodeInt}")
+        return ERROR_FETCHING_DATA
 
-    if nodeInt == 2:
-        if interface2.nodes:
-            for node in interface2.nodes.values():
-                if 'position' in node:
-                    try:
-                        nodeID = node['num']
-                        latitude = node['position']['latitude']
-                        longitude = node['position']['longitude']
+        
+def messageChunker(message):
+    message_list = []
+    if len(message) > MESSAGE_CHUNK_SIZE:
+        parts = message.split('\n')
+        for part in parts:
+            part = part.strip()
+            # remove empty parts
+            if not part:
+                continue
+            # if part is under the MESSAGE_CHUNK_SIZE, add it to the list
+            if len(part) < MESSAGE_CHUNK_SIZE:
+                message_list.append(part)
+            else:
+                # split the part into chunks
+                current_chunk = ''
+                sentences = part.split('. ')
+                for sentence in sentences:
+                    sentence = sentence.strip()
+                    sentence = sentence.replace('  ', ' ')
+                    # remove empty sentences
+                    if not sentence:
+                        continue
 
-                        #lastheard time in unix time
-                        lastheard = node.get('lastHeard', 0)
-                        #if last heard is over 24 hours ago, ignore the node
-                        if lastheard < (time.time() - 86400):
-                            continue
+                    # if sentence is too long, split it by words
+                    if len(current_chunk) + len(sentence) > MESSAGE_CHUNK_SIZE:
+                        message_list.append(current_chunk)
+                        current_chunk = sentence
+                    else:
+                        if current_chunk:
+                            current_chunk += ' '
+                        current_chunk += sentence
+                if current_chunk:
+                    message_list.append(current_chunk)
 
-                        # Calculate distance to node from config.ini location
-                        distance = round(geopy.distance.geodesic((latitudeValue, longitudeValue), (latitude, longitude)).m, 2)
-                        
-                        if (distance < sentry_radius):
-                            if nodeID != myNodeNum1 and myNodeNum2 and str(nodeID) not in sentryIgnoreList:
-                                node_list.append({'id': nodeID, 'latitude': latitude, 'longitude': longitude, 'distance': distance})
-                                
-                    except Exception as e:
-                        pass
-            # sort by distance closest
-            node_list.sort(key=lambda x: x['distance'])
-            # return the first 3 closest nodes by default
-            return node_list[:returnCount]
-        else:
-            logger.error(f"System: No nodes found in closest_nodes on interface {nodeInt}")
-            return ERROR_FETCHING_DATA
+        # Ensure no chunk exceeds MESSAGE_CHUNK_SIZE
+        final_message_list = []
+        for chunk in message_list:
+            while len(chunk) > MESSAGE_CHUNK_SIZE:
+                final_message_list.append(chunk[:MESSAGE_CHUNK_SIZE])
+                chunk = chunk[MESSAGE_CHUNK_SIZE:]
+            if chunk:
+                final_message_list.append(chunk)
+
+        # Calculate the total length of the message
+        total_length = sum(len(chunk) for chunk in final_message_list)
+        num_chunks = len(final_message_list)
+        logger.debug(f"System: Splitting #chunks: {num_chunks}, Total length: {total_length}")
+        return final_message_list
+
+    return message
         
 def send_message(message, ch, nodeid=0, nodeInt=1):
     if message == "" or message == None or len(message) == 0:
-        return
-    # if message over MESSAGE_CHUNK_SIZE characters, split it into multiple messages
-    if len(message) > MESSAGE_CHUNK_SIZE:
-        logger.debug(f"System: Splitting Message, Message Length: {len(message)}")
+        return False
+    interface = interface1 if nodeInt == 1 else interface2
+    # Split the message into chunks if it exceeds the MESSAGE_CHUNK_SIZE
+    message_list = messageChunker(message)
 
-        # split the message into MESSAGE_CHUNK_SIZE 160 character chunks
-        message = message.replace('\n', ' NEWLINE ') # replace newlines with NEWLINE to keep them in split chunks
-
-        split_message = message.split()
-        line = ''
-        message_list = []
-
-        for word in split_message:
-            if len(line + word) < MESSAGE_CHUNK_SIZE:
-                if 'NEWLINE' in word or '\n' in word or '\r' in word:
-                    # chunk by newline if it exists
-                    message_list.append(line)
-                    line = ''
-                else:
-                    line += word + ' '
-            else:
-                message_list.append(line)
-                line = word + ' '
-
-        message_list.append(line) # needed add contents of the last 'line' into the list
-        message_list = [m.replace('NEWLINE', '') for m in message_list]
-
+    if isinstance(message_list, list):
+        # Send the message to the channel or DM
+        total_length = sum(len(chunk) for chunk in message_list)
+        num_chunks = len(message_list)
         for m in message_list:
+            chunkOf = f"{message_list.index(m)+1}/{num_chunks}"
             if nodeid == 0:
                 # Send to channel
-                logger.info(f"Device:{nodeInt} Channel:{ch} " + CustomFormatter.red + "Sending Multi-Chunk Message: " + CustomFormatter.white + m.replace('\n', ' '))
-                if nodeInt == 1:
-                    interface1.sendText(text=m, channelIndex=ch)
-                if nodeInt == 2:
-                    interface2.sendText(text=m, channelIndex=ch)
+                logger.info(f"Device:{nodeInt} Channel:{ch} " + CustomFormatter.red + f"Chunker{chunkOf} SendingChannel: " + CustomFormatter.white + m.replace('\n', ' '))
+                interface.sendText(text=m, channelIndex=ch)
             else:
                 # Send to DM
-                logger.info(f"Device:{nodeInt} " + CustomFormatter.red + "Sending Multi-Chunk DM: " + CustomFormatter.white + m.replace('\n', ' ') + CustomFormatter.purple +\
+                logger.info(f"Device:{nodeInt} " + CustomFormatter.red + f"Chunker{chunkOf} Sending DM: " + CustomFormatter.white + m.replace('\n', ' ') + CustomFormatter.purple +\
                              " To: " + CustomFormatter.white + f"{get_name_from_number(nodeid, 'long', nodeInt)}")
-                if nodeInt == 1:
-                    interface1.sendText(text=m, channelIndex=ch, destinationId=nodeid)
-                if nodeInt == 2:
-                    interface2.sendText(text=m, channelIndex=ch, destinationId=nodeid)
-            time.sleep(splitDelay) # wait an amout of time between sending each split message
+                interface.sendText(text=m, channelIndex=ch, destinationId=nodeid)
+
+            # Throttle the message sending to prevent spamming the device
+            if (message_list.index(m)+1) % 4 == 0:
+                time.sleep(responseDelay + 1)
+                if (message_list.index(m)+1) % 5 == 0:
+                    logger.warning(f"System: throttling rate Interface{nodeInt} on {chunkOf}")
+                
+
+            # wait an amout of time between sending each split message
+            time.sleep(splitDelay)
     else: # message is less than MESSAGE_CHUNK_SIZE characters
         if nodeid == 0:
             # Send to channel
-            logger.info(f"Device:{nodeInt} Channel:{ch} " + CustomFormatter.red + "Sending: " + CustomFormatter.white + message.replace('\n', ' '))
-            if nodeInt == 1:
-                interface1.sendText(text=message, channelIndex=ch)
-            if nodeInt == 2:
-                interface2.sendText(text=message, channelIndex=ch)
+            logger.info(f"Device:{nodeInt} Channel:{ch} " + CustomFormatter.red + "SendingChannel: " + CustomFormatter.white + message.replace('\n', ' '))
+            interface.sendText(text=message, channelIndex=ch)
         else:
             # Send to DM
             logger.info(f"Device:{nodeInt} " + CustomFormatter.red + "Sending DM: " + CustomFormatter.white + message.replace('\n', ' ') + CustomFormatter.purple +\
                          " To: " + CustomFormatter.white + f"{get_name_from_number(nodeid, 'long', nodeInt)}")
-            if nodeInt == 1:
-                interface1.sendText(text=message, channelIndex=ch, destinationId=nodeid)
-            if nodeInt == 2:
-                interface2.sendText(text=message, channelIndex=ch, destinationId=nodeid)
-
-def tell_joke():
-    # tell a dad joke, does it need an explanationn :)
-    if dad_jokes_enabled:
-        dadjoke = Dadjoke()
-        return dadjoke.joke
-    else:
-        return ''
+            interface.sendText(text=message, channelIndex=ch, destinationId=nodeid)
+    return True
 
 def get_wikipedia_summary(search_term):
     wikipedia_search = wikipedia.search(search_term, results=3)
@@ -594,7 +528,7 @@ def get_wikipedia_summary(search_term):
         logger.warning(f"System: Wikipedia Page Error for:{search_term} {e} trying {wikipedia_search[0]}")
         summary = wikipedia.summary(wikipedia_search[0], sentences=wiki_return_limit, auto_suggest=True, redirect=True)
     except Exception as e:
-        logger.error(f"System: Error with Wikipedia for:{search_term} {e}")
+        logger.warning(f"System: Error with Wikipedia for:{search_term} {e}")
         return ERROR_FETCHING_DATA
     
     return summary
@@ -635,6 +569,55 @@ def messageTrap(msg):
                 return True
     return False
 
+def handleMultiPing(nodeID=0, deviceID=1):
+    global multiPingList
+    if len(multiPingList) > 1:
+        mPlCpy = multiPingList.copy()
+        for i in range(len(mPlCpy)):
+            message_id_from = mPlCpy[i]['message_from_id']
+            count = mPlCpy[i]['count']
+            type = mPlCpy[i]['type']
+            deviceID = mPlCpy[i]['deviceID']
+
+            if count > 1 and deviceID == 1:
+                count -= 1
+                # update count in the list
+                multiPingList[i]['count'] = count
+
+                send_message(f"🔂{count} {type}", publicChannel, message_id_from, 1)
+                if count < 2:
+                    # remove the item from the list
+                    for j in range(len(multiPingList)):
+                        if multiPingList[j]['message_from_id'] == message_id_from:
+                            multiPingList.pop(j)
+                            break
+
+def onDisconnect(interface):
+    global retry_int1, retry_int2
+    rxType = type(interface).__name__
+    if rxType == 'SerialInterface':
+        rxInterface = interface.__dict__.get('devPath', 'unknown')
+        logger.critical("System: Lost Connection to Device {rxInterface}")
+        if port1 in rxInterface:
+            retry_int1 = True
+        elif interface2_enabled and port2 in rxInterface:
+            retry_int2 = True
+
+    if rxType == 'TCPInterface':
+        rxHost = interface.__dict__.get('hostname', 'unknown')
+        logger.critical("System: Lost Connection to Device {rxHost}")
+        if hostname1 in rxHost and interface1_type == 'tcp':
+            retry_int1 = True
+        elif interface2_enabled and hostname2 in rxHost and interface2_type == 'tcp':
+            retry_int2 = True
+    
+    if rxType == 'BLEInterface':
+        logger.critical("System: Lost Connection to Device BLE")
+        if interface1_type == 'ble':
+            retry_int1 = True
+        elif interface2_enabled and interface2_type == 'ble':
+            retry_int2 = True
+
 def exit_handler():
     # Close the interface and save the BBS messages
     logger.debug(f"System: Closing Autoresponder")
@@ -654,6 +637,181 @@ def exit_handler():
     asyncLoop.stop()
     asyncLoop.close()
     exit (0)
+
+# Telemetry Functions
+telemetryData = {}
+def initialize_telemetryData():
+    telemetryData[0] = {'interface1': 0, 'interface2': 0, 'lastAlert1': '', 'lastAlert2': ''}
+    telemetryData[1] = {'numPacketsTx': 0, 'numPacketsRx': 0, 'numOnlineNodes': 0, 'numPacketsTxErr': 0, 'numPacketsRxErr': 0, 'numTotalNodes': 0}
+    telemetryData[2] = {'numPacketsTx': 0, 'numPacketsRx': 0, 'numOnlineNodes': 0, 'numPacketsTxErr': 0, 'numPacketsRxErr': 0, 'numTotalNodes': 0}
+# indented to be called from the main loop
+initialize_telemetryData()
+
+def getNodeFirmware(nodeID=0, nodeInt=1):
+    interface = interface1 if nodeInt == 1 else interface2
+    # get the firmware version of the node
+    # this is a workaround because .localNode.getMetadata spits out a lot of debug info which cant be suppressed
+    # Create a StringIO object to capture the 
+    output_capture = io.StringIO()
+    with contextlib.redirect_stdout(output_capture):
+        interface.localNode.getMetadata()
+    console_output = output_capture.getvalue()
+    if "firmware_version" in console_output:
+        fwVer = console_output.split("firmware_version: ")[1].split("\n")[0]
+        return fwVer
+    return -1
+
+def displayNodeTelemetry(nodeID=0, rxNode=0):
+    interface = interface1 if rxNode == 1 else interface2
+    global telemetryData
+
+    # throttle the telemetry requests to prevent spamming the device
+    if rxNode == 1:
+        if time.time() - telemetryData[0]['interface1'] < 600:
+            return -1
+        telemetryData[0]['interface1'] = time.time()
+    elif rxNode == 2:
+        if time.time() - telemetryData[0]['interface2'] < 600:
+            return -1
+        telemetryData[0]['interface2'] = time.time()
+
+    # some telemetry data is not available in python-meshtastic?
+    # bring in values from the last telemetry request for the node
+    numPacketsTx = telemetryData[rxNode]['numPacketsTx']
+    numPacketsRx = telemetryData[rxNode]['numPacketsRx']
+    numPacketsTxErr = telemetryData[rxNode]['numPacketsTxErr']
+    numPacketsRxErr = telemetryData[rxNode]['numPacketsRxErr']
+    numTotalNodes = telemetryData[rxNode]['numTotalNodes']
+    totalOnlineNodes = telemetryData[rxNode]['numOnlineNodes']
+
+    # get the telemetry data for a node
+    chutil = round(interface.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("channelUtilization", 0), 1)
+    airUtilTx = round(interface.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("airUtilTx", 0), 1)
+    uptimeSeconds = interface.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("uptimeSeconds", 0)
+    batteryLevel = interface.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("batteryLevel", 0)
+    voltage = interface.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("voltage", 0)
+    #numPacketsRx = interface.nodes.get(decimal_to_hex(myNodeNum1), {}).get("localStats", {}).get("numPacketsRx", 0)
+    #numPacketsTx = interface.nodes.get(decimal_to_hex(myNodeNum1), {}).get("localStats", {}).get("numPacketsTx", 0)
+    numTotalNodes = len(interface.nodes) 
+    
+    dataResponse = f"Telemetry:{rxNode}"
+
+    # packet info telemetry
+    dataResponse += f" numPacketsRx:{numPacketsRx} numPacketsRxErr:{numPacketsRxErr} numPacketsTx:{numPacketsTx} numPacketsTxErr:{numPacketsTxErr}"
+
+    # Channel utilization and airUtilTx
+    dataResponse += " ChUtil%:" + str(round(chutil, 2)) + " AirTx%:" + str(round(airUtilTx, 2))
+
+    if chutil > 40:
+        logger.warning(f"System: High Channel Utilization {chutil}% on Device: {rxNode}")
+
+    if airUtilTx > 25:
+        logger.warning(f"System: High Air Utilization {airUtilTx}% on Device: {rxNode}")
+
+    # Number of nodes
+    dataResponse += " totalNodes:" + str(numTotalNodes) + " Online:" + str(totalOnlineNodes)
+
+    # Uptime
+    uptimeSeconds = getPrettyTime(uptimeSeconds)
+    dataResponse += " Uptime:" + str(uptimeSeconds)
+
+    # add battery info to the response
+    emji = "🔌" if batteryLevel == 101 else "🪫" if batteryLevel < 10 else "🔋"
+    dataResponse += f" Volt:{round(voltage, 1)}"
+
+    if batteryLevel < 25:
+        logger.warning(f"System: Low Battery Level: {batteryLevel}{emji} on Device: {rxNode}")
+    elif batteryLevel < 10:
+        logger.critical(f"System: Critical Battery Level: {batteryLevel}{emji} on Device: {rxNode}")
+    return dataResponse
+
+positionMetadata = {}
+def consumeMetadata(packet, rxNode=0):
+    # keep records of recent telemetry data
+    debugMetadata = False
+    packet_type = ''
+    if packet.get('decoded'):
+        packet_type = packet['decoded']['portnum']
+        nodeID = packet['from']
+
+    # TELEMETRY packets
+    if packet_type == 'TELEMETRY_APP':
+        #if debugMetadata: print(f"DEBUG TELEMETRY_APP: {packet}\n\n")
+        # get the telemetry data
+        telemetry_packet = packet['decoded']['telemetry']
+        if telemetry_packet.get('deviceMetrics'):
+            deviceMetrics = telemetry_packet['deviceMetrics']
+        if telemetry_packet.get('localStats'):
+            localStats = telemetry_packet['localStats']
+            # Check if 'numPacketsTx' and 'numPacketsRx' exist and are not zero
+            if localStats.get('numPacketsTx') is not None and localStats.get('numPacketsRx') is not None and localStats['numPacketsTx'] != 0:
+                # Assign the values to the telemetry dictionary
+                keys = [
+                    'numPacketsTx', 'numPacketsRx', 'numOnlineNodes', 
+                    'numOfflineNodes', 'numPacketsTxErr', 'numPacketsRxErr', 'numTotalNodes']
+                
+                for key in keys:
+                    if localStats.get(key) is not None:
+                        telemetryData[rxNode][key] = localStats.get(key)
+    
+    # POSITION_APP packets
+    if packet_type == 'POSITION_APP':
+        if debugMetadata: print(f"DEBUG POSITION_APP: {packet}\n\n")
+        # get the position data
+        keys = ['altitude', 'groundSpeed', 'precisionBits']
+        position_data = packet['decoded']['position']
+        try:
+            if nodeID not in positionMetadata:
+                positionMetadata[nodeID] = {}
+    
+            for key in keys:
+                positionMetadata[nodeID][key] = position_data.get(key, 0)
+    
+            # Keep the positionMetadata dictionary at 5 records
+            if len(positionMetadata) > 20:
+                # Remove the oldest entry
+                oldest_nodeID = next(iter(positionMetadata))
+                del positionMetadata[oldest_nodeID]
+        except Exception as e:
+            logger.debug(f"System: POSITION_APP decode error: {e} packet {packet}")
+
+    # WAYPOINT_APP packets
+    if packet_type ==  'WAYPOINT_APP':
+        if debugMetadata: print(f"DEBUG WAYPOINT_APP: {packet['decoded']['waypoint']}\n\n")
+        # get the waypoint data
+        waypoint_data = packet['decoded']['waypoint']
+        keys = ['latitude', 'longitude',]
+
+    # NEIGHBORINFO_APP
+    if packet_type ==  'NEIGHBORINFO_APP':
+        if debugMetadata: print(f"DEBUG NEIGHBORINFO_APP: {packet}\n\n")
+        # get the neighbor info data
+        neighbor_data = packet['decoded']['neighborInfo']
+    
+    # TRACEROUTE_APP
+    if packet_type ==  'TRACEROUTE_APP':
+        if debugMetadata: print(f"DEBUG TRACEROUTE_APP: {packet}\n\n")
+        # get the traceroute data
+        traceroute_data = packet['decoded']['traceroute']
+
+    # DETECTION_SENSOR_APP
+    if packet_type ==  'DETECTION_SENSOR_APP':
+        if debugMetadata: print(f"DEBUG DETECTION_SENSOR_APP: {packet}\n\n")
+        # get the detection sensor data
+        detection_data = packet['decoded']['detectionSensor']
+
+    # PAXCOUNTER_APP
+    if packet_type ==  'PAXCOUNTER_APP':
+        if debugMetadata: print(f"DEBUG PAXCOUNTER_APP: {packet}\n\n")
+        # get the paxcounter data
+        paxcounter_data = packet['decoded']['paxcounter']
+
+    # REMOTE_HARDWARE_APP
+    if packet_type ==  'REMOTE_HARDWARE_APP':
+        if debugMetadata: print(f"DEBUG REMOTE_HARDWARE_APP: {packet}\n\n")
+        # get the remote hardware data
+        remote_hardware_data = packet['decoded']['remoteHardware']
+    
 
 async def BroadcastScheduler():
     # handle schedule checks for the broadcast of messages
@@ -692,29 +850,22 @@ async def handleSignalWatcher():
         await asyncio.sleep(1)
         pass
 
+
 async def retry_interface(nodeID=1):
     global interface1, interface2, retry_int1, retry_int2, max_retry_count1, max_retry_count2
+    interface = interface1 if nodeID == 1 else interface2
+    retry_int = retry_int1 if nodeID == 1 else retry_int2
     # retry connecting to the interface
     # add a check to see if the interface is already open or trying to open
-    if nodeID==1:
-        if interface1 is not None:
-            retry_int1 = True
-            max_retry_count1 -= 1
-            try:
-                interface1.close()
-            except Exception as e:
-                logger.error(f"System: closing interface1: {e}")
-    if nodeID==2:
-        if interface2 is not None:
-            retry_int2 = True
-            max_retry_count2 -= 1
-            try:
-                interface2.close()
-            except Exception as e:
-                logger.error(f"System: closing interface2: {e}")
+    if interface is not None:
+        retry_int = True
+        max_retry_count1 -= 1
+        try:
+            interface.close()
+        except Exception as e:
+            logger.error(f"System: closing interface{nodeID}: {e}")
     
-   
-    logger.debug(f"System: Retrying interface in 15 seconds")
+    logger.debug(f"System: Retrying interface{nodeID} in 15 seconds")
     if max_retry_count1 == 0:
         logger.critical(f"System: Max retry count reached for interface1")
         exit_handler()
@@ -726,83 +877,85 @@ async def retry_interface(nodeID=1):
 
     # retry the interface
     try:
-        if nodeID==1 and retry_int1:
-            interface1 = None
-            logger.debug(f"System: Retrying Interface1")
-            if interface1_type == 'serial':
+        if retry_int:
+            interface = None
+            if nodeID == 1:
+                interface1 = None
+            if nodeID == 2:
+                interface2 = None
+            logger.debug(f"System: Retrying Interface{nodeID}")
+            interface_type = interface1_type if nodeID == 1 else interface2_type
+            if interface_type == 'serial':
                 interface1 = meshtastic.serial_interface.SerialInterface(port1)
-            elif interface1_type == 'tcp':
+            elif interface_type == 'tcp':
                 interface1 = meshtastic.tcp_interface.TCPInterface(hostname1)
-            elif interface1_type == 'ble':
+            elif interface_type == 'ble':
                 interface1 = meshtastic.ble_interface.BLEInterface(mac1)
             logger.debug(f"System: Interface1 Opened!")
             retry_int1 = False
     except Exception as e:
-        logger.error(f"System: opening interface1 on: {e}")
+        logger.error(f"System: Error Opening interface{nodeID} on: {e}")
+
+
+
+handleSentinel_spotted = ""
+handleSentinel_loop = 0
+async def handleSentinel(deviceID=1):
+    global handleSentinel_spotted, handleSentinel_loop
+    # Locate Closest Nodes and report them to a secure channel
+    # async function for possibly demanding back location data
+    enemySpotted = ""
+    closest_nodes = get_closest_nodes(deviceID)
+    if closest_nodes != ERROR_FETCHING_DATA and closest_nodes:
+        if closest_nodes[0]['id'] is not None:
+            enemySpotted = get_name_from_number(closest_nodes[0]['id'], 'long', 1)
+            enemySpotted += ", " + get_name_from_number(closest_nodes[0]['id'], 'short', 1)
+            enemySpotted += ", " + str(closest_nodes[0]['id'])
+            enemySpotted += ", " + decimal_to_hex(closest_nodes[0]['id'])
+            enemySpotted += f" at {closest_nodes[0]['distance']}m"
     
-    try:
-        if nodeID==2 and retry_int2:
-            interface2 = None
-            logger.debug(f"System: Retrying Interface2")
-            if interface2_type == 'serial':
-                interface2 = meshtastic.serial_interface.SerialInterface(port2)
-            elif interface2_type == 'tcp':
-                interface2 = meshtastic.tcp_interface.TCPInterface(hostname2)
-            elif interface2_type == 'ble':
-                interface2 = meshtastic.ble_interface.BLEInterface(mac2)
-            logger.debug(f"System: Interface2 Opened!")
-            retry_int2 = False
-    except Exception as e:
-        logger.error(f"System: opening interface2: {e}")
+    if handleSentinel_loop >= sentry_holdoff and handleSentinel_spotted != enemySpotted:
+        # check the positionMetadata for nodeID and get metadata
+        if positionMetadata and closest_nodes[0]['id'] in positionMetadata:
+            metadata = positionMetadata[closest_nodes[0]['id']]
+            resolution = metadata.get('precisionBits', 'na')
+
+        logger.warning(f"System: {enemySpotted} is close to your location on Interface1 Accuracy is {resolution}bits")
+        send_message(f"Sentry{deviceID}: {enemySpotted}", secure_channel, 0, deviceID)
+        handleSentinel_loop = 0
+        handleSentinel_spotted = enemySpotted
+    else:
+        handleSentinel_loop += 1
 
 async def watchdog():
-    global retry_int1, retry_int2
-    if sentry_enabled:
-        sentry_loop = 0
-        lastSpotted = ""
-        enemySpotted = ""
-        sentry_loop2 = 0
-        lastSpotted2 = ""
-        enemySpotted2 = ""
-    # watchdog for connection to the interface
+    global retry_int1, retry_int2, telemetryData
+    int1Data, int2Data = "", ""
     while True:
         await asyncio.sleep(20)
         #print(f"MeshBot System: watchdog running\r", end="")
+
         if interface1 is not None and not retry_int1:
+            # getting firmware is a heartbeat to check if the interface is still connected
             try:
-                # this is a workaround because .localNode.getMetadata spits out a lot of debug info which cant be suppressed
-                with contextlib.redirect_stdout(None):
-                    interface1.localNode.getMetadata()
-                    print(f"System: if you see this upgrade python to >3.4")
+                firmware = getNodeFirmware(0, 1)
             except Exception as e:
                 logger.error(f"System: communicating with interface1, trying to reconnect: {e}")
                 retry_int1 = True
-        
-            # Locate Closest Nodes and report them to a secure channel
-            if sentry_enabled:
-                try:
-                    closest_nodes1 = get_closest_nodes(1)
-                    if closest_nodes1 != ERROR_FETCHING_DATA:
-                        if closest_nodes1[0]['id'] is not None:
-                            enemySpotted = get_name_from_number(closest_nodes1[0]['id'], 'long', 1)
-                            enemySpotted += ", " + get_name_from_number(closest_nodes1[0]['id'], 'short', 1)
-                            enemySpotted += ", " + str(closest_nodes1[0]['id'])
-                            enemySpotted += ", " + decimal_to_hex(closest_nodes1[0]['id'])
-                            enemySpotted += f" at {closest_nodes1[0]['distance']}m"
-                except Exception as e:
-                    pass
-                
-                if sentry_loop >= sentry_holdoff and lastSpotted != enemySpotted:
-                    logger.warning(f"System: {enemySpotted} is close to your location on Interface1")
-                    send_message(f"Sentry1: {enemySpotted}", secure_channel, 0, 1)
-                    if interface2_enabled:
-                        await asyncio.sleep(1.5)
-                        send_message(f"Sentry1: {enemySpotted}", secure_channel, 0, 2)
-                    sentry_loop = 0
-                    lastSpotted = enemySpotted
-                else:
-                    sentry_loop += 1
-        
+
+            if not retry_int1:
+                # Locate Closest Nodes and report them to a secure channel
+                if sentry_enabled:
+                    await handleSentinel(1)
+
+                # multiPing handler
+                handleMultiPing(0,1)
+
+                # Telemetry data
+                int1Data = displayNodeTelemetry(0, 1)
+                if int1Data != -1 and telemetryData[0]['lastAlert1'] != int1Data:
+                    logger.debug(int1Data + f" Firmware:{firmware}")
+                    telemetryData[0]['lastAlert1'] = int1Data
+
         if retry_int1:
             try:
                 await retry_interface(1)
@@ -811,41 +964,31 @@ async def watchdog():
 
         if interface2_enabled:
             if interface2 is not None and not retry_int2:
+                # getting firmware is a heartbeat to check if the interface is still connected
                 try:
-                    with contextlib.redirect_stdout(None):
-                        interface2.localNode.getMetadata()
-                        print(f"System: if you see this upgrade python to >3.4")
+                    firmware2 = getNodeFirmware(0, 1)
                 except Exception as e:
-                    logger.error(f"System: communicating with interface2, trying to reconnect: {e}")
+                    logger.error(f"System: communicating with interface1, trying to reconnect: {e}")
                     retry_int2 = True
-                
-                # Locate Closest Nodes and report them to a secure channel
-                if sentry_enabled:
-                    try:
-                        closest_nodes2 = get_closest_nodes(2)
-                        if closest_nodes2 != ERROR_FETCHING_DATA:
-                            if closest_nodes2[0]['id'] is not None:
-                                enemySpotted2 = get_name_from_number(closest_nodes2[0]['id'], 'long', 2)
-                                enemySpotted2 += ", " + get_name_from_number(closest_nodes2[0]['id'], 'short', 2)
-                                enemySpotted2 += ", " + str(closest_nodes2[0]['id'])
-                                enemySpotted2 += ", " + decimal_to_hex(closest_nodes2[0]['id'])
-                                enemySpotted2 += f" at {closest_nodes2[0]['distance']}m"
-                    except Exception as e:
-                        pass
-                    
-                    if sentry_loop2 >= sentry_holdoff and lastSpotted2 != enemySpotted2:
-                        logger.warning(f"System: {enemySpotted2} is close to your location on Interface2")
-                        # send to secure channel on both interfaces
-                        send_message(f"Sentry2: {enemySpotted2}", secure_channel, 0, 1)
-                        await asyncio.sleep(1.5)
-                        send_message(f"Sentry2: {enemySpotted2}", secure_channel, 0, 2)
-                        sentry_loop2 = 0
-                        lastSpotted2 = enemySpotted2
-                    else:
-                        sentry_loop2 += 1
+
+                if not retry_int2:
+                    # Locate Closest Nodes and report them to a secure channel
+                    if sentry_enabled:
+                        await handleSentinel(2)
+
+                    # multiPing handler
+                    handleMultiPing(0,2)
+
+                # Telemetry data
+                int2Data = displayNodeTelemetry(0, 2)
+                if int2Data != -1 and telemetryData[0]['lastAlert2'] != int2Data:
+                    logger.debug(int2Data + f" Firmware:{firmware2}")
+                    telemetryData[0]['lastAlert2'] = int2Data
         
             if retry_int2:
                 try:
                     await retry_interface(2)
                 except Exception as e:
                     logger.error(f"System: retrying interface2: {e}")
+
+

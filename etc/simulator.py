@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # # Simulate meshing-around de K7MHI 2024
-from modules.log import * # err? Move .py out of etc/ and place it in the root of the project
+from modules.log import * # Import the logger
 import time
 import random
 

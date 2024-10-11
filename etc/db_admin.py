@@ -4,65 +4,65 @@ import pickle # pip install pickle
 
 # load the bbs messages from the database file
 try:
-    with open('../bbsdb.pkl', 'rb') as f:
+    with open('../data/bbsdb.pkl', 'rb') as f:
         bbs_messages = pickle.load(f)
 except Exception as e:
     try:
-        with open('bbsdb.pkl', 'rb') as f:
+        with open('data/bbsdb.pkl', 'rb') as f:
             bbs_messages = pickle.load(f)
     except Exception as e:
-        bbs_messages = "System: bbsdb.pkl not found"
+        bbs_messages = "System: data/bbsdb.pkl not found"
 
 try:
-    with open('../bbsdm.pkl', 'rb') as f:
+    with open('../data/bbsdm.pkl', 'rb') as f:
         bbs_dm = pickle.load(f)
 except Exception as e:
     try:
-        with open('bbsdm.pkl', 'rb') as f:
+        with open('data/bbsdm.pkl', 'rb') as f:
             bbs_dm = pickle.load(f)
     except Exception as e:
-        bbs_dm = "System: bbsdm.pkl not found"
+        bbs_dm = "System: data/bbsdm.pkl not found"
 
 # Game HS tables
 try:
-    with open('../lemonade_hs.pkl', 'rb') as f:
+    with open('../data/lemonstand.pkl', 'rb') as f:
        lemon_score = pickle.load(f)
 except Exception as e:
     try:
-        with open('lemonade_hs.pkl', 'rb') as f:
+        with open('data/lemonstand.pkl', 'rb') as f:
             lemon_score = pickle.load(f)
     except Exception as e:
-        lemon_score = "System: lemonade_hs.pkl not found"
+        lemon_score = "System: data/lemonstand.pkl not found"
 
 try:
-    with open('../dopewar_hs.pkl', 'rb') as f:
+    with open('../data/dopewar_hs.pkl', 'rb') as f:
         dopewar_score = pickle.load(f)
 except Exception as e:
     try:
-        with open('dopewar_hs.pkl', 'rb') as f:
+        with open('data/dopewar_hs.pkl', 'rb') as f:
             dopewar_score = pickle.load(f)
     except Exception as e:
-        dopewar_score = "System: dopewar_hs.pkl not found"
+        dopewar_score = "System: data/dopewar_hs.pkl not found"
 
 try:
-    with open('../blackjack_hs.pkl', 'rb') as f:
+    with open('../data/blackjack_hs.pkl', 'rb') as f:
         blackjack_score = pickle.load(f)
 except Exception as e:
     try:
-        with open('blackjack_hs.pkl', 'rb') as f:
+        with open('data/blackjack_hs.pkl', 'rb') as f:
             blackjack_score = pickle.load(f)
     except Exception as e:
-        blackjack_score = "System: blackjack_hs.pkl not found"
+        blackjack_score = "System: data/blackjack_hs.pkl not found"
 
 try:
-    with open('../videopoker_hs.pkl', 'rb') as f:
+    with open('../data/videopoker_hs.pkl', 'rb') as f:
         videopoker_score = pickle.load(f)
 except Exception as e:
     try:
-        with open('videopoker_hs.pkl', 'rb') as f:
+        with open('data/videopoker_hs.pkl', 'rb') as f:
             videopoker_score = pickle.load(f)
     except Exception as e:
-        videopoker_score = "System: videopoker_hs.pkl not found"
+        videopoker_score = "System: data/videopoker_hs.pkl not found"
 
 try:
     with open('../mmind_hs.pkl', 'rb') as f:
@@ -75,14 +75,14 @@ except Exception as e:
         mmind_score = "System: mmind_hs.pkl not found"
 
 try:
-    with open('../golfsim_hs.pkl', 'rb') as f:
+    with open('../data/golfsim_hs.pkl', 'rb') as f:
         golfsim_score = pickle.load(f)
 except Exception as e:
     try:
-        with open('golfsim_hs.pkl', 'rb') as f:
+        with open('data/golfsim_hs.pkl', 'rb') as f:
             golfsim_score = pickle.load(f)
     except Exception as e:
-        golfsim_score = "System: golfsim_hs.pkl not found"
+        golfsim_score = "System: data/golfsim_hs.pkl not found"
 
 
 print ("\n Meshing-Around Database Admin Tool\n")

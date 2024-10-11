@@ -7,8 +7,14 @@ config.ini
 # virtualenv
 venv/
 
+# logs
+logs/*.log
+
 # modified .service files
 etc/*.service
 
 # Python cache
 __pycache__/
+
+# rag data
+data/rag/*

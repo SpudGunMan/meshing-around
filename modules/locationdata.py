@@ -9,9 +9,9 @@ import bs4 as bs # pip install beautifulsoup4
 import xml.dom.minidom 
 from modules.log import *
 
-trap_list_location = ("whereami", "tide", "moon", "wx", "wxc", "wxa", "wxalert")
+trap_list_location = ("whereami", "tide", "moon", "wx", "wxc", "wxa", "wxalert", "repeaterlist")
 
-def where_am_i(lat=0, lon=0, short=False):
+def where_am_i(lat=0, lon=0, short=False, zip=False):
     whereIam = ""
     grid = mh.to_maiden(float(lat), float(lon))
     
@@ -31,23 +31,129 @@ def where_am_i(lat=0, lon=0, short=False):
             whereIam = f"City: {address.get('city', '')}. State: {address.get('state', '')}. County: {address.get('county', '')}. Country: {address.get('country', '')}."
             return whereIam
         
+        if zip:
+            # return a string with zip code only
+            location = geolocator.reverse(str(lat) + ", " + str(lon))
+            whereIam = location.raw['address'].get('postcode', '')
+            return whereIam
+        
         if float(lat) == latitudeValue and float(lon) == longitudeValue:
             # redacted address when no GPS and using default location
-            location = geolocator.reverse(lat + ", " + lon)
+            location = geolocator.reverse(str(lat) + ", " + str(lon))
             address = location.raw['address']
-            address_components = ['city', 'state', 'postcode', 'county', 'country']
-            whereIam += ' '.join([address.get(component, '') for component in address_components if component in address])
-            whereIam += " Grid: " + grid
+            address_components = {
+                'city': 'City',
+                'state': 'State',
+                'postcode': 'Zip',
+                'county': 'County',
+                'country': 'Country'
+            }
+            whereIam += ', '.join([f"{label}: {address.get(component, '')}" for component, label in address_components.items() if component in address])
         else:
             location = geolocator.reverse(lat + ", " + lon)
             address = location.raw['address']
-            address_components = ['house_number', 'road', 'city', 'state', 'postcode', 'county', 'country']
-            whereIam += ' '.join([address.get(component, '') for component in address_components if component in address])
-            whereIam += " Grid: " + grid
+            address_components = {
+                'house_number': 'Number',
+                'road': 'Road',
+                'city': 'City',
+                'state': 'State',
+                'postcode': 'Zip',
+                'county': 'County',
+                'country': 'Country'
+            }
+            whereIam += ', '.join([f"{label}: {address.get(component, '')}" for component, label in address_components.items() if component in address])
+            whereIam += f", Grid: " + grid
         return whereIam
     except Exception as e:
         logger.debug("Location:Error fetching location data with whereami, likely network error")
         return ERROR_FETCHING_DATA
+    
+def getRepeaterBook(lat=0, lon=0):
+    grid = mh.to_maiden(float(lat), float(lon))
+    data = []
+    repeater_url = f"https://www.repeaterbook.com/repeaters/prox_result.php?city={grid}&lat=&long=&distance=50&Dunit=m&band%5B%5D=4&band%5B%5D=16&freq=&call=&mode%5B%5D=1&mode%5B%5D=2&mode%5B%5D=4&mode%5B%5D=64&status_id=1&use=%25&use=OPEN&order=distance_calc%2C+state_id+ASC"
+    try:
+        msg = ''
+        response = requests.get(repeater_url)
+        soup = bs.BeautifulSoup(response.text, 'html.parser')
+        table = soup.find('table', attrs={'class': 'w3-table w3-striped w3-responsive w3-mobile w3-auto sortable'})
+        if table is not None:
+            cells = table.find_all('td')
+            data = []
+            for i in range(0, len(cells), 11):
+                if i + 10 < len(cells):  #avoid IndexError
+                    repeater = {
+                        'frequency': cells[i].text.strip() if i < len(cells) else 'N/A',
+                        'offset': cells[i + 1].text.strip() if i + 1 < len(cells) else 'N/A',
+                        'tone': cells[i + 2].text.strip() if i + 2 < len(cells) else 'N/A',
+                        'call_sign': cells[i + 3].text.strip() if i + 3 < len(cells) else 'N/A',
+                        'location': cells[i + 4].text.strip() if i + 4 < len(cells) else 'N/A',
+                        'state': cells[i + 5].text.strip() if i + 5 < len(cells) else 'N/A',
+                        'use': cells[i + 6].text.strip() if i + 6 < len(cells) else 'N/A',
+                        'mode': cells[i + 7].text.strip() if i + 7 < len(cells) else 'N/A',
+                        'distance': cells[i + 8].text.strip() if i + 8 < len(cells) else 'N/A',
+                        'direction': cells[i + 9].text.strip() if i + 9 < len(cells) else 'N/A'
+                    }
+                    data.append(repeater)
+                else:
+                    msg = "bug?Not enough columns"
+        else:
+            msg = "bug?Table not found"
+    except Exception as e:
+        msg = "No repeaters found 😔"
+    # Limit the output to the first 4 repeaters
+    for repeater in data[:4]:
+        tmpTone = repeater['tone'].replace(" /", "")
+        msg += f"{repeater['call_sign']}📶{repeater['frequency']}{repeater['offset']},{tmpTone}.{repeater['mode']}"
+        if repeater != data[:4][-1]: msg += '\n'
+    return msg
+
+def getArtSciRepeaters(lat=0, lon=0):
+    # UK api_url = "https://api-beta.rsgb.online/all/systems"
+    #grid = mh.to_maiden(float(lat), float(lon))
+    repeaters = []
+    zipCode = where_am_i(lat, lon, zip=True)
+    if zipCode == NO_DATA_NOGPS or zipCode == ERROR_FETCHING_DATA:
+        return zipCode
+
+    if zipCode.isnumeric():
+        try:
+            artsci_url = f"http://www.artscipub.com/mobile/showstate.asp?zip={zipCode}"
+            response = requests.get(artsci_url)
+            soup = bs.BeautifulSoup(response.text, 'html.parser')
+            # results needed xpath is /html/body/table[2]/tbody/tr/td/table/tbody/tr[2]/td/table
+            table = soup.find_all('table')[1]
+            rows = table.find_all('tr')
+            for row in rows:
+                cols = row.find_all('td')
+                cols = [ele.text.strip() for ele in cols]
+                # if no elements have the word 'located' then append
+                if not any('located' in ele for ele in cols):
+                    if not any('Location' in ele for ele in cols):
+                        repeaters.append([ele for ele in cols if ele])
+        except Exception as e:
+            logger.error(f"Error fetching data from {artsci_url}: {e}")
+
+    if repeaters != []:
+        msg = f"Found:{len(repeaters)} in {zipCode}\n"
+        for repeater in repeaters:
+            # format is ['City', 'Frequency', 'Offset', 'PL', 'Call', 'Notes']
+            # there might be missing elements or only one element
+            if len(repeater) == 2:
+                msg += f"Freq:{repeater[1]}"
+            elif len(repeater) == 3:
+                msg += f"Freq:{repeater[1]}, PL:{repeater[2]}"
+            elif len(repeater) == 4:
+                msg += f"Freq:{repeater[1]}, PL:{repeater[2]}, ID: {repeater[3]}"
+            elif len(repeater) == 5:
+                msg += f"Freq:{repeater[1]}, PL:{repeater[2]}, ID:{repeater[3]}"
+            elif len(repeater) == 6:
+                msg += f"Freq:{repeater[1]}, PL:{repeater[2]}, ID:{repeater[3]}. {repeater[5]}"
+            if repeater != repeaters[-1]:
+                msg += "\n"
+    else:
+        msg = f"no results.. sorry"
+    return msg
     
 
 def get_tide(lat=0, lon=0):

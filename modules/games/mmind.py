@@ -195,18 +195,19 @@ def compareCodeMMind(secret_code, user_guess):
         # check for perfect pins and right color wrong position
         temp_code = []
         temp_guess = []
-        for i in range(len(user_guess)): #check for perfect pins
+        # Check for perfect pins
+        for i in range(len(user_guess)):
             if user_guess[i] == secret_code[i]:
                 perfect_pins += 1
             else:
                 temp_code.append(secret_code[i])
                 temp_guess.append(user_guess[i])
-        for i in range(len(temp_guess)): #check for right color wrong position
-            for j in range(len(temp_code)):
-                if temp_guess[i] == temp_code[j]:
-                    wrong_position += 1
-                    temp_code[j] = "0"
-                    break
+
+        # Check for right color wrong position
+        for guess in temp_guess:
+            if guess in temp_code:
+                wrong_position += 1
+                temp_code.remove(guess)  # Remove the first occurrence of the matched color
     # display feedback
     if game_won:
         msg += f"Correct{getEmojiMMind(user_guess)}\n"
@@ -232,7 +233,7 @@ def playGameMMind(diff, secret_code, turn_count, nodeID, message):
     if turn_count <= 10:
         user_guess = getGuessMMind(diff, message)
         if user_guess == "XXXX":
-            msg += "Invalid guess. Please enter 4 valid colors."
+            msg += f"⛔️Invalid guess. Please enter 4 valid colors letters.\n🔴🟢🔵🔴 is RGBR"
             return msg
         check_guess = compareCodeMMind(secret_code, user_guess)
 
@@ -249,7 +250,7 @@ def playGameMMind(diff, secret_code, turn_count, nodeID, message):
             if high_score != 0:
                 msg += f"\n🏆 High Score:{high_score[0]['turns']} turns, Difficulty:{high_score[0]['diff'].upper()}"
             
-            msg += "\nWould you like to play again?\n(N)ormal, (H)ard, e(X)pert?"
+            msg += "\nWould you like to play again?\n(N)ormal, (H)ard, e(X)pert (E)nd?"
             # reset turn count in tracker
             for i in range(len(mindTracker)):
                 if mindTracker[i]['nodeID'] == nodeID:
@@ -295,8 +296,6 @@ def start_mMind(nodeID, message):
     for i in range(len(mindTracker)):
         if mindTracker[i]['nodeID'] == nodeID:
             last_cmd = mindTracker[i]['cmd']
-
-    logger.debug("System: MasterMind: last_cmd: " + str(last_cmd))
 
     if last_cmd == "new":
         if message.lower().startswith("n") or message.lower().startswith("h") or message.lower().startswith("x"):
