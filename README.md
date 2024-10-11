@@ -260,15 +260,29 @@ sudo apt-get install fonts-noto-color-emoji
 
 ## Full list of commands for the bot
 
-### Radio Propagation & Celestial
+### Networking
 | Command | Description | ✅ Works Off-Grid |
+|---------|-------------|-
+| `ping`, `ack`, `test` | Return data for signal. Example: `ping 15 #DrivingI5` (activates auto-ping every 20 seconds for count 15) | ✅ |
+| `whereami` | Returns the address of the sender's location if known |
+| `whoami` | Returns details of the node asking, also returned when position exchanged 📍 | ✅ |
+| `motd` | Displays the message of the day or sets it. Example: `motd $New Message Of the day` | ✅ |
+| `lheard` | Returns the last 5 heard nodes with SNR. Can also use `sitrep` | ✅ |
+| `history` | Returns the last commands run by user(s) | ✅ |
+| `cmd` | Returns the list of commands (the help message) | ✅ |
+
+### Radio Propagation & Weather Forcasting
+| Command | Description | |
 |---------|-------------|-------------------
 | `sun` and `moon` | Return info on rise and set local time | ✅ |
 | `solar` | Gives an idea of the x-ray flux | |
 | `hfcond` | Returns a table of HF solar conditions | |
+| `tide` | Returns the local tides (NOAA data source) |
 | `rlist` | Returns a table of nearby repeaters from RepeaterBook | |
+| `wx` and `wxc` | Return local weather forecast (wxc is metric value), NOAA or Open Meteo for weather forecasting |
+| `wxa` and `wxalert` | Return NOAA alerts. Short title or expanded details |
 
-### Bulletin Board (BBS) Functions
+### Bulletin Board & Mail
 | Command | Description | |
 |---------|-------------|-
 | `bbshelp` | Returns the following help message | ✅ |
@@ -278,27 +292,19 @@ sudo apt-get install fonts-noto-color-emoji
 | `bbsdelete` | Deletes a message. Example: `bbsdelete #4` | ✅ |
 | `bbsinfo` | Provides stats on BBS delivery and messages (sysop) | ✅ |
 
-### Other Functions
+### Data Lookup 
 | Command | Description | |
 |---------|-------------|-
-| `ping`, `ack`, `test` | Return data for signal. Example: `ping 15 #DrivingI5` (activates auto-ping every 20 seconds for count 15) | ✅ |
-| `whereami` | Returns the address of the sender's location if known |
-| `whoami` | Returns details of the node asking, also returned when position exchanged 📍 | ✅ |
-| `tide` | Returns the local tides (NOAA data source) |
-| `wx` and `wxc` | Return local weather forecast (wxc is metric value), NOAA or Open Meteo for weather forecasting |
-| `wxa` and `wxalert` | Return NOAA alerts. Short title or expanded details |
-| `joke` | Tells a joke | ✅ |
 | `wiki:` | Searches Wikipedia and returns the first few sentences of the first result if a match. Example: `wiki: lora radio` |
 | `askai` and `ask:` | Ask Ollama LLM AI for a response. Example: `askai what temp do I cook chicken` | ✅ |
 | `messages` | Replays the last messages heard, like Store and Forward | ✅ |
-| `motd` | Displays the message of the day or sets it. Example: `motd $New Message Of the day` | ✅ |
-| `lheard` | Returns the last 5 heard nodes with SNR. Can also use `sitrep` | ✅ |
-| `history` | Returns the last commands run by user(s) | ✅ |
-| `cmd` | Returns the list of commands (the help message) | ✅ |
+
+
 
 ### Games (via DM)
-| Command | Description | ✅ Works Off-Grid |
+| Command | Description | |
 |---------|-------------|-
+| `joke` | Tells a joke | ✅ |
 | `lemonstand` | Plays the classic Lemonade Stand finance game | ✅ |
 | `dopewars` | Plays the classic drug trader game | ✅ |
 | `blackjack` | Plays Blackjack (Casino 21) | ✅ |
