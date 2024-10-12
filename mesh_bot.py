@@ -728,7 +728,7 @@ def handle_repeaterQuery(message_from_id, deviceID, channel_number):
     location = get_node_location(message_from_id, deviceID, channel_number)
     if repeater_lookup == "rbook":
         return getRepeaterBook(str(location[0]), str(location[1]))
-    elif repeaterLookup == "artsci":
+    elif repeater_lookup == "artsci":
         return getArtSciRepeaters(str(location[0]), str(location[1]))
     else:
         return "Repeater lookup not enabled"
@@ -814,7 +814,7 @@ def onReceive(packet, interface):
     rxType = type(interface).__name__
 
     # Valies assinged to the packet
-    rxNode, message_from_id, snr, rssi, hop, hop_away = 0, 0, 0, 0, 0, 0
+    rxNode, message_from_id, snr, rssi, hop, hop_away, channel_number = 0, 0, 0, 0, 0, 0, 0
     pkiStatus = (False, 'ABC')
     isDM = False
 
@@ -853,8 +853,6 @@ def onReceive(packet, interface):
 
         if packet.get('channel'):
             channel_number = packet['channel']
-        else:
-            channel_number = publicChannel
         
         msg = bbs_check_dm(message_from_id)
         if msg:
