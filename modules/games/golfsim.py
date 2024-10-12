@@ -323,6 +323,8 @@ def playGolf(nodeID, message, finishedHole=False):
                 msg += "\nYou have " + str(distance_remaining) + "yd. ⛳️"
                 msg += "\nClub?[D, L, M, H, G, W]🏌️"
 
+                total_strokes += hole_shots
+
                 # save player's current game state, keep stroking
                 for i in range(len(golfTracker)):
                     if golfTracker[i]['nodeID'] == nodeID:
