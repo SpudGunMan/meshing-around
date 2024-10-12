@@ -561,7 +561,7 @@ def start_lemonade(nodeID, message, celsius=False):
             
                 weeks.current = weeks.current + 1
 
-                msg += f"Play another week🥤? 'end' to end game"
+                msg += f"Play another week🥤? or (E)nd Game"
                 
                 saveValues()
             return msg
