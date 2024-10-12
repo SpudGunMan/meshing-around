@@ -275,7 +275,7 @@ def playGolf(nodeID, message, finishedHole=False):
                 # Show player the club distances
                 msg += f"Caddy Guess:\nD:{hit_driver()} L:{hit_low_iron()} M:{hit_mid_iron()} H:{hit_high_iron()} G:{hit_gap_wedge()} W:{hit_lob_wedge()}"
             else:
-                msg += "Didnt get your club 🥪♣️🪩 choice"
+                msg += f"Didnt get your club 🥪♣️🪩 choice, you have {distance_remaining}yds. to ⛳️"
                 return msg
 
             if distance_remaining - pin_distance > pin_distance or shot_distance > pin_distance:
@@ -395,7 +395,7 @@ def playGolf(nodeID, message, finishedHole=False):
             #HighScore Display
             highscore = getHighScoreGolf(nodeID, total_strokes, total_to_par)
             if highscore != 0:
-                msg += "\n🏆New Club Record🏆"
+                msg += " 🏆New Club Record🏆"
             # pop player from tracker
             for i in range(len(golfTracker)):
                 if golfTracker[i]['nodeID'] == nodeID:
