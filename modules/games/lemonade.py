@@ -22,7 +22,7 @@ lemonadeTracker = [{'nodeID': 0, 'cups': 0, 'lemons': 0, 'sugar': 0, 'cash': lem
 lemonadeCups = [{'nodeID': 0, 'cost': 2.50, 'count': 25, 'min': 0.99, 'unit': 0.00}]
 lemonadeLemons = [{'nodeID': 0, 'cost': 4.00, 'count': 8, 'min': 2.00, 'unit': 0.00}]
 lemonadeSugar = [{'nodeID': 0, 'cost': 3.00, 'count': 15, 'min': 1.50, 'unit': 0.00}]
-lemonadeWeeks = [{'nodeID': 0, 'current': 1, 'total': lemon_total_weeks, 'sales': 99, 'potential': 0, 'unit': 0.00, 'price': 0.00}]
+lemonadeWeeks = [{'nodeID': 0, 'current': 1, 'total': lemon_total_weeks, 'sales': 99, 'potential': 0, 'unit': 0.00, 'price': 0.00, 'total_sales': 0}]
 lemonadeScore = [{'nodeID': 0, 'value': 0.00, 'total': 0.00}]
 
 def get_sales_amount(potential, unit, price):
@@ -55,10 +55,11 @@ def start_lemonade(nodeID, message, celsius=False):
     potential = 0
     unit = 0.0
     price = 0.0
+    total_sales = 0
 
     high_score = getHighScoreLemon()
 
-    def saveValues():
+    def saveValues(nodeID, inventory, cups, lemons, sugar, weeks, score):
         # save playerDB values
         for i in range(len(lemonadeTracker)):
             if lemonadeTracker[i]['nodeID'] == nodeID:
@@ -87,6 +88,7 @@ def start_lemonade(nodeID, message, celsius=False):
                 lemonadeWeeks[i]['potential'] = potential
                 lemonadeWeeks[i]['unit'] = unit
                 lemonadeWeeks[i]['price'] = price
+                lemonadeWeeks[i]['total_sales'] = weeks.total_sales
         for i in range(len(lemonadeScore)):
             if lemonadeScore[i]['nodeID'] == nodeID:
                 lemonadeScore[i]['value'] = score.value
@@ -169,6 +171,7 @@ def start_lemonade(nodeID, message, celsius=False):
         'current' : 1,   # start with the 1st week
         'total'   : 12,  # span the 12 weeks of Summer
         'sales'   : 99,  # 99 maximum sales per week
+        'total_sales' : 0, # total sales
         'summary' : []   # empty array
     }
     weeks = SimpleNamespace(**weeksd)
@@ -231,6 +234,7 @@ def start_lemonade(nodeID, message, celsius=False):
             potential = lemonadeWeeks[i]['potential']
             unit = lemonadeWeeks[i]['unit']
             price = lemonadeWeeks[i]['price']
+            weeks.total_sales = lemonadeWeeks[i]['total_sales']
     for i in range(len(lemonadeScore)):
         if lemonadeScore[i]['nodeID'] == nodeID:
             score.value = lemonadeScore[i]['value']
@@ -322,7 +326,7 @@ def start_lemonade(nodeID, message, celsius=False):
                     buffer += "📊P&L📈" + pnl
 
             buffer += f"\n🥤 to buy? Have {inventory.cups} Cost {locale.currency(cups.cost, grouping=True)} a 📦 of {str(cups.count)}"
-            saveValues()
+            saveValues(nodeID, inventory, cups, lemons, sugar, weeks, score)
             return buffer
         
         if "cups" in last_cmd:
@@ -349,7 +353,7 @@ def start_lemonade(nodeID, message, celsius=False):
             for i in range(len(lemonadeTracker)):
                 if lemonadeTracker[i]['nodeID'] == nodeID:
                     lemonadeTracker[i]['cmd'] = "lemons"
-            saveValues()
+            saveValues(nodeID, inventory, cups, lemons, sugar, weeks, score)
             msg += f"\n 🍋 to buy? Have {inventory.lemons}🥤 of 🍋 Cost {locale.currency(lemons.cost, grouping=True)} a 🧺 for {str(lemons.count)}🥤"
             return msg
                 
@@ -379,7 +383,7 @@ def start_lemonade(nodeID, message, celsius=False):
             for i in range(len(lemonadeTracker)):
                 if lemonadeTracker[i]['nodeID'] == nodeID:
                     lemonadeTracker[i]['cmd'] = "sugar"
-            saveValues()
+            saveValues(nodeID, inventory, cups, lemons, sugar, weeks, score)
             msg += f"\n 🍚 to buy? You have {inventory.sugar}🥤 of 🍚, Cost {locale.currency(sugar.cost, grouping=True)} a bag for {str(sugar.count)}🥤"
             return msg
 
@@ -411,7 +415,7 @@ def start_lemonade(nodeID, message, celsius=False):
             for i in range(len(lemonadeTracker)):
                 if lemonadeTracker[i]['nodeID'] == nodeID:
                     lemonadeTracker[i]['cmd'] = "price"
-            saveValues()
+            saveValues(nodeID, inventory, cups, lemons, sugar, weeks, score)
             return msg
     
         if "price" in last_cmd:
@@ -436,11 +440,12 @@ def start_lemonade(nodeID, message, celsius=False):
                         return "The price must be greater than zero."
                 except Exception as e:
                     price = 0.00
+                    last_cmd = "price"
                     return "⛔️Invalid input, enter the price of the lemonade per 🥤"
             
             # this isnt sent to the user, not needed
             #msg = "  Setting the price at " + locale.currency(price, grouping=True)
-            saveValues()
+            saveValues(nodeID, inventory, cups, lemons, sugar, weeks, score)
         
 
         if "sales" in last_cmd:
@@ -489,13 +494,16 @@ def start_lemonade(nodeID, message, celsius=False):
             # Display the weekly sales summary
             pad_week = len(str(weeks.total))
             pad_sale = len(str(weeks.sales))
-            total    = 0
+            total = 0
             msg += "\nWeekly📊"
             for i in range(len(weeks.summary)):
                 msg += "#" + str(weeks.current).rjust(pad_week) + ".  " + str(weeks.summary[i]['sales']).rjust(pad_sale) + \
                     " sold x " + locale.currency(weeks.summary[i]['price'], grouping=True) + "ea. "
                 total = total + weeks.summary[i]['sales']
 
+            # Update the total sales for the game
+            weeks.total_sales += total
+            
             # Loop through a range of prices to find the highest net profit
             maxsales = 0
             maxprice = 0.00
@@ -533,13 +541,14 @@ def start_lemonade(nodeID, message, celsius=False):
             score.value = score.value + minnet
             score.total = score.total + maxnet
 
+
             # Increment the week number
             if (weeks.current == weeks.total):
                 # end of the game
                 success = round((score.value / score.total) * 100)
                 msg += "\nYou've made " + locale.currency(score.value, grouping=True) + " out of a possible " + \
                     locale.currency(score.total, grouping=True) + " for a score of " + str(success) + "% "
-                msg += "You've sold " + str(total) + " total 🥤🍋"
+                msg += "You've sold " + str(weeks.total_sales) + " total 🥤🍋"
 
                 # check for high score
                 high_score = getHighScoreLemon()
@@ -558,10 +567,11 @@ def start_lemonade(nodeID, message, celsius=False):
                 for i in range(len(lemonadeTracker)):
                     if lemonadeTracker[i]['nodeID'] == nodeID:
                         lemonadeTracker[i]['cmd'] = "new"
-            
+                        lemonadeTracker[i]['time'] = time.time()
+                
                 weeks.current = weeks.current + 1
 
                 msg += f"Play another week🥤? or (E)nd Game"
                 
-                saveValues()
+                saveValues(nodeID, inventory, cups, lemons, sugar, weeks, score)
             return msg
