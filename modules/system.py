@@ -293,7 +293,7 @@ def get_node_list(nodeInt=1):
         for node in interface.nodes.values():
             # ignore own
             if node['num'] != myNodeNum2 and node['num'] != myNodeNum1:
-                node_name = get_name_from_number(node['num'], 'long', nodeInt)
+                node_name = get_name_from_number(node['num'], 'short', nodeInt)
                 snr = node.get('snr', 0)
 
                 # issue where lastHeard is not always present
