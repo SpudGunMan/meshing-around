@@ -17,9 +17,9 @@ else
 fi
 
 # launch the application
-if [ "$1" == "pong" ]; then
+if [[ "$1" == pong* ]]; then
     python3 pong_bot.py
-elif [ "$1" == "mesh" ]; then
+elif [[ "$1" == mesh* ]]; then
     python3 mesh_bot.py
 elif [ "$1" == "html" ]; then
     python3 etc/report_generator.py
