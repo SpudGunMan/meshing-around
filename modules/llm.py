@@ -20,11 +20,7 @@ googleSearchResults = 3 # number of google search results to include in the cont
 antiFloodLLM = []
 llmChat_history = {}
 trap_list_llm = ("ask:", "askai")
-ragDEV = False
-
-chromaClient = chromadb.Client()
-collection = chromaClient.create_collection("meshBotAI")
-
+ragDEV = True
 
 meshBotAI = """
     FROM {llmModel}
@@ -70,7 +66,7 @@ if llmEnableHistory:
 def llm_readTextFiles():
     # read .txt files in ../data/rag
     try:
-        text = "MeshBot is built in python for meshtastic the secret word of the day is, paperclip"
+        text = ["MeshBot is built in python for meshtastic the secret word of the day is, paperclip", "MeshBot is a chatbot that uses the Ollama AI engine to generate responses to user input. The secret word of the day is, paperclip"]
         return text
     except Exception as e:
         logger.debug(f"System: LLM readTextFiles: {e}")
@@ -91,6 +87,26 @@ def embed_text(text):
     except Exception as e:
         logger.debug(f"System: Embedding failed: {e}")
         return False
+
+if ragDEV:
+    try:
+        chromaClient = chromadb.Client()
+        if "meshBotAI" in chromaClient.list_collections():
+            chromaClient.delete_collection("meshBotAI")
+        collection = chromaClient.create_collection("meshBotAI")
+        logger.debug(f"System: LLM: Cataloging RAG data")
+        embed_text(llm_readTextFiles())
+    except Exception as e:
+        logger.debug(f"System: LLM: RAG Initalization failed: {e}")
+
+def query_collection(prompt):
+    # generate an embedding for the prompt and retrieve the most relevant doc
+    response = ollama.embeddings(prompt=prompt, model="mxbai-embed-large")
+    results = collection.query(query_embeddings=[response["embedding"]], n_results=1)
+    data = results['documents'][0][0]
+    return data
+    
+
 
 def llm_query(input, nodeID=0, location_name=None):
     global antiFloodLLM, llmChat_history
@@ -142,20 +158,19 @@ def llm_query(input, nodeID=0, location_name=None):
         modelPrompt = meshBotAI.format(input=input, context='\n'.join(googleResults), location_name=location_name, llmModel=llmModel, history=history)
         
         # RAG context inclusion testing
-        ragData = llm_readTextFiles()
-
-        if ragData and ragDEV:
-            ragContext = embed_text(ragData)
+        if ragDEV:
+            ragContext = query_collection(input)
 
             # Query the model with RAG context
             if ragContext:
-                result = ollamaClient.generate(model=llmModel, prompt=modelPrompt, context=ragContext)
+                result = ollamaClient.generate(model=llmModel, prompt=f"Using this data: {ragContext}. Respond to this prompt: {input}")
         else:
             # Query the model without RAG context
             result = ollamaClient.generate(model=llmModel, prompt=modelPrompt)
     
         # Condense the result to just needed
-        result = result.get("response")
+        if isinstance(result, dict):
+            result = result.get("response")
 
         #logger.debug(f"System: LLM Response: " + result.strip().replace('\n', ' '))
     except Exception as e:
