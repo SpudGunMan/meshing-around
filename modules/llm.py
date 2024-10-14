@@ -6,9 +6,10 @@ from modules.log import *
 
 # Ollama Client
 # https://github.com/ollama/ollama/blob/main/docs/faq.md#how-do-i-configure-ollama-server
+import ollama # pip install ollama
 from ollama import Client as OllamaClient
-from langchain_ollama import OllamaEmbeddings # pip install ollama langchain-ollama
 from googlesearch import search # pip install googlesearch-python
+import chromadb # pip install chromadb
 
 # LLM System Variables
 OllamaClient(host=ollamaHostName)
@@ -19,8 +20,11 @@ googleSearchResults = 3 # number of google search results to include in the cont
 antiFloodLLM = []
 llmChat_history = {}
 trap_list_llm = ("ask:", "askai")
-embedding_model = OllamaEmbeddings(model=llmModel)
 ragDEV = False
+
+chromaClient = chromadb.Client()
+collection = chromaClient.create_collection("meshBotAI")
+
 
 meshBotAI = """
     FROM {llmModel}
@@ -74,7 +78,16 @@ def llm_readTextFiles():
 
 def embed_text(text):
     try:
-        return embedding_model.embed_documents(text)
+        # store each document in a vector embedding database
+        for i, d in enumerate(text):
+            response = ollama.embeddings(model="mxbai-embed-large", prompt=d)
+            embedding = response["embedding"]
+            collection.add(
+                ids=[str(i)],
+                embeddings=[embedding],
+                documents=[d]
+            )
+
     except Exception as e:
         logger.debug(f"System: Embedding failed: {e}")
         return False

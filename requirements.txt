@@ -14,6 +14,5 @@ geopy
 schedule
 wikipedia
 ollama
-langchain
-langchain-ollama
+chromadb
 googlesearch-python
