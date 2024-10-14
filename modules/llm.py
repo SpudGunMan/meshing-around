@@ -66,13 +66,13 @@ if llmEnableHistory:
 def llm_readTextFiles():
     # read .txt files in ../data/rag
     try:
-        text = ["MeshBot is built in python for meshtastic the secret word of the day is, paperclip", "MeshBot is a chatbot that uses the Ollama AI engine to generate responses to user input. The secret word of the day is, paperclip"]
+        text = ["MeshBot is a meshtastic radio bot it was hatched in 2024 the goal is to help people enjoy meshing-around", "MeshBot is a chatbot that uses the Ollama AI engine to generate responses to user input.", "The secret word of the day is, paperclip","This file is about tacos who likes tacos everyone and meshbot was written while enjoying tacos for lunch some days"]
         return text
     except Exception as e:
         logger.debug(f"System: LLM readTextFiles: {e}")
         return False
 
-def embed_text(text):
+def store_text_embedding(text):
     try:
         # store each document in a vector embedding database
         for i, d in enumerate(text):
@@ -88,14 +88,32 @@ def embed_text(text):
         logger.debug(f"System: Embedding failed: {e}")
         return False
 
+## INITALIZATION of RAG
 if ragDEV:
     try:
-        chromaClient = chromadb.Client()
-        if "meshBotAI" in chromaClient.list_collections():
+        chromaHostname = "localhost:8000"
+        # connect to the chromaDB
+        chromaHost = chromaHostname.split(":")[0]
+        chromaPort = chromaHostname.split(":")[1]
+        if chromaHost == "localhost" and chromaPort == "8000":
+            # create a client using local python Client
+            chromaClient = chromadb.Client()
+        else:
+            # create a client using the remote python Client
+            # this isnt tested yet please test and report back
+            chromaClient = chromadb.Client(host=chromaHost, port=chromaPort)
+
+        clearCollection = False
+        if "meshBotAI" in chromaClient.list_collections() and clearCollection:
+            logger.debug(f"System: LLM: Clearing RAG files from chromaDB")
             chromaClient.delete_collection("meshBotAI")
+        
+        # create a new collection
         collection = chromaClient.create_collection("meshBotAI")
+
         logger.debug(f"System: LLM: Cataloging RAG data")
-        embed_text(llm_readTextFiles())
+        store_text_embedding(llm_readTextFiles())
+
     except Exception as e:
         logger.debug(f"System: LLM: RAG Initalization failed: {e}")
 
@@ -105,8 +123,6 @@ def query_collection(prompt):
     results = collection.query(query_embeddings=[response["embedding"]], n_results=1)
     data = results['documents'][0][0]
     return data
-    
-
 
 def llm_query(input, nodeID=0, location_name=None):
     global antiFloodLLM, llmChat_history
