@@ -36,7 +36,7 @@ except Exception as e:
 if config.sections() == []:
     print(f"web_reporter.cfg is empty or does not exist, generating default config")
     shameWordList = shameWordList_str = ', '.join(shameWordList)
-    config['reporting'] = {'log_path': script_dir, 'w3_path': www_dir, 'multi_log_reader': 'True', 'shame_word_list': shameWordList}
+    config['reporting'] = {'log_path': script_dir, 'w3_path': www_dir, 'multi_log_reader': 'False', 'shame_word_list': shameWordList}
     with open(config_file, 'w') as configfile:
         config.write(configfile)
 
@@ -103,7 +103,11 @@ def parse_log_file(file_path):
         'node2_name': "N/A",
         'node1_ID': "N/A",
         'node2_ID': "N/A",
-        'shameList': []
+        'shameList': [],
+        'channel_util': defaultdict(int),
+        'packet_errors': defaultdict(int),
+        'nodeCount1': defaultdict(int),
+        'rx1': defaultdict(int),
     }
 
     for line in lines:
@@ -208,17 +212,17 @@ def parse_log_file(file_path):
                 if interface_number == '1':
                     log_data['firmware1_version'] = firmware_version
                     log_data['node1_uptime'] = data
-                    log_data['nodeCount1'] = totalNodes
-                    log_data['nodeCountOnline1'] = online
-                    log_data['tx1'] = numPacketsTx
-                    log_data['rx1'] = numPacketsRx
+                    log_data['nodeCount1'] = {timestamp.isoformat(): f'{totalNodes}'}
+                    log_data['nodeCountOnline1'] = {timestamp.isoformat(): f'{online}'}
+                    log_data['tx1'] = {timestamp.isoformat(): f'{numPacketsTx}'}
+                    log_data['rx1'] = {timestamp.isoformat(): f'{numPacketsRx}'}
                 elif interface_number == '2':
                     log_data['firmware2_version'] = firmware_version
                     log_data['node2_uptime'] = data
-                    log_data['nodeCount2'] = totalNodes
-                    log_data['nodeCountOnline2'] = online
-                    log_data['tx2'] = numPacketsTx
-                    log_data['rx2'] = numPacketsRx
+                    log_data['nodeCount2'] = {timestamp.isoformat(): f'{totalNodes}'}
+                    log_data['nodeCountOnline2'] = {timestamp.isoformat(): f'{online}'}
+                    log_data['tx2'] = {timestamp.isoformat(): f'{numPacketsTx}'}
+                    log_data['rx2'] = {timestamp.isoformat(): f'{numPacketsRx}'}
 
         # get name and nodeID for devices
         if 'Autoresponder Started for Device' in line:
@@ -794,6 +798,30 @@ def generate_main_html(log_data, system_info):
                 </div>
             </section>
             <section class="chart-container">
+                <h2 class="chart-title">Packet Counts</h2>
+                <div class="chart-content">
+                    <canvas id="packetChart"></canvas>
+                </div>
+            </section>
+            <section class="chart-container">
+                <h2 class="chart-title">Channel Util</h2>
+                <div class="chart-content">
+                    <canvas id="utilChart"></canvas>
+                </div>
+            </section>
+            <section class="chart-container">
+                <h2 class="chart-title">Packet Errors</h2>
+                <div class="chart-content">
+                    <canvas id="errorChart"></canvas>
+                </div>
+            </section>
+            <section class="chart-container">
+                <h2 class="chart-title">Node Count</h2>
+                <div class="chart-content">
+                    <canvas id="nodeChart"></canvas>
+                </div>
+            </section>
+            <section class="chart-container">
                 <h2 class="chart-title">Command Usage</h2>
                 <div class="chart-content">
                     <canvas id="commandChart"></canvas>
@@ -854,6 +882,10 @@ def generate_main_html(log_data, system_info):
         const commandData = ${command_data};
         const messageData = ${message_data};
         const activityData = ${activity_data};
+        const packet1rxData = ${packet1rx_data};
+        const utilData = ${util_data};
+        const errorData = ${error_data};
+        const node1Data = ${node1_data};
         const messageCountData = {
             labels: ['BBSdm Messages', 'BBSdb Messages', 'Channel Messages'],
             datasets: [{
@@ -905,7 +937,7 @@ def generate_main_html(log_data, system_info):
                         fill: false
                     }]
                 },
-options: {
+                options: {
                     ...chartOptions,
                     scales: {
                         x: {
@@ -930,6 +962,132 @@ options: {
                         }
                     }
                 }
+            });
+
+            new Chart(document.getElementById('packetChart'), {
+                type: 'line',
+                data: {
+                    labels: Object.keys(packet1rxData),
+                    datasets: [{
+                        label: 'TX/RX Count',
+                        data: Object.entries(packet1rxData).map(([time, count]) => ({x: new Date(time), y: count})),
+                        borderColor: 'rgba(153, 102, 255, 1)',
+                        fill: false
+                    }]
+                },
+                options: {
+                    ...chartOptions,
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'hour',
+                                displayFormats: {
+                                    hour: 'MMM d, HH:mm'
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Time'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'TX/RX Packet Count'
+                            }
+                        }
+                    }
+                }
+            });
+
+            new Chart(document.getElementById('utilChart'), {
+                type: 'line',
+                data: {
+                    labels: Object.keys(utilData),
+                    datasets: [{
+                        label: 'Hourly Activity',
+                        data: Object.entries(utilData).map(([time, count]) => ({x: new Date(time), y: count})),
+                        borderColor: 'rgba(153, 102, 255, 1)',
+                        fill: false
+                    }]
+                },
+                options: {
+                    ...chartOptions,
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'hour',
+                                displayFormats: {
+                                    hour: 'MMM d, HH:mm'
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Time'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Activity %'
+                            }
+                        }
+                    }
+                }
+            });
+
+            new Chart(document.getElementById('errorChart'), {
+                type: 'line',
+                data: {
+                    labels: Object.keys(errorData),
+                    datasets: [{
+                        label: 'Hourly Activity',
+                        data: Object.entries(errorData).map(([time, count]) => ({x: new Date(time), y: count})),
+                        borderColor: 'rgba(153, 102, 255, 1)',
+                        fill: false
+                    }]
+                },
+                options: {
+                    ...chartOptions,
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'hour',
+                                displayFormats: {
+                                    hour: 'MMM d, HH:mm'
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Time'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Error Count'
+                            }
+                        }
+                    }
+                }
+            });
+
+            new Chart(document.getElementById('nodeChart'), {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(node1Data),
+                    datasets: [{
+                        data: Object.values(node1Data),
+                        backgroundColor: ['rgba(255, 99, 132, 0.6)', 'rgba(54, 162, 235, 0.6)']
+                    }]
+                },
+                options: chartOptions
             });
 
             new Chart(document.getElementById('messageCountChart'), {
@@ -1040,6 +1198,10 @@ options: {
         command_data=json.dumps(log_data['command_counts']),
         message_data=json.dumps(log_data['message_types']),
         activity_data=json.dumps(log_data['hourly_activity']),
+        packet1rx_data=(log_data['rx1']),
+        util_data=json.dumps(log_data['channel_util']),
+        error_data=json.dumps(log_data['packet_errors']),
+        node1_data=json.dumps(log_data['nodeCount1']),
         bbs_messages=log_data['bbs_messages'],
         messages_waiting=log_data['messages_waiting'],
         total_messages=log_data['total_messages'],

@@ -20,7 +20,7 @@ googleSearchResults = 3 # number of google search results to include in the cont
 antiFloodLLM = []
 llmChat_history = {}
 trap_list_llm = ("ask:", "askai")
-ragDEV = True
+ragDEV = False
 
 meshBotAI = """
     FROM {llmModel}
