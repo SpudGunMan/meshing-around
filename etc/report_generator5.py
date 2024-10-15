@@ -272,6 +272,7 @@ def get_system_info():
         pass
     # get Meshtastic CLI version on local
     try:
+        cli_local = "N/A"
         if "importlib.metadata" in sys.modules:
             cli_local = version("meshtastic")
     except:
