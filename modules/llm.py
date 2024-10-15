@@ -168,17 +168,20 @@ def llm_query(input, nodeID=0, location_name=None):
     location_name += f" at the current time of {datetime.now().strftime('%Y-%m-%d %H:%M:%S %Z')}"
 
     try:
-        # Build the query from the template
-        modelPrompt = meshBotAI.format(input=input, context='\n'.join(googleResults), location_name=location_name, llmModel=llmModel, history=history)
-        
         # RAG context inclusion testing
+        ragContext = False
         if ragDEV:
             ragContext = query_collection(input)
 
+        if ragContext:
+            ragContextGooogle = ragContext + '\n'.join(googleResults)
+            # Build the query from the template
+            modelPrompt = meshBotAI.format(input=input, context=ragContext, location_name=location_name, llmModel=llmModel, history=history)
             # Query the model with RAG context
-            if ragContext:
-                result = ollamaClient.generate(model=llmModel, prompt=f"Using this data: {ragContext}. Respond to this prompt: {input}")
+            result = ollamaClient.generate(model=llmModel, prompt=f"Using this data: {ragContext}. Respond to this prompt: {input}")
         else:
+            # Build the query from the template
+            modelPrompt = meshBotAI.format(input=input, context='\n'.join(googleResults), location_name=location_name, llmModel=llmModel, history=history)
             # Query the model without RAG context
             result = ollamaClient.generate(model=llmModel, prompt=modelPrompt)
     
