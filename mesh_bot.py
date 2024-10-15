@@ -847,12 +847,13 @@ def onReceive(packet, interface):
         elif interface2_enabled and interface2_type == 'ble':
             rxNode = 2
 
+    # check if the packet has a channel flag use it
+    if packet.get('channel'):
+        channel_number = packet.get('channel', 0)
+
     # BBS DM MAIL CHECKER
     if bbs_enabled and 'decoded' in packet:
         message_from_id = packet['from']
-
-        if packet.get('channel'):
-            channel_number = packet['channel']
         
         msg = bbs_check_dm(message_from_id)
         if msg:
@@ -874,10 +875,6 @@ def onReceive(packet, interface):
             if packet.get('rxSnr') or packet.get('rxRssi'):
                 snr = packet.get('rxSnr', 0)
                 rssi = packet.get('rxRssi', 0)
-
-            # check if the packet has a channel flag use it
-            if packet.get('channel'):
-                channel_number = packet.get('channel', 0)
 
             # check if the packet has a publicKey flag use it
             if packet.get('publicKey'):
