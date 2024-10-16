@@ -53,6 +53,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "moon": lambda: handle_moon(message_from_id, deviceID, channel_number),
     "motd": lambda: handle_motd(message, message_from_id, isDM),
     "ping": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM),
+    "pinging": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM),
     "playuno": lambda: handleUno(message, message_from_id, deviceID),
     "pong": lambda: "🏓PING!!🛜",
     "rlist": lambda: handle_repeaterQuery(message_from_id, deviceID, channel_number),
