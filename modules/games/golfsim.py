@@ -375,7 +375,6 @@ def playGolf(nodeID, message, finishedHole=False):
 
             # Scorecard reset
             hole_to_par = 0
-            total_to_par = 0
             hole_strokes = 0
             hole_shots = 0
         
