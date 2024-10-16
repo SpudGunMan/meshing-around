@@ -6,10 +6,8 @@ from modules.log import *
 
 # Ollama Client
 # https://github.com/ollama/ollama/blob/main/docs/faq.md#how-do-i-configure-ollama-server
-import ollama # pip install ollama
 from ollama import Client as OllamaClient
 from googlesearch import search # pip install googlesearch-python
-import chromadb # pip install chromadb
 
 # LLM System Variables
 OllamaClient(host=ollamaHostName)
@@ -21,6 +19,10 @@ antiFloodLLM = []
 llmChat_history = {}
 trap_list_llm = ("ask:", "askai")
 ragDEV = False
+
+if ragDEV:
+    import ollama # pip install ollama
+    import chromadb # pip install chromadb
 
 meshBotAI = """
     FROM {llmModel}
