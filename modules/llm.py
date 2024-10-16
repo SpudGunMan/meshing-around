@@ -9,6 +9,12 @@ from modules.log import *
 from ollama import Client as OllamaClient
 from googlesearch import search # pip install googlesearch-python
 
+ragDEV = False
+
+if ragDEV:
+    import ollama # pip install ollama
+    import chromadb # pip install chromadb
+
 # LLM System Variables
 OllamaClient(host=ollamaHostName)
 ollamaClient = OllamaClient()
@@ -18,11 +24,7 @@ googleSearchResults = 3 # number of google search results to include in the cont
 antiFloodLLM = []
 llmChat_history = {}
 trap_list_llm = ("ask:", "askai")
-ragDEV = False
 
-if ragDEV:
-    import ollama # pip install ollama
-    import chromadb # pip install chromadb
 
 meshBotAI = """
     FROM {llmModel}
