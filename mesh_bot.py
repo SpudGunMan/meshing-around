@@ -53,6 +53,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "moon": lambda: handle_moon(message_from_id, deviceID, channel_number),
     "motd": lambda: handle_motd(message, message_from_id, isDM),
     "ping": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM),
+    "pinging": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM),
     "playuno": lambda: handleUno(message, message_from_id, deviceID),
     "pong": lambda: "🏓PING!!🛜",
     "rlist": lambda: handle_repeaterQuery(message_from_id, deviceID, channel_number),
@@ -212,7 +213,8 @@ def handle_wxalert(message_from_id, deviceID, message):
             weatherAlert = getActiveWeatherAlertsDetail(str(location[0]), str(location[1]))
         else:
             weatherAlert = getWeatherAlerts(str(location[0]), str(location[1]))
-
+            
+        weatherAlert = weatherAlert[0]
         return weatherAlert
 
 def handle_wiki(message, isDM):
@@ -847,12 +849,13 @@ def onReceive(packet, interface):
         elif interface2_enabled and interface2_type == 'ble':
             rxNode = 2
 
+    # check if the packet has a channel flag use it
+    if packet.get('channel'):
+        channel_number = packet.get('channel', 0)
+
     # BBS DM MAIL CHECKER
     if bbs_enabled and 'decoded' in packet:
         message_from_id = packet['from']
-
-        if packet.get('channel'):
-            channel_number = packet['channel']
         
         msg = bbs_check_dm(message_from_id)
         if msg:
@@ -874,10 +877,6 @@ def onReceive(packet, interface):
             if packet.get('rxSnr') or packet.get('rxRssi'):
                 snr = packet.get('rxSnr', 0)
                 rssi = packet.get('rxRssi', 0)
-
-            # check if the packet has a channel flag use it
-            if packet.get('channel'):
-                channel_number = packet.get('channel', 0)
 
             # check if the packet has a publicKey flag use it
             if packet.get('publicKey'):

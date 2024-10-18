@@ -213,6 +213,9 @@ schedule.every().day.at("08:00").do(lambda: send_message(handle_wxc(0, 1, 'wx'),
 schedule.every().wednesday.at("19:00").do(lambda: send_message("Net Starting Now", 2, 0, 1))
 ```
 
+### MQTT Notes
+There is no direct support for MQTT in the code, however, reports from Discord are that using [meshtasticd](https://meshtastic.org/docs/hardware/devices/linux-native-hardware/) with no radio and attaching the bot to the software node, which is MQTT-linked, allows routing. There also seems to be a quicker way to enable MQTT by having your bot node with the enabled [serial](https://meshtastic.org/docs/configuration/module/serial/) module with echo enabled and MQTT uplink and downlink. These two methods have been mentioned as allowing MQTT routing for the project. 
+
 ### Requirements
 Python 3.8? or later is needed (dev on latest). The following can be installed with `pip install -r requirements.txt` or using the [install.sh](install.sh) script for venv and automation:
 
