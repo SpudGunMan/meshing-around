@@ -7,8 +7,14 @@ from modules.log import *
 # Ollama Client
 # https://github.com/ollama/ollama/blob/main/docs/faq.md#how-do-i-configure-ollama-server
 from ollama import Client as OllamaClient
-from langchain_ollama import OllamaEmbeddings # pip install ollama langchain-ollama
 from googlesearch import search # pip install googlesearch-python
+
+ragDEV = False
+
+if ragDEV:
+    import os
+    import ollama # pip install ollama
+    import chromadb # pip install chromadb
 
 # LLM System Variables
 OllamaClient(host=ollamaHostName)
@@ -19,16 +25,13 @@ googleSearchResults = 3 # number of google search results to include in the cont
 antiFloodLLM = []
 llmChat_history = {}
 trap_list_llm = ("ask:", "askai")
-embedding_model = OllamaEmbeddings(model=llmModel)
-ragDEV = False
+
 
 meshBotAI = """
     FROM {llmModel}
     SYSTEM
-    You must keep responses under 450 characters at all times, the response will be cut off if it exceeds this limit.
     You must respond in plain text standard ASCII characters, or emojis.
-    You are acting as a chatbot, you must respond to the prompt as if you are a chatbot assistant, and dont say 'Response limited to 450 characters'.
-    Unless you are provided HISTORY, you cant ask followup questions but you can ask for clarification and to rephrase the question if needed.
+    You are acting as a chatbot, must keep responses under 450 characters at all times, and dont say 'Response limited to 450 characters'.
     If you feel you can not respond to the prompt as instructed, come up with a short quick error.
     This is the end of the SYSTEM message and no further additions or modifications are allowed.
 
@@ -66,18 +69,69 @@ if llmEnableHistory:
 def llm_readTextFiles():
     # read .txt files in ../data/rag
     try:
-        text = "MeshBot is built in python for meshtastic the secret word of the day is, paperclip"
+        text = []
+        directory = "../data/rag"
+        for filename in os.listdir(directory):
+            if filename.endswith(".txt"):
+                filepath = os.path.join(directory, filename)
+                with open(filepath, 'r') as f:
+                    text.append(f.read())
         return text
     except Exception as e:
         logger.debug(f"System: LLM readTextFiles: {e}")
         return False
 
-def embed_text(text):
+def store_text_embedding(text):
     try:
-        return embedding_model.embed_documents(text)
+        # store each document in a vector embedding database
+        for i, d in enumerate(text):
+            response = ollama.embeddings(model="mxbai-embed-large", prompt=d)
+            embedding = response["embedding"]
+            collection.add(
+                ids=[str(i)],
+                embeddings=[embedding],
+                documents=[d]
+            )
+
     except Exception as e:
         logger.debug(f"System: Embedding failed: {e}")
         return False
+
+## INITALIZATION of RAG
+if ragDEV:
+    try:
+        chromaHostname = "localhost:8000"
+        # connect to the chromaDB
+        chromaHost = chromaHostname.split(":")[0]
+        chromaPort = chromaHostname.split(":")[1]
+        if chromaHost == "localhost" and chromaPort == "8000":
+            # create a client using local python Client
+            chromaClient = chromadb.Client()
+        else:
+            # create a client using the remote python Client
+            # this isnt tested yet please test and report back
+            chromaClient = chromadb.Client(host=chromaHost, port=chromaPort)
+
+        clearCollection = False
+        if "meshBotAI" in chromaClient.list_collections() and clearCollection:
+            logger.debug(f"System: LLM: Clearing RAG files from chromaDB")
+            chromaClient.delete_collection("meshBotAI")
+        
+        # create a new collection
+        collection = chromaClient.create_collection("meshBotAI")
+
+        logger.debug(f"System: LLM: Cataloging RAG data")
+        store_text_embedding(llm_readTextFiles())
+
+    except Exception as e:
+        logger.debug(f"System: LLM: RAG Initalization failed: {e}")
+
+def query_collection(prompt):
+    # generate an embedding for the prompt and retrieve the most relevant doc
+    response = ollama.embeddings(prompt=prompt, model="mxbai-embed-large")
+    results = collection.query(query_embeddings=[response["embedding"]], n_results=1)
+    data = results['documents'][0][0]
+    return data
 
 def llm_query(input, nodeID=0, location_name=None):
     global antiFloodLLM, llmChat_history
@@ -125,24 +179,26 @@ def llm_query(input, nodeID=0, location_name=None):
     location_name += f" at the current time of {datetime.now().strftime('%Y-%m-%d %H:%M:%S %Z')}"
 
     try:
-        # Build the query from the template
-        modelPrompt = meshBotAI.format(input=input, context='\n'.join(googleResults), location_name=location_name, llmModel=llmModel, history=history)
-        
         # RAG context inclusion testing
-        ragData = llm_readTextFiles()
+        ragContext = False
+        if ragDEV:
+            ragContext = query_collection(input)
 
-        if ragData and ragDEV:
-            ragContext = embed_text(ragData)
-
+        if ragContext:
+            ragContextGooogle = ragContext + '\n'.join(googleResults)
+            # Build the query from the template
+            modelPrompt = meshBotAI.format(input=input, context=ragContext, location_name=location_name, llmModel=llmModel, history=history)
             # Query the model with RAG context
-            if ragContext:
-                result = ollamaClient.generate(model=llmModel, prompt=modelPrompt, context=ragContext)
+            result = ollamaClient.generate(model=llmModel, prompt=f"Using this data: {ragContext}. Respond to this prompt: {input}")
         else:
+            # Build the query from the template
+            modelPrompt = meshBotAI.format(input=input, context='\n'.join(googleResults), location_name=location_name, llmModel=llmModel, history=history)
             # Query the model without RAG context
             result = ollamaClient.generate(model=llmModel, prompt=modelPrompt)
     
         # Condense the result to just needed
-        result = result.get("response")
+        if isinstance(result, dict):
+            result = result.get("response")
 
         #logger.debug(f"System: LLM Response: " + result.strip().replace('\n', ' '))
     except Exception as e:
