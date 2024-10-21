@@ -85,7 +85,7 @@ def tableOfContents():
         'inning': '⚾️', 'quarter': '🏈', 'half': '🏈', 'overtime': '🏈', 'penalty': '⚽️', 'foul': '⚽️', 'timeout': '⏱️', 'substitute': '🔄', 'bench': '🪑', 'sideline': '🏟️', 'dugout': '⚾️', 'locker room': '🚪', 'shower': '🚿', 
         'uniform': '👕', 'jersey': '👕', 'cleats': '👟', 'helmet': '⛑️', 'pads': '🛡️', 'gloves': '🧤', 'bat': '⚾️', 'ball': '⚽️', 'puck': '🏒', 'stick': '🏒', 'net': '🥅', 'hoop': '🏀', 'goalpost': '🥅', 'whistle': '🔔', 
         'scoreboard': '📊', 'fans': '👥', 'crowd': '👥', 'cheer': '📣', 'boo': '😠', 'applause': '👏', 'celebration': '🎉', 'parade': '🎉', 'trophy': '🏆', 'medal': '🏅', 'ribbon': '🎀', 'cup': '🏆', 'championship': '🏆', 
-        'league': '🏆', 'season': '🏆', 'playoffs': '🏆', 'finals': '🏆', 'champion': '🏆', 'runner-up': '🥈', 'third place': '🥉'
+        'league': '🏆', 'season': '🏆', 'playoffs': '🏆', 'finals': '🏆', 'champion': '🏆', 'runner-up': '🥈', 'third place': '🥉', 'snowman': '☃️', 'snowmen': '⛄️'
     }
 
     return wordToEmojiMap
