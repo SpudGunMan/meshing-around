@@ -165,7 +165,7 @@ class PlayerVP:
             except Exception as e:
                 pass
     
-        return "Re-Draw/Deal ex:1,3,4 to hold cards 1,3 and 4, or (N)o to keep current (H)and"
+        return "ex:1,3,4 deals them new, and keeps 2,5 or (N)o to keep current (H)and"
 
     # Method for scoring hand, calculating winnings, and outputting message
     def score_hand(self, resetHand = True):
