@@ -190,7 +190,7 @@ def llm_query(input, nodeID=0, location_name=None):
             # Build the query from the template
             modelPrompt = meshBotAI.format(input=input, context=ragContext, location_name=location_name, llmModel=llmModel, history=history)
             # Query the model with RAG context
-            result = ollamaClient.generate(model=llmModel, prompt=f"Using this data: {ragContext}. Respond to this prompt: {input}")
+            result = ollamaClient.generate(model=llmModel, prompt=modelPrompt)
         else:
             # Build the query from the template
             modelPrompt = meshBotAI.format(input=input, context='\n'.join(googleResults), location_name=location_name, llmModel=llmModel, history=history)
