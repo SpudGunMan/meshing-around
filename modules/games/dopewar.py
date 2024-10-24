@@ -395,7 +395,7 @@ def endGameDw(nodeID):
         dwHighScore = ({'userID': nodeID, 'cash': round(cash, 2)})
         with open('data/dopewar_hs.pkl', 'wb') as file:
             pickle.dump(dwHighScore, file)
-        msg = "You finished with $" + str(cash) + " and beat the high score!🎉💰"
+            msg = "You finished with $" + "{:,}".format(cash) + " and beat the high score!🎉💰"
         return msg
     if cash > starting_cash:
         msg = 'You made money! 💵 Up ' + str((cash/starting_cash).__round__()) + 'x! Well done.'
