@@ -159,7 +159,7 @@ def get_found_items(nodeID):
                 if dwInventoryDb[i].get('userID') == nodeID:
                     dwInventoryDb[i]['inventory'] = inventory
                     dwInventoryDb[i]['amount'] = amount
-            msg = "💊You found " + str(qty) + " of " + my_drugs[found]
+            msg = "💊You found " + str(qty) + " of " + str(my_drugs[found])
     else:
         # rolls to see how much cash the user finds
         cash_found = random.randint(1, 977)
