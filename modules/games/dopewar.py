@@ -232,8 +232,9 @@ def buy_func(nodeID, price_list, choice=0, value='0'):
     else:
         if drug_choice in range(1, len(my_drugs) + 1):
             drug_choice = drug_choice - 1
+            cost = price_list[drug_choice]
             msg = my_drugs[drug_choice].name + ": you have🎒 " + str(amount[drug_choice]) + " "
-            msg += " The going price is: $" + "{:,}".format(price_list[drug_choice]) + " "
+            msg += " The going price is: $" + "{:,}".format(cost) + " "
 
     buy_amount = value
     if buy_amount == 'm':
@@ -315,15 +316,17 @@ def sell_func(nodeID, price_list, choice=0, value='0'):
     else:
         if drug_choice in range(1, len(my_drugs) + 1) and amount[drug_choice - 1] > 0:
             drug_choice = drug_choice - 1
+            cost = price_list[drug_choice]
             msg = my_drugs[drug_choice].name + ": you have " + str(amount[drug_choice]) +\
-                " The going price is: $" + str(price_list[drug_choice])
+                " The going price is: $" + str("{:,}".format(cost))
             # check if the user has enough of the drug to sell
             if sell_amount <= amount[drug_choice]:
                 amount[drug_choice] -= sell_amount
                 cash += sell_amount * price_list[drug_choice]
                 inventory -= sell_amount
-                msg += " You sold " + str(sell_amount) + " " + my_drugs[drug_choice].name + ' for $' +\
-                    str(sell_amount * price_list[drug_choice]) + '. Total cash: $' + "{:,}".format(cash)
+                profit = sell_amount * price_list[drug_choice]
+                msg += " You sold " + str(sell_amount) + " " + my_drugs[drug_choice].name +\
+                     ' for $' + "{:,}".format(profit) + '. Total cash: $' + "{:,}".format(cash)
             else:
                 msg = "You don't have that much"
                 return msg
@@ -601,9 +604,9 @@ def playDopeWars(nodeID, cmd):
                     sell =  sell_func(nodeID, price_list, i, 'm')
                     # ignore starts with "You don't have any"
                     if not sell.startswith("You don't have any"):
-                        msg += sell
-                        if i != len(my_drugs):
-                            msg += '\n'
+                        msg += sell + '\n'
+            # trim the last newline
+            msg = msg[:-1]
             return msg
         elif 'f' in menu_choice:
                 # set last command to location
@@ -614,7 +617,7 @@ def playDopeWars(nodeID, cmd):
 
         elif 'p' in menu_choice:
                 # render_game_screen
-                msg = render_game_screen(nodeID, game_day, total_days, loc_choice, -1, price_list, 0)
+                msg = render_game_screen(nodeID, game_day, total_days, loc_choice, -1, price_list, 0, 'nothing')
                 return msg
         elif 'e' in menu_choice:
                 msg = endGameDw(nodeID)
