@@ -20,7 +20,8 @@ ragDEV = False
 if openWebUI:
     import requests
     openWebUI_api_key = "your_api_key"
-    openWebUI_base_url = "http://localhost:3000/api/v1"
+    openWebUI_collection_id = "your_collection_id"
+    openWebUI_base_url = 'http://localhost:3000/api'
 
 if ragDEV:
     import os
@@ -147,9 +148,9 @@ def query_collection(prompt):
 
 def llm_query_openWebUI(input, nodeID=0, location_name=None):
     # passes the message-rx to the OpenWebUI API directly
-    headers = {"Authorization": f"Bearer {openWebUI_api_key}"}
-    data = {"model": llmModel, "prompt": input}
-    response = requests.post(f"{openWebUI_base_url}/chat/completions", headers=headers, json=data)
+    headers = {'Authorization': f'Bearer {openWebUI_api_key}', 'Content-Type': 'application/json'}
+    payload = {'model': llmModel, 'messages': [{'role': 'user', 'content': input}], 'files': [{'type': 'collection', 'id': openWebUI_collection_id}]}
+    response = requests.post(f"{openWebUI_base_url}/chat/completions", headers=headers, json=payload)
 
     if response.status_code == 200:
         return response.json()["choices"][0]["message"]["content"]
