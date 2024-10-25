@@ -13,6 +13,7 @@ from googlesearch import search # pip install googlesearch-python
 openWebUI = False
 openWebUI_api_key = "your_api_key"
 openWebUI_collection_id = "your_collection_id"
+openWebUI_base_url = 'http://localhost:3000/api'
 
 # This is my attempt at a simple RAG implementation it will require some setup
 # you will need to have the RAG data in a folder named rag in the data directory (../data/rag)
@@ -22,7 +23,6 @@ ragDEV = False
 
 if openWebUI:
     import requests
-    openWebUI_base_url = 'http://localhost:3000/api'
 
 if ragDEV:
     import os
@@ -38,7 +38,6 @@ googleSearchResults = 3 # number of google search results to include in the cont
 antiFloodLLM = []
 llmChat_history = {}
 trap_list_llm = ("ask:", "askai")
-
 
 meshBotAI = """
     FROM {llmModel}
