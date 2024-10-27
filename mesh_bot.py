@@ -556,15 +556,16 @@ def handleUno(message, nodeID, deviceID):
         if unoTracker[i]['nodeID'] == nodeID:
             last_cmd = unoTracker[i]['cmd']
 
-    logger.debug(f"System: {nodeID} PlayingGame uno last_cmd: {last_cmd}")
-
     if last_cmd == "" and nodeID != 0:
         # create new player
-        logger.debug("System: Uno: New Player: " + str(nodeID) + " " + get_name_from_number(nodeID))
-        unoTracker.append({'nodeID': nodeID, 'last_played': time.time(), 'cmd': '', 'playerName': get_name_from_number(nodeID)})
-        msg = "Welcome to 🃏 Uno!, waiting for others to join, (S)tart when ready"
+        playerName = get_name_from_number(nodeID, 'short', deviceID)
+        logger.debug("System: Uno: New Player: " + str(nodeID) + " " + playerName)
+        unoTracker.append({'nodeID': nodeID, 'last_played': time.time(), 'cmd': '', 'playerName': playerName})
+        msg = "Welcome to 🃏 Uno!, waiting for others to join, (S)tart when ready "
     
+    # play the game
     msg += playUno(nodeID, message=message)
+
     # wait a second to keep from message collision
     time.sleep(responseDelay + 1)
     return msg
