@@ -9,20 +9,11 @@ from modules.log import *
 from ollama import Client as OllamaClient
 from googlesearch import search # pip install googlesearch-python
 
-# enahanced workflow with OpenWebUI, allowing queries with the OpenWebUI API
-openWebUI = False
-openWebUI_api_key = "your_api_key"
-openWebUI_collection_id = "your_collection_id"
-openWebUI_base_url = 'http://localhost:3000/api'
-
 # This is my attempt at a simple RAG implementation it will require some setup
 # you will need to have the RAG data in a folder named rag in the data directory (../data/rag)
 # This is lighter weight and can be used in a standalone environment, needs chromadb
 # "chat with a file" is the use concept here, the file is the RAG data
 ragDEV = False
-
-if openWebUI:
-    import requests
 
 if ragDEV:
     import os
@@ -145,18 +136,6 @@ def query_collection(prompt):
     results = collection.query(query_embeddings=[response["embedding"]], n_results=1)
     data = results['documents'][0][0]
     return data
-
-def llm_query_openWebUI(input, nodeID=0, location_name=None):
-    # passes the message-rx to the OpenWebUI API directly
-    headers = {'Authorization': f'Bearer {openWebUI_api_key}', 'Content-Type': 'application/json'}
-    payload = {'model': llmModel, 'messages': [{'role': 'user', 'content': input}], 'files': [{'type': 'collection', 'id': openWebUI_collection_id}]}
-    response = requests.post(f"{openWebUI_base_url}/chat/completions", headers=headers, json=payload)
-
-    if response.status_code == 200:
-        return response.json()["choices"][0]["message"]["content"]
-    else:
-        logger.debug(f"System: LLM: {response.status_code} - {response.text}")
-        return "I am having trouble processing your request, please try again later."
 
 def llm_query(input, nodeID=0, location_name=None):
     global antiFloodLLM, llmChat_history
