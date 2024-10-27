@@ -25,7 +25,7 @@ def get_name_from_number(nodeID, length='short', interface=1):
 # # Function to handle, or the project in test
 
 
-def example_handler(nodeID, message):
+def example_handler(message, nodeID, deviceID):
     readableTime = time.ctime(time.time())
     msg = "Hello World! "
     msg += f" You are Node ID: {nodeID} "
