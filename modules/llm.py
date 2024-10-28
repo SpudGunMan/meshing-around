@@ -21,8 +21,7 @@ if ragDEV:
     import chromadb # pip install chromadb
 
 # LLM System Variables
-OllamaClient(host=ollamaHostName)
-ollamaClient = OllamaClient()
+ollamaClient = OllamaClient(host=ollamaHostName)
 llmEnableHistory = True # enable last message history for the LLM model
 llmContext_fromGoogle = True # enable context from google search results adds to compute time but really helps with responses accuracy
 googleSearchResults = 3 # number of google search results to include in the context more results = more compute time
