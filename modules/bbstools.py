@@ -77,6 +77,12 @@ def bbs_post_message(subject, message, fromNode):
     if str(fromNode) in bbs_ban_list:
         logger.warning(f"System: Naughty node {fromNode}, tried to post a message: {subject}, {message} and was dropped.")
         return "Message posted. ID is: " + str(messageID)
+    
+    # validate not a duplicate message
+    for msg in bbs_messages:
+        if msg[1] == subject and msg[2] == message:
+            messageID = msg[0]
+            return "Message posted. ID is: " + str(messageID)
 
     # append the message to the list
     bbs_messages.append([messageID, subject, message, fromNode])
@@ -157,20 +163,26 @@ def bbs_delete_dm(toNode, message):
     return "System: No DM found for node " + str(toNode)
 
 def bbs_sync_posts(input, peerNode, RxNode):
+    messageID =  0
     # respond when another bot asks for the bbs posts to sync
+    if "bbslink" in input.lower():
+        if "$" in input and "#" in input:
+            #store the message
+            subject = input.split("$")[1].split("#")[0]
+            body = input.split("#")[1]
+            bbs_post_message(subject, body, peerNode)
+            messageID = input.split(" ")[1]
+            return f"bbsack {messageID}"
+    elif "bbsack" in input.lower():
+        # increment the messageID
+        ack = int(input.split(" ")[1])
+        messageID = int(ack) + 1
 
-    # Respond wth the first message
-    message = bbs_messages[0]
-
-    if "bbslink" in input:
-        # split to get the messageID
-        lastAck = int(input.split(" ")[1])
-        # send the next highest messageID
-        return "bbspost " + str(bbs_messages[lastAck + 1][0])
-    
-    return message
-
-        
+    # send message
+    if messageID < len(bbs_messages):
+        return f"bbslink {messageID} ${bbs_messages[messageID][1]} #{bbs_messages[messageID][2]}"
+    else:
+        logger.debug("System: bbslink sync complete with peer " + str(peerNode))
 
 
 #initialize the bbsdb's
