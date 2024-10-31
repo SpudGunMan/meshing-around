@@ -4,7 +4,7 @@
 import pickle # pip install pickle
 from modules.log import *
 
-trap_list_bbs = ("bbslist", "bbspost", "bbsread", "bbsdelete", "bbshelp", "bbsinfo")
+trap_list_bbs = ("bbslist", "bbspost", "bbsread", "bbsdelete", "bbshelp", "bbsinfo", "bbslink", "bbsack")
 
 # global message list, later we will use a pickle on disk
 bbs_messages = []
@@ -155,6 +155,23 @@ def bbs_delete_dm(toNode, message):
             save_bbsdm()
             return "System: cleared mail for" + str(toNode)
     return "System: No DM found for node " + str(toNode)
+
+def bbs_sync_posts(input, peerNode, RxNode):
+    # respond when another bot asks for the bbs posts to sync
+
+    # Respond wth the first message
+    message = bbs_messages[0]
+
+    if "bbslink" in input:
+        # split to get the messageID
+        lastAck = int(input.split(" ")[1])
+        # send the next highest messageID
+        return "bbspost " + str(bbs_messages[lastAck + 1][0])
+    
+    return message
+
+        
+
 
 #initialize the bbsdb's
 load_bbsdb()
