@@ -80,7 +80,7 @@ def bbs_post_message(subject, message, fromNode):
     
     # validate not a duplicate message
     for msg in bbs_messages:
-        if msg[1] == subject and msg[2] == message:
+        if msg[1].strip().lower() == subject.strip().lower() and msg[2].strip().lower() == message.strip().lower():
             messageID = msg[0]
             return "Message posted. ID is: " + str(messageID)
 
