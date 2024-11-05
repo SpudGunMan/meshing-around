@@ -162,6 +162,8 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM):
                     msg = "🛑 auto-ping"
         try:
             pingCount = int(message.split(" ")[1])
+            if pingCount == 123 or pingCount == 1234:
+                pingCount =  1
             if pingCount > 51:
                 pingCount = 50
         except:
