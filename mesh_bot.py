@@ -28,9 +28,11 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "ack": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM),
     "ask:": lambda: handle_llm(message_from_id, channel_number, deviceID, message, publicChannel),
     "askai": lambda: handle_llm(message_from_id, channel_number, deviceID, message, publicChannel),
+    "bbslink": lambda: bbs_sync_posts(message, message_from_id, deviceID),
     "bbsdelete": lambda: handle_bbsdelete(message, message_from_id),
     "bbshelp": bbs_help,
     "bbsinfo": lambda: get_bbs_stats(),
+    "bbslink": lambda: bbs_sync_posts(message, message_from_id, deviceID),
     "bbslist": bbs_list_messages,
     "bbspost": lambda: handle_bbspost(message, message_from_id, deviceID),
     "bbsread": lambda: handle_bbsread(message),
@@ -160,6 +162,8 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM):
                     msg = "🛑 auto-ping"
         try:
             pingCount = int(message.split(" ")[1])
+            if pingCount == 123 or pingCount == 1234:
+                pingCount =  1
             if pingCount > 51:
                 pingCount = 50
         except:
@@ -1083,6 +1087,9 @@ async def start_rx():
 
         # Send the MOTD every day at 13:00 using send_message function to channel 2 on device 1
         #schedule.every().day.at("13:00").do(lambda: send_message(MOTD, 2, 0, 1))
+
+        # Send bbslink looking for peers every other day at 10:00 using send_message function to channel 0 on device 1
+        #schedule.every(2).days.at("10:00").do(lambda: send_message("bbslink MeshBot looking for peers", 0, 0, 1))
         
         #
         logger.debug("System: Starting the broadcast scheduler")
