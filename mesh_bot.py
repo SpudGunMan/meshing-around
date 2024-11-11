@@ -899,7 +899,7 @@ def onReceive(packet, interface):
                 # message is DM to us
                 isDM = True
                 # check if the message contains a trap word, DMs are always responded to
-                if messageTrap(message_string):
+                if (messageTrap(message_string) and not llm_enabled) or messageTrap(message_string.split()[0]):
                     # log the message to the message log
                     logger.info(f"Device:{rxNode} Channel: {channel_number} " + CustomFormatter.green + f"Received DM: " + CustomFormatter.white + f"{message_string} " + CustomFormatter.purple +\
                                 "From: " + CustomFormatter.white + f"{get_name_from_number(message_from_id, 'long', rxNode)}")
