@@ -10,7 +10,7 @@ from modules.log import *
 from modules.system import *
 
 # list of commands to remove from the default list for DM only
-restrictedCommands = ["blackjack", "videopoker", "dopewars", "lemonstand", "golfsim", "mastermind", "uno"]
+restrictedCommands = ["blackjack", "videopoker", "dopewars", "lemonstand", "golfsim", "mastermind"]
 restrictedResponse = "🤖only available in a Direct Message📵" # "" for none
 
 # Global Variables
@@ -56,7 +56,6 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "motd": lambda: handle_motd(message, message_from_id, isDM),
     "ping": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM),
     "pinging": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM),
-    "playuno": lambda: handleUno(message, message_from_id, deviceID),
     "pong": lambda: "🏓PING!!🛜",
     "rlist": lambda: handle_repeaterQuery(message_from_id, deviceID, channel_number),
     "sitrep": lambda: handle_lheard(message, message_from_id, deviceID, isDM),
@@ -550,30 +549,6 @@ def handleGolf(message, nodeID, deviceID):
     time.sleep(responseDelay + 1)
     return msg
 
-def handleUno(message, nodeID, deviceID):
-    global unoTracker
-    msg = ''
-
-    # get player's last command from tracker if not new player
-    last_cmd = ""
-    for i in range(len(unoTracker)):
-        if unoTracker[i]['nodeID'] == nodeID:
-            last_cmd = unoTracker[i]['cmd']
-
-    if last_cmd == "" and nodeID != 0:
-        # create new player
-        playerName = get_name_from_number(nodeID, 'short', deviceID)
-        logger.debug("System: Uno: New Player: " + str(nodeID) + " " + playerName)
-        unoTracker.append({'nodeID': nodeID, 'last_played': time.time(), 'cmd': '', 'playerName': playerName})
-        msg = "Welcome to 🃏 Uno!, waiting for others to join, (S)tart when ready "
-    
-    # play the game
-    msg += playUno(nodeID, message=message)
-
-    # wait a second to keep from message collision
-    time.sleep(responseDelay + 1)
-    return msg
-
 def handle_wxc(message_from_id, deviceID, cmd):
     location = get_node_location(message_from_id, deviceID)
     if use_meteo_wxApi and not "wxc" in cmd and not use_metric:
@@ -804,7 +779,6 @@ def checkPlayingGame(message_from_id, message_string, rxNode, channel_number):
         (jackTracker, "BlackJack", handleBlackJack),
         (mindTracker, "MasterMind", handleMmind),
         (golfTracker, "GolfSim", handleGolf),
-        (unoTracker, "Uno", handleUno)
     ]
 
     for tracker, game_name, handle_game_func in trackers:

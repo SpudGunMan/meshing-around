@@ -314,7 +314,6 @@ sudo apt-get install fonts-noto-color-emoji
 | `videopoker` | Plays basic 5-card hold Video Poker | ✅ |
 | `mastermind` | Plays the classic code-breaking game | ✅ |
 | `golfsim` | Plays a 9-hole Golf Simulator | ✅ |
-| `uno` | Plays Uno card game against the bot or with others on the mesh near you! | ✅ |
 
 # Recognition
 

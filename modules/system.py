@@ -129,11 +129,6 @@ if golfSim_enabled:
     from modules.games.golfsim import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + ("golfsim",)
     games_enabled = True
-
-if uno_enabled:
-    from modules.games.uno import * # from the spudgunman/meshing-around repo
-    trap_list = trap_list + ("playuno",)
-    games_enabled = True
     
 # Games Configuration
 if games_enabled is True:
@@ -155,8 +150,6 @@ if games_enabled is True:
         gamesCmdList += "masterMind, "
     if golfSim_enabled:
         gamesCmdList += "golfSim, "
-    if uno_enabled:
-        gamesCmdList += "playuno, "
     gamesCmdList = gamesCmdList[:-2] # remove the last comma
 else:
     gamesCmdList = ""

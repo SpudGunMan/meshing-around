@@ -72,7 +72,6 @@ blackjack = True
 videopoker = True
 mastermind = True
 golfsim = True
-uno = True
 
 [sentry]
 # detect anyone close to the bot

@@ -160,7 +160,6 @@ try:
     videoPoker_enabled = config['games'].getboolean('videoPoker', True)
     mastermind_enabled = config['games'].getboolean('mastermind', True)
     golfSim_enabled = config['games'].getboolean('golfSim', True)
-    uno_enabled = config['games'].getboolean('uno', True)
 
     # messaging settings
     responseDelay = config['messagingSettings'].getfloat('responseDelay', 0.7) # default 0.7
