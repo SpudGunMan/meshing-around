@@ -196,7 +196,10 @@ def get_tide(lat=0, lon=0):
     # extract table class="table table-condensed"
     soup = bs.BeautifulSoup(station_data.text, 'html.parser')
     table = soup.find('table', class_='table table-condensed')
-
+    if table is None:
+        logger.error("Location:error parsing tide data from NOAA")
+        return ERROR_FETCHING_DATA
+    
     # extract rows
     rows = table.find_all('tr')
     # extract data from rows
