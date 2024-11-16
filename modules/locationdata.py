@@ -180,43 +180,44 @@ def get_tide(lat=0, lon=0):
         logger.error("Location:Error fetching tide station table from NOAA")
         return ERROR_FETCHING_DATA
     
-    station_url = "https://tidesandcurrents.noaa.gov/noaatidepredictions.html?id=" + station_id
-    if zuluTime:
-        station_url += "&clock=24hour"
+    station_url = "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?date=today&time_zone=lst_ldt&datum=MLLW&product=predictions&interval=hilo&format=json&station=" + station_id
+
+    if use_metric:
+        station_url += "&units=metric"
+    else:
+        station_url += "&units=english"
 
     try:
-        station_data = requests.get(station_url, timeout=urlTimeoutSeconds)
-        if not station_data.ok:
-            logger.error("Location:Error fetching station data from NOAA")
+        tide_data = requests.get(station_url, timeout=urlTimeoutSeconds)
+        if tide_data.ok:
+            tide_json = tide_data.json()
+        else:
+            logger.error("Location:Error fetching tide data from NOAA")
             return ERROR_FETCHING_DATA
-    except (requests.exceptions.RequestException):
-        logger.error("Location:Error fetching station data from NOAA")
+
+    except (requests.exceptions.RequestException, json.JSONDecodeError):
+        logger.error("Location:Error fetching tide data from NOAA")
         return ERROR_FETCHING_DATA
-    
-    # extract table class="table table-condensed"
-    soup = bs.BeautifulSoup(station_data.text, 'html.parser')
-    table = soup.find('table', class_='table table-condensed')
-    if table is None:
-        logger.error("Location:error parsing tide data from NOAA")
-        return ERROR_FETCHING_DATA
-    
-    # extract rows
-    rows = table.find_all('tr')
-    # extract data from rows
-    tide_data = []
-    for row in rows:
-        row_text = ""
-        cols = row.find_all('td')
-        for col in cols:
-            row_text += col.text + " "
-        tide_data.append(row_text)
-    # format tide data into a string
-    tide_string = ""
-    for data in tide_data:
-        tide_string += data + "\n"
-    # trim off last newline
-    tide_string = tide_string[:-1]
-    return tide_string
+
+    tide_data = tide_json['predictions']
+
+    # format tide data into a table string for mesh
+    # get the date out of the first t value 
+    tide_date = tide_data[0]['t'].split(" ")[0]
+    tide_table = "Tide Data for " + tide_date + "\n"
+    for tide in tide_data:
+        tide_time = tide['t'].split(" ")[1]
+        if not zuluTime:
+            # convert to 12 hour clock
+            if int(tide_time.split(":")[0]) > 12:
+                tide_time = str(int(tide_time.split(":")[0]) - 12) + ":" + tide_time.split(":")[1] + " PM"
+            else:
+                tide_time = tide_time + " AM"
+                
+        tide_table +=  tide['type'] + " " + tide_time + ", " + tide['v'] + "\n"
+    # remove last newline
+    tide_table = tide_table[:-1]
+    return tide_table
     
 def get_weather(lat=0, lon=0, unit=0):
     # get weather report from NOAA for forecast detailed
