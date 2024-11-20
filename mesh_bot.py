@@ -1038,7 +1038,7 @@ async def start_rx():
     if radio_detection_enabled:
         logger.debug(f"System: Radio Detection Enabled using rigctld at {rigControlServerAddress} brodcasting to channels: {sigWatchBroadcastCh} for {get_freq_common_name(get_hamlib('f'))}")
     if file_monitor_enabled:
-        logger.debug(f"System: File Monitor Enabled for {file_monitor_file_path}")
+        logger.debug(f"System: File Monitor Enabled for {file_monitor_file_path}, broadcasting to channels: {fileWatchBroadcastCh}")
     if scheduler_enabled:
         # Examples of using the scheduler, Times here are in 24hr format
         # https://schedule.readthedocs.io/en/stable/
