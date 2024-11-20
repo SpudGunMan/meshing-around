@@ -25,5 +25,8 @@ async def watch_file():
                 # File has been modified
                 content = read_file(file_monitor_file_path)
                 last_modified_time = current_modified_time
-                return content
+                # Cleanup the content
+                content = content.replace('\n', ' ').replace('\r', '').strip()
+                if content:
+                    return content
             await asyncio.sleep(1)  # Check every
