@@ -19,6 +19,7 @@ antiSpam = True # anti-spam feature to prevent flooding public channel
 ping_enabled = True # ping feature to respond to pings, ack's etc.
 sitrep_enabled = True # sitrep feature to respond to sitreps
 lastHamLibAlert = 0 # last alert from hamlib
+lastFileAlert = 0 # last alert from file monitor
 max_retry_count1 = 4 # max retry count for interface 1
 max_retry_count2 = 4 # max retry count for interface 2
 retry_int1 = False
@@ -71,6 +72,10 @@ if 'games' not in config:
 
 if 'messagingSettings' not in config:
         config['messagingSettings'] = {'responseDelay': '0.7', 'splitDelay': '0', 'MESSAGE_CHUNK_SIZE': '160'}
+        config.write(open(config_file, 'w'))
+
+if 'fileMon' not in config:
+        config['fileMon'] = {'enabled': 'False', 'file_path': 'alert.txt', 'broadcastCh': '2'}
         config.write(open(config_file, 'w'))
 
 # interface1 settings
@@ -151,7 +156,12 @@ try:
     signalHoldTime = config['radioMon'].getint('signalHoldTime', 10) # default 10 seconds
     signalCooldown = config['radioMon'].getint('signalCooldown', 5) # default 1 second
     signalCycleLimit = config['radioMon'].getint('signalCycleLimit', 5) # default 5 cycles, used with SIGNAL_COOLDOWN
-    
+
+    # file monitor
+    file_monitor_enabled = config['fileMon'].getboolean('enabled', False)
+    file_monitor_file_path = config['fileMon'].get('file_path', 'alert.txt') # default alert.txt
+    file_monitor_broadcastCh = config['fileMon'].getint('broadcastCh', 2) # default 2
+
     # games
     game_hop_limit = config['messagingSettings'].getint('game_hop_limit', 5) # default 3 hops
     dopewars_enabled = config['games'].getboolean('dopeWars', True)

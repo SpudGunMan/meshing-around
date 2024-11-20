@@ -174,6 +174,10 @@ if store_forward_enabled:
 if radio_detection_enabled:
     from modules.radio import * # from the spudgunman/meshing-around repo
 
+# File Monitor Configuration
+if file_monitor_enabled:
+    from modules.filemon import * # from the spudgunman/meshing-around repo
+
 # BLE dual interface prevention
 if interface1_type == 'ble' and interface2_type == 'ble':
     logger.critical(f"System: BLE Interface1 and Interface2 cannot both be BLE. Exiting")
@@ -813,7 +817,7 @@ async def BroadcastScheduler():
         await asyncio.sleep(1)
 
 async def handleSignalWatcher():
-    global lastHamLibAlert, antiSpam, sigWatchBroadcastCh
+    global lastHamLibAlert
     # monitor rigctld for signal strength and frequency
     while True:
         msg =  await signalWatcher()
@@ -843,6 +847,36 @@ async def handleSignalWatcher():
         await asyncio.sleep(1)
         pass
 
+async def handleFileWatcher():
+    global lastFileAlert
+    # monitor the file system for changes
+    while True:
+        msg =  await watch_file()
+        if msg != ERROR_FETCHING_DATA and msg is not None:
+            logger.debug(f"System: Detected Alert from FileWatcher on file {file_monitor_file_path}")
+            
+            # check we are not spammig the channel limit messages to once per minute
+            if time.time() - lastFileAlert > 60:
+                lastFileAlert = time.time()
+                # if fileWatchBroadcastCh list contains multiple channels, broadcast to all
+                if type(file_monitor_broadcastCh) is list:
+                    for ch in file_monitor_broadcastCh:
+                        if antiSpam and ch != publicChannel:
+                            send_message(msg, int(ch), 0, 1)
+                            if interface2_enabled:
+                                send_message(msg, int(ch), 0, 2)
+                        else:
+                            logger.warning(f"System: antiSpam prevented Alert from FileWatcher")
+                else:
+                    if antiSpam and file_monitor_broadcastCh != publicChannel:
+                        send_message(msg, int(file_monitor_broadcastCh), 0, 1)
+                        if interface2_enabled:
+                            send_message(msg, int(file_monitor_broadcastCh), 0, 2)
+                    else:
+                        logger.warning(f"System: antiSpam prevented Alert from FileWatcher")
+
+        await asyncio.sleep(1)
+        pass
 
 async def retry_interface(nodeID=1):
     global interface1, interface2, retry_int1, retry_int2, max_retry_count1, max_retry_count2
@@ -888,7 +922,6 @@ async def retry_interface(nodeID=1):
             retry_int1 = False
     except Exception as e:
         logger.error(f"System: Error Opening interface{nodeID} on: {e}")
-
 
 
 handleSentinel_spotted = ""
@@ -983,5 +1016,3 @@ async def watchdog():
                     await retry_interface(2)
                 except Exception as e:
                     logger.error(f"System: retrying interface2: {e}")
-
-

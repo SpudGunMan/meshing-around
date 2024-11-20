@@ -19,6 +19,7 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 - **Scheduler**: Schedule messages like weather updates or reminders for weekly VHF nets.
 - **Store and Forward**: Replay messages with the `messages` command, and log messages locally to disk.
 - **Send Mail**: Send mail to nodes using `bbspost @nodeNumber #message` or `bbspost @nodeShortName #message`.
+- **BBS Linking**: Combine multiple bots to expand BBS reach
 
 ### Interactive AI and Data Lookup
 - **NOAA location Data**: Get localized weather(alerts) and Tide information. Open-Meteo is used for wx only outside NOAA coverage. 
@@ -35,6 +36,9 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 ### Radio Frequency Monitoring
 - **SNR RF Activity Alerts**: Monitor a radio frequency and get alerts when high SNR RF activity is detected.
 - **Hamlib Integration**: Use Hamlib (rigctld) to watch the S meter on a connected radio.
+
+### File Monitor Alerts
+- **File Mon**: Monitor a flat file for changes, brodcast the contents of the message to mesh group. This could be used to monitor NOAA OTA EAS System and offgrid send these alerts or any others to the mesh.
 
 ### Data Reporting
 - **HTML Generator**: Visualize bot traffic and data flows with a built-in HTML generator for [data reporting](logs/README.md).
@@ -118,7 +122,7 @@ defaultChannel = 0
 ```
 
 ### Location Settings
-The weather forecasting defaults to NOAA, but for locations outside the USA, you can set `UseMeteoWxAPI` "Go to definition") to `True` to use a global weather API. The `lat` and `lon` are default values when a node has no location data. It is also the default used for Sentry.
+The weather forecasting defaults to NOAA, for locations outside the USA, you can set `UseMeteoWxAPI` to `True`, to use a global weather API. The `lat` and `lon` are default values when a node has no location data. It is also the default used for Sentry.
 
 ```ini
 [location]
@@ -211,6 +215,13 @@ schedule.every().day.at("08:00").do(lambda: send_message(handle_wxc(0, 1, 'wx'),
 
 #Send a Net Starting Now Message Every Wednesday at 19:00 using send_message function to channel 2 on device 1
 schedule.every().wednesday.at("19:00").do(lambda: send_message("Net Starting Now", 2, 0, 1))
+```
+
+#### BBS Link
+The scheduler also handles the BBL Link Brodcast message
+```python
+# Send bbslink looking for peers every other day at 10:00 using send_message function to channel 8 on device 1
+schedule.every(2).days.at("10:00").do(lambda: send_message("bbslink MeshBot looking for peers", 8, 0, 1))
 ```
 
 ### MQTT Notes

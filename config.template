@@ -131,6 +131,11 @@ signalHoldTime = 10
 signalCooldown = 5
 signalCycleLimit = 5
 
+[fileMon]
+enabled = False
+file_path = alert.txt
+broadcastCh = 2
+
 [messagingSettings]
 # delay in seconds for response to avoid message collision
 responseDelay = 0.7

@@ -1037,6 +1037,8 @@ async def start_rx():
         logger.debug(f"System: Repeater Enabled for Channels: {repeater_channels}")
     if radio_detection_enabled:
         logger.debug(f"System: Radio Detection Enabled using rigctld at {rigControlServerAddress} brodcasting to channels: {sigWatchBroadcastCh} for {get_freq_common_name(get_hamlib('f'))}")
+    if file_monitor_enabled:
+        logger.debug(f"System: File Monitor Enabled for {file_monitor_file_path}")
     if scheduler_enabled:
         # Examples of using the scheduler, Times here are in 24hr format
         # https://schedule.readthedocs.io/en/stable/
@@ -1078,11 +1080,15 @@ async def start_rx():
 async def main():
     meshRxTask = asyncio.create_task(start_rx())
     watchdogTask = asyncio.create_task(watchdog())
+    if file_monitor_enabled:
+        fileMonTask: asyncio.Task = asyncio.create_task(handleFileWatcher())
     if radio_detection_enabled:
         hamlibTask = asyncio.create_task(handleSignalWatcher())
-        await asyncio.wait([meshRxTask, watchdogTask, hamlibTask])
-    else:
-        await asyncio.wait([meshRxTask, watchdogTask])
+
+    await asyncio.gather(meshRxTask, watchdogTask)
+    await asyncio.gather(hamlibTask)
+    await asyncio.gather(fileMonTask)
+
     await asyncio.sleep(0.01)
 
 try:
