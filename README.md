@@ -38,7 +38,7 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 - **Hamlib Integration**: Use Hamlib (rigctld) to watch the S meter on a connected radio.
 
 ### File Monitor Alerts
-- **File Mon**: Monitor a flat file for changes, brodcast the contents of the message to mesh group. This could be used to monitor NOAA OTA EAS System and offgrid send these alerts or any others to the mesh.
+- **File Mon**: Monitor a flat file for changes, brodcast the contents of the message to mesh group. This could be used to monitor NOAA OTA EAS System and offgrid send these alerts or any others to the mesh. For example the project [dsame3](https://github.com/jamieden/dsame3) could be configured to write the output to alert.txt, which the bot FileMon will send over mesh.
 
 ### Data Reporting
 - **HTML Generator**: Visualize bot traffic and data flows with a built-in HTML generator for [data reporting](logs/README.md).
