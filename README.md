@@ -222,6 +222,10 @@ broadcastCh = 2,4
 - [EAS2Text](https://github.com/A-c0rN/EAS2Text)
   - depends on [multimon-ng](https://github.com/EliasOenal/multimon-ng) or [direwolf](https://github.com/wb2osz/direwolf)
 
+```bash
+sox -t ogg WXR-RWT.ogg -esigned-integer -b16 -r 22050 -t raw - | multimon-ng -a EAS -v 1 -t raw - > raw_NOAA_Alert.txt
+```
+
 ### Scheduler
 The Scheduler is enabled in the `settings.py` by setting `scheduler_enabled = True`. The actions and settings are via code only at this time. See mesh_bot.py around line [425](https://github.com/SpudGunMan/meshing-around/blob/22983133ee4db3df34f66699f565e506de296197/mesh_bot.py#L425-L435) to edit the schedule. See [schedule documentation](https://schedule.readthedocs.io/en/stable/) for more.
 
