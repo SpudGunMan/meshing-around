@@ -38,7 +38,7 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 - **Hamlib Integration**: Use Hamlib (rigctld) to watch the S meter on a connected radio.
 
 ### File Monitor Alerts
-- **File Mon**: Monitor a flat file for changes, brodcast the contents of the message to mesh group. This could be used to monitor NOAA OTA EAS System and offgrid send these alerts or any others to the mesh. For example the project [dsame3](https://github.com/jamieden/dsame3) could be configured to write the output to alert.txt, which the bot FileMon will send over mesh.
+- **File Mon**: Monitor a flat/text file for changes, brodcast the contents of the message to mesh channel. This could be used to monitor NOAA OTA EAS System and offgrid send these alerts or any others to the mesh. Or to parse data from any other tools capable of writing information to file.
 
 ### Data Reporting
 - **HTML Generator**: Visualize bot traffic and data flows with a built-in HTML generator for [data reporting](logs/README.md).
@@ -205,6 +205,22 @@ llmEnableHistory = True # enable history for the LLM model to use in responses a
 llmContext_fromGoogle = True # enable context from google search results helps with responses accuracy
 googleSearchResults = 3 # number of google search results to include in the context more results = more compute time
 ```
+
+### File Monitoring
+Some dev notes for ideas of use
+```ini
+[fileMon]
+enabled = True
+file_path = alert.txt
+broadcastCh = 2,4
+```
+#### NOAA EAS
+- [dsame3](https://github.com/jamieden/dsame3)
+  - this can be used with a rtl-sdr to capture alerts
+  - has a sample .ogg file for testing alerts
+  - TODO: fork this and have copy which will just dump the needed data right away?
+- [EAS2Text](https://github.com/A-c0rN/EAS2Text)
+  - depends on [multimon-ng](https://github.com/EliasOenal/multimon-ng) or [direwolf](https://github.com/wb2osz/direwolf)
 
 ### Scheduler
 The Scheduler is enabled in the `settings.py` by setting `scheduler_enabled = True`. The actions and settings are via code only at this time. See mesh_bot.py around line [425](https://github.com/SpudGunMan/meshing-around/blob/22983133ee4db3df34f66699f565e506de296197/mesh_bot.py#L425-L435) to edit the schedule. See [schedule documentation](https://schedule.readthedocs.io/en/stable/) for more.
