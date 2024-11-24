@@ -37,8 +37,12 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 - **SNR RF Activity Alerts**: Monitor a radio frequency and get alerts when high SNR RF activity is detected.
 - **Hamlib Integration**: Use Hamlib (rigctld) to watch the S meter on a connected radio.
 
+### NOAA EAS Alerts
+- **EAS Alerts via NOAA API**: Use an internet connected node to message Emergency Alerts from NOAA
+- **EAS Alerts over the air**: Utalizing external tools to report EAS alerts offline over mesh
+
 ### File Monitor Alerts
-- **File Mon**: Monitor a flat/text file for changes, brodcast the contents of the message to mesh channel. This could be used to monitor NOAA OTA EAS System and offgrid send these alerts or any others to the mesh. Or to parse data from any other tools capable of writing information to file.
+- **File Mon**: Monitor a flat/text file for changes, brodcast the contents of the message to mesh channel.
 
 ### Data Reporting
 - **HTML Generator**: Visualize bot traffic and data flows with a built-in HTML generator for [data reporting](logs/README.md).
@@ -215,16 +219,28 @@ file_path = alert.txt
 broadcastCh = 2,4
 ```
 #### NOAA EAS
+To Alert on Mesh with the NOAA EAS API you can set the channels and enable, checks every 30min
+
+```ini
+# EAS Alert Broadcast
+wxAlertBroadcastEnabled = False
+# EAS Alert Broadcast Channels
+wxAlertBroadcastCh = 2,4
+```
+
+To Monitor EAS with no internet connection see the following notes
+
+- [EAS2Text](https://github.com/A-c0rN/EAS2Text)
+  - depends on [multimon-ng](https://github.com/EliasOenal/multimon-ng) or [direwolf](https://github.com/wb2osz/direwolf)
 - [dsame3](https://github.com/jamieden/dsame3)
   - this can be used with a rtl-sdr to capture alerts
   - has a sample .ogg file for testing alerts
-  - TODO: fork this and have copy which will just dump the needed data right away?
-- [EAS2Text](https://github.com/A-c0rN/EAS2Text)
-  - depends on [multimon-ng](https://github.com/EliasOenal/multimon-ng) or [direwolf](https://github.com/wb2osz/direwolf)
 
+The following shell command can pipe the data using [etc/eas_alert_parser.py](etc/eas_alert_parser.py)
 ```bash
-sox -t ogg WXR-RWT.ogg -esigned-integer -b16 -r 22050 -t raw - | multimon-ng -a EAS -v 1 -t raw - > raw_NOAA_Alert.txt
+sox -t ogg WXR-RWT.ogg -esigned-integer -b16 -r 22050 -t raw - | multimon-ng -a EAS -v 1 -t raw - | python ftw.py
 ```
+
 
 ### Scheduler
 The Scheduler is enabled in the `settings.py` by setting `scheduler_enabled = True`. The actions and settings are via code only at this time. See mesh_bot.py around line [425](https://github.com/SpudGunMan/meshing-around/blob/22983133ee4db3df34f66699f565e506de296197/mesh_bot.py#L425-L435) to edit the schedule. See [schedule documentation](https://schedule.readthedocs.io/en/stable/) for more.
@@ -281,8 +297,6 @@ For the Ollama LLM:
 
 ```sh
 pip install ollama
-pip install langchain
-pip install langchain-ollama
 pip install googlesearch-python
 ```
 
@@ -325,6 +339,7 @@ sudo apt-get install fonts-noto-color-emoji
 | `bbspost` | Posts a message to the public board or sends a DM(Mail) Examples: `bbspost $subject #message`, `bbspost @nodeNumber #message`, `bbspost @nodeShortName #message` | ✅ |
 | `bbsdelete` | Deletes a message. Example: `bbsdelete #4` | ✅ |
 | `bbsinfo` | Provides stats on BBS delivery and messages (sysop) | ✅ |
+| `bbllink` | Links Bulletin Messages between BBS Systems | ✅ |
 
 ### Data Lookup 
 | Command | Description | |
@@ -373,5 +388,3 @@ I used ideas and snippets from other responder bots and want to call them out!
 
 ### Tools
 - **Node Backup Management**: [Node Slurper](https://github.com/SpudGunMan/node-slurper)
-
-

@@ -369,6 +369,23 @@ def getWeatherAlerts(lat=0, lon=0):
     data = "\n".join(alerts.split("\n")[:numWxAlerts]), alert_num
     return data
 
+wxAlertCache = ""
+def alertBrodcast():
+    # get the latest weather alerts and broadcast them if there are any
+    global wxAlertCache
+    currentAlert = getWeatherAlerts()
+    
+    if currentAlert[0] == ERROR_FETCHING_DATA or currentAlert == NO_DATA_NOGPS or currentAlert == NO_ALERTS:
+        wxAlertCache = ""
+        return False
+    # broadcast the alerts send to wxBrodcastCh
+    elif currentAlert[0] != wxAlertCache:
+        logger.debug("Location:Broadcasting weather alerts")
+        wxAlertCache = currentAlert[0]
+        return currentAlert
+    
+    return False
+
 def getActiveWeatherAlertsDetail(lat=0, lon=0):
     # get the latest details of weather alerts from NOAA
     alerts = ""

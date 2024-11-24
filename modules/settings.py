@@ -51,7 +51,7 @@ if 'sentry' not in config:
         config.write(open(config_file, 'w'))
 
 if 'location' not in config:
-        config['location'] = {'enabled': 'True', 'lat': '48.50', 'lon': '-123.0', 'UseMeteoWxAPI': 'False', 'useMetric': 'False', 'NOAAforecastDuration': '4', 'NOAAalertCount': '2', 'NOAAalertsEnabled': 'True'}
+        config['location'] = {'enabled': 'True', 'lat': '48.50', 'lon': '-123.0', 'UseMeteoWxAPI': 'False', 'useMetric': 'False', 'NOAAforecastDuration': '4', 'NOAAalertCount': '2', 'NOAAalertsEnabled': 'True', 'wxAlertBroadcastEnabled': 'False', 'wxAlertBroadcastChannel': '2', 'repeaterLookup': 'rbook'}
         config.write(open(config_file, 'w'))
 
 if 'bbs' not in config:
@@ -137,6 +137,8 @@ try:
     numWxAlerts = config['location'].getint('NOAAalertCount', 2) # default 2 alerts
     wxAlertsEnabled = config['location'].getboolean('NOAAalertsEnabled', True) # default True not enabled yet
     repeater_lookup = config['location'].get('repeaterLookup', 'rbook') # default repeater lookup source
+    wxAlertBroadcastEnabled = config['location'].getboolean('wxAlertBroadcastEnabled', False) # default False
+    wxAlertBroadcastChannel = config['location'].get('wxAlertBroadcastChannel', 2)
    
     # bbs
     bbs_enabled = config['bbs'].getboolean('enabled', False)

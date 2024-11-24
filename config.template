@@ -107,6 +107,10 @@ UseMeteoWxAPI = False
 useMetric = False
 # repeaterList lookup location (rbook / artsci)
 repeaterLookup = rbook
+# EAS Alert Broadcast
+wxAlertBroadcastEnabled = False
+# EAS Alert Broadcast Channels
+wxAlertBroadcastCh = 2
 
 # repeater module
 [repeater]

@@ -588,6 +588,41 @@ def handleMultiPing(nodeID=0, deviceID=1):
                         if multiPingList[j]['message_from_id'] == message_id_from:
                             multiPingList.pop(j)
                             break
+            elif count > 1 and deviceID == 2:
+                count -= 1
+                # update count in the list
+                multiPingList[i]['count'] = count
+
+                send_message(f"🔂{count} {type}", publicChannel, message_id_from, 2)
+                if count < 2:
+                    # remove the item from the list
+                    for j in range(len(multiPingList)):
+                        if multiPingList[j]['message_from_id'] == message_id_from:
+                            multiPingList.pop(j)
+                            break
+            else:
+                # remove the item from the list
+                for j in range(len(multiPingList)):
+                    if multiPingList[j]['message_from_id'] == message_id_from:
+                        multiPingList.pop(j)
+                        break
+
+def handleWxBroadcast(deviceID=1):
+    # only allow API call every 30 minutes
+    clock = datetime.now()
+    if clock.minute % 30 != 0:
+        return False
+    
+    # check for alerts
+    alert = alertBrodcast()
+    if alert:
+        msg = f"🚨 {alert[1]} EAS ALERTs: {alert[0]}"
+        if "," in wxAlertBroadcastChannel:
+            for channel in wxAlertBroadcastChannel.split(","):
+                send_message(msg, channel, 0, deviceID)
+        else:
+            send_message(msg, wxAlertBroadcastChannel, 0, deviceID)
+        return True
 
 def onDisconnect(interface):
     global retry_int1, retry_int2
@@ -976,6 +1011,9 @@ async def watchdog():
                 # multiPing handler
                 handleMultiPing(0,1)
 
+                if wxAlertBroadcastEnabled:
+                    handleWxBroadcast(1)
+
                 # Telemetry data
                 int1Data = displayNodeTelemetry(0, 1)
                 if int1Data != -1 and telemetryData[0]['lastAlert1'] != int1Data:
@@ -1005,6 +1043,9 @@ async def watchdog():
                     # multiPing handler
                     handleMultiPing(0,2)
 
+                    if wxAlertBroadcastEnabled:
+                        handleWxBroadcast(2)
+
                 # Telemetry data
                 int2Data = displayNodeTelemetry(0, 2)
                 if int2Data != -1 and telemetryData[0]['lastAlert2'] != int2Data:
@@ -1016,3 +1057,5 @@ async def watchdog():
                     await retry_interface(2)
                 except Exception as e:
                     logger.error(f"System: retrying interface2: {e}")
+
+
