@@ -1218,7 +1218,7 @@ def main():
     # Log file
     log_dir = LOG_PATH
     today = datetime.now().strftime('%Y-%m-%d')
-    log_file = f'meshbot.log.{today}'
+    log_file = f'meshbot.log'
     log_path = os.path.join(log_dir, log_file)
 
     if not os.path.exists(log_path):
