@@ -1,4 +1,5 @@
 import logging
+from logging.handlers import TimedRotatingFileHandler
 import re
 from datetime import datetime
 from modules.settings import *
@@ -63,14 +64,15 @@ logger.addHandler(stdout_handler)
 
 if syslog_to_file:
     # Create file handler for logging to a file
-    file_handler_sys = logging.FileHandler('logs/meshbot{}.log'.format(today.strftime('%Y_%m_%d')))
+    file_handler_sys = TimedRotatingFileHandler('logs/meshbot{}.log'.format(today.strftime('%Y_%m_%d')), when='midnight', backupCount=32)
+    logging.FileHandler('logs/meshbot{}.log'.format(today.strftime('%Y_%m_%d')))
     file_handler_sys.setLevel(logging.DEBUG) # DEBUG used by default for system logs to disk
     file_handler_sys.setFormatter(plainFormatter(logFormat))
     logger.addHandler(file_handler_sys)
 
 if log_messages_to_file:
     # Create file handler for logging to a file
-    file_handler = logging.FileHandler('logs/messages{}.log'.format(today.strftime('%Y_%m_%d')))
+    file_handler = TimedRotatingFileHandler('logs/messages{}.log'.format(today.strftime('%Y_%m_%d')), when='midnight', backupCount=32)
     file_handler.setLevel(logging.INFO) # INFO used for messages to disk
     file_handler.setFormatter(logging.Formatter(msgLogFormat))
     msgLogger.addHandler(file_handler)
