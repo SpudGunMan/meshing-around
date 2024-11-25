@@ -65,7 +65,6 @@ logger.addHandler(stdout_handler)
 if syslog_to_file:
     # Create file handler for logging to a file
     file_handler_sys = TimedRotatingFileHandler('logs/meshbot{}.log'.format(today.strftime('%Y_%m_%d')), when='midnight', backupCount=log_backup_count)
-    logging.FileHandler('logs/meshbot{}.log'.format(today.strftime('%Y_%m_%d')))
     file_handler_sys.setLevel(logging.DEBUG) # DEBUG used by default for system logs to disk
     file_handler_sys.setFormatter(plainFormatter(logFormat))
     logger.addHandler(file_handler_sys)
