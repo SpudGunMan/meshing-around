@@ -952,6 +952,7 @@ async def handleSentinel(deviceID=1):
     # Locate Closest Nodes and report them to a secure channel
     # async function for possibly demanding back location data
     enemySpotted = ""
+    resolution = "unknown"
     closest_nodes = get_closest_nodes(deviceID)
     if closest_nodes != ERROR_FETCHING_DATA and closest_nodes:
         if closest_nodes[0]['id'] is not None:
@@ -967,8 +968,7 @@ async def handleSentinel(deviceID=1):
             metadata = positionMetadata[closest_nodes[0]['id']]
             if metadata.get('precisionBits') is not None:
                 resolution = metadata.get('precisionBits')
-            else:
-                resolution = "unknown"
+                
 
         logger.warning(f"System: {enemySpotted} is close to your location on Interface1 Accuracy is {resolution}bits")
         send_message(f"Sentry{deviceID}: {enemySpotted}", secure_channel, 0, deviceID)
