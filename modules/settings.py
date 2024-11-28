@@ -139,7 +139,12 @@ try:
     wxAlertsEnabled = config['location'].getboolean('NOAAalertsEnabled', True) # default True not enabled yet
     repeater_lookup = config['location'].get('repeaterLookup', 'rbook') # default repeater lookup source
     wxAlertBroadcastEnabled = config['location'].getboolean('wxAlertBroadcastEnabled', False) # default False
-    wxAlertBroadcastChannel = config['location'].get('wxAlertBroadcastChannel', 2)
+    # brodcast channel for weather alerts
+    wxAlertBroadcastChannel = config['location'].get('wxAlertBroadcastCh')
+    if ',' in wxAlertBroadcastChannel:
+        wxAlertBroadcastChannel = config['location'].get('wxAlertBroadcastCh').split(',')
+    else:
+        wxAlertBroadcastChannel = config['location'].getint('wxAlertBroadcastCh', 2) # default 2
    
     # bbs
     bbs_enabled = config['bbs'].getboolean('enabled', False)

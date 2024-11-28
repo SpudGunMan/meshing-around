@@ -603,9 +603,9 @@ def handleWxBroadcast(deviceID=1):
     alert = alertBrodcast()
     if alert:
         msg = f"🚨 {alert[1]} EAS ALERTs: {alert[0]}"
-        if "," in wxAlertBroadcastChannel:
-            for channel in wxAlertBroadcastChannel.split(","):
-                send_message(msg, channel, 0, deviceID)
+        if isinstance(wxAlertBroadcastChannel, list):
+            for channel in wxAlertBroadcastChannel:
+                send_message(msg, int(channel), 0, deviceID)
         else:
             send_message(msg, wxAlertBroadcastChannel, 0, deviceID)
         return True
