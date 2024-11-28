@@ -979,7 +979,10 @@ async def handleSentinel(deviceID=1):
         # check the positionMetadata for nodeID and get metadata
         if positionMetadata and closest_nodes[0]['id'] in positionMetadata:
             metadata = positionMetadata[closest_nodes[0]['id']]
-            resolution = metadata.get('precisionBits', 'na')
+            if metadata.get('precisionBits') is not None:
+                resolution = metadata.get('precisionBits')
+            else:
+                resolution = "unknown"
 
         logger.warning(f"System: {enemySpotted} is close to your location on Interface1 Accuracy is {resolution}bits")
         send_message(f"Sentry{deviceID}: {enemySpotted}", secure_channel, 0, deviceID)
