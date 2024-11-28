@@ -461,12 +461,16 @@ def messageChunker(message):
 
     return message
         
-def send_message(message, ch, nodeid=0, nodeInt=1):
+def send_message(message, ch, nodeid=0, nodeInt=1, bypassChuncking=False):
+    # Send a message to a channel or DM
+    interface = interface1 if nodeInt == 1 else interface2
+    # Check if the message is empty
     if message == "" or message == None or len(message) == 0:
         return False
-    interface = interface1 if nodeInt == 1 else interface2
-    # Split the message into chunks if it exceeds the MESSAGE_CHUNK_SIZE
-    message_list = messageChunker(message)
+
+    if not bypassChuncking:
+        # Split the message into chunks if it exceeds the MESSAGE_CHUNK_SIZE
+        message_list = messageChunker(message)
 
     if isinstance(message_list, list):
         # Send the message to the channel or DM
@@ -476,13 +480,22 @@ def send_message(message, ch, nodeid=0, nodeInt=1):
             chunkOf = f"{message_list.index(m)+1}/{num_chunks}"
             if nodeid == 0:
                 # Send to channel
-                logger.info(f"Device:{nodeInt} Channel:{ch} " + CustomFormatter.red + f"Chunker{chunkOf} SendingChannel: " + CustomFormatter.white + m.replace('\n', ' '))
-                interface.sendText(text=m, channelIndex=ch)
+                if wantAck:
+                    logger.info(f"Device:{nodeInt} Channel:{ch} " + CustomFormatter.red + f"req.ACK " + "Chunker{chunkOf} SendingChannel: " + CustomFormatter.white + m.replace('\n', ' '))
+                    interface.sendText(text=m, channelIndex=ch, wantAck=True)
+                else:
+                    logger.info(f"Device:{nodeInt} Channel:{ch} " + CustomFormatter.red + f"Chunker{chunkOf} SendingChannel: " + CustomFormatter.white + m.replace('\n', ' '))
+                    interface.sendText(text=m, channelIndex=ch)
             else:
                 # Send to DM
-                logger.info(f"Device:{nodeInt} " + CustomFormatter.red + f"Chunker{chunkOf} Sending DM: " + CustomFormatter.white + m.replace('\n', ' ') + CustomFormatter.purple +\
+                if wantAck:
+                    logger.info(f"Device:{nodeInt} " + CustomFormatter.red + f"req.ACK " + f"Chunker{chunkOf} Sending DM: " + CustomFormatter.white + m.replace('\n', ' ') + CustomFormatter.purple +\
                              " To: " + CustomFormatter.white + f"{get_name_from_number(nodeid, 'long', nodeInt)}")
-                interface.sendText(text=m, channelIndex=ch, destinationId=nodeid)
+                    interface.sendText(text=m, channelIndex=ch, destinationId=nodeid, wantAck=True)
+                else:
+                    logger.info(f"Device:{nodeInt} " + CustomFormatter.red + f"Chunker{chunkOf} Sending DM: " + CustomFormatter.white + m.replace('\n', ' ') + CustomFormatter.purple +\
+                                " To: " + CustomFormatter.white + f"{get_name_from_number(nodeid, 'long', nodeInt)}")
+                    interface.sendText(text=m, channelIndex=ch, destinationId=nodeid)
 
             # Throttle the message sending to prevent spamming the device
             if (message_list.index(m)+1) % 4 == 0:
@@ -582,7 +595,7 @@ def handleMultiPing(nodeID=0, deviceID=1):
         for i in range(len(mPlCpy)):
             message_id_from = mPlCpy[i]['message_from_id']
             count = mPlCpy[i]['count']
-            type = mPlCpy[i]['type'].strip()
+            type = mPlCpy[i]['type']
             deviceID = mPlCpy[i]['deviceID']
             channel_number = mPlCpy[i]['channel_number']
 
