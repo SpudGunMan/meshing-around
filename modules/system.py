@@ -15,7 +15,7 @@ trap_list = ("cmd","cmd?") # default trap list
 help_message = "Bot CMD?:\n"
 asyncLoop = asyncio.new_event_loop()
 games_enabled = False
-multiPingList = [{'message_from_id': 0, 'count': 0, 'type': '', 'deviceID': 0}]
+multiPingList = [{'message_from_id': 0, 'count': 0, 'type': '', 'deviceID': 0, 'channel_number': 0}]
 
 
 # Ping Configuration
@@ -573,21 +573,42 @@ def handleMultiPing(nodeID=0, deviceID=1):
         for i in range(len(mPlCpy)):
             message_id_from = mPlCpy[i]['message_from_id']
             count = mPlCpy[i]['count']
-            type = mPlCpy[i]['type']
+            type = mPlCpy[i]['type'].strip()
             deviceID = mPlCpy[i]['deviceID']
+            channel_number = mPlCpy[i]['channel_number']
 
-            if count > 1 and deviceID == 1:
+            if count > 1:
                 count -= 1
                 # update count in the list
-                multiPingList[i]['count'] = count
+                for i in range(len(multiPingList)):
+                    if multiPingList[i]['message_from_id'] == message_id_from:
+                        multiPingList[i]['count'] = count
 
-                send_message(f"🔂{count} {type}", publicChannel, message_id_from, 1)
+                send_message(f"🔂{count} {type}", channel_number, message_id_from, deviceID)
                 if count < 2:
                     # remove the item from the list
                     for j in range(len(multiPingList)):
                         if multiPingList[j]['message_from_id'] == message_id_from:
                             multiPingList.pop(j)
                             break
+
+
+def handleWxBroadcast(deviceID=1):
+    # only allow API call every 30 minutes
+    clock = datetime.now()
+    if clock.minute % 30 != 0:
+        return False
+    
+    # check for alerts
+    alert = alertBrodcast()
+    if alert:
+        msg = f"🚨 {alert[1]} EAS ALERTs: {alert[0]}"
+        if isinstance(wxAlertBroadcastChannel, list):
+            for channel in wxAlertBroadcastChannel:
+                send_message(msg, int(channel), 0, deviceID)
+        else:
+            send_message(msg, wxAlertBroadcastChannel, 0, deviceID)
+        return True
 
 def onDisconnect(interface):
     global retry_int1, retry_int2
@@ -931,6 +952,7 @@ async def handleSentinel(deviceID=1):
     # Locate Closest Nodes and report them to a secure channel
     # async function for possibly demanding back location data
     enemySpotted = ""
+    resolution = "unknown"
     closest_nodes = get_closest_nodes(deviceID)
     if closest_nodes != ERROR_FETCHING_DATA and closest_nodes:
         if closest_nodes[0]['id'] is not None:
@@ -944,7 +966,9 @@ async def handleSentinel(deviceID=1):
         # check the positionMetadata for nodeID and get metadata
         if positionMetadata and closest_nodes[0]['id'] in positionMetadata:
             metadata = positionMetadata[closest_nodes[0]['id']]
-            resolution = metadata.get('precisionBits', 'na')
+            if metadata.get('precisionBits') is not None:
+                resolution = metadata.get('precisionBits')
+                
 
         logger.warning(f"System: {enemySpotted} is close to your location on Interface1 Accuracy is {resolution}bits")
         send_message(f"Sentry{deviceID}: {enemySpotted}", secure_channel, 0, deviceID)
@@ -976,6 +1000,9 @@ async def watchdog():
                 # multiPing handler
                 handleMultiPing(0,1)
 
+                if wxAlertBroadcastEnabled:
+                    handleWxBroadcast(1)
+
                 # Telemetry data
                 int1Data = displayNodeTelemetry(0, 1)
                 if int1Data != -1 and telemetryData[0]['lastAlert1'] != int1Data:
@@ -1005,6 +1032,9 @@ async def watchdog():
                     # multiPing handler
                     handleMultiPing(0,2)
 
+                    if wxAlertBroadcastEnabled:
+                        handleWxBroadcast(2)
+
                 # Telemetry data
                 int2Data = displayNodeTelemetry(0, 2)
                 if int2Data != -1 and telemetryData[0]['lastAlert2'] != int2Data:
@@ -1016,3 +1046,5 @@ async def watchdog():
                     await retry_interface(2)
                 except Exception as e:
                     logger.error(f"System: retrying interface2: {e}")
+
+

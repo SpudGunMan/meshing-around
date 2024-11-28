@@ -372,7 +372,7 @@ def get_database_info():
                 elif 'bbsdm' in file:
                     bbsdm = pickle.load(f)
         except Exception as e:
-            print(f"Error reading database file: {str(e)}")
+            print(f"Warning issue reading database file: {str(e)}")
             if 'lemonstand' in file:
                 lemon_score = "no data"
             elif 'dopewar' in file:
@@ -922,8 +922,8 @@ def generate_database_html(database_info):
 
 def main():
     log_dir = LOG_PATH
-    today = datetime.now().strftime('%Y_%m_%d')
-    log_file = f'meshbot{today}.log'
+    today = datetime.now().strftime('%Y-%m-%d')
+    log_file = f'meshbot.log'
     log_path = os.path.join(log_dir, log_file)
 
     if not os.path.exists(log_path):

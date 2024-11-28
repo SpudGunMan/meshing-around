@@ -51,7 +51,7 @@ if 'sentry' not in config:
         config.write(open(config_file, 'w'))
 
 if 'location' not in config:
-        config['location'] = {'enabled': 'True', 'lat': '48.50', 'lon': '-123.0', 'UseMeteoWxAPI': 'False', 'useMetric': 'False', 'NOAAforecastDuration': '4', 'NOAAalertCount': '2', 'NOAAalertsEnabled': 'True'}
+        config['location'] = {'enabled': 'True', 'lat': '48.50', 'lon': '-123.0', 'UseMeteoWxAPI': 'False', 'useMetric': 'False', 'NOAAforecastDuration': '4', 'NOAAalertCount': '2', 'NOAAalertsEnabled': 'True', 'wxAlertBroadcastEnabled': 'False', 'wxAlertBroadcastChannel': '2', 'repeaterLookup': 'rbook'}
         config.write(open(config_file, 'w'))
 
 if 'bbs' not in config:
@@ -102,6 +102,7 @@ try:
     ignoreDefaultChannel = config['general'].getboolean('ignoreDefaultChannel', False)
     zuluTime = config['general'].getboolean('zuluTime', False) # aka 24 hour time
     log_messages_to_file = config['general'].getboolean('LogMessagesToFile', False) # default off
+    log_backup_count = config['general'].getint('LogBackupCount', 32) # default 32 days
     syslog_to_file = config['general'].getboolean('SyslogToFile', True) # default on
     urlTimeoutSeconds = config['general'].getint('urlTimeout', 10) # default 10 seconds
     store_forward_enabled = config['general'].getboolean('StoreForward', True)
@@ -137,6 +138,13 @@ try:
     numWxAlerts = config['location'].getint('NOAAalertCount', 2) # default 2 alerts
     wxAlertsEnabled = config['location'].getboolean('NOAAalertsEnabled', True) # default True not enabled yet
     repeater_lookup = config['location'].get('repeaterLookup', 'rbook') # default repeater lookup source
+    wxAlertBroadcastEnabled = config['location'].getboolean('wxAlertBroadcastEnabled', False) # default False
+    # brodcast channel for weather alerts
+    wxAlertBroadcastChannel = config['location'].get('wxAlertBroadcastCh')
+    if ',' in wxAlertBroadcastChannel:
+        wxAlertBroadcastChannel = config['location'].get('wxAlertBroadcastCh').split(',')
+    else:
+        wxAlertBroadcastChannel = config['location'].getint('wxAlertBroadcastCh', 2) # default 2
    
     # bbs
     bbs_enabled = config['bbs'].getboolean('enabled', False)

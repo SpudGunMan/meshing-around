@@ -14,6 +14,8 @@ Logging messages to disk or 'Syslog' to disk uses the python native logging func
 LogMessagesToFile = False
 # Logging of system messages to file, needed for reporting engine
 SyslogToFile = True
+# Number of log files to keep in days, 0 to keep all
+log_backup_count = 32
 ```
 
 To change the stdout (what you see on the console) logging level (default is DEBUG) see the following example, line is in [../modules/log.py](../modules/log.py)

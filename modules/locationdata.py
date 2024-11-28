@@ -325,11 +325,15 @@ def abbreviate_weather(row):
                     
     return line
 
-def getWeatherAlerts(lat=0, lon=0):
+def getWeatherAlerts(lat=0, lon=0, useDefaultLatLon=False):
     # get weather alerts from NOAA limited to ALERT_COUNT with the total number of alerts found
     alerts = ""
-    if float(lat) == 0 and float(lon) == 0:
+    if float(lat) == 0 and float(lon) == 0 and not useDefaultLatLon:
         return NO_DATA_NOGPS
+    else:
+        if useDefaultLatLon:
+            lat = latitudeValue
+            lon = longitudeValue
 
     alert_url = "https://api.weather.gov/alerts/active.atom?point=" + str(lat) + "," + str(lon)
     #alert_url = "https://api.weather.gov/alerts/active.atom?area=WA"
@@ -368,6 +372,23 @@ def getWeatherAlerts(lat=0, lon=0):
     # return the first ALERT_COUNT alerts
     data = "\n".join(alerts.split("\n")[:numWxAlerts]), alert_num
     return data
+
+wxAlertCache = ""
+def alertBrodcast():
+    # get the latest weather alerts and broadcast them if there are any
+    global wxAlertCache
+    currentAlert = getWeatherAlerts(latitudeValue, longitudeValue)
+    
+    if currentAlert[0] == ERROR_FETCHING_DATA or currentAlert == NO_DATA_NOGPS or currentAlert == NO_ALERTS:
+        wxAlertCache = ""
+        return False
+    # broadcast the alerts send to wxBrodcastCh
+    elif currentAlert[0] != wxAlertCache:
+        logger.debug("Location:Broadcasting weather alerts")
+        wxAlertCache = currentAlert[0]
+        return currentAlert
+    
+    return False
 
 def getActiveWeatherAlertsDetail(lat=0, lon=0):
     # get the latest details of weather alerts from NOAA

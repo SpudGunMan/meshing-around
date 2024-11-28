@@ -61,6 +61,8 @@ urlTimeout = 10
 LogMessagesToFile = False
 # Logging of system messages to file
 SyslogToFile = True
+# Number of log files to keep in days, 0 to keep all
+log_backup_count = 32
 
 [games]
 # if hop limit for the user exceeds this value, the message will be dropped
@@ -107,6 +109,10 @@ UseMeteoWxAPI = False
 useMetric = False
 # repeaterList lookup location (rbook / artsci)
 repeaterLookup = rbook
+# EAS Alert Broadcast
+wxAlertBroadcastEnabled = False
+# EAS Alert Broadcast Channels
+wxAlertBroadcastCh = 2
 
 # repeater module
 [repeater]
