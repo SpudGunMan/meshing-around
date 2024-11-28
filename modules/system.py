@@ -496,13 +496,22 @@ def send_message(message, ch, nodeid=0, nodeInt=1):
     else: # message is less than MESSAGE_CHUNK_SIZE characters
         if nodeid == 0:
             # Send to channel
-            logger.info(f"Device:{nodeInt} Channel:{ch} " + CustomFormatter.red + "SendingChannel: " + CustomFormatter.white + message.replace('\n', ' '))
-            interface.sendText(text=message, channelIndex=ch)
+            if wantAck:
+                logger.info(f"Device:{nodeInt} Channel:{ch} " + CustomFormatter.red + "req.ACK " + "SendingChannel: " + CustomFormatter.white + message.replace('\n', ' '))
+                interface.sendText(text=message, channelIndex=ch, wantAck=True)
+            else:
+                logger.info(f"Device:{nodeInt} Channel:{ch} " + CustomFormatter.red + "SendingChannel: " + CustomFormatter.white + message.replace('\n', ' '))
+                interface.sendText(text=message, channelIndex=ch)
         else:
             # Send to DM
-            logger.info(f"Device:{nodeInt} " + CustomFormatter.red + "Sending DM: " + CustomFormatter.white + message.replace('\n', ' ') + CustomFormatter.purple +\
-                         " To: " + CustomFormatter.white + f"{get_name_from_number(nodeid, 'long', nodeInt)}")
-            interface.sendText(text=message, channelIndex=ch, destinationId=nodeid)
+            if wantAck:
+                logger.info(f"Device:{nodeInt} " + CustomFormatter.red + "req.ACK " + "Sending DM: " + CustomFormatter.white + message.replace('\n', ' ') + CustomFormatter.purple +\
+                             " To: " + CustomFormatter.white + f"{get_name_from_number(nodeid, 'long', nodeInt)}")
+                interface.sendText(text=message, channelIndex=ch, destinationId=nodeid, wantAck=True)
+            else:
+                logger.info(f"Device:{nodeInt} " + CustomFormatter.red + "Sending DM: " + CustomFormatter.white + message.replace('\n', ' ') + CustomFormatter.purple +\
+                            " To: " + CustomFormatter.white + f"{get_name_from_number(nodeid, 'long', nodeInt)}")
+                interface.sendText(text=message, channelIndex=ch, destinationId=nodeid)
     return True
 
 def get_wikipedia_summary(search_term):

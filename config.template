@@ -150,4 +150,6 @@ responseDelay = 0.7
 splitDelay = 0.0
 # message chunk size for sending at high success rate
 MESSAGE_CHUNK_SIZE = 160
+# Request Acknowledgement of message OTA
+wantAck = False
 
