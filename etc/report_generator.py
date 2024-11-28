@@ -372,7 +372,7 @@ def get_database_info():
                 elif 'bbsdm' in file:
                     bbsdm = pickle.load(f)
         except Exception as e:
-            print(f"Error reading database file: {str(e)}")
+            print(f"Warning issue reading database file: {str(e)}")
             if 'lemonstand' in file:
                 lemon_score = "no data"
             elif 'dopewar' in file:
