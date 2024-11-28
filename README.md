@@ -232,15 +232,18 @@ To Monitor EAS with no internet connection see the following notes
 
 - [EAS2Text](https://github.com/A-c0rN/EAS2Text)
   - depends on [multimon-ng](https://github.com/EliasOenal/multimon-ng) or [direwolf](https://github.com/wb2osz/direwolf)
-- [dsame3](https://github.com/jamieden/dsame3)
+- [dsame3](https://github.com/jamieden/dsame3) // recomend not using anything but the sample file for basic work
   - this can be used with a rtl-sdr to capture alerts
   - has a sample .ogg file for testing alerts
 
-The following shell command can pipe the data using [etc/eas_alert_parser.py](etc/eas_alert_parser.py)
+The following example shell command can pipe the data using [etc/eas_alert_parser.py](etc/eas_alert_parser.py) to alert.txt
 ```bash
-sox -t ogg WXR-RWT.ogg -esigned-integer -b16 -r 22050 -t raw - | multimon-ng -a EAS -v 1 -t raw - | python ftw.py
+sox -t ogg WXR-RWT.ogg -esigned-integer -b16 -r 22050 -t raw - | multimon-ng -a EAS -v 1 -t raw - | python eas_alert_parser.py
 ```
-
+The following example shell command will pipe rtl_sdr to alert.txt
+```bash
+rtl_fm -f 162425000 -s 22050 | multimon-ng -t raw -a EAS /dev/stdin | python eas_alert_parser.py
+```
 
 ### Scheduler
 The Scheduler is enabled in the `settings.py` by setting `scheduler_enabled = True`. The actions and settings are via code only at this time. See mesh_bot.py around line [425](https://github.com/SpudGunMan/meshing-around/blob/22983133ee4db3df34f66699f565e506de296197/mesh_bot.py#L425-L435) to edit the schedule. See [schedule documentation](https://schedule.readthedocs.io/en/stable/) for more.
