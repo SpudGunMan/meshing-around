@@ -379,7 +379,7 @@ def alertBrodcast():
     global wxAlertCache
     currentAlert = getWeatherAlerts(latitudeValue, longitudeValue)
     
-    if currentAlert[0] == ERROR_FETCHING_DATA or currentAlert == NO_DATA_NOGPS or currentAlert == NO_ALERTS:
+    if currentAlert == ERROR_FETCHING_DATA or currentAlert == NO_DATA_NOGPS or currentAlert == NO_ALERTS:
         wxAlertCache = ""
         return False
     # broadcast the alerts send to wxBrodcastCh
