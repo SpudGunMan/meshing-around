@@ -385,8 +385,9 @@ I used ideas and snippets from other responder bots and want to call them out!
 - **xdep**: For the reporting tools.
 - **Nestpebble**: For new ideas and enhancements.
 - **mrpatrick1991**: For Docker configurations.
+- **Mike O'Connell/skrrt**: For [text](etc/eas_alert_parser.py) enhanced by **sheer.cold**
 - **PiDiBi**: For looking at test functions and other suggestions like wxc, CPU use, and alerting ideas.
-- **Cisien, bitflip, and Hailo1999**: For testing and feature ideas on Discord and GitHub.
+- **Cisien, bitflip, **Woof**, and Hailo1999**: For testing and feature ideas on Discord and GitHub.
 - **Meshtastic Discord Community**: For tossing out ideas and testing code.
 
 ### Tools
