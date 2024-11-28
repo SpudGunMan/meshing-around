@@ -117,6 +117,10 @@ def sendWithEmoji(message):
 
 def tell_joke(nodeID=0):
     dadjoke = Dadjoke()
-    renderedLaugh = sendWithEmoji(dadjoke.joke)
+
+    if dad_jokes_emojiJokes:
+        renderedLaugh = sendWithEmoji(dadjoke.joke)
+    else:
+        renderedLaugh = dadjoke.joke
     return renderedLaugh
 

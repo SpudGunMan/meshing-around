@@ -115,6 +115,7 @@ try:
     lheardCmdIgnoreNode = config['general'].get('lheardCmdIgnoreNode', '').split(',')
     whoami_enabled = config['general'].getboolean('whoami', True)
     dad_jokes_enabled = config['general'].getboolean('DadJokes', False)
+    dad_jokes_emojiJokes = config['general'].getboolean('DadJokesEmoji', False)
     solar_conditions_enabled = config['general'].getboolean('spaceWeather', True)
     wikipedia_enabled = config['general'].getboolean('wikipedia', False)
     llm_enabled = config['general'].getboolean('ollama', False) # https://ollama.com

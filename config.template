@@ -36,6 +36,7 @@ welcome_message = MeshBot, here for you like a friend who is not. Try sending: p
 whoami = True
 # enable or disable the Joke module
 DadJokes = True
+DadJokesEmoji = False
 # enable or disable the Solar module
 spaceWeather = True
 # enable or disable the wikipedia search module
