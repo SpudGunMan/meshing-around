@@ -120,7 +120,7 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, chann
 
     if "ping" in message.lower():
         msg = "🏓PONG\n"
-        type = "🏓PING\n"
+        type = "🏓PING"
     elif "test" in message.lower() or "testing" in message.lower():
         msg = random.choice(["🎙Testing 1,2,3\n", "🎙Testing\n",\
                              "🎙Testing, testing\n",\
