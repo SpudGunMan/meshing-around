@@ -25,7 +25,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
 
     # Command List
     default_commands = {
-    "ack": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM),
+    "ack": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
     "ask:": lambda: handle_llm(message_from_id, channel_number, deviceID, message, publicChannel),
     "askai": lambda: handle_llm(message_from_id, channel_number, deviceID, message, publicChannel),
     "bbslink": lambda: bbs_sync_posts(message, message_from_id, deviceID),
@@ -37,9 +37,9 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "bbspost": lambda: handle_bbspost(message, message_from_id, deviceID),
     "bbsread": lambda: handle_bbsread(message),
     "blackjack": lambda: handleBlackJack(message, message_from_id, deviceID),
-    "cq": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM),
-    "cqcq": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM),
-    "cqcqcq": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM),
+    "cq": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
+    "cqcq": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
+    "cqcqcq": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
     "cmd": lambda: help_message,
     "dopewars": lambda: handleDopeWars(message, message_from_id, deviceID),
     "games": lambda: gamesCmdList,
@@ -54,15 +54,15 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "messages": lambda: handle_messages(message, deviceID, channel_number, msg_history, publicChannel, isDM),
     "moon": lambda: handle_moon(message_from_id, deviceID, channel_number),
     "motd": lambda: handle_motd(message, message_from_id, isDM),
-    "ping": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM),
-    "pinging": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM),
+    "ping": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
+    "pinging": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
     "pong": lambda: "🏓PING!!🛜",
     "rlist": lambda: handle_repeaterQuery(message_from_id, deviceID, channel_number),
     "sitrep": lambda: handle_lheard(message, message_from_id, deviceID, isDM),
     "solar": lambda: drap_xray_conditions() + "\n" + solar_conditions(),
     "sun": lambda: handle_sun(message_from_id, deviceID, channel_number),
-    "test": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM),
-    "testing": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM),
+    "test": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
+    "testing": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
     "tide": lambda: handle_tide(message_from_id, deviceID, channel_number),
     "videopoker": lambda: handleVideoPoker(message, message_from_id, deviceID),
     "whereami": lambda: handle_whereami(message_from_id, deviceID, channel_number),
@@ -110,7 +110,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     time.sleep(responseDelay)
     return bot_response
 
-def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM):
+def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, channel_number):
     global multiPing
     if  "?" in message and isDM:
         return message.split("?")[0].title() + " command returns SNR and RSSI, or hopcount from your message. Try adding e.g. @place or #tag"
@@ -169,7 +169,7 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM):
             pingCount = -1
     
         if pingCount > 1:
-            multiPingList.append({'message_from_id': message_from_id, 'count': pingCount + 1, 'type': type, 'deviceID': deviceID})
+            multiPingList.append({'message_from_id': message_from_id, 'count': pingCount + 1, 'type': type, 'deviceID': deviceID, 'channel_number': channel_number})
             msg = f"🚦Initalizing {pingCount} auto-ping"
             
     return msg

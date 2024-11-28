@@ -15,7 +15,7 @@ trap_list = ("cmd","cmd?") # default trap list
 help_message = "Bot CMD?:\n"
 asyncLoop = asyncio.new_event_loop()
 games_enabled = False
-multiPingList = [{'message_from_id': 0, 'count': 0, 'type': '', 'deviceID': 0}]
+multiPingList = [{'message_from_id': 0, 'count': 0, 'type': '', 'deviceID': 0, 'channel_number': 0}]
 
 
 # Ping Configuration
@@ -573,39 +573,25 @@ def handleMultiPing(nodeID=0, deviceID=1):
         for i in range(len(mPlCpy)):
             message_id_from = mPlCpy[i]['message_from_id']
             count = mPlCpy[i]['count']
-            type = mPlCpy[i]['type']
+            type = mPlCpy[i]['type'].strip()
             deviceID = mPlCpy[i]['deviceID']
+            channel_number = mPlCpy[i]['channel_number']
 
-            if count > 1 and deviceID == 1:
+            if count > 1:
                 count -= 1
                 # update count in the list
-                multiPingList[i]['count'] = count
+                for i in range(len(multiPingList)):
+                    if multiPingList[i]['message_from_id'] == message_id_from:
+                        multiPingList[i]['count'] = count
 
-                send_message(f"🔂{count} {type}", publicChannel, message_id_from, 1)
+                send_message(f"🔂{count} {type}", channel_number, message_id_from, deviceID)
                 if count < 2:
                     # remove the item from the list
                     for j in range(len(multiPingList)):
                         if multiPingList[j]['message_from_id'] == message_id_from:
                             multiPingList.pop(j)
                             break
-            elif count > 1 and deviceID == 2:
-                count -= 1
-                # update count in the list
-                multiPingList[i]['count'] = count
 
-                send_message(f"🔂{count} {type}", publicChannel, message_id_from, 2)
-                if count < 2:
-                    # remove the item from the list
-                    for j in range(len(multiPingList)):
-                        if multiPingList[j]['message_from_id'] == message_id_from:
-                            multiPingList.pop(j)
-                            break
-            else:
-                # remove the item from the list
-                for j in range(len(multiPingList)):
-                    if multiPingList[j]['message_from_id'] == message_id_from:
-                        multiPingList.pop(j)
-                        break
 
 def handleWxBroadcast(deviceID=1):
     # only allow API call every 30 minutes
