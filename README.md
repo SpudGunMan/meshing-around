@@ -10,7 +10,7 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 - **Automated Responses**: The bot traps keywords like "ping" and responds with "pong" in direct messages (DMs) or group channels.
 - **Customizable Triggers**: Monitor group channels for specific keywords and set custom responses.
 
-### Network building tools
+### Network Tools
 - **Enhance and build local mesh**: Ping allow for message delivery testing with more realistic packets vs. telemetry
 - **Test node hardware**: `test` will send incremental data into the radio buffer for overall length of message testing
 
@@ -390,7 +390,7 @@ I used ideas and snippets from other responder bots and want to call them out!
 - **xdep**: For the reporting tools.
 - **Nestpebble**: For new ideas and enhancements.
 - **mrpatrick1991**: For Docker configurations.
-- **Mike O'Connell/skrrt**: For [text](etc/eas_alert_parser.py) enhanced by **sheer.cold**
+- **Mike O'Connell/skrrt**: For [eas_alert_parser](etc/eas_alert_parser.py) enhanced by **sheer.cold**
 - **PiDiBi**: For looking at test functions and other suggestions like wxc, CPU use, and alerting ideas.
 - **Cisien, bitflip, **Woof**, and Hailo1999**: For testing and feature ideas on Discord and GitHub.
 - **Meshtastic Discord Community**: For tossing out ideas and testing code.
