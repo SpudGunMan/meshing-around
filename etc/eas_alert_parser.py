@@ -12,29 +12,31 @@ pattern = re.compile(r'ZCZC.*?NWS-')
 while True:
   try:
     # Handle piped input
-    line=input().strip()
+    inp=input().strip()
   except EOFError:
     break
-  # only want EAS lines
-  if line.startswith("EAS:") or line.startswith("EAS (part):"):
-    content=line.split(maxsplit=1)[1]
-    if content=="NNNN": # end of EAS message
-      # write if we have something
-      if buff:
-        print("writing")
-        with open("alert.txt","w") as fh:
-          fh.write('\n'.join(buff))
-        # prepare for new data
-        buff.clear()
-        seen.clear()
-    elif content in seen:
-      # don't need repeats'
-      continue
-    else:
-      # check for national weather service
-      match=pattern.search(content)
-      if match:
-        seen.add(content)
-        msg=EAS2Text(content).EASText
-        print("got message", msg)
-        buff.append(msg)
+  # potentially take multiple lines in one buffered input
+  for line in inp.splitlines():
+    # only want EAS lines
+    if line.startswith("EAS:") or line.startswith("EAS (part):"):
+      content=line.split(":", maxsplit=1)[1].strip()
+      if content=="NNNN": # end of EAS message
+        # write if we have something
+        if buff:
+          print("writing")
+          with open("alert.txt","w") as fh:
+            fh.write('\n'.join(buff))
+          # prepare for new data
+          buff.clear()
+          seen.clear()
+      elif content in seen:
+        # don't need repeats
+        continue
+      else:
+        # check for national weather service
+        match=pattern.search(content)
+        if match:
+          seen.add(content)
+          msg=EAS2Text(content).EASText
+          print("got message", msg)
+          buff.append(msg)
