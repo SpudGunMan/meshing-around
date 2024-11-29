@@ -250,7 +250,7 @@ rtl_fm -f 162425000 -s 22050 | multimon-ng -t raw -a EAS /dev/stdin | python eas
 ```
 
 ### Scheduler
-The Scheduler is enabled in the `settings.py` by setting `scheduler_enabled = True`. The actions and settings are via code only at this time. See mesh_bot.py around line [425](https://github.com/SpudGunMan/meshing-around/blob/22983133ee4db3df34f66699f565e506de296197/mesh_bot.py#L425-L435) to edit the schedule. See [schedule documentation](https://schedule.readthedocs.io/en/stable/) for more.
+The Scheduler is enabled in the `settings.py` by setting `scheduler_enabled = True`. The actions and settings are via code only at this time. See mesh_bot.py around line [1050](https://github.com/SpudGunMan/meshing-around/blob/e94581936530c76ea43500eebb43f32ba7ed5e19/mesh_bot.py#L1050) to edit the schedule. See [schedule documentation](https://schedule.readthedocs.io/en/stable/) for more.
 
 ```python
 #Send WX every Morning at 08:00 using handle_wxc function to channel 2 on device 1
