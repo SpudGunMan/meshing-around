@@ -625,7 +625,7 @@ def handleMultiPing(nodeID=0, deviceID=1):
                         count -= 1
 
                 send_message(f"🔂{count} {type}", channel_number, message_id_from, deviceID, bypassChuncking=True)
-
+                time.sleep(responseDelay + 1)
                 if count < 2:
                     # remove the item from the list
                     for j in range(len(multiPingList)):
