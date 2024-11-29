@@ -233,11 +233,14 @@ wxAlertBroadcastCh = 2,4
 ```
 
 To Monitor EAS with no internet connection see the following notes
+- [samedec](https://crates.io/crates/samedec) rust decoder much like multimon-ng
+  - [sameold](https://crates.io/crates/sameold) rust SAME message translator much like EAS2Text and dsame3
+
+no examples yet for these tools
 
 - [EAS2Text](https://github.com/A-c0rN/EAS2Text)
   - depends on [multimon-ng](https://github.com/EliasOenal/multimon-ng) or [direwolf](https://github.com/wb2osz/direwolf)
 - [dsame3](https://github.com/jamieden/dsame3) // recomend not using anything but the sample file for basic work
-  - this can be used with a rtl-sdr to capture alerts
   - has a sample .ogg file for testing alerts
 
 The following example shell command can pipe the data using [etc/eas_alert_parser.py](etc/eas_alert_parser.py) to alert.txt
