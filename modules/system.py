@@ -6,6 +6,7 @@ import meshtastic.tcp_interface
 import meshtastic.ble_interface
 import time
 import asyncio
+import random
 import contextlib # for suppressing output on watchdog
 import io # for suppressing output on watchdog
 from modules.log import *
