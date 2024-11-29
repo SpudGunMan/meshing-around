@@ -610,7 +610,9 @@ def handleMultiPing(nodeID=0, deviceID=1):
 
                 if type == '🎙TEST':
                     # use the type for a string of random data divided by MAXBUFFER and count for the length of the string
-                    type = ''.join(random.choice(['0', '1']) for i in range(int(maxBuffer / count)))
+                    type = ''.join(random.choice(['0', '1']) for i in range(int((maxBuffer - 150 ) / count)))
+                    # add the 150 back into the string as random data, this was for finer resolution of the count on the upper limit
+                    type = type + ''.join(random.choice(['0', '1']) for i in range(150))
                     count = len(type + "🔂    ")
                     if count < 99:
                         # why? because the count likes to count, and it counts the count
