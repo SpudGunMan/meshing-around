@@ -15,7 +15,7 @@ trap_list = ("cmd","cmd?") # default trap list
 help_message = "Bot CMD?:\n"
 asyncLoop = asyncio.new_event_loop()
 games_enabled = False
-multiPingList = [{'message_from_id': 0, 'count': 0, 'type': '', 'deviceID': 0, 'channel_number': 0}]
+multiPingList = [{'message_from_id': 0, 'count': 0, 'type': '', 'deviceID': 0, 'channel_number': 0, 'startCount': 0}]
 
 
 # Ping Configuration
@@ -600,6 +600,7 @@ def handleMultiPing(nodeID=0, deviceID=1):
             type = mPlCpy[i]['type']
             deviceID = mPlCpy[i]['deviceID']
             channel_number = mPlCpy[i]['channel_number']
+            start_count = mPlCpy[i]['startCount']
 
             if count > 1:
                 count -= 1
@@ -609,14 +610,17 @@ def handleMultiPing(nodeID=0, deviceID=1):
                         multiPingList[i]['count'] = count
 
                 if type == '🎙TEST':
-                    # use the type for a string of random data divided by MAXBUFFER and count for the length of the string
-                    type = ''.join(random.choice(['0', '1']) for i in range(int((maxBuffer - 150 ) / count)))
-                    # add the 150 back into the string as random data, this was for finer resolution of the count on the upper limit
-                    type = type + ''.join(random.choice(['0', '1']) for i in range(150))
+                    buffer = ''.join(random.choice(['0', '1']) for i in range(maxBuffer))
+                    # divide buffer by start_count and get resolution
+                    resolution = maxBuffer // start_count
+                    slice = resolution * count
+                    # set the type as a portion of the buffer
+                    type = buffer[slice - resolution:]
+
                     count = len(type + "🔂    ")
                     if count < 99:
                         # why? because the count likes to count, and it counts the count
-                        count = count - 1
+                        count -= 1
 
                 send_message(f"🔂{count} {type}", channel_number, message_id_from, deviceID, bypassChuncking=True)
 

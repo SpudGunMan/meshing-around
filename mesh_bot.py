@@ -171,9 +171,9 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, chann
             pingCount = -1
     
         if pingCount > 1:
-            multiPingList.append({'message_from_id': message_from_id, 'count': pingCount + 1, 'type': type, 'deviceID': deviceID, 'channel_number': channel_number})
+            multiPingList.append({'message_from_id': message_from_id, 'count': pingCount + 1, 'type': type, 'deviceID': deviceID, 'channel_number': channel_number, 'startCount': pingCount})
             if type == "🎙TEST":
-                msg = f"🎙Initalizing BufferTest, range {int(((maxBuffer - 150 ) / pingCount) + 150)} to {maxBuffer} in {pingCount} messages"
+                msg = f"🎙Initalizing BufferTest, using chunks of {int(maxBuffer // pingCount)} max {maxBuffer} in {pingCount} messages"
             else:
                 msg = f"🚦Initalizing {pingCount} auto-ping"
             
