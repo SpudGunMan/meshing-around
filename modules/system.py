@@ -611,9 +611,9 @@ def handleMultiPing(nodeID=0, deviceID=1):
                 if type == '🎙TEST':
                     # use the type for a string of random data divided by MAXBUFFER and count for the length of the string
                     type = ''.join(random.choice(['0', '1']) for i in range(int(maxBuffer / count)))
-                    count = len(type + f"🔂    ")
+                    count = len(type + "🔂    ")
                     if count > 99:
-                        # why? because the count likes to count
+                        # why? because the count likes to count, and it counts the count
                         count = count - 1
 
                 send_message(f"🔂{count} {type}", channel_number, message_id_from, deviceID, bypassChuncking=True)
