@@ -10,6 +10,9 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 - **Automated Responses**: The bot traps keywords like "ping" and responds with "pong" in direct messages (DMs) or group channels.
 - **Customizable Triggers**: Monitor group channels for specific keywords and set custom responses.
 
+### Network building tools
+- **Enhance and build local mesh**: Tools like Ping allow for message delivery testing
+
 ### Dual Radio/Node Support
 - **Simultaneous Monitoring**: Monitor two networks at the same time.
 - **Flexible Messaging**: send mail and messages, between networks.
@@ -314,7 +317,8 @@ sudo apt-get install fonts-noto-color-emoji
 ### Networking
 | Command | Description | ✅ Works Off-Grid |
 |---------|-------------|-
-| `ping`, `ack`, `test` | Return data for signal. Example: `ping 15 #DrivingI5` (activates auto-ping every 20 seconds for count 15) | ✅ |
+| `ping`, `ack` | Return data for signal. Example: `ping 15 #DrivingI5` (activates auto-ping every 20 seconds for count 15) | ✅ |
+| `test` | Returns like ping but also can be used to test the limits of data buffers `test 5` returns 32 to the maxBuffer set | ✅ |
 | `whereami` | Returns the address of the sender's location if known |
 | `whoami` | Returns details of the node asking, also returned when position exchanged 📍 | ✅ |
 | `motd` | Displays the message of the day or sets it. Example: `motd $New Message Of the day` | ✅ |

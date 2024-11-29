@@ -186,6 +186,7 @@ try:
     splitDelay = config['messagingSettings'].getfloat('splitDelay', 0) # default 0
     MESSAGE_CHUNK_SIZE = config['messagingSettings'].getint('MESSAGE_CHUNK_SIZE', 160) # default 160
     wantAck = config['messagingSettings'].getboolean('wantAck', False) # default False
+    maxBuffer = config['messagingSettings'].getint('maxBuffer', 220) # default 220
 
 except KeyError as e:
     print(f"System: Error reading config file: {e}")

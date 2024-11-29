@@ -152,4 +152,7 @@ splitDelay = 0.0
 MESSAGE_CHUNK_SIZE = 160
 # Request Acknowledgement of message OTA
 wantAck = False
+# Max lilmit Buffer for radio testing
+maxBuffer = 220
+
 
