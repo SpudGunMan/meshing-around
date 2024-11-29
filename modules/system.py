@@ -614,6 +614,8 @@ def handleMultiPing(nodeID=0, deviceID=1):
                     # divide buffer by start_count and get resolution
                     resolution = maxBuffer // start_count
                     slice = resolution * count
+                    if slice > maxBuffer:
+                        slice = maxBuffer
                     # set the type as a portion of the buffer
                     type = buffer[slice - resolution:]
 
