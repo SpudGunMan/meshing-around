@@ -159,6 +159,8 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, chann
                 if multiPingList[i].get('message_from_id') == message_from_id:
                     multiPingList.pop(i)
                     msg = "🛑 auto-ping"
+
+        # set inital pingCount
         try:
             pingCount = int(message.split(" ")[1])
             if pingCount == 123 or pingCount == 1234:
@@ -170,7 +172,10 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, chann
     
         if pingCount > 1:
             multiPingList.append({'message_from_id': message_from_id, 'count': pingCount + 1, 'type': type, 'deviceID': deviceID, 'channel_number': channel_number})
-            msg = f"🚦Initalizing {pingCount} auto-ping"
+            if type == "🎙TEST":
+                msg = f"🎙Initalizing buffer Test range {MESSAGE_CHUNK_SIZE / pingCount} to {MESSAGE_CHUNK_SIZE}"
+            else:
+                msg = f"🚦Initalizing {pingCount} auto-ping"
             
     return msg
 

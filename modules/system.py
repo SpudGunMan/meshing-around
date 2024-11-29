@@ -471,6 +471,8 @@ def send_message(message, ch, nodeid=0, nodeInt=1, bypassChuncking=False):
     if not bypassChuncking:
         # Split the message into chunks if it exceeds the MESSAGE_CHUNK_SIZE
         message_list = messageChunker(message)
+    else:
+        message_list = [message]
 
     if isinstance(message_list, list):
         # Send the message to the channel or DM
@@ -606,7 +608,13 @@ def handleMultiPing(nodeID=0, deviceID=1):
                     if multiPingList[i]['message_from_id'] == message_id_from:
                         multiPingList[i]['count'] = count
 
-                send_message(f"🔂{count} {type}", channel_number, message_id_from, deviceID)
+                if type == '🎙TEST':
+                    # use the type for a string of random data divided by MAXBUFFER and count for the length of the string
+                    type = ''.join(random.choice(['0', '1']) for i in range(int(MESSAGE_CHUNK_SIZE / count)))
+                    count = len(type)
+
+                send_message(f"🔂{count} {type}", channel_number, message_id_from, deviceID, bypassChuncking=True)
+
                 if count < 2:
                     # remove the item from the list
                     for j in range(len(multiPingList)):
