@@ -609,6 +609,7 @@ def handleMultiPing(nodeID=0, deviceID=1):
                     if multiPingList[i]['message_from_id'] == message_id_from:
                         multiPingList[i]['count'] = count
 
+                # handle bufferTest
                 if type == '🎙TEST':
                     buffer = ''.join(random.choice(['0', '1']) for i in range(maxBuffer))
                     # divide buffer by start_count and get resolution
@@ -618,12 +619,16 @@ def handleMultiPing(nodeID=0, deviceID=1):
                         slice = maxBuffer
                     # set the type as a portion of the buffer
                     type = buffer[slice - resolution:]
-
+                    # if exceed the maxBuffer, remove the excess
+                    count = len(type + "🔂    ")
+                    if count > maxBuffer:
+                        type = type[:maxBuffer - count]
+                    # final length count of the message for display
                     count = len(type + "🔂    ")
                     if count < 99:
-                        # why? because the count likes to count, and it counts the count
                         count -= 1
 
+                # send the DM
                 send_message(f"🔂{count} {type}", channel_number, message_id_from, deviceID, bypassChuncking=True)
                 time.sleep(responseDelay + 1)
                 if count < 2:
