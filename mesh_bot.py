@@ -884,6 +884,7 @@ def onReceive(packet, interface):
 
             if hop_start == hop_limit:
                 hop = "Direct"
+                hop_count = 0
             else:
                 # set hop to Direct if the message was sent directly otherwise set the hop count
                 if hop_away > 0:
