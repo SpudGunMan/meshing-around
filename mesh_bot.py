@@ -917,8 +917,9 @@ def onReceive(packet, interface):
                         playingGame = checkPlayingGame(message_from_id, message_string, rxNode, channel_number)
                     else:
                         playingGame = False
-                        logger.warning(f"Device:{rxNode} Ignoring Request to Play Game: {message_string} From: {get_name_from_number(message_from_id, 'long', rxNode)} with hop count: {hop}")
-                        send_message(f"Your hop count exceeds safe playable distance at {hop_count} hops", channel_number, message_from_id, rxNode)
+                        if games_enabled:
+                            logger.warning(f"Device:{rxNode} Ignoring Request to Play Game: {message_string} From: {get_name_from_number(message_from_id, 'long', rxNode)} with hop count: {hop}")
+                            send_message(f"Your hop count exceeds safe playable distance at {hop_count} hops", channel_number, message_from_id, rxNode)
 
                     if not playingGame:
                         if llm_enabled:
