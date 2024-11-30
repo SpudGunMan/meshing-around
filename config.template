@@ -122,7 +122,11 @@ enabled = False
 # and rebroadcasted on the same channel on the other device/node/interface
 # with great power comes great responsibility, danger could be lurking in use of this feature
 # if you have the two nodes on the same radio configurations, you could create a feedback loop
-repeater_channels = 
+repeater_channels =
+
+[scheduler]
+# enable or disable the scheduler module
+enabled = False
 
 [radioMon]
 # using Hamlib rig control will monitor and alert on channel use

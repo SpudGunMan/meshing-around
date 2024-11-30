@@ -24,7 +24,6 @@ max_retry_count1 = 4 # max retry count for interface 1
 max_retry_count2 = 4 # max retry count for interface 2
 retry_int1 = False
 retry_int2 = False
-scheduler_enabled = False # enable the scheduler currently config via code only
 wiki_return_limit = 3 # limit the number of sentences returned off the first paragraph first hit
 playingGame = False
 GAMEDELAY = 28800 # 8 hours in seconds for game mode holdoff
@@ -76,6 +75,10 @@ if 'messagingSettings' not in config:
 
 if 'fileMon' not in config:
         config['fileMon'] = {'enabled': 'False', 'file_path': 'alert.txt', 'broadcastCh': '2'}
+        config.write(open(config_file, 'w'))
+
+if 'scheduler' not in config:
+        config['scheduler'] = {'enabled': 'False'}
         config.write(open(config_file, 'w'))
 
 # interface1 settings
@@ -157,6 +160,9 @@ try:
     # repeater
     repeater_enabled = config['repeater'].getboolean('enabled', False)
     repeater_channels = config['repeater'].get('repeater_channels', '').split(',')
+
+    # scheduler
+    scheduler_enabled = config['scheduler'].getboolean('enabled', False)
 
     # radio monitoring
     radio_detection_enabled = config['radioMon'].getboolean('enabled', False)

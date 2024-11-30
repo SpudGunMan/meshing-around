@@ -1054,6 +1054,9 @@ async def start_rx():
     if scheduler_enabled:
         # Examples of using the scheduler, Times here are in 24hr format
         # https://schedule.readthedocs.io/en/stable/
+        
+        # Reminder Scheduler is enabled every Monday at noon send a log message
+        schedule.every().monday.at("12:00").do(lambda: logger.info("System: Scheduled Broadcast Reminder"))
 
         # Good Morning Every day at 09:00 using send_message function to channel 2 on device 1
         #schedule.every().day.at("09:00").do(lambda: send_message("Good Morning", 2, 0, 1))
@@ -1070,6 +1073,9 @@ async def start_rx():
         # Send a joke every 6 hours using tell_joke function to channel 2 on device 1
         #schedule.every(6).hours.do(lambda: send_message(tell_joke(), 2, 0, 1))
 
+        # Send a joke every 2 minutes using tell_joke function to channel 2 on device 1
+        #schedule.every(2).minutes.do(lambda: send_message(tell_joke(), 2, 0, 1))
+
         # Send the Welcome Message every other day at 08:00 using send_message function to channel 2 on device 1
         #schedule.every(2).days.at("08:00").do(lambda: send_message(welcome_message, 2, 0, 1))
 
@@ -1078,8 +1084,6 @@ async def start_rx():
 
         # Send bbslink looking for peers every other day at 10:00 using send_message function to channel 3 on device 1
         #schedule.every(2).days.at("10:00").do(lambda: send_message("bbslink MeshBot looking for peers", 3, 0, 1))
-        
-        #
         logger.debug("System: Starting the broadcast scheduler")
         await BroadcastScheduler()
 
