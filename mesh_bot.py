@@ -160,15 +160,20 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, chann
                     multiPingList.pop(i)
                     msg = "🛑 auto-ping"
 
-        # set inital pingCount
-        try:
-            pingCount = int(message.split(" ")[1])
-            if pingCount == 123 or pingCount == 1234:
-                pingCount =  1
-            if pingCount > 51:
-                pingCount = 50
-        except:
+        # if 3 or more entries (2 or more active), throttle the multi-ping for congestion
+        if len(multiPingList) > 2:
+            msg = "🚫⛔️ auto-ping, service busy. ⏳Try again soon."
             pingCount = -1
+        else:
+            # set inital pingCount
+            try:
+                pingCount = int(message.split(" ")[1])
+                if pingCount == 123 or pingCount == 1234:
+                    pingCount =  1
+                if pingCount > 51:
+                    pingCount = 50
+            except:
+                pingCount = -1
     
         if pingCount > 1:
             multiPingList.append({'message_from_id': message_from_id, 'count': pingCount + 1, 'type': type, 'deviceID': deviceID, 'channel_number': channel_number, 'startCount': pingCount})
