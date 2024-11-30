@@ -29,7 +29,6 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "ask:": lambda: handle_llm(message_from_id, channel_number, deviceID, message, publicChannel),
     "askai": lambda: handle_llm(message_from_id, channel_number, deviceID, message, publicChannel),
     "bbsack": lambda: bbs_sync_posts(message, message_from_id, deviceID),
-    "bbslink": lambda: bbs_sync_posts(message, message_from_id, deviceID),
     "bbsdelete": lambda: handle_bbsdelete(message, message_from_id),
     "bbshelp": bbs_help,
     "bbsinfo": lambda: get_bbs_stats(),
