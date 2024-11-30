@@ -11,8 +11,8 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 - **Customizable Triggers**: Monitor group channels for specific keywords and set custom responses.
 
 ### Network Tools
-- **Enhance and build local mesh**: Ping allow for message delivery testing with more realistic packets vs. telemetry
-- **Test node hardware**: `test` will send incremental data into the radio buffer for overall length of message testing
+- **Build, Test Local Mesh**: Ping allow for message delivery testing with more realistic packets vs. telemetry
+- **Test Node Hardware**: `test` will send incremental sized data into the radio buffer for overall length of message testing
 
 ### Dual Radio/Node Support
 - **Simultaneous Monitoring**: Monitor two networks at the same time.
@@ -162,7 +162,7 @@ lheardCmdIgnoreNodes = # command history ignore list ex: 2813308004,4258675309
 
 ### Sentry Settings
 
-Sentry Bot detects anyone coming close to the bot-node.
+Sentry Bot detects anyone coming close to the bot-node. uses the Location Lat/Lon value.
 
 ```ini
 SentryEnabled = True # detect anyone close to the bot
@@ -179,20 +179,6 @@ A repeater function for two different nodes and cross-posting messages. The [`re
 [repeater] # repeater module
 enabled = True
 repeater_channels = [2, 3]
-```
-
-### Radio Monitoring
-A module allowing a Hamlib compatible radio to connect to the bot. When functioning, it will message the configured channel with a message of in use. **Requires hamlib/rigctld to be running as a service.**
-
-```ini
-[radioMon]
-enabled = False
-rigControlServerAddress = localhost:4532
-sigWatchBroadcastCh = 2 # channel to broadcast to can be 2,3
-signalDetectionThreshold = -10 # minimum SNR as reported by radio via hamlib
-signalHoldTime = 10 # hold time for high SNR
-signalCooldown = 5 # the following are combined to reset the monitor
-signalCycleLimit = 5
 ```
 
 ### Ollama (LLM/AI) Settings
@@ -212,6 +198,20 @@ Also see `llm.py` for changing the defaults of:
 llmEnableHistory = True # enable history for the LLM model to use in responses adds to compute time
 llmContext_fromGoogle = True # enable context from google search results helps with responses accuracy
 googleSearchResults = 3 # number of google search results to include in the context more results = more compute time
+```
+
+### Radio Monitoring
+A module allowing a Hamlib compatible radio to connect to the bot. When functioning, it will message the configured channel with a message of in use. **Requires hamlib/rigctld to be running as a service.**
+
+```ini
+[radioMon]
+enabled = False
+rigControlServerAddress = localhost:4532
+sigWatchBroadcastCh = 2 # channel to broadcast to can be 2,3
+signalDetectionThreshold = -10 # minimum SNR as reported by radio via hamlib
+signalHoldTime = 10 # hold time for high SNR
+signalCooldown = 5 # the following are combined to reset the monitor
+signalCycleLimit = 5
 ```
 
 ### File Monitoring
@@ -239,8 +239,8 @@ To Monitor EAS with no internet connection see the following notes
 no examples yet for these tools
 
 - [EAS2Text](https://github.com/A-c0rN/EAS2Text)
-  - depends on [multimon-ng](https://github.com/EliasOenal/multimon-ng) or [direwolf](https://github.com/wb2osz/direwolf)
-- [dsame3](https://github.com/jamieden/dsame3) // recomend not using anything but the sample file for basic work
+  - depends on [multimon-ng](https://github.com/EliasOenal/multimon-ng), [direwolf](https://github.com/wb2osz/direwolf), [samedec](https://crates.io/crates/samedec) rust decoder much like multimon-ng
+- [dsame3](https://github.com/jamieden/dsame3)
   - has a sample .ogg file for testing alerts
 
 The following example shell command can pipe the data using [etc/eas_alert_parser.py](etc/eas_alert_parser.py) to alert.txt
@@ -264,7 +264,7 @@ schedule.every().wednesday.at("19:00").do(lambda: send_message("Net Starting Now
 ```
 
 #### BBS Link
-The scheduler also handles the BBL Link Brodcast message
+The scheduler also handles the BBL Link Brodcast message, this would be an esxample of a mesh-admin channel on 8 being used to pass BBS post traffic between two bots as the initator, one direction pull.
 ```python
 # Send bbslink looking for peers every other day at 10:00 using send_message function to channel 8 on device 1
 schedule.every(2).days.at("10:00").do(lambda: send_message("bbslink MeshBot looking for peers", 8, 0, 1))
@@ -322,7 +322,7 @@ sudo apt-get install fonts-noto-color-emoji
 | Command | Description | ✅ Works Off-Grid |
 |---------|-------------|-
 | `ping`, `ack` | Return data for signal. Example: `ping 15 #DrivingI5` (activates auto-ping every 20 seconds for count 15) | ✅ |
-| `test` | Returns like ping but also can be used to test the limits of data buffers `test 4` sends data to the maxBuffer limit (default 225) | ✅ |
+| `test` | Returns like ping but also can be used to test the limits of data buffers `test 4` sends data to the maxBuffer limit (default 220) | ✅ |
 | `whereami` | Returns the address of the sender's location if known |
 | `whoami` | Returns details of the node asking, also returned when position exchanged 📍 | ✅ |
 | `motd` | Displays the message of the day or sets it. Example: `motd $New Message Of the day` | ✅ |
