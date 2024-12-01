@@ -3,6 +3,7 @@
 
 import pickle # pip install pickle
 from modules.log import *
+import time
 
 trap_list_bbs = ("bbslist", "bbspost", "bbsread", "bbsdelete", "bbshelp", "bbsinfo", "bbslink", "bbsack")
 
@@ -178,7 +179,8 @@ def bbs_sync_posts(input, peerNode, RxNode):
         ack = int(input.split(" ")[1])
         messageID = int(ack) + 1
 
-    # send message
+    # send message with delay to keep chutil happy
+    time.sleep(1 + responseDelay)
     if messageID < len(bbs_messages):
         return f"bbslink {messageID} ${bbs_messages[messageID][1]} #{bbs_messages[messageID][2]}"
     else:
