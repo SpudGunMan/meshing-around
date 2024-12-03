@@ -275,6 +275,11 @@ The scheduler also handles the BBL Link Brodcast message, this would be an esxam
 # Send bbslink looking for peers every other day at 10:00 using send_message function to channel 8 on device 1
 schedule.every(2).days.at("10:00").do(lambda: send_message("bbslink MeshBot looking for peers", 8, 0, 1))
 ```
+```ini
+bbslink_enabled = True
+# list of whitelisted nodes numbers ex: 2813308004,4258675309 empty list allows all
+bbslink_whitelist = 
+```
 
 ### MQTT Notes
 There is no direct support for MQTT in the code, however, reports from Discord are that using [meshtasticd](https://meshtastic.org/docs/hardware/devices/linux-native-hardware/) with no radio and attaching the bot to the software node, which is MQTT-linked, allows routing. There also seems to be a quicker way to enable MQTT by having your bot node with the enabled [serial](https://meshtastic.org/docs/configuration/module/serial/) module with echo enabled and MQTT uplink and downlink. These two methods have been mentioned as allowing MQTT routing for the project. 

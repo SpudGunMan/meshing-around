@@ -165,6 +165,10 @@ def bbs_delete_dm(toNode, message):
 
 def bbs_sync_posts(input, peerNode, RxNode):
     messageID =  0
+    # check if the bbs link is enabled
+    if bbs_link_enabled == False or (bbs_link_enabled == True and str(RxNode) not in bbs_link_whitelsit):
+        return "System: BBS Link is disabled for your node."
+    
     # respond when another bot asks for the bbs posts to sync
     if "bbslink" in input.lower():
         if "$" in input and "#" in input:
@@ -180,8 +184,11 @@ def bbs_sync_posts(input, peerNode, RxNode):
         messageID = int(ack) + 1
 
     # send message with delay to keep chutil happy
-    time.sleep(1 + responseDelay)
     if messageID < len(bbs_messages):
+        time.sleep(5 + responseDelay)
+        # every 5 messages add extra delay
+        if messageID % 5 == 0:
+            time.sleep(10 + responseDelay)
         return f"bbslink {messageID} ${bbs_messages[messageID][1]} #{bbs_messages[messageID][2]}"
     else:
         logger.debug("System: bbslink sync complete with peer " + str(peerNode))
