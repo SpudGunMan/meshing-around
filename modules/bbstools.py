@@ -169,6 +169,7 @@ def bbs_sync_posts(input, peerNode, RxNode):
     # check if the bbs link is enabled
     if bbs_link_whitelsit is not None:
         if str(RxNode) not in bbs_link_whitelsit:
+            logger.warning(f"System: BBS Link is disabled for node {RxNode}.")
             return "System: BBS Link is disabled for your node."
     if bbs_link_enabled == False:
         return "System: BBS Link is disabled."
