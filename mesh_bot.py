@@ -1027,6 +1027,11 @@ async def start_rx():
         logger.debug("System: Logging System Logs to disk")
     if bbs_enabled:
         logger.debug(f"System: BBS Enabled, {bbsdb} has {len(bbs_messages)} messages. Direct Mail Messages waiting: {(len(bbs_dm) - 1)}")
+        if bbs_link_enabled:
+            if bbs_link_whitelsit() is not None:
+                logger.debug(f"System: BBS Link Enabled with {len(bbs_link_whitelsit())} peers")
+            else:
+                logger.debug(f"System: BBS Link Enabled allowing all")
     if solar_conditions_enabled:
         logger.debug("System: Celestial Telemetry Enabled")
     if location_enabled:
