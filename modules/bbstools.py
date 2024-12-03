@@ -165,8 +165,12 @@ def bbs_delete_dm(toNode, message):
 
 def bbs_sync_posts(input, peerNode, RxNode):
     messageID =  0
+    
     # check if the bbs link is enabled
-    if bbs_link_enabled == False or (bbs_link_enabled == True and str(RxNode) not in bbs_link_whitelsit):
+    if bbs_link_whitelsit is not None:
+        if str(RxNode) not in bbs_link_whitelsit:
+            return "System: BBS Link is disabled for your node."
+    if bbs_link_enabled == False:
         return "System: BBS Link is disabled for your node."
     
     # respond when another bot asks for the bbs posts to sync
