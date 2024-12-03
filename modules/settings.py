@@ -157,7 +157,7 @@ try:
     bbs_ban_list = config['bbs'].get('bbs_ban_list', '').split(',')
     bbs_admin_list = config['bbs'].get('bbs_admin_list', '').split(',')
     bbs_link_enabled = config['bbs'].getboolean('bbslink_enabled', False)
-    bbs_link_whitelsit = config['bbs'].get('bbslink_whitelist', '').split(',')
+    bbs_link_whitelist = config['bbs'].get('bbslink_whitelist', '').split(',')
 
     # repeater
     repeater_enabled = config['repeater'].getboolean('enabled', False)

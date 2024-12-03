@@ -1028,8 +1028,8 @@ async def start_rx():
     if bbs_enabled:
         logger.debug(f"System: BBS Enabled, {bbsdb} has {len(bbs_messages)} messages. Direct Mail Messages waiting: {(len(bbs_dm) - 1)}")
         if bbs_link_enabled:
-            if len(bbs_link_whitelsit()) > 0:
-                logger.debug(f"System: BBS Link Enabled with {len(bbs_link_whitelsit())} peers")
+            if len(bbs_link_whitelist) > 0:
+                logger.debug(f"System: BBS Link Enabled with {len(bbs_link_whitelist)} peers")
             else:
                 logger.debug(f"System: BBS Link Enabled allowing all")
     if solar_conditions_enabled:
