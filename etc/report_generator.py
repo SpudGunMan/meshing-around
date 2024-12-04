@@ -57,7 +57,7 @@ def parse_log_file(file_path):
     if multiLogReader:
         # set file_path to the cwd of the default project ../log
         log_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'logs')
-        log_files = glob.glob(os.path.join(log_dir, 'meshbot*.log'))
+        log_files = glob.glob(os.path.join(log_dir, 'meshbot.log.*'))
         print(f"Checking log files: {log_files}")
 
         if log_files:
@@ -745,7 +745,7 @@ def generate_main_html(log_data, system_info):
     """
     template = Template(html_template)
     return template.safe_substitute(
-        date=datetime.now().strftime('%Y_%m_%d'),
+        date=datetime.now().strftime('%Y-%m-%d'),
         command_data=json.dumps(log_data['command_counts']),
         message_data=json.dumps(log_data['message_types']),
         activity_data=json.dumps(log_data['hourly_activity']),
