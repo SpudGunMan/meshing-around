@@ -9,6 +9,12 @@ from EAS2Text import EAS2Text
 buff=[] # store messages for writing
 seen=set()
 pattern = re.compile(r'ZCZC.*?NWS-')
+
+# alternate regex for parsing multimon-ng output
+#reg = r"^.*?(NNNN|ZCZC)(?:-([A-Za-z0-9]{3})-([A-Za-z0-9]{3})-((?:-?[0-9]{6})+)\+([0-9]{4})-([0-9]{7})-(.{8})-)?.*?$"
+#prog = re.compile(reg, re.MULTILINE)
+#groups = prog.match(sameData).groups()
+
 while True:
   try:
     # Handle piped input

@@ -256,6 +256,9 @@ The following example shell command will pipe rtl_sdr to alert.txt
 rtl_fm -f 162425000 -s 22050 | multimon-ng -t raw -a EAS /dev/stdin | python eas_alert_parser.py
 ```
 
+#### Newspaper on mesh
+a newspaper could be built by external scripts. could use Ollama to compile text via news web pages and write news.txt
+
 ### Scheduler
 In the config.ini enable the module
 ```ini
