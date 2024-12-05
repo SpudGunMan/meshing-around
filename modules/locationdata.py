@@ -378,8 +378,10 @@ def alertBrodcast():
     # get the latest weather alerts and broadcast them if there are any
     global wxAlertCache
     currentAlert = getWeatherAlerts(latitudeValue, longitudeValue)
-    
-    if currentAlert == ERROR_FETCHING_DATA or currentAlert == NO_DATA_NOGPS or currentAlert == NO_ALERTS:
+    # check if any reason to discard the alerts
+    if currentAlert == ERROR_FETCHING_DATA or currentAlert == NO_DATA_NOGPS:
+        return False
+    elif currentAlert == NO_ALERTS:
         wxAlertCache = ""
         return False
     # broadcast the alerts send to wxBrodcastCh
