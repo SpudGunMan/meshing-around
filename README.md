@@ -373,6 +373,7 @@ sudo apt-get install fonts-noto-color-emoji
 | `wiki:` | Searches Wikipedia and returns the first few sentences of the first result if a match. Example: `wiki: lora radio` |
 | `askai` and `ask:` | Ask Ollama LLM AI for a response. Example: `askai what temp do I cook chicken` | ✅ |
 | `messages` | Replays the last messages heard, like Store and Forward | ✅ |
+| `readnews` | returns the contents of a file (news.txt, by default) via the chunker on air | ✅ |
 
 
 
