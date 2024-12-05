@@ -642,9 +642,12 @@ def handleMultiPing(nodeID=0, deviceID=1):
 
 
 def handleWxBroadcast(deviceID=1):
-    # only allow API call every 15 minutes
+    # only allow API call every 20 minutes
+    # the watchdog will call this function 3 times, seeing possible throttling on the API
     clock = datetime.now()
-    if clock.minute % 20 == 0:
+    if clock.minute % 20 != 0:
+        return False
+    if clock.second > 17:
         return False
     
     # check for alerts
