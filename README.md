@@ -47,6 +47,7 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 
 ### File Monitor Alerts
 - **File Mon**: Monitor a flat/text file for changes, brodcast the contents of the message to mesh channel.
+- **News File**: on request of news the contents of the file is returned.
 
 ### Data Reporting
 - **HTML Generator**: Visualize bot traffic and data flows with a built-in HTML generator for [data reporting](logs/README.md).
@@ -216,11 +217,14 @@ signalCycleLimit = 5
 
 ### File Monitoring
 Some dev notes for ideas of use
+
 ```ini
 [fileMon]
-enabled = True
+filemon_enabled = True
 file_path = alert.txt
 broadcastCh = 2,4
+enable_read_news = False
+news_file_path = news.txt
 ```
 #### NOAA EAS
 To Alert on Mesh with the NOAA EAS API you can set the channels and enable, checks every 30min

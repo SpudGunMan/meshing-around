@@ -147,9 +147,11 @@ signalCooldown = 5
 signalCycleLimit = 5
 
 [fileMon]
-enabled = False
+filemon_enabled = False
 file_path = alert.txt
 broadcastCh = 2
+enable_read_news = False
+news_file_path = news.txt
 
 [messagingSettings]
 # delay in seconds for response to avoid message collision

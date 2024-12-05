@@ -5,15 +5,22 @@ from modules.log import *
 import asyncio
 import os
 
+trap_list_filemon = ("readnews",)
+
+def read_file(file_monitor_file_path):
+    try:
+        with open(file_monitor_file_path, 'r') as f:
+            content = f.read()
+        return content
+    except Exception as e:
+        logger.warning(f"FileMon: Error reading file: {file_monitor_file_path}")
+        return None
+    
+def read_news():
+    # read the news file on demand
+    return read_file(news_file_path)
+
 async def watch_file():
-    def read_file(file_monitor_file_path):
-        try:
-            with open(file_monitor_file_path, 'r') as f:
-                content = f.read()
-            return content
-        except Exception as e:
-            logger.warning(f"FileMon: Error reading file: {file_monitor_file_path}")
-            return None
     
     if not os.path.exists(file_monitor_file_path):
         return None

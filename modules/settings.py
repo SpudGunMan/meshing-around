@@ -176,9 +176,11 @@ try:
     signalCycleLimit = config['radioMon'].getint('signalCycleLimit', 5) # default 5 cycles, used with SIGNAL_COOLDOWN
 
     # file monitor
-    file_monitor_enabled = config['fileMon'].getboolean('enabled', False)
+    file_monitor_enabled = config['fileMon'].getboolean('filemon_enabled', False)
     file_monitor_file_path = config['fileMon'].get('file_path', 'alert.txt') # default alert.txt
     file_monitor_broadcastCh = config['fileMon'].getint('broadcastCh', 2) # default 2
+    read_news_enabled = config['fileMon'].getboolean('enable_read_news', False) # default disabled
+    news_file_path = config['fileMon'].get('news_file_path', 'news.txt') # default news.txt
 
     # games
     game_hop_limit = config['messagingSettings'].getint('game_hop_limit', 5) # default 3 hops

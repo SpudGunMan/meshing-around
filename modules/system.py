@@ -174,8 +174,11 @@ if radio_detection_enabled:
     from modules.radio import * # from the spudgunman/meshing-around repo
 
 # File Monitor Configuration
-if file_monitor_enabled:
+if file_monitor_enabled or read_news_enabled:
     from modules.filemon import * # from the spudgunman/meshing-around repo
+    if read_news_enabled:
+        trap_list = trap_list + trap_list_filemon # items readnews
+        help_message = help_message + ", readmail"
 
 # BLE dual interface prevention
 if interface1_type == 'ble' and interface2_type == 'ble':
