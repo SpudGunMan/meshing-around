@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Meshtastic Autoresponder PONG Bot
+# Meshtastic Autoresponder PONG Bot LEGACY v1.0
 # K7MHI Kelly Keeton 2024
 
 import asyncio
