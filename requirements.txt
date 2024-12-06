@@ -13,5 +13,4 @@ numpy
 geopy
 schedule
 wikipedia
-ollama
 googlesearch-python

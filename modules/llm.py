@@ -6,7 +6,8 @@ from modules.log import *
 
 # Ollama Client
 # https://github.com/ollama/ollama/blob/main/docs/faq.md#how-do-i-configure-ollama-server
-from ollama import Client as OllamaClient
+import requests
+import json
 from googlesearch import search # pip install googlesearch-python
 
 # This is my attempt at a simple RAG implementation it will require some setup
@@ -19,9 +20,11 @@ if ragDEV:
     import os
     import ollama # pip install ollama
     import chromadb # pip install chromadb
+    from ollama import Client as OllamaClient
+    ollamaClient = OllamaClient(host=ollamaHostName)
 
 # LLM System Variables
-ollamaClient = OllamaClient(host=ollamaHostName)
+ollamaAPI = ollamaHostName + "/api/generate"
 llmEnableHistory = True # enable last message history for the LLM model
 llmContext_fromGoogle = True # enable context from google search results adds to compute time but really helps with responses accuracy
 googleSearchResults = 3 # number of google search results to include in the context more results = more compute time
@@ -193,20 +196,26 @@ def llm_query(input, nodeID=0, location_name=None):
             modelPrompt = meshBotAI.format(input=input, context=ragContext, location_name=location_name, llmModel=llmModel, history=history)
             # Query the model with RAG context
             result = ollamaClient.generate(model=llmModel, prompt=modelPrompt)
+            # Condense the result to just needed
+            if isinstance(result, dict):
+                result = result.get("response")
         else:
             # Build the query from the template
             modelPrompt = meshBotAI.format(input=input, context='\n'.join(googleResults), location_name=location_name, llmModel=llmModel, history=history)
-            # Query the model without RAG context
-            result = ollamaClient.generate(model=llmModel, prompt=modelPrompt)
-    
-        # Condense the result to just needed
-        if isinstance(result, dict):
-            result = result.get("response")
+            llmQuery = {"model": llmModel, "prompt": modelPrompt, "stream": False}
+            # Query the model via Ollama web API
+            result = requests.post(ollamaAPI, data=json.dumps(llmQuery))
+            # Condense the result to just needed
+            if result.status_code == 200:
+                result_json = result.json()
+                result = result_json.get("response", "")
+            else:
+                raise Exception(f"HTTP Error: {result.status_code}")
 
         #logger.debug(f"System: LLM Response: " + result.strip().replace('\n', ' '))
     except Exception as e:
         logger.warning(f"System: LLM failure: {e}")
-        return "I am having trouble processing your request, please try again later."
+        return "⛔️I am having trouble processing your request, please try again later."
     
     # cleanup for message output
     response = result.strip().replace('\n', ' ')
@@ -217,15 +226,3 @@ def llm_query(input, nodeID=0, location_name=None):
         llmChat_history[nodeID] = [input, response]
 
     return response
-
-# import subprocess
-# def get_ollama_cpu():
-#     try:
-#         psOutput = subprocess.run(['ollama', 'ps'], capture_output=True, text=True)
-#         if "GPU" in psOutput.stdout:
-#             logger.debug(f"System: Ollama process with GPU")
-#         else:
-#             logger.debug(f"System: Ollama process with CPU, query time will be slower")
-#     except Exception as e:
-#         logger.debug(f"System: Ollama process not found, {e}")
-#         return False
