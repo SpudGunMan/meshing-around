@@ -73,7 +73,7 @@ The code is under active development, so make sure to pull the latest changes re
 #### Docker Installation
 If you prefer to use Docker, follow these steps:
 
-1. Ensure your serial port is properly shared and the GPU is configured if using LLM with [NVIDIA](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/docker-specialized.html).
+1. Ensure your serial port is properly shared and the GPU is configured if using LLM in docker with [NVIDIA](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/docker-specialized.html).
 2. Build the Docker image:
     ```sh
     cd meshing-around
