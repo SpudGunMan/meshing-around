@@ -427,22 +427,39 @@ def messageChunker(message):
             else:
                 # split the part into chunks
                 current_chunk = ''
-                sentences = part.split('. ')
+                sentences = []
+                sentence = ''
+                for char in part:
+                    sentence += char
+                    if char in '.!?':
+                        sentences.append(sentence.strip())
+                        sentence = ''
+                if sentence:
+                    sentences.append(sentence.strip())
+
                 for sentence in sentences:
-                    sentence = sentence.strip()
                     sentence = sentence.replace('  ', ' ')
                     # remove empty sentences
                     if not sentence:
                         continue
+                    # remove junk sentences and append to the previous sentence this may exceed the MESSAGE_CHUNK_SIZE by 3
+                    if len(sentence) < 4:
+                        if current_chunk:
+                            current_chunk += ' ' + sentence
+                        else:
+                            current_chunk = sentence
+                        continue
 
                     # if sentence is too long, split it by words
                     if len(current_chunk) + len(sentence) > MESSAGE_CHUNK_SIZE:
-                        message_list.append(current_chunk)
+                        if current_chunk:
+                            message_list.append(current_chunk)
                         current_chunk = sentence
                     else:
                         if current_chunk:
-                            current_chunk += ' '
-                        current_chunk += sentence
+                            current_chunk += ' ' + sentence
+                        else:
+                            current_chunk = sentence
                 if current_chunk:
                     message_list.append(current_chunk)
 

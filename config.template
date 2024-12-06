@@ -158,7 +158,7 @@ news_file_path = news.txt
 responseDelay = 0.7
 # delay in seconds for splits in messages to avoid message collision
 splitDelay = 0.0
-# message chunk size for sending at high success rate
+# message chunk size for sending at high success rate, chunkr allows exceeding by 3 characters
 MESSAGE_CHUNK_SIZE = 160
 # Request Acknowledgement of message OTA
 wantAck = False
