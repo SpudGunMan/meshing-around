@@ -445,7 +445,7 @@ def messageChunker(message):
                     # remove junk sentences and append to the previous sentence this may exceed the MESSAGE_CHUNK_SIZE by 3
                     if len(sentence) < 4:
                         if current_chunk:
-                            current_chunk += ' ' + sentence
+                            current_chunk += sentence
                         else:
                             current_chunk = sentence
                         continue
