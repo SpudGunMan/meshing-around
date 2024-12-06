@@ -1115,8 +1115,10 @@ async def main():
         hamlibTask = asyncio.create_task(handleSignalWatcher())
 
     await asyncio.gather(meshRxTask, watchdogTask)
-    await asyncio.gather(hamlibTask)
-    await asyncio.gather(fileMonTask)
+    if radio_detection_enabled:
+        await asyncio.gather(hamlibTask)
+    if file_monitor_enabled:
+        await asyncio.gather(fileMonTask)
 
     await asyncio.sleep(0.01)
 
