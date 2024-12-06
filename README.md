@@ -122,16 +122,17 @@ enabled = False
 ```
 
 ### General Settings
-The following settings determine how the bot responds. By default, the bot will not spam the default channel. Setting `respond_by_dm_only` to `True` will force all messages to be sent via DM, which may not be desired. Setting it to [`False`] will allow responses in the channel for all to see. If you have no default channel you can set this value to `-1` or any unused channel index.
+The following settings determine how the bot responds. By default, the bot will not spam the default channel. Setting `respond_by_dm_only` to `True` will force all messages to be sent via DM, which may not be desired. Setting it to [`False`] will allow responses in the channel for all to see. If you have no default channel you can set this value to `-1` or any unused channel index. You can also have the bot ignore the defaultChannel for any commands, but still observe the channel.
 
 ```ini
 [general]
 respond_by_dm_only = True
 defaultChannel = 0
+ignoreDefaultChannel = False # ignoreDefaultChannel, the bot will ignore the default channel set above
 ```
 
 ### Location Settings
-The weather forecasting defaults to NOAA, for locations outside the USA, you can set `UseMeteoWxAPI` to `True`, to use a global weather API. The `lat` and `lon` are default values when a node has no location data. It is also the default used for Sentry.
+The weather forecasting defaults to NOAA, for locations outside the USA, you can set `UseMeteoWxAPI` to `True`, to use a global weather API. The `lat` and `lon` are default values when a node has no location data. It is also the default (or value when none found for user) for Sentry, all NOAA, repeater lookup, etc.
 
 ```ini
 [location]
@@ -183,7 +184,7 @@ repeater_channels = [2, 3]
 ```
 
 ### Ollama (LLM/AI) Settings
-For Ollama to work, the command line `ollama run 'model'` needs to work properly. Ensure you have enough RAM and your GPU is working as expected. The default model for this project is set to `gemma2:2b`. Ollama can be remote [Ollama Server](https://github.com/ollama/ollama/blob/main/docs/faq.md#how-do-i-configure-ollama-server)
+For Ollama to work, the command line `ollama run 'model'` needs to work properly. Ensure you have enough RAM and your GPU is working as expected. The default model for this project is set to `gemma2:2b`. Ollama can be remote [Ollama Server](https://github.com/ollama/ollama/blob/main/docs/faq.md#how-do-i-configure-ollama-server) works on a pi58GB with 40 second or less response time.
 
 ```ini
 # Enable ollama LLM see more at https://ollama.com
@@ -206,7 +207,7 @@ A module allowing a Hamlib compatible radio to connect to the bot. When function
 
 ```ini
 [radioMon]
-enabled = False
+enabled = True
 rigControlServerAddress = localhost:4532
 sigWatchBroadcastCh = 2 # channel to broadcast to can be 2,3
 signalDetectionThreshold = -10 # minimum SNR as reported by radio via hamlib
@@ -227,11 +228,11 @@ enable_read_news = False
 news_file_path = news.txt
 ```
 #### NOAA EAS
-To Alert on Mesh with the NOAA EAS API you can set the channels and enable, checks every 30min
+To Alert on Mesh with the NOAA EAS API you can set the channels and enable, checks every 20min
 
 ```ini
 # EAS Alert Broadcast
-wxAlertBroadcastEnabled = False
+wxAlertBroadcastEnabled = True
 # EAS Alert Broadcast Channels
 wxAlertBroadcastCh = 2,4
 ```
@@ -284,55 +285,11 @@ schedule.every(2).days.at("10:00").do(lambda: send_message("bbslink MeshBot look
 ```
 ```ini
 bbslink_enabled = True
-# list of whitelisted nodes numbers ex: 2813308004,4258675309 empty list allows all
-bbslink_whitelist = 
+bbslink_whitelist = # list of whitelisted nodes numbers ex: 2813308004,4258675309 empty list allows all
 ```
 
 ### MQTT Notes
 There is no direct support for MQTT in the code, however, reports from Discord are that using [meshtasticd](https://meshtastic.org/docs/hardware/devices/linux-native-hardware/) with no radio and attaching the bot to the software node, which is MQTT-linked, allows routing. There also seems to be a quicker way to enable MQTT by having your bot node with the enabled [serial](https://meshtastic.org/docs/configuration/module/serial/) module with echo enabled and MQTT uplink and downlink. These two methods have been mentioned as allowing MQTT routing for the project. 
-
-### Requirements
-Python 3.8? or later is needed (dev on latest). The following can be installed with `pip install -r requirements.txt` or using the [install.sh](install.sh) script for venv and automation:
-
-```sh
-pip install meshtastic
-pip install pubsub
-```
-
-Mesh-bot enhancements:
-
-```sh
-pip install pyephem
-pip install requests
-pip install geopy
-pip install maidenhead
-pip install beautifulsoup4
-pip install dadjokes
-pip install geopy
-pip install schedule
-pip install wikipedia
-```
-
-For open-meteo use:
-
-```sh
-pip install openmeteo_requests
-pip install retry_requests
-pip install numpy
-```
-
-For the Ollama LLM:
-
-```sh
-pip install ollama
-pip install googlesearch-python
-```
-
-To enable emoji in the Debian console, install the fonts:
-
-```sh
-sudo apt-get install fonts-noto-color-emoji
-```
 
 ## Full list of commands for the bot
 
@@ -378,8 +335,6 @@ sudo apt-get install fonts-noto-color-emoji
 | `messages` | Replays the last messages heard, like Store and Forward | ✅ |
 | `readnews` | returns the contents of a file (news.txt, by default) via the chunker on air | ✅ |
 
-
-
 ### Games (via DM)
 | Command | Description | |
 |---------|-------------|-
@@ -419,3 +374,46 @@ I used ideas and snippets from other responder bots and want to call them out!
 
 ### Tools
 - **Node Backup Management**: [Node Slurper](https://github.com/SpudGunMan/node-slurper)
+
+### Requirements
+Python 3.8? or later is needed (dev on latest). The following can be installed with `pip install -r requirements.txt` or using the [install.sh](install.sh) script for venv and automation:
+
+```sh
+pip install meshtastic
+pip install pubsub
+```
+
+Mesh-bot enhancements:
+
+```sh
+pip install pyephem
+pip install requests
+pip install geopy
+pip install maidenhead
+pip install beautifulsoup4
+pip install dadjokes
+pip install geopy
+pip install schedule
+pip install wikipedia
+```
+
+For open-meteo use:
+
+```sh
+pip install openmeteo_requests
+pip install retry_requests
+pip install numpy
+```
+
+For the Ollama LLM:
+
+```sh
+pip install ollama
+pip install googlesearch-python
+```
+
+To enable emoji in the Debian console, install the fonts:
+
+```sh
+sudo apt-get install fonts-noto-color-emoji
+```
