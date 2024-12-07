@@ -241,6 +241,8 @@ def buy_func(nodeID, price_list, choice=0, value='0'):
         buy_amount = cash // price_list[drug_choice]
         if buy_amount > 100 - inventory:
             buy_amount = 100 - inventory
+        if buy_amount == 0:
+            return "You don\'t have any empty inventory slots.🎒"
     # set the buy amount to the max if the user enters m
     buy_amount = int(buy_amount)
     
