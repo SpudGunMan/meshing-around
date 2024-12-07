@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # LLM Module for meshing-around
-# This module is used to interact with Ollama to generate responses to user input
+# This module is used to interact with LLM API to generate responses to user input
 # K7MHI Kelly Keeton 2024
 from modules.log import *
 
@@ -14,6 +14,7 @@ from googlesearch import search # pip install googlesearch-python
 # you will need to have the RAG data in a folder named rag in the data directory (../data/rag)
 # This is lighter weight and can be used in a standalone environment, needs chromadb
 # "chat with a file" is the use concept here, the file is the RAG data
+# is anyone using this please let me know if you are Dec62024 -kelly
 ragDEV = False
 
 if ragDEV:
@@ -25,6 +26,7 @@ if ragDEV:
 
 # LLM System Variables
 ollamaAPI = ollamaHostName + "/api/generate"
+openaiAPI = "https://api.openai.com/v1/completions" # not used, if you do push a enhancement!
 llmEnableHistory = True # enable last message history for the LLM model
 llmContext_fromGoogle = True # enable context from google search results adds to compute time but really helps with responses accuracy
 googleSearchResults = 3 # number of google search results to include in the context more results = more compute time
