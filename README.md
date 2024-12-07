@@ -42,12 +42,12 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 - **Hamlib Integration**: Use Hamlib (rigctld) to watch the S meter on a connected radio.
 
 ### NOAA EAS Alerts
-- **EAS Alerts via NOAA API**: Use an internet connected node to message Emergency Alerts from NOAA
-- **EAS Alerts over the air**: Utalizing external tools to report EAS alerts offline over mesh
+- **EAS Alerts via NOAA API**: Use an internet-connected node to message Emergency Alerts from NOAA.
+- **EAS Alerts over the air**: Utilizing external tools to report EAS alerts offline over mesh.
 
 ### File Monitor Alerts
-- **File Mon**: Monitor a flat/text file for changes, brodcast the contents of the message to mesh channel.
-- **News File**: on request of news the contents of the file is returned.
+- **File Monitor**: Monitor a flat/text file for changes, broadcast the contents of the message to the mesh channel.
+- **News File**: On request of news, the contents of the file are returned.
 
 ### Data Reporting
 - **HTML Generator**: Visualize bot traffic and data flows with a built-in HTML generator for [data reporting](logs/README.md).
@@ -56,7 +56,7 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 - **Message Chunking**: Automatically chunk messages over 160 characters to ensure higher delivery success across hops.
 
 ## Getting Started
-This project is developed on Linux (specifically a Raspberry Pi) but should work on any platform where the [Meshtastic protobuf API](https://meshtastic.org/docs/software/python/cli/) modules are supported, and with any compatible [Meshtastic](https://meshtastic.org/docs/getting-started/) hardware. pico or low powered devices see [femtofox](https://github.com/noon92/femtofox) project for embedding.
+This project is developed on Linux (specifically a Raspberry Pi) but should work on any platform where the [Meshtastic protobuf API](https://meshtastic.org/docs/software/python/cli/) modules are supported, and with any compatible [Meshtastic](https://meshtastic.org/docs/getting-started/) hardware. For pico or low-powered devices, see the [femtofox](https://github.com/noon92/femtofox) project for embedding. 🥔 Please use responsibly and follow local rulings for such equipment.
 
 ### Installation
 
