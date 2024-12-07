@@ -29,35 +29,45 @@ respond_by_dm_only = True
 defaultChannel = 0
 # ignoreDefaultChannel, the bot will ignore the default channel set above
 ignoreDefaultChannel = False
+
 # motd is reset to this value on boot
 motd = Thanks for using MeshBOT! Have a good day!
 welcome_message = MeshBot, here for you like a friend who is not. Try sending: ping @foo or, cmd
+
 # whoami
 whoami = True
+
 # enable or disable the Joke module
 DadJokes = True
 DadJokesEmoji = False
+
 # enable or disable the Solar module
 spaceWeather = True
+
 # enable or disable the wikipedia search module
 wikipedia = True
+
 # Enable ollama LLM see more at https://ollama.com
 ollama = False
 # Ollama model to use (defaults to gemma2:2b)
 # ollamaModel = llama3.1
 # server instance to use (defaults to local machine install)
 ollamaHostName = http://localhost:11434
+
 # StoreForward Enabled and Limits
 StoreForward = True
 StoreLimit = 3
+
 # history command 
 enableCmdHistory = True
 # command history ignore list ex: 2813308004,4258675309
 lheardCmdIgnoreNodes =
+
 # 24 hour clock
 zuluTime = False
 # wait time for URL requests
 urlTimeout = 10
+
 # logging to file of the non Bot messages
 LogMessagesToFile = False
 # Logging of system messages to file
