@@ -442,3 +442,39 @@ def getActiveWeatherAlertsDetail(lat=0, lon=0):
     alerts = "\n".join(alerts)
     
     return alerts
+
+def getIpawsAlert(lat=0, lon=0):
+    # get the latest IPAWS alert from FEMA, untested code
+    alert = ""
+    alert_url = "https://apps.fema.gov/IPAWSOPEN_EAS_SERVICE/rest/feed"
+    try:
+        alert_data = requests.get(alert_url, timeout=urlTimeoutSeconds)
+        if not alert_data.ok:
+            logger.warning("Location:Error fetching IPAWS alert from FEMA")
+            return ERROR_FETCHING_DATA
+    except (requests.exceptions.RequestException):
+        logger.warning("Location:Error fetching IPAWS alert from FEMA")
+        return ERROR_FETCHING_DATA
+    
+    alertxml = xml.dom.minidom.parseString(alert_data.text)
+
+    for i in alertxml.getElementsByTagName("info"):
+        # if alert geo applies to user location
+        if lat == 0: lat = latitudeValue
+        if lon == 0: lon = longitudeValue
+        
+        alert += (
+            i.getElementsByTagName("headline")[0].childNodes[0].nodeValue +
+            i.getElementsByTagName("description")[0].childNodes[0].nodeValue +
+            "\n***\n"
+        )
+    
+    if alert == "":
+        return NO_ALERTS
+    
+    # trim off last newline
+    if alert[-1] == "\n":
+        alert = alert[:-1]
+    
+    return alert
+
