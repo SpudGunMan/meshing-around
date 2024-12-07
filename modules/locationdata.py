@@ -462,11 +462,36 @@ def getIpawsAlert(lat=0, lon=0):
         # if alert geo applies to user location
         if lat == 0: lat = latitudeValue
         if lon == 0: lon = longitudeValue
+        areaDesc = i.getElementsByTagName("areaDesc")[0].childNodes[0].nodeValue
+        # if area element is present
+        if i.getElementsByTagName("area")[0].childNodes[0].nodeValue:
+            area = i.getElementsByTagName("area")[0].childNodes[0].nodeValue
+        else:
+            area = areaDesc
+
+        # if areaDesc is a polygon or circle
+        if "polygon" in area or "circle" in area:
+            if areaDesc == "polygon":
+                # check if the user is in the alert area
+                if lat == 0 or lon == 0:
+                    logger.warning("Location:No GPS data, try sending location for IPAWS alert")
+                    return NO_DATA_NOGPS
+
+            elif areaDesc == "circle":
+                # check if the user is in the alert area
+                if lat == 0 or lon == 0:
+                    logger.warning("Location:No GPS data, try sending location for IPAWS alert")
+                    return NO_DATA_NOGPS
         
         alert += (
+            i.getElementsByTagName("event")[0].childNodes[0].nodeValue +
+            i.getElementsByTagName("urgency")[0].childNodes[0].nodeValue +
+            i.getElementsByTagName("severity")[0].childNodes[0].nodeValue +
+            i.getElementsByTagName("certainty")[0].childNodes[0].nodeValue +
+            # optional elements
+            i.getElementsByTagName("info")[0].childNodes[0].nodeValue +
             i.getElementsByTagName("headline")[0].childNodes[0].nodeValue +
-            i.getElementsByTagName("description")[0].childNodes[0].nodeValue +
-            "\n***\n"
+            i.getElementsByTagName("description")[0].childNodes[0].nodeValue
         )
     
     if alert == "":
