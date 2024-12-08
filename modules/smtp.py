@@ -29,7 +29,7 @@ IMAP_PASSWORD = SMTP_PASSWORD  # IMAP password usually same as SMTP
 IMAP_FOLDER = "inbox"  # IMAP folder to monitor for new messages
 
 # System variables // Do not edit
-trap_list_smtp = ("email:", "setmail:", "sms:", "smsset:", "smsclear:")
+trap_list_smtp = ("email:", "setemail:", "sms:", "setsms:", "clearsms:")
 smtpThrottle = {}
 
 if enableImap:
