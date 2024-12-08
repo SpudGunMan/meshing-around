@@ -65,6 +65,37 @@ def send_email(to_email, message):
         return False
     return True
 
+def check_email(nodeID):
+    if not enableImap:
+        return
+
+    try:
+        # Connect to IMAP server
+        mail = imaplib.IMAP4_SSL(IMAP_SERVER)
+        mail.login(IMAP_USERNAME, IMAP_PASSWORD)
+        mail.select(IMAP_FOLDER)
+
+        # Search for new emails
+        status, data = mail.search(None, 'UNSEEN')
+        if status == 'OK':
+            for num in data[0].split():
+                status, data = mail.fetch(num, '(RFC822)')
+                if status == 'OK':
+                    email_message = email.message_from_bytes(data[0][1])
+                    email_from = email_message['from']
+                    email_subject = email_message['subject']
+                    email_body = ""
+
+                    # Check if email is whitelisted by a particpant in the mesh
+                    for address in sms_db[nodeID]:
+                        if address in email_from:
+                            email_body = email_message.get_payload()
+                            logger.info("System: Email received from: " + email_from[:-6] + " for " + nodeID)
+                            return email_body.strip()
+    except Exception as e:
+        logger.warning("System: Failed to check email: " + str(e))
+        return False
+
 # initalize email db
 email_db = {}
 try:
