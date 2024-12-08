@@ -369,7 +369,7 @@ I used ideas and snippets from other responder bots and want to call them out!
 - **mrpatrick1991**: For Docker configurations.
 - **Mike O'Connell/skrrt**: For [eas_alert_parser](etc/eas_alert_parser.py) enhanced by **sheer.cold**
 - **PiDiBi**: For looking at test functions and other suggestions like wxc, CPU use, and alerting ideas.
-- **Cisien, bitflip, **Woof**, **Josh** and Hailo1999**: For testing and feature ideas on Discord and GitHub.
+- **Cisien, bitflip, **Woof**, **propstg**, **Josh** and Hailo1999**: For testing and feature ideas on Discord and GitHub.
 - **Meshtastic Discord Community**: For tossing out ideas and testing code.
 
 ### Tools
