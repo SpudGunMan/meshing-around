@@ -29,7 +29,7 @@ IMAP_PASSWORD = SMTP_PASSWORD  # IMAP password usually same as SMTP
 IMAP_FOLDER = "inbox"  # IMAP folder to monitor for new messages
 
 # System variables // Do not edit
-trap_list_smtp = ("email", "setmail", "sms", "setsms", "clearsms")
+trap_list_smtp = ("email:", "setmail:", "sms:", "smsset:", "smsclear:")
 smtpThrottle = {}
 
 if enableImap:
@@ -169,14 +169,14 @@ def store_sms(nodeID, sms):
 
 def handle_sms(nodeID, message):
     # if clearsms, remove all sms for node
-    if message.lower.startswith("clearsms"):
+    if message.lower.startswith("smsclear:"):
         if nodeID in sms_db:
             del sms_db[nodeID]
             return "📲 address cleared"
         return "📲No address to clear"
     
     # send SMS to SMS in db. if none ask for one
-    if message.lower.startswith("setsms"):
+    if message.lower.startswith("smsset:"):
         message = message.split(" ", 1)
         if len(message) < 5:
             return "?📲setsms example@phone.co"
@@ -187,7 +187,7 @@ def handle_sms(nodeID, message):
         else:
             return "⛔️Failed to set address"
         
-    if message.lower.startswith("sms"):
+    if message.lower.startswith("sms:"):
         message = message.split(" ", 1)
         if nodeID in sms_db:
             logger.info("System: Sending SMS for " + nodeID)
@@ -200,7 +200,7 @@ def handle_sms(nodeID, message):
 
 def handle_email(nodeID, message):
     # send email to email in db. if none ask for one
-    if message.lower.startswith("setmail"):
+    if message.lower.startswith("setmail:"):
         message = message.split(" ", 1)
         if len(message) < 5:
             return "?📧setemail example@none.net"
@@ -211,7 +211,7 @@ def handle_email(nodeID, message):
 
         return "Error: ⛔️ not understood. use:setmail bob@example.com"
         
-    if message.lower.startswith("email"):
+    if message.lower.startswith("email:"):
         message = message.split(" ", 1)
 
         # if user sent: email bob@none.net # Hello Bob
