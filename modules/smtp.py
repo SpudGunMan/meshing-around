@@ -169,14 +169,14 @@ def store_sms(nodeID, sms):
 
 def handle_sms(nodeID, message):
     # if clearsms, remove all sms for node
-    if message.lower.startswith("smsclear:"):
+    if message.lower.startswith("clearsms:"):
         if nodeID in sms_db:
             del sms_db[nodeID]
             return "📲 address cleared"
         return "📲No address to clear"
     
     # send SMS to SMS in db. if none ask for one
-    if message.lower.startswith("smsset:"):
+    if message.lower.startswith("setsms:"):
         message = message.split(" ", 1)
         if len(message) < 5:
             return "?📲setsms example@phone.co"
@@ -200,7 +200,7 @@ def handle_sms(nodeID, message):
 
 def handle_email(nodeID, message):
     # send email to email in db. if none ask for one
-    if message.lower.startswith("setmail:"):
+    if message.lower.startswith("setemail:"):
         message = message.split(" ", 1)
         if len(message) < 5:
             return "?📧setemail example@none.net"
