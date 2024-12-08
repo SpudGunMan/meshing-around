@@ -190,9 +190,11 @@ def handle_sms(nodeID, message):
     if message.lower.startswith("sms:"):
         message = message.split(" ", 1)
         if nodeID in sms_db:
-            logger.info("System: Sending SMS for " + nodeID)
-            send_email(sms_db[nodeID], message[1], nodeID)
-            return "📲SMS-sent 📤"
+            for address in sms_db[nodeID]:
+                if address in message[1]:
+                    logger.info("System: Sending SMS for " + nodeID)
+                    send_email(address, message[1], nodeID)
+                    return "📲SMS-sent 📤"
         else:
             return "📲No address set, use 📲setsms"
     
