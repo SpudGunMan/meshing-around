@@ -1,5 +1,6 @@
 # SMTP module for the meshing-around bot
 # 2024 Idea and code bits from https://github.com/tremmert81
+# https://avtech.com/articles/138/list-of-email-to-sms-addresses/
 # 2024 Kelly Keeton K7MHI
 
 from modules.log import *
