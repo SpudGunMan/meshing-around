@@ -7,8 +7,9 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 ## Key Features
 
 ### Intelligent Keyword Responder
-- **Automated Responses**: The bot traps keywords like "ping" and responds with "pong" in direct messages (DMs) or group channels.
+- **Automated Responses**: The bot detects keywords like "ping" and responds with "pong" in direct messages (DMs) or group channels.
 - **Customizable Triggers**: Monitor group channels for specific keywords and set custom responses.
+- **Emergency Response**: Monitor channels for keywords indicating emergencies and alert a wider audience.
 
 ### Network Tools
 - **Build, Test Local Mesh**: Ping allow for message delivery testing with more realistic packets vs. telemetry
@@ -172,6 +173,18 @@ SentryRadius = 100 # radius in meters to detect someone close to the bot
 SentryChannel = 9 # holdoff time multiplied by seconds(20) of the watchdog
 SentryHoldoff = 2 # channel to send a message to when the watchdog is triggered
 sentryIgnoreList = # list of ignored nodes numbers ex: 2813308004,4258675309
+```
+
+### Emergency Response Handler
+Traps the following ("emergency", "911", "112", "999", "police", "fire", "ambulance", "rescue") keywords. Responds to the user, and calls attention to the text message in logs and via another network or channel.
+
+```ini
+[emergencyHandler]
+# enable or disable the emergency response handler
+enabled = True
+# channel to send a message to when the emergency handler is triggered
+alert_channel = 2
+alert_interface = 1
 ```
 
 ### Repeater Settings

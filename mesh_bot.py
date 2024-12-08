@@ -37,10 +37,10 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "bbspost": lambda: handle_bbspost(message, message_from_id, deviceID),
     "bbsread": lambda: handle_bbsread(message),
     "blackjack": lambda: handleBlackJack(message, message_from_id, deviceID),
+    "cmd": lambda: help_message,
     "cq": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
     "cqcq": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
     "cqcqcq": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
-    "cmd": lambda: help_message,
     "dopewars": lambda: handleDopeWars(message, message_from_id, deviceID),
     "games": lambda: gamesCmdList,
     "globalthermonuclearwar": lambda: handle_gTnW(),
@@ -71,11 +71,20 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "wiki:": lambda: handle_wiki(message, isDM),
     "wiki?": lambda: handle_wiki(message, isDM),
     "wx": lambda: handle_wxc(message_from_id, deviceID, 'wx'),
-    "wxalert": lambda: handle_wxalert(message_from_id, deviceID, message),
     "wxa": lambda: handle_wxalert(message_from_id, deviceID, message),
+    "wxalert": lambda: handle_wxalert(message_from_id, deviceID, message),
     "wxc": lambda: handle_wxc(message_from_id, deviceID, 'wxc'),
     "📍": lambda: handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus),
     "🔔": lambda: handle_alertBell(message_from_id, deviceID, message),
+    # any value from system.py:trap_list_emergency will trigger the emergency function
+    "112": lambda: handle_emergency(message_from_id, deviceID, message),
+    "911": lambda: handle_emergency(message_from_id, deviceID, message),
+    "999": lambda: handle_emergency(message_from_id, deviceID, message),
+    "ambulance": lambda: handle_emergency(message_from_id, deviceID, message),
+    "emergency": lambda: handle_emergency(message_from_id, deviceID, message),
+    "fire": lambda: handle_emergency(message_from_id, deviceID, message),
+    "police": lambda: handle_emergency(message_from_id, deviceID, message),
+    "rescue": lambda: handle_emergency(message_from_id, deviceID, message),
     }
 
     # set the command handler
@@ -188,6 +197,23 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, chann
 def handle_alertBell(message_from_id, deviceID, message):
     msg = ["the only prescription is more 🐮🔔🐄🛎️", "what this 🤖 needs is more 🐮🔔🐄🛎️", "🎤ring my bell🛎️🔔🎶"]
     return random.choice(msg)
+
+def handle_emergency(message_from_id, deviceID, message):
+    # trgger alert to emergency_responder_alert_channel
+    if message_from_id != 0:
+        if deviceID == 1: rxNode = myNodeNum1 
+        elif deviceID == 2: rxNode = myNodeNum2
+        nodeInfo = f"{get_name_from_number(message_from_id, 'short', deviceID)} detected by {get_name_from_number(rxNode, 'short', deviceID)}"
+        msg = f"🔔🚨Intercepted Possible Emergency Assistance needed for: {nodeInfo}"
+        # alert the emergency_responder_alert_channel
+        time.sleep(responseDelay)
+        send_message(msg, emergency_responder_alert_channel, 0, emergency_responder_alert_interface)
+        logger.warning(f"System: {message_from_id} Emergency Assistance Requested in {message}")
+        # send the message out via email/sms
+
+        # respond to the user
+        time.sleep(responseDelay + 2)
+        return "Mesh-Bot detected a possible request for Emergency Assistance and alerted a wider audience."
 
 def handle_motd(message, message_from_id, isDM):
     global MOTD
@@ -1064,6 +1090,8 @@ async def start_rx():
         logger.debug(f"System: File Monitor News Reader Enabled for {news_file_path}")
     if wxAlertBroadcastEnabled:
         logger.debug(f"System: Weather Alert Broadcast Enabled on channels {wxAlertBroadcastChannel}")
+    if emergency_responder_enabled:
+        logger.debug(f"System: Emergency Responder Enabled on channels {emergency_responder_alert_channel} for interface {emergency_responder_alert_interface}")
     if scheduler_enabled:
         # Examples of using the scheduler, Times here are in 24hr format
         # https://schedule.readthedocs.io/en/stable/

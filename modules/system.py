@@ -38,6 +38,11 @@ if motd_enabled:
     trap_list = trap_list + trap_list_motd
     help_message = help_message + ", motd"
 
+# Emergency Responder Configuration
+if emergency_responder_enabled:
+    trap_list_emergency = ("emergency", "911", "112", "999", "police", "fire", "ambulance", "rescue")
+    trap_list = trap_list + trap_list_emergency
+    
 # whoami Configuration
 if whoami_enabled:
     trap_list_whoami = ("whoami", "📍")

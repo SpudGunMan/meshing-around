@@ -75,16 +75,12 @@ SyslogToFile = True
 # Number of log files to keep in days, 0 to keep all
 log_backup_count = 32
 
-[games]
-# if hop limit for the user exceeds this value, the message will be dropped
-game_hop_limit = 5
-# enable or disable the games module(s)
-dopeWars = True
-lemonade = True
-blackjack = True
-videopoker = True
-mastermind = True
-golfsim = True
+[emergencyHandler]
+# enable or disable the emergency response handler
+enabled = False
+# channel to send a message to when the emergency handler is triggered
+alert_channel = 2
+alert_interface = 1
 
 [sentry]
 # detect anyone close to the bot
@@ -162,6 +158,17 @@ file_path = alert.txt
 broadcastCh = 2
 enable_read_news = False
 news_file_path = news.txt
+
+[games]
+# if hop limit for the user exceeds this value, the message will be dropped
+game_hop_limit = 5
+# enable or disable the games module(s)
+dopeWars = True
+lemonade = True
+blackjack = True
+videopoker = True
+mastermind = True
+golfsim = True
 
 [messagingSettings]
 # delay in seconds for response to avoid message collision

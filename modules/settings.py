@@ -81,6 +81,10 @@ if 'scheduler' not in config:
         config['scheduler'] = {'enabled': 'False'}
         config.write(open(config_file, 'w'))
 
+if 'emergencyHandler' not in config:
+        config['emergencyHandler'] = {'enabled': 'False', 'alert_channel': '2', 'alert_interface': '1', 'email': ''}
+        config.write(open(config_file, 'w'))
+
 # interface1 settings
 interface1_type = config['interface'].get('type', 'serial')
 port1 = config['interface'].get('port', '')
@@ -124,6 +128,12 @@ try:
     llm_enabled = config['general'].getboolean('ollama', False) # https://ollama.com
     llmModel = config['general'].get('ollamaModel', 'gemma2:2b') # default gemma2:2b
     ollamaHostName = config['general'].get('ollamaHostName', 'http://localhost:11434') # default localhost
+
+    # emergency response
+    emergency_responder_enabled = config['emergencyHandler'].getboolean('enabled', False)
+    emergency_responder_alert_channel = config['emergencyHandler'].getint('alert_channel', 2) # default 2
+    emergency_responder_alert_interface = config['emergencyHandler'].getint('alert_interface', 1) # default 1
+    emergency_responder_email = config['emergencyHandler'].get('email', '').split(',')
 
     # sentry
     sentry_enabled = config['sentry'].getboolean('SentryEnabled', False) # default False
