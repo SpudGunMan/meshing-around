@@ -29,7 +29,7 @@ IMAP_PASSWORD = SMTP_PASSWORD  # IMAP password usually same as SMTP
 IMAP_FOLDER = "inbox"  # IMAP folder to monitor for new messages
 
 # System variables // Do not edit
-trap_list_smtp = ("email", "setmail", "sms", "setsms")
+trap_list_smtp = ("email", "setmail", "sms", "setsms", "clearsms")
 smtpThrottle = {}
 
 if enableImap:
@@ -153,8 +153,8 @@ def store_sms(nodeID, sms):
     if nodeID not in sms_db:
         sms_db[nodeID] = sms
         return True
-    # if in db, update it
-    sms_db[nodeID] = sms
+    # if in db, append it
+    sms_db[nodeID].append(sms)
 
     # save to a pickle for persistence, this is a simple db, be mindful of risk
     with open('data/sms_db.pickle', 'wb') as f:
@@ -162,6 +162,13 @@ def store_sms(nodeID, sms):
     return True
 
 def handle_sms(nodeID, message):
+    # if clearsms, remove all sms for node
+    if message.lower.startswith("clearsms"):
+        if nodeID in sms_db:
+            del sms_db[nodeID]
+            return "📲 address cleared"
+        return "📲No address to clear"
+    
     # send SMS to SMS in db. if none ask for one
     if message.lower.startswith("setsms"):
         message = message.split(" ", 1)
