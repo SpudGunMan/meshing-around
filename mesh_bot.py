@@ -213,7 +213,7 @@ def handle_emergency(message_from_id, deviceID, message):
 
         # respond to the user
         time.sleep(responseDelay + 2)
-        return "Mesh-Bot detected a possible request for Emergency Assistance and alerted a wider audience."
+        return EMERGENCY_RESPONSE
 
 def handle_motd(message, message_from_id, isDM):
     global MOTD

@@ -6,6 +6,7 @@ import configparser
 NO_DATA_NOGPS = "No location data: does your device have GPS?"
 ERROR_FETCHING_DATA = "error fetching data"
 WELCOME_MSG = 'MeshBot, here for you like a friend who is not. Try sending: ping @foo  or, CMD? for more'
+EMERGENCY_RESPONSE = "MeshBot detected a possible request for Emergency Assistance and alerted a wider audience."
 MOTD = 'Thanks for using MeshBOT! Have a good day!'
 NO_ALERTS = "No weather alerts found."
 
