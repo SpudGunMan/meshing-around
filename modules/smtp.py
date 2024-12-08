@@ -193,7 +193,7 @@ def handle_sms(nodeID, message):
             for address in sms_db[nodeID]:
                 logger.info("System: Sending SMS for " + nodeID)
                 send_email(address, message[1], nodeID)
-                return "📲SMS-sent 📤"
+            return "📲SMS-sent 📤"
         else:
             return "📲No address set, use 📲setsms"
     
