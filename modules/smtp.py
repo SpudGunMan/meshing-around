@@ -9,7 +9,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
-# SMTP settings
+# SMTP settings (required for outbound email/sms)
 SMTP_SERVER = "smtp.gmail.com"  # Replace with your SMTP server
 SMTP_PORT = 587  # 587 SMTP over TLS/STARTTLS, 25 legacy SMTP
 FROM_EMAIL = "your_email@gmail.com"  # Sender email: be mindful of public access, don't use your personal email
@@ -17,8 +17,20 @@ SMTP_USERNAME = "your_email@gmail.com"  # Sender email username
 SMTP_PASSWORD = "your_app_password"  # Sender email password
 EMAIL_SUBJECT = "Meshtastic✉️"
 
+# IMAP settings (inbound email)
+enableImap = False
+IMAP_SERVER = "imap.gmail.com"  # Replace with your IMAP server
+IMAP_PORT = 993  # 993 IMAP over TLS/SSL, 143 legacy IMAP
+IMAP_USERNAME = SMTP_USERNAME  # IMAP username usually same as SMTP
+IMAP_PASSWORD = SMTP_PASSWORD  # IMAP password usually same as SMTP
+IMAP_FOLDER = "inbox"  # IMAP folder to monitor for new messages
+
 trap_list_smtp = ("email", "setmail", "sms", "setsms")
 smtpThrottle = {}
+
+if enableImap:
+    import imaplib
+    import email
 
 # Send email
 def send_email(to_email, message):
