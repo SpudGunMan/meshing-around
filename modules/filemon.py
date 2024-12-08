@@ -20,6 +20,17 @@ def read_news():
     # read the news file on demand
     return read_file(news_file_path)
 
+def write_news(content, append=False):
+    # write the news file on demand
+    try:
+        with open(news_file_path, 'a' if append else 'w') as f:
+            f.write(content)
+            logger.info(f"FileMon: Updated {news_file_path}")
+        return True
+    except Exception as e:
+        logger.warning(f"FileMon: Error writing file: {news_file_path}")
+        return False
+
 async def watch_file():
     
     if not os.path.exists(file_monitor_file_path):
