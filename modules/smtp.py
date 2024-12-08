@@ -9,6 +9,9 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
+# System settings
+sysopEmails = ["spud@demo.net", ]  # list of authorized emails for sysop control
+
 # SMTP settings (required for outbound email/sms)
 SMTP_SERVER = "smtp.gmail.com"  # Replace with your SMTP server
 SMTP_PORT = 587  # 587 SMTP over TLS/STARTTLS, 25 legacy SMTP
@@ -25,12 +28,15 @@ IMAP_USERNAME = SMTP_USERNAME  # IMAP username usually same as SMTP
 IMAP_PASSWORD = SMTP_PASSWORD  # IMAP password usually same as SMTP
 IMAP_FOLDER = "inbox"  # IMAP folder to monitor for new messages
 
+# System variables // Do not edit
 trap_list_smtp = ("email", "setmail", "sms", "setsms")
 smtpThrottle = {}
 
 if enableImap:
+    # Import IMAP library
     import imaplib
     import email
+
 
 # Send email
 def send_email(to_email, message):
@@ -65,7 +71,7 @@ def send_email(to_email, message):
         return False
     return True
 
-def check_email(nodeID):
+def check_email(nodeID, sysop=False):
     if not enableImap:
         return
 
@@ -86,12 +92,21 @@ def check_email(nodeID):
                     email_subject = email_message['subject']
                     email_body = ""
 
-                    # Check if email is whitelisted by a particpant in the mesh
-                    for address in sms_db[nodeID]:
-                        if address in email_from:
-                            email_body = email_message.get_payload()
-                            logger.info("System: Email received from: " + email_from[:-6] + " for " + nodeID)
-                            return email_body.strip()
+                    if not sysop:
+                        # Check if email is whitelisted by particpant in the mesh
+                        for address in sms_db[nodeID]:
+                            if address in email_from:
+                                email_body = email_message.get_payload()
+                                logger.info("System: Email received from: " + email_from[:-6] + " for " + nodeID)
+                                return email_body.strip()
+                    else:
+                        # Check if email is from sysop
+                        for address in sysopEmails:
+                            if address in email_from:
+                                email_body = email_message.get_payload()
+                                logger.info("System: SysOp Email received from: " + email_from[:-6] + " for sysop")
+                                return email_body.strip()
+                        
     except Exception as e:
         logger.warning("System: Failed to check email: " + str(e))
         return False
