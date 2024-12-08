@@ -39,14 +39,20 @@ if enableImap:
 
 
 # Send email
-def send_email(to_email, message):
+def send_email(to_email, message, nodeID=0):
     global smtpThrottle
-    # if sent same to_email in last 2 minutes, throttle
+
+    # throttle email to prevent abuse
     if to_email in smtpThrottle:
         if smtpThrottle[to_email] > time.time() - 120:
             logger.warning("System: Email throttled for " + to_email[:-6])
             return "⛔️Email throttled, try again later"
     smtpThrottle[to_email] = time.time()
+
+    # check if email is in the ban list
+    if nodeID in bbs_ban_list:
+        logger.warning("System: Email blocked for " + nodeID)
+        return "⛔️Email throttled, try again later"
     
     try:
         # Create message
@@ -185,7 +191,7 @@ def handle_sms(nodeID, message):
         message = message.split(" ", 1)
         if nodeID in sms_db:
             logger.info("System: Sending SMS for " + nodeID)
-            send_email(sms_db[nodeID], message[1])
+            send_email(sms_db[nodeID], message[1], nodeID)
             return "📲SMS-sent 📤"
         else:
             return "📲No address set, use 📲setsms"
@@ -213,12 +219,12 @@ def handle_email(nodeID, message):
             toEmail = message[0].strip()
             message = message[1].split("#", 1)
             logger.info("System: Sending email for " + nodeID)
-            send_email(toEmail, message[1])
+            send_email(toEmail, message[1], nodeID)
             return "📧Email-sent 📤"
 
         if nodeID in email_db:
             logger.info("System: Sending email for " + nodeID)
-            send_email(email_db[nodeID], message[1])
+            send_email(email_db[nodeID], message[1], nodeID)
             return "📧Email-sent 📤"
 
         return "Error: ⛔️ not understood. use:email bob@example.com # Hello Bob"
