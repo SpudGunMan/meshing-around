@@ -15,6 +15,7 @@ restrictedResponse = "🤖only available in a Direct Message📵" # "" for none
 
 # Global Variables
 cmdHistory = [] # list to hold the last commands
+seenNodes = [] # list to hold the last seen nodes
 DEBUGpacket = False # Debug print the packet rx
 
 def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_number, deviceID, isDM):
@@ -837,6 +838,7 @@ def checkPlayingGame(message_from_id, message_string, rxNode, channel_number):
     return playingGame
 
 def onReceive(packet, interface):
+    global seenNodes
     # Priocess the incoming packet, handles the responses to the packet with auto_response()
     # Sends the packet to the correct handler for processing
 
@@ -846,6 +848,8 @@ def onReceive(packet, interface):
     # Valies assinged to the packet
     rxNode, message_from_id, snr, rssi, hop, hop_away, channel_number = 0, 0, 0, 0, 0, 0, 0
     pkiStatus = (False, 'ABC')
+    replyIDset = False
+    emojiSeen = False
     isDM = False
 
     if DEBUGpacket:
@@ -854,7 +858,6 @@ def onReceive(packet, interface):
         logger.debug(f"System: Packet Received on {rxType} Interface\n {intDebug} \n END of interface \n")
         # Debug print the packet for debugging
         logger.debug(f"Packet Received\n {packet} \n END of packet \n")
-
 
     # set the value for the incomming interface
     if rxType == 'SerialInterface':
@@ -881,9 +884,15 @@ def onReceive(packet, interface):
     if packet.get('channel'):
         channel_number = packet.get('channel', 0)
 
+    # set the message_from_id
+    message_from_id = packet['from']
+
+    # if message_from_id is not in the seenNodes list add it
+    if not any(node['nodeID'] == message_from_id for node in seenNodes):
+        seenNodes.append({'nodeID': message_from_id, 'rxInterface': rxNode, 'channel': channel_number, 'welcome': False, 'lastSeen': time.time()})
+
     # BBS DM MAIL CHECKER
     if bbs_enabled and 'decoded' in packet:
-        message_from_id = packet['from']
         
         msg = bbs_check_dm(message_from_id)
         if msg:
@@ -899,7 +908,6 @@ def onReceive(packet, interface):
         if 'decoded' in packet and packet['decoded']['portnum'] == 'TEXT_MESSAGE_APP':
             message_bytes = packet['decoded']['payload']
             message_string = message_bytes.decode('utf-8')
-            message_from_id = packet['from']
 
             # get the signal strength and snr if available
             if packet.get('rxSnr') or packet.get('rxRssi'):
@@ -908,7 +916,15 @@ def onReceive(packet, interface):
 
             # check if the packet has a publicKey flag use it
             if packet.get('publicKey'):
-                pkiStatus = (packet.get('pkiEncrypted', False), packet.get('publicKey', 'ABC'))
+                pkiStatus = packet.get('pkiEncrypted', False), packet.get('publicKey', 'ABC')
+            
+            # check if the packet has replyId flag // currently unused in the code
+            if packet.get('replyId'):
+                replyIDset = packet.get('replyId', False)
+            
+            # check if the packet has emoji flag set it // currently unused in the code
+            if packet.get('emoji'):
+                emojiSeen = packet.get('emoji', False)
 
             # check if the packet has a hop count flag use it
             if packet.get('hopsAway'):
@@ -975,10 +991,26 @@ def onReceive(packet, interface):
                         else:
                             # respond with welcome message on DM
                             logger.warning(f"Device:{rxNode} Ignoring DM: {message_string} From: {get_name_from_number(message_from_id, 'long', rxNode)}")
-                            send_message(welcome_message, channel_number, message_from_id, rxNode)
+                            
+                            # if seenNodes list is not marked as welcomed send welcome message
+                            if not any(node['nodeID'] == message_from_id and node['welcome'] == True for node in seenNodes):
+                                # send welcome message
+                                send_message(welcome_message, channel_number, message_from_id, rxNode)
+                                time.sleep(responseDelay)
+                                # mark the node as welcomed
+                                for node in seenNodes:
+                                    if node['nodeID'] == message_from_id:
+                                        node['welcome'] = True
+                            else:
+                                if dad_jokes_enabled:
+                                    # respond with a dad joke on DM
+                                    send_message(tell_joke(), channel_number, message_from_id, rxNode)
+                                else:
+                                    # respond with help message on DM
+                                    send_message(help_message, channel_number, message_from_id, rxNode)
+
                             time.sleep(responseDelay)
                             
-                    
                     # log the message to the message log
                     msgLogger.info(f"Device:{rxNode} Channel:{channel_number} | {get_name_from_number(message_from_id, 'long', rxNode)} | " + message_string.replace('\n', '-nl-'))
             else:
