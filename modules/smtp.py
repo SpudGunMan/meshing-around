@@ -189,9 +189,11 @@ def handle_sms(nodeID, message):
                 if item['nodeID'] == nodeID:
                     smsEmail = item['sms']
                     logger.info("System: Sending SMS for " + str(nodeID) + " to " + smsEmail[:-6])
-                    send_email(smsEmail, message[1], nodeID)
-                    count += 1
-            return f"📲SMS-sent {count} 📤"
+                    if send_email(smsEmail, message[1], nodeID):
+                        count += 1
+                        return f"📲SMS-sent {count} 📤"
+                    else: 
+                        return "⛔️Failed to send SMS"
         else:
             return "📲No address set, use 📲setsms"
     
@@ -217,13 +219,17 @@ def handle_email(nodeID, message):
             toEmail = message[0].strip()
             message = message[1].split("#", 1)
             logger.info("System: Sending email for " + str(nodeID) + " to " + toEmail[:-6])
-            send_email(toEmail, message[1], nodeID)
-            return "📧Email-sent 📤"
+            if send_email(toEmail, message[1], nodeID): 
+                return "📧Email-sent 📤"
+            else:
+                return "⛔️Failed to send email"
 
         if nodeID in email_db:
             logger.info("System: Sending email for " + str(nodeID))
-            send_email(email_db[nodeID], message[1], nodeID)
-            return "📧Email-sent 📤"
+            if send_email(email_db[nodeID], message[1], nodeID):
+                return "📧Email-sent 📤"
+            else:
+                return "⛔️Failed to send email"
 
         return "Error: ⛔️ not understood. use:email bob@example.com # Hello Bob"
     
