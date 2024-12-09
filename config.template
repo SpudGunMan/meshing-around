@@ -105,6 +105,13 @@ bbslink_enabled = False
 # list of whitelisted nodes numbers ex: 2813308004,4258675309 empty list allows all
 bbslink_whitelist = 
 
+[smtp]
+# enable or disable the SMTP module
+enableSMTP = False
+enableImap = False
+sysopEmails =
+
+
 # location module
 [location]
 enabled = True
