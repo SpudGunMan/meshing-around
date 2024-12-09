@@ -944,6 +944,7 @@ def onReceive(packet, interface):
                 else:
                     hop_start = 0
 
+            #logger.debug(f"System: Packet HopDebugger: hop_away:{hop_away} hop_limit:{hop_limit} hop_start:{hop_start}")
             if hop_start == hop_limit:
                 hop = "Direct"
                 hop_count = 0
