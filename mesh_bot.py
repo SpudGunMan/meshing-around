@@ -695,6 +695,9 @@ def handle_lheard(message, nodeid, deviceID, isDM):
     else:
         # trim the last \n
         bot_response = bot_response[:-1]
+    
+    # get count of nodes heard
+    bot_response += f"\n👀In Mesh: {len(seenNodes)}"
 
     # bot_response += getNodeTelemetry(deviceID)
     return bot_response
