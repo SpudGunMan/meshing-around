@@ -215,7 +215,9 @@ def handle_emergency(message_from_id, deviceID, message):
         send_message(msg, emergency_responder_alert_channel, 0, emergency_responder_alert_interface)
         logger.warning(f"System: {message_from_id} Emergency Assistance Requested in {message}")
         # send the message out via email/sms
-
+        if enableSMTP:
+            for user in sysopEmails:
+                send_email(user, f"Emergency Assistance Requested by {nodeInfo} in {message}", message_from_id)
         # respond to the user
         time.sleep(responseDelay + 2)
         return EMERGENCY_RESPONSE
