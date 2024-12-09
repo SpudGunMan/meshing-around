@@ -41,50 +41,53 @@ except Exception as e:
 if config.sections() == []:
     print(f"System: Error reading config file: {config_file} is empty or does not exist.")
     config['interface'] = {'type': 'serial', 'port': "/dev/ttyACM0", 'hostname': '', 'mac': ''}
-    config['general'] = {'respond_by_dm_only': 'True', 'defaultChannel': '0', 'motd': MOTD,
-                         'welcome_message': WELCOME_MSG, 'zuluTime': 'False'}
+    config['general'] = {'respond_by_dm_only': 'True', 'defaultChannel': '0', 'motd': MOTD, 'welcome_message': WELCOME_MSG, 'zuluTime': 'False'}
     config.write(open(config_file, 'w'))
     print (f"System: Config file created, check {config_file} or review the config.template")
 
 if 'sentry' not in config:
-        config['sentry'] = {'SentryEnabled': 'False', 'SentryChannel': '2', 'SentryHoldoff': '9', 'sentryIgnoreList': '', 'SentryRadius': '100'}
-        config.write(open(config_file, 'w'))
+    config['sentry'] = {'SentryEnabled': 'False', 'SentryChannel': '2', 'SentryHoldoff': '9', 'sentryIgnoreList': '', 'SentryRadius': '100'}
+    config.write(open(config_file, 'w'))
 
 if 'location' not in config:
-        config['location'] = {'enabled': 'True', 'lat': '48.50', 'lon': '-123.0', 'UseMeteoWxAPI': 'False', 'useMetric': 'False', 'NOAAforecastDuration': '4', 'NOAAalertCount': '2', 'NOAAalertsEnabled': 'True', 'wxAlertBroadcastEnabled': 'False', 'wxAlertBroadcastChannel': '2', 'repeaterLookup': 'rbook'}
-        config.write(open(config_file, 'w'))
+    config['location'] = {'enabled': 'True', 'lat': '48.50', 'lon': '-123.0', 'UseMeteoWxAPI': 'False', 'useMetric': 'False', 'NOAAforecastDuration': '4', 'NOAAalertCount': '2', 'NOAAalertsEnabled': 'True', 'wxAlertBroadcastEnabled': 'False', 'wxAlertBroadcastChannel': '2', 'repeaterLookup': 'rbook'}
+    config.write(open(config_file, 'w'))
 
 if 'bbs' not in config:
-        config['bbs'] = {'enabled': 'False', 'bbsdb': 'data/bbsdb.pkl', 'bbs_ban_list': '', 'bbs_admin_list': ''}
-        config.write(open(config_file, 'w'))
+    config['bbs'] = {'enabled': 'False', 'bbsdb': 'data/bbsdb.pkl', 'bbs_ban_list': '', 'bbs_admin_list': ''}
+    config.write(open(config_file, 'w'))
 
 if 'repeater' not in config:
-        config['repeater'] = {'enabled': 'False', 'repeater_channels': ''}
-        config.write(open(config_file, 'w'))
+    config['repeater'] = {'enabled': 'False', 'repeater_channels': ''}
+    config.write(open(config_file, 'w'))
 
 if 'radioMon' not in config:
-        config['radioMon'] = {'enabled': 'False', 'rigControlServerAddress': 'localhost:4532', 'sigWatchBrodcastCh': '2', 'signalDetectionThreshold': '-10', 'signalHoldTime': '10', 'signalCooldown': '5', 'signalCycleLimit': '5'}
-        config.write(open(config_file, 'w'))
+    config['radioMon'] = {'enabled': 'False', 'rigControlServerAddress': 'localhost:4532', 'sigWatchBrodcastCh': '2', 'signalDetectionThreshold': '-10', 'signalHoldTime': '10', 'signalCooldown': '5', 'signalCycleLimit': '5'}
+    config.write(open(config_file, 'w'))
 
 if 'games' not in config:
-        config['games'] = {'dopeWars': 'True', 'lemonade': 'True', 'blackjack': 'True', 'videoPoker': 'True'}
-        config.write(open(config_file, 'w'))
+    config['games'] = {'dopeWars': 'True', 'lemonade': 'True', 'blackjack': 'True', 'videoPoker': 'True'}
+    config.write(open(config_file, 'w'))
 
 if 'messagingSettings' not in config:
-        config['messagingSettings'] = {'responseDelay': '0.7', 'splitDelay': '0', 'MESSAGE_CHUNK_SIZE': '160'}
-        config.write(open(config_file, 'w'))
+    config['messagingSettings'] = {'responseDelay': '0.7', 'splitDelay': '0', 'MESSAGE_CHUNK_SIZE': '160'}
+    config.write(open(config_file, 'w'))
 
 if 'fileMon' not in config:
-        config['fileMon'] = {'enabled': 'False', 'file_path': 'alert.txt', 'broadcastCh': '2'}
-        config.write(open(config_file, 'w'))
+    config['fileMon'] = {'enabled': 'False', 'file_path': 'alert.txt', 'broadcastCh': '2'}
+    config.write(open(config_file, 'w'))
 
 if 'scheduler' not in config:
-        config['scheduler'] = {'enabled': 'False'}
-        config.write(open(config_file, 'w'))
+    config['scheduler'] = {'enabled': 'False'}
+    config.write(open(config_file, 'w'))
 
 if 'emergencyHandler' not in config:
-        config['emergencyHandler'] = {'enabled': 'False', 'alert_channel': '2', 'alert_interface': '1', 'email': ''}
-        config.write(open(config_file, 'w'))
+    config['emergencyHandler'] = {'enabled': 'False', 'alert_channel': '2', 'alert_interface': '1', 'email': ''}
+    config.write(open(config_file, 'w'))
+
+if 'smtp' not in config:
+    config['smtp'] = {'sysopEmails': '', 'enableSMTP': 'False', 'enableImap': 'False'}
+    config.write(open(config_file, 'w'))
 
 # interface1 settings
 interface1_type = config['interface'].get('type', 'serial')
@@ -102,7 +105,7 @@ if 'interface2' in config:
 else:
     interface2_enabled = False
 
-# variables
+# variables from the config.ini file
 try:
     # general
     useDMForResponse = config['general'].getboolean('respond_by_dm_only', True)
@@ -161,7 +164,7 @@ try:
             wxAlertBroadcastChannel = config['location'].get('wxAlertBroadcastCh').split(',')
         else:
             wxAlertBroadcastChannel = config['location'].getint('wxAlertBroadcastCh', 2) # default 2
-   
+    
     # bbs
     bbs_enabled = config['bbs'].getboolean('enabled', False)
     bbsdb = config['bbs'].get('bbsdb', 'data/bbsdb.pkl')
@@ -169,6 +172,26 @@ try:
     bbs_admin_list = config['bbs'].get('bbs_admin_list', '').split(',')
     bbs_link_enabled = config['bbs'].getboolean('bbslink_enabled', False)
     bbs_link_whitelist = config['bbs'].get('bbslink_whitelist', '').split(',')
+
+    # E-Mail Settings
+    sysopEmails = config['smtp'].get('sysopEmails', '').split(',')
+    enableSMTP = config['smtp'].getboolean('enableSMTP', False)
+    enableImap = config['smtp'].getboolean('enableImap', False)
+
+    # SMTP settings (required for outbound email/sms)
+    SMTP_SERVER = "smtp.gmail.com"  # Replace with your SMTP server
+    SMTP_PORT = 587  # 587 SMTP over TLS/STARTTLS, 25 legacy SMTP
+    FROM_EMAIL = "your_email@gmail.com"  # Sender email: be mindful of public access, don't use your personal email
+    SMTP_USERNAME = "your_email@gmail.com"  # Sender email username
+    SMTP_PASSWORD = "your_app_password"  # Sender email password
+    EMAIL_SUBJECT = "Meshtastic✉️"
+
+    # IMAP settings (inbound email)
+    IMAP_SERVER = "imap.gmail.com"  # Replace with your IMAP server
+    IMAP_PORT = 993  # 993 IMAP over TLS/SSL, 143 legacy IMAP
+    IMAP_USERNAME = SMTP_USERNAME  # IMAP username usually same as SMTP
+    IMAP_PASSWORD = SMTP_PASSWORD  # IMAP password usually same as SMTP
+    IMAP_FOLDER = "inbox"  # IMAP folder to monitor for new messages
 
     # repeater
     repeater_enabled = config['repeater'].getboolean('enabled', False)

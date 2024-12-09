@@ -280,7 +280,7 @@ In the config.ini enable the module
 # enable or disable the scheduler module
 enabled = True
 ```
- The actions are via code only at this time. See mesh_bot.py around line [1050](https://github.com/SpudGunMan/meshing-around/blob/e94581936530c76ea43500eebb43f32ba7ed5e19/mesh_bot.py#L1050) to edit the schedule. See [schedule documentation](https://schedule.readthedocs.io/en/stable/) for more. Recomend to backup changes so they dont get lost.
+ The actions are via code only at this time. See mesh_bot.py around line [1097](https://github.com/SpudGunMan/meshing-around/blob/e94581936530c76ea43500eebb43f32ba7ed5e19/mesh_bot.py#L1097) to edit the schedule. See [schedule documentation](https://schedule.readthedocs.io/en/stable/) for more. Recomend to backup changes so they dont get lost.
 
 ```python
 #Send WX every Morning at 08:00 using handle_wxc function to channel 2 on device 1

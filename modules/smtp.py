@@ -10,26 +10,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
-# System settings
-sysopEmails = ["spud@demo.net", ]  # list of authorized emails for sysop control
-
-# SMTP settings (required for outbound email/sms)
-SMTP_SERVER = "smtp.gmail.com"  # Replace with your SMTP server
-SMTP_PORT = 587  # 587 SMTP over TLS/STARTTLS, 25 legacy SMTP
-FROM_EMAIL = "your_email@gmail.com"  # Sender email: be mindful of public access, don't use your personal email
-SMTP_USERNAME = "your_email@gmail.com"  # Sender email username
-SMTP_PASSWORD = "your_app_password"  # Sender email password
-EMAIL_SUBJECT = "Meshtastic✉️"
-
-# IMAP settings (inbound email)
-enableImap = False
-IMAP_SERVER = "imap.gmail.com"  # Replace with your IMAP server
-IMAP_PORT = 993  # 993 IMAP over TLS/SSL, 143 legacy IMAP
-IMAP_USERNAME = SMTP_USERNAME  # IMAP username usually same as SMTP
-IMAP_PASSWORD = SMTP_PASSWORD  # IMAP password usually same as SMTP
-IMAP_FOLDER = "inbox"  # IMAP folder to monitor for new messages
-
-# System variables // Do not edit
+# System variables
 trap_list_smtp = ("email:", "setemail:", "sms:", "setsms:", "clearsms:")
 smtpThrottle = {}
 
@@ -37,7 +18,6 @@ if enableImap:
     # Import IMAP library
     import imaplib
     import email
-
 
 # Send email
 def send_email(to_email, message, nodeID=0):
@@ -54,7 +34,7 @@ def send_email(to_email, message, nodeID=0):
     if nodeID in bbs_ban_list:
         logger.warning("System: Email blocked for " + nodeID)
         return "⛔️Email throttled, try again later"
-    
+
     try:
         # Create message
         msg = MIMEMultipart()
@@ -130,21 +110,20 @@ except:
 
 def store_email(nodeID, email):
     global email_db
+
     # if not in db, add it
     logger.debug("System: Setting E-Mail for " + nodeID)
-    if nodeID not in email_db:
-        email_db[nodeID] = email
-        return True
-    # if in db, update it
     email_db[nodeID] = email
 
     # save to a pickle for persistence, this is a simple db, be mindful of risk
     with open('data/email_db.pickle', 'wb') as f:
         pickle.dump(email_db, f)
+    f.close()
     return True
 
+
 # initalize SMS db
-sms_db = {}
+sms_db = [{'nodeID': 0, 'sms':[]}]
 try:
     with open('data/sms_db.pickle', 'rb') as f:
         sms_db = pickle.load(f)
@@ -155,32 +134,45 @@ except:
 
 def store_sms(nodeID, sms):
     global sms_db
-    # if not in db, add it
-    logger.debug("System: Setting SMS for " + nodeID)
-    if nodeID not in sms_db:
-        sms_db[nodeID] = sms
-        return True
-    # if in db, append it
-    sms_db[nodeID].append(sms)
+    try:
+        logger.debug("System: Setting SMS for " + str(nodeID))
+        # if not in db, add it
+        if nodeID not in sms_db:
+            sms_db.append({'nodeID': nodeID, 'sms': sms})
+        else:
+            # if in db, update it
+            for item in sms_db:
+                if item['nodeID'] == nodeID:
+                    item['sms'].append(sms)
 
-    # save to a pickle for persistence, this is a simple db, be mindful of risk
-    with open('data/sms_db.pickle', 'wb') as f:
-        pickle.dump(sms_db, f)
-    return True
+        # save to a pickle for persistence, this is a simple db, be mindful of risk
+        with open('data/sms_db.pickle', 'wb') as f:
+            pickle.dump(sms_db, f)
+        f.close()
+        return True
+    except Exception as e:
+        logger.warning("System: Failed to store SMS: " + str(e))
+        return False
 
 def handle_sms(nodeID, message):
+    global sms_db
     # if clearsms, remove all sms for node
-    if message.lower.startswith("clearsms:"):
-        if nodeID in sms_db:
-            del sms_db[nodeID]
+    if message.lower().startswith("clearsms:"):
+        if any(item['nodeID'] == nodeID for item in sms_db):
+            # remove record from db for nodeID
+            sms_db = [item for item in sms_db if item['nodeID'] != nodeID]
+            # update the pickle
+            with open('data/sms_db.pickle', 'wb') as f:
+                pickle.dump(sms_db, f)
+            f.close()
             return "📲 address cleared"
         return "📲No address to clear"
     
     # send SMS to SMS in db. if none ask for one
-    if message.lower.startswith("setsms:"):
+    if message.lower().startswith("setsms:"):
         message = message.split(" ", 1)
-        if len(message) < 5:
-            return "?📲setsms example@phone.co"
+        if len(message[1]) < 5:
+            return "?📲setsms: example@phone.co"
         if "@" not in message[1] and "." not in message[1]:
             return "📲Please provide a valid email address"
         if store_sms(nodeID, message[1]):
@@ -188,14 +180,17 @@ def handle_sms(nodeID, message):
         else:
             return "⛔️Failed to set address"
         
-    if message.lower.startswith("sms:"):
+    if message.lower().startswith("sms:"):
         message = message.split(" ", 1)
-        if nodeID in sms_db:
+        if any(item['nodeID'] == nodeID for item in sms_db):
             count = 0
-            for address in sms_db[nodeID]:
-                count += 1
-                logger.info("System: Sending SMS for " + nodeID)
-                send_email(address, message[1], nodeID)
+            # for all dict items maching nodeID in sms_db send sms
+            for item in sms_db:
+                if item['nodeID'] == nodeID:
+                    smsEmail = item['sms']
+                    logger.info("System: Sending SMS for " + str(nodeID) + " to " + smsEmail[:-6])
+                    send_email(smsEmail, message[1], nodeID)
+                    count += 1
             return f"📲SMS-sent {count} 📤"
         else:
             return "📲No address set, use 📲setsms"
@@ -203,11 +198,10 @@ def handle_sms(nodeID, message):
     return "Error: ⛔️ not understood. use:setsms example@phone.co"
 
 def handle_email(nodeID, message):
+    global email_db
     # send email to email in db. if none ask for one
-    if message.lower.startswith("setemail:"):
+    if message.lower().startswith("setemail:"):
         message = message.split(" ", 1)
-        if len(message) < 5:
-            return "?📧setemail example@none.net"
         if "@" not in message[1] and "." not in message[1]:
             return "📧Please provide a valid email address"
         if store_email(nodeID, message[1]):
@@ -215,7 +209,7 @@ def handle_email(nodeID, message):
 
         return "Error: ⛔️ not understood. use:setmail bob@example.com"
         
-    if message.lower.startswith("email:"):
+    if message.lower().startswith("email:"):
         message = message.split(" ", 1)
 
         # if user sent: email bob@none.net # Hello Bob
@@ -232,5 +226,4 @@ def handle_email(nodeID, message):
             return "📧Email-sent 📤"
 
         return "Error: ⛔️ not understood. use:email bob@example.com # Hello Bob"
-    
     
