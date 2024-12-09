@@ -175,6 +175,20 @@ SentryHoldoff = 2 # channel to send a message to when the watchdog is triggered
 sentryIgnoreList = # list of ignored nodes numbers ex: 2813308004,4258675309
 ```
 
+### E-Mail / SMS Settings
+To enable connectivity with SMTP/IMAP.
+
+```ini
+[smtp]
+# enable or disable the SMTP module, minimum required for outbound notifications
+enableSMTP = True # enable or disable the IMAP module for inbound email, not implimented yet
+enableImap = False # list of Sysop Emails seperate with commas, used only in emergemcy responder currently
+sysopEmails =
+# See config.template for all the SMTP settings
+SMTP_SERVER = smtp.gmail.com
+EMAIL_SUBJECT = Meshtastic✉️
+```
+
 ### Emergency Response Handler
 Traps the following ("emergency", "911", "112", "999", "police", "fire", "ambulance", "rescue") keywords. Responds to the user, and calls attention to the text message in logs and via another network or channel.
 
