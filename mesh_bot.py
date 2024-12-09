@@ -208,7 +208,11 @@ def handle_emergency(message_from_id, deviceID, message):
     if message_from_id != 0:
         if deviceID == 1: rxNode = myNodeNum1 
         elif deviceID == 2: rxNode = myNodeNum2
-        nodeInfo = f"{get_name_from_number(message_from_id, 'short', deviceID)} detected by {get_name_from_number(rxNode, 'short', deviceID)}"
+        nodeLocation = get_node_location(message_from_id, deviceID)
+        # if default location is returned set to Unknown
+        if nodeLocation[0] == latitudeValue and nodeLocation[1] == longitudeValue:
+            nodeLocation = ["?", "?"]
+        nodeInfo = f"{get_name_from_number(message_from_id, 'short', deviceID)} detected by {get_name_from_number(rxNode, 'short', deviceID)} lastGPS {nodeLocation[0]}, {nodeLocation[1]}"
         msg = f"🔔🚨Intercepted Possible Emergency Assistance needed for: {nodeInfo}"
         # alert the emergency_responder_alert_channel
         time.sleep(responseDelay)
