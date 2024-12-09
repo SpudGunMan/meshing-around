@@ -49,7 +49,7 @@ def send_email(to_email, message, nodeID=0):
         server.starttls()
         server.login(SMTP_USERNAME, SMTP_PASSWORD)
 
-        # Send email
+        # Send email; this command will hold the program until the email is sent
         server.sendmail(FROM_EMAIL, to_email, msg.as_string())
         server.quit()
 
