@@ -13,6 +13,7 @@ from email.mime.multipart import MIMEMultipart
 # System variables
 trap_list_smtp = ("email:", "setemail:", "sms:", "setsms:", "clearsms:")
 smtpThrottle = {}
+SMTP_TIMEOUT = 10
 
 if enableImap:
     # Import IMAP library
@@ -44,7 +45,7 @@ def send_email(to_email, message, nodeID=0):
         msg.attach(MIMEText(message, 'plain'))
 
         # Connect to SMTP server
-        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
+        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=SMTP_TIMEOUT)
         server.starttls()
         server.login(SMTP_USERNAME, SMTP_PASSWORD)
 
@@ -64,7 +65,7 @@ def check_email(nodeID, sysop=False):
 
     try:
         # Connect to IMAP server
-        mail = imaplib.IMAP4_SSL(IMAP_SERVER)
+        mail = imaplib.IMAP4_SSL(IMAP_SERVER, IMAP_PORT, timeout=SMTP_TIMEOUT)
         mail.login(IMAP_USERNAME, IMAP_PASSWORD)
         mail.select(IMAP_FOLDER)
 
