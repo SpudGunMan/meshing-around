@@ -216,12 +216,12 @@ def handle_email(nodeID, message):
         if "@" in message[1] and "#" in message[1]:
             toEmail = message[0].strip()
             message = message[1].split("#", 1)
-            logger.info("System: Sending email for " + nodeID)
+            logger.info("System: Sending email for " + str(nodeID))
             send_email(toEmail, message[1], nodeID)
             return "📧Email-sent 📤"
 
         if nodeID in email_db:
-            logger.info("System: Sending email for " + nodeID)
+            logger.info("System: Sending email for " + str(nodeID))
             send_email(email_db[nodeID], message[1], nodeID)
             return "📧Email-sent 📤"
 
