@@ -108,8 +108,25 @@ bbslink_whitelist =
 [smtp]
 # enable or disable the SMTP module
 enableSMTP = False
+# enable or disable the IMAP module for inbound email
 enableImap = False
+# list of Sysop Emails seperate with commas
 sysopEmails =
+SMTP_SERVER = smtp.gmail.com
+# 587 SMTP over TLS/STARTTLS, 25 legacy SMTP, 465 SMTP over SSL
+SMTP_PORT = 587
+# Sender email: be mindful of public access, don't use your personal email
+FROM_EMAIL = none@gmail.com
+SMTP_USERNAME = none@gmail.com
+SMTP_PASSWORD = none
+EMAIL_SUBJECT = Meshtastic✉️
+IMAP_SERVER = imap.gmail.com
+# 993 IMAP over TLS/SSL, 143 legacy IMAP
+IMAP_PORT = 993
+# IMAP login usually same as SMTP
+IMAP_USERNAME = none@gmail.com
+IMAP_PASSWORD = none
+IMAP_FOLDER = inbox
 
 
 # location module

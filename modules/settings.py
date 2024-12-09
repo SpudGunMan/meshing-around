@@ -177,21 +177,17 @@ try:
     sysopEmails = config['smtp'].get('sysopEmails', '').split(',')
     enableSMTP = config['smtp'].getboolean('enableSMTP', False)
     enableImap = config['smtp'].getboolean('enableImap', False)
-
-    # SMTP settings (required for outbound email/sms)
-    SMTP_SERVER = "smtp.gmail.com"  # Replace with your SMTP server
-    SMTP_PORT = 587  # 587 SMTP over TLS/STARTTLS, 25 legacy SMTP
-    FROM_EMAIL = "your_email@gmail.com"  # Sender email: be mindful of public access, don't use your personal email
-    SMTP_USERNAME = "your_email@gmail.com"  # Sender email username
-    SMTP_PASSWORD = "your_app_password"  # Sender email password
-    EMAIL_SUBJECT = "Meshtastic✉️"
-
-    # IMAP settings (inbound email)
-    IMAP_SERVER = "imap.gmail.com"  # Replace with your IMAP server
-    IMAP_PORT = 993  # 993 IMAP over TLS/SSL, 143 legacy IMAP
-    IMAP_USERNAME = SMTP_USERNAME  # IMAP username usually same as SMTP
-    IMAP_PASSWORD = SMTP_PASSWORD  # IMAP password usually same as SMTP
-    IMAP_FOLDER = "inbox"  # IMAP folder to monitor for new messages
+    SMTP_SERVER = config['smtp'].get('SMTP_SERVER', 'smtp.gmail.com')
+    SMTP_PORT = config['smtp'].getint('SMTP_PORT', 587)
+    FROM_EMAIL = config['smtp'].get('FROM_EMAIL', 'none@gmail.com')
+    SMTP_USERNAME = config['smtp'].get('SMTP_USERNAME', FROM_EMAIL)
+    SMTP_PASSWORD = config['smtp'].get('SMTP_PASSWORD', 'password')
+    EMAIL_SUBJECT = config['smtp'].get('EMAIL_SUBJECT', 'Meshtastic✉️')
+    IMAP_SERVER = config['smtp'].get('IMAP_SERVER', 'imap.gmail.com')
+    IMAP_PORT = config['smtp'].getint('IMAP_PORT', 993)
+    IMAP_USERNAME = config['smtp'].get('IMAP_USERNAME', SMTP_USERNAME)
+    IMAP_PASSWORD = config['smtp'].get('IMAP_PASSWORD', SMTP_PASSWORD)
+    IMAP_FOLDER = config['smtp'].get('IMAP_FOLDER', 'inbox')
 
     # repeater
     repeater_enabled = config['repeater'].getboolean('enabled', False)
