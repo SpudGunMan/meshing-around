@@ -209,7 +209,7 @@ def handle_sms(nodeID, message):
                         count += 1
                     else: 
                         return "⛔️Failed to send SMS"
-            return "📲SMS sent to " + str(count) + " addresses 📤"
+            return "📲SMS sent " + str(count) + " addresses 📤"
         else:
             return "📲No address set, use 📲setsms"
     
