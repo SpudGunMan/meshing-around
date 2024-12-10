@@ -100,7 +100,7 @@ def check_email(nodeID, sysop=False):
                         for address in sms_db[nodeID]:
                             if address in email_from:
                                 email_body = email_message.get_payload()
-                                logger.info("System: Email received from: " + email_from[:-6] + " for " + nodeID)
+                                logger.info("System: Email received from: " + email_from[:-6] + " for " + str(nodeID))
                                 return email_body.strip()
                     else:
                         # Check if email is from sysop
