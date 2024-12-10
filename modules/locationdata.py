@@ -475,32 +475,25 @@ def getIpawsAlert(lat=0, lon=0):
         linked_xml = xml.dom.minidom.parseString(linked_data.text)
 
         for info in linked_xml.getElementsByTagName("info"):
-            # if alert geo applies to user location
-            if lat == 0: lat = latitudeValue
-            if lon == 0: lon = longitudeValue
-            areaDesc = info.getElementsByTagName("areaDesc")[0].childNodes[0].nodeValue
+            # extract values from XML
+            eventCode_table = info.getElementsByTagName("eventCode")[0]
+            alertType = eventCode_table.getElementsByTagName("valueName")[0].childNodes[0].nodeValue
+            alertCode = eventCode_table.getElementsByTagName("value")[0].childNodes[0].nodeValue
 
-            # if area element is present
-            if info.getElementsByTagName("area")[0].childNodes[0].nodeValue:
-                area = info.getElementsByTagName("area")[0].childNodes[0].nodeValue
-            else:
-                area = areaDesc
+            area_table = info.getElementsByTagName("area")[0]
+            areaDesc = area_table.getElementsByTagName("areaDesc")[0].childNodes[0].nodeValue
+            
+            geocode_table = area_table.getElementsByTagName("geocode")[0]
+            geocode_type = geocode_table.getElementsByTagName("valueName")[0].childNodes[0].nodeValue
+            geocode_value = geocode_table.getElementsByTagName("value")[0].childNodes[0].nodeValue
+            sameVal = ""
+            if geocode_type == "SAME":
+                sameVal = geocode_value
 
-            # DEBUG
-            #print(info.toprettyxml())
 
-            # if areaDesc is a polygon or circle
-            if "polygon" in area or "circle" in area:
-                if areaDesc == "polygon":
-                    # check if the user is in the alert area
-                    if lat == 0 or lon == 0:
-                        logger.warning("Location:No GPS data, try sending location for IPAWS alert")
-                        return NO_DATA_NOGPS
-                elif areaDesc == "circle":
-                    # check if the user is in the alert area
-                    if lat == 0 or lon == 0:
-                        logger.warning("Location:No GPS data, try sending location for IPAWS alert")
-                        return NO_DATA_NOGPS
+            print(f"Debug iPAWS: Type:{alertType} Code:{alertCode} Desc:{areaDesc} GeoType:{geocode_type} GeoVal:{geocode_value}")
+
+        
 
             alert += (
                 info.getElementsByTagName("headline")[0].childNodes[0].nodeValue + " " +
