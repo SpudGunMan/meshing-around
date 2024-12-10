@@ -35,7 +35,7 @@ def send_email(to_email, message, nodeID=0):
     if nodeID in bbs_ban_list:
         logger.warning("System: Email blocked for " + nodeID)
         return "⛔️Email throttled, try again later"
-
+    # Send email
     try:
         # Create message
         msg = MIMEMultipart()
@@ -46,7 +46,8 @@ def send_email(to_email, message, nodeID=0):
 
         # Connect to SMTP server
         server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=SMTP_TIMEOUT)
-        server.starttls()
+        if SMTP_PORT != 25:
+            server.starttls()
         server.login(SMTP_USERNAME, SMTP_PASSWORD)
 
         # Send email; this command will hold the program until the email is sent
