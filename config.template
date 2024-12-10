@@ -122,6 +122,8 @@ SMTP_AUTH = True
 SMTP_USERNAME = none@gmail.com
 SMTP_PASSWORD = none
 EMAIL_SUBJECT = Meshtastic✉️
+
+# IMAP not implimented yet
 IMAP_SERVER = imap.gmail.com
 # 993 IMAP over TLS/SSL, 143 legacy IMAP
 IMAP_PORT = 993
