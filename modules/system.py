@@ -42,7 +42,7 @@ if motd_enabled:
 if enableSMTP:
     from modules.smtp import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + trap_list_smtp
-    help_message = help_message + ", email, sms"
+    help_message = help_message + ", email:, sms:"
 
 # Emergency Responder Configuration
 if emergency_responder_enabled:

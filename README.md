@@ -356,9 +356,9 @@ There is no direct support for MQTT in the code, however, reports from Discord a
 | `bbllink` | Links Bulletin Messages between BBS Systems | ✅ |
 | `email:`  | Sends email to address on file for the node or `email: bob@test.net # hello from mesh` | |
 | `sms:`    | Send sms-email to multiple address on file | |
-| `setemail:`| Sets the email for node communciations | |
-| `setsms:` | Sets the SMS-Email for node communications | |
-| `clearsms:` | Clears all SMS-Emails on file for node | |
+| `setemail`| Sets the email for node communciations | |
+| `setsms` | Sets the SMS-Email for node communications | |
+| `clearsms` | Clears all SMS-Emails on file for node | |
 
 ### Data Lookup 
 | Command | Description | |

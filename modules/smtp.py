@@ -11,7 +11,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 # System variables
-trap_list_smtp = ("email:", "setemail:", "sms:", "setsms:", "clearsms:")
+trap_list_smtp = ("email:", "setemail", "sms:", "setsms", "clearsms")
 smtpThrottle = {}
 SMTP_TIMEOUT = 10
 
@@ -233,7 +233,7 @@ def handle_email(nodeID, message):
         if message.lower().startswith("email:"):
             parts = message.split(" ", 1)
             if len(parts) < 2:
-                return "Error: ⛔️ Message format should be: email: address@example.com #message"
+                return "Error: ⛔️ format should be: email: message  or, email: address@example.com #message"
                 
             content = parts[1].strip()
             
@@ -258,8 +258,8 @@ def handle_email(nodeID, message):
                 if send_email(email_db[nodeID], content, nodeID):
                     return "📧Email-sent 📤"
                 return "⛔️Failed to send email"
-                
-            return "Error: ⛔️ Please use: email: address@example.com #Hello Bob"
+        
+        return "Error: ⛔️ no email on file. use: setemail"
             
     except Exception as e:
         logger.error(f"System: Email handling error: {str(e)}")
