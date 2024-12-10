@@ -1145,7 +1145,10 @@ async def start_rx():
     if emergency_responder_enabled:
         logger.debug(f"System: Emergency Responder Enabled on channels {emergency_responder_alert_channel} for interface {emergency_responder_alert_interface}")
     if enableSMTP:
-        logger.debug(f"System: SMTP Email Alerting Enabled")
+        if enableImap:
+            logger.debug(f"System: SMTP Email Alerting Enabled using IMAP")
+        else:
+            logger.debug(f"System: SMTP Email Alerting Enabled")
     if scheduler_enabled:
         # Examples of using the scheduler, Times here are in 24hr format
         # https://schedule.readthedocs.io/en/stable/
