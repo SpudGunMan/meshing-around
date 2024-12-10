@@ -51,7 +51,7 @@ def send_email(to_email, message, nodeID=0):
         server.login(SMTP_USERNAME, SMTP_PASSWORD)
 
         # Send email; this command will hold the program until the email is sent
-        server.sendmail(FROM_EMAIL, to_email, msg.as_string())
+        server.send_message(msg)
         server.quit()
 
         logger.info("System: Email sent to: " + to_email[:-6])
