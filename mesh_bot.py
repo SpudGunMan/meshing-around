@@ -17,7 +17,7 @@ restrictedResponse = "🤖only available in a Direct Message📵" # "" for none
 cmdHistory = [] # list to hold the last commands
 seenNodes = [] # list to hold the last seen nodes
 DEBUGpacket = False # Debug print the packet rx
-DEBUGhops = False # Debug print hope info and bad hop count packets
+DEBUGhops = False # Debug print hop info and bad hop count packets
 
 def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_number, deviceID, isDM):
     global cmdHistory
