@@ -493,8 +493,6 @@ def getIpawsAlert(lat=0, lon=0):
 
             print(f"Debug iPAWS: Type:{alertType} Code:{alertCode} Desc:{areaDesc} GeoType:{geocode_type} GeoVal:{geocode_value}")
 
-        
-
             alert += (
                 info.getElementsByTagName("headline")[0].childNodes[0].nodeValue + " " +
                 info.getElementsByTagName(name="description")[0].childNodes[0].nodeValue +
