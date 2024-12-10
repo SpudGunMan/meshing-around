@@ -188,6 +188,7 @@ enableImap = False # list of Sysop Emails seperate with commas, used only in eme
 sysopEmails =
 # See config.template for all the SMTP settings
 SMTP_SERVER = smtp.gmail.com
+SMTP_AUTH = True
 EMAIL_SUBJECT = Meshtastic✉️
 ```
 
