@@ -41,7 +41,7 @@ def send_email(to_email, message, nodeID=0):
 
     # check if email is in the ban list
     if nodeID in bbs_ban_list:
-        logger.warning("System: Email blocked for " + nodeID)
+        logger.warning("System: Email blocked for " + str(nodeID))
         return "⛔️Email throttled, try again later"
     # Send email
     try:
