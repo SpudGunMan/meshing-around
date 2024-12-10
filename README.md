@@ -24,8 +24,8 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 - **Scheduler**: Schedule messages like weather updates or reminders for weekly VHF nets.
 - **Store and Forward**: Replay messages with the `messages` command, and log messages locally to disk.
 - **Send Mail**: Send mail to nodes using `bbspost @nodeNumber #message` or `bbspost @nodeShortName #message`.
-- **BBS Linking**: Combine multiple bots to expand BBS reach
-- **E-Mail/SMS**: Send mesh-messages via E-Mail or SMS to expand visability
+- **BBS Linking**: Combine multiple bots to expand BBS reach.
+- **E-Mail/SMS**: Send mesh-messages to E-Mail or SMS expanding visability.
 
 ### Interactive AI and Data Lookup
 - **NOAA location Data**: Get localized weather(alerts) and Tide information. Open-Meteo is used for wx only outside NOAA coverage. 
