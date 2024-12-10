@@ -128,7 +128,7 @@ def store_email(nodeID, email):
     global email_db
 
     # if not in db, add it
-    logger.debug("System: Setting E-Mail for " + nodeID)
+    logger.debug("System: Setting E-Mail for " + str(nodeID))
     email_db[nodeID] = email
 
     # save to a pickle for persistence, this is a simple db, be mindful of risk
