@@ -23,7 +23,15 @@ if enableImap:
 # Send email
 def send_email(to_email, message, nodeID=0):
     global smtpThrottle
-
+    
+    # Clean up email address
+    to_email = to_email.strip()
+    
+    # Basic email validation
+    if "@" not in to_email or "." not in to_email:
+        logger.warning(f"System: Invalid email address format: {to_email}")
+        return False
+        
     # throttle email to prevent abuse
     if to_email in smtpThrottle:
         if smtpThrottle[to_email] > time.time() - 120:
@@ -40,7 +48,7 @@ def send_email(to_email, message, nodeID=0):
         # Create message
         msg = MIMEMultipart()
         msg['From'] = FROM_EMAIL
-        msg['To'] = to_email.strip()
+        msg['To'] = to_email
         msg['Subject'] = EMAIL_SUBJECT
         msg.attach(MIMEText(message, 'plain'))
 
@@ -55,10 +63,10 @@ def send_email(to_email, message, nodeID=0):
         server.quit()
 
         logger.info("System: Email sent to: " + to_email[:-6])
+        return True
     except Exception as e:
-        logger.warning("System: Failed to send email: " + str(e))
+        logger.warning(f"System: Failed to send email: {str(e)}")
         return False
-    return True
 
 def check_email(nodeID, sysop=False):
     if not enableImap:
