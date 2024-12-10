@@ -450,56 +450,63 @@ def getIpawsAlert(lat=0, lon=0):
     try:
         alert_data = requests.get(alert_url, timeout=urlTimeoutSeconds)
         if not alert_data.ok:
-            logger.warning("Location:Error fetching IPAWS alert from FEMA")
+            logger.warning("System: iPAWS fetching IPAWS alerts from FEMA")
             return ERROR_FETCHING_DATA
     except (requests.exceptions.RequestException):
-        logger.warning("Location:Error fetching IPAWS alert from FEMA")
+        logger.warning("System: iPAWS fetching IPAWS alerts from FEMA")
         return ERROR_FETCHING_DATA
     
+    # main feed bulletins
     alertxml = xml.dom.minidom.parseString(alert_data.text)
 
-    for i in alertxml.getElementsByTagName("info"):
-        # if alert geo applies to user location
-        if lat == 0: lat = latitudeValue
-        if lon == 0: lon = longitudeValue
-        areaDesc = i.getElementsByTagName("areaDesc")[0].childNodes[0].nodeValue
-        # if area element is present
-        if i.getElementsByTagName("area")[0].childNodes[0].nodeValue:
-            area = i.getElementsByTagName("area")[0].childNodes[0].nodeValue
-        else:
-            area = areaDesc
-
-        # if areaDesc is a polygon or circle
-        if "polygon" in area or "circle" in area:
-            if areaDesc == "polygon":
-                # check if the user is in the alert area
-                if lat == 0 or lon == 0:
-                    logger.warning("Location:No GPS data, try sending location for IPAWS alert")
-                    return NO_DATA_NOGPS
-
-            elif areaDesc == "circle":
-                # check if the user is in the alert area
-                if lat == 0 or lon == 0:
-                    logger.warning("Location:No GPS data, try sending location for IPAWS alert")
-                    return NO_DATA_NOGPS
+    # extract alerts from main feed
+    for entry in alertxml.getElementsByTagName("entry"):
+        link = entry.getElementsByTagName("link")[0].getAttribute("href")
+        try:
+            linked_data = requests.get(link, timeout=urlTimeoutSeconds)
+            if not linked_data.ok:
+                #logger.warning(f"System: iPAWS Error fetching linked alert data from {link}")
+                continue
+        except (requests.exceptions.RequestException):
+            logger.warning(f"System: iPAWS Error fetching embedded alert data from {link}")
+            continue
         
-        alert += (
-            i.getElementsByTagName("event")[0].childNodes[0].nodeValue +
-            i.getElementsByTagName("urgency")[0].childNodes[0].nodeValue +
-            i.getElementsByTagName("severity")[0].childNodes[0].nodeValue +
-            i.getElementsByTagName("certainty")[0].childNodes[0].nodeValue +
-            # optional elements
-            i.getElementsByTagName("info")[0].childNodes[0].nodeValue +
-            i.getElementsByTagName("headline")[0].childNodes[0].nodeValue +
-            i.getElementsByTagName("description")[0].childNodes[0].nodeValue
-        )
-    
-    if alert == "":
-        return NO_ALERTS
-    
-    # trim off last newline
-    if alert[-1] == "\n":
-        alert = alert[:-1]
+        # this alert is a full CAP alert
+        linked_xml = xml.dom.minidom.parseString(linked_data.text)
+
+        for info in linked_xml.getElementsByTagName("info"):
+            # if alert geo applies to user location
+            if lat == 0: lat = latitudeValue
+            if lon == 0: lon = longitudeValue
+            areaDesc = info.getElementsByTagName("areaDesc")[0].childNodes[0].nodeValue
+
+            # if area element is present
+            if info.getElementsByTagName("area")[0].childNodes[0].nodeValue:
+                area = info.getElementsByTagName("area")[0].childNodes[0].nodeValue
+            else:
+                area = areaDesc
+
+            # DEBUG
+            #print(info.toprettyxml())
+
+            # if areaDesc is a polygon or circle
+            if "polygon" in area or "circle" in area:
+                if areaDesc == "polygon":
+                    # check if the user is in the alert area
+                    if lat == 0 or lon == 0:
+                        logger.warning("Location:No GPS data, try sending location for IPAWS alert")
+                        return NO_DATA_NOGPS
+                elif areaDesc == "circle":
+                    # check if the user is in the alert area
+                    if lat == 0 or lon == 0:
+                        logger.warning("Location:No GPS data, try sending location for IPAWS alert")
+                        return NO_DATA_NOGPS
+
+            alert += (
+                info.getElementsByTagName("headline")[0].childNodes[0].nodeValue + " " +
+                info.getElementsByTagName(name="description")[0].childNodes[0].nodeValue +
+                "\n"
+            )
     
     return alert
 
