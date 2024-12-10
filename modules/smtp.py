@@ -40,7 +40,7 @@ def send_email(to_email, message, nodeID=0):
         # Create message
         msg = MIMEMultipart()
         msg['From'] = FROM_EMAIL
-        msg['To'] = to_email
+        msg['To'] = to_email.strip()
         msg['Subject'] = EMAIL_SUBJECT
         msg.attach(MIMEText(message, 'plain'))
 
