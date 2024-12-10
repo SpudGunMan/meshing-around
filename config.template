@@ -85,6 +85,7 @@ alert_interface = 1
 [sentry]
 # detect anyone close to the bot
 SentryEnabled = True
+emailSentryAlerts = False
 # radius in meters to detect someone close to the bot
 SentryRadius = 100
 # channel to send a message to when the watchdog is triggered

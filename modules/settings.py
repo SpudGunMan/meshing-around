@@ -145,6 +145,7 @@ try:
     sentry_holdoff = config['sentry'].getint('SentryHoldoff', 9) # default 9
     sentryIgnoreList = config['sentry'].get('sentryIgnoreList', '').split(',')
     sentry_radius = config['sentry'].getint('SentryRadius', 100) # default 100 meters
+    email_sentry_alerts = config['sentry'].getboolean('emailSentryAlerts', False) # default False
 
     # location
     location_enabled = config['location'].getboolean('enabled', True)

@@ -170,6 +170,7 @@ Sentry Bot detects anyone coming close to the bot-node. uses the Location Lat/Lo
 
 ```ini
 SentryEnabled = True # detect anyone close to the bot
+emailSentryAlerts = True # if SMTP enabled send alert to sysop email list
 SentryRadius = 100 # radius in meters to detect someone close to the bot
 SentryChannel = 9 # holdoff time multiplied by seconds(20) of the watchdog
 SentryHoldoff = 2 # channel to send a message to when the watchdog is triggered
