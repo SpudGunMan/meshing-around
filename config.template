@@ -117,6 +117,7 @@ SMTP_SERVER = smtp.gmail.com
 SMTP_PORT = 587
 # Sender email: be mindful of public access, don't use your personal email
 FROM_EMAIL = none@gmail.com
+SMTP_AUTH = True
 SMTP_USERNAME = none@gmail.com
 SMTP_PASSWORD = none
 EMAIL_SUBJECT = Meshtastic✉️

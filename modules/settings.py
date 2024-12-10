@@ -180,6 +180,7 @@ try:
     SMTP_SERVER = config['smtp'].get('SMTP_SERVER', 'smtp.gmail.com')
     SMTP_PORT = config['smtp'].getint('SMTP_PORT', 587)
     FROM_EMAIL = config['smtp'].get('FROM_EMAIL', 'none@gmail.com')
+    SMTP_AUTH = config['smtp'].getboolean('SMTP_AUTH', True)
     SMTP_USERNAME = config['smtp'].get('SMTP_USERNAME', FROM_EMAIL)
     SMTP_PASSWORD = config['smtp'].get('SMTP_PASSWORD', 'password')
     EMAIL_SUBJECT = config['smtp'].get('EMAIL_SUBJECT', 'Meshtastic✉️')

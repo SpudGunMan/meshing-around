@@ -54,9 +54,15 @@ def send_email(to_email, message, nodeID=0):
 
         # Connect to SMTP server
         server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=SMTP_TIMEOUT)
-        if SMTP_PORT != 25:
-            server.starttls()
-        server.login(SMTP_USERNAME, SMTP_PASSWORD)
+        try:
+            # login /auth
+            if SMTP_PORT == 587:
+                server.starttls()
+            if SMTP_AUTH:
+                server.login(SMTP_USERNAME, SMTP_PASSWORD)
+        except Exception as e:
+            logger.warning(f"System: Failed to login to SMTP server: {str(e)}")
+            return
 
         # Send email; this command will hold the program until the email is sent
         server.send_message(msg)
