@@ -211,35 +211,50 @@ def handle_sms(nodeID, message):
 
 def handle_email(nodeID, message):
     global email_db
-    # send email to email in db. if none ask for one
-    if message.lower().startswith("setemail:"):
-        message = message.split(" ", 1)
-        if "@" not in message[1] and "." not in message[1]:
-            return "📧Please provide a valid email address"
-        if store_email(nodeID, message[1]):
-            return "📧Email address set 📪"
-
-        return "Error: ⛔️ not understood. use:setmail bob@example.com"
-        
-    if message.lower().startswith("email:"):
-        message = message.split(" ", 1)
-
-        # if user sent: email bob@none.net # Hello Bob
-        if "@" in message[1] and "#" in message[1]:
-            toEmail = message[0].strip()
-            message = message[1].split("#", 1)
-            logger.info("System: Sending email for " + str(nodeID) + " to " + toEmail[:-6])
-            if send_email(toEmail, message[1], nodeID): 
-                return "📧Email-sent 📤"
-            else:
+    try:
+        # send email to email in db. if none ask for one
+        if message.lower().startswith("setemail:"):
+            message = message.split(" ", 1)
+            if len(message) < 2:
+                return "📧Please provide an email address"
+            email_addr = message[1].strip()
+            if "@" not in email_addr or "." not in email_addr:
+                return "📧Please provide a valid email address"
+            if store_email(nodeID, email_addr):
+                return "📧Email address set 📪"
+            return "Error: ⛔️ Failed to set email address"
+            
+        if message.lower().startswith("email:"):
+            parts = message.split(" ", 1)
+            if len(parts) < 2:
+                return "Error: ⛔️ Message format should be: email: address@example.com #message"
+                
+            content = parts[1].strip()
+            
+            # Check if this is a direct email with address
+            if "@" in content and "#" in content:
+                # Split into email and message
+                addr_msg = content.split("#", 1)
+                if len(addr_msg) != 2:
+                    return "Error: ⛔️ Message format should be: email: address@example.com #message"
+                    
+                to_email = addr_msg[0].strip()
+                message_body = addr_msg[1].strip()
+                
+                logger.info(f"System: Sending email for {nodeID} to {to_email}")
+                if send_email(to_email, message_body, nodeID): 
+                    return "📧Email-sent 📤"
                 return "⛔️Failed to send email"
-
-        if nodeID in email_db:
-            logger.info("System: Sending email for " + str(nodeID))
-            if send_email(email_db[nodeID], message[1], nodeID):
-                return "📧Email-sent 📤"
-            else:
+                
+            # Using stored email address
+            elif nodeID in email_db:
+                logger.info(f"System: Sending email for {nodeID} to stored address")
+                if send_email(email_db[nodeID], content, nodeID):
+                    return "📧Email-sent 📤"
                 return "⛔️Failed to send email"
-
-        return "Error: ⛔️ not understood. use:email bob@example.com # Hello Bob"
-    
+                
+            return "Error: ⛔️ Please use: email: address@example.com #Hello Bob"
+            
+    except Exception as e:
+        logger.error(f"System: Email handling error: {str(e)}")
+        return "⛔️Failed to process email command"
