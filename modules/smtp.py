@@ -207,9 +207,9 @@ def handle_sms(nodeID, message):
                     logger.info("System: Sending SMS for " + str(nodeID) + " to " + smsEmail[:-6])
                     if send_email(smsEmail, message[1], nodeID):
                         count += 1
-                        return f"📲SMS-sent {count} 📤"
                     else: 
                         return "⛔️Failed to send SMS"
+            return "📲SMS sent to " + str(count) + " addresses 📤"
         else:
             return "📲No address set, use 📲setsms"
     
