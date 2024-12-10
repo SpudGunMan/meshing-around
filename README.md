@@ -355,7 +355,7 @@ There is no direct support for MQTT in the code, however, reports from Discord a
 | `bbspost` | Posts a message to the public board or sends a DM(Mail) Examples: `bbspost $subject #message`, `bbspost @nodeNumber #message`, `bbspost @nodeShortName #message` | ✅ |
 | `bbsdelete` | Deletes a message. Example: `bbsdelete #4` | ✅ |
 | `bbsinfo` | Provides stats on BBS delivery and messages (sysop) | ✅ |
-| `bbllink` | Links Bulletin Messages between BBS Systems | ✅ |
+| `bbslink` | Links Bulletin Messages between BBS Systems | ✅ |
 | `email:`  | Sends email to address on file for the node or `email: bob@test.net # hello from mesh` | |
 | `sms:`    | Send sms-email to multiple address on file | |
 | `setemail`| Sets the email for easy communciations | |
