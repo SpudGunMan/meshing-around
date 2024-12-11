@@ -479,6 +479,8 @@ def getIpawsAlert(lat=0, lon=0):
             eventCode_table = info.getElementsByTagName("eventCode")[0]
             alertType = eventCode_table.getElementsByTagName("valueName")[0].childNodes[0].nodeValue
             alertCode = eventCode_table.getElementsByTagName("value")[0].childNodes[0].nodeValue
+            headline = info.getElementsByTagName("headline")[0].childNodes[0].nodeValue
+            description = info.getElementsByTagName("description")[0].childNodes[0].nodeValue
 
             area_table = info.getElementsByTagName("area")[0]
             areaDesc = area_table.getElementsByTagName("areaDesc")[0].childNodes[0].nodeValue
@@ -486,22 +488,18 @@ def getIpawsAlert(lat=0, lon=0):
             geocode_table = area_table.getElementsByTagName("geocode")[0]
             geocode_type = geocode_table.getElementsByTagName("valueName")[0].childNodes[0].nodeValue
             geocode_value = geocode_table.getElementsByTagName("value")[0].childNodes[0].nodeValue
-            sameVal = ""
+            sameVal = "NONE"
             if geocode_type == "SAME":
                 sameVal = geocode_value
 
             # comma separated list of SAME codes to trigger local alert. find yours https://www.weather.gov/nwr/counties
-            mySAME = "053029","053073"
+            mySAME = "053029","053073","004013"
+
+            alert = NO_ALERTS
             if sameVal in mySAME:
-                print("Local Alert")
+                alert = (f"🚨FEMA Alert: {headline}\nDetail: {description}\n\n")
             else:
                 print(f"Debug iPAWS: Type:{alertType} Code:{alertCode} Desc:{areaDesc} GeoType:{geocode_type} GeoVal:{geocode_value}")
 
-            alert += (
-                info.getElementsByTagName("headline")[0].childNodes[0].nodeValue + " " +
-                info.getElementsByTagName(name="description")[0].childNodes[0].nodeValue +
-                "\n"
-            )
-    
     return alert
 
