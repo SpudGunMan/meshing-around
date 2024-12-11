@@ -255,7 +255,7 @@ def get_weather(lat=0, lon=0, unit=0):
     # extract data from rows
     for row in rows:
         # shrink the text
-        line = abbreviate_weather(row.text)
+        line = abbreviate_noaa(row.text)
         # only grab a few days of weather
         if len(weather.split("\n")) < forecastDuration:
             weather += line + "\n"
@@ -278,23 +278,23 @@ def get_weather(lat=0, lon=0, unit=0):
 
     return weather
 
-def abbreviate_weather(row):
+def abbreviate_noaa(row):
     # replace long strings with shorter ones for display
     replacements = {
-        "Monday": "Mon ",
-        "Tuesday": "Tue ",
-        "Wednesday": "Wed ",
-        "Thursday": "Thu ",
-        "Friday": "Fri ",
-        "Saturday": "Sat ",
-        "Sunday": "Sunday ",
-        "Today": "Today ",
-        "Night": "Night ",
-        "Tonight": "Tonight ",
-        "Tomorrow": "Tomorrow ",
-        "Day": "Day ",
-        "This Afternoon": "Afternoon ",
-        "Overnight": "Overnight ",
+        "monday": "Mon ",
+        "tuesday": "Tue ",
+        "wednesday": "Wed ",
+        "thursday": "Thu ",
+        "friday": "Fri ",
+        "saturday": "Sat ",
+        "sunday": "Sun ",
+        "today": "Today ",
+        "night": "Night ",
+        "tonight": "Tonight ",
+        "tomorrow": "Tomorrow ",
+        "day": "Day ",
+        "this afternoon": "Afternoon ",
+        "overnight": "Overnight ",
         "northwest": "NW",
         "northeast": "NE",
         "southwest": "SW",
@@ -303,25 +303,31 @@ def abbreviate_weather(row):
         "south": "S",
         "east": "E",
         "west": "W",
-        "Northwest": "NW",
-        "Northeast": "NE",
-        "Southwest": "SW",
-        "Southeast": "SE",
-        "North": "N",
-        "South": "S",
-        "East": "E",
-        "West": "W",
         "precipitation": "precip",
         "showers": "shwrs",
         "thunderstorms": "t-storms",
         "thunderstorm": "t-storm",
         "quarters": "qtrs",
-        "quarter": "qtr"
+        "quarter": "qtr",
+        "january": "Jan",
+        "february": "Feb",
+        "march": "Mar",
+        "april": "Apr",
+        "may": "May",
+        "june": "Jun",
+        "july": "Jul",
+        "august": "Aug",
+        "september": "Sep",
+        "october": "Oct",
+        "november": "Nov",
+        "december": "Dec",
+        "degrees": "°",
+        "percent": "%",
     }
 
     line = row
     for key, value in replacements.items():
-        line = line.replace(key, value)
+        line = line.replace(key, value).replace(key.capitalize(), value).replace(key.upper(), value)
                     
     return line
 
@@ -367,7 +373,7 @@ def getWeatherAlerts(lat=0, lon=0, useDefaultLatLon=False):
     alert_num = 0
     alert_num = len(alerts.split("\n"))
 
-    alerts = abbreviate_weather(alerts)
+    alerts = abbreviate_noaa(alerts)
 
     # return the first ALERT_COUNT alerts
     data = "\n".join(alerts.split("\n")[:numWxAlerts]), alert_num
@@ -427,7 +433,7 @@ def getActiveWeatherAlertsDetail(lat=0, lon=0):
             "\n***\n"
         )
 
-    alerts = abbreviate_weather(alerts)
+    alerts = abbreviate_noaa(alerts)
 
     # trim the alerts to the first ALERT_COUNT
     alerts = alerts.split("\n***\n")[:numWxAlerts]
@@ -497,7 +503,8 @@ def getIpawsAlert(lat=0, lon=0):
 
             alert = NO_ALERTS
             if sameVal in mySAME:
-                alert = (f"🚨FEMA Alert: {headline}\nDetail: {description}\n\n") #remove the \n\n for PROD DEV DEV DEV #######
+                rawAlert = (f"🚨FEMA Alert: {headline}\nDetail: {description}\n\n") #remove the \n\n for PROD DEV DEV DEV #######
+                alert = abbreviate_noaa(rawAlert)
             else:
                 print(f"Debug iPAWS: Type:{alertType} Code:{alertCode} Desc:{areaDesc} GeoType:{geocode_type} GeoVal:{geocode_value}, Headline:{headline}")
 
