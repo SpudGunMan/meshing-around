@@ -9,7 +9,7 @@ import bs4 as bs # pip install beautifulsoup4
 import xml.dom.minidom 
 from modules.log import *
 
-trap_list_location = ("whereami", "tide", "moon", "wx", "wxc", "wxa", "wxalert", "rlist")
+trap_list_location = ("whereami", "tide", "moon", "wx", "wxc", "wxa", "wxalert", "rlist", "ealert")
 
 def where_am_i(lat=0, lon=0, short=False, zip=False):
     whereIam = ""
@@ -522,7 +522,7 @@ def getIpawsAlert(lat=0, lon=0):
     # return the numWxAlerts of alerts
     if len(alerts) > 0:
         for alertItem in alerts[:numWxAlerts]:
-            alert += abbreviate_noaa(f"🚨 FEMA Alert: {alertItem['headline']}\n{alertItem['description']}")
+            alert += abbreviate_noaa(f"🚨FEMA Alert: {alertItem['headline']}\n{alertItem['description']}")
             if alertItem != alerts[:numWxAlerts][-1]:
                 alert += "\n"
     else:
