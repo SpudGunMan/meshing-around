@@ -158,8 +158,8 @@ femaAlertBroadcastEnabled = False
 femaAlertBroadcastCh = 2
 # Ignore any headline that includes the word Test
 ignoreFEMAtest = True
-# comma separated list of SAME codes to trigger local alert. 
-# find yours https://www.weather.gov/nwr/counties
+# comma separated list of codes trigger local alert. (e.g., SAME, FIPS, ZIP)
+# find your SAME https://www.weather.gov/nwr/counties
 mySAME = 053029,053073
 
 # repeater module
