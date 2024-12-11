@@ -501,9 +501,6 @@ def getIpawsAlert(lat=0, lon=0):
             if geocode_type == "SAME":
                 sameVal = geocode_value
 
-            # comma separated list of SAME codes to trigger local alert. find yours https://www.weather.gov/nwr/counties
-            mySAME = "053029","053073","004013"
-
             # if the alert is for the same area as the user add it to the alerts list
             if sameVal in mySAME:
                 # add to alerts list

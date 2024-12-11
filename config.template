@@ -152,6 +152,13 @@ repeaterLookup = rbook
 wxAlertBroadcastEnabled = False
 # EAS Alert Broadcast Channels
 wxAlertBroadcastCh = 2
+# FEMA IPAWS/CAP Alert Broadcast
+femaAlertBroadcastEnabled = False
+# FEMA IPAWS/CAP Alert Broadcast Channels
+femaAlertBroadcastCh = 2
+# comma separated list of SAME codes to trigger local alert. 
+# find yours https://www.weather.gov/nwr/counties
+mySAME = 053029,053073
 
 # repeater module
 [repeater]
