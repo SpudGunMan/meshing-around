@@ -158,7 +158,7 @@ femaAlertBroadcastEnabled = False
 femaAlertBroadcastCh = 2
 # Ignore any headline that includes the word Test
 ignoreFEMAtest = True
-# comma separated list of codes trigger local alert. (e.g., SAME, FIPS, ZIP)
+# comma separated list of codes (e.g., SAME,FIPS,ZIP) trigger local alert.
 # find your SAME https://www.weather.gov/nwr/counties
 mySAME = 053029,053073
 
