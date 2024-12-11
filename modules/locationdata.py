@@ -455,7 +455,14 @@ def getIpawsAlert(lat=0, lon=0):
     # get the latest IPAWS alert from FEMA, untested code
     alert = ''
     alerts = []
+    
+    # set the API URL for IPAWS
+    ipawsPIN = "000000"
     alert_url = "https://apps.fema.gov/IPAWSOPEN_EAS_SERVICE/rest/feed"
+    if ipawsPIN != "000000":
+        alert_url += "?pin=" + ipawsPIN
+
+    # get the alerts from FEMA
     try:
         alert_data = requests.get(alert_url, timeout=urlTimeoutSeconds)
         if not alert_data.ok:
@@ -472,6 +479,9 @@ def getIpawsAlert(lat=0, lon=0):
     for entry in alertxml.getElementsByTagName("entry"):
         link = entry.getElementsByTagName("link")[0].getAttribute("href")
         try:
+            #pin check
+            if ipawsPIN != "000000":
+                link += "?pin=" + ipawsPIN
             linked_data = requests.get(link, timeout=urlTimeoutSeconds)
             if not linked_data.ok:
                 #logger.warning(f"System: iPAWS Error fetching linked alert data from {link}")
@@ -501,8 +511,14 @@ def getIpawsAlert(lat=0, lon=0):
             if geocode_type == "SAME":
                 sameVal = geocode_value
 
-            # if the alert is for the same area as the user add it to the alerts list
-            if sameVal in mySAME:
+            # check if the alert is for the current location, if wanted keep alert
+            if (sameVal in mySAME) or (geocode_value in mySAME):
+                # ignore the FEMA test alerts
+                if ignoreFEMAtest:
+                    if "Test" in headline:
+                        logger.debug(f"System: Ignoring FEMA Test Alert: {headline} for {areaDesc}")
+                        continue
+
                 # add to alerts list
                 alerts.append({
                     'alertType': alertType,
@@ -514,6 +530,7 @@ def getIpawsAlert(lat=0, lon=0):
                     'description': description
                 })
             else:
+                # these are discarded some day but logged for debugging currently
                 logger.debug(f"Debug iPAWS: Type:{alertType} Code:{alertCode} Desc:{areaDesc} GeoType:{geocode_type} GeoVal:{geocode_value}, Headline:{headline}")
     
     # return the numWxAlerts of alerts

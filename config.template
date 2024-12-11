@@ -156,9 +156,13 @@ wxAlertBroadcastCh = 2
 femaAlertBroadcastEnabled = False
 # FEMA IPAWS/CAP Alert Broadcast Channels
 femaAlertBroadcastCh = 2
+# Ignore any headline that includes the word Test
+ignoreFEMAtest = True
 # comma separated list of SAME codes to trigger local alert. 
 # find yours https://www.weather.gov/nwr/counties
 mySAME = 053029,053073
+# FIPS6 code for your location
+myFIPS6 = WA
 
 # repeater module
 [repeater]

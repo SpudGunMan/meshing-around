@@ -161,6 +161,7 @@ try:
     femaAlertBroadcastEnabled = config['location'].getboolean('femaAlertBroadcastEnabled', False) # default False
     femaAlertBroadcastCh = config['location'].get('femaAlertBroadcastCh', '2').split(',') # default Channel 2
     wxAlertBroadcastEnabled = config['location'].getboolean('wxAlertBroadcastEnabled', False) # default False
+    ignoreFEMAtest = config['location'].getboolean('ignoreFEMAtest', True) # default True
     # brodcast channel for weather alerts
     wxAlertBroadcastChannel = config['location'].get('wxAlertBroadcastCh')
     if wxAlertBroadcastChannel:
