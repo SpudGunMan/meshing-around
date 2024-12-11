@@ -490,8 +490,12 @@ def getIpawsAlert(lat=0, lon=0):
             if geocode_type == "SAME":
                 sameVal = geocode_value
 
-
-            print(f"Debug iPAWS: Type:{alertType} Code:{alertCode} Desc:{areaDesc} GeoType:{geocode_type} GeoVal:{geocode_value}")
+            # comma separated list of SAME codes to trigger local alert. find yours at https://www.weather.gov/nwr/counties
+            mySAME = 053029,053073
+            if sameVal in mySAME:
+                print("Local Alert")
+            else:
+                print(f"Debug iPAWS: Type:{alertType} Code:{alertCode} Desc:{areaDesc} GeoType:{geocode_type} GeoVal:{geocode_value}")
 
             alert += (
                 info.getElementsByTagName("headline")[0].childNodes[0].nodeValue + " " +
