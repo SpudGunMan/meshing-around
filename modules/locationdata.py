@@ -323,10 +323,12 @@ def abbreviate_noaa(row):
         "december": "Dec",
         "degrees": "°",
         "percent": "%",
+        "department": "Dept.",
     }
 
     line = row
     for key, value in replacements.items():
+        # case insensitive replace
         line = line.replace(key, value).replace(key.capitalize(), value).replace(key.upper(), value)
                     
     return line
