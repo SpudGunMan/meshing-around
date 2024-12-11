@@ -453,7 +453,7 @@ def getActiveWeatherAlertsDetail(lat=0, lon=0):
 
 def getIpawsAlert(lat=0, lon=0):
     # get the latest IPAWS alert from FEMA, untested code
-    alert = NO_ALERTS
+    alert = ''
     alerts = []
     alert_url = "https://apps.fema.gov/IPAWSOPEN_EAS_SERVICE/rest/feed"
     try:
@@ -519,15 +519,14 @@ def getIpawsAlert(lat=0, lon=0):
             else:
                 print(f"Debug iPAWS: Type:{alertType} Code:{alertCode} Desc:{areaDesc} GeoType:{geocode_type} GeoVal:{geocode_value}, Headline:{headline}")
     
-    
     # return the numWxAlerts of alerts
-    if len(alerts) == 0:
-        return NO_ALERTS
-    else:
+    if len(alerts) > 0:
         for alertItem in alerts[:numWxAlerts]:
             alert += abbreviate_noaa(f"🚨 FEMA Alert: {alertItem['headline']}\n{alertItem['description']}")
             if alertItem != alerts[:numWxAlerts][-1]:
                 alert += "\n"
+    else:
+        alert = NO_ALERTS
 
     return alert
 
