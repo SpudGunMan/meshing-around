@@ -497,9 +497,9 @@ def getIpawsAlert(lat=0, lon=0):
 
             alert = NO_ALERTS
             if sameVal in mySAME:
-                alert = (f"🚨FEMA Alert: {headline}\nDetail: {description}\n\n")
+                alert = (f"🚨FEMA Alert: {headline}\nDetail: {description}\n\n") #remove the \n\n for PROD DEV DEV DEV #######
             else:
-                print(f"Debug iPAWS: Type:{alertType} Code:{alertCode} Desc:{areaDesc} GeoType:{geocode_type} GeoVal:{geocode_value}")
+                print(f"Debug iPAWS: Type:{alertType} Code:{alertCode} Desc:{areaDesc} GeoType:{geocode_type} GeoVal:{geocode_value}, Headline:{headline}")
 
     return alert
 
