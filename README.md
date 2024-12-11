@@ -43,8 +43,9 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 - **SNR RF Activity Alerts**: Monitor a radio frequency and get alerts when high SNR RF activity is detected.
 - **Hamlib Integration**: Use Hamlib (rigctld) to watch the S meter on a connected radio.
 
-### NOAA EAS Alerts
-- **EAS Alerts via NOAA API**: Use an internet-connected node to message Emergency Alerts from NOAA.
+### EAS Alerts
+- **FEMA iPAWS/EAS Alerts via API**: Use an internet-connected node to message Emergency Alerts from FEMA
+- **NOAA EAS Alerts via API**: Use an internet-connected node to message Emergency Alerts from NOAA.
 - **EAS Alerts over the air**: Utilizing external tools to report EAS alerts offline over mesh.
 
 ### File Monitor Alerts
@@ -204,8 +205,38 @@ alert_channel = 2
 alert_interface = 1
 ```
 
+### EAS Alerting
+To Alert on Mesh with the EAS API you can set the channels and enable, checks every 20min.
+
+#### FEMA iPAWS/EAS
+UNDER DEV..
+
+This uses the SAME code to locate the bot and alerts.
+
+```ini
+# FEMA IPAWS/CAP Alert Broadcast
+femaAlertBroadcastEnabled = True
+# FEMA IPAWS/CAP Alert Broadcast Channels
+femaAlertBroadcastCh = 2,4
+# Ignore any headline that includes the word Test
+ignoreFEMAtest = True
+# comma separated list of SAME codes to trigger local alert. 
+# find yours https://www.weather.gov/nwr/counties
+mySAME = 053029,053073
+```
+
+#### NOAA EAS
+ This uses the defined lat-long of the bot for collecting of data from the API. see [File-Monitoring](#File-Monitoring) for ideas to collect EAS alerts from a RTL-SDR.
+
+```ini
+# EAS Alert Broadcast 
+wxAlertBroadcastEnabled = True
+# EAS Alert Broadcast Channels
+wxAlertBroadcastCh = 2,4
+```
+
 ### Repeater Settings
-A repeater function for two different nodes and cross-posting messages. The [`repeater_channels`] is a list of repeater channels that will be consumed and rebroadcast on the same number channel on the other device, node, or interface. Each node should have matching channel numbers. The channel names and PSK do not need to be the same on the nodes. Use this feature responsibly to avoid creating a feedback loop.
+A repeater function for two different nodes and cross-posting messages. The `repeater_channels` is a list of repeater channels that will be consumed and rebroadcast on the same number channel on the other device, node, or interface. Each node should have matching channel numbers. The channel names and PSK do not need to be the same on the nodes. Use this feature responsibly to avoid creating a feedback loop.
 
 ```ini
 [repeater] # repeater module
@@ -257,15 +288,8 @@ broadcastCh = 2,4
 enable_read_news = False
 news_file_path = news.txt
 ```
-#### NOAA EAS
-To Alert on Mesh with the NOAA EAS API you can set the channels and enable, checks every 20min
 
-```ini
-# EAS Alert Broadcast
-wxAlertBroadcastEnabled = True
-# EAS Alert Broadcast Channels
-wxAlertBroadcastCh = 2,4
-```
+#### Offline EAS
 
 To Monitor EAS with no internet connection see the following notes
 - [samedec](https://crates.io/crates/samedec) rust decoder much like multimon-ng
