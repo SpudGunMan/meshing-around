@@ -402,6 +402,7 @@ I used ideas and snippets from other responder bots and want to call them out!
 - **xdep**: For the reporting tools.
 - **Nestpebble**: For new ideas and enhancements.
 - **mrpatrick1991**: For Docker configurations.
+- **[https://github.com/A-c0rN](A-c0rN)**: Assistance with iPAWS and EAS
 - **Mike O'Connell/skrrt**: For [eas_alert_parser](etc/eas_alert_parser.py) enhanced by **sheer.cold**
 - **PiDiBi**: For looking at test functions and other suggestions like wxc, CPU use, and alerting ideas.
 - **Cisien, bitflip, **Woof**, **propstg**, **Josh** and Hailo1999**: For testing and feature ideas on Discord and GitHub.
