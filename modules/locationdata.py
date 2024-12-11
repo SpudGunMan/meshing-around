@@ -453,7 +453,8 @@ def getActiveWeatherAlertsDetail(lat=0, lon=0):
 
 def getIpawsAlert(lat=0, lon=0):
     # get the latest IPAWS alert from FEMA, untested code
-    alert = ""
+    alert = NO_ALERTS
+    alerts = []
     alert_url = "https://apps.fema.gov/IPAWSOPEN_EAS_SERVICE/rest/feed"
     try:
         alert_data = requests.get(alert_url, timeout=urlTimeoutSeconds)
@@ -503,12 +504,30 @@ def getIpawsAlert(lat=0, lon=0):
             # comma separated list of SAME codes to trigger local alert. find yours https://www.weather.gov/nwr/counties
             mySAME = "053029","053073","004013"
 
-            alert = NO_ALERTS
+            # if the alert is for the same area as the user add it to the alerts list
             if sameVal in mySAME:
-                rawAlert = (f"🚨FEMA Alert: {headline}\nDetail: {description}\n\n") #remove the \n\n for PROD DEV DEV DEV #######
-                alert = abbreviate_noaa(rawAlert)
+                # add to alerts list
+                alerts.append({
+                    'alertType': alertType,
+                    'alertCode': alertCode,
+                    'headline': headline,
+                    'areaDesc': areaDesc,
+                    'geocode_type': geocode_type,
+                    'geocode_value': geocode_value,
+                    'description': description
+                })
             else:
                 print(f"Debug iPAWS: Type:{alertType} Code:{alertCode} Desc:{areaDesc} GeoType:{geocode_type} GeoVal:{geocode_value}, Headline:{headline}")
+    
+    
+    # return the numWxAlerts of alerts
+    if len(alerts) == 0:
+        return NO_ALERTS
+    else:
+        for alertItem in alerts[:numWxAlerts]:
+            alert += abbreviate_noaa(f"🚨 FEMA Alert: {alertItem['headline']}\n{alertItem['description']}")
+            if alertItem != alerts[:numWxAlerts][-1]:
+                alert += "\n"
 
     return alert
 
