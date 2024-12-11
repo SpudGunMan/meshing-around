@@ -451,8 +451,8 @@ def getActiveWeatherAlertsDetail(lat=0, lon=0):
     
     return alerts
 
-def getIpawsAlert(lat=0, lon=0):
-    # get the latest IPAWS alert from FEMA, untested code
+def getIpawsAlert(lat=0, lon=0, shortAlerts = False):
+    # get the latest IPAWS alert from FEMA
     alert = ''
     alerts = []
     
@@ -536,7 +536,11 @@ def getIpawsAlert(lat=0, lon=0):
     # return the numWxAlerts of alerts
     if len(alerts) > 0:
         for alertItem in alerts[:numWxAlerts]:
-            alert += abbreviate_noaa(f"🚨FEMA Alert: {alertItem['headline']}\n{alertItem['description']}")
+            if shortAlerts:
+                alert += abbreviate_noaa(f"🚨FEMA Alert: {alertItem['headline']}")
+            else:
+                alert += abbreviate_noaa(f"🚨FEMA Alert: {alertItem['headline']}\n{alertItem['description']}")
+            # add a newline if not the last alert    
             if alertItem != alerts[:numWxAlerts][-1]:
                 alert += "\n"
     else:
