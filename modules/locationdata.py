@@ -514,7 +514,7 @@ def getIpawsAlert(lat=0, lon=0):
                     'description': description
                 })
             else:
-                print(f"Debug iPAWS: Type:{alertType} Code:{alertCode} Desc:{areaDesc} GeoType:{geocode_type} GeoVal:{geocode_value}, Headline:{headline}")
+                logger.debug(f"Debug iPAWS: Type:{alertType} Code:{alertCode} Desc:{areaDesc} GeoType:{geocode_type} GeoVal:{geocode_value}, Headline:{headline}")
     
     # return the numWxAlerts of alerts
     if len(alerts) > 0:
