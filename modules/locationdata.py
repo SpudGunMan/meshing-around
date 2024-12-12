@@ -499,7 +499,9 @@ def getIpawsAlert(lat=0, lon=0, shortAlerts = False):
             alertType = eventCode_table.getElementsByTagName("valueName")[0].childNodes[0].nodeValue
             alertCode = eventCode_table.getElementsByTagName("value")[0].childNodes[0].nodeValue
             headline = info.getElementsByTagName("headline")[0].childNodes[0].nodeValue
-            description = info.getElementsByTagName("description")[0].childNodes[0].nodeValue
+            description = ""
+            if info.getElementsByTagName("description"):
+                description = info.getElementsByTagName("description")[0].childNodes[0].nodeValue
 
             area_table = info.getElementsByTagName("area")[0]
             areaDesc = area_table.getElementsByTagName("areaDesc")[0].childNodes[0].nodeValue
