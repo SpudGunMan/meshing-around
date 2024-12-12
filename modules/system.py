@@ -13,7 +13,7 @@ from modules.log import *
 
 # Global Variables
 trap_list = ("cmd","cmd?") # default trap list
-help_message = "Bot CMD?:\n"
+help_message = "Bot CMD?:"
 asyncLoop = asyncio.new_event_loop()
 games_enabled = False
 multiPingList = [{'message_from_id': 0, 'count': 0, 'type': '', 'deviceID': 0, 'channel_number': 0, 'startCount': 0}]
@@ -190,6 +190,14 @@ if file_monitor_enabled or read_news_enabled:
     if read_news_enabled:
         trap_list = trap_list + trap_list_filemon # items readnews
         help_message = help_message + ", readmail"
+
+# clean up the help message
+help_message = help_message.split(", ")
+help_message.sort()
+if len(help_message) > 20:
+    # split in half for formatting
+    help_message = help_message[:len(help_message)//2] + ["\nCMD?"] + help_message[len(help_message)//2:]
+help_message = ", ".join(help_message)
 
 # BLE dual interface prevention
 if interface1_type == 'ble' and interface2_type == 'ble':
@@ -1128,5 +1136,4 @@ async def watchdog():
                     await retry_interface(2)
                 except Exception as e:
                     logger.error(f"System: retrying interface2: {e}")
-
 
