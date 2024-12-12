@@ -171,7 +171,7 @@ if [ $ollama == "y" ]; then
 fi
 
 if [ $venv == "y" ]; then
-    printf "\nFor running in virtual, launch bot with './launch.sh mesh' from the root directory\n"
+    printf "\nFor running in virtual, launch bot with './launch.sh mesh' in path $program_path\n"
 fi
 
 printf "\nGood time to reboot? (y/n)"
