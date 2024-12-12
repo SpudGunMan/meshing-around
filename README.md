@@ -209,9 +209,7 @@ alert_interface = 1
 To Alert on Mesh with the EAS API you can set the channels and enable, checks every 20min.
 
 #### FEMA iPAWS/EAS
-UNDER DEV..
-
-This uses the SAME code to locate the bot and alerts.
+This uses the SAME, FIPS, ZIP code to locate the alerts in the feed. By default ignoring Test messages.
 
 ```ini
 # FEMA IPAWS/CAP Alert Broadcast
