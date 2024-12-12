@@ -9,7 +9,7 @@ import bs4 as bs # pip install beautifulsoup4
 import xml.dom.minidom 
 from modules.log import *
 
-trap_list_location = ("whereami", "tide", "moon", "wx", "wxc", "wxa", "wxalert", "rlist", "ealert")
+trap_list_location = ("whereami", "tide", "moon", "wx", "wxc", "wxa", "wxalert", "rlist", "ea", "ealert")
 
 def where_am_i(lat=0, lon=0, short=False, zip=False):
     whereIam = ""

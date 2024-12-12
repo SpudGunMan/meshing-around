@@ -45,6 +45,8 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "cqcq": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
     "cqcqcq": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
     "dopewars": lambda: handleDopeWars(message, message_from_id, deviceID),
+    "ea": lambda: handle_fema_alerts(message, message_from_id, deviceID),
+    "ealert": lambda: handle_fema_alerts(message, message_from_id, deviceID),
     "email:": lambda: handle_email(message_from_id, message),
     "games": lambda: gamesCmdList,
     "globalthermonuclearwar": lambda: handle_gTnW(),
@@ -73,7 +75,6 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "testing": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
     "tide": lambda: handle_tide(message_from_id, deviceID, channel_number),
     "videopoker": lambda: handleVideoPoker(message, message_from_id, deviceID),
-    "ealert": lambda: handle_fema_alerts(message, message_from_id, deviceID),
     "whereami": lambda: handle_whereami(message_from_id, deviceID, channel_number),
     "whoami": lambda: handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus),
     "wiki:": lambda: handle_wiki(message, isDM),
@@ -618,7 +619,12 @@ def handle_wxc(message_from_id, deviceID, cmd):
 
 def handle_fema_alerts(message, message_from_id, deviceID):
     location = get_node_location(message_from_id, deviceID)
-    return getIpawsAlert(str(location[0]), str(location[1]))
+    if message.lower().startswith("ealert"):
+        # Detailed alert
+        return getIpawsAlert(str(location[0]), str(location[1]))
+    else:
+        # Headlines only
+        return getIpawsAlert(str(location[0]), str(location[1]), shortAlerts=True)
 
 def handle_bbspost(message, message_from_id, deviceID):
     if "$" in message and not "example:" in message:

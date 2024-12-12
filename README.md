@@ -367,8 +367,9 @@ There is no direct support for MQTT in the code, however, reports from Discord a
 | `hfcond` | Returns a table of HF solar conditions | |
 | `tide` | Returns the local tides (NOAA data source) |
 | `rlist` | Returns a table of nearby repeaters from RepeaterBook | |
-| `wx` and `wxc` | Return local weather forecast (wxc is metric value), NOAA or Open Meteo for weather forecasting |
-| `wxa` and `wxalert` | Return NOAA alerts. Short title or expanded details |
+| `wx` and `wxc` | Return local weather forecast (wxc is metric value), NOAA or Open Meteo for weather forecasting | |
+| `wxa` and `wxalert` | Return NOAA alerts. Short title or expanded details | |
+| `ea` and `ealert` | Return FEMA iPAWS/EAS alerts. Headline or expanded details | |
 
 ### Bulletin Board & Mail
 | Command | Description | |
