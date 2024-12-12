@@ -14,8 +14,8 @@ printf "\nChecking for dependencies...\n"
 # Check and install dependencies
 if ! command -v python3 &> /dev/null
 then
-    printf "python3 not found, trying 'apt-get install python3-pip'\n"
-    sudo apt-get install python3
+    printf "python3 not found, trying 'apt-get install python3 python3-venv python3-pip'\n"
+    sudo apt-get install python3 python3-venv python3-pip
 fi
 if ! command -v pip &> /dev/null
 then
@@ -65,7 +65,7 @@ if [ $venv == "y" ]; then
         printf "Python3/venv error, please install python3-venv with your OS\n"
         exit 1
     else
-        echo "Creating virtual environment..."
+        echo "The Following could be messy, Creating virtual environment..."
         python3 -m venv venv
         source venv/bin/activate
 
@@ -81,6 +81,8 @@ if [ $venv == "y" ]; then
             printf "\nPython3 venv module not found, please install python3-venv with your OS\n"
             exit 1
         fi
+
+        printf "\nVirtual environment created\n"
 
         # config service files for virtual environment
         replace="s|python3 mesh_bot.py|/usr/bin/bash launch.sh mesh|g"
