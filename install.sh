@@ -172,6 +172,7 @@ fi
 
 if [ $venv == "y" ]; then
     printf "\nFor running in virtual, launch bot with './launch.sh mesh' from the root directory\n"
+fi
 
 printf "\nGood time to reboot? (y/n)"
 read reboot
@@ -179,4 +180,3 @@ if [ $reboot == "y" ]; then
     sudo reboot
 fi
 
-exit 0
