@@ -394,7 +394,7 @@ There is no direct support for MQTT in the code, however, reports from Discord a
 | `askai` and `ask:` | Ask Ollama LLM AI for a response. Example: `askai what temp do I cook chicken` | ✅ |
 | `messages` | Replays the last messages heard, like Store and Forward | ✅ |
 | `readnews` | returns the contents of a file (news.txt, by default) via the chunker on air | ✅ |
-| `satpass` | returns the pass info from API for defined NORAD ID in config | ✅ |
+| `satpass` | returns the pass info from API for defined NORAD ID in config | |
 
 ### Games (via DM)
 | Command | Description | |
