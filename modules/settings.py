@@ -158,6 +158,7 @@ try:
     wxAlertsEnabled = config['location'].getboolean('NOAAalertsEnabled', True) # default True not enabled yet
     repeater_lookup = config['location'].get('repeaterLookup', 'rbook') # default repeater lookup source
     mySAME = config['location'].get('mySAME', '').split(',') # default empty
+    ipawsPIN = config['location'].get('ipawsPIN', '000000') # default 000000
     femaAlertBroadcastEnabled = config['location'].getboolean('femaAlertBroadcastEnabled', False) # default False
     femaAlertBroadcastCh = config['location'].get('femaAlertBroadcastCh', '2').split(',') # default Channel 2
     wxAlertBroadcastEnabled = config['location'].getboolean('wxAlertBroadcastEnabled', False) # default False

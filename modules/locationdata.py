@@ -457,7 +457,6 @@ def getIpawsAlert(lat=0, lon=0, shortAlerts = False):
     alerts = []
     
     # set the API URL for IPAWS
-    ipawsPIN = "000000"
     alert_url = "https://apps.fema.gov/IPAWSOPEN_EAS_SERVICE/rest/feed"
     if ipawsPIN != "000000":
         alert_url += "?pin=" + ipawsPIN
