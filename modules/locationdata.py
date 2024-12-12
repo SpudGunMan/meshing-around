@@ -457,6 +457,7 @@ def getIpawsAlert(lat=0, lon=0, shortAlerts = False):
     alerts = []
     
     # set the API URL for IPAWS
+    namespace = "urn:oasis:names:tc:emergency:cap:1.2"
     alert_url = "https://apps.fema.gov/IPAWSOPEN_EAS_SERVICE/rest/feed"
     if ipawsPIN != "000000":
         alert_url += "?pin=" + ipawsPIN
@@ -481,6 +482,7 @@ def getIpawsAlert(lat=0, lon=0, shortAlerts = False):
             #pin check
             if ipawsPIN != "000000":
                 link += "?pin=" + ipawsPIN
+            # get the linked alert data from FEMA
             linked_data = requests.get(link, timeout=urlTimeoutSeconds)
             if not linked_data.ok:
                 #logger.warning(f"System: iPAWS Error fetching linked alert data from {link}")
@@ -503,7 +505,10 @@ def getIpawsAlert(lat=0, lon=0, shortAlerts = False):
                 alertCode = eventCode_table.getElementsByTagName("value")[0].childNodes[0].nodeValue
                 headline = info.getElementsByTagName("headline")[0].childNodes[0].nodeValue
                 # use headline if no description
-                description = info.getElementsByTagName("description")[0].childNodes[0].nodeValue if info.getElementsByTagName("description") and info.getElementsByTagName("description")[0].childNodes else headline
+                if info.getElementsByTagName("description") and info.getElementsByTagName("description")[0].childNodes:
+                    description = info.getElementsByTagName("description")[0].childNodes[0].nodeValue
+                else:
+                    description = headline
 
                 area_table = info.getElementsByTagName("area")[0]
                 areaDesc = area_table.getElementsByTagName("areaDesc")[0].childNodes[0].nodeValue
