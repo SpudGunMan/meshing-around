@@ -495,6 +495,8 @@ def getIpawsAlert(lat=0, lon=0, shortAlerts = False):
 
         for info in linked_xml.getElementsByTagName("info"):
             # extract values from XML
+            sameVal = "NONE"
+            geocode_value = "NONE"
             try:
                 eventCode_table = info.getElementsByTagName("eventCode")[0]
                 alertType = eventCode_table.getElementsByTagName("valueName")[0].childNodes[0].nodeValue
@@ -508,12 +510,10 @@ def getIpawsAlert(lat=0, lon=0, shortAlerts = False):
                 geocode_table = area_table.getElementsByTagName("geocode")[0]
                 geocode_type = geocode_table.getElementsByTagName("valueName")[0].childNodes[0].nodeValue
                 geocode_value = geocode_table.getElementsByTagName("value")[0].childNodes[0].nodeValue
-                sameVal = "NONE"
                 if geocode_type == "SAME":
                     sameVal = geocode_value
             except Exception as e:
                 logger.warning(f"System: iPAWS Error extracting alert data: {e}")
-                geocode_value = "NONE"
                 continue
 
             # check if the alert is for the current location, if wanted keep alert
