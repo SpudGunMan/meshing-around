@@ -112,14 +112,6 @@ sed -i $replace etc/mesh_bot_reporting.service
 sudo systemctl daemon-reload
 printf "\n service files updated\n"
 
-# ask if emoji font should be installed for linux
-echo "Do you want to install the emoji font for debian/ubuntu linux? (y/n)"
-read emoji
-if [ $emoji == "y" ]; then
-    sudo apt-get install -y fonts-noto-color-emoji
-    echo "Emoji font installed!, reboot to load the font"
-fi
-
 if [ $bot == "pong" ]; then
     # install service for pong bot
     sudo cp etc/pong_bot.service /etc/systemd/system/
@@ -137,6 +129,14 @@ if [ $bot == "n" ]; then
         printf "\nTo run the bot, use the command: ./launch.sh\n"
         ./launch.sh
     fi
+fi
+
+# ask if emoji font should be installed for linux
+echo "Do you want to install the emoji font for debian/ubuntu linux? (y/n)"
+read emoji
+if [ $emoji == "y" ]; then
+    sudo apt-get install -y fonts-noto-color-emoji
+    echo "Emoji font installed!, reboot to load the font"
 fi
 
 printf "\nOptionally if you want to install the LLM Ollama compnents we will execute the following commands\n"
