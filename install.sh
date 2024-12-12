@@ -8,19 +8,24 @@ printf "\nMeshing Around Installer\n"
 printf "\nThis script will try and install the Meshing Around Bot and its dependencies, works best in raspian/debian/ubuntu\n"
 printf "\nChecking for dependencies\n"
 
+# Check and install dependencies
 if ! command -v python3 &> /dev/null
 then
-    printf "python3 not found, please install python3 with your OS\n"
-    exit 1
+    printf "python3 not found, trying 'apt-get install python3-pip'\n"
+    sudo apt-get install python3
 fi
-
-# check for pip
 if ! command -v pip &> /dev/null
 then
     printf "pip not found, trying 'apt-get install python3-pip'\n"
     sudo apt-get install python3-pip
 fi
 
+# double check for python3 and pip
+if ! command -v python3 &> /dev/null
+then
+    printf "python3 not found, please install python3 with your OS\n"
+    exit 1
+fi
 if ! command -v pip &> /dev/null
 then
     printf "pip not found, please install pip with your OS\n"
@@ -139,7 +144,7 @@ if [ $emoji == "y" ]; then
     echo "Emoji font installed!, reboot to load the font"
 fi
 
-printf "\nOptionally if you want to install the LLM Ollama compnents we will execute the following commands\n"
+printf "\nOptionally if you want to install the multi gig LLM Ollama compnents we will execute the following commands\n"
 printf "\ncurl -fsSL https://ollama.com/install.sh | sh\n"
 
 # ask if the user wants to install the LLM Ollama components
