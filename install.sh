@@ -4,7 +4,9 @@
 # install.sh
 cd "$(dirname "$0")"
 program_path=$(pwd)
+printf "\n########################"
 printf "\nMeshing Around Installer\n"
+printf "########################\n"
 printf "\nThis script will try and install the Meshing Around Bot and its dependencies, works best in raspian/debian/ubuntu\n"
 printf "\nChecking for dependencies\n"
 
