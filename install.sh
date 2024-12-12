@@ -132,7 +132,7 @@ if [ $bot == "n" ]; then
 fi
 
 # ask if emoji font should be installed for linux
-echo "Do you want to install the emoji font for debian/ubuntu linux? (y/n)"
+echo "\nDo you want to install the emoji font for debian/ubuntu linux? (y/n)"
 read emoji
 if [ $emoji == "y" ]; then
     sudo apt-get install -y fonts-noto-color-emoji
@@ -143,7 +143,7 @@ printf "\nOptionally if you want to install the LLM Ollama compnents we will exe
 printf "\ncurl -fsSL https://ollama.com/install.sh | sh\n"
 
 # ask if the user wants to install the LLM Ollama components
-echo "Do you want to install the LLM Ollama components? (y/n)"
+echo "\nDo you want to install the LLM Ollama components? (y/n)"
 read ollama
 if [ $ollama == "y" ]; then
     curl -fsSL https://ollama.com/install.sh | sh
@@ -157,7 +157,7 @@ if [ $ollama == "y" ]; then
     fi
 fi
 
-echo "Good time to reboot? (y/n)"
+echo "\nGood time to reboot? (y/n)"
 read reboot
 if [ $reboot == "y" ]; then
     sudo reboot
