@@ -61,7 +61,7 @@ read venv
 if [ $venv == "y" ]; then
     # set virtual environment
     if ! python3 -m venv --help &> /dev/null; then
-        printf "Python3 venv module not found, please install python3-venv with your OS\n"
+        printf "Python3/venv error, please install python3-venv with your OS\n"
         exit 1
     else
         echo "Creating virtual environment..."
@@ -168,6 +168,9 @@ if [ $ollama == "y" ]; then
         ollama pull gemma2:2b
     fi
 fi
+
+if [ $venv == "y" ]; then
+    printf "\nFor running in virtual, launch bot with './launch.sh mesh' from the root directory\n"
 
 printf "\nGood time to reboot? (y/n)"
 read reboot
