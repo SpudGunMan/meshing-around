@@ -497,12 +497,18 @@ def getIpawsAlert(lat=0, lon=0, shortAlerts = False):
             # extract values from XML
             sameVal = "NONE"
             geocode_value = "NONE"
+            description = ""
             try:
                 eventCode_table = info.getElementsByTagName("eventCode")[0]
                 alertType = eventCode_table.getElementsByTagName("valueName")[0].childNodes[0].nodeValue
                 alertCode = eventCode_table.getElementsByTagName("value")[0].childNodes[0].nodeValue
                 headline = info.getElementsByTagName("headline")[0].childNodes[0].nodeValue
-                description = info.getElementsByTagName("description")[0].childNodes[0].nodeValue
+
+                # if no description
+                if len(info.getElementsByTagName("description")) > 0:
+                    description = headline
+                else:
+                    description = info.getElementsByTagName("description")[0].childNodes[0].nodeValue
 
                 area_table = info.getElementsByTagName("area")[0]
                 areaDesc = area_table.getElementsByTagName("areaDesc")[0].childNodes[0].nodeValue
@@ -513,7 +519,8 @@ def getIpawsAlert(lat=0, lon=0, shortAlerts = False):
                 if geocode_type == "SAME":
                     sameVal = geocode_value
             except Exception as e:
-                logger.warning(f"System: iPAWS Error extracting alert data: {e}")
+                logger.warning(f"System: iPAWS Error extracting alert data: {link}")
+                #print(f"DEBUG: {info.toprettyxml()}")
                 continue
 
             # check if the alert is for the current location, if wanted keep alert
@@ -552,4 +559,3 @@ def getIpawsAlert(lat=0, lon=0, shortAlerts = False):
         alert = NO_ALERTS
 
     return alert
-
