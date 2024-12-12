@@ -1,4 +1,5 @@
 #!/bin/bash
+# This script launches the meshing-around bot or the report generator in python virtual environment
 
 # launch.sh
 cd "$(dirname "$0")"
