@@ -76,10 +76,12 @@ if [ $venv == "y" ]; then
             printf "\nVirtual environment not found, trying `sudo apt-get install python3-venv`\n"
             sudo apt-get install python3-venv
         fi
+        # create virtual environment
+        python3 -m venv venv
+
         # double check for python3-venv
         if [ -f venv/bin/activate ]; then
             printf "\nFound virtual environment for python\n"
-            python3 -m venv venv
             source venv/bin/activate
         else
             printf "\nPython3 venv module not found, please install python3-venv with your OS\n"

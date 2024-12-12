@@ -1041,7 +1041,6 @@ async def handleSentinel(deviceID=1):
             if metadata.get('precisionBits') is not None:
                 resolution = metadata.get('precisionBits')
                 
-
         logger.warning(f"System: {enemySpotted} is close to your location on Interface1 Accuracy is {resolution}bits")
         send_message(f"Sentry{deviceID}: {enemySpotted}", secure_channel, 0, deviceID)
         if enableSMTP and email_sentry_alerts:
