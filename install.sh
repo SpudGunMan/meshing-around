@@ -180,3 +180,6 @@ if [ $reboot == "y" ]; then
     sudo reboot
 fi
 
+printf "\nInstallation complete!\n"
+exit 0
+
