@@ -1036,7 +1036,7 @@ async def handleSentinel(deviceID=1):
     
     if handleSentinel_loop >= sentry_holdoff and handleSentinel_spotted != enemySpotted:
         # check the positionMetadata for nodeID and get metadata
-        if positionMetadata and closest_nodes[0]['id'] in positionMetadata:
+        if closest_nodes and positionMetadata and closest_nodes[0]['id'] in positionMetadata:
             metadata = positionMetadata[closest_nodes[0]['id']]
             if metadata.get('precisionBits') is not None:
                 resolution = metadata.get('precisionBits')
