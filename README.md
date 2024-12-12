@@ -65,6 +65,7 @@ This project is developed on Linux (specifically a Raspberry Pi) but should work
 ### Installation
 
 #### Clone the Repository
+If you dont have git you will need it `sudo apt-get install git`
 ```sh
 git clone https://github.com/spudgunman/meshing-around
 ```
