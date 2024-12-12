@@ -4,29 +4,39 @@
 # install.sh
 cd "$(dirname "$0")"
 program_path=$(pwd)
-cp etc/pong_bot.tmp etc/pong_bot.service
-cp etc/mesh_bot.tmp etc/mesh_bot.service
-cp etc/mesh_bot_reporting.tmp etc/mesh_bot_reporting.service
-
 printf "\nMeshing Around Installer\n"
-printf "\nThis script will install the Meshing Around bot and its dependencies works best in debian/ubuntu\n"
+printf "\nThis script will try and install the Meshing Around Bot and its dependencies, works best in raspian/debian/ubuntu\n"
 printf "\nChecking for dependencies\n"
 
-
-# add user to groups for serial access
-printf "\nAdding user to dialout and tty groups for serial access\n"
-sudo usermod -a -G dialout $USER
-sudo usermod -a -G tty $USER
-sudo usermod -a -G bluetooth $USER
+if ! command -v python3 &> /dev/null
+then
+    printf "python3 not found, please install python3 with your OS\n"
+    exit 1
+fi
 
 # check for pip
 if ! command -v pip &> /dev/null
 then
-    printf "pip not found, please install pip with your OS\n"
+    printf "pip not found, trying 'apt-get install python3-pip'\n"
     sudo apt-get install python3-pip
-else
-    printf "python pip found\n"
 fi
+
+if ! command -v pip &> /dev/null
+then
+    printf "pip not found, please install pip with your OS\n"
+    exit 1
+fi
+
+# add user to groups for serial access
+printf "\nAdding user to dialout, bluetooth, and tty groups for serial access\n"
+sudo usermod -a -G dialout $USER
+sudo usermod -a -G tty $USER
+sudo usermod -a -G bluetooth $USER
+
+# copy service files
+cp etc/pong_bot.tmp etc/pong_bot.service
+cp etc/mesh_bot.tmp etc/mesh_bot.service
+cp etc/mesh_bot_reporting.tmp etc/mesh_bot_reporting.service
 
 # generate config file, check if it exists
 if [ -f config.ini ]; then
@@ -35,13 +45,9 @@ if [ -f config.ini ]; then
 fi
 
 cp config.template config.ini
-printf "\nConfig file generated\n"
+printf "\nConfig files generated\n"
 
-
-# set virtual environment and install dependencies
-printf "\nMeshing Around Installer\n"
-
-echo "Do you want to install the bot in a virtual environment? (y/n)"
+echo "\nDo you want to install the bot in a python virtual environment? (y/n)"
 read venv
 
 if [ $venv == "y" ]; then
@@ -56,7 +62,7 @@ if [ $venv == "y" ]; then
 
         #check if python3 has venv module
         if [ -f venv/bin/activate ]; then
-            printf "\nFpund virtual environment for python\n"
+            printf "\nFound virtual environment for python\n"
         else
             sudo apt-get install python3-venv
             printf "\nPython3 venv module not found, please install python3-venv with your OS if not already done. re-run the script\n"
