@@ -1,4 +1,5 @@
 #!/bin/bash
+# meshing-around install helper script
 
 # install.sh
 cd "$(dirname "$0")"
