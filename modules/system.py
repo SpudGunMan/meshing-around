@@ -51,9 +51,9 @@ if emergency_responder_enabled:
     
 # whoami Configuration
 if whoami_enabled:
-    trap_list_whoami = ("whoami", "📍")
+    trap_list_whoami = ("whoami", "📍", "whois")
     trap_list = trap_list + trap_list_whoami
-    help_message = help_message + ", whoami"
+    help_message = help_message + ", whoami, whois"
 
 # Solar Conditions Configuration
 if solar_conditions_enabled:
@@ -513,7 +513,7 @@ def send_message(message, ch, nodeid=0, nodeInt=1, bypassChuncking=False):
             if nodeid == 0:
                 # Send to channel
                 if wantAck:
-                    logger.info(f"Device:{nodeInt} Channel:{ch} " + CustomFormatter.red + f"req.ACK " + "Chunker{chunkOf} SendingChannel: " + CustomFormatter.white + m.replace('\n', ' '))
+                    logger.info(f"Device:{nodeInt} Channel:{ch} " + CustomFormatter.red + f"req.ACK " + f"Chunker{chunkOf} SendingChannel: " + CustomFormatter.white + m.replace('\n', ' '))
                     interface.sendText(text=m, channelIndex=ch, wantAck=True)
                 else:
                     logger.info(f"Device:{nodeInt} Channel:{ch} " + CustomFormatter.red + f"Chunker{chunkOf} SendingChannel: " + CustomFormatter.white + m.replace('\n', ' '))

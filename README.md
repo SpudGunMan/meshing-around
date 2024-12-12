@@ -354,6 +354,7 @@ There is no direct support for MQTT in the code, however, reports from Discord a
 | `test` | Returns like ping but also can be used to test the limits of data buffers `test 4` sends data to the maxBuffer limit (default 220) | ✅ |
 | `whereami` | Returns the address of the sender's location if known |
 | `whoami` | Returns details of the node asking, also returned when position exchanged 📍 | ✅ |
+| `whois` | Returns details known about node, more data with bbsadmin node | ✅ |
 | `motd` | Displays the message of the day or sets it. Example: `motd $New Message Of the day` | ✅ |
 | `lheard` | Returns the last 5 heard nodes with SNR. Can also use `sitrep` | ✅ |
 | `history` | Returns the last commands run by user(s) | ✅ |

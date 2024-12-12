@@ -77,6 +77,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "videopoker": lambda: handleVideoPoker(message, message_from_id, deviceID),
     "whereami": lambda: handle_whereami(message_from_id, deviceID, channel_number),
     "whoami": lambda: handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus),
+    "whois": lambda: handle_whois(message, deviceID, channel_number, message_from_id),
     "wiki:": lambda: handle_wiki(message, isDM),
     "wiki?": lambda: handle_wiki(message, isDM),
     "wx": lambda: handle_wxc(message_from_id, deviceID, 'wx'),
@@ -812,6 +813,46 @@ def handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus):
         logger.error(f"System: Error in whoami: {e}")
         msg = "Error in whoami"
     return msg
+
+def handle_whois(message, deviceID, channel_number, message_from_id):
+    #return data on a node name or number
+    if  "?" in message:
+        return message.split("?")[0].title() + " command returns information on a node."
+    else:
+        # get the nodeID from the message
+        msg = ''
+        node = ''
+        # find the requested node in db
+        if " " in message:
+            node = message.split(" ")[1]
+        if node.startswith("!") and len(node) == 9:
+            # mesh !hex
+            try:
+                node = int(node.strip("!"),16)
+            except ValueError as e:
+                node = 0
+        elif node.isalpha() or not node.isnumeric():
+            # try short name
+            node = get_num_from_short_name(node, deviceID)
+
+        # get details on the node
+        for i in range(len(seenNodes)):
+            if seenNodes[i]['nodeID'] == int(node):
+                msg = f"Node: {seenNodes[i]['nodeID']} is {get_name_from_number(seenNodes[i]['nodeID'], 'long', deviceID)}\n"
+                msg += f"Last 👀: {time.ctime(seenNodes[i]['lastSeen'])} "
+                break
+
+        if msg == '':
+            msg = "Provide a valid node number or short name"
+        else:
+            # if the user is an admin show the channel and interface and location
+            if str(message_from_id) in bbs_admin_list:
+                location = get_node_location(seenNodes[i]['nodeID'], deviceID, channel_number)
+                msg += f"Ch: {seenNodes[i]['channel']}, Int: {seenNodes[i]['rxInterface']}"
+                msg += f"Lat: {location[0]}, Lon: {location[1]}\n"
+                msg += f"Loc: {where_am_i(str(location[0]), str(location[1]))}\n"
+                
+        return msg
 
 def check_and_play_game(tracker, message_from_id, message_string, rxNode, channel_number, game_name, handle_game_func):
     global llm_enabled
