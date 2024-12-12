@@ -65,7 +65,8 @@ if [ $venv == "y" ]; then
         printf "Python3/venv error, please install python3-venv with your OS\n"
         exit 1
     else
-        echo "The Following could be messy, Creating virtual environment..."
+        echo "The Following could be messy, or take some time on slower devices."
+        echo "Creating virtual environment..."
         #check if python3 has venv module
         if [ -f venv/bin/activate ]; then
             printf "\nFound virtual environment for python\n"
