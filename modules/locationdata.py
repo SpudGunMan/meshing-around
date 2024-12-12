@@ -513,6 +513,7 @@ def getIpawsAlert(lat=0, lon=0, shortAlerts = False):
                     sameVal = geocode_value
             except Exception as e:
                 logger.warning(f"System: iPAWS Error extracting alert data: {e}")
+                geocode_value = "NONE"
                 continue
 
             # check if the alert is for the current location, if wanted keep alert
