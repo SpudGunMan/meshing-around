@@ -495,23 +495,25 @@ def getIpawsAlert(lat=0, lon=0, shortAlerts = False):
 
         for info in linked_xml.getElementsByTagName("info"):
             # extract values from XML
-            eventCode_table = info.getElementsByTagName("eventCode")[0]
-            alertType = eventCode_table.getElementsByTagName("valueName")[0].childNodes[0].nodeValue
-            alertCode = eventCode_table.getElementsByTagName("value")[0].childNodes[0].nodeValue
-            headline = info.getElementsByTagName("headline")[0].childNodes[0].nodeValue
-            description = ""
-            if info.getElementsByTagName("description"):
+            try:
+                eventCode_table = info.getElementsByTagName("eventCode")[0]
+                alertType = eventCode_table.getElementsByTagName("valueName")[0].childNodes[0].nodeValue
+                alertCode = eventCode_table.getElementsByTagName("value")[0].childNodes[0].nodeValue
+                headline = info.getElementsByTagName("headline")[0].childNodes[0].nodeValue
                 description = info.getElementsByTagName("description")[0].childNodes[0].nodeValue
 
-            area_table = info.getElementsByTagName("area")[0]
-            areaDesc = area_table.getElementsByTagName("areaDesc")[0].childNodes[0].nodeValue
-            
-            geocode_table = area_table.getElementsByTagName("geocode")[0]
-            geocode_type = geocode_table.getElementsByTagName("valueName")[0].childNodes[0].nodeValue
-            geocode_value = geocode_table.getElementsByTagName("value")[0].childNodes[0].nodeValue
-            sameVal = "NONE"
-            if geocode_type == "SAME":
-                sameVal = geocode_value
+                area_table = info.getElementsByTagName("area")[0]
+                areaDesc = area_table.getElementsByTagName("areaDesc")[0].childNodes[0].nodeValue
+                
+                geocode_table = area_table.getElementsByTagName("geocode")[0]
+                geocode_type = geocode_table.getElementsByTagName("valueName")[0].childNodes[0].nodeValue
+                geocode_value = geocode_table.getElementsByTagName("value")[0].childNodes[0].nodeValue
+                sameVal = "NONE"
+                if geocode_type == "SAME":
+                    sameVal = geocode_value
+            except Exception as e:
+                logger.warning(f"System: iPAWS Error extracting alert data: {e}")
+                continue
 
             # check if the alert is for the current location, if wanted keep alert
             if (sameVal in mySAME) or (geocode_value in mySAME):
