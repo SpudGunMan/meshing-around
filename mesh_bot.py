@@ -851,8 +851,7 @@ def handle_whois(message, deviceID, channel_number, message_from_id):
                 msg += f"Ch: {seenNodes[i]['channel']}, Int: {seenNodes[i]['rxInterface']}"
                 msg += f"Lat: {location[0]}, Lon: {location[1]}\n"
                 if location != [latitudeValue, longitudeValue]:
-                    msg += f"Loc: {where_am_i(str(location[0]), str(location[1]))}\n"
-                
+                    msg += f"Loc: {where_am_i(str(location[0]), str(location[1]))}"
         return msg
 
 def check_and_play_game(tracker, message_from_id, message_string, rxNode, channel_number, game_name, handle_game_func):
