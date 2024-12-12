@@ -77,7 +77,7 @@ if [ $venv == "y" ]; then
         fi
         # double check for python3-venv
         if ! python3 -m venv --help &> /dev/null; then
-            printf "Python3 venv module not found, please install python3-venv with your OS\n"
+            printf "\nPython3 venv module not found, please install python3-venv with your OS\n"
             exit 1
         fi
 
