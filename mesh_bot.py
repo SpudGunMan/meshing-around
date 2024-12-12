@@ -65,6 +65,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "pong": lambda: "🏓PING!!🛜",
     "readnews": lambda: read_news(),
     "rlist": lambda: handle_repeaterQuery(message_from_id, deviceID, channel_number),
+    "satpass": lambda: handle_satpass(message_from_id, deviceID, channel_number),
     "setemail": lambda: handle_email(message_from_id, message),
     "setsms": lambda: handle_sms( message_from_id, message),
     "sitrep": lambda: handle_lheard(message, message_from_id, deviceID, isDM),
@@ -290,6 +291,19 @@ llmRunCounter = 0
 llmTotalRuntime = []
 llmLocationTable = [{'nodeID': 1234567890, 'location': 'No Location'},]
 
+def handle_satpass(message_from_id, deviceID, channel_number):
+    location = get_node_location(message_from_id, deviceID)
+    passes = ''
+    # Detailed satellite pass
+    for bird in satList:
+        satPass = getNextSatellitePass(bird, str(location[0]), str(location[1]))
+        if satPass:
+            # append to passes
+            passes = passes + satPass + "\n"
+    if passes == '':
+        passes = "No 🛰️ anytime soon"
+    return passes
+        
 def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel):
     global llmRunCounter, llmLocationTable, llmTotalRuntime, cmdHistory
     location_name = 'no location provided'

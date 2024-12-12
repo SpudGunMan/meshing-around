@@ -57,9 +57,9 @@ if whoami_enabled:
 
 # Solar Conditions Configuration
 if solar_conditions_enabled:
-    from modules.solarconditions import * # from the spudgunman/meshing-around repo
+    from modules.space import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + trap_list_solarconditions # items hfcond, solar, sun, moon
-    help_message = help_message + ", sun, hfcond, solar, moon"
+    help_message = help_message + ", sun, hfcond, solar, moon, satpass"
 else:
     hf_band_conditions = False
 
@@ -591,23 +591,6 @@ def get_wikipedia_summary(search_term):
         return ERROR_FETCHING_DATA
     
     return summary
-
-def getPrettyTime(seconds):
-    # convert unix time to minutes, hours, or days, or years for simple display
-    designator = "s"
-    if seconds > 0:
-        seconds = round(seconds / 60)
-        designator = "m"
-    if seconds > 60:
-        seconds = round(seconds / 60)
-        designator = "h"
-    if seconds > 24:
-        seconds = round(seconds / 24)
-        designator = "d"
-    if seconds > 365:
-        seconds = round(seconds / 365)
-        designator = "y"
-    return str(seconds) + designator
 
 def messageTrap(msg):
     # Check if the message contains a trap word, this is the first filter for listning to messages

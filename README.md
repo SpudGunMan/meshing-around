@@ -31,6 +31,7 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 - **NOAA location Data**: Get localized weather(alerts) and Tide information. Open-Meteo is used for wx only outside NOAA coverage. 
 - **Wiki Integration**: Look up data using Wikipedia results.
 - **Ollama LLM AI**: Interact with the [Ollama](https://github.com/ollama/ollama/tree/main/docs) LLM AI for advanced queries and responses.
+- **Satalite Pass Info**: Get passes for satalite at your location.
 
 ### Proximity Alerts
 - **Location-Based Alerts**: Get notified when members arrive back at a configured lat/long, perfect for remote locations like campsites.
@@ -393,6 +394,7 @@ There is no direct support for MQTT in the code, however, reports from Discord a
 | `askai` and `ask:` | Ask Ollama LLM AI for a response. Example: `askai what temp do I cook chicken` | ✅ |
 | `messages` | Replays the last messages heard, like Store and Forward | ✅ |
 | `readnews` | returns the contents of a file (news.txt, by default) via the chunker on air | ✅ |
+| `satpass` | returns the pass info from API for defined NORAD ID in config | ✅ |
 
 ### Games (via DM)
 | Command | Description | |

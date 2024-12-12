@@ -138,20 +138,25 @@ IMAP_FOLDER = inbox
 enabled = True
 lat = 48.50
 lon = -123.0
+
+# Default to metric units rather than imperial
+useMetric = False
+
+# repeaterList lookup location (rbook / artsci)
+repeaterLookup = rbook
+
 # NOAA weather forecast days, the first two rows are today and tonight
 NOAAforecastDuration = 4
 # number of weather alerts to display
 NOAAalertCount = 2
 # use Open-Meteo API for weather data not NOAA useful for non US locations
 UseMeteoWxAPI = False
-# Default to metric units rather than imperial
-useMetric = False
-# repeaterList lookup location (rbook / artsci)
-repeaterLookup = rbook
+
 # EAS Alert Broadcast
 wxAlertBroadcastEnabled = False
 # EAS Alert Broadcast Channels
 wxAlertBroadcastCh = 2
+
 # FEMA IPAWS/CAP Alert Broadcast
 femaAlertBroadcastEnabled = False
 # FEMA IPAWS/CAP Alert Broadcast Channels
@@ -161,6 +166,12 @@ ignoreFEMAtest = True
 # comma separated list of codes (e.g., SAME,FIPS,ZIP) trigger local alert.
 # find your SAME https://www.weather.gov/nwr/counties
 mySAME = 053029,053073
+
+# Satalite Pass Prediction
+# Register for free API https://www.n2yo.com/login/
+n2yoAPIKey = 
+# NORAD list https://www.n2yo.com/satellites/
+satList = 25544,7530
 
 # repeater module
 [repeater]

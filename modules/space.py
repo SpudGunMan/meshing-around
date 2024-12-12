@@ -9,7 +9,7 @@ import ephem # pip install pyephem
 from datetime import timedelta
 from modules.log import *
 
-trap_list_solarconditions = ("sun", "solar", "hfcond")
+trap_list_solarconditions = ("sun", "solar", "hfcond", "satpass")
 
 def hf_band_conditions():
     # ham radio HF band conditions
@@ -140,3 +140,36 @@ def get_moon(lat=0, lon=0):
         + "\nFullMoon:" + moon_table['next_full_moon'] + "\nNewMoon:" + moon_table['next_new_moon']
     
     return moon_data
+
+def getNextSatellitePass(satellite, lat=0, lon=0):
+    pass_data = ''
+    # get the next satellite pass for a given satellite
+    visualPassAPI = "https://api.n2yo.com/rest/v1/satellite/visualpasses/"
+    if lat == 0 and lon == 0:
+        lat = latitudeValue
+        lon = longitudeValue
+    # API URL
+    if n2yoAPIKey == '':
+        logger.error("System: Missing API key free at https://www.n2yo.com/login/")
+    url = visualPassAPI + str(satellite) + "/" + str(lat) + "/" + str(lon) + "/0/2/300/" + "&apiKey=" + n2yoAPIKey
+    # get the next pass data
+    next_pass_data = requests.get(url, timeout=urlTimeoutSeconds)
+    if(next_pass_data.ok):
+        pass_json = next_pass_data.json()
+        if 'info' in pass_json and 'passescount' in pass_json['info'] and pass_json['info']['passescount'] > 0:
+            satname = pass_json['info']['satname']
+            pass_time = pass_json['passes'][0]['startUTC']
+            pass_duration = pass_json['passes'][0]['duration']
+            pass_maxEl = pass_json['passes'][0]['maxEl']
+            pass_rise_time = datetime.fromtimestamp(pass_time).strftime('%a %d %I:%M%p')
+            pass_startAzCompass = pass_json['passes'][0]['startAzCompass']
+            pass_set_time = datetime.fromtimestamp(pass_time + pass_duration).strftime('%a %d %I:%M%p')
+            pass__endAzCompass = pass_json['passes'][0]['endAzCompass']
+            pass_data = f"{satname} @{pass_rise_time} Az:{pass_startAzCompass} for{getPrettyTime(pass_duration)}, MaxEl:{pass_maxEl}° Set@{pass_set_time} Az:{pass__endAzCompass}"
+        elif pass_json['info']['passescount'] == 0:
+            satname = pass_json['info']['satname']
+            pass_data = f"{satname} has no upcoming passes"
+    else:
+        logger.error("System: Error fetching satellite pass data")
+        pass_data = ERROR_FETCHING_DATA
+    return pass_data
