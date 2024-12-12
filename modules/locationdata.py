@@ -502,12 +502,8 @@ def getIpawsAlert(lat=0, lon=0, shortAlerts = False):
                 alertType = eventCode_table.getElementsByTagName("valueName")[0].childNodes[0].nodeValue
                 alertCode = eventCode_table.getElementsByTagName("value")[0].childNodes[0].nodeValue
                 headline = info.getElementsByTagName("headline")[0].childNodes[0].nodeValue
-
-                # if no description
-                if len(info.getElementsByTagName("description")) > 0:
-                    description = headline
-                else:
-                    description = info.getElementsByTagName("description")[0].childNodes[0].nodeValue
+                # use headline if no description
+                description = info.getElementsByTagName("description")[0].childNodes[0].nodeValue if info.getElementsByTagName("description") and info.getElementsByTagName("description")[0].childNodes else headline
 
                 area_table = info.getElementsByTagName("area")[0]
                 areaDesc = area_table.getElementsByTagName("areaDesc")[0].childNodes[0].nodeValue
