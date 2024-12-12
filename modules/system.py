@@ -53,7 +53,7 @@ if emergency_responder_enabled:
 if whoami_enabled:
     trap_list_whoami = ("whoami", "📍", "whois")
     trap_list = trap_list + trap_list_whoami
-    help_message = help_message + ", whoami, whois"
+    help_message = help_message + ", whoami"
 
 # Solar Conditions Configuration
 if solar_conditions_enabled:
