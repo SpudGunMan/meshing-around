@@ -765,7 +765,7 @@ def displayNodeTelemetry(nodeID=0, rxNode=0, userRequested=False):
         telemetryData[0]['interface2'] = time.time()
 
     # some telemetry data is not available in python-meshtastic?
-    # bring in values from the last telemetry request for the node
+    # bring in values from the last telemetry dump for the node
     numPacketsTx = telemetryData[rxNode]['numPacketsTx']
     numPacketsRx = telemetryData[rxNode]['numPacketsRx']
     numPacketsTxErr = telemetryData[rxNode]['numPacketsTxErr']
