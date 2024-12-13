@@ -172,7 +172,7 @@ def get_tide(lat=0, lon=0):
         
         if station_json['stationList'] == [] or station_json['stationList'] is None:
             logger.error("Location:No tide station found")
-            return ERROR_FETCHING_DATA
+            return "No tide station found with info provided"
         
         station_id = station_json['stationList'][0]['stationId']
 
