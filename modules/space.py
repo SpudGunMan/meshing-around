@@ -154,23 +154,29 @@ def getNextSatellitePass(satellite, lat=0, lon=0):
         return "not configured, bug your sysop"
     url = visualPassAPI + str(satellite) + "/" + str(lat) + "/" + str(lon) + "/0/2/300/" + "&apiKey=" + n2yoAPIKey
     # get the next pass data
-    next_pass_data = requests.get(url, timeout=urlTimeoutSeconds)
-    if(next_pass_data.ok):
-        pass_json = next_pass_data.json()
-        if 'info' in pass_json and 'passescount' in pass_json['info'] and pass_json['info']['passescount'] > 0:
-            satname = pass_json['info']['satname']
-            pass_time = pass_json['passes'][0]['startUTC']
-            pass_duration = pass_json['passes'][0]['duration']
-            pass_maxEl = pass_json['passes'][0]['maxEl']
-            pass_rise_time = datetime.fromtimestamp(pass_time).strftime('%a %d %I:%M%p')
-            pass_startAzCompass = pass_json['passes'][0]['startAzCompass']
-            pass_set_time = datetime.fromtimestamp(pass_time + pass_duration).strftime('%a %d %I:%M%p')
-            pass__endAzCompass = pass_json['passes'][0]['endAzCompass']
-            pass_data = f"{satname} @{pass_rise_time} Az:{pass_startAzCompass} for{getPrettyTime(pass_duration)}, MaxEl:{pass_maxEl}° Set@{pass_set_time} Az:{pass__endAzCompass}"
-        elif pass_json['info']['passescount'] == 0:
-            satname = pass_json['info']['satname']
-            pass_data = f"{satname} has no upcoming passes"
-    else:
-        logger.error("System: Error fetching satellite pass data")
-        pass_data = ERROR_FETCHING_DATA
+    try:
+        if not int(satellite):
+            raise Exception("Invalid satellite number")
+        next_pass_data = requests.get(url, timeout=urlTimeoutSeconds)
+        if(next_pass_data.ok):
+            pass_json = next_pass_data.json()
+            if 'info' in pass_json and 'passescount' in pass_json['info'] and pass_json['info']['passescount'] > 0:
+                satname = pass_json['info']['satname']
+                pass_time = pass_json['passes'][0]['startUTC']
+                pass_duration = pass_json['passes'][0]['duration']
+                pass_maxEl = pass_json['passes'][0]['maxEl']
+                pass_rise_time = datetime.fromtimestamp(pass_time).strftime('%a %d %I:%M%p')
+                pass_startAzCompass = pass_json['passes'][0]['startAzCompass']
+                pass_set_time = datetime.fromtimestamp(pass_time + pass_duration).strftime('%a %d %I:%M%p')
+                pass__endAzCompass = pass_json['passes'][0]['endAzCompass']
+                pass_data = f"{satname} @{pass_rise_time} Az:{pass_startAzCompass} for{getPrettyTime(pass_duration)}, MaxEl:{pass_maxEl}° Set@{pass_set_time} Az:{pass__endAzCompass}"
+            elif pass_json['info']['passescount'] == 0:
+                satname = pass_json['info']['satname']
+                pass_data = f"{satname} has no upcoming passes"
+        else:
+            logger.error(f"System: Error fetching satellite pass data {satellite}")
+            pass_data = ERROR_FETCHING_DATA
+    except Exception as e:
+        logger.warning(f"System: User supplied value {satellite} unknown or invalid")
+        pass_data = "Provide NORAD# example use:🛰️satpass 25544,33591"
     return pass_data

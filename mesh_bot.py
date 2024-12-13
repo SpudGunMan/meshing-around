@@ -65,7 +65,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "pong": lambda: "🏓PING!!🛜",
     "readnews": lambda: read_news(),
     "rlist": lambda: handle_repeaterQuery(message_from_id, deviceID, channel_number),
-    "satpass": lambda: handle_satpass(message_from_id, deviceID, channel_number),
+    "satpass": lambda: handle_satpass(message_from_id, deviceID, channel_number, message),
     "setemail": lambda: handle_email(message_from_id, message),
     "setsms": lambda: handle_sms( message_from_id, message),
     "sitrep": lambda: handle_lheard(message, message_from_id, deviceID, isDM),
@@ -291,9 +291,20 @@ llmRunCounter = 0
 llmTotalRuntime = []
 llmLocationTable = [{'nodeID': 1234567890, 'location': 'No Location'},]
 
-def handle_satpass(message_from_id, deviceID, channel_number):
+def handle_satpass(message_from_id, deviceID, channel_number, message):
     location = get_node_location(message_from_id, deviceID)
     passes = ''
+    satList = satListConfig
+
+    # if user has a NORAD ID in the message
+    if "satpass " in message:
+        try:
+            userList = message.split("satpass ")[1].split(" ")[0]
+            #split userList and make into satList overrided the config.ini satList
+            satList = userList.split(",")
+        except:
+            return "example use:🛰️satpass 25544,33591"
+
     # Detailed satellite pass
     for bird in satList:
         satPass = getNextSatellitePass(bird, str(location[0]), str(location[1]))

@@ -164,7 +164,7 @@ try:
     wxAlertBroadcastEnabled = config['location'].getboolean('wxAlertBroadcastEnabled', False) # default False
     ignoreFEMAtest = config['location'].getboolean('ignoreFEMAtest', True) # default True
     n2yoAPIKey = config['location'].get('n2yoAPIKey', '') # default empty
-    satList = config['location'].get('satList', '25544').split(',') # default 25544 ISS
+    satListConfig = config['location'].get('satList', '25544').split(',') # default 25544 ISS
     # brodcast channel for weather alerts
     wxAlertBroadcastChannel = config['location'].get('wxAlertBroadcastCh')
     if wxAlertBroadcastChannel:
