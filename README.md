@@ -358,7 +358,7 @@ There is no direct support for MQTT in the code, however, reports from Discord a
 | `motd` | Displays the message of the day or sets it. Example: `motd $New Message Of the day` | ✅ |
 | `lheard` | Returns the last 5 heard nodes with SNR. Can also use `sitrep` | ✅ |
 | `history` | Returns the last commands run by user(s) | ✅ |
-| `sysinfo` | Returns the telemetry info | ✅ |
+| `sysinfo` | Returns the bot node telemetry info | ✅ |
 | `cmd` | Returns the list of commands (the help message) | ✅ |
 
 ### Radio Propagation & Weather Forcasting

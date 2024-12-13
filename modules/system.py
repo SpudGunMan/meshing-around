@@ -906,7 +906,7 @@ def get_sysinfo(nodeID=0, deviceID=1):
     sysinfo = ''
     stats = displayNodeTelemetry(nodeID, deviceID) + " 🤖👀" + str(len(seenNodes))
     if "numPacketsRx:0" in stats:
-        return "Gathering Telemetry try again later"
+        return "Gathering Telemetry try again later⏳"
     # replace Telemetry with Int in string
     stats = stats.replace("Telemetry", "Int")
     sysinfo += f"📊{stats}"
