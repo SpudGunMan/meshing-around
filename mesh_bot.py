@@ -312,6 +312,9 @@ def handle_satpass(message_from_id, deviceID, channel_number, message):
         if satPass:
             # append to passes
             passes = passes + satPass + "\n"
+    # remove the last newline
+    passes = passes[:-1]
+
     if passes == '':
         passes = "No 🛰️ anytime soon"
     return passes
