@@ -297,7 +297,7 @@ def handle_satpass(message_from_id, deviceID, channel_number, message):
     satList = satListConfig
 
     # if user has a NORAD ID in the message
-    if "satpass " in message:
+    if "satpass " in message.lower():
         try:
             userList = message.split("satpass ")[1].split(" ")[0]
             #split userList and make into satList overrided the config.ini satList
