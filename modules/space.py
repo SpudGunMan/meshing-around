@@ -151,6 +151,7 @@ def getNextSatellitePass(satellite, lat=0, lon=0):
     # API URL
     if n2yoAPIKey == '':
         logger.error("System: Missing API key free at https://www.n2yo.com/login/")
+        return "not configured, bug your sysop"
     url = visualPassAPI + str(satellite) + "/" + str(lat) + "/" + str(lon) + "/0/2/300/" + "&apiKey=" + n2yoAPIKey
     # get the next pass data
     next_pass_data = requests.get(url, timeout=urlTimeoutSeconds)
