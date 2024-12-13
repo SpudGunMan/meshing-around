@@ -25,6 +25,8 @@ port = /dev/ttyUSB0
 [general]
 # if False will respond on all channels but the default channel
 respond_by_dm_only = True
+# Allows auto-ping feature in a channel, False forces DM
+autoPingInChannel = False
 # defaultChannel is the meshtastic default public channel, e.g. LongFast (if none use -1)
 defaultChannel = 0
 # ignoreDefaultChannel, the bot will ignore the default channel set above

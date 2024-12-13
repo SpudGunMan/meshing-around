@@ -172,6 +172,7 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, chann
         msg = msg + " #" + message.split("#")[1]
         type = type + " #" + message.split("#")[1]
 
+
     # check for multi ping request
     if " " in message:
         # if stop multi ping
@@ -181,27 +182,35 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, chann
                     multiPingList.pop(i)
                     msg = "🛑 auto-ping"
 
-        # if 3 or more entries (2 or more active), throttle the multi-ping for congestion
-        if len(multiPingList) > 2:
-            msg = "🚫⛔️ auto-ping, service busy. ⏳Try again soon."
-            pingCount = -1
-        else:
-            # set inital pingCount
-            try:
-                pingCount = int(message.split(" ")[1])
-                if pingCount == 123 or pingCount == 1234:
-                    pingCount =  1
-                if pingCount > 51:
-                    pingCount = 50
-            except:
+        # disabled in channel
+        if autoPingInChannel and not isDM:
+            # if 3 or more entries (2 or more active), throttle the multi-ping for congestion
+            if len(multiPingList) > 2:
+                msg = "🚫⛔️ auto-ping, service busy. ⏳Try again soon."
                 pingCount = -1
-    
-        if pingCount > 1:
-            multiPingList.append({'message_from_id': message_from_id, 'count': pingCount + 1, 'type': type, 'deviceID': deviceID, 'channel_number': channel_number, 'startCount': pingCount})
-            if type == "🎙TEST":
-                msg = f"🛜Initalizing BufferTest, using chunks of about {int(maxBuffer // pingCount)}, max length {maxBuffer} in {pingCount} messages"
             else:
-                msg = f"🚦Initalizing {pingCount} auto-ping"
+                # set inital pingCount
+                try:
+                    pingCount = int(message.split(" ")[1])
+                    if pingCount == 123 or pingCount == 1234:
+                        pingCount =  1
+                    if pingCount > 51:
+                        pingCount = 50
+                except:
+                    pingCount = -1
+        
+            if pingCount > 1:
+                multiPingList.append({'message_from_id': message_from_id, 'count': pingCount + 1, 'type': type, 'deviceID': deviceID, 'channel_number': channel_number, 'startCount': pingCount})
+                if type == "🎙TEST":
+                    msg = f"🛜Initalizing BufferTest, using chunks of about {int(maxBuffer // pingCount)}, max length {maxBuffer} in {pingCount} messages"
+                else:
+                    msg = f"🚦Initalizing {pingCount} auto-ping"
+        else:
+            msg = "🔊AutoPing via DM only⛔️"
+
+    # if not a DM add the username to the beginning of msg
+    if not isDM:
+        msg = get_name_from_number(message_from_id) + msg
             
     return msg
 
