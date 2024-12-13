@@ -219,6 +219,11 @@ def handle_alertBell(message_from_id, deviceID, message):
     return random.choice(msg)
 
 def handle_emergency(message_from_id, deviceID, message):
+    # if user in bbs_ban_list return
+    if str(message_from_id) in bbs_ban_list:
+        # silent discard
+        logger.warning(f"System: {message_from_id} on spam list, no emergency responder alert sent")
+        return ''
     # trgger alert to emergency_responder_alert_channel
     if message_from_id != 0:
         if deviceID == 1: rxNode = myNodeNum1 
