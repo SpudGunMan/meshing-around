@@ -18,7 +18,6 @@ asyncLoop = asyncio.new_event_loop()
 games_enabled = False
 multiPingList = [{'message_from_id': 0, 'count': 0, 'type': '', 'deviceID': 0, 'channel_number': 0, 'startCount': 0}]
 
-
 # Ping Configuration
 if ping_enabled:
     # ping, pinging, ack, testing, test, pong
@@ -28,9 +27,9 @@ if ping_enabled:
 
 # Sitrep Configuration
 if sitrep_enabled:
-    trap_list_sitrep = ("sitrep", "lheard")
+    trap_list_sitrep = ("sitrep", "lheard", "sysinfo")
     trap_list = trap_list + trap_list_sitrep
-    help_message = help_message + ", sitrep"
+    help_message = help_message + ", sitrep, sysinfo"
 
 # MOTD Configuration
 if motd_enabled:
@@ -901,7 +900,18 @@ def consumeMetadata(packet, rxNode=0):
         if debugMetadata: print(f"DEBUG REMOTE_HARDWARE_APP: {packet}\n\n")
         # get the remote hardware data
         remote_hardware_data = packet['decoded']['remoteHardware']
-    
+
+def get_sysinfo(nodeID=0, deviceID=1):
+    # Get the system telemetry data for return on the sysinfo command
+    sysinfo = ''
+    stats = displayNodeTelemetry(nodeID, deviceID) + " 🤖👀" + str(len(seenNodes))
+    # replace Telemetry with Int in string
+    stats = stats.replace("Telemetry", "Int")
+    sysinfo += f"📊{stats}"
+    if interface2_enabled:
+        sysinfo += f"📊{stats}"
+
+    return sysinfo
 
 async def BroadcastScheduler():
     # handle schedule checks for the broadcast of messages

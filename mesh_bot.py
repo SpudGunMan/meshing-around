@@ -14,8 +14,6 @@ restrictedCommands = ["blackjack", "videopoker", "dopewars", "lemonstand", "golf
 restrictedResponse = "🤖only available in a Direct Message📵" # "" for none
 
 # Global Variables
-cmdHistory = [] # list to hold the last commands
-seenNodes = [] # list to hold the last seen nodes
 DEBUGpacket = False # Debug print the packet rx
 DEBUGhops = False # Debug print hop info and bad hop count packets
 
@@ -72,6 +70,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "sms:": lambda: handle_sms(message_from_id, message),
     "solar": lambda: drap_xray_conditions() + "\n" + solar_conditions(),
     "sun": lambda: handle_sun(message_from_id, deviceID, channel_number),
+    "sysinfo": lambda: sysinfo(message, message_from_id, deviceID),
     "test": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
     "testing": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
     "tide": lambda: handle_tide(message_from_id, deviceID, channel_number),
@@ -735,6 +734,12 @@ def handle_messages(message, deviceID, channel_number, msg_history, publicChanne
 def handle_sun(message_from_id, deviceID, channel_number):
     location = get_node_location(message_from_id, deviceID, channel_number)
     return get_sun(str(location[0]), str(location[1]))
+
+def sysinfo(message, message_from_id, deviceID):
+    if "?" in message:
+        return "sysinfo command returns system information."
+    else:
+        return get_sysinfo(message_from_id, deviceID)
 
 def handle_lheard(message, nodeid, deviceID, isDM):
     if  "?" in message and isDM:

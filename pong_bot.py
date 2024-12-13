@@ -9,7 +9,6 @@ from modules.log import *
 from modules.system import *
 
 # Global Variables
-cmdHistory = [] # list to hold the last commands
 DEBUGpacket = False # Debug print the packet rx
 
 def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_number, deviceID, isDM):
@@ -29,6 +28,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
         "ping": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
         "pong": lambda: "🏓PING!!🛜",
         "sitrep": lambda: handle_lheard(interface1, interface2_enabled, myNodeNum1, myNodeNum2),
+        "sysinfo": lambda: sysinfo(message, message_from_id, deviceID),
         "test": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
         "testing": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
     }
@@ -140,6 +140,12 @@ def handle_motd(message):
         return "MOTD Set to: " + MOTD
     else:
         return MOTD
+    
+def sysinfo(message, message_from_id, deviceID):
+    if "?" in message:
+        return "sysinfo command returns system information."
+    else:
+        return get_sysinfo(message_from_id, deviceID)
 
 def handle_lheard(message, nodeid, deviceID, isDM):
     if  "?" in message and isDM:
