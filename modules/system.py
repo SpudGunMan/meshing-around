@@ -750,17 +750,17 @@ def getNodeFirmware(nodeID=0, nodeInt=1):
         return fwVer
     return -1
 
-def displayNodeTelemetry(nodeID=0, rxNode=0):
+def displayNodeTelemetry(nodeID=0, rxNode=0, userRequested=False):
     interface = interface1 if rxNode == 1 else interface2
     global telemetryData
 
     # throttle the telemetry requests to prevent spamming the device
     if rxNode == 1:
-        if time.time() - telemetryData[0]['interface1'] < 600:
+        if time.time() - telemetryData[0]['interface1'] < 600 and not userRequested:
             return -1
         telemetryData[0]['interface1'] = time.time()
     elif rxNode == 2:
-        if time.time() - telemetryData[0]['interface2'] < 600:
+        if time.time() - telemetryData[0]['interface2'] < 600 and not userRequested:
             return -1
         telemetryData[0]['interface2'] = time.time()
 
@@ -904,7 +904,7 @@ def consumeMetadata(packet, rxNode=0):
 def get_sysinfo(nodeID=0, deviceID=1):
     # Get the system telemetry data for return on the sysinfo command
     sysinfo = ''
-    stats = str(displayNodeTelemetry(nodeID, deviceID)) + " 🤖👀" + str(len(seenNodes))
+    stats = str(displayNodeTelemetry(nodeID, deviceID, userRequested=True)) + " 🤖👀" + str(len(seenNodes))
     if "numPacketsRx:0" in stats or stats == -1:
         return "Gathering Telemetry try again later⏳"
     # replace Telemetry with Int in string
