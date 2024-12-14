@@ -156,12 +156,6 @@ if [ $bot == "mesh" ]; then
     sudo systemctl enable mesh_bot.service
 fi
 
-if [ $bot == "n" ]; then
-    if [ -f launch.sh ]; then
-        printf "\nTo run the bot, use the command: ./launch.sh\n"
-        ./launch.sh
-    fi
-fi
 # check if running on femtofox embedded
 if [ $(hostname) != "femtofox" ]; then
     # ask if emoji font should be installed for linux
