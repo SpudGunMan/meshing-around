@@ -209,10 +209,6 @@ def onReceive(packet, interface):
 
     # set the message_from_id
     message_from_id = packet['from']
-    
-    # check if the packet is from us
-    if message_from_id == myNodeNum1 or message_from_id == myNodeNum2:
-        logger.warning(f"System: Packet from self {message_from_id} loop or traffic replay deteted")
 
     # check if the packet has a channel flag use it
     if packet.get('channel'):
@@ -223,6 +219,10 @@ def onReceive(packet, interface):
         if 'decoded' in packet and packet['decoded']['portnum'] == 'TEXT_MESSAGE_APP':
             message_bytes = packet['decoded']['payload']
             message_string = message_bytes.decode('utf-8')
+
+            # check if the packet is from us
+            if message_from_id == myNodeNum1 or message_from_id == myNodeNum2:
+                logger.warning(f"System: Packet from self {message_from_id} loop or traffic replay deteted")
 
             # get the signal strength and snr if available
             if packet.get('rxSnr') or packet.get('rxRssi'):
