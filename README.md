@@ -5,6 +5,7 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 ![Example Use](etc/pong-bot.jpg "Example Use")
 
 ## Key Features
+![CodeQlBadge](https://github.com/SpudGunMan/meshing-around/actions/workflows/dynamic/github-code-scanning/codeql/badge.svg)
 
 ### Intelligent Keyword Responder
 - **Automated Responses**: The bot detects keywords like "ping" and responds with "pong" in direct messages (DMs) or group channels.
