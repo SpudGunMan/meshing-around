@@ -985,6 +985,10 @@ def onReceive(packet, interface):
         elif interface2_enabled and interface2_type == 'ble':
             rxNode = 2
 
+    # check if the packet is from us
+    if packet['from'] == myNodeNum1 or packet['from'] == myNodeNum2:
+        logger.warning(f"System: Packet from self {packet['from']} loop or traffic replay deteted")
+    
     # check if the packet has a channel flag use it
     if packet.get('channel'):
         channel_number = packet.get('channel', 0)
@@ -1185,7 +1189,7 @@ def onReceive(packet, interface):
                                 send_message(rMsg, channel_number, 0, 1)
         else:
             # Evaluate non TEXT_MESSAGE_APP packets
-            consumeMetadata(packet, rxNode)    
+            consumeMetadata(packet, rxNode)
     except KeyError as e:
         logger.critical(f"System: Error processing packet: {e} Device:{rxNode}")
         logger.debug(f"System: Error Packet = {packet}")
