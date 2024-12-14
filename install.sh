@@ -195,6 +195,16 @@ if [ $(hostname) != "femtofox" ]; then
     if [ $reboot == "y" ]; then
         sudo reboot
     fi
+else
+    # we are on femtofox embedded
+    # replace "type = serial" with "type = tcp" in config.ini
+    replace="s|type = serial|type = tcp|g"
+    sed -i "$replace" config.ini
+    # replace "# hostname = 192.168.0.1" with "hostname = localhost" in config.ini
+    replace="s|# hostname = 192.168.0.1|hostname = localhost|g"
+    sed -i "$replace" config.ini
+    printf "\nConfig file updated for femtofox embedded\n"
+
 fi
 
 printf "\nInstallation complete!\n"
