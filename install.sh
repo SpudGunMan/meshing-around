@@ -11,6 +11,12 @@ printf "\nThis script will try and install the Meshing Around Bot and its depend
 printf "Installer works best in raspian/debian/ubuntu, if there is a problem, try running the installer again.\n"
 printf "\nChecking for dependencies...\n"
 
+# if host is femtofox, exit with error
+if [ $(hostname) == "femtofox" ]; then
+    printf "\nThis script is not intended to be run on the femtofox embedded project\n"
+    exit 1
+fi
+
 # Check and install dependencies
 if ! command -v python3 &> /dev/null
 then
