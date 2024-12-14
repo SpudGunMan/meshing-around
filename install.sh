@@ -11,36 +11,35 @@ printf "\nThis script will try and install the Meshing Around Bot and its depend
 printf "Installer works best in raspian/debian/ubuntu, if there is a problem, try running the installer again.\n"
 printf "\nChecking for dependencies...\n"
 
-# if host is femtofox, exit with error
+# check if running on femtofox embedded
 if [ $(hostname) == "femtofox" ]; then
-    printf "\nThis script is not intended to be run on the femtofox embedded project\n"
-    exit 1
-fi
+    printf "\nDetected femtofox embedded skipping dependency installation\n"
+else
+    # Check and install dependencies
+    if ! command -v python3 &> /dev/null
+    then
+        printf "python3 not found, trying 'apt-get install python3 python3-pip'\n"
+        sudo apt-get install python3 python3-pip
+    fi
+    if ! command -v pip &> /dev/null
+    then
+        printf "pip not found, trying 'apt-get install python3-pip'\n"
+        sudo apt-get install python3-pip
+    fi
 
-# Check and install dependencies
-if ! command -v python3 &> /dev/null
-then
-    printf "python3 not found, trying 'apt-get install python3 python3-pip'\n"
-    sudo apt-get install python3 python3-pip
+    # double check for python3 and pip
+    if ! command -v python3 &> /dev/null
+    then
+        printf "python3 not found, please install python3 with your OS\n"
+        exit 1
+    fi
+    if ! command -v pip &> /dev/null
+    then
+        printf "pip not found, please install pip with your OS\n"
+        exit 1
+    fi
+    printf "\nDependencies installed\n"
 fi
-if ! command -v pip &> /dev/null
-then
-    printf "pip not found, trying 'apt-get install python3-pip'\n"
-    sudo apt-get install python3-pip
-fi
-
-# double check for python3 and pip
-if ! command -v python3 &> /dev/null
-then
-    printf "python3 not found, please install python3 with your OS\n"
-    exit 1
-fi
-if ! command -v pip &> /dev/null
-then
-    printf "pip not found, please install pip with your OS\n"
-    exit 1
-fi
-printf "\nDependencies installed\n"
 
 # add user to groups for serial access
 printf "\nAdding user to dialout, bluetooth, and tty groups for serial access\n"
@@ -65,55 +64,61 @@ printf "\nConfig files generated!\n"
 printf "\nDo you want to install the bot in a python virtual environment? (y/n)"
 read venv
 
-if [ $venv == "y" ]; then
-    # set virtual environment
-    if ! python3 -m venv --help &> /dev/null; then
-        printf "Python3/venv error, please install python3-venv with your OS\n"
-        exit 1
-    else
-        echo "The Following could be messy, or take some time on slower devices."
-        echo "Creating virtual environment..."
-        #check if python3 has venv module
-        if [ -f venv/bin/activate ]; then
-            printf "\nFound virtual environment for python\n"
-            python3 -m venv venv
-            source venv/bin/activate
-        else
-            printf "\nVirtual environment not found, trying `sudo apt-get install python3-venv`\n"
-            sudo apt-get install python3-venv
-        fi
-        # create virtual environment
-        python3 -m venv venv
-
-        # double check for python3-venv
-        if [ -f venv/bin/activate ]; then
-            printf "\nFound virtual environment for python\n"
-            source venv/bin/activate
-        else
-            printf "\nPython3 venv module not found, please install python3-venv with your OS\n"
-            exit 1
-        fi
-
-        printf "\nVirtual environment created\n"
-
-        # config service files for virtual environment
-        replace="s|python3 mesh_bot.py|/usr/bin/bash launch.sh mesh|g"
-        sed -i "$replace" etc/mesh_bot.service
-        replace="s|python3 pong_bot.py|/usr/bin/bash launch.sh pong|g"
-        sed -i "$replace" etc/pong_bot.service
-
-        # install dependencies
-        pip install -U -r requirements.txt
-    fi
+# check if running on femtofox embedded
+if [ $(hostname) == "femtofox" ]; then
+    printf "\nDetected femtofox embedded skipping venv\n"
 else
-    printf "\nSkipping virtual environment...\n"
-    # install dependencies
-    printf "Are you on Raspberry Pi(debian/ubuntu)?\nshould we add --break-system-packages to the pip install command? (y/n)"
-    read rpi
-    if [ $rpi == "y" ]; then
-        pip install -U -r requirements.txt --break-system-packages
+
+    if [ $venv == "y" ]; then
+        # set virtual environment
+        if ! python3 -m venv --help &> /dev/null; then
+            printf "Python3/venv error, please install python3-venv with your OS\n"
+            exit 1
+        else
+            echo "The Following could be messy, or take some time on slower devices."
+            echo "Creating virtual environment..."
+            #check if python3 has venv module
+            if [ -f venv/bin/activate ]; then
+                printf "\nFound virtual environment for python\n"
+                python3 -m venv venv
+                source venv/bin/activate
+            else
+                printf "\nVirtual environment not found, trying `sudo apt-get install python3-venv`\n"
+                sudo apt-get install python3-venv
+            fi
+            # create virtual environment
+            python3 -m venv venv
+
+            # double check for python3-venv
+            if [ -f venv/bin/activate ]; then
+                printf "\nFound virtual environment for python\n"
+                source venv/bin/activate
+            else
+                printf "\nPython3 venv module not found, please install python3-venv with your OS\n"
+                exit 1
+            fi
+
+            printf "\nVirtual environment created\n"
+
+            # config service files for virtual environment
+            replace="s|python3 mesh_bot.py|/usr/bin/bash launch.sh mesh|g"
+            sed -i "$replace" etc/mesh_bot.service
+            replace="s|python3 pong_bot.py|/usr/bin/bash launch.sh pong|g"
+            sed -i "$replace" etc/pong_bot.service
+
+            # install dependencies
+            pip install -U -r requirements.txt
+        fi
     else
-        pip install -U -r requirements.txt
+        printf "\nSkipping virtual environment...\n"
+        # install dependencies
+        printf "Are you on Raspberry Pi(debian/ubuntu)?\nshould we add --break-system-packages to the pip install command? (y/n)"
+        read rpi
+        if [ $rpi == "y" ]; then
+            pip install -U -r requirements.txt --break-system-packages
+        else
+            pip install -U -r requirements.txt
+        fi
     fi
 fi
 
@@ -157,41 +162,45 @@ if [ $bot == "n" ]; then
         ./launch.sh
     fi
 fi
-
-# ask if emoji font should be installed for linux
-printf "\nDo you want to install the emoji font for debian/ubuntu linux? (y/n)"
-read emoji
-if [ $emoji == "y" ]; then
-    sudo apt-get install -y fonts-noto-color-emoji
-    echo "Emoji font installed!, reboot to load the font"
-fi
-
-printf "\nOptionally if you want to install the multi gig LLM Ollama compnents we will execute the following commands\n"
-printf "\ncurl -fsSL https://ollama.com/install.sh | sh\n"
-
-# ask if the user wants to install the LLM Ollama components
-printf "\nDo you want to install the LLM Ollama components? (y/n)"
-read ollama
-if [ $ollama == "y" ]; then
-    curl -fsSL https://ollama.com/install.sh | sh
-
-    # ask if want to install gemma2:2b
-    printf "\n Ollama install done now we can install the Gemma2:2b components, multi GB download\n"
-    echo "Do you want to install the Gemma2:2b components? (y/n)"
-    read gemma
-    if [ $gemma == "y" ]; then
-        ollama pull gemma2:2b
+# check if running on femtofox embedded
+if [ $(hostname) != "femtofox" ]; then
+    # ask if emoji font should be installed for linux
+    printf "\nDo you want to install the emoji font for debian/ubuntu linux? (y/n)"
+    read emoji
+    if [ $emoji == "y" ]; then
+        sudo apt-get install -y fonts-noto-color-emoji
+        echo "Emoji font installed!, reboot to load the font"
     fi
-fi
 
-if [ $venv == "y" ]; then
-    printf "\nFor running in virtual, launch bot with './launch.sh mesh' in path $program_path\n"
-fi
 
-printf "\nGood time to reboot? (y/n)"
-read reboot
-if [ $reboot == "y" ]; then
-    sudo reboot
+    printf "\nOptionally if you want to install the multi gig LLM Ollama compnents we will execute the following commands\n"
+    printf "\ncurl -fsSL https://ollama.com/install.sh | sh\n"
+
+    # ask if the user wants to install the LLM Ollama components
+    printf "\nDo you want to install the LLM Ollama components? (y/n)"
+    read ollama
+    if [ $ollama == "y" ]; then
+        curl -fsSL https://ollama.com/install.sh | sh
+
+        # ask if want to install gemma2:2b
+        printf "\n Ollama install done now we can install the Gemma2:2b components, multi GB download\n"
+        echo "Do you want to install the Gemma2:2b components? (y/n)"
+        read gemma
+        if [ $gemma == "y" ]; then
+            ollama pull gemma2:2b
+        fi
+    fi
+
+
+    if [ $venv == "y" ]; then
+        printf "\nFor running in virtual, launch bot with './launch.sh mesh' in path $program_path\n"
+    fi
+
+    printf "\nGood time to reboot? (y/n)"
+    read reboot
+    if [ $reboot == "y" ]; then
+        sudo reboot
+    fi
 fi
 
 printf "\nInstallation complete!\n"
