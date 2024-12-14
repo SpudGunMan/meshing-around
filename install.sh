@@ -61,13 +61,12 @@ fi
 cp config.template config.ini
 printf "\nConfig files generated!\n"
 
-printf "\nDo you want to install the bot in a python virtual environment? (y/n)"
-read venv
-
 # check if running on femtofox embedded
 if [ $(hostname) == "femtofox" ]; then
     printf "\nDetected femtofox embedded skipping venv\n"
 else
+    printf "\nDo you want to install the bot in a python virtual environment? (y/n)"
+    read venv
 
     if [ $venv == "y" ]; then
         # set virtual environment
