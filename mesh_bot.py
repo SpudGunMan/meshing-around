@@ -984,10 +984,6 @@ def onReceive(packet, interface):
             rxNode = 1
         elif interface2_enabled and interface2_type == 'ble':
             rxNode = 2
-
-    # check if the packet is from us
-    if packet['from'] == myNodeNum1 or packet['from'] == myNodeNum2:
-        logger.warning(f"System: Packet from self {packet['from']} loop or traffic replay deteted")
     
     # check if the packet has a channel flag use it
     if packet.get('channel'):
@@ -995,6 +991,10 @@ def onReceive(packet, interface):
 
     # set the message_from_id
     message_from_id = packet['from']
+
+    # check if the packet is from us
+    if message_from_id == myNodeNum1 or message_from_id == myNodeNum2:
+        logger.warning(f"System: Packet from self {message_from_id} loop or traffic replay deteted")
 
     # if message_from_id is not in the seenNodes list add it
     if not any(node['nodeID'] == message_from_id for node in seenNodes):
