@@ -742,7 +742,7 @@ def getNodeFirmware(nodeID=0, nodeInt=1):
     # this is a workaround because .localNode.getMetadata spits out a lot of debug info which cant be suppressed
     # Create a StringIO object to capture the 
     output_capture = io.StringIO()
-    with contextlib.redirect_stdout(output_capture):
+    with contextlib.redirect_stdout(output_capture), contextlib.redirect_stderr(output_capture):
         interface.localNode.getMetadata()
     console_output = output_capture.getvalue()
     if "firmware_version" in console_output:
