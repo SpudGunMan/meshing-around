@@ -393,7 +393,8 @@ def alertBrodcast():
         wxAlertCache = ""
         return False
     # broadcast the alerts send to wxBrodcastCh
-    elif currentAlert[0] != wxAlertCache:
+    elif currentAlert[0] not in wxAlertCache:
+        # Check if the current alert is not in the weather alert cache
         logger.debug("Location:Broadcasting weather alerts")
         wxAlertCache = currentAlert[0]
         return currentAlert
