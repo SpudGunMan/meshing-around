@@ -1,4 +1,4 @@
-FROM python:3.10-slim
+FROM python:3.13-slim
 ENV PYTHONUNBUFFERED=1
 
 RUN apt-get update && apt-get install -y gettext tzdata locales && rm -rf /var/lib/apt/lists/*
