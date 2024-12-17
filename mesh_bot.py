@@ -648,16 +648,16 @@ def handleGolf(message, nodeID, deviceID):
 def handle_wxc(message_from_id, deviceID, cmd):
     location = get_node_location(message_from_id, deviceID)
     if use_meteo_wxApi and not "wxc" in cmd and not use_metric:
-        logger.debug("System: Bot Returning Open-Meteo API for weather imperial")
+        #logger.debug("System: Bot Returning Open-Meteo API for weather imperial")
         weather = get_wx_meteo(str(location[0]), str(location[1]))
     elif use_meteo_wxApi:
-        logger.debug("System: Bot Returning Open-Meteo API for weather metric")
+        #logger.debug("System: Bot Returning Open-Meteo API for weather metric")
         weather = get_wx_meteo(str(location[0]), str(location[1]), 1)
     elif not use_meteo_wxApi and "wxc" in cmd or use_metric:
-        logger.debug("System: Bot Returning NOAA API for weather metric")
+        #logger.debug("System: Bot Returning NOAA API for weather metric")
         weather = get_weather(str(location[0]), str(location[1]), 1)
     else:
-        logger.debug("System: Bot Returning NOAA API for weather imperial")
+        #logger.debug("System: Bot Returning NOAA API for weather imperial")
         weather = get_weather(str(location[0]), str(location[1]))
     return weather
 
