@@ -14,12 +14,6 @@ def get_wx_meteo(lat=0, lon=0, unit=0):
 	# set forcast days 1 or 3
 	forecastDays = 3
 
-	# Setup the Open-Meteo API client with cache and retry on error
-	#cache_session = requests_cache.CachedSession('.cache', expire_after = 3600)
-	#retry_session = retry(cache_session, retries = 5, backoff_factor = 0.2)
-	#retry_session = retry(retries = 3, backoff_factor = 0.2)
-	#openmeteo = openmeteo_requests.Client(session = retry_session)
-
 	# Make sure all required weather variables are listed here
 	# The order of variables in hourly or daily is important to assign them correctly below
 	url = "https://api.open-meteo.com/v1/forecast"
@@ -228,7 +222,7 @@ def get_flood_openmeteo(lat=0, lon=0):
 	# Check if we got a response
 	try:
 		# Process location
-		logger.debug(f"System: Pulled from Open-Meteo in {flood_data['timezone']} {flood_data['timezone_abbreviation']}")
+		logger.debug(f"System: Pulled River FLow Data from Open-Meteo {flood_data['timezone_abbreviation']}")
 		
 		# Ensure response is defined
 		response = flood_data
