@@ -49,7 +49,7 @@ def get_wx_meteo(lat=0, lon=0, unit=0):
 	# Check if we got a response
 	try:
 		# Process location
-		logger.debug(f"Got wx data from Open-Meteo in {weather_data['timezone']} {weather_data['timezone_abbreviation']}")
+		logger.debug(f"System: Pulled from Open-Meteo in {weather_data['timezone']} {weather_data['timezone_abbreviation']}")
 		
 		# Ensure response is defined
 		response = weather_data
