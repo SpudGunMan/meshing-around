@@ -1,4 +1,4 @@
-# helper functions to use location data like NOAA weather
+# helper functions to use location data for the API for NOAA weather, FEMA iPAWS, and repeater data
 # K7MHI Kelly Keeton 2024
 
 import json # pip install json
