@@ -200,3 +200,50 @@ def get_wx_meteo(lat=0, lon=0, unit=0):
 
 	return weather_report
 
+def get_flood_openmeteo(lat=0, lon=0):
+	# set forcast days 1 or 3
+	forecastDays = 3
+
+	if lat == 0 and lon == 0:
+		# Default to the location in config.ini
+		lat = latitudeValue
+		lon = longitudeValue
+	# Flood data
+	url = "https://flood-api.open-meteo.com/v1/flood"
+	params = {
+		"latitude": {lat},
+		"longitude": {lon},
+		"timezone": "auto",
+		"daily": "river_discharge",
+		"forecast_days": forecastDays
+	}
+
+	try:
+		# Fetch the flood data
+		flood_data = get_weather_data(url, params)
+	except Exception as e:
+		logger.error(f"Error fetching meteo flood data: {e}")
+		return ERROR_FETCHING_DATA
+	
+	# Check if we got a response
+	try:
+		# Process location
+		logger.debug(f"System: Pulled from Open-Meteo in {flood_data['timezone']} {flood_data['timezone_abbreviation']}")
+		
+		# Ensure response is defined
+		response = flood_data
+		
+		# Process daily data. The order of variables needs to be the same as requested.
+		daily = response['daily']
+		daily_river_discharge = daily['river_discharge']
+		# check if none
+
+	except Exception as e:
+		logger.error(f"Error processing meteo flood data: {e}")
+		return ERROR_FETCHING_DATA
+	
+	# create a flood report
+	flood_report = ""
+	flood_report += "River Discharge: " + str(daily_river_discharge) + "m3/s"
+
+	return flood_report
