@@ -6,8 +6,6 @@ requests
 maidenhead
 beautifulsoup4
 dadjokes
-openmeteo_requests
-retry_requests
 numpy
 geopy
 schedule

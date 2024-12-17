@@ -1,7 +1,14 @@
-import openmeteo_requests # pip install openmeteo-requests
-from retry_requests import retry # pip install retry_requests
-#import requests_cache
+#import openmeteo_requests # pip install openmeteo-requests
+#from retry_requests import retry # pip install retry_requests
+
+import requests
+import json
 from modules.log import *
+
+def get_weather_data(api_url, params):
+    response = requests.get(api_url, params=params)
+    response.raise_for_status()  # Raise an error for bad status codes
+    return response.json()
 
 def get_wx_meteo(lat=0, lon=0, unit=0):
 	# set forcast days 1 or 3
@@ -10,8 +17,8 @@ def get_wx_meteo(lat=0, lon=0, unit=0):
 	# Setup the Open-Meteo API client with cache and retry on error
 	#cache_session = requests_cache.CachedSession('.cache', expire_after = 3600)
 	#retry_session = retry(cache_session, retries = 5, backoff_factor = 0.2)
-	retry_session = retry(retries = 3, backoff_factor = 0.2)
-	openmeteo = openmeteo_requests.Client(session = retry_session)
+	#retry_session = retry(retries = 3, backoff_factor = 0.2)
+	#openmeteo = openmeteo_requests.Client(session = retry_session)
 
 	# Make sure all required weather variables are listed here
 	# The order of variables in hourly or daily is important to assign them correctly below
@@ -34,27 +41,29 @@ def get_wx_meteo(lat=0, lon=0, unit=0):
 
 	try:
 		# Fetch the weather data
-		responses = openmeteo.weather_api(url, params=params)
+		weather_data = get_weather_data(url, params)
 	except Exception as e:
 		logger.error(f"Error fetching meteo weather data: {e}")
 		return ERROR_FETCHING_DATA
 
 	# Check if we got a response
 	try:
-		# Process location 
-		response = responses[0]
-		logger.debug(f"Got wx data from Open-Meteo in {response.Timezone()} {response.TimezoneAbbreviation()}")
-
+		# Process location
+		logger.debug(f"Got wx data from Open-Meteo in {weather_data['timezone']} {weather_data['timezone_abbreviation']}")
+		
+		# Ensure response is defined
+		response = weather_data
+		
 		# Process daily data. The order of variables needs to be the same as requested.
-		daily = response.Daily()
-		daily_weather_code = daily.Variables(0).ValuesAsNumpy()
-		daily_temperature_2m_max = daily.Variables(1).ValuesAsNumpy()
-		daily_temperature_2m_min = daily.Variables(2).ValuesAsNumpy()
-		daily_precipitation_hours = daily.Variables(3).ValuesAsNumpy()
-		daily_precipitation_probability_max = daily.Variables(4).ValuesAsNumpy()
-		daily_wind_speed_10m_max = daily.Variables(5).ValuesAsNumpy()
-		daily_wind_gusts_10m_max = daily.Variables(6).ValuesAsNumpy()
-		daily_wind_direction_10m_dominant = daily.Variables(7).ValuesAsNumpy()
+		daily = response['daily']
+		daily_weather_code = daily['weather_code']
+		daily_temperature_2m_max = daily['temperature_2m_max']
+		daily_temperature_2m_min = daily['temperature_2m_min']
+		daily_precipitation_hours = daily['precipitation_hours']
+		daily_precipitation_probability_max = daily['precipitation_probability_max']
+		daily_wind_speed_10m_max = daily['wind_speed_10m_max']
+		daily_wind_gusts_10m_max = daily['wind_gusts_10m_max']
+		daily_wind_direction_10m_dominant = daily['wind_direction_10m_dominant']
 	except Exception as e:
 		logger.error(f"Error processing meteo weather data: {e}")
 		return ERROR_FETCHING_DATA

@@ -461,14 +461,6 @@ pip install schedule
 pip install wikipedia
 ```
 
-For open-meteo use:
-
-```sh
-pip install openmeteo_requests
-pip install retry_requests
-pip install numpy
-```
-
 For the Ollama LLM:
 
 ```sh
