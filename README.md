@@ -289,6 +289,7 @@ file_path = alert.txt
 broadcastCh = 2,4
 enable_read_news = False
 news_file_path = news.txt
+news_random_line = False # only return a single random line from the news file
 ```
 
 #### Offline EAS
