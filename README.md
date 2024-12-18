@@ -29,7 +29,7 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 - **E-Mail/SMS**: Send mesh-messages to E-Mail or SMS expanding visability.
 
 ### Interactive AI and Data Lookup
-- **NOAA location Data**: Get localized weather(alerts) and Tide information. Open-Meteo is used for wx only outside NOAA coverage. 
+- **NOAA location Data**: Get localized weather(alerts), River Flow, and Tide information. Open-Meteo is used for wx only outside NOAA coverage. 
 - **Wiki Integration**: Look up data using Wikipedia results.
 - **Ollama LLM AI**: Interact with the [Ollama](https://github.com/ollama/ollama/tree/main/docs) LLM AI for advanced queries and responses.
 - **Satalite Pass Info**: Get passes for satalite at your location.
@@ -146,6 +146,7 @@ enabled = True
 lat = 48.50
 lon = -123.0
 UseMeteoWxAPI = True
+riverListDefault = # NOAA Hydrology data, unique identifiers, LID or USGS ID
 ```
 
 ### Module Settings
@@ -373,6 +374,7 @@ There is no direct support for MQTT in the code, however, reports from Discord a
 | `wx` and `wxc` | Return local weather forecast (wxc is metric value), NOAA or Open Meteo for weather forecasting | |
 | `wxa` and `wxalert` | Return NOAA alerts. Short title or expanded details | |
 | `ea` and `ealert` | Return FEMA iPAWS/EAS alerts. Headline or expanded details | |
+| `riverflow` | Return information from NOAA for river flow info. Example: `riverflow modules/settings.py`| |
 
 ### Bulletin Board & Mail
 | Command | Description | |
