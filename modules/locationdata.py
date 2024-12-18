@@ -561,3 +561,52 @@ def getIpawsAlert(lat=0, lon=0, shortAlerts = False):
         alert = NO_ALERTS
 
     return alert
+
+def get_flood_noaa(lat=0, lon=0, uid=0):
+    # get the latest flood alert from NOAA
+    api_url = "https://api.water.noaa.gov/nwps/v1/gauges/"
+    headers = {'accept': 'application/json'}
+    if uid == 0:
+        return "No flood gauge data found"
+    try:
+        response = requests.get(api_url + str(uid), headers=headers, timeout=urlTimeoutSeconds)
+        if not response.ok:
+            logger.warning("Location:Error fetching flood gauge data from NOAA")
+            return ERROR_FETCHING_DATA
+    except (requests.exceptions.RequestException):
+        logger.warning("Location:Error fetching flood gauge data from NOAA")
+        return ERROR_FETCHING_DATA
+    
+    data = response.json()
+    if not data:
+        return "No flood gauge data found"
+    
+    # extract values from JSON
+    try:
+        name = data['name']
+        status_observed_primary = data['status']['observed']['primary']
+        status_observed_primary_unit = data['status']['observed']['primaryUnit']
+        status_observed_secondary = data['status']['observed']['secondary']
+        status_observed_secondary_unit = data['status']['observed']['secondaryUnit']
+        status_observed_floodCategory = data['status']['observed']['floodCategory']
+        status_forecast_primary = data['status']['forecast']['primary']
+        status_forecast_primary_unit = data['status']['forecast']['primaryUnit']
+        status_forecast_secondary = data['status']['forecast']['secondary']
+        status_forecast_secondary_unit = data['status']['forecast']['secondaryUnit']
+        status_forecast_floodCategory = data['status']['forecast']['floodCategory']
+
+        # except KeyError as e:
+        #     print(f"Missing key in data: {e}")
+        # except TypeError as e:
+        #     print(f"Type error in data: {e}")
+    except Exception as e:
+        logger.warning("Location:Error extracting flood gauge data from NOAA")
+        return ERROR_FETCHING_DATA
+    
+    # format the flood data
+    flood_data = f"Flood Gauge Data for {name}:\n"
+    flood_data += f"Observed: {status_observed_primary}{status_observed_primary_unit}({status_observed_secondary}{status_observed_secondary_unit}) risk: {status_observed_floodCategory}"
+    flood_data += f"\nForecast: {status_forecast_primary}{status_forecast_primary_unit}({status_forecast_secondary}{status_forecast_secondary_unit}) risk: {status_forecast_floodCategory}"
+
+    return flood_data
+
