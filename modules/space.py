@@ -9,7 +9,7 @@ import ephem # pip install pyephem
 from datetime import timedelta
 from modules.log import *
 
-trap_list_solarconditions = ("sun", "solar", "hfcond", "satpass")
+trap_list_solarconditions = ("sun", "moon", "solar", "hfcond", "satpass")
 
 def hf_band_conditions():
     # ham radio HF band conditions
