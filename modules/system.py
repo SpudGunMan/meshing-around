@@ -74,6 +74,10 @@ if location_enabled:
     from modules.locationdata import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + trap_list_location # items tide, whereami, wxc, wx
     help_message = help_message + ", whereami, wx, wxc, rlist"
+    if includeEUalerts:
+        from modules.locationdata_eu import * # from the spudgunman/meshing-around repo
+        trap_list = trap_list + trap_list_location_eu
+        #help_message = help_message + ", ukalert, ukwx, ukflood"
     
     # Open-Meteo Configuration for worldwide weather
     if use_meteo_wxApi:

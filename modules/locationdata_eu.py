@@ -9,13 +9,21 @@ import bs4 as bs # pip install beautifulsoup4
 import xml.dom.minidom 
 from modules.log import *
 
+trap_list_location_eu = ("ukalert", "ukwx", "ukflood")
+
 def get_govUK_alerts():
     # get UK weather alerts
     url = 'https://www.gov.uk/alerts'
     response = requests.get(url)
     soup = bs.BeautifulSoup(response.text, 'html.parser')
-    return "not implemented yet"
+    # the alerts are in <h2 class="govuk-heading-m" id="alert-status">
+    alert = soup.find('h2', class_='govuk-heading-m', id='alert-status')
 
+    if alert:
+        return alert.text
+    else:
+        return "No alerts"
+    
 def get_wxUKgov():
     # get UK weather warnings
     url = 'https://www.metoffice.gov.uk/weather/guides/rss'

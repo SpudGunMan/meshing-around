@@ -124,8 +124,10 @@ repeaterLookup = rbook
 NOAAforecastDuration = 4
 # number of weather alerts to display
 NOAAalertCount = 2
+
 # use Open-Meteo API for weather data not NOAA useful for non US locations
 UseMeteoWxAPI = False
+includeEUalerts = False
 
 # NOAA Hydrology
 # unique identifiers, LID or USGS ID
