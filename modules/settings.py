@@ -168,6 +168,7 @@ try:
     ignoreFEMAtest = config['location'].getboolean('ignoreFEMAtest', True) # default True
     n2yoAPIKey = config['location'].get('n2yoAPIKey', '') # default empty
     satListConfig = config['location'].get('satList', '25544').split(',') # default 25544 ISS
+    riverListDefault = config['location'].get('riverList', '').split(',') # default 12061500 Skagit River
     # brodcast channel for weather alerts
     wxAlertBroadcastChannel = config['location'].get('wxAlertBroadcastCh')
     if wxAlertBroadcastChannel:

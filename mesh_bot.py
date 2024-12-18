@@ -62,6 +62,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "pinging": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
     "pong": lambda: "🏓PING!!🛜",
     "readnews": lambda: read_news(),
+    "riverflow": lambda: handle_riverFlow(message, message_from_id, deviceID),
     "rlist": lambda: handle_repeaterQuery(message_from_id, deviceID, channel_number),
     "satpass": lambda: handle_satpass(message_from_id, deviceID, channel_number, message),
     "setemail": lambda: handle_email(message_from_id, message),
@@ -644,6 +645,27 @@ def handleGolf(message, nodeID, deviceID):
     # wait a second to keep from message collision
     time.sleep(responseDelay + 1)
     return msg
+
+def handle_riverFlow(message, message_from_id, deviceID):
+    location = get_node_location(message_from_id, deviceID)
+    if "riverflow " in message.lower():
+        userRiver = message.split("userriver ")[1]
+    else:
+        # if riverListDefault has multiple pass on if just one river clean up
+        if "," in riverListDefault:
+            riverList = riverListDefault.split(",")
+            userRiver = riverList[0].strip()
+        else:
+            userRiver = riverListDefault
+
+    # return river flow data
+    if use_meteo_wxApi:
+        return get_flood_openmeteo(location[0], location[1])
+    else:
+        for river in userRiver:
+            river = river.strip()
+            msg = get_flood_noaa(location[0], location[1], river)
+        return msg
 
 def handle_wxc(message_from_id, deviceID, cmd):
     location = get_node_location(message_from_id, deviceID)

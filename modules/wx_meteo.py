@@ -198,10 +198,6 @@ def get_flood_openmeteo(lat=0, lon=0):
 	# set forcast days 1 or 3
 	forecastDays = 3
 
-	if lat == 0 and lon == 0:
-		# Default to the location in config.ini
-		lat = latitudeValue
-		lon = longitudeValue
 	# Flood data
 	url = "https://flood-api.open-meteo.com/v1/flood"
 	params = {

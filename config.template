@@ -108,33 +108,6 @@ bbslink_enabled = False
 # list of whitelisted nodes numbers ex: 2813308004,4258675309 empty list allows all
 bbslink_whitelist = 
 
-[smtp]
-# enable or disable the SMTP module
-enableSMTP = False
-# enable or disable the IMAP module for inbound email
-enableImap = False
-# list of Sysop Emails seperate with commas
-sysopEmails =
-SMTP_SERVER = smtp.gmail.com
-# 587 SMTP over TLS/STARTTLS, 25 legacy SMTP, 465 SMTP over SSL
-SMTP_PORT = 587
-# Sender email: be mindful of public access, don't use your personal email
-FROM_EMAIL = none@gmail.com
-SMTP_AUTH = True
-SMTP_USERNAME = none@gmail.com
-SMTP_PASSWORD = none
-EMAIL_SUBJECT = Meshtastic✉️
-
-# IMAP not implimented yet
-IMAP_SERVER = imap.gmail.com
-# 993 IMAP over TLS/SSL, 143 legacy IMAP
-IMAP_PORT = 993
-# IMAP login usually same as SMTP
-IMAP_USERNAME = none@gmail.com
-IMAP_PASSWORD = none
-IMAP_FOLDER = inbox
-
-
 # location module
 [location]
 enabled = True
@@ -153,6 +126,10 @@ NOAAforecastDuration = 4
 NOAAalertCount = 2
 # use Open-Meteo API for weather data not NOAA useful for non US locations
 UseMeteoWxAPI = False
+
+# NOAA Hydrology
+# unique identifiers, LID or USGS ID
+riverListDefault = 
 
 # EAS Alert Broadcast
 wxAlertBroadcastEnabled = False
@@ -208,6 +185,32 @@ file_path = alert.txt
 broadcastCh = 2
 enable_read_news = False
 news_file_path = news.txt
+
+[smtp]
+# enable or disable the SMTP module
+enableSMTP = False
+# enable or disable the IMAP module for inbound email
+enableImap = False
+# list of Sysop Emails seperate with commas
+sysopEmails =
+SMTP_SERVER = smtp.gmail.com
+# 587 SMTP over TLS/STARTTLS, 25 legacy SMTP, 465 SMTP over SSL
+SMTP_PORT = 587
+# Sender email: be mindful of public access, don't use your personal email
+FROM_EMAIL = none@gmail.com
+SMTP_AUTH = True
+SMTP_USERNAME = none@gmail.com
+SMTP_PASSWORD = none
+EMAIL_SUBJECT = Meshtastic✉️
+
+# IMAP not implimented yet
+IMAP_SERVER = imap.gmail.com
+# 993 IMAP over TLS/SSL, 143 legacy IMAP
+IMAP_PORT = 993
+# IMAP login usually same as SMTP
+IMAP_USERNAME = none@gmail.com
+IMAP_PASSWORD = none
+IMAP_FOLDER = inbox
 
 [games]
 # if hop limit for the user exceeds this value, the message will be dropped

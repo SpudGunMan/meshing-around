@@ -9,7 +9,7 @@ import bs4 as bs # pip install beautifulsoup4
 import xml.dom.minidom 
 from modules.log import *
 
-trap_list_location = ("whereami", "tide", "moon", "wx", "wxc", "wxa", "wxalert", "rlist", "ea", "ealert")
+trap_list_location = ("whereami", "tide", "moon", "wx", "wxc", "wxa", "wxalert", "rlist", "ea", "ealert", "riverflow")
 
 def where_am_i(lat=0, lon=0, short=False, zip=False):
     whereIam = ""
@@ -604,7 +604,7 @@ def get_flood_noaa(lat=0, lon=0, uid=0):
         return ERROR_FETCHING_DATA
     
     # format the flood data
-    flood_data = f"Flood Gauge Data for {name}:\n"
+    flood_data = f"Flood Data {name}:\n"
     flood_data += f"Observed: {status_observed_primary}{status_observed_primary_unit}({status_observed_secondary}{status_observed_secondary_unit}) risk: {status_observed_floodCategory}"
     flood_data += f"\nForecast: {status_forecast_primary}{status_forecast_primary_unit}({status_forecast_secondary}{status_forecast_secondary_unit}) risk: {status_forecast_floodCategory}"
 
