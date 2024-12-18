@@ -571,10 +571,10 @@ def get_flood_noaa(lat=0, lon=0, uid=0):
     try:
         response = requests.get(api_url + str(uid), headers=headers, timeout=urlTimeoutSeconds)
         if not response.ok:
-            logger.warning("Location:Error fetching flood gauge data from NOAA")
+            logger.warning("Location:Error fetching flood gauge data from NOAA for " + str(uid))
             return ERROR_FETCHING_DATA
     except (requests.exceptions.RequestException):
-        logger.warning("Location:Error fetching flood gauge data from NOAA")
+        logger.warning("Location:Error fetching flood gauge data from NOAA for " + str(uid))
         return ERROR_FETCHING_DATA
     
     data = response.json()
@@ -600,10 +600,11 @@ def get_flood_noaa(lat=0, lon=0, uid=0):
         # except TypeError as e:
         #     print(f"Type error in data: {e}")
     except Exception as e:
-        logger.warning("Location:Error extracting flood gauge data from NOAA")
+        logger.warning("Location:Error extracting flood gauge data from NOAA for " + str(uid))
         return ERROR_FETCHING_DATA
     
     # format the flood data
+    logger.debug(f"System: NOAA Flood data for {str(uid)}")
     flood_data = f"Flood Data {name}:\n"
     flood_data += f"Observed: {status_observed_primary}{status_observed_primary_unit}({status_observed_secondary}{status_observed_secondary_unit}) risk: {status_observed_floodCategory}"
     flood_data += f"\nForecast: {status_forecast_primary}{status_forecast_primary_unit}({status_forecast_secondary}{status_forecast_secondary_unit}) risk: {status_forecast_floodCategory}"
