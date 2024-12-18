@@ -21,7 +21,7 @@ def get_wxUKgov():
     url = 'https://www.metoffice.gov.uk/weather/guides/rss'
     return "not implemented yet"
     
-def get_floodEKgov():
+def get_floodUKgov():
     # get UK flood warnings
     url = 'https://environment.data.gov.uk/flood-widgets/rss-feeds.html'
     return "not implemented yet"
