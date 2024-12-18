@@ -282,9 +282,9 @@ def handle_wxalert(message_from_id, deviceID, message):
         location = get_node_location(message_from_id, deviceID)
         if "wxalert" in message:
             # Detailed weather alert
-            weatherAlert = getActiveWeatherAlertsDetail(str(location[0]), str(location[1]))
+            weatherAlert = getActiveWeatherAlertsDetailNOAA(str(location[0]), str(location[1]))
         else:
-            weatherAlert = getWeatherAlerts(str(location[0]), str(location[1]))
+            weatherAlert = getWeatherAlertsNOAA(str(location[0]), str(location[1]))
         
         if NO_ALERTS not in weatherAlert:
             weatherAlert = weatherAlert[0]
@@ -680,10 +680,10 @@ def handle_wxc(message_from_id, deviceID, cmd):
         weather = get_wx_meteo(str(location[0]), str(location[1]), 1)
     elif not use_meteo_wxApi and "wxc" in cmd or use_metric:
         #logger.debug("System: Bot Returning NOAA API for weather metric")
-        weather = get_weather(str(location[0]), str(location[1]), 1)
+        weather = get_NOAAweather(str(location[0]), str(location[1]), 1)
     else:
         #logger.debug("System: Bot Returning NOAA API for weather imperial")
-        weather = get_weather(str(location[0]), str(location[1]))
+        weather = get_NOAAweather(str(location[0]), str(location[1]))
     return weather
 
 def handle_fema_alerts(message, message_from_id, deviceID):
@@ -857,7 +857,7 @@ def handle_repeaterQuery(message_from_id, deviceID, channel_number):
 
 def handle_tide(message_from_id, deviceID, channel_number):
     location = get_node_location(message_from_id, deviceID, channel_number)
-    return get_tide(str(location[0]), str(location[1]))
+    return get_NOAAtide(str(location[0]), str(location[1]))
 
 def handle_moon(message_from_id, deviceID, channel_number):
     location = get_node_location(message_from_id, deviceID, channel_number)

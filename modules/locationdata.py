@@ -154,9 +154,8 @@ def getArtSciRepeaters(lat=0, lon=0):
     else:
         msg = f"no results.. sorry"
     return msg
-    
 
-def get_tide(lat=0, lon=0):
+def get_NOAAtide(lat=0, lon=0):
     station_id = ""
     if float(lat) == 0 and float(lon) == 0:
         logger.error("Location:No GPS data, try sending location for tide")
@@ -219,7 +218,7 @@ def get_tide(lat=0, lon=0):
     tide_table = tide_table[:-1]
     return tide_table
     
-def get_weather(lat=0, lon=0, unit=0):
+def get_NOAAweather(lat=0, lon=0, unit=0):
     # get weather report from NOAA for forecast detailed
     weather = ""
     if float(lat) == 0 and float(lon) == 0:
@@ -263,7 +262,7 @@ def get_weather(lat=0, lon=0, unit=0):
     weather = weather[:-1]
 
     # get any alerts and return the count
-    alerts = getWeatherAlerts(lat, lon)
+    alerts = getWeatherAlertsNOAA(lat, lon)
 
     if alerts == ERROR_FETCHING_DATA or alerts == NO_DATA_NOGPS or alerts == NO_ALERTS:
         alert = ""
@@ -333,7 +332,7 @@ def abbreviate_noaa(row):
                     
     return line
 
-def getWeatherAlerts(lat=0, lon=0, useDefaultLatLon=False):
+def getWeatherAlertsNOAA(lat=0, lon=0, useDefaultLatLon=False):
     # get weather alerts from NOAA limited to ALERT_COUNT with the total number of alerts found
     alerts = ""
     if float(lat) == 0 and float(lon) == 0 and not useDefaultLatLon:
@@ -381,27 +380,27 @@ def getWeatherAlerts(lat=0, lon=0, useDefaultLatLon=False):
     data = "\n".join(alerts.split("\n")[:numWxAlerts]), alert_num
     return data
 
-wxAlertCache = ""
-def alertBrodcast():
+wxAlertCacheNOAA = ""
+def alertBrodcastNOAA():
     # get the latest weather alerts and broadcast them if there are any
-    global wxAlertCache
-    currentAlert = getWeatherAlerts(latitudeValue, longitudeValue)
+    global wxAlertCacheNOAA
+    currentAlert = getWeatherAlertsNOAA(latitudeValue, longitudeValue)
     # check if any reason to discard the alerts
     if currentAlert == ERROR_FETCHING_DATA or currentAlert == NO_DATA_NOGPS:
         return False
     elif currentAlert == NO_ALERTS:
-        wxAlertCache = ""
+        wxAlertCacheNOAA = ""
         return False
     # broadcast the alerts send to wxBrodcastCh
-    elif currentAlert[0] not in wxAlertCache:
+    elif currentAlert[0] not in wxAlertCacheNOAA:
         # Check if the current alert is not in the weather alert cache
         logger.debug("Location:Broadcasting weather alerts")
-        wxAlertCache = currentAlert[0]
+        wxAlertCacheNOAA = currentAlert[0]
         return currentAlert
     
     return False
 
-def getActiveWeatherAlertsDetail(lat=0, lon=0):
+def getActiveWeatherAlertsDetailNOAA(lat=0, lon=0):
     # get the latest details of weather alerts from NOAA
     alerts = ""
     if float(lat) == 0 and float(lon) == 0:

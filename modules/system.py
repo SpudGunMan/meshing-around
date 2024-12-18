@@ -671,7 +671,7 @@ def handleWxBroadcast(deviceID=1):
         return False
     
     # check for alerts
-    alert = alertBrodcast()
+    alert = alertBrodcastNOAA()
     if alert:
         msg = f"🚨 {alert[1]} EAS ALERTs: {alert[0]}"
         if isinstance(wxAlertBroadcastChannel, list):
