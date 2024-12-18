@@ -224,6 +224,7 @@ try:
     file_monitor_broadcastCh = config['fileMon'].getint('broadcastCh', 2) # default 2
     read_news_enabled = config['fileMon'].getboolean('enable_read_news', False) # default disabled
     news_file_path = config['fileMon'].get('news_file_path', 'news.txt') # default news.txt
+    news_random_line_only = config['fileMon'].getboolean('news_random_line', False) # default False
 
     # games
     game_hop_limit = config['messagingSettings'].getint('game_hop_limit', 5) # default 3 hops

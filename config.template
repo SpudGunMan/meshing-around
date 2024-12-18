@@ -185,6 +185,8 @@ file_path = alert.txt
 broadcastCh = 2
 enable_read_news = False
 news_file_path = news.txt
+# only return a single random line from the news file
+news_random_line = False
 
 [smtp]
 # enable or disable the SMTP module

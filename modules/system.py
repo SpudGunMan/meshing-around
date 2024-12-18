@@ -190,7 +190,7 @@ if file_monitor_enabled or read_news_enabled:
     from modules.filemon import * # from the spudgunman/meshing-around repo
     if read_news_enabled:
         trap_list = trap_list + trap_list_filemon # items readnews
-        help_message = help_message + ", readmail"
+        help_message = help_message + ", readnews"
 
 # clean up the help message
 help_message = help_message.split(", ")
