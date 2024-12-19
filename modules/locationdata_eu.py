@@ -12,14 +12,19 @@ from modules.log import *
 trap_list_location_eu = ("ukalert", "ukwx", "ukflood")
 
 def get_govUK_alerts():
-    # get UK weather alerts
-    url = 'https://www.gov.uk/alerts'
-    response = requests.get(url)
-    soup = bs.BeautifulSoup(response.text, 'html.parser')
-    # the alerts are in <h2 class="govuk-heading-m" id="alert-status">
-    alert = soup.find('h2', class_='govuk-heading-m', id='alert-status')
+    try:
+        # get UK.gov alerts
+        url = 'https://www.gov.uk/alerts'
+        response = requests.get(url)
+        soup = bs.BeautifulSoup(response.text, 'html.parser')
+        # the alerts are in <h2 class="govuk-heading-m" id="alert-status">
+        alert = soup.find('h2', class_='govuk-heading-m', id='alert-status')
+    except Exception as e:
+        logger.warning("Error getting UK alerts: " + str(e))
+        return "System: Error getting UK alerts"
+    
     if alert:
-        return alert.get_text(strip=True)
+        return "🚨" + alert.get_text(strip=True)
     else:
         return "No alerts"
     

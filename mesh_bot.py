@@ -277,7 +277,10 @@ def handle_motd(message, message_from_id, isDM):
 
 def handle_wxalert(message_from_id, deviceID, message):
     if use_meteo_wxApi:
-        return "wxalert is not supported"
+        if useEUalerts:
+            return get_govUK_alerts()
+        else:
+            return "wxalert is not supported"
     else:
         location = get_node_location(message_from_id, deviceID)
         if "wxalert" in message:
