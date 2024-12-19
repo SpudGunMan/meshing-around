@@ -49,6 +49,7 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 - **FEMA iPAWS/EAS Alerts via API**: Use an internet-connected node to message Emergency Alerts from FEMA
 - **NOAA EAS Alerts via API**: Use an internet-connected node to message Emergency Alerts from NOAA.
 - **EAS Alerts over the air**: Utilizing external tools to report EAS alerts offline over mesh.
+- **UK.GOV Alerts**: Pulling data form the UK.GOV alert page
 
 ### File Monitor Alerts
 - **File Monitor**: Monitor a flat/text file for changes, broadcast the contents of the message to the mesh channel.
@@ -374,7 +375,7 @@ There is no direct support for MQTT in the code, however, reports from Discord a
 | `rlist` | Returns a table of nearby repeaters from RepeaterBook | |
 | `wx` and `wxc` | Return local weather forecast (wxc is metric value), NOAA or Open Meteo for weather forecasting | |
 | `wxa` and `wxalert` | Return NOAA alerts. Short title or expanded details | |
-| `ea` and `ealert` | Return FEMA iPAWS/EAS alerts. Headline or expanded details | |
+| `ea` and `ealert` | Return FEMA iPAWS/EAS alerts in USA or UK. Headline or expanded details for USA | |
 | `riverflow` | Return information from NOAA for river flow info. Example: `riverflow modules/settings.py`| |
 
 ### Bulletin Board & Mail
