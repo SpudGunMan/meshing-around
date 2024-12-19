@@ -35,5 +35,6 @@ def get_wxUKgov():
     
 def get_floodUKgov():
     # get UK flood warnings
-    url = 'https://environment.data.gov.uk/flood-widgets/rss-feeds.html'
+    url = 'https://environment.data.gov.uk/flood-widgets/rss/feed-England.xml'
+    
     return "not implemented yet"
