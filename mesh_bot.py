@@ -277,10 +277,7 @@ def handle_motd(message, message_from_id, isDM):
 
 def handle_wxalert(message_from_id, deviceID, message):
     if use_meteo_wxApi:
-        if useEUalerts:
-            return get_govUK_alerts()
-        else:
-            return "wxalert is not supported"
+        return "wxalert is not supported"
     else:
         location = get_node_location(message_from_id, deviceID)
         if "wxalert" in message:
@@ -691,11 +688,14 @@ def handle_wxc(message_from_id, deviceID, cmd):
 
 def handle_fema_alerts(message, message_from_id, deviceID):
     location = get_node_location(message_from_id, deviceID)
+    if enableUKalerts:
+        # UK Alerts
+        return get_govUK_alerts(str(location[0]), str(location[1]))
     if message.lower().startswith("ealert"):
-        # Detailed alert
+        # Detailed alert FEMA
         return getIpawsAlert(str(location[0]), str(location[1]))
     else:
-        # Headlines only
+        # Headlines only FEMA
         return getIpawsAlert(str(location[0]), str(location[1]), shortAlerts=True)
 
 def handle_bbspost(message, message_from_id, deviceID):
