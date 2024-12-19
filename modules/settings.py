@@ -155,7 +155,7 @@ try:
     latitudeValue = config['location'].getfloat('lat', 48.50)
     longitudeValue = config['location'].getfloat('lon', -123.0)
     use_meteo_wxApi = config['location'].getboolean('UseMeteoWxAPI', False) # default False use NOAA
-    enableUKalerts = config['location'].getboolean('enableUKalerts', False) # default False
+    enableGBalerts = config['location'].getboolean('enableUKalerts', False) # default False
     use_metric = config['location'].getboolean('useMetric', False) # default Imperial units
     forecastDuration = config['location'].getint('NOAAforecastDuration', 4) # NOAA forcast days
     numWxAlerts = config['location'].getint('NOAAalertCount', 2) # default 2 alerts

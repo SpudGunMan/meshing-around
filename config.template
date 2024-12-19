@@ -127,7 +127,7 @@ NOAAalertCount = 2
 
 # use Open-Meteo API for weather data not NOAA useful for non US locations
 UseMeteoWxAPI = False
-enableUKalerts = False
+enableGBalerts = False
 
 # NOAA Hydrology
 # unique identifiers, LID or USGS ID

@@ -688,7 +688,7 @@ def handle_wxc(message_from_id, deviceID, cmd):
 
 def handle_fema_alerts(message, message_from_id, deviceID):
     location = get_node_location(message_from_id, deviceID)
-    if enableUKalerts:
+    if enableGBalerts:
         # UK Alerts
         return get_govUK_alerts(str(location[0]), str(location[1]))
     if message.lower().startswith("ealert"):
