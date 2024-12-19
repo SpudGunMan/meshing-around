@@ -18,9 +18,8 @@ def get_govUK_alerts():
     soup = bs.BeautifulSoup(response.text, 'html.parser')
     # the alerts are in <h2 class="govuk-heading-m" id="alert-status">
     alert = soup.find('h2', class_='govuk-heading-m', id='alert-status')
-
     if alert:
-        return alert.text
+        return alert.get_text(strip=True)
     else:
         return "No alerts"
     
