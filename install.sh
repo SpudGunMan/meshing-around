@@ -11,9 +11,23 @@ printf "\nThis script will try and install the Meshing Around Bot and its depend
 printf "Installer works best in raspian/debian/ubuntu, if there is a problem, try running the installer again.\n"
 printf "\nChecking for dependencies...\n"
 
-# check if running on femtofox embedded
-if [ $(hostname) == "femtofox" ]; then
-    printf "\nDetected femtofox embedded skipping dependency installation\n"
+# check if running on embedded
+printf "\nAre You installing into an embedded system? (y/n)"
+read embedded
+
+if [ $embedded == "y" ]; then
+    printf "\nDetected embedded skipping dependency installation\n"
+    if [ $program_path != "/opt/meshing-around" ]; then
+        printf "\nIt is suggested to project path to /opt/meshing-around\n"
+        printf "Do you want to move the project to /opt/meshing-around? (y/n)"
+        read move
+        if [ $move == "y" ]; then
+            sudo mv $program_path /opt/meshing-around
+            cd /opt/meshing-around
+            printf "\nProject moved to /opt/meshing-around. re-run the installer\n"
+            exit 0
+        fi
+    fi
 else
     # Check and install dependencies
     if ! command -v python3 &> /dev/null
@@ -61,9 +75,9 @@ fi
 cp config.template config.ini
 printf "\nConfig files generated!\n"
 
-# check if running on femtofox embedded
-if [ $(hostname) == "femtofox" ]; then
-    printf "\nDetected femtofox embedded skipping venv\n"
+# check if running on embedded
+if [ $embedded == "y" ]; then
+    printf "\nDetected embedded skipping venv\n"
 else
     printf "\nDo you want to install the bot in a python virtual environment? (y/n)"
     read venv
@@ -144,19 +158,25 @@ sudo systemctl daemon-reload
 printf "\n service files updated\n"
 
 if [ $bot == "pong" ]; then
+    echo "useradd -M meshbot"
+    echo "usermod -L meshbot"
+    echo "Added user meshbot with no home directory"
     # install service for pong bot
     sudo cp etc/pong_bot.service /etc/systemd/system/
     sudo systemctl enable pong_bot.service
 fi
 
 if [ $bot == "mesh" ]; then
+    echo "useradd -M meshbot"
+    echo "usermod -L meshbot"
+    echo "Added user meshbot with no home directory"
     # install service for mesh bot
     sudo cp etc/mesh_bot.service /etc/systemd/system/
     sudo systemctl enable mesh_bot.service
 fi
 
-# check if running on femtofox embedded
-if [ $(hostname) != "femtofox" ]; then
+# check if running on embedded
+if [ $embedded == "n" ]; then
     # ask if emoji font should be installed for linux
     printf "\nDo you want to install the emoji font for debian/ubuntu linux? (y/n)"
     read emoji
@@ -195,15 +215,14 @@ if [ $(hostname) != "femtofox" ]; then
         sudo reboot
     fi
 else
-    # we are on femtofox embedded
+    # we are on embedded
     # replace "type = serial" with "type = tcp" in config.ini
     replace="s|type = serial|type = tcp|g"
     sed -i "$replace" config.ini
     # replace "# hostname = 192.168.0.1" with "hostname = localhost" in config.ini
     replace="s|# hostname = 192.168.0.1|hostname = localhost|g"
     sed -i "$replace" config.ini
-    printf "\nConfig file updated for femtofox embedded\n"
-
+    printf "\nConfig file updated for embedded\n"
 fi
 
 printf "\nInstallation complete!\n"
