@@ -127,10 +127,8 @@ NOAAalertCount = 2
 
 # use Open-Meteo API for weather data not NOAA useful for non US locations
 UseMeteoWxAPI = False
-enableGBalerts = False
 
-# NOAA Hydrology
-# unique identifiers, LID or USGS ID
+# NOAA Hydrology unique identifiers, LID or USGS ID
 riverListDefault = 
 
 # EAS Alert Broadcast
@@ -138,15 +136,16 @@ wxAlertBroadcastEnabled = False
 # EAS Alert Broadcast Channels
 wxAlertBroadcastCh = 2
 
-# FEMA IPAWS/CAP Alert Broadcast
-femaAlertBroadcastEnabled = False
-# FEMA IPAWS/CAP Alert Broadcast Channels
-femaAlertBroadcastCh = 2
+# Goverment IPAWS/CAP Alert Broadcast
+eAlertBroadcastEnabled = False
+# Goverment Emergency IPAWS/CAP Alert Broadcast Channels
+eAlertBroadcastCh = 2
 # Ignore any headline that includes the word Test
 ignoreFEMAtest = True
 # comma separated list of codes (e.g., SAME,FIPS,ZIP) trigger local alert.
 # find your SAME https://www.weather.gov/nwr/counties
 mySAME = 053029,053073
+enableGBalerts = False
 
 # Satalite Pass Prediction
 # Register for free API https://www.n2yo.com/login/

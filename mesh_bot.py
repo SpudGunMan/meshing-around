@@ -23,7 +23,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     message_lower = message.lower()
     bot_response = "🤖I'm sorry, I'm afraid I can't do that."
 
-    # Command List
+    # Command List processes system.trap_list. system.messageTrap() sends any commands to here
     default_commands = {
     "ack": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
     "ask:": lambda: handle_llm(message_from_id, channel_number, deviceID, message, publicChannel),
@@ -43,8 +43,8 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "cqcq": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
     "cqcqcq": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
     "dopewars": lambda: handleDopeWars(message, message_from_id, deviceID),
-    "ea": lambda: handle_fema_alerts(message, message_from_id, deviceID),
-    "ealert": lambda: handle_fema_alerts(message, message_from_id, deviceID),
+    "ea": lambda: handle_emergency_alerts(message, message_from_id, deviceID),
+    "ealert": lambda: handle_emergency_alerts(message, message_from_id, deviceID),
     "email:": lambda: handle_email(message_from_id, message),
     "games": lambda: gamesCmdList,
     "globalthermonuclearwar": lambda: handle_gTnW(),
@@ -211,7 +211,7 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, chann
 
     # if not a DM add the username to the beginning of msg
     if not useDMForResponse and not isDM:
-        msg = "@" + get_name_from_number(message_from_id) + msg
+        msg = "@" + get_name_from_number(message_from_id, 'short', deviceID) + " " + msg
             
     return msg
 
@@ -686,7 +686,7 @@ def handle_wxc(message_from_id, deviceID, cmd):
         weather = get_NOAAweather(str(location[0]), str(location[1]))
     return weather
 
-def handle_fema_alerts(message, message_from_id, deviceID):
+def handle_emergency_alerts(message, message_from_id, deviceID):
     location = get_node_location(message_from_id, deviceID)
     if enableGBalerts:
         # UK Alerts
@@ -1278,6 +1278,8 @@ async def start_rx():
         logger.debug(f"System: File Monitor News Reader Enabled for {news_file_path}")
     if wxAlertBroadcastEnabled:
         logger.debug(f"System: Weather Alert Broadcast Enabled on channels {wxAlertBroadcastChannel}")
+    if emergencyAlertBrodcastEnabled:
+        logger.debug(f"System: Emergency Alert Broadcast Enabled on channels {emergencyAlertBroadcastCh}")
     if emergency_responder_enabled:
         logger.debug(f"System: Emergency Responder Enabled on channels {emergency_responder_alert_channel} for interface {emergency_responder_alert_interface}")
     if enableSMTP:

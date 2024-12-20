@@ -213,19 +213,17 @@ alert_interface = 1
 ### EAS Alerting
 To Alert on Mesh with the EAS API you can set the channels and enable, checks every 20min.
 
-#### FEMA iPAWS/EAS
-This uses the SAME, FIPS, ZIP code to locate the alerts in the feed. By default ignoring Test messages. femaAlertBroadcastCh is currently not written, still under development. 
+#### FEMA iPAWS/EAS and UK.gov
+This uses USA: SAME, FIPS, ZIP code to locate the alerts in the feed. By default ignoring Test messages. UK.gov for England
 
 ```ini
-# FEMA IPAWS/CAP Alert Broadcast
-femaAlertBroadcastEnabled = True
-# FEMA IPAWS/CAP Alert Broadcast Channels
-femaAlertBroadcastCh = 2,4
-# Ignore any headline that includes the word Test
-ignoreFEMAtest = True
-# comma separated list of codes trigger local alert. (e.g., SAME, FIPS, ZIP)
+eAlertBroadcastEnabled = False # Goverment IPAWS/CAP Alert Broadcast
+eAlertBroadcastCh = 2,3 # Goverment Emergency IPAWS/CAP Alert Broadcast Channels
+ignoreFEMAtest = True # Ignore any headline that includes the word Test
+# comma separated list of codes (e.g., SAME,FIPS,ZIP) trigger local alert.
 # find your SAME https://www.weather.gov/nwr/counties
 mySAME = 053029,053073
+enableGBalerts = False # use UK.gov for alert source
 ```
 
 #### NOAA EAS

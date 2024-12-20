@@ -17,6 +17,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     bot_response = "I'm sorry, I'm afraid I can't do that."
 
     command_handler = {
+        # Command List processes system.trap_list. system.messageTrap() sends any commands to here
         "ack": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
         "cmd": lambda: help_message,
         "cmd?": lambda: help_message,
@@ -129,7 +130,7 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, chann
 
     # if not a DM add the username to the beginning of msg
     if not useDMForResponse and not isDM:
-        msg = "@" + get_name_from_number(message_from_id) + msg
+        msg = "@" + get_name_from_number(message_from_id, 'short', deviceID) + " " + msg
             
     return msg
 
