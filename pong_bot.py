@@ -130,7 +130,7 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, chann
 
     # if not a DM add the username to the beginning of msg
     if not useDMForResponse and not isDM:
-        msg = "@" + get_name_from_number(message_from_id) + msg
+        msg = "@" + get_name_from_number(message_from_id, 'short', deviceID) + " " + msg
             
     return msg
 
