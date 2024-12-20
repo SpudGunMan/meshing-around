@@ -11,7 +11,7 @@ from modules.log import *
 
 trap_list_location_eu = ("ukalert", "ukwx", "ukflood")
 
-def get_govUK_alerts():
+def get_govUK_alerts(shortAlerts=False):
     try:
         # get UK.gov alerts
         url = 'https://www.gov.uk/alerts'
@@ -28,10 +28,30 @@ def get_govUK_alerts():
     else:
         return NO_ALERTS
     
+
 def get_wxUKgov():
     # get UK weather warnings
     url = 'https://www.metoffice.gov.uk/weather/guides/rss'
-    return NO_ALERTS
+    url = 'https://www.metoffice.gov.uk/public/data/PWSCache/WarningsRSS/Region/nw'
+    try:
+        # get UK weather warnings
+        url = 'https://www.metoffice.gov.uk/weather/guides/rss'
+        response = requests.get(url)
+        soup = bs.BeautifulSoup(response.content, 'xml')
+        
+        items = soup.find_all('item')
+        alerts = []
+        
+        for item in items:
+            title = item.find('title').get_text(strip=True)
+            description = item.find('description').get_text(strip=True)
+            alerts.append(f"🚨 {title}: {description}")
+        
+        return "\n".join(alerts) if alerts else NO_ALERTS
+    except Exception as e:
+        logger.warning("Error getting UK weather warnings: " + str(e))
+        return NO_ALERTS
+    
     
 def get_floodUKgov():
     # get UK flood warnings
