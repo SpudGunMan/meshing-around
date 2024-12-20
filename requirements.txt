@@ -6,7 +6,6 @@ requests
 maidenhead
 beautifulsoup4
 dadjokes
-numpy
 geopy
 schedule
 wikipedia
