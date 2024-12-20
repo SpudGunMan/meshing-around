@@ -686,6 +686,8 @@ def handleAlertBroadcast(deviceID=1):
     # format alert
     if alertWx:
         wxAlert = f"🚨 {alertWx[1]} EAS WX ALERT: {alertWx[0]}"
+    else:
+        wxAlert = False
 
     femaAlert = alertFema
     ukAlert = alertUk
