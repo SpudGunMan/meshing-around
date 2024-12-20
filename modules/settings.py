@@ -170,7 +170,7 @@ try:
     numWxAlerts = config['location'].getint('NOAAalertCount', 2) # default 2 alerts
     ipawsPIN = config['location'].get('ipawsPIN', '000000') # default 000000
     ignoreFEMAtest = config['location'].getboolean('ignoreFEMAtest', True) # default True
-    wxAlertBroadcastChannel = config['location'].get('wxAlertBroadcastCh')
+    wxAlertBroadcastChannel = config['location'].get('wxAlertBroadcastCh', '2').split(',') # default Channel 2
     emergencyAlertBroadcastCh = config['location'].get('eAlertBroadcastCh', '2').split(',') # default Channel 2
     
     # bbs
