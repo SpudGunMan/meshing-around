@@ -677,7 +677,11 @@ def handleAlertBroadcast(deviceID=1):
     # check for alerts
     alertWx = alertBrodcastNOAA()
     alertFema = getIpawsAlert(latitudeValue,longitudeValue, shortAlerts=True)
-    alertUk = get_govUK_alerts(latitudeValue, longitudeValue)
+
+    if enableGBalerts:
+        alertUk = get_govUK_alerts()
+    else:
+        alertUk = NO_ALERTS
 
     # format alert
     wxAlert = f"🚨 {alertWx[1]} EAS WX ALERT: {alertWx[0]}"
