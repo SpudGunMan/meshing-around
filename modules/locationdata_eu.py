@@ -21,20 +21,20 @@ def get_govUK_alerts():
         alert = soup.find('h2', class_='govuk-heading-m', id='alert-status')
     except Exception as e:
         logger.warning("Error getting UK alerts: " + str(e))
-        return "System: Error getting UK alerts"
+        return NO_ALERTS
     
     if alert:
         return "🚨" + alert.get_text(strip=True)
     else:
-        return "No alerts"
+        return NO_ALERTS
     
 def get_wxUKgov():
     # get UK weather warnings
     url = 'https://www.metoffice.gov.uk/weather/guides/rss'
-    return "not implemented yet"
+    return NO_ALERTS
     
 def get_floodUKgov():
     # get UK flood warnings
     url = 'https://environment.data.gov.uk/flood-widgets/rss/feed-England.xml'
     
-    return "not implemented yet"
+    return NO_ALERTS
