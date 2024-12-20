@@ -223,6 +223,10 @@ else
     replace="s|# hostname = 192.168.0.1|hostname = localhost|g"
     sed -i "$replace" config.ini
     printf "\nConfig file updated for embedded\n"
+
+    # Set up the meshing around service
+    #sudo cp /opt/meshing-around/meshing-around.service /etc/systemd/system/meshing-around.service
+    #sudo systemctl enable meshing-around.service
 fi
 
 printf "\nInstallation complete!\n"
