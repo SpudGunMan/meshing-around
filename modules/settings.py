@@ -155,28 +155,23 @@ try:
     latitudeValue = config['location'].getfloat('lat', 48.50)
     longitudeValue = config['location'].getfloat('lon', -123.0)
     use_meteo_wxApi = config['location'].getboolean('UseMeteoWxAPI', False) # default False use NOAA
-    enableGBalerts = config['location'].getboolean('enableGBalerts', False) # default False
     use_metric = config['location'].getboolean('useMetric', False) # default Imperial units
-    forecastDuration = config['location'].getint('NOAAforecastDuration', 4) # NOAA forcast days
-    numWxAlerts = config['location'].getint('NOAAalertCount', 2) # default 2 alerts
-    wxAlertsEnabled = config['location'].getboolean('NOAAalertsEnabled', True) # default True not enabled yet
     repeater_lookup = config['location'].get('repeaterLookup', 'rbook') # default repeater lookup source
-    mySAME = config['location'].get('mySAME', '').split(',') # default empty
-    ipawsPIN = config['location'].get('ipawsPIN', '000000') # default 000000
-    femaAlertBroadcastEnabled = config['location'].getboolean('femaAlertBroadcastEnabled', False) # default False
-    femaAlertBroadcastCh = config['location'].get('femaAlertBroadcastCh', '2').split(',') # default Channel 2
-    wxAlertBroadcastEnabled = config['location'].getboolean('wxAlertBroadcastEnabled', False) # default False
-    ignoreFEMAtest = config['location'].getboolean('ignoreFEMAtest', True) # default True
     n2yoAPIKey = config['location'].get('n2yoAPIKey', '') # default empty
     satListConfig = config['location'].get('satList', '25544').split(',') # default 25544 ISS
     riverListDefault = config['location'].get('riverList', '').split(',') # default 12061500 Skagit River
-    # brodcast channel for weather alerts
+    # location alerts
+    emergencyAlertBrodcastEnabled = config['location'].getboolean('eAlertBroadcastEnabled', False) # default False
+    wxAlertBroadcastEnabled = config['location'].getboolean('wxAlertBroadcastEnabled', False) # default False
+    enableGBalerts = config['location'].getboolean('enableGBalerts', False) # default False
+    wxAlertsEnabled = config['location'].getboolean('NOAAalertsEnabled', True) # default True
+    mySAME = config['location'].get('mySAME', '').split(',') # default empty
+    forecastDuration = config['location'].getint('NOAAforecastDuration', 4) # NOAA forcast days
+    numWxAlerts = config['location'].getint('NOAAalertCount', 2) # default 2 alerts
+    ipawsPIN = config['location'].get('ipawsPIN', '000000') # default 000000
+    ignoreFEMAtest = config['location'].getboolean('ignoreFEMAtest', True) # default True
     wxAlertBroadcastChannel = config['location'].get('wxAlertBroadcastCh')
-    if wxAlertBroadcastChannel:
-        if ',' in wxAlertBroadcastChannel:
-            wxAlertBroadcastChannel = config['location'].get('wxAlertBroadcastCh').split(',')
-        else:
-            wxAlertBroadcastChannel = config['location'].getint('wxAlertBroadcastCh', 2) # default 2
+    emergencyAlertBroadcastCh = config['location'].get('eAlertBroadcastCh', '2').split(',') # default Channel 2
     
     # bbs
     bbs_enabled = config['bbs'].getboolean('enabled', False)

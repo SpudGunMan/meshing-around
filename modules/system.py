@@ -665,7 +665,7 @@ def handleMultiPing(nodeID=0, deviceID=1):
                             break
 
 
-def handleWxBroadcast(deviceID=1):
+def handleAlertBroadcast(deviceID=1):
     # only allow API call every 20 minutes
     # the watchdog will call this function 3 times, seeing possible throttling on the API
     clock = datetime.now()
@@ -675,15 +675,42 @@ def handleWxBroadcast(deviceID=1):
         return False
     
     # check for alerts
-    alert = alertBrodcastNOAA()
-    if alert:
-        msg = f"🚨 {alert[1]} EAS ALERTs: {alert[0]}"
-        if isinstance(wxAlertBroadcastChannel, list):
-            for channel in wxAlertBroadcastChannel:
-                send_message(msg, int(channel), 0, deviceID)
-        else:
-            send_message(msg, wxAlertBroadcastChannel, 0, deviceID)
-        return True
+    alertWx = alertBrodcastNOAA()
+    alertFema = getIpawsAlert(latitudeValue,longitudeValue, shortAlerts=True)
+    alertUk = get_govUK_alerts(latitudeValue, longitudeValue)
+
+    # format alert
+    wxAlert = f"🚨 {alertWx[1]} EAS WX ALERT: {alertWx[0]}"
+    femaAlert = alertFema
+    ukAlert = alertUk
+
+    if emergencyAlertBrodcastEnabled:
+        if NO_ALERTS not in femaAlert:
+            if isinstance(emergencyAlertBroadcastCh, list):
+                for channel in emergencyAlertBroadcastCh:
+                    send_message(femaAlert, int(channel), 0, deviceID)
+            else:
+                send_message(femaAlert, emergencyAlertBroadcastCh, 0, deviceID)
+            return True
+        if NO_ALERTS not in ukAlert:
+            if isinstance(emergencyAlertBroadcastCh, list):
+                for channel in emergencyAlertBroadcastCh:
+                    send_message(ukAlert, int(channel), 0, deviceID)
+            else:
+                send_message(ukAlert, emergencyAlertBroadcastCh, 0, deviceID)
+            return True
+        
+    # pause for 10 seconds
+    time.sleep(10)
+
+    if wxAlertBroadcastEnabled:
+        if wxAlert:
+            if isinstance(wxAlertBroadcastChannel, list):
+                for channel in wxAlertBroadcastChannel:
+                    send_message(wxAlert, int(channel), 0, deviceID)
+            else:
+                send_message(wxAlert, wxAlertBroadcastChannel, 0, deviceID)
+            return True
 
 def onDisconnect(interface):
     global retry_int1, retry_int2
@@ -1090,8 +1117,10 @@ async def watchdog():
                 # multiPing handler
                 handleMultiPing(0,1)
 
-                if wxAlertBroadcastEnabled:
-                    handleWxBroadcast(1)
+                # Alert Broadcast
+                if wxAlertBroadcastEnabled or emergencyAlertBrodcastEnabled:
+                    # weather alerts
+                    handleAlertBroadcast(1)
 
                 # Telemetry data
                 int1Data = displayNodeTelemetry(0, 1)
@@ -1120,10 +1149,12 @@ async def watchdog():
                         await handleSentinel(2)
 
                     # multiPing handler
-                    handleMultiPing(0,2)
+                    handleMultiPing(0,1)
 
-                    if wxAlertBroadcastEnabled:
-                        handleWxBroadcast(2)
+                    # Alert Broadcast
+                    if wxAlertBroadcastEnabled or emergencyAlertBrodcastEnabled:
+                        # weather alerts
+                        handleAlertBroadcast(1)
 
                 # Telemetry data
                 int2Data = displayNodeTelemetry(0, 2)
