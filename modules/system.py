@@ -666,6 +666,9 @@ def handleMultiPing(nodeID=0, deviceID=1):
 
 
 def handleAlertBroadcast(deviceID=1):
+    alertUk = NO_ALERTS
+    alertFema = NO_ALERTS
+    wxAlert = NO_ALERTS
     # only allow API call every 20 minutes
     # the watchdog will call this function 3 times, seeing possible throttling on the API
     clock = datetime.now()
@@ -678,18 +681,13 @@ def handleAlertBroadcast(deviceID=1):
     # check for alerts
     if wxAlertBroadcastEnabled:
         alertWx = alertBrodcastNOAA()
-    else:
-        alertWx = NO_ALERTS
 
     if emergencyAlertBrodcastEnabled:
-        alertFema = getIpawsAlert(latitudeValue,longitudeValue, shortAlerts=True)
-    else:
-        alertFema = NO_ALERTS
-
-    if enableGBalerts:
-        alertUk = get_govUK_alerts()
-    else:
-        alertUk = NO_ALERTS
+        if enableGBalerts:
+            alertUk = get_govUK_alerts()
+        else:
+            # default USA alerts
+            alertFema = getIpawsAlert(latitudeValue,longitudeValue, shortAlerts=True)
 
     # format alert
     if alertWx:
