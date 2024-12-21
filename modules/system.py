@@ -674,9 +674,17 @@ def handleAlertBroadcast(deviceID=1):
     if clock.second > 17:
         return False
     
+
     # check for alerts
-    alertWx = alertBrodcastNOAA()
-    alertFema = getIpawsAlert(latitudeValue,longitudeValue, shortAlerts=True)
+    if wxAlertBroadcastEnabled:
+        alertWx = alertBrodcastNOAA()
+    else:
+        alertWx = NO_ALERTS
+
+    if emergencyAlertBrodcastEnabled:
+        alertFema = getIpawsAlert(latitudeValue,longitudeValue, shortAlerts=True)
+    else:
+        alertFema = NO_ALERTS
 
     if enableGBalerts:
         alertUk = get_govUK_alerts()
