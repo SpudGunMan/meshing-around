@@ -91,8 +91,6 @@ If you prefer to use Docker, follow these steps:
     docker run --rm -it --device=/dev/ttyUSB0 meshing-around
     ```
 
-Note for LLM in docker with [NVIDIA](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/docker-specialized.html). Needed for the container with ollama running. 
-
 #### Custom Install
 Install the required dependencies using pip:
 ```sh
@@ -263,6 +261,7 @@ llmEnableHistory = True # enable history for the LLM model to use in responses a
 llmContext_fromGoogle = True # enable context from google search results helps with responses accuracy
 googleSearchResults = 3 # number of google search results to include in the context more results = more compute time
 ```
+Note for LLM in docker with [NVIDIA](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/docker-specialized.html). Needed for the container with ollama running. 
 
 ### Radio Monitoring
 A module allowing a Hamlib compatible radio to connect to the bot. When functioning, it will message the configured channel with a message of in use. **Requires hamlib/rigctld to be running as a service.**
@@ -399,22 +398,22 @@ There is no direct support for MQTT in the code, however, reports from Discord a
 ### Data Lookup 
 | Command | Description | |
 |---------|-------------|-
-| `wiki:` | Searches Wikipedia and returns the first few sentences of the first result if a match. Example: `wiki: lora radio` |
 | `askai` and `ask:` | Ask Ollama LLM AI for a response. Example: `askai what temp do I cook chicken` | ✅ |
 | `messages` | Replays the last messages heard, like Store and Forward | ✅ |
 | `readnews` | returns the contents of a file (news.txt, by default) via the chunker on air | ✅ |
 | `satpass` | returns the pass info from API for defined NORAD ID in config or Example: `satpass 25544,33591`| |
+| `wiki:` | Searches Wikipedia and returns the first few sentences of the first result if a match. Example: `wiki: lora radio` |
 
 ### Games (via DM)
 | Command | Description | |
 |---------|-------------|-
+| `blackjack` | Plays Blackjack (Casino 21) | ✅ |
+| `dopewars` | Plays the classic drug trader game | ✅ |
+| `golfsim` | Plays a 9-hole Golf Simulator | ✅ |
 | `joke` | Tells a joke | ✅ |
 | `lemonstand` | Plays the classic Lemonade Stand finance game | ✅ |
-| `dopewars` | Plays the classic drug trader game | ✅ |
-| `blackjack` | Plays Blackjack (Casino 21) | ✅ |
-| `videopoker` | Plays basic 5-card hold Video Poker | ✅ |
 | `mastermind` | Plays the classic code-breaking game | ✅ |
-| `golfsim` | Plays a 9-hole Golf Simulator | ✅ |
+| `videopoker` | Plays basic 5-card hold Video Poker | ✅ |
 
 # Recognition
 
@@ -447,7 +446,7 @@ I used ideas and snippets from other responder bots and want to call them out!
 - **Node Backup Management**: [Node Slurper](https://github.com/SpudGunMan/node-slurper)
 
 ### Requirements
-Python 3.8? or later is needed (dev on latest). The following can be installed with `pip install -r requirements.txt` or using the [install.sh](install.sh) script for venv and automation:
+Python 3.8? or later is needed (docker on 3.13). The following can be installed with `pip install -r requirements.txt` or using the [install.sh](install.sh) script for venv and automation:
 
 ```sh
 pip install meshtastic
