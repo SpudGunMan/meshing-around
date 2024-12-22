@@ -231,4 +231,6 @@ fi
 
 printf "\nInstallation complete!\n"
 exit 0
-
+# after install shenannigans
+# add 'bee = True' to config.ini General section. You will likley want to clean the txt up a bit
+# wget https://courses.cs.washington.edu/courses/cse163/20wi/files/lectures/L04/bee-movie.txt -O bee.txt

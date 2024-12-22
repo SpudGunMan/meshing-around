@@ -9,7 +9,12 @@ import os
 trap_list_filemon = ("readnews",)
 
 def read_file(file_monitor_file_path, random_line_only=False):
+
     try:
+        if not os.path.exists(file_monitor_file_path):
+            logger.warning(f"FileMon: File not found: {file_monitor_file_path}")
+            if file_monitor_file_path == "bee.txt":
+                return "🐝buzz 💐buzz buzz🍯"
         if random_line_only:
             # read a random line from the file
             with open(file_monitor_file_path, 'r') as f:

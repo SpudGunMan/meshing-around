@@ -99,8 +99,11 @@ else:
 if dad_jokes_enabled:
     from modules.games.joke import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + ("joke",)
-    #trap_list = trap_list + ("🐝",)
     help_message = help_message + ", joke"
+    
+# Bee Configuration
+if bee_enabled:
+    trap_list = trap_list + ("🐝",)
 
 # Wikipedia Search Configuration
 if wikipedia_enabled:

@@ -130,6 +130,7 @@ try:
     whoami_enabled = config['general'].getboolean('whoami', True)
     dad_jokes_enabled = config['general'].getboolean('DadJokes', False)
     dad_jokes_emojiJokes = config['general'].getboolean('DadJokesEmoji', False)
+    bee_enabled = config['general'].getboolean('bee', False) # 🐝 off by default undocumented
     solar_conditions_enabled = config['general'].getboolean('spaceWeather', True)
     wikipedia_enabled = config['general'].getboolean('wikipedia', False)
     llm_enabled = config['general'].getboolean('ollama', False) # https://ollama.com
