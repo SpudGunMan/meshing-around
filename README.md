@@ -80,7 +80,7 @@ The code is under active development, so make sure to pull the latest changes re
 #### Docker Installation
 If you prefer to use Docker, follow these steps:
 
-1. Ensure your serial port is properly shared and the GPU is configured if using LLM in docker with [NVIDIA](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/docker-specialized.html).
+1. Ensure your serial port is properly shared.
 2. Build the Docker image:
     ```sh
     cd meshing-around
@@ -90,6 +90,8 @@ If you prefer to use Docker, follow these steps:
     ```sh
     docker run --rm -it --device=/dev/ttyUSB0 meshing-around
     ```
+
+Note for LLM in docker with [NVIDIA](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/docker-specialized.html). Needed for the container with ollama running. 
 
 #### Custom Install
 Install the required dependencies using pip:
@@ -139,7 +141,7 @@ ignoreDefaultChannel = False # ignoreDefaultChannel, the bot will ignore the def
 ```
 
 ### Location Settings
-The weather forecasting defaults to NOAA, for locations outside the USA, you can set `UseMeteoWxAPI` to `True`, to use a global weather API. The `lat` and `lon` are default values when a node has no location data. It is also the default (or value when none found for user) for Sentry, all NOAA, repeater lookup, etc.
+The weather forecasting defaults to NOAA, for locations outside the USA, you can set `UseMeteoWxAPI` to `True`, to use a global weather API. The `lat` and `lon` are default values when a node has no location data, as well as the default for all NOAA, repeater lookup. It is also the center of radius for Sentry.
 
 ```ini
 [location]
@@ -151,7 +153,7 @@ riverListDefault = # NOAA Hydrology data, unique identifiers, LID or USGS ID
 ```
 
 ### Module Settings
-Modules can be enabled or disabled as needed.
+Modules can be enabled or disabled as needed. They are essentally larger functions of code which you may not want on your mesh or in memory space.
 
 ```ini
 [bbs]
@@ -184,7 +186,7 @@ sentryIgnoreList = # list of ignored nodes numbers ex: 2813308004,4258675309
 ```
 
 ### E-Mail / SMS Settings
-To enable connectivity with SMTP/IMAP.
+To enable connectivity with SMTP allows messages from meshtastic into SMTP. The term SMS here is for connection via [carrier email](https://avtech.com/articles/138/list-of-email-to-sms-addresses/)
 
 ```ini
 [smtp]
@@ -203,10 +205,8 @@ Traps the following ("emergency", "911", "112", "999", "police", "fire", "ambula
 
 ```ini
 [emergencyHandler]
-# enable or disable the emergency response handler
-enabled = True
-# channel to send a message to when the emergency handler is triggered
-alert_channel = 2
+enabled = True # enable or disable the emergency response handler
+alert_channel = 2 # channel to send a message to when the emergency handler is triggered
 alert_interface = 1
 ```
 
@@ -316,6 +316,8 @@ rtl_fm -f 162425000 -s 22050 | multimon-ng -t raw -a EAS /dev/stdin | python eas
 #### Newspaper on mesh
 a newspaper could be built by external scripts. could use Ollama to compile text via news web pages and write news.txt
 
+you can also enable the line by line (hint just search for the commented lines with a 🐝) to return a string from the [bee movie](https://courses.cs.washington.edu/courses/cse163/20wi/files/lectures/L04/bee-movie.txt) for example adding it alongside news.txt as bee.txt
+
 ### Scheduler
 In the config.ini enable the module
 ```ini
@@ -334,7 +336,7 @@ schedule.every().wednesday.at("19:00").do(lambda: send_message("Net Starting Now
 ```
 
 #### BBS Link
-The scheduler also handles the BBL Link Brodcast message, this would be an esxample of a mesh-admin channel on 8 being used to pass BBS post traffic between two bots as the initator, one direction pull.
+The scheduler also handles the BBS Link Brodcast message, this would be an esxample of a mesh-admin channel on 8 being used to pass BBS post traffic between two bots as the initator, one direction pull.
 ```python
 # Send bbslink looking for peers every other day at 10:00 using send_message function to channel 8 on device 1
 schedule.every(2).days.at("10:00").do(lambda: send_message("bbslink MeshBot looking for peers", 8, 0, 1))
@@ -345,7 +347,9 @@ bbslink_whitelist = # list of whitelisted nodes numbers ex: 2813308004,425867530
 ```
 
 ### MQTT Notes
-There is no direct support for MQTT in the code, however, reports from Discord are that using [meshtasticd](https://meshtastic.org/docs/hardware/devices/linux-native-hardware/) with no radio and attaching the bot to the software node, which is MQTT-linked, allows routing.~~There also seems to be a quicker way to enable MQTT by having your bot node with the enabled [serial](https://meshtastic.org/docs/configuration/module/serial/) module with echo enabled and MQTT uplink and downlink. These two~~ methods have been mentioned as allowing MQTT routing for the project. Tested working fully Firmware:2.5.15.79da236 with [mosquitto](https://meshtastic.org/docs/software/integrations/mqtt/mosquitto/).
+There is no direct support for MQTT in the code, however, reports from Discord are that using [meshtasticd](https://meshtastic.org/docs/hardware/devices/linux-native-hardware/) with no radio and attaching the bot to the software node, which is MQTT-linked, allows routing. Tested working fully Firmware:2.5.15.79da236 with [mosquitto](https://meshtastic.org/docs/software/integrations/mqtt/mosquitto/).
+
+~~There also seems to be a quicker way to enable MQTT by having your bot node with the enabled [serial](https://meshtastic.org/docs/configuration/module/serial/) module with echo enabled and MQTT uplink and downlink. These two~~ 
 
 ## Full list of commands for the bot
 
@@ -353,28 +357,28 @@ There is no direct support for MQTT in the code, however, reports from Discord a
 | Command | Description | ✅ Works Off-Grid |
 |---------|-------------|-
 | `ping`, `ack` | Return data for signal. Example: `ping 15 #DrivingI5` (activates auto-ping every 20 seconds for count 15) | ✅ |
-| `test` | Returns like ping but also can be used to test the limits of data buffers `test 4` sends data to the maxBuffer limit (default 220) | ✅ |
+| `cmd` | Returns the list of commands (the help message) | ✅ |
+| `history` | Returns the last commands run by user(s) | ✅ |
+| `lheard` | Returns the last 5 heard nodes with SNR. Can also use `sitrep` | ✅ |
+| `motd` | Displays the message of the day or sets it. Example: `motd $New Message Of the day` | ✅ |
+| `sysinfo` | Returns the bot node telemetry info | ✅ |
+| `test` | used to test the limits of data transfer `test 4` sends data to the maxBuffer limit (default 220) | ✅ |
 | `whereami` | Returns the address of the sender's location if known |
 | `whoami` | Returns details of the node asking, also returned when position exchanged 📍 | ✅ |
 | `whois` | Returns details known about node, more data with bbsadmin node | ✅ |
-| `motd` | Displays the message of the day or sets it. Example: `motd $New Message Of the day` | ✅ |
-| `lheard` | Returns the last 5 heard nodes with SNR. Can also use `sitrep` | ✅ |
-| `history` | Returns the last commands run by user(s) | ✅ |
-| `sysinfo` | Returns the bot node telemetry info | ✅ |
-| `cmd` | Returns the list of commands (the help message) | ✅ |
 
 ### Radio Propagation & Weather Forcasting
 | Command | Description | |
 |---------|-------------|-------------------
-| `sun` and `moon` | Return info on rise and set local time | ✅ |
-| `solar` | Gives an idea of the x-ray flux | |
+| `ea` and `ealert` | Return FEMA iPAWS/EAS alerts in USA or UK. Headline or expanded details for USA | |
 | `hfcond` | Returns a table of HF solar conditions | |
-| `tide` | Returns the local tides (NOAA data source) |
 | `rlist` | Returns a table of nearby repeaters from RepeaterBook | |
+| `riverflow` | Return information from NOAA for river flow info. Example: `riverflow modules/settings.py`| |
+| `solar` | Gives an idea of the x-ray flux | |
+| `sun` and `moon` | Return info on rise and set local time | ✅ |
+| `tide` | Returns the local tides (NOAA data source) |
 | `wx` and `wxc` | Return local weather forecast (wxc is metric value), NOAA or Open Meteo for weather forecasting | |
 | `wxa` and `wxalert` | Return NOAA alerts. Short title or expanded details | |
-| `ea` and `ealert` | Return FEMA iPAWS/EAS alerts in USA or UK. Headline or expanded details for USA | |
-| `riverflow` | Return information from NOAA for river flow info. Example: `riverflow modules/settings.py`| |
 
 ### Bulletin Board & Mail
 | Command | Description | |

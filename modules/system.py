@@ -99,6 +99,7 @@ else:
 if dad_jokes_enabled:
     from modules.games.joke import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + ("joke",)
+    #trap_list = trap_list + ("joke","🐝")
     help_message = help_message + ", joke"
 
 # Wikipedia Search Configuration
@@ -677,7 +678,6 @@ def handleAlertBroadcast(deviceID=1):
     if clock.second > 17:
         return False
     
-
     # check for alerts
     if wxAlertBroadcastEnabled:
         alertWx = alertBrodcastNOAA()

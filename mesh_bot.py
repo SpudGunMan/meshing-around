@@ -87,6 +87,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "wxc": lambda: handle_wxc(message_from_id, deviceID, 'wxc'),
     "📍": lambda: handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus),
     "🔔": lambda: handle_alertBell(message_from_id, deviceID, message),
+    #"🐝": lambda: read_file(bee.txt, True)
     # any value from system.py:trap_list_emergency will trigger the emergency function
     "112": lambda: handle_emergency(message_from_id, deviceID, message),
     "911": lambda: handle_emergency(message_from_id, deviceID, message),
