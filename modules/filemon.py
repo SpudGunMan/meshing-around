@@ -63,12 +63,18 @@ async def watch_file():
                     return content
             await asyncio.sleep(1)  # Check every
 
-def call_external_script(message):
-    # Call an external script runShell.sh
+def call_external_script(message, script="runShell.sh"):
     try:
-        output = os.popen(f"bash runShell.sh {message}").read()
+        # Debugging: Print the current working directory and resolved script path
+        current_working_directory = os.getcwd()
+        script_path = os.path.join(current_working_directory, script)
+
+        if not os.path.exists(script_path):
+            logger.warning(f"FileMon: Script not found: {script_path}")
+            return "sorry I can't do that"
+        output = os.popen(f"bash {script_path} {message}").read()
         return output
     except Exception as e:
-        logger.warning(f"FileMon: Error calling external script")
+        logger.warning(f"FileMon: Error calling external script: {e}")
         return None
     

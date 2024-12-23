@@ -769,7 +769,11 @@ def sysinfo(message, message_from_id, deviceID):
     if "?" in message:
         return "sysinfo command returns system information."
     else:
-        return get_sysinfo(message_from_id, deviceID)
+        if enable_runShellCmd and file_monitor_enabled:
+            shellData = call_external_script(message)
+            return get_sysinfo(message_from_id, deviceID) + "\n" + shellData
+        else:
+            return get_sysinfo(message_from_id, deviceID)
 
 def handle_lheard(message, nodeid, deviceID, isDM):
     if  "?" in message and isDM:
@@ -1275,8 +1279,12 @@ async def start_rx():
         logger.debug(f"System: Radio Detection Enabled using rigctld at {rigControlServerAddress} brodcasting to channels: {sigWatchBroadcastCh} for {get_freq_common_name(get_hamlib('f'))}")
     if file_monitor_enabled:
         logger.debug(f"System: File Monitor Enabled for {file_monitor_file_path}, broadcasting to channels: {file_monitor_broadcastCh}")
-    if read_news_enabled:
-        logger.debug(f"System: File Monitor News Reader Enabled for {news_file_path}")
+        if enable_runShellCmd:
+            logger.debug(f"System: Shell Command monitor enabled")
+        if read_news_enabled:
+            logger.debug(f"System: File Monitor News Reader Enabled for {news_file_path}")
+        if bee_enabled:
+            logger.debug(f"System: File Monitor Bee Monitor Enabled for bee.txt")
     if wxAlertBroadcastEnabled:
         logger.debug(f"System: Weather Alert Broadcast Enabled on channels {wxAlertBroadcastChannel}")
     if emergencyAlertBrodcastEnabled:
