@@ -100,10 +100,6 @@ if dad_jokes_enabled:
     from modules.games.joke import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + ("joke",)
     help_message = help_message + ", joke"
-    
-# Bee Configuration
-if bee_enabled:
-    trap_list = trap_list + ("🐝",)
 
 # Wikipedia Search Configuration
 if wikipedia_enabled:
@@ -199,6 +195,9 @@ if file_monitor_enabled or read_news_enabled:
     if read_news_enabled:
         trap_list = trap_list + trap_list_filemon # items readnews
         help_message = help_message + ", readnews"
+    # Bee Configuration uses file monitor module
+    if bee_enabled:
+        trap_list = trap_list + ("🐝",)
 
 # clean up the help message
 help_message = help_message.split(", ")
