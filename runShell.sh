@@ -17,7 +17,7 @@ then
     # temp in fahrenheit
     tempf=$(echo "scale=2; $temp * 9 / 5 + 32" | bc)
 else
-    temp=$(paste <(cat /sys/class/thermal/thermal_zone*/type) <(cat /sys/class/thermal/thermal_zone*/temp))
+    temp=$(paste <(cat /sys/class/thermal/thermal_zone*/type) <(cat /sys/class/thermal/thermal_zone*/temp) | grep "temp" | awk '{print $2/1000}' | awk '{s+=$1} END {print s/NR}')
     tempf=$(echo "scale=2; $temp * 9 / 5 + 32" | bc)
 fi
 
