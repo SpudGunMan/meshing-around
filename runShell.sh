@@ -8,9 +8,19 @@ program_path=$(pwd)
 free_space=$(df -h | grep ' /$' | awk '{print $4}')
 cpu_usage=$(top -bn1 | grep "Cpu(s)" | sed "s/.*, *\([0-9.]*\)%* id.*/\1/" | awk '{print 100 - $1}')
 ram_usage=$(free | grep Mem | awk '{print $3/$2 * 100.0}')
-temp=$(vcgencmd measure_temp | sed "s/temp=//" | sed "s/'C//")
-# temp in fahrenheit
-tempf=$(echo "scale=2; $temp * 9 / 5 + 32" | bc)
+
+# if command vcgencmd is found
+if command -v vcgencmd &> /dev/null
+then
+    # get temperature
+    temp=$(vcgencmd measure_temp | sed "s/temp=//" | sed "s/'C//")
+    # temp in fahrenheit
+    tempf=$(echo "scale=2; $temp * 9 / 5 + 32" | bc)
+else
+    temp="N/A"
+    tempf="N/A"
+fi
+
 
 # print telemetry data
 printf "Free Space: %s\n" "$free_space"
