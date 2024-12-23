@@ -188,6 +188,7 @@ enable_read_news = False
 news_file_path = news.txt
 # only return a single random line from the news file
 news_random_line = False
+# enable the use of exernal shell commands
 enable_runShellCmd = False
 
 [smtp]
