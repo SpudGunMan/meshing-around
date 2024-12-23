@@ -23,7 +23,4 @@ else
 fi
 
 # print telemetry data
-printf "Free Space: %s\n" "$free_space"
-printf "CPU Usage: %.1f%%\n" "$cpu_usage"
-printf "RAM Usage: %.2f%%\n" "$ram_usage"
-printf "Temperature: %.1f°C (%.1f°F)\n" "$temp" "$tempf"
+printf "Disk: %s\n" "$free_space CPU%: %.1f%%\n" "$cpu_usage RAM: %.2f%%\n" "$ram_usage CPU: %.1f°C (%.1f°F)\n" "$temp" "$tempf"
