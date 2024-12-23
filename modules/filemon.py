@@ -62,3 +62,13 @@ async def watch_file():
                 if content:
                     return content
             await asyncio.sleep(1)  # Check every
+
+def call_external_script(message):
+    # Call an external script runShell.sh
+    try:
+        output = os.popen(f"bash runShell.sh {message}").read()
+        return output
+    except Exception as e:
+        logger.warning(f"FileMon: Error calling external script")
+        return None
+    
