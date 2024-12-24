@@ -863,90 +863,94 @@ def displayNodeTelemetry(nodeID=0, rxNode=0, userRequested=False):
 
 positionMetadata = {}
 def consumeMetadata(packet, rxNode=0):
-    # keep records of recent telemetry data
-    debugMetadata = False
-    packet_type = ''
-    if packet.get('decoded'):
-        packet_type = packet['decoded']['portnum']
-        nodeID = packet['from']
+    try:
+        # keep records of recent telemetry data
+        debugMetadata = False
+        packet_type = ''
+        if packet.get('decoded'):
+            packet_type = packet['decoded']['portnum']
+            nodeID = packet['from']
 
-    # TELEMETRY packets
-    if packet_type == 'TELEMETRY_APP':
-        #if debugMetadata: print(f"DEBUG TELEMETRY_APP: {packet}\n\n")
-        # get the telemetry data
-        telemetry_packet = packet['decoded']['telemetry']
-        if telemetry_packet.get('deviceMetrics'):
-            deviceMetrics = telemetry_packet['deviceMetrics']
-        if telemetry_packet.get('localStats'):
-            localStats = telemetry_packet['localStats']
-            # Check if 'numPacketsTx' and 'numPacketsRx' exist and are not zero
-            if localStats.get('numPacketsTx') is not None and localStats.get('numPacketsRx') is not None and localStats['numPacketsTx'] != 0:
-                # Assign the values to the telemetry dictionary
-                keys = [
-                    'numPacketsTx', 'numPacketsRx', 'numOnlineNodes', 
-                    'numOfflineNodes', 'numPacketsTxErr', 'numPacketsRxErr', 'numTotalNodes']
-                
+        # TELEMETRY packets
+        if packet_type == 'TELEMETRY_APP':
+            #if debugMetadata: print(f"DEBUG TELEMETRY_APP: {packet}\n\n")
+            # get the telemetry data
+            telemetry_packet = packet['decoded']['telemetry']
+            if telemetry_packet.get('deviceMetrics'):
+                deviceMetrics = telemetry_packet['deviceMetrics']
+            if telemetry_packet.get('localStats'):
+                localStats = telemetry_packet['localStats']
+                # Check if 'numPacketsTx' and 'numPacketsRx' exist and are not zero
+                if localStats.get('numPacketsTx') is not None and localStats.get('numPacketsRx') is not None and localStats['numPacketsTx'] != 0:
+                    # Assign the values to the telemetry dictionary
+                    keys = [
+                        'numPacketsTx', 'numPacketsRx', 'numOnlineNodes', 
+                        'numOfflineNodes', 'numPacketsTxErr', 'numPacketsRxErr', 'numTotalNodes']
+                    
+                    for key in keys:
+                        if localStats.get(key) is not None:
+                            telemetryData[rxNode][key] = localStats.get(key)
+        
+        # POSITION_APP packets
+        if packet_type == 'POSITION_APP':
+            if debugMetadata: print(f"DEBUG POSITION_APP: {packet}\n\n")
+            # get the position data
+            keys = ['altitude', 'groundSpeed', 'precisionBits']
+            position_data = packet['decoded']['position']
+            try:
+                if nodeID not in positionMetadata:
+                    positionMetadata[nodeID] = {}
+        
                 for key in keys:
-                    if localStats.get(key) is not None:
-                        telemetryData[rxNode][key] = localStats.get(key)
-    
-    # POSITION_APP packets
-    if packet_type == 'POSITION_APP':
-        if debugMetadata: print(f"DEBUG POSITION_APP: {packet}\n\n")
-        # get the position data
-        keys = ['altitude', 'groundSpeed', 'precisionBits']
-        position_data = packet['decoded']['position']
-        try:
-            if nodeID not in positionMetadata:
-                positionMetadata[nodeID] = {}
-    
-            for key in keys:
-                positionMetadata[nodeID][key] = position_data.get(key, 0)
-    
-            # Keep the positionMetadata dictionary at 5 records
-            if len(positionMetadata) > 20:
-                # Remove the oldest entry
-                oldest_nodeID = next(iter(positionMetadata))
-                del positionMetadata[oldest_nodeID]
-        except Exception as e:
-            logger.debug(f"System: POSITION_APP decode error: {e} packet {packet}")
+                    positionMetadata[nodeID][key] = position_data.get(key, 0)
+        
+                # Keep the positionMetadata dictionary at 5 records
+                if len(positionMetadata) > 20:
+                    # Remove the oldest entry
+                    oldest_nodeID = next(iter(positionMetadata))
+                    del positionMetadata[oldest_nodeID]
+            except Exception as e:
+                logger.debug(f"System: POSITION_APP decode error: {e} packet {packet}")
 
-    # WAYPOINT_APP packets
-    if packet_type ==  'WAYPOINT_APP':
-        if debugMetadata: print(f"DEBUG WAYPOINT_APP: {packet['decoded']['waypoint']}\n\n")
-        # get the waypoint data
-        waypoint_data = packet['decoded']['waypoint']
-        keys = ['latitude', 'longitude',]
+        # WAYPOINT_APP packets
+        if packet_type ==  'WAYPOINT_APP':
+            if debugMetadata: print(f"DEBUG WAYPOINT_APP: {packet['decoded']['waypoint']}\n\n")
+            # get the waypoint data
+            waypoint_data = packet['decoded']['waypoint']
+            keys = ['latitude', 'longitude',]
 
-    # NEIGHBORINFO_APP
-    if packet_type ==  'NEIGHBORINFO_APP':
-        if debugMetadata: print(f"DEBUG NEIGHBORINFO_APP: {packet}\n\n")
-        # get the neighbor info data
-        neighbor_data = packet['decoded']['neighborInfo']
-    
-    # TRACEROUTE_APP
-    if packet_type ==  'TRACEROUTE_APP':
-        if debugMetadata: print(f"DEBUG TRACEROUTE_APP: {packet}\n\n")
-        # get the traceroute data
-        traceroute_data = packet['decoded']['traceroute']
+        # NEIGHBORINFO_APP
+        if packet_type ==  'NEIGHBORINFO_APP':
+            if debugMetadata: print(f"DEBUG NEIGHBORINFO_APP: {packet}\n\n")
+            # get the neighbor info data
+            neighbor_data = packet['decoded']['neighborInfo']
+        
+        # TRACEROUTE_APP
+        if packet_type ==  'TRACEROUTE_APP':
+            if debugMetadata: print(f"DEBUG TRACEROUTE_APP: {packet}\n\n")
+            # get the traceroute data
+            traceroute_data = packet['decoded']['traceroute']
 
-    # DETECTION_SENSOR_APP
-    if packet_type ==  'DETECTION_SENSOR_APP':
-        if debugMetadata: print(f"DEBUG DETECTION_SENSOR_APP: {packet}\n\n")
-        # get the detection sensor data
-        detection_data = packet['decoded']['detectionSensor']
+        # DETECTION_SENSOR_APP
+        if packet_type ==  'DETECTION_SENSOR_APP':
+            if debugMetadata: print(f"DEBUG DETECTION_SENSOR_APP: {packet}\n\n")
+            # get the detection sensor data
+            detection_data = packet['decoded']['detectionSensor']
 
-    # PAXCOUNTER_APP
-    if packet_type ==  'PAXCOUNTER_APP':
-        if debugMetadata: print(f"DEBUG PAXCOUNTER_APP: {packet}\n\n")
-        # get the paxcounter data
-        paxcounter_data = packet['decoded']['paxcounter']
+        # PAXCOUNTER_APP
+        if packet_type ==  'PAXCOUNTER_APP':
+            if debugMetadata: print(f"DEBUG PAXCOUNTER_APP: {packet}\n\n")
+            # get the paxcounter data
+            paxcounter_data = packet['decoded']['paxcounter']
 
-    # REMOTE_HARDWARE_APP
-    if packet_type ==  'REMOTE_HARDWARE_APP':
-        if debugMetadata: print(f"DEBUG REMOTE_HARDWARE_APP: {packet}\n\n")
-        # get the remote hardware data
-        remote_hardware_data = packet['decoded']['remoteHardware']
+        # REMOTE_HARDWARE_APP
+        if packet_type ==  'REMOTE_HARDWARE_APP':
+            if debugMetadata: print(f"DEBUG REMOTE_HARDWARE_APP: {packet}\n\n")
+            # get the remote hardware data
+            remote_hardware_data = packet['decoded']['remoteHardware']
+    except KeyError as e:
+        logger.critical(f"System: Error consuming metadata: {e} Device:{rxNode}")
+        logger.debug(f"System: Error Packet = {packet}")
 
 def get_sysinfo(nodeID=0, deviceID=1):
     # Get the system telemetry data for return on the sysinfo command
