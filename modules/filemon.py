@@ -70,8 +70,12 @@ def call_external_script(message, script="runShell.sh"):
         script_path = os.path.join(current_working_directory, script)
 
         if not os.path.exists(script_path):
-            logger.warning(f"FileMon: Script not found: {script_path}")
-            return "sorry I can't do that"
+            # try the raw script name
+            script_path = script
+            if not os.path.exists(script_path):
+                logger.warning(f"FileMon: Script not found: {script_path}")
+                return "sorry I can't do that"
+            
         output = os.popen(f"bash {script_path} {message}").read()
         return output
     except Exception as e:
