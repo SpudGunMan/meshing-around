@@ -12,6 +12,7 @@ import io # for suppressing output on watchdog
 from modules.log import *
 
 # Global Variables
+debugMetadata = False # packet debug for non text messages
 trap_list = ("cmd","cmd?") # default trap list
 help_message = "Bot CMD?:"
 asyncLoop = asyncio.new_event_loop()
@@ -865,7 +866,6 @@ positionMetadata = {}
 def consumeMetadata(packet, rxNode=0):
     try:
         # keep records of recent telemetry data
-        debugMetadata = False
         packet_type = ''
         if packet.get('decoded'):
             packet_type = packet['decoded']['portnum']
@@ -873,7 +873,7 @@ def consumeMetadata(packet, rxNode=0):
 
         # TELEMETRY packets
         if packet_type == 'TELEMETRY_APP':
-            #if debugMetadata: print(f"DEBUG TELEMETRY_APP: {packet}\n\n")
+            if debugMetadata: print(f"DEBUG TELEMETRY_APP: {packet}\n\n")
             # get the telemetry data
             telemetry_packet = packet['decoded']['telemetry']
             if telemetry_packet.get('deviceMetrics'):
