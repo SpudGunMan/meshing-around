@@ -916,38 +916,38 @@ def consumeMetadata(packet, rxNode=0):
         if packet_type ==  'WAYPOINT_APP':
             if debugMetadata: print(f"DEBUG WAYPOINT_APP: {packet['decoded']['waypoint']}\n\n")
             # get the waypoint data
-            waypoint_data = packet['decoded']['waypoint']
+            waypoint_data = packet['decoded']
             keys = ['latitude', 'longitude',]
 
         # NEIGHBORINFO_APP
         if packet_type ==  'NEIGHBORINFO_APP':
             if debugMetadata: print(f"DEBUG NEIGHBORINFO_APP: {packet}\n\n")
             # get the neighbor info data
-            neighbor_data = packet['decoded']['neighborInfo']
+            neighbor_data = packet['decoded']
         
         # TRACEROUTE_APP
         if packet_type ==  'TRACEROUTE_APP':
             if debugMetadata: print(f"DEBUG TRACEROUTE_APP: {packet}\n\n")
             # get the traceroute data
-            traceroute_data = packet['decoded']['traceroute']
+            traceroute_data = packet['decoded']
 
         # DETECTION_SENSOR_APP
         if packet_type ==  'DETECTION_SENSOR_APP':
             if debugMetadata: print(f"DEBUG DETECTION_SENSOR_APP: {packet}\n\n")
             # get the detection sensor data
-            detection_data = packet['decoded']['detectionSensor']
+            detection_data = packet['decoded']
 
         # PAXCOUNTER_APP
         if packet_type ==  'PAXCOUNTER_APP':
             if debugMetadata: print(f"DEBUG PAXCOUNTER_APP: {packet}\n\n")
             # get the paxcounter data
-            paxcounter_data = packet['decoded']['paxcounter']
+            paxcounter_data = packet['decoded']
 
         # REMOTE_HARDWARE_APP
         if packet_type ==  'REMOTE_HARDWARE_APP':
             if debugMetadata: print(f"DEBUG REMOTE_HARDWARE_APP: {packet}\n\n")
             # get the remote hardware data
-            remote_hardware_data = packet['decoded']['remoteHardware']
+            remote_hardware_data = packet['decoded']
     except KeyError as e:
         logger.critical(f"System: Error consuming metadata: {e} Device:{rxNode}")
         logger.debug(f"System: Error Packet = {packet}")
