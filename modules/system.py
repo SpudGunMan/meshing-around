@@ -917,7 +917,6 @@ def consumeMetadata(packet, rxNode=0):
             if debugMetadata: print(f"DEBUG WAYPOINT_APP: {packet['decoded']['waypoint']}\n\n")
             # get the waypoint data
             waypoint_data = packet['decoded']
-            keys = ['latitude', 'longitude',]
 
         # NEIGHBORINFO_APP
         if packet_type ==  'NEIGHBORINFO_APP':
