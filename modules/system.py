@@ -76,7 +76,7 @@ if location_enabled:
     trap_list = trap_list + trap_list_location # items tide, whereami, wxc, wx
     help_message = help_message + ", whereami, wx, wxc, rlist"
     if enableGBalerts:
-        from modules.locationdata_eu import * # from the spudgunman/meshing-around repo
+        from modules.globalalert import * # from the spudgunman/meshing-around repo
         trap_list = trap_list + trap_list_location_eu
         #help_message = help_message + ", ukalert, ukwx, ukflood"
     
