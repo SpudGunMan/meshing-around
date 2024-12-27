@@ -154,6 +154,9 @@ if [ $meshbotservice == "y" ]; then
     sudo usermod -L meshbot
     echo "Added user meshbot with no home directory"
     whoami="meshbot"
+    sudo chown -R $whoami:$whoami $program_path/logs
+    sudo chown -R $whoami:$whoami $program_path/data
+    echo "Permissions set for meshbot on logs and data directories"
 else
     whoami=$(whoami)
 fi
