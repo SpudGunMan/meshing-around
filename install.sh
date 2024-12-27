@@ -154,8 +154,11 @@ sed -i $replace etc/mesh_bot_reporting.service
 # set the correct user in the service file?
 
 #ask if we should add a user for the bot
-printf "\nDo you want to add a user (meshbot) no login, for the bot? (y/n) (if embedded default is yes)"
-read meshbotservice
+if [ $embedded != "y" ]; then
+    printf "\nDo you want to add a user (meshbot) no login, for the bot? (y/n) (if embedded default is yes)"
+    read meshbotservice
+fi
+
 if [ $meshbotservice == "y" ] || [ $embedded == "y" ]; then
     sudo useradd -M meshbot
     sudo usermod -L meshbot
