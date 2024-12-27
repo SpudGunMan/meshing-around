@@ -145,7 +145,19 @@ sed -i $replace etc/pong_bot.service
 sed -i $replace etc/mesh_bot.service
 sed -i $replace etc/mesh_bot_reporting.service
 # set the correct user in the service file?
-whoami=$(whoami)
+
+#ask if we should add a user for the bot
+printf "\nDo you want to add a user (meshbot) no login for the bot? (y/n)"
+read meshbotservice
+if [ $meshbotservice == "y" ]; then
+    sudo useradd -M meshbot
+    sudo usermod -L meshbot
+    echo "Added user meshbot with no home directory"
+    whoami="meshbot"
+else
+    whoami=$(whoami)
+fi
+
 replace="s|User=pi|User=$whoami|g"
 sed -i $replace etc/pong_bot.service
 sed -i $replace etc/mesh_bot.service
@@ -157,9 +169,6 @@ sed -i $replace etc/mesh_bot_reporting.service
 printf "\n service files updated\n"
 
 if [ $bot == "pong" ]; then
-    # echo "useradd -M meshbot"
-    # echo "usermod -L meshbot"
-    # echo "Added user meshbot with no home directory"
     # install service for pong bot
     sudo cp etc/pong_bot.service /etc/systemd/system/
     sudo systemctl enable pong_bot.service
@@ -167,9 +176,6 @@ if [ $bot == "pong" ]; then
 fi
 
 if [ $bot == "mesh" ]; then
-    # echo "useradd -M meshbot"
-    # echo "usermod -L meshbot"
-    # echo "Added user meshbot with no home directory"
     # install service for mesh bot
     sudo cp etc/mesh_bot.service /etc/systemd/system/
     sudo systemctl enable mesh_bot.service
