@@ -173,6 +173,7 @@ if [ $bot == "pong" ]; then
     sudo cp etc/pong_bot.service /etc/systemd/system/
     sudo systemctl enable pong_bot.service
     sudo systemctl daemon-reload
+    echo "to start pong bot service: systemctl start pong_bot"
 fi
 
 if [ $bot == "mesh" ]; then
@@ -180,6 +181,7 @@ if [ $bot == "mesh" ]; then
     sudo cp etc/mesh_bot.service /etc/systemd/system/
     sudo systemctl enable mesh_bot.service
     sudo systemctl daemon-reload
+    echo "to start mesh bot service: systemctl start mesh_bot"
 fi
 
 # check if running on embedded
