@@ -220,7 +220,7 @@ else
     replace="s|type = serial|type = tcp|g"
     sed -i "$replace" config.ini
     # replace "# hostname = 192.168.0.1" with "hostname = localhost" in config.ini
-    replace="s|# hostname = 192.168.0.1|hostname = localhost|g"
+    replace="s|# hostname = localhost|hostname = localhost|g"
     sed -i "$replace" config.ini
     printf "\nConfig file updated for embedded\n"
 
