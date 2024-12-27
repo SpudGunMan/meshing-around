@@ -155,7 +155,7 @@ sed -i $replace etc/mesh_bot_reporting.service
 
 #ask if we should add a user for the bot
 if [ $embedded != "y" ]; then
-    printf "\nDo you want to add a user (meshbot) no login, for the bot? (y/n) (if embedded default is yes)"
+    printf "\nDo you want to add a user (meshbot) no login, for the bot? (y/n)"
     read meshbotservice
 fi
 
