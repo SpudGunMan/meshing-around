@@ -154,7 +154,6 @@ replace="s|Group=pi|Group=$whoami|g"
 sed -i $replace etc/pong_bot.service
 sed -i $replace etc/mesh_bot.service
 sed -i $replace etc/mesh_bot_reporting.service
-sudo systemctl daemon-reload
 printf "\n service files updated\n"
 
 if [ $bot == "pong" ]; then
@@ -164,6 +163,7 @@ if [ $bot == "pong" ]; then
     # install service for pong bot
     sudo cp etc/pong_bot.service /etc/systemd/system/
     sudo systemctl enable pong_bot.service
+    sudo systemctl daemon-reload
 fi
 
 if [ $bot == "mesh" ]; then
@@ -173,6 +173,7 @@ if [ $bot == "mesh" ]; then
     # install service for mesh bot
     sudo cp etc/mesh_bot.service /etc/systemd/system/
     sudo systemctl enable mesh_bot.service
+    sudo systemctl daemon-reload
 fi
 
 # check if running on embedded
