@@ -11,9 +11,15 @@ printf "\nThis script will try and install the Meshing Around Bot and its depend
 printf "Installer works best in raspian/debian/ubuntu, if there is a problem, try running the installer again.\n"
 printf "\nChecking for dependencies...\n"
 
-# check if running on embedded
-printf "\nAre You installing into an embedded system like a luckfox? (y/n)"
-read embedded
+# if hostname = femtofox, then we are on embedded
+if [ $(hostname) == "femtofox" ]; then
+    printf "\nDetected femtofox embedded system\n"
+    embedded="y"
+else
+    # check if running on embedded
+    printf "\nAre You installing into an embedded system like a luckfox? (y/n)"
+    read embedded
+fi
 
 if [ $embedded == "y" ]; then
     printf "\nDetected embedded skipping dependency installation\n"
