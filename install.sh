@@ -157,9 +157,9 @@ sed -i $replace etc/mesh_bot_reporting.service
 printf "\n service files updated\n"
 
 if [ $bot == "pong" ]; then
-    echo "useradd -M meshbot"
-    echo "usermod -L meshbot"
-    echo "Added user meshbot with no home directory"
+    # echo "useradd -M meshbot"
+    # echo "usermod -L meshbot"
+    # echo "Added user meshbot with no home directory"
     # install service for pong bot
     sudo cp etc/pong_bot.service /etc/systemd/system/
     sudo systemctl enable pong_bot.service
@@ -167,9 +167,9 @@ if [ $bot == "pong" ]; then
 fi
 
 if [ $bot == "mesh" ]; then
-    echo "useradd -M meshbot"
-    echo "usermod -L meshbot"
-    echo "Added user meshbot with no home directory"
+    # echo "useradd -M meshbot"
+    # echo "usermod -L meshbot"
+    # echo "Added user meshbot with no home directory"
     # install service for mesh bot
     sudo cp etc/mesh_bot.service /etc/systemd/system/
     sudo systemctl enable mesh_bot.service
