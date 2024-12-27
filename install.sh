@@ -143,6 +143,7 @@ fi
 
 printf "\n\n"
 echo "Which bot do you want to install as a service? Pong Mesh or None? (pong/mesh/n)"
+echo "Pong bot is a simple bot for network testing, Mesh bot is a more complex bot more suited for meshing around"
 read bot
 
 # set the correct path in the service file
