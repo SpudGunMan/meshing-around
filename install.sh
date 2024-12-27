@@ -12,7 +12,7 @@ printf "Installer works best in raspian/debian/ubuntu, if there is a problem, tr
 printf "\nChecking for dependencies...\n"
 
 # check if running on embedded
-printf "\nAre You installing into an embedded system? (y/n)"
+printf "\nAre You installing into an embedded system like a luckfox? (y/n)"
 read embedded
 
 if [ $embedded == "y" ]; then
