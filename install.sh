@@ -68,9 +68,15 @@ sudo usermod -a -G tty $USER
 sudo usermod -a -G bluetooth $USER
 
 # copy service files
-cp etc/pong_bot.tmp etc/pong_bot.service
-cp etc/mesh_bot.tmp etc/mesh_bot.service
-cp etc/mesh_bot_reporting.tmp etc/mesh_bot_reporting.service
+if ! cp etc/pong_bot.tmp etc/pong_bot.service; then
+    sudo cp etc/pong_bot.tmp etc/pong_bot.service
+fi
+if ! cp etc/mesh_bot.tmp etc/mesh_bot.service; then
+    sudo cp etc/mesh_bot.tmp etc/mesh_bot.service
+fi
+if ! cp etc/mesh_bot_reporting.tmp etc/mesh_bot_reporting.service; then
+    sudo cp etc/mesh_bot_reporting.tmp etc/mesh_bot_reporting.service
+fi
 
 # generate config file, check if it exists
 if [ -f config.ini ]; then
