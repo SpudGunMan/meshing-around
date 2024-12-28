@@ -163,9 +163,11 @@ sed -i $replace etc/mesh_bot_reporting.service
 if [ $embedded != "y" ]; then
     printf "\nDo you want to add a user (meshbot) no login, for the bot? (y/n)"
     read meshbotservice
+else
+    meshbotservice="n"
 fi
 
-if [ $meshbotservice == "y" ] || [ $embedded == "y" ]; then
+if [ "$meshbotservice" == "y" ] || [ "$embedded" == "y" ]; then
     sudo useradd -M meshbot
     sudo usermod -L meshbot
     echo "Added user meshbot with no home directory"
