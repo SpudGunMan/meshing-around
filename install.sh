@@ -11,6 +11,12 @@ printf "\nThis script will try and install the Meshing Around Bot and its depend
 printf "Installer works best in raspian/debian/ubuntu, if there is a problem, try running the installer again.\n"
 printf "\nChecking for dependencies...\n"
 
+# check write access to program path
+if [ ! -w $program_path ]; then
+    printf "\nInstall path not writable, try running the installer with sudo\n"
+    exit 1
+fi
+
 # if hostname = femtofox, then we are on embedded
 if [ $(hostname) == "femtofox" ]; then
     printf "\nDetected femtofox embedded system\n"
@@ -68,15 +74,9 @@ sudo usermod -a -G tty $USER
 sudo usermod -a -G bluetooth $USER
 
 # copy service files
-if ! cp etc/pong_bot.tmp etc/pong_bot.service; then
-    sudo cp etc/pong_bot.tmp etc/pong_bot.service
-fi
-if ! cp etc/mesh_bot.tmp etc/mesh_bot.service; then
-    sudo cp etc/mesh_bot.tmp etc/mesh_bot.service
-fi
-if ! cp etc/mesh_bot_reporting.tmp etc/mesh_bot_reporting.service; then
-    sudo cp etc/mesh_bot_reporting.tmp etc/mesh_bot_reporting.service
-fi
+cp etc/pong_bot.tmp etc/pong_bot.service
+cp etc/mesh_bot.tmp etc/mesh_bot.service
+cp etc/mesh_bot_reporting.tmp etc/mesh_bot_reporting.service
 
 # generate config file, check if it exists
 if [ -f config.ini ]; then
