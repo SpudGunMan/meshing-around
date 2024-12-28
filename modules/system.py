@@ -702,7 +702,7 @@ def handleAlertBroadcast(deviceID=1):
     ukAlert = alertUk
 
     if emergencyAlertBrodcastEnabled:
-        if NO_ALERTS not in femaAlert:
+        if NO_ALERTS not in femaAlert and ERROR_FETCHING_DATA not in femaAlert:
             if isinstance(emergencyAlertBroadcastCh, list):
                 for channel in emergencyAlertBroadcastCh:
                     send_message(femaAlert, int(channel), 0, deviceID)
@@ -1173,7 +1173,7 @@ async def watchdog():
                     # Alert Broadcast
                     if wxAlertBroadcastEnabled or emergencyAlertBrodcastEnabled:
                         # weather alerts
-                        handleAlertBroadcast(1)
+                        handleAlertBroadcast(2)
 
                 # Telemetry data
                 int2Data = displayNodeTelemetry(0, 2)
