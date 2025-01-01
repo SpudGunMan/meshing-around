@@ -170,8 +170,13 @@ fi
 if [ "$meshbotservice" == "y" ] || [ "$embedded" == "y" ]; then
     sudo useradd -M meshbot
     sudo usermod -L meshbot
-    echo "Added user meshbot with no home directory"
     whoami="meshbot"
+    echo "Added user meshbot with no home directory"
+    sudo usermod -a -G dialout $whoami
+    sudo usermod -a -G tty $whoami
+    sudo usermod -a -G bluetooth $whoami
+    echo "Added meshbot to dialout, tty, and bluetooth groups"
+
     sudo chown -R $whoami:$whoami $program_path/logs
     sudo chown -R $whoami:$whoami $program_path/data
     echo "Permissions set for meshbot on logs and data directories"
