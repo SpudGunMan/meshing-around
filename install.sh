@@ -12,13 +12,13 @@ printf "Installer works best in raspian/debian/ubuntu, if there is a problem, tr
 printf "\nChecking for dependencies...\n"
 
 # check write access to program path
-if [ ! -w $program_path ]; then
+if [[ ! -w ${program_path} ]]; then
     printf "\nInstall path not writable, try running the installer with sudo\n"
     exit 1
 fi
 
 # if hostname = femtofox, then we are on embedded
-if [ $(hostname) == "femtofox" ]; then
+if [[ $(hostname) == "femtofox" ]]; then
     printf "\nDetected femtofox embedded system\n"
     embedded="y"
 else
@@ -27,13 +27,13 @@ else
     read embedded
 fi
 
-if [ "$embedded" = "y" ] || [ "$embedded" = "yes" ]; then
+if [[ $(echo "${embedded}" | grep -i "^y") ]]; then
     printf "\nDetected embedded skipping dependency installation\n"
-    if [ $program_path != "/opt/meshing-around" ]; then
+    if [[ ${program_path} != "/opt/meshing-around" ]]; then
         printf "\nIt is suggested to project path to /opt/meshing-around\n"
         printf "Do you want to move the project to /opt/meshing-around? (y/n)"
         read move
-        if [ "$move" = "y" ] || [ "$move" = "yes" ]; then
+        if [[ $(echo "${move}" | grep -i "^y") ]]; then
             sudo mv $program_path /opt/meshing-around
             cd /opt/meshing-around
             printf "\nProject moved to /opt/meshing-around. re-run the installer\n"
@@ -79,7 +79,7 @@ cp etc/mesh_bot.tmp etc/mesh_bot.service
 cp etc/mesh_bot_reporting.tmp etc/mesh_bot_reporting.service
 
 # generate config file, check if it exists
-if [ -f config.ini ]; then
+if [[ -f config.ini ]]; then
     printf "\nConfig file already exists, moving to backup config.old\n"
     mv config.ini config.old
 fi
@@ -88,13 +88,13 @@ cp config.template config.ini
 printf "\nConfig files generated!\n"
 
 # check if running on embedded
-if [ $embedded == "y" ]; then
+if [[ ${embedded} == "y" ]]; then
     printf "\nDetected embedded skipping venv\n"
 else
     printf "\nDo you want to install the bot in a python virtual environment? (y/n)"
     read venv
 
-    if [ $venv = "y" ] || [ $venv = "yes" ]; then
+    if [[ $(echo "${venv}" | grep -i "^y") ]]; then
         # set virtual environment
         if ! python3 -m venv --help &> /dev/null; then
             printf "Python3/venv error, please install python3-venv with your OS\n"
@@ -103,7 +103,7 @@ else
             echo "The Following could be messy, or take some time on slower devices."
             echo "Creating virtual environment..."
             #check if python3 has venv module
-            if [ -f venv/bin/activate ]; then
+            if [[ -f venv/bin/activate ]]; then
                 printf "\nFound virtual environment for python\n"
                 python3 -m venv venv
                 source venv/bin/activate
@@ -115,7 +115,7 @@ else
             python3 -m venv venv
 
             # double check for python3-venv
-            if [ -f venv/bin/activate ]; then
+            if [[ -f venv/bin/activate ]]; then
                 printf "\nFound virtual environment for python\n"
                 source venv/bin/activate
             else
@@ -139,7 +139,7 @@ else
         # install dependencies
         printf "Are you on Raspberry Pi(debian/ubuntu)?\nshould we add --break-system-packages to the pip install command? (y/n)"
         read rpi
-        if [ $rpi = "y" ] || [ $rpi = "yes" ]; then
+        if [[ $(echo "${rpi}" | grep -i "^y") ]]; then
             pip install -U -r requirements.txt --break-system-packages
         else
             pip install -U -r requirements.txt
@@ -160,14 +160,14 @@ sed -i $replace etc/mesh_bot_reporting.service
 # set the correct user in the service file?
 
 #ask if we should add a user for the bot
-if [ $embedded != "y" ] || [ $embedded != "yes" ]; then
+if [[ $(echo "${embedded}" | grep -i "^y") ]]; then
     printf "\nDo you want to add a user (meshbot) no login, for the bot? (y/n)"
     read meshbotservice
 else
     meshbotservice="n"
 fi
 
-if [ "$meshbotservice" == "y" ] || [ "$embedded" == "y" ] || [ "$embedded" == "yes" ] || [ "$meshbotservice" == "yes" ]; then
+if [[ $(echo "${meshbotservice}" | grep -i "^y") ]] || [[ $(echo "${embedded}" | grep -i "^y") ]]; then
     sudo useradd -M meshbot
     sudo usermod -L meshbot
     whoami="meshbot"
@@ -194,7 +194,7 @@ sed -i $replace etc/mesh_bot.service
 sed -i $replace etc/mesh_bot_reporting.service
 printf "\n service files updated\n"
 
-if [ $bot == "pong" ]; then
+if [[ $(echo "${bot}" | grep -i "^p") ]]; then
     # install service for pong bot
     sudo cp etc/pong_bot.service /etc/systemd/system/
     sudo systemctl enable pong_bot.service
@@ -202,7 +202,7 @@ if [ $bot == "pong" ]; then
     echo "to start pong bot service: systemctl start pong_bot"
 fi
 
-if [ $bot == "mesh" ]; then
+if [[ $(echo "${bot}" | grep -i "^m") ]]; then
     # install service for mesh bot
     sudo cp etc/mesh_bot.service /etc/systemd/system/
     sudo systemctl enable mesh_bot.service
@@ -211,11 +211,11 @@ if [ $bot == "mesh" ]; then
 fi
 
 # check if running on embedded
-if [ $embedded == "n" ] || [ $embedded == "no" ]; then
+if [[ $(echo "${embedded}" | grep -i "^n") ]]; then
     # ask if emoji font should be installed for linux
     printf "\nDo you want to install the emoji font for debian/ubuntu linux? (y/n)"
     read emoji
-    if [ $emoji = "y" ] || [ $emoji = "yes" ]; then
+    if [[ $(echo "${emoji}" | grep -i "^y") ]]; then
         sudo apt-get install -y fonts-noto-color-emoji
         echo "Emoji font installed!, reboot to load the font"
     fi
@@ -227,26 +227,26 @@ if [ $embedded == "n" ] || [ $embedded == "no" ]; then
     # ask if the user wants to install the LLM Ollama components
     printf "\nDo you want to install the LLM Ollama components? (y/n)"
     read ollama
-    if [ $ollama = "y" ] || [ $ollama = "yes" ]; then
+    if [[ $(echo "${ollama}" | grep -i "^y") ]]; then
         curl -fsSL https://ollama.com/install.sh | sh
 
         # ask if want to install gemma2:2b
         printf "\n Ollama install done now we can install the Gemma2:2b components, multi GB download\n"
         echo "Do you want to install the Gemma2:2b components? (y/n)"
         read gemma
-        if [ $gemma = "y" ] || [ $gemma = "yes" ]; then
+        if [[ $(echo "${gemma}" | grep -i "^y") ]]; then
             ollama pull gemma2:2b
         fi
     fi
 
 
-    if [ $venv == "y" ]; then
+    if [[ $(echo "${venv}" | grep -i "^y") ]]; then
         printf "\nFor running in virtual, launch bot with './launch.sh mesh' in path $program_path\n"
     fi
 
     printf "\nGood time to reboot? (y/n)"
     read reboot
-    if [ $reboot == "y" ]; then
+    if [[ $(echo "${reboot}" | grep -i "^y") ]]; then
         sudo reboot
     fi
 else
