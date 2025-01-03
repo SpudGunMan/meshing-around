@@ -202,6 +202,7 @@ if [[ $(echo "${bot}" | grep -i "^p") ]]; then
     sudo systemctl enable pong_bot.service
     sudo systemctl daemon-reload
     echo "to start pong bot service: systemctl start pong_bot"
+    service="pong_bot"
 fi
 
 if [[ $(echo "${bot}" | grep -i "^m") ]]; then
@@ -210,6 +211,7 @@ if [[ $(echo "${bot}" | grep -i "^m") ]]; then
     sudo systemctl enable mesh_bot.service
     sudo systemctl daemon-reload
     echo "to start mesh bot service: systemctl start mesh_bot"
+    service="mesh_bot"
 fi
 
 # check if running on embedded for final steps
@@ -261,16 +263,16 @@ else
     printf "\nConfig file updated for embedded\n"
 
     # Set up the meshing around service
-    printf "To install the meshing around service and keep notes, copy and paste the following commands:\n\n"
-    printf "sudo cp /opt/meshing-around/mesh_bot.service /etc/systemd/system/mesh_bot.service\n"
+    printf "To install the %s service and keep notes, copy and paste the following commands:\n\n" "$service"
+    printf "sudo cp /opt/meshing-around/%s.service /etc/systemd/system/%s.service\n" "$service" "$service"
     printf "sudo systemctl daemon-reload\n"
-    printf "sudo systemctl enable mesh_bot.service\n"
-    printf "sudo systemctl start mesh_bot.service\n"
-    printf "sudo systemctl status mesh_bot.service\n\n"
+    printf "sudo systemctl enable %s.service\n" "$service"
+    printf "sudo systemctl start %s.service\n" "$service"
+    printf "sudo systemctl status %s.service\n\n" "$service"
     printf "To see logs and stop the service:\n"
-    printf "sudo journalctl -u mesh_bot.service\n"
-    printf "sudo systemctl stop mesh_bot.service\n"
-    printf "sudo systemctl disable mesh_bot.service\n"
+    printf "sudo journalctl -u %s.service\n" "$service"
+    printf "sudo systemctl stop %s.service\n" "$service"
+    printf "sudo systemctl disable %s.service\n" "$service"
 fi
 
 printf "\nInstallation complete!\n"
