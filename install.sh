@@ -27,13 +27,13 @@ else
     read embedded
 fi
 
-if [ $embedded == "y" ]; then
+if [ "$embedded" = "y" ] || [ "$embedded" = "yes" ]; then
     printf "\nDetected embedded skipping dependency installation\n"
     if [ $program_path != "/opt/meshing-around" ]; then
         printf "\nIt is suggested to project path to /opt/meshing-around\n"
         printf "Do you want to move the project to /opt/meshing-around? (y/n)"
         read move
-        if [ $move == "y" ]; then
+        if [ "$move" = "y" ] || [ "$move" = "yes" ]; then
             sudo mv $program_path /opt/meshing-around
             cd /opt/meshing-around
             printf "\nProject moved to /opt/meshing-around. re-run the installer\n"
@@ -94,7 +94,7 @@ else
     printf "\nDo you want to install the bot in a python virtual environment? (y/n)"
     read venv
 
-    if [ $venv == "y" ]; then
+    if [ $venv = "y" ] || [ $venv = "yes" ]; then
         # set virtual environment
         if ! python3 -m venv --help &> /dev/null; then
             printf "Python3/venv error, please install python3-venv with your OS\n"
@@ -139,7 +139,7 @@ else
         # install dependencies
         printf "Are you on Raspberry Pi(debian/ubuntu)?\nshould we add --break-system-packages to the pip install command? (y/n)"
         read rpi
-        if [ $rpi == "y" ]; then
+        if [ $rpi = "y" ] || [ $rpi = "yes" ]; then
             pip install -U -r requirements.txt --break-system-packages
         else
             pip install -U -r requirements.txt
@@ -160,14 +160,14 @@ sed -i $replace etc/mesh_bot_reporting.service
 # set the correct user in the service file?
 
 #ask if we should add a user for the bot
-if [ $embedded != "y" ]; then
+if [ $embedded != "y" ] || [ $embedded != "yes" ]; then
     printf "\nDo you want to add a user (meshbot) no login, for the bot? (y/n)"
     read meshbotservice
 else
     meshbotservice="n"
 fi
 
-if [ "$meshbotservice" == "y" ] || [ "$embedded" == "y" ]; then
+if [ "$meshbotservice" == "y" ] || [ "$embedded" == "y" ] || [ "$embedded" == "yes" ] || [ "$meshbotservice" == "yes" ]; then
     sudo useradd -M meshbot
     sudo usermod -L meshbot
     whoami="meshbot"
@@ -211,11 +211,11 @@ if [ $bot == "mesh" ]; then
 fi
 
 # check if running on embedded
-if [ $embedded == "n" ]; then
+if [ $embedded == "n" ] || [ $embedded == "no" ]; then
     # ask if emoji font should be installed for linux
     printf "\nDo you want to install the emoji font for debian/ubuntu linux? (y/n)"
     read emoji
-    if [ $emoji == "y" ]; then
+    if [ $emoji = "y" ] || [ $emoji = "yes" ]; then
         sudo apt-get install -y fonts-noto-color-emoji
         echo "Emoji font installed!, reboot to load the font"
     fi
@@ -227,14 +227,14 @@ if [ $embedded == "n" ]; then
     # ask if the user wants to install the LLM Ollama components
     printf "\nDo you want to install the LLM Ollama components? (y/n)"
     read ollama
-    if [ $ollama == "y" ]; then
+    if [ $ollama = "y" ] || [ $ollama = "yes" ]; then
         curl -fsSL https://ollama.com/install.sh | sh
 
         # ask if want to install gemma2:2b
         printf "\n Ollama install done now we can install the Gemma2:2b components, multi GB download\n"
         echo "Do you want to install the Gemma2:2b components? (y/n)"
         read gemma
-        if [ $gemma == "y" ]; then
+        if [ $gemma = "y" ] || [ $gemma = "yes" ]; then
             ollama pull gemma2:2b
         fi
     fi
