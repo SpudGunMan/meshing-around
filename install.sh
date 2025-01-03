@@ -262,15 +262,15 @@ else
 
     # Set up the meshing around service
     printf "To install the meshing around service and keep notes, copy and paste the following commands:\n\n"
-    printf "sudo cp /opt/meshing-around/meshing-around.service /etc/systemd/system/meshing-around.service\n"
+    printf "sudo cp /opt/meshing-around/mesh_bot.service /etc/systemd/system/mesh_bot.service\n"
     printf "sudo systemctl daemon-reload\n"
-    printf "sudo systemctl enable meshing-around.service\n"
-    printf "sudo systemctl start meshing-around.service\n"
-    printf "sudo systemctl status meshing-around.service\n\n"
+    printf "sudo systemctl enable mesh_bot.service\n"
+    printf "sudo systemctl start mesh_bot.service\n"
+    printf "sudo systemctl status mesh_bot.service\n\n"
     printf "To see logs and stop the service:\n"
-    printf "sudo journalctl -u meshing-around.service\n"
-    printf "sudo systemctl stop meshing-around.service\n"
-    printf "sudo systemctl disable meshing-around.service\n"
+    printf "sudo journalctl -u mesh_bot.service\n"
+    printf "sudo systemctl stop mesh_bot.service\n"
+    printf "sudo systemctl disable mesh_bot.service\n"
 fi
 
 printf "\nInstallation complete!\n"
