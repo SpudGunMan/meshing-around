@@ -11,6 +11,19 @@ printf "\nThis script will try and install the Meshing Around Bot and its depend
 printf "Installer works best in raspian/debian/ubuntu, if there is a problem, try running the installer again.\n"
 printf "\nChecking for dependencies...\n"
 
+# check if we are in /opt/meshing-around
+if [ $program_path != "/opt/meshing-around" ]; then
+    printf "\nIt is suggested to project path to /opt/meshing-around\n"
+    printf "Do you want to move the project to /opt/meshing-around? (y/n)"
+    read move
+    if [[ $(echo "$move" | grep -iq "^y") ]]; then
+        sudo mv $program_path /opt/meshing-around
+        cd /opt/meshing-around
+        printf "\nProject moved to /opt/meshing-around. re-run the installer\n"
+        exit 0
+    fi
+fi
+
 # check write access to program path
 if [[ ! -w ${program_path} ]]; then
     printf "\nInstall path not writable, try running the installer with sudo\n"
@@ -29,17 +42,6 @@ fi
 
 if [[ $(echo "${embedded}" | grep -i "^y") ]]; then
     printf "\nDetected embedded skipping dependency installation\n"
-    if [[ ${program_path} != "/opt/meshing-around" ]]; then
-        printf "\nIt is suggested to project path to /opt/meshing-around\n"
-        printf "Do you want to move the project to /opt/meshing-around? (y/n)"
-        read move
-        if [[ $(echo "${move}" | grep -i "^y") ]]; then
-            sudo mv $program_path /opt/meshing-around
-            cd /opt/meshing-around
-            printf "\nProject moved to /opt/meshing-around. re-run the installer\n"
-            exit 0
-        fi
-    fi
 else
     # Check and install dependencies
     if ! command -v python3 &> /dev/null
@@ -88,10 +90,10 @@ cp config.template config.ini
 printf "\nConfig files generated!\n"
 
 # check if running on embedded
-if [[ ${embedded} == "y" ]]; then
+if [[ $(echo "${embedded}" | grep -iq "^y") ]]; then
     printf "\nDetected embedded skipping venv\n"
 else
-    printf "\nDo you want to install the bot in a python virtual environment? (y/n)"
+    printf "\nRecomended install is in a python virtual environment, do you want to use venv? (y/n)"
     read venv
 
     if [[ $(echo "${venv}" | grep -i "^y") ]]; then
@@ -131,12 +133,12 @@ else
             replace="s|python3 pong_bot.py|/usr/bin/bash launch.sh pong|g"
             sed -i "$replace" etc/pong_bot.service
 
-            # install dependencies
+            # install dependencies to venv
             pip install -U -r requirements.txt
         fi
     else
         printf "\nSkipping virtual environment...\n"
-        # install dependencies
+        # install dependencies to system
         printf "Are you on Raspberry Pi(debian/ubuntu)?\nshould we add --break-system-packages to the pip install command? (y/n)"
         read rpi
         if [[ $(echo "${rpi}" | grep -i "^y") ]]; then
@@ -161,7 +163,7 @@ sed -i $replace etc/mesh_bot_reporting.service
 
 #ask if we should add a user for the bot
 if [[ $(echo "${embedded}" | grep -i "^y") ]]; then
-    printf "\nDo you want to add a user (meshbot) no login, for the bot? (y/n)"
+    printf "\nDo you want to add a local user (meshbot) no login, for the bot? (y/n)"
     read meshbotservice
 else
     meshbotservice="n"
@@ -183,7 +185,7 @@ if [[ $(echo "${meshbotservice}" | grep -i "^y") ]] || [[ $(echo "${embedded}" |
 else
     whoami=$(whoami)
 fi
-
+# set the correct user in the service file
 replace="s|User=pi|User=$whoami|g"
 sed -i $replace etc/pong_bot.service
 sed -i $replace etc/mesh_bot.service
@@ -210,7 +212,7 @@ if [[ $(echo "${bot}" | grep -i "^m") ]]; then
     echo "to start mesh bot service: systemctl start mesh_bot"
 fi
 
-# check if running on embedded
+# check if running on embedded for final steps
 if [[ $(echo "${embedded}" | grep -i "^n") ]]; then
     # ask if emoji font should be installed for linux
     printf "\nDo you want to install the emoji font for debian/ubuntu linux? (y/n)"
@@ -220,10 +222,10 @@ if [[ $(echo "${embedded}" | grep -i "^n") ]]; then
         echo "Emoji font installed!, reboot to load the font"
     fi
 
-
     printf "\nOptionally if you want to install the multi gig LLM Ollama compnents we will execute the following commands\n"
     printf "\ncurl -fsSL https://ollama.com/install.sh | sh\n"
-
+    printf "ollama pull gemma2:2b\n"
+    printf "Total download is multi GB, recomend pi5/8GB or better for this\n"
     # ask if the user wants to install the LLM Ollama components
     printf "\nDo you want to install the LLM Ollama components? (y/n)"
     read ollama
@@ -231,7 +233,7 @@ if [[ $(echo "${embedded}" | grep -i "^n") ]]; then
         curl -fsSL https://ollama.com/install.sh | sh
 
         # ask if want to install gemma2:2b
-        printf "\n Ollama install done now we can install the Gemma2:2b components, multi GB download\n"
+        printf "\n Ollama install done now we can install the Gemma2:2b components\n"
         echo "Do you want to install the Gemma2:2b components? (y/n)"
         read gemma
         if [[ $(echo "${gemma}" | grep -i "^y") ]]; then
@@ -239,9 +241,8 @@ if [[ $(echo "${embedded}" | grep -i "^n") ]]; then
         fi
     fi
 
-
     if [[ $(echo "${venv}" | grep -i "^y") ]]; then
-        printf "\nFor running in virtual, launch bot with './launch.sh mesh' in path $program_path\n"
+        printf "\nFor running on venv, virtual launch bot with './launch.sh mesh' in path $program_path\n"
     fi
 
     printf "\nGood time to reboot? (y/n)"
@@ -260,8 +261,16 @@ else
     printf "\nConfig file updated for embedded\n"
 
     # Set up the meshing around service
-    #sudo cp /opt/meshing-around/meshing-around.service /etc/systemd/system/meshing-around.service
-    #sudo systemctl enable meshing-around.service
+    printf "To install the meshing around service and keep notes, copy and paste the following commands:\n\n"
+    printf "sudo cp /opt/meshing-around/meshing-around.service /etc/systemd/system/meshing-around.service\n"
+    printf "sudo systemctl daemon-reload\n"
+    printf "sudo systemctl enable meshing-around.service\n"
+    printf "sudo systemctl start meshing-around.service\n"
+    printf "sudo systemctl status meshing-around.service\n\n"
+    printf "To see logs and stop the service:\n"
+    printf "sudo journalctl -u meshing-around.service\n"
+    printf "sudo systemctl stop meshing-around.service\n"
+    printf "sudo systemctl disable meshing-around.service\n"
 fi
 
 printf "\nInstallation complete!\n"
