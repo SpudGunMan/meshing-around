@@ -14,6 +14,8 @@ Logging messages to disk or 'Syslog' to disk uses the python native logging func
 LogMessagesToFile = False
 # Logging of system messages to file, needed for reporting engine
 SyslogToFile = True
+# logging level for the bot (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+sysloglevel = DEBUG
 # Number of log files to keep in days, 0 to keep all
 log_backup_count = 32
 ```

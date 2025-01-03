@@ -117,6 +117,7 @@ try:
     log_messages_to_file = config['general'].getboolean('LogMessagesToFile', False) # default off
     log_backup_count = config['general'].getint('LogBackupCount', 32) # default 32 days
     syslog_to_file = config['general'].getboolean('SyslogToFile', True) # default on
+    LOGGING_LEVEL = config['general'].get('sysloglevel', 'DEBUG') # default DEBUG
     urlTimeoutSeconds = config['general'].getint('urlTimeout', 10) # default 10 seconds
     store_forward_enabled = config['general'].getboolean('StoreForward', True)
     storeFlimit = config['general'].getint('StoreLimit', 3) # default 3 messages for S&F
@@ -136,7 +137,6 @@ try:
     llm_enabled = config['general'].getboolean('ollama', False) # https://ollama.com
     llmModel = config['general'].get('ollamaModel', 'gemma2:2b') # default gemma2:2b
     ollamaHostName = config['general'].get('ollamaHostName', 'http://localhost:11434') # default localhost
-
     # emergency response
     emergency_responder_enabled = config['emergencyHandler'].getboolean('enabled', False)
     emergency_responder_alert_channel = config['emergencyHandler'].getint('alert_channel', 2) # default 2
