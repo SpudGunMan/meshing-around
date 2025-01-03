@@ -5,7 +5,7 @@
 import asyncio
 import time # for sleep, get some when you can :)
 import random
-from pubsub import pub # pip install pubsub, use launch.sh for venv
+from pubsub import pub # pip install pubsub or use launch.sh for venv
 from modules.log import *
 from modules.system import *
 

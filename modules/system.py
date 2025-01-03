@@ -1,7 +1,7 @@
 # helper functions and init for system related tasks
 # K7MHI Kelly Keeton 2024
 
-import meshtastic.serial_interface #pip install meshtastic
+import meshtastic.serial_interface #pip install meshtastic or use launch.sh for venv
 import meshtastic.tcp_interface
 import meshtastic.ble_interface
 import time
