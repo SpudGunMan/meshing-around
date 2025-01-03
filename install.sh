@@ -16,7 +16,7 @@ if [ $program_path != "/opt/meshing-around" ]; then
     printf "\nIt is suggested to project path to /opt/meshing-around\n"
     printf "Do you want to move the project to /opt/meshing-around? (y/n)"
     read move
-    if [[ $(echo "$move" | grep -iq "^y") ]]; then
+    if [[ $(echo "$move" | grep -i "^y") ]]; then
         sudo mv $program_path /opt/meshing-around
         cd /opt/meshing-around
         printf "\nProject moved to /opt/meshing-around. re-run the installer\n"
