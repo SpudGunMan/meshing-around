@@ -8,8 +8,7 @@
 type = serial
 port = /dev/ttyACM0
 # port = /dev/ttyUSB0
-# port = COM1
-# hostname = localhost
+# hostname = meshtastic.local
 # mac = 00:11:22:33:44:55
 
 # Additional interface for dual radio support
@@ -17,9 +16,9 @@ port = /dev/ttyACM0
 enabled = False
 type = serial
 port = /dev/ttyUSB0
-#port = /dev/ttyACM1
+# port = /dev/ttyACM1
 # port = COM1
-# hostname = meshtastic.local
+# hostname = localhost
 # mac = 00:11:22:33:44:55
 
 [general]
@@ -74,6 +73,8 @@ urlTimeout = 10
 LogMessagesToFile = False
 # Logging of system messages to file
 SyslogToFile = True
+# logging level for the bot (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+sysloglevel = DEBUG
 # Number of log files to keep in days, 0 to keep all
 log_backup_count = 32
 

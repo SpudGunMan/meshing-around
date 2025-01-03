@@ -255,8 +255,8 @@ else
     # replace "type = serial" with "type = tcp" in config.ini
     replace="s|type = serial|type = tcp|g"
     sed -i "$replace" config.ini
-    # replace "# hostname = 192.168.0.1" with "hostname = localhost" in config.ini
-    replace="s|# hostname = localhost|hostname = localhost|g"
+    # replace "# hostname = meshtastic.local" with "hostname = localhost" in config.ini
+    replace="s|# hostname = meshtastic.local|hostname = localhost|g"
     sed -i "$replace" config.ini
     printf "\nConfig file updated for embedded\n"
 
