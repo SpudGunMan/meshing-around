@@ -178,6 +178,7 @@ fi
 if [[ $(echo "${meshbotservice}" | grep -i "^y") ]] || [[ $(echo "${embedded}" | grep -i "^y") ]]; then
     sudo useradd -M meshbot
     sudo usermod -L meshbot
+    groupadd meshbot
     whoami="meshbot"
     echo "Added user meshbot with no home directory"
     sudo usermod -a -G dialout $whoami
