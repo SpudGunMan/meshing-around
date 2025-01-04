@@ -254,15 +254,15 @@ if [[ $(echo "${embedded}" | grep -i "^n") ]]; then
     if [[ $(echo "${meshbotservice}" | grep -i "^y") ]]; then
         # document the service install
         printf "To install the %s service and keep notes, copy and paste the following commands:\n\n" "$service"
-        printf "sudo cp %s/etc/%s.service /etc/systemd/system/etc/%s.service\n" "$program_path" "$service" "$service"
-        printf "sudo systemctl daemon-reload\n"
-        printf "sudo systemctl enable %s.service\n" "$service"
-        printf "sudo systemctl start %s.service\n" "$service"
-        printf "sudo systemctl status %s.service\n\n" "$service"
-        printf "To see logs and stop the service:\n"
-        printf "sudo journalctl -u %s.service\n" "$service"
-        printf "sudo systemctl stop %s.service\n" "$service"
-        printf "sudo systemctl disable %s.service\n" "$service"
+        printf "sudo cp %s/etc/%s.service /etc/systemd/system/etc/%s.service\n" "$program_path" "$service" "$service" > install_notes.txt
+        printf "sudo systemctl daemon-reload\n" >> install_notes.txt
+        printf "sudo systemctl enable %s.service\n" "$service" >> install_notes.txt
+        printf "sudo systemctl start %s.service\n" "$service" >> install_notes.txt
+        printf "sudo systemctl status %s.service\n\n" "$service" >> install_notes.txt
+        printf "To see logs and stop the service:\n" >> install_notes.txt
+        printf "sudo journalctl -u %s.service\n" "$service" >> install_notes.txt
+        printf "sudo systemctl stop %s.service\n" "$service" >> install_notes.txt
+        printf "sudo systemctl disable %s.service\n" "$service" >> install_notes.txt
     fi
     
     if [[ $(echo "${venv}" | grep -i "^y") ]]; then
@@ -290,12 +290,12 @@ else
     sudo systemctl enable $service.service
     sudo systemctl start $service.service
 
-    printf "sudo systemctl status %s.service\n\n" "$service"
+    printf "sudo systemctl status %s.service\n\n" "$service" > install_notes.txt
     printf "To see logs and stop the service:\n"
-    printf "sudo journalctl -u %s.service\n" "$service"
-    printf "sudo systemctl stop %s.service\n" "$service"
-    printf "sudo systemctl disable %s.service\n" "$service"
-    read -p "Press enter to complete the installation"
+    printf "sudo journalctl -u %s.service\n" "$service" >> install_notes.txt
+    printf "sudo systemctl stop %s.service\n" "$service" >> install_notes.txt
+    printf "sudo systemctl disable %s.service\n" "$service" >> install_notes.txt
+    read -p "Press enter to complete the installation, these commands saved to install_notes.txt"
 fi
 
 printf "\nInstallation complete!\n"
