@@ -286,9 +286,11 @@ else
     printf "sudo journalctl -u %s.service\n" "$service"
     printf "sudo systemctl stop %s.service\n" "$service"
     printf "sudo systemctl disable %s.service\n" "$service"
+    read -p "Press enter to complete the installation"
 fi
 
 printf "\nInstallation complete!\n"
+
 exit 0
 # after install shenannigans
 # add 'bee = True' to config.ini General section. You will likley want to clean the txt up a bit
