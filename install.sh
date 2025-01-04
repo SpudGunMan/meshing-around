@@ -93,7 +93,6 @@ printf "\nConfig files generated!\n"
 # update lat,long in config.ini 
 latlong=$(curl --silent --max-time 20 https://ipinfo.io/loc || echo "48.50,-123.0")
 IFS=',' read -r lat lon <<< "$latlong"
-echo "lat: $lat, lon: $lon"
 sed -i "s|lat = 48.50|lat = $lat|g" config.ini
 sed -i "s|lon = -123.0|lon = $lon|g" config.ini
 echo "lat,long updated in config.ini to $latlong"
@@ -253,7 +252,7 @@ if [[ $(echo "${embedded}" | grep -i "^n") ]]; then
     if [[ $(echo "${meshbotservice}" | grep -i "^y") ]]; then
         # document the service install
         printf "To install the %s service and keep notes, copy and paste the following commands:\n\n" "$service"
-        printf "sudo cp /opt/meshing-around/etc/%s.service /etc/systemd/system/etc/%s.service\n" "$service" "$service"
+        printf "sudo cp %s/etc/%s.service /etc/systemd/system/etc/%s.service\n" "$program_path" "$service" "$service"
         printf "sudo systemctl daemon-reload\n"
         printf "sudo systemctl enable %s.service\n" "$service"
         printf "sudo systemctl start %s.service\n" "$service"
@@ -284,7 +283,7 @@ else
     printf "\nConfig file updated for embedded\n"
 
     # Set up the meshing around service
-    sudo cp /opt/meshing-around/$service.service /etc/systemd/system/$service.service
+    sudo cp /opt/meshing-around/etc/$service.service /etc/systemd/system/$service.service
     sudo systemctl daemon-reload
     sudo systemctl enable $service.service
     sudo systemctl start $service.service
