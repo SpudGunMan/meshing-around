@@ -250,7 +250,7 @@ if [[ $(echo "${embedded}" | grep -i "^n") ]]; then
         fi
     fi
 
-    if [[ $(echo "${meshbotservice}" | grep -i "^y") ]]
+    if [[ $(echo "${meshbotservice}" | grep -i "^y") ]]; then
         # document the service install
         printf "To install the %s service and keep notes, copy and paste the following commands:\n\n" "$service"
         printf "sudo cp /opt/meshing-around/%s.service /etc/systemd/system/%s.service\n" "$service" "$service"
