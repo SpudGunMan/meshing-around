@@ -90,6 +90,14 @@ fi
 cp config.template config.ini
 printf "\nConfig files generated!\n"
 
+# update lat,long in config.ini 
+latlong=$(curl --silent --max-time 20 https://ipinfo.io/loc || echo "48.50,-123.0")
+IFS=',' read -r lat lon <<< "$latlong"
+echo "lat: $lat, lon: $lon"
+sed -i "s|lat = 48.50|lat = $lat|g" config.ini
+sed -i "s|lon = -123.0|lon = $lon|g" config.ini
+echo "lat,long updated in config.ini to $latlong"
+
 # check if running on embedded
 if [[ $(echo "${embedded}" | grep -i "^y") ]]; then
     printf "\nDetected embedded skipping venv\n"
