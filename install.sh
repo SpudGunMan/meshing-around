@@ -8,7 +8,8 @@ printf "\n########################"
 printf "\nMeshing Around Installer\n"
 printf "########################\n"
 printf "\nThis script will try and install the Meshing Around Bot and its dependencies."
-printf "Installer works best in raspian/debian/ubuntu, if there is a problem, try running the installer again.\n"
+printf "Installer works best in raspian/debian/ubuntu or foxbuntu embedded systems.\n"
+printf "If there is a problem, try running the installer again.\n"
 printf "\nChecking for dependencies...\n"
 
 # check if we are in /opt/meshing-around
@@ -90,7 +91,7 @@ cp config.template config.ini
 printf "\nConfig files generated!\n"
 
 # check if running on embedded
-if [[ $(echo "${embedded}" | grep -iq "^y") ]]; then
+if [[ $(echo "${embedded}" | grep -i "^y") ]]; then
     printf "\nDetected embedded skipping venv\n"
 else
     printf "\nRecomended install is in a python virtual environment, do you want to use venv? (y/n)"
