@@ -251,7 +251,7 @@ if [[ $(echo "${embedded}" | grep -i "^n") ]]; then
         fi
     fi
 
-    if [[ $(echo "${meshbotservice}" | grep -i "^y") ]]; then
+    if [[ $(echo "${embedded}" | grep -i "^n") ]]; then
         # document the service install
         printf "To install the %s service and keep notes, copy and paste the following commands:\n\n" "$service"
         printf "sudo cp %s/etc/%s.service /etc/systemd/system/etc/%s.service\n" "$program_path" "$service" "$service" > install_notes.txt
@@ -259,7 +259,7 @@ if [[ $(echo "${embedded}" | grep -i "^n") ]]; then
         printf "sudo systemctl enable %s.service\n" "$service" >> install_notes.txt
         printf "sudo systemctl start %s.service\n" "$service" >> install_notes.txt
         printf "sudo systemctl status %s.service\n\n" "$service" >> install_notes.txt
-        printf "To see logs and stop the service:\n" >> install_notes.txt
+        printf "To see logs and stop the service:\n"
         printf "sudo journalctl -u %s.service\n" "$service" >> install_notes.txt
         printf "sudo systemctl stop %s.service\n" "$service" >> install_notes.txt
         printf "sudo systemctl disable %s.service\n" "$service" >> install_notes.txt
