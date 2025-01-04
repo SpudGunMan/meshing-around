@@ -295,8 +295,8 @@ else
     printf "sudo journalctl -u %s.service\n" "$service" >> install_notes.txt
     printf "sudo systemctl stop %s.service\n" "$service" >> install_notes.txt
     printf "sudo systemctl disable %s.service\n" "$service" >> install_notes.txt
-    read -p "Press enter to complete the installation, these commands saved to install_notes.txt"
 fi
+read -p "Press enter to complete the installation, these commands saved to install_notes.txt"
 
 printf "\nInstallation complete!\n"
 
