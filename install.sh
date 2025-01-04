@@ -163,11 +163,9 @@ sed -i $replace etc/mesh_bot_reporting.service
 # set the correct user in the service file?
 
 #ask if we should add a user for the bot
-if [[ $(echo "${embedded}" | grep -i "^y") ]]; then
+if [[ $(echo "${embedded}" | grep -i "^n") ]]; then
     printf "\nDo you want to add a local user (meshbot) no login, for the bot? (y/n)"
     read meshbotservice
-else
-    meshbotservice="n"
 fi
 
 if [[ $(echo "${meshbotservice}" | grep -i "^y") ]] || [[ $(echo "${embedded}" | grep -i "^y") ]]; then
