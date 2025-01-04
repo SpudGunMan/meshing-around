@@ -242,6 +242,20 @@ if [[ $(echo "${embedded}" | grep -i "^n") ]]; then
         fi
     fi
 
+    if [[ $(echo "${meshbotservice}" | grep -i "^y") ]]
+        # document the service install
+        printf "To install the %s service and keep notes, copy and paste the following commands:\n\n" "$service"
+        printf "sudo cp /opt/meshing-around/%s.service /etc/systemd/system/%s.service\n" "$service" "$service"
+        printf "sudo systemctl daemon-reload\n"
+        printf "sudo systemctl enable %s.service\n" "$service"
+        printf "sudo systemctl start %s.service\n" "$service"
+        printf "sudo systemctl status %s.service\n\n" "$service"
+        printf "To see logs and stop the service:\n"
+        printf "sudo journalctl -u %s.service\n" "$service"
+        printf "sudo systemctl stop %s.service\n" "$service"
+        printf "sudo systemctl disable %s.service\n" "$service"
+    fi
+    
     if [[ $(echo "${venv}" | grep -i "^y") ]]; then
         printf "\nFor running on venv, virtual launch bot with './launch.sh mesh' in path $program_path\n"
     fi
@@ -262,11 +276,11 @@ else
     printf "\nConfig file updated for embedded\n"
 
     # Set up the meshing around service
-    printf "To install the %s service and keep notes, copy and paste the following commands:\n\n" "$service"
-    printf "sudo cp /opt/meshing-around/%s.service /etc/systemd/system/%s.service\n" "$service" "$service"
-    printf "sudo systemctl daemon-reload\n"
-    printf "sudo systemctl enable %s.service\n" "$service"
-    printf "sudo systemctl start %s.service\n" "$service"
+    sudo cp /opt/meshing-around/$service.service /etc/systemd/system/$service.service
+    sudo systemctl daemon-reload
+    sudo systemctl enable $service.service
+    sudo systemctl start $service.service
+
     printf "sudo systemctl status %s.service\n\n" "$service"
     printf "To see logs and stop the service:\n"
     printf "sudo journalctl -u %s.service\n" "$service"
