@@ -7,7 +7,7 @@ program_path=$(pwd)
 printf "\n########################"
 printf "\nMeshing Around Installer\n"
 printf "########################\n"
-printf "\nThis script will try and install the Meshing Around Bot and its dependencies."
+printf "\nThis script will try and install the Meshing Around Bot and its dependencies.\n"
 printf "Installer works best in raspian/debian/ubuntu or foxbuntu embedded systems.\n"
 printf "If there is a problem, try running the installer again.\n"
 printf "\nChecking for dependencies...\n"
