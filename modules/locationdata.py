@@ -357,16 +357,10 @@ def getWeatherAlertsNOAA(lat=0, lon=0, useDefaultLatLon=False):
     
     alerts = ""
     alertxml = xml.dom.minidom.parseString(alert_data.text)
-    #old
     for i in alertxml.getElementsByTagName("entry"):
-        alerts += (
-            i.getElementsByTagName("title")[0].childNodes[0].nodeValue + "\n"
-        )
-    #new
-    # for i in alertxml.getElementsByTagName("entry"):
-    #     title = i.getElementsByTagName("title")[0].childNodes[0].nodeValue
-    #     area_desc = i.getElementsByTagName("cap:areaDesc")[0].childNodes[0].nodeValue
-    #     alerts += f"{title}\nArea: {area_desc}\n\n"
+        title = i.getElementsByTagName("title")[0].childNodes[0].nodeValue
+        area_desc = i.getElementsByTagName("cap:areaDesc")[0].childNodes[0].nodeValue
+        alerts += f"{title}\nArea: {area_desc}\n\n"
 
     if alerts == "" or alerts == None:
         return NO_ALERTS
