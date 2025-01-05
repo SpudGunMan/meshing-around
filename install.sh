@@ -37,7 +37,7 @@ if [[ $(hostname) == "femtofox" ]]; then
     embedded="y"
 else
     # check if running on embedded
-    printf "\nAre You installing into an embedded system like a luckfox? (y/n)"
+    printf "\nAre You installing into an embedded system like a luckfox? most should say no here (y/n)"
     read embedded
 fi
 
