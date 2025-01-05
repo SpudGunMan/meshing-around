@@ -1,3 +1,3 @@
 # How do I use this thing?
 
-`docker compose up`
+`docker compose up -d`
