@@ -27,7 +27,7 @@ services:
     expose:
       - 11434
     healthcheck:
-      test: "apt update && apt install curl -y && curl -f http://localhost:11434/api/tags | grep -q llama3.3:3b"
+      test: "apt update && apt install curl -y && curl -f http://localhost:11434/api/tags | grep -q llama3.2:3b"
       interval: 30s
       timeout: 10s
       retries: 20
