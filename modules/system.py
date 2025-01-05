@@ -1060,6 +1060,9 @@ async def handleSentinel(deviceID):
 
         logger.warning(f"System: {enemySpotted} is close to your location on Interface{deviceID} Accuracy is {resolution}bits")
         send_message(f"Sentry{deviceID}: {enemySpotted}", secure_channel, 0, deviceID)
+        for i in range(1, 10):
+            if globals().get(f'interface{i}_enabled'):
+                send_message(f"Sentry{deviceID}: {enemySpotted}", secure_channel, 0, i)
         if enableSMTP and email_sentry_alerts:
             for email in sysopEmails:
                 send_email(email, f"Sentry{deviceID}: {enemySpotted}")
