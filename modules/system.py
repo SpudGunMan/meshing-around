@@ -281,6 +281,7 @@ def get_num_from_short_name(short_name, nodeInt=1):
         elif str(short_name.lower()) == node['user']['shortName'].lower():
             return node['num']
         else:
+            # TODO check the other interface
             if interface2_enabled:
                 interface = interface2 if nodeInt == 1 else interface1 # check the other interface
                 for node in interface.nodes.values():
@@ -301,7 +302,7 @@ def get_node_list(nodeInt=1):
     if interface.nodes:
         for node in interface.nodes.values():
             # ignore own
-            if node['num'] != myNodeNum2 and node['num'] != myNodeNum1:
+            if all(node['num'] != globals().get(f'myNodeNum{i}', 777) for i in range(1, 10)):
                 node_name = get_name_from_number(node['num'], 'short', nodeInt)
                 snr = node.get('snr', 0)
 
@@ -399,7 +400,7 @@ def get_closest_nodes(nodeInt=1,returnCount=3):
                     distance = round(geopy.distance.geodesic((latitudeValue, longitudeValue), (latitude, longitude)).m, 2)
                     
                     if (distance < sentry_radius):
-                        if nodeID != myNodeNum1 and myNodeNum2 and str(nodeID) not in sentryIgnoreList:
+                        if (nodeID not in [globals().get(f'myNodeNum{i}', 777) for i in range(1, 10)]) and str(nodeID) not in sentryIgnoreList:
                             node_list.append({'id': nodeID, 'latitude': latitude, 'longitude': longitude, 'distance': distance})
                             
                 except Exception as e:
@@ -781,18 +782,15 @@ def getNodeFirmware(nodeID=0, nodeInt=1):
     return -1
 
 def displayNodeTelemetry(nodeID=0, rxNode=0, userRequested=False):
-    interface = interface1 if rxNode == 1 else interface2
+    interface = globals()[f'interface{rxNode}']
+    myNodeNum = globals().get(f'myNodeNum{rxNode}', 777)
     global telemetryData
 
     # throttle the telemetry requests to prevent spamming the device
-    if rxNode == 1:
-        if time.time() - telemetryData[0]['interface1'] < 600 and not userRequested:
+    if 1 <= rxNode <= 9:
+        if time.time() - telemetryData[0][f'interface{rxNode}'] < 600 and not userRequested:
             return -1
-        telemetryData[0]['interface1'] = time.time()
-    elif rxNode == 2:
-        if time.time() - telemetryData[0]['interface2'] < 600 and not userRequested:
-            return -1
-        telemetryData[0]['interface2'] = time.time()
+        telemetryData[0][f'interface{rxNode}'] = time.time()
 
     # some telemetry data is not available in python-meshtastic?
     # bring in values from the last telemetry dump for the node
@@ -804,13 +802,13 @@ def displayNodeTelemetry(nodeID=0, rxNode=0, userRequested=False):
     totalOnlineNodes = telemetryData[rxNode]['numOnlineNodes']
 
     # get the telemetry data for a node
-    chutil = round(interface.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("channelUtilization", 0), 1)
-    airUtilTx = round(interface.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("airUtilTx", 0), 1)
-    uptimeSeconds = interface.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("uptimeSeconds", 0)
-    batteryLevel = interface.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("batteryLevel", 0)
-    voltage = interface.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("voltage", 0)
-    #numPacketsRx = interface.nodes.get(decimal_to_hex(myNodeNum1), {}).get("localStats", {}).get("numPacketsRx", 0)
-    #numPacketsTx = interface.nodes.get(decimal_to_hex(myNodeNum1), {}).get("localStats", {}).get("numPacketsTx", 0)
+    chutil = round(interface.nodes.get(decimal_to_hex(myNodeNum), {}).get("deviceMetrics", {}).get("channelUtilization", 0), 1)
+    airUtilTx = round(interface.nodes.get(decimal_to_hex(myNodeNum), {}).get("deviceMetrics", {}).get("airUtilTx", 0), 1)
+    uptimeSeconds = interface.nodes.get(decimal_to_hex(myNodeNum), {}).get("deviceMetrics", {}).get("uptimeSeconds", 0)
+    batteryLevel = interface.nodes.get(decimal_to_hex(myNodeNum), {}).get("deviceMetrics", {}).get("batteryLevel", 0)
+    voltage = interface.nodes.get(decimal_to_hex(myNodeNum), {}).get("deviceMetrics", {}).get("voltage", 0)
+    #numPacketsRx = interface.nodes.get(decimal_to_hex(myNodeNum), {}).get("localStats", {}).get("numPacketsRx", 0)
+    #numPacketsTx = interface.nodes.get(decimal_to_hex(myNodeNum), {}).get("localStats", {}).get("numPacketsTx", 0)
     numTotalNodes = len(interface.nodes) 
     
     dataResponse = f"Telemetry:{rxNode}"
@@ -1015,8 +1013,8 @@ async def handleFileWatcher():
 
 async def retry_interface(nodeID=1):
     global interface1, interface2, retry_int1, retry_int2, max_retry_count1, max_retry_count2
-    interface = interface1 if nodeID == 1 else interface2
-    retry_int = retry_int1 if nodeID == 1 else retry_int2
+    interface = globals()[f'interface{nodeID}']
+    retry_int = globals()[f'interface{nodeID}']
     # retry connecting to the interface
     # add a check to see if the interface is already open or trying to open
     if interface is not None:
