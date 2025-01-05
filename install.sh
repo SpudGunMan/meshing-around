@@ -157,10 +157,17 @@ else
     fi
 fi
 
-printf "\n\n"
-echo "Which bot do you want to install as a service? Pong Mesh or None? (pong/mesh/n)"
-echo "Pong bot is a simple bot for network testing, Mesh bot is a more complex bot more suited for meshing around"
-read bot
+# if $1 is passed
+if [[ $1 == "mesh" ]]; then
+    bot="mesh"
+elif [[ $1 == "pong" ]]; then
+    bot="pong"
+else
+    printf "\n\n"
+    echo "Which bot do you want to install as a service? Pong Mesh or None? (pong/mesh/n)"
+    echo "Pong bot is a simple bot for network testing, Mesh bot is a more complex bot more suited for meshing around"
+    read bot
+fi
 
 # set the correct path in the service file
 replace="s|/dir/|$program_path/|g"
@@ -253,21 +260,23 @@ if [[ $(echo "${embedded}" | grep -i "^n") ]]; then
 
     if [[ $(echo "${embedded}" | grep -i "^n") ]]; then
         # document the service install
-        printf "To install the %s service and keep notes, copy and paste the following commands:\n\n" "$service"
-        printf "sudo cp %s/etc/%s.service /etc/systemd/system/etc/%s.service\n" "$program_path" "$service" "$service" > install_notes.txt
+        printf "To install the %s service and keep notes, reference following commands:\n\n" "$service" > install_notes.txt
+        printf "sudo cp %s/etc/%s.service /etc/systemd/system/etc/%s.service\n" "$program_path" "$service" "$service" >> install_notes.txt
         printf "sudo systemctl daemon-reload\n" >> install_notes.txt
         printf "sudo systemctl enable %s.service\n" "$service" >> install_notes.txt
         printf "sudo systemctl start %s.service\n" "$service" >> install_notes.txt
         printf "sudo systemctl status %s.service\n\n" "$service" >> install_notes.txt
-        printf "To see logs and stop the service:\n"
+        printf "To see logs and stop the service:\n" >> install_notes.txt
         printf "sudo journalctl -u %s.service\n" "$service" >> install_notes.txt
         printf "sudo systemctl stop %s.service\n" "$service" >> install_notes.txt
         printf "sudo systemctl disable %s.service\n" "$service" >> install_notes.txt
     fi
     
     if [[ $(echo "${venv}" | grep -i "^y") ]]; then
-        printf "\nFor running on venv, virtual launch bot with './launch.sh mesh' in path $program_path\n"
+        printf "\nFor running on venv, virtual launch bot with './launch.sh mesh' in path $program_path\n" >> install_notes.txt
     fi
+
+    read -p "Press enter to complete the installation, these commands saved to install_notes.txt"
 
     printf "\nGood time to reboot? (y/n)"
     read reboot
@@ -289,14 +298,13 @@ else
     sudo systemctl daemon-reload
     sudo systemctl enable $service.service
     sudo systemctl start $service.service
-
+    printf "Reference following commands:\n\n" "$service" > install_notes.txt
     printf "sudo systemctl status %s.service\n\n" "$service" > install_notes.txt
     printf "To see logs and stop the service:\n"
     printf "sudo journalctl -u %s.service\n" "$service" >> install_notes.txt
     printf "sudo systemctl stop %s.service\n" "$service" >> install_notes.txt
     printf "sudo systemctl disable %s.service\n" "$service" >> install_notes.txt
 fi
-read -p "Press enter to complete the installation, these commands saved to install_notes.txt"
 
 printf "\nInstallation complete!\n"
 
