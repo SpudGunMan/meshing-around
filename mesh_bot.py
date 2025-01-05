@@ -1229,18 +1229,24 @@ def onReceive(packet, interface):
 
 async def start_rx():
     print (CustomFormatter.bold_white + f"\nMeshtastic Autoresponder Bot CTL+C to exit\n" + CustomFormatter.reset)
+
+    # Start the receive subscriber using pubsub via meshtastic library
+    pub.subscribe(onReceive, 'meshtastic.receive')
+    pub.subscribe(onDisconnect, 'meshtastic.connection.lost')
+
+    logger.info(f"System: Autoresponder Started for Device1 {get_name_from_number(myNodeNum1, 'long', 1)}," 
+                f"{get_name_from_number(myNodeNum1, 'short', 1)}. NodeID: {myNodeNum1}, {decimal_to_hex(myNodeNum1)}")
+    
+
+    if interface2_enabled:
+        logger.info(f"System: Autoresponder Started for Device2 {get_name_from_number(myNodeNum2, 'long', 2)},"
+                    f"{get_name_from_number(myNodeNum2, 'short', 2)}. NodeID: {myNodeNum2}, {decimal_to_hex(myNodeNum2)}")
+        
     if llm_enabled:
         logger.debug(f"System: Ollama LLM Enabled, loading model {llmModel} please wait")
         llm_query(" ", myNodeNum1)
         logger.debug(f"System: LLM model {llmModel} loaded")
-    # Start the receive subscriber using pubsub via meshtastic library
-    pub.subscribe(onReceive, 'meshtastic.receive')
-    pub.subscribe(onDisconnect, 'meshtastic.connection.lost')
-    logger.info(f"System: Autoresponder Started for Device1 {get_name_from_number(myNodeNum1, 'long', 1)}," 
-                f"{get_name_from_number(myNodeNum1, 'short', 1)}. NodeID: {myNodeNum1}, {decimal_to_hex(myNodeNum1)}")
-    if interface2_enabled:
-        logger.info(f"System: Autoresponder Started for Device2 {get_name_from_number(myNodeNum2, 'long', 2)},"
-                    f"{get_name_from_number(myNodeNum2, 'short', 2)}. NodeID: {myNodeNum2}, {decimal_to_hex(myNodeNum2)}")
+
     if log_messages_to_file:
         logger.debug("System: Logging Messages to disk")
     if syslog_to_file:

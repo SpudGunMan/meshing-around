@@ -208,62 +208,44 @@ if len(help_message) > 20:
 help_message = ", ".join(help_message)
 
 # BLE dual interface prevention
-if interface1_type == 'ble' and interface2_type == 'ble':
-    logger.critical(f"System: BLE Interface1 and Interface2 cannot both be BLE. Exiting")
+ble_count = sum(1 for i in range(1, 10) if globals().get(f'interface{i}_type') == 'ble')
+if ble_count > 1:
+    logger.critical(f"System: Multiple BLE interfaces detected. Only one BLE interface is allowed. Exiting")
     exit()
 
-#initialize_interfaces():
-# Interface1 Configuration
-try:
-    logger.debug(f"System: Initializing Interface1")
-    if interface1_type == 'serial':
-        interface1 = meshtastic.serial_interface.SerialInterface(port1)
-    elif interface1_type == 'tcp':
-        interface1 = meshtastic.tcp_interface.TCPInterface(hostname1)
-    elif interface1_type == 'ble':
-        interface1 = meshtastic.ble_interface.BLEInterface(mac1)
+# Initialize interfaces
+interface1 = interface2 = interface3 = interface4 = interface5 = interface6 = interface7 = interface8 = interface9 = None
+for i in range(1, 10):
+    interface_type = globals().get(f'interface{i}_type')
+    if not interface_type or interface_type == 'none' or globals().get(f'interface{i}_enabled') == False:
+        # no valid interface found
+        continue
+    try:
+        if globals().get(f'interface{i}_enabled'):
+            if interface_type == 'serial':
+                globals()[f'interface{i}'] = meshtastic.serial_interface.SerialInterface(globals().get(f'port{i}'))
+            elif interface_type == 'tcp':
+                globals()[f'interface{i}'] = meshtastic.tcp_interface.TCPInterface(globals().get(f'hostname{i}'))
+            elif interface_type == 'ble':
+                globals()[f'interface{i}'] = meshtastic.ble_interface.BLEInterface(globals().get(f'mac{i}'))
+            else:
+                logger.critical(f"System: Interface Type: {interface_type} not supported. Validate your config against config.template Exiting")
+                exit()
+    except Exception as e:
+        logger.critical(f"System: abort. Initializing Interface{i} {e}")
+        exit()
+
+# Get the node number of the devices, check if the devices are connected meshtastic devices
+for i in range(1, 10):
+    if globals().get(f'interface{i}'):
+        if globals().get(f'interface{i}_enabled'):
+            try:
+                globals()[f'myNodeNum{i}'] = globals()[f'interface{i}'].getMyNodeInfo()['num']
+                logger.debug(f"System: Initalized Radio Device{i} Node Number: {globals()[f'myNodeNum{i}']}")
+            except Exception as e:
+                logger.critical(f"System: critical error initializing interface{i} {e}")
     else:
-        logger.critical(f"System: Interface Type: {interface1_type} not supported. Validate your config against config.template Exiting")
-        exit()
-except Exception as e:
-    logger.critical(f"System: script abort. Initializing Interface1 {e}")
-    exit()
-
-# Interface2 Configuration
-if interface2_enabled:
-    logger.debug(f"System: Initializing Interface2")
-    try:
-        if interface2_type == 'serial':
-            interface2 = meshtastic.serial_interface.SerialInterface(port2)
-        elif interface2_type == 'tcp':
-            interface2 = meshtastic.tcp_interface.TCPInterface(hostname2)
-        elif interface2_type == 'ble':
-            interface2 = meshtastic.ble_interface.BLEInterface(mac2)
-        else:
-            logger.critical(f"System: Interface Type: {interface2_type} not supported. Validate your config against config.template Exiting")
-            exit()
-    except Exception as e:
-        logger.critical(f"System: script abort. Initializing Interface2 {e}")
-        exit()
-
-#Get the node number of the device, check if the device is connected
-try:
-    myinfo = interface1.getMyNodeInfo()
-    myNodeNum1 = myinfo['num']
-except Exception as e:
-    logger.critical(f"System: script abort. {e}")
-    exit()
-
-if interface2_enabled:
-    try:
-        myinfo2 = interface2.getMyNodeInfo()
-        myNodeNum2 = myinfo2['num']
-    except Exception as e:
-        logger.critical(f"System: script abort. {e}")
-        exit()
-else:
-    myNodeNum2 = 777
-
+        globals()[f'myNodeNum{i}'] = 777
 
 #### FUN-ctions ####
 
@@ -271,7 +253,7 @@ def decimal_to_hex(decimal_number):
     return f"!{decimal_number:08x}"
 
 def get_name_from_number(number, type='long', nodeInt=1):
-    interface = interface1 if nodeInt == 1 else interface2
+    interface = globals()[f'interface{nodeInt}']
     name = ""
     
     for node in interface.nodes.values():
@@ -288,7 +270,7 @@ def get_name_from_number(number, type='long', nodeInt=1):
 
 
 def get_num_from_short_name(short_name, nodeInt=1):
-    interface = interface1 if nodeInt == 1 else interface2
+    interface = globals()[f'interface{nodeInt}']
     # Get the node number from the short name, converting all to lowercase for comparison (good practice?)
     logger.debug(f"System: Getting Node Number from Short Name: {short_name} on Device: {nodeInt}")
     for node in interface.nodes.values():
@@ -308,7 +290,7 @@ def get_num_from_short_name(short_name, nodeInt=1):
     return 0
     
 def get_node_list(nodeInt=1):
-    interface = interface1 if nodeInt == 1 else interface2
+    interface = globals()[f'interface{nodeInt}']
     # Get a list of nodes on the device
     node_list = ""
     node_list1 = []
@@ -362,7 +344,7 @@ def get_node_list(nodeInt=1):
     return node_list
 
 def get_node_location(number, nodeInt=1, channel=0):
-    interface = interface1 if nodeInt == 1 else interface2
+    interface = globals()[f'interface{nodeInt}']
     # Get the location of a node by its number from nodeDB on device
     latitude = latitudeValue
     longitude = longitudeValue
@@ -395,7 +377,7 @@ def get_node_location(number, nodeInt=1, channel=0):
 
 
 def get_closest_nodes(nodeInt=1,returnCount=3):
-    interface = interface1 if nodeInt == 1 else interface2
+    interface = globals()[f'interface{nodeInt}']
     node_list = []
 
     if interface.nodes:
@@ -509,7 +491,7 @@ def messageChunker(message):
         
 def send_message(message, ch, nodeid=0, nodeInt=1, bypassChuncking=False):
     # Send a message to a channel or DM
-    interface = interface1 if nodeInt == 1 else interface2
+    interface = globals()[f'interface{nodeInt}']
     # Check if the message is empty
     if message == "" or message == None or len(message) == 0:
         return False
@@ -784,7 +766,7 @@ def initialize_telemetryData():
 initialize_telemetryData()
 
 def getNodeFirmware(nodeID=0, nodeInt=1):
-    interface = interface1 if nodeInt == 1 else interface2
+    interface = globals()[f'interface{nodeInt}']
     # get the firmware version of the node
     # this is a workaround because .localNode.getMetadata spits out a lot of debug info which cant be suppressed
     # Create a StringIO object to capture the 
