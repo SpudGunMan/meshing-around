@@ -216,6 +216,7 @@ if ble_count > 1:
 # Initialize interfaces
 logger.debug(f"System: Initializing Interfaces")
 interface1 = interface2 = interface3 = interface4 = interface5 = interface6 = interface7 = interface8 = interface9 = None
+retry_int1 = retry_int2 = retry_int3 = retry_int4 = retry_int5 = retry_int6 = retry_int7 = retry_int8 = retry_int9 = False
 for i in range(1, 10):
     interface_type = globals().get(f'interface{i}_type')
     if not interface_type or interface_type == 'none' or globals().get(f'interface{i}_enabled') == False:
@@ -712,30 +713,18 @@ def handleAlertBroadcast(deviceID=1):
             return True
 
 def onDisconnect(interface):
-    global retry_int1, retry_int2
+    global retry_int1, retry_int2, retry_int3, retry_int4, retry_int5, retry_int6, retry_int7, retry_int8, retry_int9
     rxType = type(interface).__name__
-    if rxType == 'SerialInterface':
-        rxInterface = interface.__dict__.get('devPath', 'unknown')
-        logger.critical("System: Lost Connection to Device {rxInterface}")
-        if port1 in rxInterface:
-            retry_int1 = True
-        elif interface2_enabled and port2 in rxInterface:
-            retry_int2 = True
-
-    if rxType == 'TCPInterface':
-        rxHost = interface.__dict__.get('hostname', 'unknown')
-        logger.critical("System: Lost Connection to Device {rxHost}")
-        if hostname1 in rxHost and interface1_type == 'tcp':
-            retry_int1 = True
-        elif interface2_enabled and hostname2 in rxHost and interface2_type == 'tcp':
-            retry_int2 = True
-    
-    if rxType == 'BLEInterface':
-        logger.critical("System: Lost Connection to Device BLE")
-        if interface1_type == 'ble':
-            retry_int1 = True
-        elif interface2_enabled and interface2_type == 'ble':
-            retry_int2 = True
+    if rxType in ['SerialInterface', 'TCPInterface', 'BLEInterface']:
+        identifier = interface.__dict__.get('devPath', interface.__dict__.get('hostname', 'BLE'))
+        logger.critical(f"System: Lost Connection to Device {identifier}")
+        for i in range(1, 10):
+            if globals().get(f'interface{i}_enabled'):
+                if (rxType == 'SerialInterface' and globals().get(f'port{i}') in identifier) or \
+                   (rxType == 'TCPInterface' and globals().get(f'hostname{i}') in identifier) or \
+                   (rxType == 'BLEInterface' and globals().get(f'interface{i}_type') == 'ble'):
+                    globals()[f'retry_int{i}'] = True
+                    break
 
 def exit_handler():
     # Close the interface and save the BBS messages
@@ -1010,77 +999,66 @@ async def handleFileWatcher():
         await asyncio.sleep(1)
         pass
 
-async def retry_interface(nodeID=1):
-    global interface1, interface2, retry_int1, retry_int2, max_retry_count1, max_retry_count2
+async def retry_interface(nodeID):
+    global max_retry_count
     interface = globals()[f'interface{nodeID}']
-    retry_int = globals()[f'interface{nodeID}']
-    # retry connecting to the interface
-    # add a check to see if the interface is already open or trying to open
+    retry_int = globals()[f'retry_int{nodeID}']
+    max_retry_count = globals()[f'max_retry_count{nodeID}']
+
     if interface is not None:
         retry_int = True
-        max_retry_count1 -= 1
+        max_retry_count -= 1
         try:
             interface.close()
         except Exception as e:
             logger.error(f"System: closing interface{nodeID}: {e}")
-    
+
     logger.debug(f"System: Retrying interface{nodeID} in 15 seconds")
-    if max_retry_count1 == 0:
-        logger.critical(f"System: Max retry count reached for interface1")
+    if max_retry_count == 0:
+        logger.critical(f"System: Max retry count reached for interface{nodeID}")
         exit_handler()
-    if max_retry_count2 == 0:
-        logger.critical(f"System: Max retry count reached for interface2")
-        exit_handler()
-    # wait 15 seconds before retrying
+
     await asyncio.sleep(15)
 
-    # retry the interface
     try:
         if retry_int:
             interface = None
-            if nodeID == 1:
-                interface1 = None
-            if nodeID == 2:
-                interface2 = None
+            globals()[f'interface{nodeID}'] = None
             logger.debug(f"System: Retrying Interface{nodeID}")
-            interface_type = interface1_type if nodeID == 1 else interface2_type
+            interface_type = globals()[f'interface{nodeID}_type']
             if interface_type == 'serial':
-                interface1 = meshtastic.serial_interface.SerialInterface(port1)
+                globals()[f'interface{nodeID}'] = meshtastic.serial_interface.SerialInterface(globals().get(f'port{nodeID}'))
             elif interface_type == 'tcp':
-                interface1 = meshtastic.tcp_interface.TCPInterface(hostname1)
+                globals()[f'interface{nodeID}'] = meshtastic.tcp_interface.TCPInterface(globals().get(f'hostname{nodeID}'))
             elif interface_type == 'ble':
-                interface1 = meshtastic.ble_interface.BLEInterface(mac1)
-            logger.debug(f"System: Interface1 Opened!")
-            retry_int1 = False
+                globals()[f'interface{nodeID}'] = meshtastic.ble_interface.BLEInterface(globals().get(f'mac{nodeID}'))
+            logger.debug(f"System: Interface{nodeID} Opened!")
+            globals()[f'retry_int{nodeID}'] = False
     except Exception as e:
         logger.error(f"System: Error Opening interface{nodeID} on: {e}")
 
-
 handleSentinel_spotted = ""
 handleSentinel_loop = 0
-async def handleSentinel(deviceID=1):
+async def handleSentinel(deviceID):
     global handleSentinel_spotted, handleSentinel_loop
-    # Locate Closest Nodes and report them to a secure channel
-    # async function for possibly demanding back location data
     enemySpotted = ""
     resolution = "unknown"
     closest_nodes = get_closest_nodes(deviceID)
     if closest_nodes != ERROR_FETCHING_DATA and closest_nodes:
         if closest_nodes[0]['id'] is not None:
-            enemySpotted = get_name_from_number(closest_nodes[0]['id'], 'long', 1)
-            enemySpotted += ", " + get_name_from_number(closest_nodes[0]['id'], 'short', 1)
+            enemySpotted = get_name_from_number(closest_nodes[0]['id'], 'long', deviceID)
+            enemySpotted += ", " + get_name_from_number(closest_nodes[0]['id'], 'short', deviceID)
             enemySpotted += ", " + str(closest_nodes[0]['id'])
             enemySpotted += ", " + decimal_to_hex(closest_nodes[0]['id'])
             enemySpotted += f" at {closest_nodes[0]['distance']}m"
-    
+
     if handleSentinel_loop >= sentry_holdoff and handleSentinel_spotted != enemySpotted:
-        # check the positionMetadata for nodeID and get metadata
         if closest_nodes and positionMetadata and closest_nodes[0]['id'] in positionMetadata:
             metadata = positionMetadata[closest_nodes[0]['id']]
             if metadata.get('precisionBits') is not None:
                 resolution = metadata.get('precisionBits')
-                
-        logger.warning(f"System: {enemySpotted} is close to your location on Interface1 Accuracy is {resolution}bits")
+
+        logger.warning(f"System: {enemySpotted} is close to your location on Interface{deviceID} Accuracy is {resolution}bits")
         send_message(f"Sentry{deviceID}: {enemySpotted}", secure_channel, 0, deviceID)
         if enableSMTP and email_sentry_alerts:
             for email in sysopEmails:
@@ -1091,76 +1069,37 @@ async def handleSentinel(deviceID=1):
         handleSentinel_loop += 1
 
 async def watchdog():
-    global retry_int1, retry_int2, telemetryData
-    int1Data, int2Data = "", ""
+    global telemetryData, retry_int1, retry_int2, retry_int3, retry_int4, retry_int5, retry_int6, retry_int7, retry_int8, retry_int9
     while True:
         await asyncio.sleep(20)
-        #print(f"MeshBot System: watchdog running\r", end="")
 
-        if interface1 is not None and not retry_int1:
-            # getting firmware is a heartbeat to check if the interface is still connected
-            try:
-                firmware = getNodeFirmware(0, 1)
-            except Exception as e:
-                logger.error(f"System: communicating with interface1, trying to reconnect: {e}")
-                retry_int1 = True
-
-            if not retry_int1:
-                # Locate Closest Nodes and report them to a secure channel
-                if sentry_enabled:
-                    await handleSentinel(1)
-
-                # multiPing handler
-                handleMultiPing(0,1)
-
-                # Alert Broadcast
-                if wxAlertBroadcastEnabled or emergencyAlertBrodcastEnabled:
-                    # weather alerts
-                    handleAlertBroadcast(1)
-
-                # Telemetry data
-                int1Data = displayNodeTelemetry(0, 1)
-                if int1Data != -1 and telemetryData[0]['lastAlert1'] != int1Data:
-                    logger.debug(int1Data + f" Firmware:{firmware}")
-                    telemetryData[0]['lastAlert1'] = int1Data
-
-        if retry_int1:
-            try:
-                await retry_interface(1)
-            except Exception as e:
-                logger.error(f"System: retrying interface1: {e}")
-
-        if interface2_enabled:
-            if interface2 is not None and not retry_int2:
-                # getting firmware is a heartbeat to check if the interface is still connected
+        for i in range(1, 10):
+            interface = globals().get(f'interface{i}')
+            retry_int = globals().get(f'retry_int{i}')
+            if interface is not None and not retry_int:
                 try:
-                    firmware2 = getNodeFirmware(0, 1)
+                    firmware = getNodeFirmware(0, i)
                 except Exception as e:
-                    logger.error(f"System: communicating with interface1, trying to reconnect: {e}")
-                    retry_int2 = True
+                    logger.error(f"System: communicating with interface{i}, trying to reconnect: {e}")
+                    globals()[f'retry_int{i}'] = True
 
-                if not retry_int2:
-                    # Locate Closest Nodes and report them to a secure channel
+                if not globals()[f'retry_int{i}']:
                     if sentry_enabled:
-                        await handleSentinel(2)
+                        await handleSentinel(i)
 
-                    # multiPing handler
-                    handleMultiPing(0,1)
+                    handleMultiPing(0, i)
 
-                    # Alert Broadcast
                     if wxAlertBroadcastEnabled or emergencyAlertBrodcastEnabled:
-                        # weather alerts
-                        handleAlertBroadcast(1)
+                        handleAlertBroadcast(i)
 
-                # Telemetry data
-                int2Data = displayNodeTelemetry(0, 2)
-                if int2Data != -1 and telemetryData[0]['lastAlert2'] != int2Data:
-                    logger.debug(int2Data + f" Firmware:{firmware2}")
-                    telemetryData[0]['lastAlert2'] = int2Data
-        
-            if retry_int2:
+                    intData = displayNodeTelemetry(0, i)
+                    if intData != -1 and telemetryData[0][f'lastAlert{i}'] != intData:
+                        logger.debug(intData + f" Firmware:{firmware}")
+                        telemetryData[0][f'lastAlert{i}'] = intData
+
+            if globals()[f'retry_int{i}'] and globals()[f'interface{i}_enabled']:
                 try:
-                    await retry_interface(2)
+                    await retry_interface(i)
                 except Exception as e:
-                    logger.error(f"System: retrying interface2: {e}")
+                    logger.error(f"System: retrying interface{i}: {e}")
 
