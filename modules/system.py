@@ -238,13 +238,12 @@ for i in range(1, 10):
 
 # Get the node number of the devices, check if the devices are connected meshtastic devices
 for i in range(1, 10):
-    if globals().get(f'interface{i}'):
-        if globals().get(f'interface{i}_enabled'):
-            try:
-                globals()[f'myNodeNum{i}'] = globals()[f'interface{i}'].getMyNodeInfo()['num']
-                logger.debug(f"System: Initalized Radio Device{i} Node Number: {globals()[f'myNodeNum{i}']}")
-            except Exception as e:
-                logger.critical(f"System: critical error initializing interface{i} {e}")
+    if globals().get(f'interface{i}') and globals().get(f'interface{i}_enabled'):
+        try:
+            globals()[f'myNodeNum{i}'] = globals()[f'interface{i}'].getMyNodeInfo()['num']
+            logger.debug(f"System: Initalized Radio Device{i} Node Number: {globals()[f'myNodeNum{i}']}")
+        except Exception as e:
+            logger.critical(f"System: critical error initializing interface{i} {e}")
     else:
         globals()[f'myNodeNum{i}'] = 777
 
@@ -302,7 +301,7 @@ def get_node_list(nodeInt=1):
     if interface.nodes:
         for node in interface.nodes.values():
             # ignore own
-            if all(node['num'] != globals().get(f'myNodeNum{i}', 777) for i in range(1, 10)):
+            if all(node['num'] != globals().get(f'myNodeNum{i}') for i in range(1, 10)):
                 node_name = get_name_from_number(node['num'], 'short', nodeInt)
                 snr = node.get('snr', 0)
 
@@ -400,7 +399,7 @@ def get_closest_nodes(nodeInt=1,returnCount=3):
                     distance = round(geopy.distance.geodesic((latitudeValue, longitudeValue), (latitude, longitude)).m, 2)
                     
                     if (distance < sentry_radius):
-                        if (nodeID not in [globals().get(f'myNodeNum{i}', 777) for i in range(1, 10)]) and str(nodeID) not in sentryIgnoreList:
+                        if (nodeID not in [globals().get(f'myNodeNum{i}') for i in range(1, 10)]) and str(nodeID) not in sentryIgnoreList:
                             node_list.append({'id': nodeID, 'latitude': latitude, 'longitude': longitude, 'distance': distance})
                             
                 except Exception as e:
@@ -783,7 +782,7 @@ def getNodeFirmware(nodeID=0, nodeInt=1):
 
 def displayNodeTelemetry(nodeID=0, rxNode=0, userRequested=False):
     interface = globals()[f'interface{rxNode}']
-    myNodeNum = globals().get(f'myNodeNum{rxNode}', 777)
+    myNodeNum = globals().get(f'myNodeNum{rxNode}')
     global telemetryData
 
     # throttle the telemetry requests to prevent spamming the device
