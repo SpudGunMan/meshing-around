@@ -299,8 +299,8 @@ else
     sudo systemctl enable $service.service
     sudo systemctl start $service.service
     printf "Reference following commands:\n\n" "$service" > install_notes.txt
-    printf "sudo systemctl status %s.service\n\n" "$service" > install_notes.txt
-    printf "To see logs and stop the service:\n"
+    printf "sudo systemctl status %s.service\n\n" "$service" >> install_notes.txt
+    printf "To see logs and stop the service:\n" >> install_notes.txt
     printf "sudo journalctl -u %s.service\n" "$service" >> install_notes.txt
     printf "sudo systemctl stop %s.service\n" "$service" >> install_notes.txt
     printf "sudo systemctl disable %s.service\n" "$service" >> install_notes.txt
