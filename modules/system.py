@@ -1059,7 +1059,6 @@ async def handleSentinel(deviceID):
                 resolution = metadata.get('precisionBits')
 
         logger.warning(f"System: {enemySpotted} is close to your location on Interface{deviceID} Accuracy is {resolution}bits")
-        send_message(f"Sentry{deviceID}: {enemySpotted}", secure_channel, 0, deviceID)
         for i in range(1, 10):
             if globals().get(f'interface{i}_enabled'):
                 send_message(f"Sentry{deviceID}: {enemySpotted}", secure_channel, 0, i)
