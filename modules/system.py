@@ -214,6 +214,7 @@ if ble_count > 1:
     exit()
 
 # Initialize interfaces
+logger.debug(f"System: Initializing Interfaces")
 interface1 = interface2 = interface3 = interface4 = interface5 = interface6 = interface7 = interface8 = interface9 = None
 for i in range(1, 10):
     interface_type = globals().get(f'interface{i}_type')
