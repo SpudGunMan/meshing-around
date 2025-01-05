@@ -2,9 +2,9 @@ services:
   meshing-around:
     build: 
       context: ../..
-    # depends_on:
-    #   ollama:
-    #     condition: service_healthy
+    depends_on:
+      ollama:
+        condition: service_healthy
     devices:
       - /dev/ttyAMA10 # Replace this with your actual device!
     configs:
