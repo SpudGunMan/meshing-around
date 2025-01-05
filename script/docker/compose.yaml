@@ -1,7 +1,7 @@
 services:
   meshing-around:
     build: 
-      context: ..
+      context: ../..
     # depends_on:
     #   ollama:
     #     condition: service_healthy
