@@ -12,7 +12,7 @@ port = /dev/ttyACM0
 # hostname = localhost
 # mac = 00:11:22:33:44:55
 
-# Additional interface for dual radio support
+# Additional interface for multi radio support
 [interface2]
 enabled = False
 type = serial
@@ -21,6 +21,8 @@ port = /dev/ttyUSB0
 # port = COM1
 # hostname = meshtastic.local
 # mac = 00:11:22:33:44:55
+
+# example, the third interface would be [interface3] up to 9
 
 [general]
 # if False will respond on all channels but the default channel
@@ -91,7 +93,7 @@ emailSentryAlerts = False
 # radius in meters to detect someone close to the bot
 SentryRadius = 100
 # channel to send a message to when the watchdog is triggered
-SentryChannel = 9
+SentryChannel = 2
 # holdoff time multiplied by seconds(20) of the watchdog
 SentryHoldoff = 9
 # list of ignored nodes numbers ex: 2813308004,4258675309
