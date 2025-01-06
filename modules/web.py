@@ -11,7 +11,7 @@ import http.server
 PORT = 8420
 
 # set webRoot index.html location
-webRoot = "../etc/www"
+webRoot = "etc/www"
 
 # Set to True to enable logging sdtout
 webServerLogs = False
@@ -43,4 +43,10 @@ if SSL:
         exit(1)
     httpd.socket = ctx.wrap_socket(httpd.socket, server_side=True)
 
+print("Serving reports at http://localhost:", PORT)
+print("Press ^C to quit.")
+if not webServerLogs:
+    print("Server Logs are disabled")
+# Serve forever, that is until the user interrupts the process
 httpd.serve_forever()
+exit(0)
