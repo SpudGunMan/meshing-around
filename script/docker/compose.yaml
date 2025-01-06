@@ -16,14 +16,14 @@ services:
     image: ollama/ollama:0.5.1
     volumes:
       - ./ollama:/root/.ollama
-      - ./ollama-entrypoint.sh:/entrypoint.sh
+      - ./ollama-entrypoint.sh:./entrypoint.sh
     container_name: ollama
     pull_policy: always
     tty: true
     restart: always
     entrypoint: 
       - /usr/bin/bash
-      - /entrypoint.sh
+      - /script/docker/entrypoint.sh
     expose:
       - 11434
     healthcheck:

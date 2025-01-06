@@ -15,6 +15,6 @@ COPY . /app
 
 RUN pip install -r requirements.txt
 
-RUN chmod +x /app/entrypoint.sh
+RUN chmod +x /app/script/docker/entrypoint.sh
 
-ENTRYPOINT ["/app/entrypoint.sh"]
+ENTRYPOINT ["/app/script/docker/entrypoint.sh"]
