@@ -360,7 +360,10 @@ def getWeatherAlertsNOAA(lat=0, lon=0, useDefaultLatLon=False):
     for i in alertxml.getElementsByTagName("entry"):
         title = i.getElementsByTagName("title")[0].childNodes[0].nodeValue
         area_desc = i.getElementsByTagName("cap:areaDesc")[0].childNodes[0].nodeValue
-        alerts += f"{title}. {area_desc.replace(' ', '')}\n"
+        if enableExtraLocationWx:
+            alerts += f"{title}. {area_desc.replace(' ', '')}\n"
+        else:
+            alerts += f"{title}\n"
 
     if alerts == "" or alerts == None:
         return NO_ALERTS

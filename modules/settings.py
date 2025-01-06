@@ -241,6 +241,7 @@ try:
     mySAME = config['location'].get('mySAME', '').split(',') # default empty
     forecastDuration = config['location'].getint('NOAAforecastDuration', 4) # NOAA forcast days
     numWxAlerts = config['location'].getint('NOAAalertCount', 2) # default 2 alerts
+    enableExtraLocationWx = config['location'].getboolean('enableExtraLocationWx', False) # default False
     ipawsPIN = config['location'].get('ipawsPIN', '000000') # default 000000
     ignoreFEMAtest = config['location'].getboolean('ignoreFEMAtest', True) # default True
     wxAlertBroadcastChannel = config['location'].get('wxAlertBroadcastCh', '2').split(',') # default Channel 2
