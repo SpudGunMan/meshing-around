@@ -1051,7 +1051,7 @@ async def handleSentinel(deviceID):
     if closest_node in [i['id'] for i in handleSentinel_spotted]:
         # check if the distance is closer than the last time, if not just return
         for i in range(len(handleSentinel_spotted)):
-            if handleSentinel_spotted[i]['id'] == closest_node and closest_distance < handleSentinel_spotted[i]['distance']:
+            if handleSentinel_spotted[i]['id'] == closest_node and closest_distance is not None and closest_distance < handleSentinel_spotted[i]['distance']:
                 handleSentinel_spotted[i]['distance'] = closest_distance
                 break
             else:
