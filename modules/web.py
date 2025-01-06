@@ -43,8 +43,7 @@ if SSL:
         exit(1)
     httpd.socket = ctx.wrap_socket(httpd.socket, server_side=True)
 
-print("Serving reports at http://localhost:", PORT)
-print("Press ^C to quit.")
+print(f"Serving reports at http://localhost:{PORT} Press ^C to quit.\n\n")
 if not webServerLogs:
     print("Server Logs are disabled")
 # Serve forever, that is until the user interrupts the process
