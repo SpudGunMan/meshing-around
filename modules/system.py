@@ -1044,15 +1044,28 @@ async def handleSentinel(deviceID):
     detectedNearby = ""
     resolution = "unknown"
     closest_nodes = get_closest_nodes(deviceID)
+    closest_node = closest_nodes[0]['id'] if closest_nodes != ERROR_FETCHING_DATA and closest_nodes else None
+    closest_distance = closest_nodes[0]['distance'] if closest_nodes != ERROR_FETCHING_DATA and closest_nodes else None
+
+    # check if the handleSentinel_spotted list contains the closest node already
+    if closest_node in [i['id'] for i in handleSentinel_spotted]:
+        # check if the distance is closer than the last time, if not just return
+        for i in range(len(handleSentinel_spotted)):
+            if handleSentinel_spotted[i]['id'] == closest_node and closest_distance < handleSentinel_spotted[i]['distance']:
+                handleSentinel_spotted[i]['distance'] = closest_distance
+                break
+            else:
+                return
+    
     if closest_nodes != ERROR_FETCHING_DATA and closest_nodes:
         if closest_nodes[0]['id'] is not None:
-            detectedNearby = get_name_from_number(closest_nodes[0]['id'], 'long', deviceID)
+            detectedNearby = get_name_from_number(closest_node, 'long', deviceID)
             detectedNearby += ", " + get_name_from_number(closest_nodes[0]['id'], 'short', deviceID)
             detectedNearby += ", " + str(closest_nodes[0]['id'])
             detectedNearby += ", " + decimal_to_hex(closest_nodes[0]['id'])
-            detectedNearby += f" at {closest_nodes[0]['distance']}m"
+            detectedNearby += f" at {closest_distance}m"
 
-    if handleSentinel_loop >= sentry_holdoff and closest_nodes[0]['id'] not in handleSentinel_spotted:
+    if handleSentinel_loop >= sentry_holdoff:
         if closest_nodes and positionMetadata and closest_nodes[0]['id'] in positionMetadata:
             metadata = positionMetadata[closest_nodes[0]['id']]
             if metadata.get('precisionBits') is not None:
@@ -1066,7 +1079,7 @@ async def handleSentinel(deviceID):
             for email in sysopEmails:
                 send_email(email, f"Sentry{deviceID}: {detectedNearby}")
         handleSentinel_loop = 0
-        handleSentinel_spotted.append(closest_nodes[0]['id'])
+        handleSentinel_spotted.append({'id': closest_node, 'distance': closest_distance})
     else:
         handleSentinel_loop += 1
 
