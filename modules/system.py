@@ -1065,7 +1065,7 @@ async def handleSentinel(deviceID):
             detectedNearby += ", " + decimal_to_hex(closest_nodes[0]['id'])
             detectedNearby += f" at {closest_distance}m"
 
-    if handleSentinel_loop >= sentry_holdoff:
+    if handleSentinel_loop >= sentry_holdoff and detectedNearby not in ["", None]:
         if closest_nodes and positionMetadata and closest_nodes[0]['id'] in positionMetadata:
             metadata = positionMetadata[closest_nodes[0]['id']]
             if metadata.get('precisionBits') is not None:
