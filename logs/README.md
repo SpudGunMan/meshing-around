@@ -26,3 +26,6 @@ To change the stdout (what you see on the console) logging level (default is DEB
 # Set level for stdout handler
 stdout_handler.setLevel(logging.INFO)
 ```
+
+There is a web-server module you can run `python modules/web.py` from the project root directory and it will serve up the web content.
+by default. http://localhost:8420

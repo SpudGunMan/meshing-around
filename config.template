@@ -11,7 +11,7 @@ port = /dev/ttyACM0
 # hostname = meshtastic.local
 # mac = 00:11:22:33:44:55
 
-# Additional interface for dual radio support
+# Additional interface for multi radio support
 [interface2]
 enabled = False
 type = serial
@@ -20,6 +20,8 @@ port = /dev/ttyUSB0
 # port = COM1
 # hostname = localhost
 # mac = 00:11:22:33:44:55
+
+# example, the third interface would be [interface3] up to 9
 
 [general]
 # if False will respond on all channels but the default channel
