@@ -93,7 +93,7 @@ emailSentryAlerts = False
 # radius in meters to detect someone close to the bot
 SentryRadius = 100
 # channel to send a message to when the watchdog is triggered
-SentryChannel = 9
+SentryChannel = 2
 # holdoff time multiplied by seconds(20) of the watchdog
 SentryHoldoff = 9
 # list of ignored nodes numbers ex: 2813308004,4258675309
