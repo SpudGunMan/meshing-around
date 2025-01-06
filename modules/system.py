@@ -1089,10 +1089,11 @@ async def watchdog():
     while True:
         await asyncio.sleep(20)
 
+        # check all interfaces
         for i in range(1, 10):
             interface = globals().get(f'interface{i}')
             retry_int = globals().get(f'retry_int{i}')
-            if interface is not None and not retry_int:
+            if interface is not None and not retry_int and globals().get(f'interface{i}_enabled'):
                 try:
                     firmware = getNodeFirmware(0, i)
                 except Exception as e:
