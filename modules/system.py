@@ -749,9 +749,11 @@ def exit_handler():
 # Telemetry Functions
 telemetryData = {}
 def initialize_telemetryData():
-    telemetryData[0] = {'interface1': 0, 'interface2': 0, 'lastAlert1': '', 'lastAlert2': ''}
-    telemetryData[1] = {'numPacketsTx': 0, 'numPacketsRx': 0, 'numOnlineNodes': 0, 'numPacketsTxErr': 0, 'numPacketsRxErr': 0, 'numTotalNodes': 0}
-    telemetryData[2] = {'numPacketsTx': 0, 'numPacketsRx': 0, 'numOnlineNodes': 0, 'numPacketsTxErr': 0, 'numPacketsRxErr': 0, 'numTotalNodes': 0}
+    telemetryData[0] = {f'interface{i}': 0 for i in range(1, 10)}
+    telemetryData[0].update({f'lastAlert{i}': '' for i in range(1, 10)})
+    for i in range(1, 10):
+        telemetryData[i] = {'numPacketsTx': 0, 'numPacketsRx': 0, 'numOnlineNodes': 0, 'numPacketsTxErr': 0, 'numPacketsRxErr': 0, 'numTotalNodes': 0}
+
 # indented to be called from the main loop
 initialize_telemetryData()
 
