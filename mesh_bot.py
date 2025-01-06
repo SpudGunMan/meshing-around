@@ -772,7 +772,7 @@ def sysinfo(message, message_from_id, deviceID):
         return "sysinfo command returns system information."
     else:
         if enable_runShellCmd and file_monitor_enabled:
-            shellData = call_external_script(None, "sysEnv.sh").rstrip()
+            shellData = call_external_script(None, "script/sysEnv.sh").rstrip()
             return get_sysinfo(message_from_id, deviceID) + "\n" + shellData
         else:
             return get_sysinfo(message_from_id, deviceID)

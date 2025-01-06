@@ -63,7 +63,7 @@ async def watch_file():
                     return content
             await asyncio.sleep(1)  # Check every
 
-def call_external_script(message, script="runShell.sh"):
+def call_external_script(message, script="script/runShell.sh"):
     try:
         # Debugging: Print the current working directory and resolved script path
         current_working_directory = os.getcwd()
