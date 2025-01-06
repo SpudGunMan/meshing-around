@@ -8,8 +8,7 @@
 type = serial
 port = /dev/ttyACM0
 # port = /dev/ttyUSB0
-# port = COM1
-# hostname = localhost
+# hostname = meshtastic.local
 # mac = 00:11:22:33:44:55
 
 # Additional interface for multi radio support
@@ -17,9 +16,9 @@ port = /dev/ttyACM0
 enabled = False
 type = serial
 port = /dev/ttyUSB0
-#port = /dev/ttyACM1
+# port = /dev/ttyACM1
 # port = COM1
-# hostname = meshtastic.local
+# hostname = localhost
 # mac = 00:11:22:33:44:55
 
 # example, the third interface would be [interface3] up to 9
@@ -76,6 +75,8 @@ urlTimeout = 10
 LogMessagesToFile = False
 # Logging of system messages to file
 SyslogToFile = True
+# logging level for the bot (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+sysloglevel = DEBUG
 # Number of log files to keep in days, 0 to keep all
 log_backup_count = 32
 
@@ -190,6 +191,7 @@ enable_read_news = False
 news_file_path = news.txt
 # only return a single random line from the news file
 news_random_line = False
+# enable the use of exernal shell commands
 enable_runShellCmd = False
 
 [smtp]
@@ -238,7 +240,7 @@ splitDelay = 0.0
 MESSAGE_CHUNK_SIZE = 160
 # Request Acknowledgement of message OTA
 wantAck = False
-# Max lilmit Buffer for radio testing
+# Max limit buffer for radio testing. 233 is hard limit 2.5+ firmware
 maxBuffer = 220
 
 

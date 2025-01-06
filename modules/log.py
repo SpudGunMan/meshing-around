@@ -3,6 +3,11 @@ from logging.handlers import TimedRotatingFileHandler
 import re
 from datetime import datetime
 from modules.settings import *
+# if LOGGING_LEVEL is not set in settings.py, default to DEBUG
+if not LOGGING_LEVEL:
+    LOGGING_LEVEL = "DEBUG"
+
+LOGGING_LEVEL = getattr(logging, LOGGING_LEVEL)
 
 class CustomFormatter(logging.Formatter):
     grey = '\x1b[38;21m'
@@ -41,7 +46,7 @@ class plainFormatter(logging.Formatter):
 
 # Create logger
 logger = logging.getLogger("MeshBot System Logger")
-logger.setLevel(logging.DEBUG)
+logger.setLevel(LOGGING_LEVEL)
 logger.propagate = False
 
 msgLogger = logging.getLogger("MeshBot Messages Logger")
@@ -56,7 +61,7 @@ today = datetime.now()
 # Create stdout handler for logging to the console
 stdout_handler = logging.StreamHandler()
 # Set level for stdout handler (logs DEBUG level and above)
-stdout_handler.setLevel(logging.DEBUG)
+stdout_handler.setLevel(LOGGING_LEVEL)
 # Set format for stdout handler
 stdout_handler.setFormatter(CustomFormatter(logFormat))
 # Add handlers to the logger
@@ -65,7 +70,7 @@ logger.addHandler(stdout_handler)
 if syslog_to_file:
     # Create file handler for logging to a file
     file_handler_sys = TimedRotatingFileHandler('logs/meshbot.log', when='midnight', backupCount=log_backup_count)
-    file_handler_sys.setLevel(logging.DEBUG) # DEBUG used by default for system logs to disk
+    file_handler_sys.setLevel(LOGGING_LEVEL) # DEBUG used by default for system logs to disk
     file_handler_sys.setFormatter(plainFormatter(logFormat))
     logger.addHandler(file_handler_sys)
 

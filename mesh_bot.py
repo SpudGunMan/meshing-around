@@ -2,10 +2,15 @@
 # Meshtastic Autoresponder MESH Bot
 # K7MHI Kelly Keeton 2024
 
+try:
+    from pubsub import pub
+except ImportError:
+    print(f"Important dependencies are not met, try install.sh\n\n Did you mean to './launch.sh mesh' using a virtual environment.")
+    exit(1)
+
 import asyncio
 import time # for sleep, get some when you can :)
 import random
-from pubsub import pub # pip install pubsub
 from modules.log import *
 from modules.system import *
 
@@ -767,7 +772,7 @@ def sysinfo(message, message_from_id, deviceID):
         return "sysinfo command returns system information."
     else:
         if enable_runShellCmd and file_monitor_enabled:
-            shellData = call_external_script(message)
+            shellData = call_external_script(None, "sysEnv.sh").rstrip()
             return get_sysinfo(message_from_id, deviceID) + "\n" + shellData
         else:
             return get_sysinfo(message_from_id, deviceID)
