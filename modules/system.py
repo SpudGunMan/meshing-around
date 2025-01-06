@@ -1037,36 +1037,36 @@ async def retry_interface(nodeID):
     except Exception as e:
         logger.error(f"System: Error Opening interface{nodeID} on: {e}")
 
-handleSentinel_spotted = ""
+handleSentinel_spotted = []
 handleSentinel_loop = 0
 async def handleSentinel(deviceID):
     global handleSentinel_spotted, handleSentinel_loop
-    enemySpotted = ""
+    detectedNearby = ""
     resolution = "unknown"
     closest_nodes = get_closest_nodes(deviceID)
     if closest_nodes != ERROR_FETCHING_DATA and closest_nodes:
         if closest_nodes[0]['id'] is not None:
-            enemySpotted = get_name_from_number(closest_nodes[0]['id'], 'long', deviceID)
-            enemySpotted += ", " + get_name_from_number(closest_nodes[0]['id'], 'short', deviceID)
-            enemySpotted += ", " + str(closest_nodes[0]['id'])
-            enemySpotted += ", " + decimal_to_hex(closest_nodes[0]['id'])
-            enemySpotted += f" at {closest_nodes[0]['distance']}m"
+            detectedNearby = get_name_from_number(closest_nodes[0]['id'], 'long', deviceID)
+            detectedNearby += ", " + get_name_from_number(closest_nodes[0]['id'], 'short', deviceID)
+            detectedNearby += ", " + str(closest_nodes[0]['id'])
+            detectedNearby += ", " + decimal_to_hex(closest_nodes[0]['id'])
+            detectedNearby += f" at {closest_nodes[0]['distance']}m"
 
-    if handleSentinel_loop >= sentry_holdoff and handleSentinel_spotted != enemySpotted:
+    if handleSentinel_loop >= sentry_holdoff and closest_nodes[0]['id'] not in handleSentinel_spotted:
         if closest_nodes and positionMetadata and closest_nodes[0]['id'] in positionMetadata:
             metadata = positionMetadata[closest_nodes[0]['id']]
             if metadata.get('precisionBits') is not None:
                 resolution = metadata.get('precisionBits')
 
-        logger.warning(f"System: {enemySpotted} is close to your location on Interface{deviceID} Accuracy is {resolution}bits")
+        logger.warning(f"System: {detectedNearby} is close to your location on Interface{deviceID} Accuracy is {resolution}bits")
         for i in range(1, 10):
             if globals().get(f'interface{i}_enabled'):
-                send_message(f"Sentry{deviceID}: {enemySpotted}", secure_channel, 0, i)
+                send_message(f"Sentry{deviceID}: {detectedNearby}", secure_channel, 0, i)
         if enableSMTP and email_sentry_alerts:
             for email in sysopEmails:
-                send_email(email, f"Sentry{deviceID}: {enemySpotted}")
+                send_email(email, f"Sentry{deviceID}: {detectedNearby}")
         handleSentinel_loop = 0
-        handleSentinel_spotted = enemySpotted
+        handleSentinel_spotted.append(closest_nodes[0]['id'])
     else:
         handleSentinel_loop += 1
 
