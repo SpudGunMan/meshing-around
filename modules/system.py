@@ -1075,6 +1075,7 @@ async def handleSentinel(deviceID):
         for i in range(1, 10):
             if globals().get(f'interface{i}_enabled'):
                 send_message(f"Sentry{deviceID}: {detectedNearby}", secure_channel, 0, i)
+                time.sleep(responseDelay + 1)
         if enableSMTP and email_sentry_alerts:
             for email in sysopEmails:
                 send_email(email, f"Sentry{deviceID}: {detectedNearby}")
