@@ -522,7 +522,7 @@ def getIpawsAlert(lat=0, lon=0, shortAlerts = False):
                 if geocode_type == "SAME":
                     sameVal = geocode_value
             except Exception as e:
-                logger.warning(f"System: iPAWS Error extracting alert data: {link}")
+                logger.debug(f"System: iPAWS Error extracting alert data: {link}")
                 #print(f"DEBUG: {info.toprettyxml()}")
                 continue
 
@@ -601,7 +601,7 @@ def get_flood_noaa(lat=0, lon=0, uid=0):
         # except TypeError as e:
         #     print(f"Type error in data: {e}")
     except Exception as e:
-        logger.warning("Location:Error extracting flood gauge data from NOAA for " + str(uid))
+        logger.debug("Location:Error extracting flood gauge data from NOAA for " + str(uid))
         return ERROR_FETCHING_DATA
     
     # format the flood data
