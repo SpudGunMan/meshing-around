@@ -165,7 +165,9 @@ elif [[ $1 == "pong" ]]; then
 else
     printf "\n\n"
     echo "Which bot do you want to install as a service? Pong Mesh or None? (pong/mesh/n)"
-    echo "Pong bot is a simple bot for network testing, Mesh bot is a more complex bot more suited for meshing around"
+    echo "Pong bot is a simple bot for network testing"
+    echo "Mesh bot is a more complex bot more suited for meshing around"
+    echo "None will skip the service install"
     read bot
 fi
 
@@ -309,6 +311,30 @@ fi
 printf "\nInstallation complete!\n"
 
 exit 0
+
+# to uninstall the product run the following commands as needed
+
+# sudo systemctl stop mesh_bot
+# sudo systemctl disable mesh_bot
+# sudo systemctl stop pong_bot
+# sudo systemctl disable pong_bot
+# sudo systemctl stop mesh_bot_reporting
+# sudo systemctl disable mesh_bot_reporting
+# sudo rm /etc/systemd/system/mesh_bot.service
+# sudo rm /etc/systemd/system/mesh_bot_reporting.service
+# sudo rm /etc/systemd/system/pong_bot.service
+# sudo systemctl daemon-reload
+# sudo systemctl reset-failed
+
+# sudo gpasswd -d meshbot dialout
+# sudo gpasswd -d meshbot tty
+# sudo gpasswd -d meshbot bluetooth
+# sudo groupdel meshbot
+# sudo userdel meshbot
+
+# sudo rm -rf /opt/meshing-around
+
+
 # after install shenannigans
 # add 'bee = True' to config.ini General section. You will likley want to clean the txt up a bit
 # wget https://courses.cs.washington.edu/courses/cse163/20wi/files/lectures/L04/bee-movie.txt -O bee.txt
