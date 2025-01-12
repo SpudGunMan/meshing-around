@@ -30,11 +30,11 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
         "cq": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
         "cqcq": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
         "cqcqcq": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
-        "lheard": lambda: handle_lheard(interface1, interface2_enabled, myNodeNum1, myNodeNum2),
+        "lheard": lambda: handle_lheard(message, message_from_id, deviceID, isDM),
         "motd": lambda: handle_motd(message, MOTD),
         "ping": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
         "pong": lambda: "🏓PING!!🛜",
-        "sitrep": lambda: handle_lheard(interface1, interface2_enabled, myNodeNum1, myNodeNum2),
+        "sitrep": lambda: lambda: handle_lheard(message, message_from_id, deviceID, isDM),
         "sysinfo": lambda: sysinfo(message, message_from_id, deviceID),
         "test": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
         "testing": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
@@ -361,18 +361,17 @@ def onReceive(packet, interface):
                         msgLogger.info(f"Device:{rxNode} Channel:{channel_number} | {get_name_from_number(message_from_id, 'long', rxNode)} | " + message_string.replace('\n', '-nl-'))
 
                      # repeat the message on the other device
-                    if repeater_enabled and interface2_enabled:         
+                    if repeater_enabled and multiple_interface:         
                         # wait a responseDelay to avoid message collision from lora-ack.
                         time.sleep(responseDelay)
                         rMsg = (f"{message_string} From:{get_name_from_number(message_from_id, 'short', rxNode)}")
                         # if channel found in the repeater list repeat the message
                         if str(channel_number) in repeater_channels:
-                            if rxNode == 1:
-                                logger.debug(f"Repeating message on Device2 Channel:{channel_number}")
-                                send_message(rMsg, channel_number, 0, 2)
-                            elif rxNode == 2:
-                                logger.debug(f"Repeating message on Device1 Channel:{channel_number}")
-                                send_message(rMsg, channel_number, 0, 1)
+                            for i in range(1, 10):
+                                if globals().get(f'interface{i}_enabled', False) and i != rxNode:
+                                    logger.debug(f"Repeating message on Device{i} Channel:{channel_number}")
+                                    send_message(rMsg, channel_number, 0, i)
+                                    time.sleep(responseDelay)
         else:
             # Evaluate non TEXT_MESSAGE_APP packets
             consumeMetadata(packet, rxNode)
@@ -385,11 +384,12 @@ async def start_rx():
     # Start the receive subscriber using pubsub via meshtastic library
     pub.subscribe(onReceive, 'meshtastic.receive')
     pub.subscribe(onDisconnect, 'meshtastic.connection.lost')
-    logger.info(f"System: Autoresponder Started for Device1 {get_name_from_number(myNodeNum1, 'long', 1)}," 
-                f"{get_name_from_number(myNodeNum1, 'short', 1)}. NodeID: {myNodeNum1}, {decimal_to_hex(myNodeNum1)}")
-    if interface2_enabled:
-        logger.info(f"System: Autoresponder Started for Device2 {get_name_from_number(myNodeNum2, 'long', 2)},"
-                    f"{get_name_from_number(myNodeNum2, 'short', 2)}. NodeID: {myNodeNum2}, {decimal_to_hex(myNodeNum2)}")
+    for i in range(1, 10):
+        if globals().get(f'interface{i}_enabled', False):
+            myNodeNum = globals().get(f'myNodeNum{i}', 0)
+            logger.info(f"System: Autoresponder Started for Device{i} {get_name_from_number(myNodeNum, 'long', i)},"
+                        f"{get_name_from_number(myNodeNum, 'short', i)}. NodeID: {myNodeNum}, {decimal_to_hex(myNodeNum)}")
+    
     if log_messages_to_file:
         logger.debug("System: Logging Messages to disk")
     if syslog_to_file:
@@ -404,7 +404,7 @@ async def start_rx():
         logger.debug(f"System: Store and Forward Enabled using limit: {storeFlimit}")
     if useDMForResponse:
         logger.debug(f"System: Respond by DM only")
-    if repeater_enabled and interface2_enabled:
+    if repeater_enabled and multiple_interface:
         logger.debug(f"System: Repeater Enabled for Channels: {repeater_channels}")
     if file_monitor_enabled:
         logger.debug(f"System: File Monitor Enabled for {file_monitor_file_path}, broadcasting to channels: {file_monitor_broadcastCh}")
