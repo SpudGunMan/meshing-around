@@ -73,7 +73,7 @@ git clone https://github.com/spudgunman/meshing-around
 ```
 The code is under active development, so make sure to pull the latest changes regularly!
 
-#### Optional Automation of setup
+#### Automation of setup
 - **Automated Installation**: `install.sh` will automate optional venv and requirements installation.
 - **Launch Script**: `launch.sh` will activate and launch the app in the venv
 
