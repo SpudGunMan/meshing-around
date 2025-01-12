@@ -78,18 +78,7 @@ The code is under active development, so make sure to pull the latest changes re
 - **Launch Script**: `launch.sh` will activate and launch the app in the venv
 
 #### Docker Installation
-If you prefer to use Docker, follow these steps:
-
-1. Ensure your serial port is properly shared.
-2. Build the Docker image:
-    ```sh
-    cd meshing-around
-    docker build -t meshing-around .
-    ```
-3. Run the Docker container:
-    ```sh
-    docker run --rm -it --device=/dev/ttyUSB0 meshing-around
-    ```
+If you prefer to use [Docker](script/docker/README.md)
 
 #### Custom Install
 Install the required dependencies using pip:
