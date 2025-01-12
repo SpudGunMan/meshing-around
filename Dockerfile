@@ -12,7 +12,7 @@ ENV TZ="America/Los_Angeles"
 
 WORKDIR /app
 COPY . /app
-COPY /app/config.template /app/config.ini
+COPY config.template /app/config.ini
 
 RUN pip install -r requirements.txt
 
