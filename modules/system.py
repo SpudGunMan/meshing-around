@@ -656,6 +656,7 @@ def handleMultiPing(nodeID=0, deviceID=1):
 
 def handleAlertBroadcast(deviceID=1):
     alertUk = NO_ALERTS
+    alertDe = NO_ALERTS
     alertFema = NO_ALERTS
     wxAlert = NO_ALERTS
     # only allow API call every 20 minutes
@@ -671,6 +672,8 @@ def handleAlertBroadcast(deviceID=1):
         alertWx = alertBrodcastNOAA()
 
     if emergencyAlertBrodcastEnabled:
+        if enableDEalerts:
+            alertDe = get_nina_alerts()
         if enableGBalerts:
             alertUk = get_govUK_alerts()
         else:
@@ -685,6 +688,7 @@ def handleAlertBroadcast(deviceID=1):
 
     femaAlert = alertFema
     ukAlert = alertUk
+    deAlert = alertDe
 
     if emergencyAlertBrodcastEnabled:
         if NO_ALERTS not in femaAlert and ERROR_FETCHING_DATA not in femaAlert:
@@ -695,6 +699,14 @@ def handleAlertBroadcast(deviceID=1):
                 send_message(femaAlert, emergencyAlertBroadcastCh, 0, deviceID)
             return True
         if NO_ALERTS not in ukAlert:
+            if isinstance(emergencyAlertBroadcastCh, list):
+                for channel in emergencyAlertBroadcastCh:
+                    send_message(ukAlert, int(channel), 0, deviceID)
+            else:
+                send_message(ukAlert, emergencyAlertBroadcastCh, 0, deviceID)
+            return True
+
+        if NO_ALERTS not in deAlert:
             if isinstance(emergencyAlertBroadcastCh, list):
                 for channel in emergencyAlertBroadcastCh:
                     send_message(ukAlert, int(channel), 0, deviceID)
