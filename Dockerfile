@@ -18,4 +18,4 @@ RUN pip install -r requirements.txt
 
 RUN chmod +x /app/script/docker/entrypoint.sh
 
-ENTRYPOINT ["/app/script/docker/entrypoint.sh"]
+ENTRYPOINT ["/bin/bash", "/app/script/docker/entrypoint.sh"]
