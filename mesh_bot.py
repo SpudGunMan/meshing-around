@@ -495,8 +495,9 @@ def handleLemonade(message, nodeID, deviceID):
         if highScore != 0:
             if highScore['userID'] != 0:
                 nodeName = get_name_from_number(highScore['userID'])
-                if nodeName.isnumeric() and interface2_enabled:
-                    nodeName = get_name_from_number(highScore['userID'], 'long', 2)
+                if nodeName.isnumeric() and multiple_interface:
+                    logger.debug(f"System: TODO is multiple interface fix mention this please nodeName: {nodeName}")
+                    #nodeName = get_name_from_number(highScore['userID'], 'long', 2)
                 msg += f" HighScore🥇{nodeName} 💰{round(highScore['cash'], 2)}k "
     
     msg += start_lemonade(nodeID=nodeID, message=message, celsius=False)
@@ -535,8 +536,9 @@ def handleBlackJack(message, nodeID, deviceID):
             if highScore != 0:
                 if highScore['nodeID'] != 0:
                     nodeName = get_name_from_number(highScore['nodeID'])
-                    if nodeName.isnumeric() and interface2_enabled:
-                        nodeName = get_name_from_number(highScore['nodeID'], 'long', 2)
+                    if nodeName.isnumeric() and multiple_interface:
+                        logger.debug(f"System: TODO is multiple interface fix mention this please nodeName: {nodeName}")
+                        #nodeName = get_name_from_number(highScore['nodeID'], 'long', 2)
                     msg += f" HighScore🥇{nodeName} with {highScore['highScore']} chips. "
     time.sleep(responseDelay + 1) # short answers with long replies can cause message collision added wait
     return msg
@@ -570,8 +572,9 @@ def handleVideoPoker(message, nodeID, deviceID):
             if highScore != 0:
                 if highScore['nodeID'] != 0:
                     nodeName = get_name_from_number(highScore['nodeID'])
-                    if nodeName.isnumeric() and interface2_enabled:
-                        nodeName = get_name_from_number(highScore['nodeID'], 'long', 2)
+                    if nodeName.isnumeric() and multiple_interface:
+                        logger.debug(f"System: TODO is multiple interface fix mention this please nodeName: {nodeName}")
+                        #nodeName = get_name_from_number(highScore['nodeID'], 'long', 2)
                     msg += f" HighScore🥇{nodeName} with {highScore['highScore']} coins. "
     
         if last_cmd != "" and nodeID != 0:
@@ -1002,23 +1005,38 @@ def onReceive(packet, interface):
     # set the value for the incomming interface
     if rxType == 'SerialInterface':
         rxInterface = interface.__dict__.get('devPath', 'unknown')
-        if port1 in rxInterface:
-            rxNode = 1
-        elif interface2_enabled and port2 in rxInterface:
-            rxNode = 2
+        if port1 in rxInterface: rxNode = 1
+        elif multiple_interface and port2 in rxInterface: rxNode = 2
+        elif multiple_interface and port3 in rxInterface: rxNode = 3
+        elif multiple_interface and port4 in rxInterface: rxNode = 4
+        elif multiple_interface and port5 in rxInterface: rxNode = 5
+        elif multiple_interface and port6 in rxInterface: rxNode = 6
+        elif multiple_interface and port7 in rxInterface: rxNode = 7
+        elif multiple_interface and port8 in rxInterface: rxNode = 8
+        elif multiple_interface and port9 in rxInterface: rxNode = 9
     
     if rxType == 'TCPInterface':
         rxHost = interface.__dict__.get('hostname', 'unknown')
-        if hostname1 in rxHost and interface1_type == 'tcp':
-            rxNode = 1
-        elif interface2_enabled and hostname2 in rxHost and interface2_type == 'tcp':
-            rxNode = 2
+        if hostname1 in rxHost and interface1_type == 'tcp': rxNode = 1
+        elif multiple_interface and hostname2 in rxHost and interface2_type == 'tcp': rxNode = 2
+        elif multiple_interface and hostname3 in rxHost and interface3_type == 'tcp': rxNode = 3
+        elif multiple_interface and hostname4 in rxHost and interface4_type == 'tcp': rxNode = 4
+        elif multiple_interface and hostname5 in rxHost and interface5_type == 'tcp': rxNode = 5
+        elif multiple_interface and hostname6 in rxHost and interface6_type == 'tcp': rxNode = 6
+        elif multiple_interface and hostname7 in rxHost and interface7_type == 'tcp': rxNode = 7
+        elif multiple_interface and hostname8 in rxHost and interface8_type == 'tcp': rxNode = 8
+        elif multiple_interface and hostname9 in rxHost and interface9_type == 'tcp': rxNode = 9
 
     if rxType == 'BLEInterface':
-        if interface1_type == 'ble':
-            rxNode = 1
-        elif interface2_enabled and interface2_type == 'ble':
-            rxNode = 2
+        if interface1_type == 'ble': rxNode = 1
+        elif multiple_interface and interface2_type == 'ble': rxNode = 2
+        elif multiple_interface and interface3_type == 'ble': rxNode = 3
+        elif multiple_interface and interface4_type == 'ble': rxNode = 4
+        elif multiple_interface and interface5_type == 'ble': rxNode = 5
+        elif multiple_interface and interface6_type == 'ble': rxNode = 6
+        elif multiple_interface and interface7_type == 'ble': rxNode = 7
+        elif multiple_interface and interface8_type == 'ble': rxNode = 8
+        elif multiple_interface and interface9_type == 'ble': rxNode = 9
     
     # check if the packet has a channel flag use it
     if packet.get('channel'):
@@ -1210,18 +1228,17 @@ def onReceive(packet, interface):
                         msgLogger.info(f"Device:{rxNode} Channel:{channel_number} | {get_name_from_number(message_from_id, 'long', rxNode)} | " + message_string.replace('\n', '-nl-'))
 
                      # repeat the message on the other device
-                    if repeater_enabled and interface2_enabled:         
+                    if repeater_enabled and multiple_interface:         
                         # wait a responseDelay to avoid message collision from lora-ack.
                         time.sleep(responseDelay)
                         rMsg = (f"{message_string} From:{get_name_from_number(message_from_id, 'short', rxNode)}")
                         # if channel found in the repeater list repeat the message
                         if str(channel_number) in repeater_channels:
-                            if rxNode == 1:
-                                logger.debug(f"Repeating message on Device2 Channel:{channel_number}")
-                                send_message(rMsg, channel_number, 0, 2)
-                            elif rxNode == 2:
-                                logger.debug(f"Repeating message on Device1 Channel:{channel_number}")
-                                send_message(rMsg, channel_number, 0, 1)
+                            for i in range(1, 10):
+                                if globals().get(f'interface{i}_enabled', False) and i != rxNode:
+                                    logger.debug(f"Repeating message on Device{i} Channel:{channel_number}")
+                                    send_message(rMsg, channel_number, 0, i)
+                                    time.sleep(responseDelay)
         else:
             # Evaluate non TEXT_MESSAGE_APP packets
             consumeMetadata(packet, rxNode)
@@ -1279,7 +1296,7 @@ async def start_rx():
         logger.debug(f"System: Store and Forward Enabled using limit: {storeFlimit}")
     if useDMForResponse:
         logger.debug(f"System: Respond by DM only")
-    if repeater_enabled and interface2_enabled:
+    if repeater_enabled and multiple_interface:
         logger.debug(f"System: Repeater Enabled for Channels: {repeater_channels}")
     if radio_detection_enabled:
         logger.debug(f"System: Radio Detection Enabled using rigctld at {rigControlServerAddress} brodcasting to channels: {sigWatchBroadcastCh} for {get_freq_common_name(get_hamlib('f'))}")

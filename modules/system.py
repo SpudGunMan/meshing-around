@@ -283,13 +283,15 @@ def get_num_from_short_name(short_name, nodeInt=1):
             return node['num']
         else:
             # TODO check the other interface
-            if interface2_enabled:
-                interface = interface2 if nodeInt == 1 else interface1 # check the other interface
-                for node in interface.nodes.values():
-                    if short_name == node['user']['shortName']:
-                        return node['num']
-                    elif str(short_name.lower()) == node['user']['shortName'].lower():
-                        return node['num']
+            if multiple_interface:
+                for int in range(1, 10):
+                    if globals().get(f'interface{int}_enabled') and int != nodeInt:
+                        other_interface = globals().get(f'interface{int}')
+                        for node in other_interface.nodes.values():
+                            if short_name == node['user']['shortName']:
+                                return node['num']
+                            elif str(short_name.lower()) == node['user']['shortName'].lower():
+                                return node['num']
     return 0
     
 def get_node_list(nodeInt=1):
@@ -321,13 +323,14 @@ def get_node_list(nodeInt=1):
         #print (f"Node List: {node_list1[:5]}\n")
         node_list1.sort(key=lambda x: x[1] if x[1] is not None else 0, reverse=True)
         #print (f"Node List: {node_list1[:5]}\n")
-        if interface2_enabled:
+        if multiple_interface:
+            logger.debug(f"System: FIX ME line 327 Multiple Interface Node List")
             node_list2.sort(key=lambda x: x[1] if x[1] is not None else 0, reverse=True)
     except Exception as e:
         logger.error(f"System: Error sorting node list: {e}")
         logger.debug(f"Node List1: {node_list1[:5]}\n")
-        if interface2_enabled:
-            logger.debug(f"Node List2: {node_list2[:5]}\n")
+        if multiple_interface:
+            logger.debug(f"FIX ME MULTI INTERFACE Node List2: {node_list2[:5]}\n")
         node_list = ERROR_FETCHING_DATA
 
     try:
@@ -733,9 +736,10 @@ def exit_handler():
     try:         
         interface1.close()
         logger.debug(f"System: Interface1 Closed")
-        if interface2_enabled:
-            interface2.close()
-            logger.debug(f"System: Interface2 Closed")
+        for i in range(1, 10):
+            if globals().get(f'interface{i}_enabled'):
+                globals()[f'interface{i}'].close()
+                logger.debug(f"System: Interface{i} Closed")
     except Exception as e:
         logger.error(f"System: closing: {e}")
     if bbs_enabled:
@@ -931,9 +935,6 @@ def get_sysinfo(nodeID=0, deviceID=1):
     # replace Telemetry with Int in string
     stats = stats.replace("Telemetry", "Int")
     sysinfo += f"📊{stats}"
-    if interface2_enabled:
-        sysinfo += f"📊{stats}"
-
     return sysinfo
 
 async def BroadcastScheduler():
@@ -958,15 +959,21 @@ async def handleSignalWatcher():
                     for ch in sigWatchBroadcastCh:
                         if antiSpam and ch != publicChannel:
                             send_message(msg, int(ch), 0, 1)
-                            if interface2_enabled:
-                                send_message(msg, int(ch), 0, 2)
+                            if multiple_interface:
+                                for i in range(1, 10):
+                                    if globals().get(f'interface{i}_enabled'):
+                                        send_message(msg, int(ch), 0, i)
+                                        time.sleep(responseDelay)
                         else:
                             logger.warning(f"System: antiSpam prevented Alert from Hamlib {msg}")
                 else:
                     if antiSpam and sigWatchBroadcastCh != publicChannel:
                         send_message(msg, int(sigWatchBroadcastCh), 0, 1)
-                        if interface2_enabled:
-                            send_message(msg, int(sigWatchBroadcastCh), 0, 2)
+                        if multiple_interface:
+                            for i in range(1, 10):
+                                if globals().get(f'interface{i}_enabled'):
+                                    send_message(msg, int(sigWatchBroadcastCh), 0, i)
+                                    time.sleep(responseDelay)
                     else:
                         logger.warning(f"System: antiSpam prevented Alert from Hamlib {msg}")
 
@@ -989,15 +996,21 @@ async def handleFileWatcher():
                     for ch in file_monitor_broadcastCh:
                         if antiSpam and ch != publicChannel:
                             send_message(msg, int(ch), 0, 1)
-                            if interface2_enabled:
-                                send_message(msg, int(ch), 0, 2)
+                            if multiple_interface:
+                                for i in range(1, 10):
+                                    if globals().get(f'interface{i}_enabled'):
+                                        send_message(msg, int(ch), 0, i)
+                                        time.sleep(responseDelay)
                         else:
                             logger.warning(f"System: antiSpam prevented Alert from FileWatcher")
                 else:
                     if antiSpam and file_monitor_broadcastCh != publicChannel:
                         send_message(msg, int(file_monitor_broadcastCh), 0, 1)
-                        if interface2_enabled:
-                            send_message(msg, int(file_monitor_broadcastCh), 0, 2)
+                        if multiple_interface:
+                            for i in range(1, 10):
+                                if globals().get(f'interface{i}_enabled'):
+                                    send_message(msg, int(file_monitor_broadcastCh), 0, i)
+                                    time.sleep(responseDelay)
                     else:
                         logger.warning(f"System: antiSpam prevented Alert from FileWatcher")
 
