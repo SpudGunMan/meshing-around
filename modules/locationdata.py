@@ -357,16 +357,13 @@ def getWeatherAlertsNOAA(lat=0, lon=0, useDefaultLatLon=False):
     
     alerts = ""
     alertxml = xml.dom.minidom.parseString(alert_data.text)
-    #old
     for i in alertxml.getElementsByTagName("entry"):
-        alerts += (
-            i.getElementsByTagName("title")[0].childNodes[0].nodeValue + "\n"
-        )
-    #new
-    # for i in alertxml.getElementsByTagName("entry"):
-    #     title = i.getElementsByTagName("title")[0].childNodes[0].nodeValue
-    #     area_desc = i.getElementsByTagName("cap:areaDesc")[0].childNodes[0].nodeValue
-    #     alerts += f"{title}\nArea: {area_desc}\n\n"
+        title = i.getElementsByTagName("title")[0].childNodes[0].nodeValue
+        area_desc = i.getElementsByTagName("cap:areaDesc")[0].childNodes[0].nodeValue
+        if enableExtraLocationWx:
+            alerts += f"{title}. {area_desc.replace(' ', '')}\n"
+        else:
+            alerts += f"{title}\n"
 
     if alerts == "" or alerts == None:
         return NO_ALERTS
@@ -525,7 +522,7 @@ def getIpawsAlert(lat=0, lon=0, shortAlerts = False):
                 if geocode_type == "SAME":
                     sameVal = geocode_value
             except Exception as e:
-                logger.warning(f"System: iPAWS Error extracting alert data: {link}")
+                logger.debug(f"System: iPAWS Error extracting alert data: {link}")
                 #print(f"DEBUG: {info.toprettyxml()}")
                 continue
 
@@ -604,7 +601,7 @@ def get_flood_noaa(lat=0, lon=0, uid=0):
         # except TypeError as e:
         #     print(f"Type error in data: {e}")
     except Exception as e:
-        logger.warning("Location:Error extracting flood gauge data from NOAA for " + str(uid))
+        logger.debug("Location:Error extracting flood gauge data from NOAA for " + str(uid))
         return ERROR_FETCHING_DATA
     
     # format the flood data

@@ -209,62 +209,45 @@ if len(help_message) > 20:
 help_message = ", ".join(help_message)
 
 # BLE dual interface prevention
-if interface1_type == 'ble' and interface2_type == 'ble':
-    logger.critical(f"System: BLE Interface1 and Interface2 cannot both be BLE. Exiting")
+ble_count = sum(1 for i in range(1, 10) if globals().get(f'interface{i}_type') == 'ble')
+if ble_count > 1:
+    logger.critical(f"System: Multiple BLE interfaces detected. Only one BLE interface is allowed. Exiting")
     exit()
 
-#initialize_interfaces():
-# Interface1 Configuration
-try:
-    logger.debug(f"System: Initializing Interface1")
-    if interface1_type == 'serial':
-        interface1 = meshtastic.serial_interface.SerialInterface(port1)
-    elif interface1_type == 'tcp':
-        interface1 = meshtastic.tcp_interface.TCPInterface(hostname1)
-    elif interface1_type == 'ble':
-        interface1 = meshtastic.ble_interface.BLEInterface(mac1)
+# Initialize interfaces
+logger.debug(f"System: Initializing Interfaces")
+interface1 = interface2 = interface3 = interface4 = interface5 = interface6 = interface7 = interface8 = interface9 = None
+retry_int1 = retry_int2 = retry_int3 = retry_int4 = retry_int5 = retry_int6 = retry_int7 = retry_int8 = retry_int9 = False
+for i in range(1, 10):
+    interface_type = globals().get(f'interface{i}_type')
+    if not interface_type or interface_type == 'none' or globals().get(f'interface{i}_enabled') == False:
+        # no valid interface found
+        continue
+    try:
+        if globals().get(f'interface{i}_enabled'):
+            if interface_type == 'serial':
+                globals()[f'interface{i}'] = meshtastic.serial_interface.SerialInterface(globals().get(f'port{i}'))
+            elif interface_type == 'tcp':
+                globals()[f'interface{i}'] = meshtastic.tcp_interface.TCPInterface(globals().get(f'hostname{i}'))
+            elif interface_type == 'ble':
+                globals()[f'interface{i}'] = meshtastic.ble_interface.BLEInterface(globals().get(f'mac{i}'))
+            else:
+                logger.critical(f"System: Interface Type: {interface_type} not supported. Validate your config against config.template Exiting")
+                exit()
+    except Exception as e:
+        logger.critical(f"System: abort. Initializing Interface{i} {e}")
+        exit()
+
+# Get the node number of the devices, check if the devices are connected meshtastic devices
+for i in range(1, 10):
+    if globals().get(f'interface{i}') and globals().get(f'interface{i}_enabled'):
+        try:
+            globals()[f'myNodeNum{i}'] = globals()[f'interface{i}'].getMyNodeInfo()['num']
+            logger.debug(f"System: Initalized Radio Device{i} Node Number: {globals()[f'myNodeNum{i}']}")
+        except Exception as e:
+            logger.critical(f"System: critical error initializing interface{i} {e}")
     else:
-        logger.critical(f"System: Interface Type: {interface1_type} not supported. Validate your config against config.template Exiting")
-        exit()
-except Exception as e:
-    logger.critical(f"System: script abort. Initializing Interface1 {e}")
-    exit()
-
-# Interface2 Configuration
-if interface2_enabled:
-    logger.debug(f"System: Initializing Interface2")
-    try:
-        if interface2_type == 'serial':
-            interface2 = meshtastic.serial_interface.SerialInterface(port2)
-        elif interface2_type == 'tcp':
-            interface2 = meshtastic.tcp_interface.TCPInterface(hostname2)
-        elif interface2_type == 'ble':
-            interface2 = meshtastic.ble_interface.BLEInterface(mac2)
-        else:
-            logger.critical(f"System: Interface Type: {interface2_type} not supported. Validate your config against config.template Exiting")
-            exit()
-    except Exception as e:
-        logger.critical(f"System: script abort. Initializing Interface2 {e}")
-        exit()
-
-#Get the node number of the device, check if the device is connected
-try:
-    myinfo = interface1.getMyNodeInfo()
-    myNodeNum1 = myinfo['num']
-except Exception as e:
-    logger.critical(f"System: script abort. {e}")
-    exit()
-
-if interface2_enabled:
-    try:
-        myinfo2 = interface2.getMyNodeInfo()
-        myNodeNum2 = myinfo2['num']
-    except Exception as e:
-        logger.critical(f"System: script abort. {e}")
-        exit()
-else:
-    myNodeNum2 = 777
-
+        globals()[f'myNodeNum{i}'] = 777
 
 #### FUN-ctions ####
 
@@ -272,7 +255,7 @@ def decimal_to_hex(decimal_number):
     return f"!{decimal_number:08x}"
 
 def get_name_from_number(number, type='long', nodeInt=1):
-    interface = interface1 if nodeInt == 1 else interface2
+    interface = globals()[f'interface{nodeInt}']
     name = ""
     
     for node in interface.nodes.values():
@@ -289,7 +272,7 @@ def get_name_from_number(number, type='long', nodeInt=1):
 
 
 def get_num_from_short_name(short_name, nodeInt=1):
-    interface = interface1 if nodeInt == 1 else interface2
+    interface = globals()[f'interface{nodeInt}']
     # Get the node number from the short name, converting all to lowercase for comparison (good practice?)
     logger.debug(f"System: Getting Node Number from Short Name: {short_name} on Device: {nodeInt}")
     for node in interface.nodes.values():
@@ -299,17 +282,18 @@ def get_num_from_short_name(short_name, nodeInt=1):
         elif str(short_name.lower()) == node['user']['shortName'].lower():
             return node['num']
         else:
-            if interface2_enabled:
-                interface = interface2 if nodeInt == 1 else interface1 # check the other interface
-                for node in interface.nodes.values():
-                    if short_name == node['user']['shortName']:
-                        return node['num']
-                    elif str(short_name.lower()) == node['user']['shortName'].lower():
-                        return node['num']
+            for int in range(1, 10):
+                if globals().get(f'interface{int}_enabled') and int != nodeInt:
+                    other_interface = globals().get(f'interface{int}')
+                    for node in other_interface.nodes.values():
+                        if short_name == node['user']['shortName']:
+                            return node['num']
+                        elif str(short_name.lower()) == node['user']['shortName'].lower():
+                            return node['num']
     return 0
     
 def get_node_list(nodeInt=1):
-    interface = interface1 if nodeInt == 1 else interface2
+    interface = globals()[f'interface{nodeInt}']
     # Get a list of nodes on the device
     node_list = ""
     node_list1 = []
@@ -319,7 +303,7 @@ def get_node_list(nodeInt=1):
     if interface.nodes:
         for node in interface.nodes.values():
             # ignore own
-            if node['num'] != myNodeNum2 and node['num'] != myNodeNum1:
+            if all(node['num'] != globals().get(f'myNodeNum{i}') for i in range(1, 10)):
                 node_name = get_name_from_number(node['num'], 'short', nodeInt)
                 snr = node.get('snr', 0)
 
@@ -337,13 +321,14 @@ def get_node_list(nodeInt=1):
         #print (f"Node List: {node_list1[:5]}\n")
         node_list1.sort(key=lambda x: x[1] if x[1] is not None else 0, reverse=True)
         #print (f"Node List: {node_list1[:5]}\n")
-        if interface2_enabled:
+        if multiple_interface:
+            logger.debug(f"System: FIX ME line 327 Multiple Interface Node List")
             node_list2.sort(key=lambda x: x[1] if x[1] is not None else 0, reverse=True)
     except Exception as e:
         logger.error(f"System: Error sorting node list: {e}")
         logger.debug(f"Node List1: {node_list1[:5]}\n")
-        if interface2_enabled:
-            logger.debug(f"Node List2: {node_list2[:5]}\n")
+        if multiple_interface:
+            logger.debug(f"FIX ME MULTI INTERFACE Node List2: {node_list2[:5]}\n")
         node_list = ERROR_FETCHING_DATA
 
     try:
@@ -363,7 +348,7 @@ def get_node_list(nodeInt=1):
     return node_list
 
 def get_node_location(number, nodeInt=1, channel=0):
-    interface = interface1 if nodeInt == 1 else interface2
+    interface = globals()[f'interface{nodeInt}']
     # Get the location of a node by its number from nodeDB on device
     latitude = latitudeValue
     longitude = longitudeValue
@@ -396,7 +381,7 @@ def get_node_location(number, nodeInt=1, channel=0):
 
 
 def get_closest_nodes(nodeInt=1,returnCount=3):
-    interface = interface1 if nodeInt == 1 else interface2
+    interface = globals()[f'interface{nodeInt}']
     node_list = []
 
     if interface.nodes:
@@ -417,7 +402,7 @@ def get_closest_nodes(nodeInt=1,returnCount=3):
                     distance = round(geopy.distance.geodesic((latitudeValue, longitudeValue), (latitude, longitude)).m, 2)
                     
                     if (distance < sentry_radius):
-                        if nodeID != myNodeNum1 and myNodeNum2 and str(nodeID) not in sentryIgnoreList:
+                        if (nodeID not in [globals().get(f'myNodeNum{i}') for i in range(1, 10)]) and str(nodeID) not in sentryIgnoreList:
                             node_list.append({'id': nodeID, 'latitude': latitude, 'longitude': longitude, 'distance': distance})
                             
                 except Exception as e:
@@ -510,7 +495,7 @@ def messageChunker(message):
         
 def send_message(message, ch, nodeid=0, nodeInt=1, bypassChuncking=False):
     # Send a message to a channel or DM
-    interface = interface1 if nodeInt == 1 else interface2
+    interface = globals()[f'interface{nodeInt}']
     # Check if the message is empty
     if message == "" or message == None or len(message) == 0:
         return False
@@ -730,40 +715,30 @@ def handleAlertBroadcast(deviceID=1):
             return True
 
 def onDisconnect(interface):
-    global retry_int1, retry_int2
+    global retry_int1, retry_int2, retry_int3, retry_int4, retry_int5, retry_int6, retry_int7, retry_int8, retry_int9
     rxType = type(interface).__name__
-    if rxType == 'SerialInterface':
-        rxInterface = interface.__dict__.get('devPath', 'unknown')
-        logger.critical("System: Lost Connection to Device {rxInterface}")
-        if port1 in rxInterface:
-            retry_int1 = True
-        elif interface2_enabled and port2 in rxInterface:
-            retry_int2 = True
-
-    if rxType == 'TCPInterface':
-        rxHost = interface.__dict__.get('hostname', 'unknown')
-        logger.critical("System: Lost Connection to Device {rxHost}")
-        if hostname1 in rxHost and interface1_type == 'tcp':
-            retry_int1 = True
-        elif interface2_enabled and hostname2 in rxHost and interface2_type == 'tcp':
-            retry_int2 = True
-    
-    if rxType == 'BLEInterface':
-        logger.critical("System: Lost Connection to Device BLE")
-        if interface1_type == 'ble':
-            retry_int1 = True
-        elif interface2_enabled and interface2_type == 'ble':
-            retry_int2 = True
+    if rxType in ['SerialInterface', 'TCPInterface', 'BLEInterface']:
+        identifier = interface.__dict__.get('devPath', interface.__dict__.get('hostname', 'BLE'))
+        logger.critical(f"System: Lost Connection to Device {identifier}")
+        for i in range(1, 10):
+            if globals().get(f'interface{i}_enabled'):
+                if (rxType == 'SerialInterface' and globals().get(f'port{i}') in identifier) or \
+                   (rxType == 'TCPInterface' and globals().get(f'hostname{i}') in identifier) or \
+                   (rxType == 'BLEInterface' and globals().get(f'interface{i}_type') == 'ble'):
+                    globals()[f'retry_int{i}'] = True
+                    break
 
 def exit_handler():
     # Close the interface and save the BBS messages
     logger.debug(f"System: Closing Autoresponder")
-    try:         
+    try:
+        logger.debug(f"System: Closing Interface1")
         interface1.close()
-        logger.debug(f"System: Interface1 Closed")
-        if interface2_enabled:
-            interface2.close()
-            logger.debug(f"System: Interface2 Closed")
+        if multiple_interface:
+            for i in range(2, 10):
+                if globals().get(f'interface{i}_enabled'):
+                    logger.debug(f"System: Closing Interface{i}")
+                    globals()[f'interface{i}'].close()
     except Exception as e:
         logger.error(f"System: closing: {e}")
     if bbs_enabled:
@@ -778,14 +753,16 @@ def exit_handler():
 # Telemetry Functions
 telemetryData = {}
 def initialize_telemetryData():
-    telemetryData[0] = {'interface1': 0, 'interface2': 0, 'lastAlert1': '', 'lastAlert2': ''}
-    telemetryData[1] = {'numPacketsTx': 0, 'numPacketsRx': 0, 'numOnlineNodes': 0, 'numPacketsTxErr': 0, 'numPacketsRxErr': 0, 'numTotalNodes': 0}
-    telemetryData[2] = {'numPacketsTx': 0, 'numPacketsRx': 0, 'numOnlineNodes': 0, 'numPacketsTxErr': 0, 'numPacketsRxErr': 0, 'numTotalNodes': 0}
+    telemetryData[0] = {f'interface{i}': 0 for i in range(1, 10)}
+    telemetryData[0].update({f'lastAlert{i}': '' for i in range(1, 10)})
+    for i in range(1, 10):
+        telemetryData[i] = {'numPacketsTx': 0, 'numPacketsRx': 0, 'numOnlineNodes': 0, 'numPacketsTxErr': 0, 'numPacketsRxErr': 0, 'numTotalNodes': 0}
+
 # indented to be called from the main loop
 initialize_telemetryData()
 
 def getNodeFirmware(nodeID=0, nodeInt=1):
-    interface = interface1 if nodeInt == 1 else interface2
+    interface = globals()[f'interface{nodeInt}']
     # get the firmware version of the node
     # this is a workaround because .localNode.getMetadata spits out a lot of debug info which cant be suppressed
     # Create a StringIO object to capture the 
@@ -799,18 +776,15 @@ def getNodeFirmware(nodeID=0, nodeInt=1):
     return -1
 
 def displayNodeTelemetry(nodeID=0, rxNode=0, userRequested=False):
-    interface = interface1 if rxNode == 1 else interface2
+    interface = globals()[f'interface{rxNode}']
+    myNodeNum = globals().get(f'myNodeNum{rxNode}')
     global telemetryData
 
     # throttle the telemetry requests to prevent spamming the device
-    if rxNode == 1:
-        if time.time() - telemetryData[0]['interface1'] < 600 and not userRequested:
+    if 1 <= rxNode <= 9:
+        if time.time() - telemetryData[0][f'interface{rxNode}'] < 600 and not userRequested:
             return -1
-        telemetryData[0]['interface1'] = time.time()
-    elif rxNode == 2:
-        if time.time() - telemetryData[0]['interface2'] < 600 and not userRequested:
-            return -1
-        telemetryData[0]['interface2'] = time.time()
+        telemetryData[0][f'interface{rxNode}'] = time.time()
 
     # some telemetry data is not available in python-meshtastic?
     # bring in values from the last telemetry dump for the node
@@ -822,13 +796,13 @@ def displayNodeTelemetry(nodeID=0, rxNode=0, userRequested=False):
     totalOnlineNodes = telemetryData[rxNode]['numOnlineNodes']
 
     # get the telemetry data for a node
-    chutil = round(interface.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("channelUtilization", 0), 1)
-    airUtilTx = round(interface.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("airUtilTx", 0), 1)
-    uptimeSeconds = interface.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("uptimeSeconds", 0)
-    batteryLevel = interface.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("batteryLevel", 0)
-    voltage = interface.nodes.get(decimal_to_hex(myNodeNum1), {}).get("deviceMetrics", {}).get("voltage", 0)
-    #numPacketsRx = interface.nodes.get(decimal_to_hex(myNodeNum1), {}).get("localStats", {}).get("numPacketsRx", 0)
-    #numPacketsTx = interface.nodes.get(decimal_to_hex(myNodeNum1), {}).get("localStats", {}).get("numPacketsTx", 0)
+    chutil = round(interface.nodes.get(decimal_to_hex(myNodeNum), {}).get("deviceMetrics", {}).get("channelUtilization", 0), 1)
+    airUtilTx = round(interface.nodes.get(decimal_to_hex(myNodeNum), {}).get("deviceMetrics", {}).get("airUtilTx", 0), 1)
+    uptimeSeconds = interface.nodes.get(decimal_to_hex(myNodeNum), {}).get("deviceMetrics", {}).get("uptimeSeconds", 0)
+    batteryLevel = interface.nodes.get(decimal_to_hex(myNodeNum), {}).get("deviceMetrics", {}).get("batteryLevel", 0)
+    voltage = interface.nodes.get(decimal_to_hex(myNodeNum), {}).get("deviceMetrics", {}).get("voltage", 0)
+    #numPacketsRx = interface.nodes.get(decimal_to_hex(myNodeNum), {}).get("localStats", {}).get("numPacketsRx", 0)
+    #numPacketsTx = interface.nodes.get(decimal_to_hex(myNodeNum), {}).get("localStats", {}).get("numPacketsTx", 0)
     numTotalNodes = len(interface.nodes) 
     
     dataResponse = f"Telemetry:{rxNode}"
@@ -960,9 +934,6 @@ def get_sysinfo(nodeID=0, deviceID=1):
     # replace Telemetry with Int in string
     stats = stats.replace("Telemetry", "Int")
     sysinfo += f"📊{stats}"
-    if interface2_enabled:
-        sysinfo += f"📊{stats}"
-
     return sysinfo
 
 async def BroadcastScheduler():
@@ -987,15 +958,23 @@ async def handleSignalWatcher():
                     for ch in sigWatchBroadcastCh:
                         if antiSpam and ch != publicChannel:
                             send_message(msg, int(ch), 0, 1)
-                            if interface2_enabled:
-                                send_message(msg, int(ch), 0, 2)
+                            time.sleep(responseDelay)
+                            if multiple_interface:
+                                for i in range(2, 10):
+                                    if globals().get(f'interface{i}_enabled'):
+                                        send_message(msg, int(ch), 0, i)
+                                        time.sleep(responseDelay)
                         else:
                             logger.warning(f"System: antiSpam prevented Alert from Hamlib {msg}")
                 else:
                     if antiSpam and sigWatchBroadcastCh != publicChannel:
                         send_message(msg, int(sigWatchBroadcastCh), 0, 1)
-                        if interface2_enabled:
-                            send_message(msg, int(sigWatchBroadcastCh), 0, 2)
+                        time.sleep(responseDelay)
+                        if multiple_interface:
+                            for i in range(2, 10):
+                                if globals().get(f'interface{i}_enabled'):
+                                    send_message(msg, int(sigWatchBroadcastCh), 0, i)
+                                    time.sleep(responseDelay)
                     else:
                         logger.warning(f"System: antiSpam prevented Alert from Hamlib {msg}")
 
@@ -1018,172 +997,147 @@ async def handleFileWatcher():
                     for ch in file_monitor_broadcastCh:
                         if antiSpam and ch != publicChannel:
                             send_message(msg, int(ch), 0, 1)
-                            if interface2_enabled:
-                                send_message(msg, int(ch), 0, 2)
+                            time.sleep(responseDelay)
+                            if multiple_interface:
+                                for i in range(2, 10):
+                                    if globals().get(f'interface{i}_enabled'):
+                                        send_message(msg, int(ch), 0, i)
+                                        time.sleep(responseDelay)
                         else:
                             logger.warning(f"System: antiSpam prevented Alert from FileWatcher")
                 else:
                     if antiSpam and file_monitor_broadcastCh != publicChannel:
                         send_message(msg, int(file_monitor_broadcastCh), 0, 1)
-                        if interface2_enabled:
-                            send_message(msg, int(file_monitor_broadcastCh), 0, 2)
+                        time.sleep(responseDelay)
+                        if multiple_interface:
+                            for i in range(2, 10):
+                                if globals().get(f'interface{i}_enabled'):
+                                    send_message(msg, int(file_monitor_broadcastCh), 0, i)
+                                    time.sleep(responseDelay)
                     else:
                         logger.warning(f"System: antiSpam prevented Alert from FileWatcher")
 
         await asyncio.sleep(1)
         pass
 
-async def retry_interface(nodeID=1):
-    global interface1, interface2, retry_int1, retry_int2, max_retry_count1, max_retry_count2
-    interface = interface1 if nodeID == 1 else interface2
-    retry_int = retry_int1 if nodeID == 1 else retry_int2
-    # retry connecting to the interface
-    # add a check to see if the interface is already open or trying to open
+async def retry_interface(nodeID):
+    global max_retry_count
+    interface = globals()[f'interface{nodeID}']
+    retry_int = globals()[f'retry_int{nodeID}']
+    max_retry_count = globals()[f'max_retry_count{nodeID}']
+
     if interface is not None:
         retry_int = True
-        max_retry_count1 -= 1
+        max_retry_count -= 1
         try:
             interface.close()
         except Exception as e:
             logger.error(f"System: closing interface{nodeID}: {e}")
-    
+
     logger.debug(f"System: Retrying interface{nodeID} in 15 seconds")
-    if max_retry_count1 == 0:
-        logger.critical(f"System: Max retry count reached for interface1")
+    if max_retry_count == 0:
+        logger.critical(f"System: Max retry count reached for interface{nodeID}")
         exit_handler()
-    if max_retry_count2 == 0:
-        logger.critical(f"System: Max retry count reached for interface2")
-        exit_handler()
-    # wait 15 seconds before retrying
+
     await asyncio.sleep(15)
 
-    # retry the interface
     try:
         if retry_int:
             interface = None
-            if nodeID == 1:
-                interface1 = None
-            if nodeID == 2:
-                interface2 = None
+            globals()[f'interface{nodeID}'] = None
             logger.debug(f"System: Retrying Interface{nodeID}")
-            interface_type = interface1_type if nodeID == 1 else interface2_type
+            interface_type = globals()[f'interface{nodeID}_type']
             if interface_type == 'serial':
-                interface1 = meshtastic.serial_interface.SerialInterface(port1)
+                globals()[f'interface{nodeID}'] = meshtastic.serial_interface.SerialInterface(globals().get(f'port{nodeID}'))
             elif interface_type == 'tcp':
-                interface1 = meshtastic.tcp_interface.TCPInterface(hostname1)
+                globals()[f'interface{nodeID}'] = meshtastic.tcp_interface.TCPInterface(globals().get(f'hostname{nodeID}'))
             elif interface_type == 'ble':
-                interface1 = meshtastic.ble_interface.BLEInterface(mac1)
-            logger.debug(f"System: Interface1 Opened!")
-            retry_int1 = False
+                globals()[f'interface{nodeID}'] = meshtastic.ble_interface.BLEInterface(globals().get(f'mac{nodeID}'))
+            logger.debug(f"System: Interface{nodeID} Opened!")
+            globals()[f'retry_int{nodeID}'] = False
     except Exception as e:
         logger.error(f"System: Error Opening interface{nodeID} on: {e}")
 
-
-handleSentinel_spotted = ""
+handleSentinel_spotted = []
 handleSentinel_loop = 0
-async def handleSentinel(deviceID=1):
+async def handleSentinel(deviceID):
     global handleSentinel_spotted, handleSentinel_loop
-    # Locate Closest Nodes and report them to a secure channel
-    # async function for possibly demanding back location data
-    enemySpotted = ""
+    detectedNearby = ""
     resolution = "unknown"
     closest_nodes = get_closest_nodes(deviceID)
+    closest_node = closest_nodes[0]['id'] if closest_nodes != ERROR_FETCHING_DATA and closest_nodes else None
+    closest_distance = closest_nodes[0]['distance'] if closest_nodes != ERROR_FETCHING_DATA and closest_nodes else None
+
+    # check if the handleSentinel_spotted list contains the closest node already
+    if closest_node in [i['id'] for i in handleSentinel_spotted]:
+        # check if the distance is closer than the last time, if not just return
+        for i in range(len(handleSentinel_spotted)):
+            if handleSentinel_spotted[i]['id'] == closest_node and closest_distance is not None and closest_distance < handleSentinel_spotted[i]['distance']:
+                handleSentinel_spotted[i]['distance'] = closest_distance
+                break
+            else:
+                return
+    
     if closest_nodes != ERROR_FETCHING_DATA and closest_nodes:
         if closest_nodes[0]['id'] is not None:
-            enemySpotted = get_name_from_number(closest_nodes[0]['id'], 'long', 1)
-            enemySpotted += ", " + get_name_from_number(closest_nodes[0]['id'], 'short', 1)
-            enemySpotted += ", " + str(closest_nodes[0]['id'])
-            enemySpotted += ", " + decimal_to_hex(closest_nodes[0]['id'])
-            enemySpotted += f" at {closest_nodes[0]['distance']}m"
-    
-    if handleSentinel_loop >= sentry_holdoff and handleSentinel_spotted != enemySpotted:
-        # check the positionMetadata for nodeID and get metadata
+            detectedNearby = get_name_from_number(closest_node, 'long', deviceID)
+            detectedNearby += ", " + get_name_from_number(closest_nodes[0]['id'], 'short', deviceID)
+            detectedNearby += ", " + str(closest_nodes[0]['id'])
+            detectedNearby += ", " + decimal_to_hex(closest_nodes[0]['id'])
+            detectedNearby += f" at {closest_distance}m"
+
+    if handleSentinel_loop >= sentry_holdoff and detectedNearby not in ["", None]:
         if closest_nodes and positionMetadata and closest_nodes[0]['id'] in positionMetadata:
             metadata = positionMetadata[closest_nodes[0]['id']]
             if metadata.get('precisionBits') is not None:
                 resolution = metadata.get('precisionBits')
-                
-        logger.warning(f"System: {enemySpotted} is close to your location on Interface1 Accuracy is {resolution}bits")
-        send_message(f"Sentry{deviceID}: {enemySpotted}", secure_channel, 0, deviceID)
+
+        logger.warning(f"System: {detectedNearby} is close to your location on Interface{deviceID} Accuracy is {resolution}bits")
+        for i in range(1, 10):
+            if globals().get(f'interface{i}_enabled'):
+                send_message(f"Sentry{deviceID}: {detectedNearby}", secure_channel, 0, i)
+                time.sleep(responseDelay + 1)
         if enableSMTP and email_sentry_alerts:
             for email in sysopEmails:
-                send_email(email, f"Sentry{deviceID}: {enemySpotted}")
+                send_email(email, f"Sentry{deviceID}: {detectedNearby}")
         handleSentinel_loop = 0
-        handleSentinel_spotted = enemySpotted
+        handleSentinel_spotted.append({'id': closest_node, 'distance': closest_distance})
     else:
         handleSentinel_loop += 1
 
 async def watchdog():
-    global retry_int1, retry_int2, telemetryData
-    int1Data, int2Data = "", ""
+    global telemetryData, retry_int1, retry_int2, retry_int3, retry_int4, retry_int5, retry_int6, retry_int7, retry_int8, retry_int9
     while True:
         await asyncio.sleep(20)
-        #print(f"MeshBot System: watchdog running\r", end="")
 
-        if interface1 is not None and not retry_int1:
-            # getting firmware is a heartbeat to check if the interface is still connected
-            try:
-                firmware = getNodeFirmware(0, 1)
-            except Exception as e:
-                logger.error(f"System: communicating with interface1, trying to reconnect: {e}")
-                retry_int1 = True
-
-            if not retry_int1:
-                # Locate Closest Nodes and report them to a secure channel
-                if sentry_enabled:
-                    await handleSentinel(1)
-
-                # multiPing handler
-                handleMultiPing(0,1)
-
-                # Alert Broadcast
-                if wxAlertBroadcastEnabled or emergencyAlertBrodcastEnabled:
-                    # weather alerts
-                    handleAlertBroadcast(1)
-
-                # Telemetry data
-                int1Data = displayNodeTelemetry(0, 1)
-                if int1Data != -1 and telemetryData[0]['lastAlert1'] != int1Data:
-                    logger.debug(int1Data + f" Firmware:{firmware}")
-                    telemetryData[0]['lastAlert1'] = int1Data
-
-        if retry_int1:
-            try:
-                await retry_interface(1)
-            except Exception as e:
-                logger.error(f"System: retrying interface1: {e}")
-
-        if interface2_enabled:
-            if interface2 is not None and not retry_int2:
-                # getting firmware is a heartbeat to check if the interface is still connected
+        # check all interfaces
+        for i in range(1, 10):
+            interface = globals().get(f'interface{i}')
+            retry_int = globals().get(f'retry_int{i}')
+            if interface is not None and not retry_int and globals().get(f'interface{i}_enabled'):
                 try:
-                    firmware2 = getNodeFirmware(0, 1)
+                    firmware = getNodeFirmware(0, i)
                 except Exception as e:
-                    logger.error(f"System: communicating with interface1, trying to reconnect: {e}")
-                    retry_int2 = True
+                    logger.error(f"System: communicating with interface{i}, trying to reconnect: {e}")
+                    globals()[f'retry_int{i}'] = True
 
-                if not retry_int2:
-                    # Locate Closest Nodes and report them to a secure channel
+                if not globals()[f'retry_int{i}']:
                     if sentry_enabled:
-                        await handleSentinel(2)
+                        await handleSentinel(i)
 
-                    # multiPing handler
-                    handleMultiPing(0,1)
+                    handleMultiPing(0, i)
 
-                    # Alert Broadcast
                     if wxAlertBroadcastEnabled or emergencyAlertBrodcastEnabled:
-                        # weather alerts
-                        handleAlertBroadcast(2)
+                        handleAlertBroadcast(i)
 
-                # Telemetry data
-                int2Data = displayNodeTelemetry(0, 2)
-                if int2Data != -1 and telemetryData[0]['lastAlert2'] != int2Data:
-                    logger.debug(int2Data + f" Firmware:{firmware2}")
-                    telemetryData[0]['lastAlert2'] = int2Data
-        
-            if retry_int2:
+                    intData = displayNodeTelemetry(0, i)
+                    if intData != -1 and telemetryData[0][f'lastAlert{i}'] != intData:
+                        logger.debug(intData + f" Firmware:{firmware}")
+                        telemetryData[0][f'lastAlert{i}'] = intData
+
+            if globals()[f'retry_int{i}'] and globals()[f'interface{i}_enabled']:
                 try:
-                    await retry_interface(2)
+                    await retry_interface(i)
                 except Exception as e:
-                    logger.error(f"System: retrying interface2: {e}")
+                    logger.error(f"System: retrying interface{i}: {e}")
 

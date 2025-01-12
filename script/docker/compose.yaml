@@ -1,0 +1,52 @@
+services:
+  meshing-around:
+    build: 
+      context: ../..
+    depends_on:
+      ollama:
+        condition: service_healthy
+    devices:
+      - /dev/ttyAMA10 # Replace this with your actual device!
+    configs:
+      - source: me_config
+        target: /app/config.ini
+    extra_hosts:
+      - "host.docker.internal:host-gateway" # Used to access a local linux meshtasticd device via tcp
+  ollama:
+    image: ollama/ollama:0.5.1
+    volumes:
+      - ./ollama:/root/.ollama
+      - ./ollama-entrypoint.sh:./entrypoint.sh
+    container_name: ollama
+    pull_policy: always
+    tty: true
+    restart: always
+    entrypoint: 
+      - /usr/bin/bash
+      - /script/docker/entrypoint.sh
+    expose:
+      - 11434
+    healthcheck:
+      test: "apt update && apt install curl -y && curl -f http://localhost:11434/api/tags | grep -q llama3.2:3b"
+      interval: 30s
+      timeout: 10s
+      retries: 20
+  node-exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - --path.procfs=/host/proc
+      - --path.rootfs=/rootfs
+      - --path.sysfs=/host/sys
+      - --collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)
+    restart: unless-stopped
+    expose:
+      - 9100
+    network_mode: host
+    pid: host
+configs:
+  me_config:
+    file: ./config.ini

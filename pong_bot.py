@@ -30,11 +30,11 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
         "cq": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
         "cqcq": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
         "cqcqcq": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
-        "lheard": lambda: handle_lheard(interface1, interface2_enabled, myNodeNum1, myNodeNum2),
+        "lheard": lambda: handle_lheard(message, message_from_id, deviceID, isDM),
         "motd": lambda: handle_motd(message, MOTD),
         "ping": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
         "pong": lambda: "🏓PING!!🛜",
-        "sitrep": lambda: handle_lheard(interface1, interface2_enabled, myNodeNum1, myNodeNum2),
+        "sitrep": lambda: lambda: handle_lheard(message, message_from_id, deviceID, isDM),
         "sysinfo": lambda: sysinfo(message, message_from_id, deviceID),
         "test": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
         "testing": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
@@ -175,6 +175,7 @@ def handle_lheard(message, nodeid, deviceID, isDM):
     return bot_response
 
 def onReceive(packet, interface):
+    global seenNodes
     # Priocess the incoming packet, handles the responses to the packet with auto_response()
     # Sends the packet to the correct handler for processing
 
@@ -184,6 +185,8 @@ def onReceive(packet, interface):
     # Valies assinged to the packet
     rxNode, message_from_id, snr, rssi, hop, hop_away, channel_number = 0, 0, 0, 0, 0, 0, 0
     pkiStatus = (False, 'ABC')
+    replyIDset = False
+    emojiSeen = False
     isDM = False
 
     if DEBUGpacket:
@@ -196,23 +199,42 @@ def onReceive(packet, interface):
     # set the value for the incomming interface
     if rxType == 'SerialInterface':
         rxInterface = interface.__dict__.get('devPath', 'unknown')
-        if port1 in rxInterface:
-            rxNode = 1
-        elif interface2_enabled and port2 in rxInterface:
-            rxNode = 2
+        if port1 in rxInterface: rxNode = 1
+        elif multiple_interface and port2 in rxInterface: rxNode = 2
+        elif multiple_interface and port3 in rxInterface: rxNode = 3
+        elif multiple_interface and port4 in rxInterface: rxNode = 4
+        elif multiple_interface and port5 in rxInterface: rxNode = 5
+        elif multiple_interface and port6 in rxInterface: rxNode = 6
+        elif multiple_interface and port7 in rxInterface: rxNode = 7
+        elif multiple_interface and port8 in rxInterface: rxNode = 8
+        elif multiple_interface and port9 in rxInterface: rxNode = 9
     
     if rxType == 'TCPInterface':
         rxHost = interface.__dict__.get('hostname', 'unknown')
-        if hostname1 in rxHost and interface1_type == 'tcp':
-            rxNode = 1
-        elif interface2_enabled and hostname2 in rxHost and interface2_type == 'tcp':
-            rxNode = 2
+        if hostname1 in rxHost and interface1_type == 'tcp': rxNode = 1
+        elif multiple_interface and hostname2 in rxHost and interface2_type == 'tcp': rxNode = 2
+        elif multiple_interface and hostname3 in rxHost and interface3_type == 'tcp': rxNode = 3
+        elif multiple_interface and hostname4 in rxHost and interface4_type == 'tcp': rxNode = 4
+        elif multiple_interface and hostname5 in rxHost and interface5_type == 'tcp': rxNode = 5
+        elif multiple_interface and hostname6 in rxHost and interface6_type == 'tcp': rxNode = 6
+        elif multiple_interface and hostname7 in rxHost and interface7_type == 'tcp': rxNode = 7
+        elif multiple_interface and hostname8 in rxHost and interface8_type == 'tcp': rxNode = 8
+        elif multiple_interface and hostname9 in rxHost and interface9_type == 'tcp': rxNode = 9
 
     if rxType == 'BLEInterface':
-        if interface1_type == 'ble':
-            rxNode = 1
-        elif interface2_enabled and interface2_type == 'ble':
-            rxNode = 2
+        if interface1_type == 'ble': rxNode = 1
+        elif multiple_interface and interface2_type == 'ble': rxNode = 2
+        elif multiple_interface and interface3_type == 'ble': rxNode = 3
+        elif multiple_interface and interface4_type == 'ble': rxNode = 4
+        elif multiple_interface and interface5_type == 'ble': rxNode = 5
+        elif multiple_interface and interface6_type == 'ble': rxNode = 6
+        elif multiple_interface and interface7_type == 'ble': rxNode = 7
+        elif multiple_interface and interface8_type == 'ble': rxNode = 8
+        elif multiple_interface and interface9_type == 'ble': rxNode = 9
+    
+    # check if the packet has a channel flag use it
+    if packet.get('channel'):
+        channel_number = packet.get('channel', 0)
 
     # set the message_from_id
     message_from_id = packet['from']
@@ -339,18 +361,17 @@ def onReceive(packet, interface):
                         msgLogger.info(f"Device:{rxNode} Channel:{channel_number} | {get_name_from_number(message_from_id, 'long', rxNode)} | " + message_string.replace('\n', '-nl-'))
 
                      # repeat the message on the other device
-                    if repeater_enabled and interface2_enabled:         
+                    if repeater_enabled and multiple_interface:         
                         # wait a responseDelay to avoid message collision from lora-ack.
                         time.sleep(responseDelay)
                         rMsg = (f"{message_string} From:{get_name_from_number(message_from_id, 'short', rxNode)}")
                         # if channel found in the repeater list repeat the message
                         if str(channel_number) in repeater_channels:
-                            if rxNode == 1:
-                                logger.debug(f"Repeating message on Device2 Channel:{channel_number}")
-                                send_message(rMsg, channel_number, 0, 2)
-                            elif rxNode == 2:
-                                logger.debug(f"Repeating message on Device1 Channel:{channel_number}")
-                                send_message(rMsg, channel_number, 0, 1)
+                            for i in range(1, 10):
+                                if globals().get(f'interface{i}_enabled', False) and i != rxNode:
+                                    logger.debug(f"Repeating message on Device{i} Channel:{channel_number}")
+                                    send_message(rMsg, channel_number, 0, i)
+                                    time.sleep(responseDelay)
         else:
             # Evaluate non TEXT_MESSAGE_APP packets
             consumeMetadata(packet, rxNode)
@@ -363,11 +384,12 @@ async def start_rx():
     # Start the receive subscriber using pubsub via meshtastic library
     pub.subscribe(onReceive, 'meshtastic.receive')
     pub.subscribe(onDisconnect, 'meshtastic.connection.lost')
-    logger.info(f"System: Autoresponder Started for Device1 {get_name_from_number(myNodeNum1, 'long', 1)}," 
-                f"{get_name_from_number(myNodeNum1, 'short', 1)}. NodeID: {myNodeNum1}, {decimal_to_hex(myNodeNum1)}")
-    if interface2_enabled:
-        logger.info(f"System: Autoresponder Started for Device2 {get_name_from_number(myNodeNum2, 'long', 2)},"
-                    f"{get_name_from_number(myNodeNum2, 'short', 2)}. NodeID: {myNodeNum2}, {decimal_to_hex(myNodeNum2)}")
+    for i in range(1, 10):
+        if globals().get(f'interface{i}_enabled', False):
+            myNodeNum = globals().get(f'myNodeNum{i}', 0)
+            logger.info(f"System: Autoresponder Started for Device{i} {get_name_from_number(myNodeNum, 'long', i)},"
+                        f"{get_name_from_number(myNodeNum, 'short', i)}. NodeID: {myNodeNum}, {decimal_to_hex(myNodeNum)}")
+    
     if log_messages_to_file:
         logger.debug("System: Logging Messages to disk")
     if syslog_to_file:
@@ -382,7 +404,7 @@ async def start_rx():
         logger.debug(f"System: Store and Forward Enabled using limit: {storeFlimit}")
     if useDMForResponse:
         logger.debug(f"System: Respond by DM only")
-    if repeater_enabled and interface2_enabled:
+    if repeater_enabled and multiple_interface:
         logger.debug(f"System: Repeater Enabled for Channels: {repeater_channels}")
     if file_monitor_enabled:
         logger.debug(f"System: File Monitor Enabled for {file_monitor_file_path}, broadcasting to channels: {file_monitor_broadcastCh}")
