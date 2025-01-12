@@ -282,16 +282,14 @@ def get_num_from_short_name(short_name, nodeInt=1):
         elif str(short_name.lower()) == node['user']['shortName'].lower():
             return node['num']
         else:
-            # TODO check the other interface
-            if multiple_interface:
-                for int in range(1, 10):
-                    if globals().get(f'interface{int}_enabled') and int != nodeInt:
-                        other_interface = globals().get(f'interface{int}')
-                        for node in other_interface.nodes.values():
-                            if short_name == node['user']['shortName']:
-                                return node['num']
-                            elif str(short_name.lower()) == node['user']['shortName'].lower():
-                                return node['num']
+            for int in range(1, 10):
+                if globals().get(f'interface{int}_enabled') and int != nodeInt:
+                    other_interface = globals().get(f'interface{int}')
+                    for node in other_interface.nodes.values():
+                        if short_name == node['user']['shortName']:
+                            return node['num']
+                        elif str(short_name.lower()) == node['user']['shortName'].lower():
+                            return node['num']
     return 0
     
 def get_node_list(nodeInt=1):
@@ -960,8 +958,9 @@ async def handleSignalWatcher():
                     for ch in sigWatchBroadcastCh:
                         if antiSpam and ch != publicChannel:
                             send_message(msg, int(ch), 0, 1)
+                            time.sleep(responseDelay)
                             if multiple_interface:
-                                for i in range(1, 10):
+                                for i in range(2, 10):
                                     if globals().get(f'interface{i}_enabled'):
                                         send_message(msg, int(ch), 0, i)
                                         time.sleep(responseDelay)
@@ -970,8 +969,9 @@ async def handleSignalWatcher():
                 else:
                     if antiSpam and sigWatchBroadcastCh != publicChannel:
                         send_message(msg, int(sigWatchBroadcastCh), 0, 1)
+                        time.sleep(responseDelay)
                         if multiple_interface:
-                            for i in range(1, 10):
+                            for i in range(2, 10):
                                 if globals().get(f'interface{i}_enabled'):
                                     send_message(msg, int(sigWatchBroadcastCh), 0, i)
                                     time.sleep(responseDelay)
@@ -997,8 +997,9 @@ async def handleFileWatcher():
                     for ch in file_monitor_broadcastCh:
                         if antiSpam and ch != publicChannel:
                             send_message(msg, int(ch), 0, 1)
+                            time.sleep(responseDelay)
                             if multiple_interface:
-                                for i in range(1, 10):
+                                for i in range(2, 10):
                                     if globals().get(f'interface{i}_enabled'):
                                         send_message(msg, int(ch), 0, i)
                                         time.sleep(responseDelay)
@@ -1007,8 +1008,9 @@ async def handleFileWatcher():
                 else:
                     if antiSpam and file_monitor_broadcastCh != publicChannel:
                         send_message(msg, int(file_monitor_broadcastCh), 0, 1)
+                        time.sleep(responseDelay)
                         if multiple_interface:
-                            for i in range(1, 10):
+                            for i in range(2, 10):
                                 if globals().get(f'interface{i}_enabled'):
                                     send_message(msg, int(file_monitor_broadcastCh), 0, i)
                                     time.sleep(responseDelay)
