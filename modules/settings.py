@@ -177,6 +177,10 @@ if 'interface9' in config:
     interface9_enabled = config['interface9'].getboolean('enabled', False)
 else:
     interface9_enabled = False
+
+multiple_interface = False
+if interface2_enabled or interface3_enabled or interface4_enabled or interface5_enabled or interface6_enabled or interface7_enabled or interface8_enabled or interface9_enabled:
+    multiple_interface = True
     
 
 # variables from the config.ini file
