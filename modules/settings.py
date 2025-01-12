@@ -165,8 +165,10 @@ try:
     emergencyAlertBrodcastEnabled = config['location'].getboolean('eAlertBroadcastEnabled', False) # default False
     wxAlertBroadcastEnabled = config['location'].getboolean('wxAlertBroadcastEnabled', False) # default False
     enableGBalerts = config['location'].getboolean('enableGBalerts', False) # default False
+    enableDEalerts = config['location'].getboolean('enableDEalerts', False) # default False
     wxAlertsEnabled = config['location'].getboolean('NOAAalertsEnabled', True) # default True
     mySAME = config['location'].get('mySAME', '').split(',') # default empty
+    myRegionalKeys = config['location'].get('myRegionalKeys', '110000000000').split(',') # default city Berlin
     forecastDuration = config['location'].getint('NOAAforecastDuration', 4) # NOAA forcast days
     numWxAlerts = config['location'].getint('NOAAalertCount', 2) # default 2 alerts
     ipawsPIN = config['location'].get('ipawsPIN', '000000') # default 000000

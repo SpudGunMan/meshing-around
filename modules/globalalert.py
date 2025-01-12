@@ -27,7 +27,31 @@ def get_govUK_alerts(shortAlerts=False):
         return "🚨" + alert.get_text(strip=True)
     else:
         return NO_ALERTS
-    
+
+def get_nina_alerts():
+    try:
+        # get api.bund.dev alerts
+        alerts = []
+
+        for regionalKey in myRegionalKeys:
+
+            url = (
+                "https://nina.api.proxy.bund.dev/api31/dashboard/" + regionalKey + ".json"
+            )
+            response = requests.get(url)
+            data = response.json()
+
+
+            for item in data:
+                title = item["i18nTitle"]["de"]
+                alerts.append(f"🚨 {title}")
+
+
+        return "\n".join(alerts) if alerts else NO_ALERTS
+
+    except Exception as e:
+        logger.warning("Error getting NINA alerts: " + str(e))
+        return NO_ALERTS
 
 def get_wxUKgov():
     # get UK weather warnings

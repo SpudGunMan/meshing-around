@@ -147,6 +147,10 @@ ignoreFEMAtest = True
 # find your SAME https://www.weather.gov/nwr/counties
 mySAME = 053029,053073
 enableGBalerts = False
+enableDEalerts = False
+# comma separated list of regional codes trigger local alert.
+# find your regional codet at https://www.xrepository.de/api/xrepository/urn:de:bund:destatis:bevoelkerungsstatistik:schluessel:rs_2021-07-31/download/Regionalschl_ssel_2021-07-31.json
+myRegionalKeys = 110000000000,120510000000
 
 # Satalite Pass Prediction
 # Register for free API https://www.n2yo.com/login/

@@ -694,6 +694,9 @@ def handle_wxc(message_from_id, deviceID, cmd):
 
 def handle_emergency_alerts(message, message_from_id, deviceID):
     location = get_node_location(message_from_id, deviceID)
+    if enableDEalerts:
+        # nina Alerts
+        return get_nina_alerts()
     if enableGBalerts:
         # UK Alerts
         return get_govUK_alerts(str(location[0]), str(location[1]))
