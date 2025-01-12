@@ -733,13 +733,14 @@ def onDisconnect(interface):
 def exit_handler():
     # Close the interface and save the BBS messages
     logger.debug(f"System: Closing Autoresponder")
-    try:         
+    try:
+        logger.debug(f"System: Closing Interface1")
         interface1.close()
-        logger.debug(f"System: Interface1 Closed")
-        for i in range(1, 10):
-            if globals().get(f'interface{i}_enabled'):
-                globals()[f'interface{i}'].close()
-                logger.debug(f"System: Interface{i} Closed")
+        if multiple_interface:
+            for i in range(2, 10):
+                if globals().get(f'interface{i}_enabled'):
+                    logger.debug(f"System: Closing Interface{i}")
+                    globals()[f'interface{i}'].close()
     except Exception as e:
         logger.error(f"System: closing: {e}")
     if bbs_enabled:
