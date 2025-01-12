@@ -10,6 +10,7 @@ import xml.dom.minidom
 from modules.log import *
 
 trap_list_location_eu = ("ukalert", "ukwx", "ukflood")
+trap_list_location_de = ("dealert", "dewx", "deflood")
 
 def get_govUK_alerts(shortAlerts=False):
     try:

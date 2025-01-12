@@ -79,6 +79,10 @@ if location_enabled:
         from modules.globalalert import * # from the spudgunman/meshing-around repo
         trap_list = trap_list + trap_list_location_eu
         #help_message = help_message + ", ukalert, ukwx, ukflood"
+    if enableDEalerts:
+        from modules.dealert import * # from the spudgunman/meshing-around repo
+        trap_list = trap_list + trap_list_location_de
+        #help_message = help_message + ", dealert, dewx, deflood"
     
     # Open-Meteo Configuration for worldwide weather
     if use_meteo_wxApi:
