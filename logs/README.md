@@ -21,6 +21,6 @@ sysloglevel = DEBUG
 log_backup_count = 32
 ```
 ## Web Reporting WebServer
-There is a web-server module. You can run `python modules/web.py` from the project root directory and it will serve up the web content.
+There is a web-server module. You can run `python3 modules/web.py` from the project root directory and it will serve up the web content.
 
 find it at. http://localhost:8420
