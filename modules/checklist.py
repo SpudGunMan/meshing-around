@@ -22,6 +22,7 @@ def initialize_checklist_database():
     logger.debug("System: Ensured data/checklist.db exists with required tables")
 
 def checkin(name, date, time, location, notes):
+    location = ", ".join(map(str, location))
     # checkin a user
     conn = sqlite3.connect(checklist_db)
     c = conn.cursor()
@@ -47,6 +48,7 @@ def delete_checkin(checkin_id):
     return "Checkin deleted." + str(checkin_id)
 
 def checkout(name, date, time, location, notes):
+    location = ", ".join(map(str, location))
     # checkout a user
     conn = sqlite3.connect(checklist_db)
     c = conn.cursor()
