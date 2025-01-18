@@ -101,9 +101,9 @@ def process_checklist_command(nodeID, message, name="none", location="none"):
         comment = ""
     # handle checklist commands
     if "checkin" in message.lower():
-        return checkin(name, current_date, current_time, comment)
+        return checkin(name, current_date, current_time, location, comment)
     elif "checkout" in message.lower():
-        return checkout(name, current_date, current_time, comment)
+        return checkout(name, current_date, current_time, location, comment)
     elif "purgein" in message.lower():
         return delete_checkin(nodeID)
     elif "purgeout" in message.lower():
