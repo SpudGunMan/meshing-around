@@ -88,7 +88,7 @@ def list_checkin():
     conn.close()
     checkin_list = ""
     for row in rows:
-        checkin_list += "Checkin ID: " + str(row[0]) + " Name: " + row[1] + " Date: " + row[2] + " Time: " + row[3] + " Notes: " + row[4] + "\n"
+        checkin_list += "Checkin ID: " + row[1] + " Date: " + row[2] + " Time: " + row[3] + " Notes: " + row[5] + "\n"
     # if empty list
     if checkin_list == "":
         return "No data to display."
