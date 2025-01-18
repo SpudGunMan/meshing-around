@@ -86,9 +86,12 @@ def list_checkin():
     """)
     rows = c.fetchall()
     conn.close()
+    timeCheckedIn = ""
     checkin_list = ""
     for row in rows:
-        checkin_list += "Checkin ID: " + row[1] + " Date: " + row[2] + " Time: " + row[3] + " Notes: " + row[5] + "\n"
+        #calculate length of time checked in
+        timeCheckedIn = time.strftime("%H:%M:%S", time.gmtime(time.time() - time.mktime(time.strptime(row[2] + " " + row[3], "%Y-%m-%d %H:%M:%S"))))
+        checkin_list += "ID: " + row[1] + " has been checked in for " + timeCheckedIn + " with notes: " + row[5] + "\n"
     # if empty list
     if checkin_list == "":
         return "No data to display."
