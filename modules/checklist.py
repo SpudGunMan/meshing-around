@@ -3,6 +3,7 @@
 
 import sqlite3
 from modules.log import *
+import time
 
 trap_list_checklist = ("checkin", "checkout", "checklist", "purgein", "purgeout")
 
@@ -24,10 +25,17 @@ def checkin(name, date, time, notes):
     # checkin a user
     conn = sqlite3.connect(checklist_db)
     c = conn.cursor()
-    c.execute("INSERT INTO checkin (checkin_name, checkin_date, checkin_time, checkin_notes) VALUES (?, ?, ?, ?)", (name, date, time, notes))
+    try:
+        c.execute("INSERT INTO checkin (checkin_name, checkin_date, checkin_time, checkin_notes) VALUES (?, ?, ?, ?)", (name, date, time, notes))
+    except sqlite3.OperationalError as e:
+        if "no such table" in str(e):
+            initialize_checklist_database()
+            c.execute("INSERT INTO checkin (checkin_name, checkin_date, checkin_time, checkin_notes) VALUES (?, ?, ?, ?)", (name, date, time, notes))
+        else:
+            raise
     conn.commit()
     conn.close()
-    return "Checked in: " + name
+    return "Checked in: "
 
 def delete_checkin(checkin_id):
     # delete a checkin
@@ -42,10 +50,17 @@ def checkout(name, date, time, notes):
     # checkout a user
     conn = sqlite3.connect(checklist_db)
     c = conn.cursor()
-    c.execute("INSERT INTO checkout (checkout_name, checkout_date, checkout_time, checkout_notes) VALUES (?, ?, ?, ?)", (name, date, time, notes))
+    try:
+        c.execute("INSERT INTO checkout (checkout_name, checkout_date, checkout_time, checkout_notes) VALUES (?, ?, ?, ?)", (name, date, time, notes))
+    except sqlite3.OperationalError as e:
+        if "no such table" in str(e):
+            initialize_checklist_database()
+            c.execute("INSERT INTO checkout (checkout_name, checkout_date, checkout_time, checkout_notes) VALUES (?, ?, ?, ?)", (name, date, time, notes))
+        else:
+            raise
     conn.commit()
     conn.close()
-    return "Checked out: " + name
+    return "Checked out: "
 
 def delete_checkout(checkout_id):
     # delete a checkout
@@ -75,18 +90,18 @@ def list_checkin():
     return checkin_list
 
 def handle_checklist(nodeID, message):
-    date = datetime.datetime.now().strftime("%Y-%m-%d")
-    time = datetime.datetime.now().strftime("%H:%M:%S")
+    current_date = time.strftime("%Y-%m-%d")
+    current_time = time.strftime("%H:%M:%S")
     # handle checklist commands
-    if message[0].lower() == "checkin":
-        return checkin(nodeID, date, time, message[1])
-    elif message[0].lower() == "checkout":
-        return checkout(nodeID, date, time, message[1])
-    elif message[0].lower() == "purgein":
+    if "checkin" in message.lower():
+        return checkin(nodeID, current_date, current_time, message[1])
+    elif "checkout" in message.lower():
+        return checkout(nodeID, current_date, current_time, message[1])
+    elif "purgein" in message.lower():
         return delete_checkin(nodeID)
-    elif message[0].lower() == "purgeout":
+    elif "purgeout" in message.lower():
         return delete_checkout(nodeID)
-    elif message[0].lower() == "checklist":
+    elif "checklist" in message.lower():
         return list_checkin()
     else:
         return "Invalid command."
