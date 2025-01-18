@@ -92,11 +92,15 @@ def list_checkin():
 def handle_checklist(nodeID, message):
     current_date = time.strftime("%Y-%m-%d")
     current_time = time.strftime("%H:%M:%S")
+    try:
+        comment = message.split(" ", 1)[1]
+    except IndexError:
+        comment = ""
     # handle checklist commands
     if "checkin" in message.lower():
-        return checkin(nodeID, current_date, current_time, message.split(" ", 1)[1])
+        return checkin(nodeID, current_date, current_time, comment)
     elif "checkout" in message.lower():
-        return checkout(nodeID, current_date, current_time, message.split(" ", 1)[1])
+        return checkout(nodeID, current_date, current_time, comment)
     elif "purgein" in message.lower():
         return delete_checkin(nodeID)
     elif "purgeout" in message.lower():
