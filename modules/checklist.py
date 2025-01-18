@@ -91,7 +91,11 @@ def list_checkin():
     for row in rows:
         #calculate length of time checked in
         timeCheckedIn = time.strftime("%H:%M:%S", time.gmtime(time.time() - time.mktime(time.strptime(row[2] + " " + row[3], "%Y-%m-%d %H:%M:%S"))))
-        checkin_list += "ID: " + row[1] + " has been checked in for " + timeCheckedIn + " with notes: " + row[5] + "\n"
+        checkin_list += "ID: " + row[1] + " has been checked in for " + timeCheckedIn
+        if row[5] != "":
+            checkin_list += " note: " + row[5]
+        if row != rows[-1]:
+            checkin_list += "\n"
     # if empty list
     if checkin_list == "":
         return "No data to display."
