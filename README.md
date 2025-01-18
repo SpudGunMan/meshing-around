@@ -16,8 +16,8 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 - **Build, Test Local Mesh**: Ping allow for message delivery testing with more realistic packets vs. telemetry
 - **Test Node Hardware**: `test` will send incremental sized data into the radio buffer for overall length of message testing
 
-### Dual Radio/Node Support
-- **Simultaneous Monitoring**: Monitor two networks at the same time.
+### Multi Radio/Node Support
+- **Simultaneous Monitoring**: Monitor up to nine networks at the same time.
 - **Flexible Messaging**: send mail and messages, between networks.
 
 ### Advanced Messaging Capabilities
