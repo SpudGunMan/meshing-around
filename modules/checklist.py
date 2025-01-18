@@ -28,6 +28,8 @@ def checkin(name, date, time, location, notes):
     c = conn.cursor()
     try:
         c.execute("INSERT INTO checkin (checkin_name, checkin_date, checkin_time, location, checkin_notes) VALUES (?, ?, ?, ?, ?)", (name, date, time, location, notes))
+        # # remove any checkouts that are older than the checkin
+        # c.execute("DELETE FROM checkout WHERE checkout_date < ? OR (checkout_date = ? AND checkout_time < ?)", (date, date, time))
     except sqlite3.OperationalError as e:
         if "no such table" in str(e):
             initialize_checklist_database()
@@ -53,13 +55,15 @@ def checkout(name, date, time, location, notes):
     conn = sqlite3.connect(checklist_db)
     c = conn.cursor()
     try:
-        c.execute("INSERT INTO checkout (checkout_name, checkout_date, checkout_time, location, checkout_notes) VALUES (?, ?, ?, ?, ?)", (name, date, time, location, notes))
-    except sqlite3.OperationalError as e:
-        if "no such table" in str(e):
-            initialize_checklist_database()
+        # Check if the user has a checkin before checking out
+        c.execute("SELECT checkin_id FROM checkin WHERE checkin_name = ? ORDER BY checkin_date DESC, checkin_time DESC LIMIT 1", (name,))
+        checkin_record = c.fetchone()
+        if checkin_record:
             c.execute("INSERT INTO checkout (checkout_name, checkout_date, checkout_time, location, checkout_notes) VALUES (?, ?, ?, ?, ?)", (name, date, time, location, notes))
         else:
-            raise
+            logger.error("User: " + name + " attempted to checkout without checking in first.")
+    except sqlite3.OperationalError as e:
+        logger.error("User: " + name + " attempted to checkout without checking in first.")
     conn.commit()
     conn.close()
     return "Checked out: " + str(name)
