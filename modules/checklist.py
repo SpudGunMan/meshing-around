@@ -49,7 +49,7 @@ def delete_checkin(checkin_id):
     conn.close()
     return "Checkin deleted." + str(checkin_id)
 
-def checkout(name, date, time, location, notes):
+def checkout(name, date, time_str, location, notes):
     location = ", ".join(map(str, location))
     # checkout a user
     conn = sqlite3.connect(checklist_db)
@@ -59,14 +59,22 @@ def checkout(name, date, time, location, notes):
         c.execute("SELECT checkin_id FROM checkin WHERE checkin_name = ? ORDER BY checkin_date DESC, checkin_time DESC LIMIT 1", (name,))
         checkin_record = c.fetchone()
         if checkin_record:
-            c.execute("INSERT INTO checkout (checkout_name, checkout_date, checkout_time, location, checkout_notes) VALUES (?, ?, ?, ?, ?)", (name, date, time, location, notes))
+            c.execute("INSERT INTO checkout (checkout_name, checkout_date, checkout_time, location, checkout_notes) VALUES (?, ?, ?, ?, ?)", (name, date, time_str, location, notes))
+            # calculate length of time checked in
+            c.execute("SELECT checkin_time FROM checkin WHERE checkin_id = ?", (checkin_record[0],))
+            checkin_time = c.fetchone()[0]
+            checkin_datetime = time.strptime(date + " " + checkin_time, "%Y-%m-%d %H:%M:%S")
+            time_checked_in_seconds = time.time() - time.mktime(checkin_datetime)
+            timeCheckedIn = time.strftime("%H:%M:%S", time.gmtime(time_checked_in_seconds))
+            # remove the checkin record
+            # c.execute("DELETE FROM checkin WHERE checkin_id = ?", (checkin_record[0],))
         else:
             logger.error("User: " + name + " attempted to checkout without checking in first.")
     except sqlite3.OperationalError as e:
         logger.error("User: " + name + " attempted to checkout without checking in first.")
     conn.commit()
     conn.close()
-    return "Checked out: " + str(name)
+    return "Checked out: " + str(name) + " duration " + timeCheckedIn
 
 def delete_checkout(checkout_id):
     # delete a checkout
