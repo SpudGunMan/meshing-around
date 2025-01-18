@@ -13,29 +13,29 @@ def initialize_checklist_database():
     c = conn.cursor()
     # Check if the checkin table exists, and create it if it doesn't
     c.execute('''CREATE TABLE IF NOT EXISTS checkin
-                 (checkin_id INTEGER PRIMARY KEY, checkin_name TEXT, checkin_date TEXT, checkin_time TEXT, checkin_notes TEXT)''')
+                 (checkin_id INTEGER PRIMARY KEY, checkin_name TEXT, checkin_date TEXT, checkin_time TEXT, location TEXT, checkin_notes TEXT)''')
     # Check if the checkout table exists, and create it if it doesn't
     c.execute('''CREATE TABLE IF NOT EXISTS checkout
-                 (checkout_id INTEGER PRIMARY KEY, checkout_name TEXT, checkout_date TEXT, checkout_time TEXT, checkout_notes TEXT)''')
+                 (checkout_id INTEGER PRIMARY KEY, checkout_name TEXT, checkout_date TEXT, checkout_time TEXT, location TEXT, checkout_notes TEXT)''')
     conn.commit()
     conn.close()
     logger.debug("System: Ensured data/checklist.db exists with required tables")
 
-def checkin(name, date, time, notes):
+def checkin(name, date, time, location, notes):
     # checkin a user
     conn = sqlite3.connect(checklist_db)
     c = conn.cursor()
     try:
-        c.execute("INSERT INTO checkin (checkin_name, checkin_date, checkin_time, checkin_notes) VALUES (?, ?, ?, ?)", (name, date, time, notes))
+        c.execute("INSERT INTO checkin (checkin_name, checkin_date, checkin_time, location, checkin_notes) VALUES (?, ?, ?, ?, ?)", (name, date, time, location, notes))
     except sqlite3.OperationalError as e:
         if "no such table" in str(e):
             initialize_checklist_database()
-            c.execute("INSERT INTO checkin (checkin_name, checkin_date, checkin_time, checkin_notes) VALUES (?, ?, ?, ?)", (name, date, time, notes))
+            c.execute("INSERT INTO checkin (checkin_name, checkin_date, checkin_time, location, checkin_notes) VALUES (?, ?, ?, ?, ?)", (name, date, time, location, notes))
         else:
             raise
     conn.commit()
     conn.close()
-    return "Checked in: "
+    return "Checked in: " + str(name)
 
 def delete_checkin(checkin_id):
     # delete a checkin
@@ -44,23 +44,23 @@ def delete_checkin(checkin_id):
     c.execute("DELETE FROM checkin WHERE checkin_id = ?", (checkin_id,))
     conn.commit()
     conn.close()
-    return "Checkin deleted."
+    return "Checkin deleted." + str(checkin_id)
 
-def checkout(name, date, time, notes):
+def checkout(name, date, time, location, notes):
     # checkout a user
     conn = sqlite3.connect(checklist_db)
     c = conn.cursor()
     try:
-        c.execute("INSERT INTO checkout (checkout_name, checkout_date, checkout_time, checkout_notes) VALUES (?, ?, ?, ?)", (name, date, time, notes))
+        c.execute("INSERT INTO checkout (checkout_name, checkout_date, checkout_time, location, checkout_notes) VALUES (?, ?, ?, ?, ?)", (name, date, time, location, notes))
     except sqlite3.OperationalError as e:
         if "no such table" in str(e):
             initialize_checklist_database()
-            c.execute("INSERT INTO checkout (checkout_name, checkout_date, checkout_time, checkout_notes) VALUES (?, ?, ?, ?)", (name, date, time, notes))
+            c.execute("INSERT INTO checkout (checkout_name, checkout_date, checkout_time, location, checkout_notes) VALUES (?, ?, ?, ?, ?)", (name, date, time, location, notes))
         else:
             raise
     conn.commit()
     conn.close()
-    return "Checked out: "
+    return "Checked out: " + str(name)
 
 def delete_checkout(checkout_id):
     # delete a checkout
@@ -69,7 +69,7 @@ def delete_checkout(checkout_id):
     c.execute("DELETE FROM checkout WHERE checkout_id = ?", (checkout_id,))
     conn.commit()
     conn.close()
-    return "Checkout deleted."
+    return "Checkout deleted." + str(checkout_id)
 
 def list_checkin():
     # list checkins
@@ -87,9 +87,12 @@ def list_checkin():
     checkin_list = ""
     for row in rows:
         checkin_list += "Checkin ID: " + str(row[0]) + " Name: " + row[1] + " Date: " + row[2] + " Time: " + row[3] + " Notes: " + row[4] + "\n"
+    # if empty list
+    if checkin_list == "":
+        return "No data to display."
     return checkin_list
 
-def handle_checklist(nodeID, message):
+def process_checklist_command(nodeID, message, name="none", location="none"):
     current_date = time.strftime("%Y-%m-%d")
     current_time = time.strftime("%H:%M:%S")
     try:
@@ -98,9 +101,9 @@ def handle_checklist(nodeID, message):
         comment = ""
     # handle checklist commands
     if "checkin" in message.lower():
-        return checkin(nodeID, current_date, current_time, comment)
+        return checkin(name, current_date, current_time, comment)
     elif "checkout" in message.lower():
-        return checkout(nodeID, current_date, current_time, comment)
+        return checkout(name, current_date, current_time, comment)
     elif "purgein" in message.lower():
         return delete_checkin(nodeID)
     elif "purgeout" in message.lower():

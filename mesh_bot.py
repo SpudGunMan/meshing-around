@@ -42,9 +42,9 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "bbspost": lambda: handle_bbspost(message, message_from_id, deviceID),
     "bbsread": lambda: handle_bbsread(message),
     "blackjack": lambda: handleBlackJack(message, message_from_id, deviceID),
-    "checkin": lambda: handle_checklist(message_from_id, message),
-    "checkout": lambda: handle_checklist(message_from_id, message),
-    "checklist": lambda: handle_checklist(message_from_id, message),
+    "checkin": lambda: handle_checklist(message, message_from_id, deviceID),
+    "checkout": lambda: handle_checklist(message, message_from_id, deviceID),
+    "checklist": lambda: handle_checklist(message, message_from_id, deviceID),
     "clearsms": lambda: handle_sms(message_from_id, message),
     "cmd": lambda: help_message,
     "cq": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
@@ -709,6 +709,11 @@ def handle_emergency_alerts(message, message_from_id, deviceID):
     else:
         # Headlines only FEMA
         return getIpawsAlert(str(location[0]), str(location[1]), shortAlerts=True)
+    
+def handle_checklist(message, message_from_id, deviceID):
+    name = get_name_from_number(message_from_id, 'short', deviceID)
+    location = get_node_location(message_from_id, deviceID)
+    return process_checklist_command(message_from_id, message, name, location)
 
 def handle_bbspost(message, message_from_id, deviceID):
     if "$" in message and not "example:" in message:
