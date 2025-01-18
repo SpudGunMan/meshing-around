@@ -94,9 +94,9 @@ def handle_checklist(nodeID, message):
     current_time = time.strftime("%H:%M:%S")
     # handle checklist commands
     if "checkin" in message.lower():
-        return checkin(nodeID, current_date, current_time, message[1])
+        return checkin(nodeID, current_date, current_time, message.split(" ", 1)[1])
     elif "checkout" in message.lower():
-        return checkout(nodeID, current_date, current_time, message[1])
+        return checkout(nodeID, current_date, current_time, message.split(" ", 1)[1])
     elif "purgein" in message.lower():
         return delete_checkin(nodeID)
     elif "purgeout" in message.lower():
