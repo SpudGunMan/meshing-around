@@ -37,6 +37,9 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 ### Proximity Alerts
 - **Location-Based Alerts**: Get notified when members arrive back at a configured lat/long, perfect for remote locations like campsites.
 
+### CheckList / Check In Out
+- **Asset Tracking**: Maintain a list of node/asset checkin and checkout. Usefull for accountability of people, assets. Radio-Net, FEMA, Trailhead.
+
 ### Fun and Games
 - **Built-in Games**: Enjoy games like DopeWars, Lemonade Stand, BlackJack, and VideoPoker.
 - **Command-Based Gameplay**: Issue `games` to display help and start playing.
@@ -393,6 +396,12 @@ There is no direct support for MQTT in the code, however, reports from Discord a
 | `readnews` | returns the contents of a file (news.txt, by default) via the chunker on air | ✅ |
 | `satpass` | returns the pass info from API for defined NORAD ID in config or Example: `satpass 25544,33591`| |
 | `wiki:` | Searches Wikipedia and returns the first few sentences of the first result if a match. Example: `wiki: lora radio` |
+
+### CheckList
+| Command | Description | |
+| `checkin` | Check in the node to the checklist database | ✅ |
+| `checkout` | Checkout the node in the checklist database | ✅ |
+| `checklist` | Display the checklist database | ✅ |
 
 ### Games (via DM)
 | Command | Description | |
