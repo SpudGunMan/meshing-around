@@ -4,11 +4,11 @@
 import sqlite3
 from modules.log import *
 
-trap_list_bbs = ("checkin", "checkout", "checklist", "purgein", "purgeout")
+trap_list_checklist = ("checkin", "checkout", "checklist", "purgein", "purgeout")
 
 def initialize_checklist_database():
     # create the database
-    conn = sqlite3.connect('data/checklist.db')
+    conn = sqlite3.connect(checklist_db)
     c = conn.cursor()
     # Check if the checkin table exists, and create it if it doesn't
     c.execute('''CREATE TABLE IF NOT EXISTS checkin
@@ -22,7 +22,7 @@ def initialize_checklist_database():
 
 def checkin(name, date, time, notes):
     # checkin a user
-    conn = sqlite3.connect('data/checklist.db')
+    conn = sqlite3.connect(checklist_db)
     c = conn.cursor()
     c.execute("INSERT INTO checkin (checkin_name, checkin_date, checkin_time, checkin_notes) VALUES (?, ?, ?, ?)", (name, date, time, notes))
     conn.commit()
@@ -31,7 +31,7 @@ def checkin(name, date, time, notes):
 
 def delete_checkin(checkin_id):
     # delete a checkin
-    conn = sqlite3.connect('data/checklist.db')
+    conn = sqlite3.connect(checklist_db)
     c = conn.cursor()
     c.execute("DELETE FROM checkin WHERE checkin_id = ?", (checkin_id,))
     conn.commit()
@@ -40,7 +40,7 @@ def delete_checkin(checkin_id):
 
 def checkout(name, date, time, notes):
     # checkout a user
-    conn = sqlite3.connect('data/checklist.db')
+    conn = sqlite3.connect(checklist_db)
     c = conn.cursor()
     c.execute("INSERT INTO checkout (checkout_name, checkout_date, checkout_time, checkout_notes) VALUES (?, ?, ?, ?)", (name, date, time, notes))
     conn.commit()
@@ -49,7 +49,7 @@ def checkout(name, date, time, notes):
 
 def delete_checkout(checkout_id):
     # delete a checkout
-    conn = sqlite3.connect('data/checklist.db')
+    conn = sqlite3.connect(checklist_db)
     c = conn.cursor()
     c.execute("DELETE FROM checkout WHERE checkout_id = ?", (checkout_id,))
     conn.commit()
@@ -58,7 +58,7 @@ def delete_checkout(checkout_id):
 
 def list_checkin():
     # list checkins
-    conn = sqlite3.connect('data/checklist.db')
+    conn = sqlite3.connect(checklist_db)
     c = conn.cursor()
     c.execute("""
         SELECT * FROM checkin

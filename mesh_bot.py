@@ -42,6 +42,9 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "bbspost": lambda: handle_bbspost(message, message_from_id, deviceID),
     "bbsread": lambda: handle_bbsread(message),
     "blackjack": lambda: handleBlackJack(message, message_from_id, deviceID),
+    "checkin": lambda: handle_checklist(message_from_id, message),
+    "checkout": lambda: handle_checklist(message_from_id, message),
+    "checklist": lambda: handle_checklist(message_from_id, message),
     "clearsms": lambda: handle_sms(message_from_id, message),
     "cmd": lambda: help_message,
     "cq": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
@@ -1317,6 +1320,10 @@ async def start_rx():
         logger.debug(f"System: Emergency Alert Broadcast Enabled on channels {emergencyAlertBroadcastCh}")
     if emergency_responder_enabled:
         logger.debug(f"System: Emergency Responder Enabled on channels {emergency_responder_alert_channel} for interface {emergency_responder_alert_interface}")
+    if qrz_hello_enabled:
+        logger.debug(f"System: QRZ Hello Enabled")
+    if checklist_enabled:
+        logger.debug(f"System: CheckList Module Enabled")
     if enableSMTP:
         if enableImap:
             logger.debug(f"System: SMTP Email Alerting Enabled using IMAP")

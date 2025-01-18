@@ -91,6 +91,14 @@ if 'smtp' not in config:
     config['smtp'] = {'sysopEmails': '', 'enableSMTP': 'False', 'enableImap': 'False'}
     config.write(open(config_file, 'w'))
 
+if 'checklist' not in config:
+    config['checklist'] = {'enabled': 'False', 'checklist_db': 'data/checklist.db'}
+    config.write(open(config_file, 'w'))
+
+if 'qrz' not in config:
+    config['qrz'] = {'enabled': 'False', 'qrz_db': 'data/qrz.db'}
+    config.write(open(config_file, 'w'))
+
 # interface1 settings
 interface1_type = config['interface'].get('type', 'serial')
 port1 = config['interface'].get('port', '')
@@ -260,7 +268,15 @@ try:
     bbs_admin_list = config['bbs'].get('bbs_admin_list', '').split(',')
     bbs_link_enabled = config['bbs'].getboolean('bbslink_enabled', False)
     bbs_link_whitelist = config['bbs'].get('bbslink_whitelist', '').split(',')
+    
+    # checklist
+    checklist_enabled = config['checklist'].getboolean('enabled', False)
+    checklist_db = config['checklist'].get('checklist_db', 'data/checklist.db')
 
+    # qrz hello
+    qrz_hello_enabled = config['qrz'].getboolean('enabled', False)
+    qrz_db = config['qrz'].get('qrz_db', 'data/qrz.db')
+    
     # E-Mail Settings
     sysopEmails = config['smtp'].get('sysopEmails', '').split(',')
     enableSMTP = config['smtp'].getboolean('enableSMTP', False)

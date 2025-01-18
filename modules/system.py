@@ -190,6 +190,18 @@ if store_forward_enabled:
     trap_list = trap_list + ("messages",)
     help_message = help_message + ", messages"
 
+# QRZ Configuration
+if qrz_hello_enabled:
+    from modules.qrz import * # from the spudgunman/meshing-around repo
+    #trap_list = trap_list + trap_list_qrz # items qrz, qrz?, qrzcall
+    #help_message = help_message + ", qrz"
+
+# CheckList Configuration
+if checklist_enabled:
+    from modules.checklist import * # from the spudgunman/meshing-around repo
+    trap_list = trap_list + trap_list_checklist # items checkin, checkout, checklist, purgein, purgeout
+    help_message = help_message + ", checkin, checkout"
+
 # Radio Monitor Configuration
 if radio_detection_enabled:
     from modules.radio import * # from the spudgunman/meshing-around repo
