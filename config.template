@@ -168,6 +168,11 @@ n2yoAPIKey =
 # NORAD list https://www.n2yo.com/satellites/
 satList = 25544,7530
 
+# CheckList Checkin/Checkout
+[checklist]
+enabled = False
+checklist_db = data/checklist.db
+
 # repeater module
 [repeater]
 enabled = False
