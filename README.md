@@ -412,6 +412,7 @@ There is no direct support for MQTT in the code, however, reports from Discord a
 
 ### CheckList
 | Command | Description | |
+|---------|-------------|-
 | `checkin` | Check in the node to the checklist database | ✅ |
 | `checkout` | Checkout the node in the checklist database | ✅ |
 | `checklist` | Display the checklist database | ✅ |
