@@ -10,3 +10,4 @@ geopy
 schedule
 wikipedia
 googlesearch-python
+sqlite3
