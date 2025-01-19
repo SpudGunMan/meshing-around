@@ -207,7 +207,7 @@ if radio_detection_enabled:
     from modules.radio import * # from the spudgunman/meshing-around repo
 
 # File Monitor Configuration
-if file_monitor_enabled or read_news_enabled:
+if file_monitor_enabled or read_news_enabled or bee_enabled:
     from modules.filemon import * # from the spudgunman/meshing-around repo
     if read_news_enabled:
         trap_list = trap_list + trap_list_filemon # items readnews
