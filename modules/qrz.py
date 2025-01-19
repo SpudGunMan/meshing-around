@@ -18,19 +18,33 @@ def never_seen_before(nodeID):
     # check if we have seen this node before and sent a hello message
     conn = sqlite3.connect(qrz_db)
     c = conn.cursor()
-    c.execute("SELECT * FROM qrz WHERE qrz_call = ?", (nodeID,))
-    row = c.fetchone()
-    conn.close()
-    if row is None:
-        return True
-    else:
-        return False
+    try:
+        c.execute("SELECT * FROM qrz WHERE qrz_call = ?", (nodeID,))
+        row = c.fetchone()
+        conn.close()
+        if row is None:
+            return True
+        else:
+            return False
+    except sqlite3.OperationalError as e:
+        if "no such table" in str(e):
+            initalize_qrz_database()
+            return True
+        else:
+            raise
     
 def hello(nodeID, name, qth, notes):
     # send a hello message
     conn = sqlite3.connect(qrz_db)
     c = conn.cursor()
-    c.execute("INSERT INTO qrz (qrz_call, qrz_name, qrz_qth, qrz_notes) VALUES (?, ?, ?, ?)", (nodeID, name, qth, notes))
+    try:
+        c.execute("INSERT INTO qrz (qrz_call, qrz_name, qrz_qth, qrz_notes) VALUES (?, ?, ?, ?)", (nodeID, name, qth, notes))
+    except sqlite3.OperationalError as e:
+        if "no such table" in str(e):
+            initalize_qrz_database()
+            c.execute("INSERT INTO qrz (qrz_call, qrz_name, qrz_qth, qrz_notes) VALUES (?, ?, ?, ?)", (nodeID, name, qth, notes))
+        else:
+            raise
     conn.commit()
     conn.close()
     return True
