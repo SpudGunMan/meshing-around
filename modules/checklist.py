@@ -38,7 +38,7 @@ def checkin(name, date, time, location, notes):
             raise
     conn.commit()
     conn.close()
-    return "Checked In: " + str(name)
+    return "Checked✅In: " + str(name)
 
 def delete_checkin(checkin_id):
     # delete a checkin
@@ -87,7 +87,7 @@ def checkout(name, date, time_str, location, notes):
     conn.commit()
     conn.close()
     if checkin_record:
-        return "Checked Out: " + str(name) + " duration " + timeCheckedIn
+        return "Checked⌛️Out: " + str(name) + " duration " + timeCheckedIn
     else:
         return "you must check in before checking out"
 
