@@ -177,7 +177,7 @@ checklist_db = data/checklist.db
 [qrz]
 enabled = False
 qrz_db = data/qrz.db
-qrz_hello_string = " send CMD or DM me for more info."
+qrz_hello_string = "send CMD or DM me for more info."
 
 # repeater module
 [repeater]

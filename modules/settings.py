@@ -96,7 +96,7 @@ if 'checklist' not in config:
     config.write(open(config_file, 'w'))
 
 if 'qrz' not in config:
-    config['qrz'] = {'enabled': 'False', 'qrz_db': 'data/qrz.db', 'qrz_hello_string': ' send CMD or DM me for more info.'}
+    config['qrz'] = {'enabled': 'False', 'qrz_db': 'data/qrz.db', 'qrz_hello_string': 'send CMD or DM me for more info.'}
     config.write(open(config_file, 'w'))
 
 # interface1 settings
@@ -276,7 +276,7 @@ try:
     # qrz hello
     qrz_hello_enabled = config['qrz'].getboolean('enabled', False)
     qrz_db = config['qrz'].get('qrz_db', 'data/qrz.db')
-    qrz_hello_string = config['qrz'].get('qrz_hello_string', ' send CMD or DM me for more info.')
+    qrz_hello_string = config['qrz'].get('qrz_hello_string', 'send CMD or DM me for more info.')
     
     # E-Mail Settings
     sysopEmails = config['smtp'].get('sysopEmails', '').split(',')
