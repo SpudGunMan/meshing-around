@@ -131,6 +131,10 @@ def list_checkin():
 def process_checklist_command(nodeID, message, name="none", location="none"):
     current_date = time.strftime("%Y-%m-%d")
     current_time = time.strftime("%H:%M:%S")
+    # if user on bbs_ban_list reject command
+    if str(nodeID) in bbs_ban_list:
+        logger.warning("System: Checklist attempt from the ban list")
+        return "unable to process command"
     try:
         comment = message.split(" ", 1)[1]
     except IndexError:
