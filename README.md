@@ -414,8 +414,8 @@ There is no direct support for MQTT in the code, however, reports from Discord a
 | Command | Description | |
 |---------|-------------|-
 | `checkin` | Check in the node to the checklist database, you can add a note like `checkin ICO` or `checkin radio4` | ✅ |
-| `checkout` | Checkout the node in the checklist database | ✅ |
-| `checklist` | Display the checklist database | ✅ |
+| `checkout` | Checkout the node in the checklist database, checkout all from node | ✅ |
+| `checklist` | Display the checklist database, with note | ✅ |
 
 ### Games (via DM)
 | Command | Description | |
