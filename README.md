@@ -206,7 +206,7 @@ alert_interface = 1
 ### EAS Alerting
 To Alert on Mesh with the EAS API you can set the channels and enable, checks every 20min.
 
-#### FEMA iPAWS/EAS and UK.gov
+#### FEMA iPAWS/EAS and UK.gov NINA
 This uses USA: SAME, FIPS, ZIP code to locate the alerts in the feed. By default ignoring Test messages.
 
 ```ini
@@ -375,7 +375,7 @@ There is no direct support for MQTT in the code, however, reports from Discord a
 ### Radio Propagation & Weather Forcasting
 | Command | Description | |
 |---------|-------------|-------------------
-| `ea` and `ealert` | Return FEMA iPAWS/EAS alerts in USA or UK. Headline or expanded details for USA | |
+| `ea` and `ealert` | Return FEMA iPAWS/EAS alerts in USA or UK/DE Headline or expanded details for USA | |
 | `hfcond` | Returns a table of HF solar conditions | |
 | `rlist` | Returns a table of nearby repeaters from RepeaterBook | |
 | `riverflow` | Return information from NOAA for river flow info. Example: `riverflow modules/settings.py`| |
