@@ -66,8 +66,8 @@ def checkout(name, date, time_str, location, notes):
             checkin_datetime = time.strptime(date + " " + checkin_time, "%Y-%m-%d %H:%M:%S")
             time_checked_in_seconds = time.time() - time.mktime(checkin_datetime)
             timeCheckedIn = time.strftime("%H:%M:%S", time.gmtime(time_checked_in_seconds))
-            # remove the checkin record
-            # c.execute("DELETE FROM checkin WHERE checkin_id = ?", (checkin_record[0],))
+            # # remove the checkin record older than the checkout
+            # c.execute("DELETE FROM checkin WHERE checkin_date < ? OR (checkin_date = ? AND checkin_time < ?)", (date, date, time_str))
         else:
             logger.error("User: " + name + " attempted to checkout without checking in first.")
     except sqlite3.OperationalError as e:
