@@ -38,7 +38,7 @@ def checkin(name, date, time, location, notes):
             raise
     conn.commit()
     conn.close()
-    return "Checked in: " + str(name)
+    return "Checked In: " + str(name)
 
 def delete_checkin(checkin_id):
     # delete a checkin
@@ -56,7 +56,17 @@ def checkout(name, date, time_str, location, notes):
     c = conn.cursor()
     try:
         # Check if the user has a checkin before checking out
-        c.execute("SELECT checkin_id FROM checkin WHERE checkin_name = ? ORDER BY checkin_date DESC, checkin_time DESC LIMIT 1", (name,))
+        c.execute("""
+            SELECT checkin_id FROM checkin 
+            WHERE checkin_name = ? 
+            AND NOT EXISTS (
+            SELECT 1 FROM checkout 
+            WHERE checkout_name = checkin_name 
+            AND (checkout_date > checkin_date OR (checkout_date = checkin_date AND checkout_time > checkin_time))
+            )
+            ORDER BY checkin_date DESC, checkin_time DESC 
+            LIMIT 1
+        """, (name,))
         checkin_record = c.fetchone()
         if checkin_record:
             c.execute("INSERT INTO checkout (checkout_name, checkout_date, checkout_time, location, checkout_notes) VALUES (?, ?, ?, ?, ?)", (name, date, time_str, location, notes))
@@ -68,13 +78,18 @@ def checkout(name, date, time_str, location, notes):
             timeCheckedIn = time.strftime("%H:%M:%S", time.gmtime(time_checked_in_seconds))
             # # remove the checkin record older than the checkout
             # c.execute("DELETE FROM checkin WHERE checkin_date < ? OR (checkin_date = ? AND checkin_time < ?)", (date, date, time_str))
-        else:
-            logger.error("User: " + name + " attempted to checkout without checking in first.")
     except sqlite3.OperationalError as e:
-        logger.error("User: " + name + " attempted to checkout without checking in first.")
+        if "no such table" in str(e):
+            initialize_checklist_database()
+            c.execute("INSERT INTO checkout (checkout_name, checkout_date, checkout_time, location, checkout_notes) VALUES (?, ?, ?, ?, ?)", (name, date, time_str, location, notes))
+        else:
+            raise
     conn.commit()
     conn.close()
-    return "Checked out: " + str(name) + " duration " + timeCheckedIn
+    if checkin_record:
+        return "Checked Out: " + str(name) + " duration " + timeCheckedIn
+    else:
+        return "you must check in before checking out"
 
 def delete_checkout(checkout_id):
     # delete a checkout
