@@ -33,16 +33,16 @@ def never_seen_before(nodeID):
         else:
             raise
     
-def hello(nodeID, name, qth, notes):
+def hello(nodeID, name):
     # send a hello message
     conn = sqlite3.connect(qrz_db)
     c = conn.cursor()
     try:
-        c.execute("INSERT INTO qrz (qrz_call, qrz_name, qrz_qth, qrz_notes) VALUES (?, ?, ?, ?)", (nodeID, name, qth, notes))
+        c.execute("INSERT INTO qrz (qrz_call, qrz_name) VALUES (?, ?)", (nodeID, name))
     except sqlite3.OperationalError as e:
         if "no such table" in str(e):
             initalize_qrz_database()
-            c.execute("INSERT INTO qrz (qrz_call, qrz_name, qrz_qth, qrz_notes) VALUES (?, ?, ?, ?)", (nodeID, name, qth, notes))
+            c.execute("INSERT INTO qrz (qrz_call, qrz_name) VALUES (?, ?)", (nodeID, name))
         else:
             raise
     conn.commit()
