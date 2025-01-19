@@ -173,6 +173,12 @@ satList = 25544,7530
 enabled = False
 checklist_db = data/checklist.db
 
+# QRZ Hello to new nodes
+[qrz]
+enabled = False
+qrz_db = data/qrz.db
+qrz_hello_string = " send CMD or DM me for more info."
+
 # repeater module
 [repeater]
 enabled = False

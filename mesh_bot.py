@@ -1257,7 +1257,7 @@ def onReceive(packet, interface):
                             # add to qrz_hello list
                             hello(message_from_id, get_name_from_number(message_from_id, 'short', rxNode))
                             # send a hello message
-                            send_message(f"Hello {get_name_from_number(message_from_id, 'short', rxNode)}", channel_number, message_from_id, rxNode)
+                            send_message(f"Hello {get_name_from_number(message_from_id, 'short', rxNode)} {qrz_hello_string}", channel_number, message_from_id, rxNode)
                             time.sleep(responseDelay)
         else:
             # Evaluate non TEXT_MESSAGE_APP packets
