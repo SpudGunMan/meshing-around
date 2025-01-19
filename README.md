@@ -315,8 +315,6 @@ rtl_fm -f 162425000 -s 22050 | multimon-ng -t raw -a EAS /dev/stdin | python eas
 #### Newspaper on mesh
 a newspaper could be built by external scripts. could use Ollama to compile text via news web pages and write news.txt
 
-you can also enable the line by line (hint just search for the commented lines with a 🐝) to return a string from the [bee movie](https://courses.cs.washington.edu/courses/cse163/20wi/files/lectures/L04/bee-movie.txt) for example adding it alongside news.txt as bee.txt
-
 ### Greet new nodes QRZ module
 This isnt QRZ.com this is Q code for who is calling me, this will track new nodes and say hello
 ```ini
