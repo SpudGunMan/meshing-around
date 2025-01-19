@@ -43,8 +43,8 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "bbsread": lambda: handle_bbsread(message),
     "blackjack": lambda: handleBlackJack(message, message_from_id, deviceID),
     "checkin": lambda: handle_checklist(message, message_from_id, deviceID),
-    "checkout": lambda: handle_checklist(message, message_from_id, deviceID),
     "checklist": lambda: handle_checklist(message, message_from_id, deviceID),
+    "checkout": lambda: handle_checklist(message, message_from_id, deviceID),
     "clearsms": lambda: handle_sms(message_from_id, message),
     "cmd": lambda: help_message,
     "cq": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
@@ -1256,7 +1256,7 @@ def onReceive(packet, interface):
                         if never_seen_before(message_from_id):
                             # add to qrz_hello list
                             hello(message_from_id, get_name_from_number(message_from_id, 'short', rxNode))
-                            # send a hello message
+                            # send a hello message as a DM
                             send_message(f"Hello {get_name_from_number(message_from_id, 'short', rxNode)} {qrz_hello_string}", channel_number, message_from_id, rxNode)
                             time.sleep(responseDelay)
         else:
