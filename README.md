@@ -11,6 +11,7 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 - **Automated Responses**: The bot detects keywords like "ping" and responds with "pong" in direct messages (DMs) or group channels.
 - **Customizable Triggers**: Monitor group channels for specific keywords and set custom responses.
 - **Emergency Response**: Monitor channels for keywords indicating emergencies and alert a wider audience.
+- **New Node Hello**: Greet new nodes on the mesh with a hello message
 
 ### Network Tools
 - **Build, Test Local Mesh**: Ping allow for message delivery testing with more realistic packets vs. telemetry
@@ -309,6 +310,14 @@ rtl_fm -f 162425000 -s 22050 | multimon-ng -t raw -a EAS /dev/stdin | python eas
 a newspaper could be built by external scripts. could use Ollama to compile text via news web pages and write news.txt
 
 you can also enable the line by line (hint just search for the commented lines with a 🐝) to return a string from the [bee movie](https://courses.cs.washington.edu/courses/cse163/20wi/files/lectures/L04/bee-movie.txt) for example adding it alongside news.txt as bee.txt
+
+### Greet new nodes QRZ module
+This isnt QRZ.com this is Q code for who is calling me, this will track new nodes and say hello
+```ini
+[qrz] 
+enabled = True # QRZ Hello to new nodes
+qrz_hello_string = "send CMD or DM me for more info." # will be sent to all heard nodes once
+```
 
 ### Scheduler
 In the config.ini enable the module
