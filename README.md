@@ -27,7 +27,8 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 - **Store and Forward**: Replay messages with the `messages` command, and log messages locally to disk.
 - **Send Mail**: Send mail to nodes using `bbspost @nodeNumber #message` or `bbspost @nodeShortName #message`.
 - **BBS Linking**: Combine multiple bots to expand BBS reach.
-- **E-Mail/SMS**: Send mesh-messages to E-Mail or SMS expanding visability.
+- **E-Mail/SMS**: Send mesh-messages to E-Mail or SMS(Email) expanding visability.
+- **New Node Hello**: Send a hello to any new node seen in text message.
 
 ### Interactive AI and Data Lookup
 - **NOAA location Data**: Get localized weather(alerts), River Flow, and Tide information. Open-Meteo is used for wx only outside NOAA coverage. 
@@ -54,6 +55,7 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 - **NOAA EAS Alerts via API**: Use an internet-connected node to message Emergency Alerts from NOAA.
 - **EAS Alerts over the air**: Utilizing external tools to report EAS alerts offline over mesh.
 - **UK.GOV Alerts**: Pulling data form the UK.GOV alert page
+- **NINA alerts for Germany**: Emergency Alerts from xrepository.de feed
 
 ### File Monitor Alerts
 - **File Monitor**: Monitor a flat/text file for changes, broadcast the contents of the message to the mesh channel.
