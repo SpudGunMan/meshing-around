@@ -413,7 +413,7 @@ There is no direct support for MQTT in the code, however, reports from Discord a
 ### CheckList
 | Command | Description | |
 |---------|-------------|-
-| `checkin` | Check in the node to the checklist database | ✅ |
+| `checkin` | Check in the node to the checklist database, you can add a note like `checkin ICO` or `checkin radio4` | ✅ |
 | `checkout` | Checkout the node in the checklist database | ✅ |
 | `checklist` | Display the checklist database | ✅ |
 
