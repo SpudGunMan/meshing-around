@@ -172,6 +172,7 @@ satList = 25544,7530
 [checklist]
 enabled = False
 checklist_db = data/checklist.db
+reverse_in_out = False
 
 [qrz]
 # QRZ Hello to new nodes with message

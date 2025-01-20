@@ -272,6 +272,7 @@ try:
     # checklist
     checklist_enabled = config['checklist'].getboolean('enabled', False)
     checklist_db = config['checklist'].get('checklist_db', 'data/checklist.db')
+    reverse_in_out = config['checklist'].getboolean('reverse_in_out', False)
 
     # qrz hello
     qrz_hello_enabled = config['qrz'].getboolean('enabled', False)

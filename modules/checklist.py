@@ -120,7 +120,7 @@ def list_checkin():
         timeCheckedIn = time.strftime("%H:%M:%S", time.gmtime(time.time() - time.mktime(time.strptime(row[2] + " " + row[3], "%Y-%m-%d %H:%M:%S"))))
         checkin_list += "ID: " + row[1] + " checked-In for " + timeCheckedIn
         if row[5] != "":
-            checkin_list += " note: " + row[5]
+            checkin_list += "📝" + row[5]
         if row != rows[-1]:
             checkin_list += "\n"
     # if empty list
@@ -140,9 +140,9 @@ def process_checklist_command(nodeID, message, name="none", location="none"):
     except IndexError:
         comment = ""
     # handle checklist commands
-    if "checkin" in message.lower():
+    if ("checkin" in message.lower() and not reverse_in_out) or ("checkout" in message.lower() and reverse_in_out):
         return checkin(name, current_date, current_time, location, comment)
-    elif "checkout" in message.lower():
+    elif ("checkout" in message.lower() and not reverse_in_out) or ("checkin" in message.lower() and reverse_in_out):
         return checkout(name, current_date, current_time, location, comment)
     elif "purgein" in message.lower():
         return delete_checkin(nodeID)
