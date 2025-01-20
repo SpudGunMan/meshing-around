@@ -38,7 +38,10 @@ def checkin(name, date, time, location, notes):
             raise
     conn.commit()
     conn.close()
-    return "Checked✅In: " + str(name)
+    if reverse_in_out:
+        return "Checked✅Out: " + str(name)
+    else:
+        return "Checked✅In: " + str(name)
 
 def delete_checkin(checkin_id):
     # delete a checkin
@@ -87,9 +90,12 @@ def checkout(name, date, time_str, location, notes):
     conn.commit()
     conn.close()
     if checkin_record:
-        return "Checked⌛️Out: " + str(name) + " duration " + timeCheckedIn
+        if reverse_in_out:
+            return "Checked⌛️In: " + str(name) + " duration " + timeCheckedIn
+        else:
+            return "Checked⌛️Out: " + str(name) + " duration " + timeCheckedIn
     else:
-        return "you must check in before checking out"
+        return "None found for " + str(name)
 
 def delete_checkout(checkout_id):
     # delete a checkout
