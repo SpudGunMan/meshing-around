@@ -1254,11 +1254,12 @@ def onReceive(packet, interface):
                     # if QRZ enabled check if we have said hello
                     if qrz_hello_enabled:
                         if never_seen_before(message_from_id):
+                            name = {get_name_from_number(message_from_id, 'short', rxNode)}
                             # add to qrz_hello list
-                            hello(message_from_id, get_name_from_number(message_from_id, 'short', rxNode))
+                            hello(message_from_id, name)
                             # send a hello message as a DM
                             time.sleep(responseDelay)
-                            send_message(f"Hello {get_name_from_number(message_from_id, 'short', rxNode)} {qrz_hello_string}", channel_number, message_from_id, rxNode)
+                            send_message(f"Hello {name} {qrz_hello_string}", channel_number, message_from_id, rxNode)
                             time.sleep(responseDelay)
         else:
             # Evaluate non TEXT_MESSAGE_APP packets
