@@ -341,7 +341,7 @@ def handle_satpass(message_from_id, deviceID, channel_number, message):
     return passes
         
 def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel):
-    global llmRunCounter, llmLocationTable, llmTotalRuntime, cmdHistory
+    global llmRunCounter, llmLocationTable, llmTotalRuntime, cmdHistory, seenNodes
     location_name = 'no location provided'
     msg = ''
     
@@ -379,6 +379,10 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
                 # send via channel
                 send_message(welcome_message, channel_number, 0, deviceID)
                 time.sleep(responseDelay)
+            # mark the node as welcomed
+            for node in seenNodes:
+                if node['nodeID'] == message_from_id:
+                    node['welcome'] = True
     
     # update the llmLocationTable for future use
     for i in range(0, len(llmLocationTable)):
