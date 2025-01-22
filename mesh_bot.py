@@ -343,6 +343,7 @@ def handle_satpass(message_from_id, deviceID, channel_number, message):
 def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel):
     global llmRunCounter, llmLocationTable, llmTotalRuntime, cmdHistory
     location_name = 'no location provided'
+    msg = ''
     
     if location_enabled:
         # if message_from_id is is the llmLocationTable use the location from the list to save on API calls
@@ -396,11 +397,11 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
     # information for the user on how long the query will take on average
     if llmRunCounter > 0:
         averageRuntime = sum(llmTotalRuntime) / len(llmTotalRuntime)
-        msg = f"Please wait, average query time is: {int(averageRuntime)} seconds" if averageRuntime > 25 else None
+        msg = f"Please wait, average query time is: {int(averageRuntime)} seconds" if averageRuntime > 25 else ''
     else:
         logger.debug(f"System: LLM: First Query, computing runtime")
 
-    if msg:
+    if msg != '':
         if (channel_number == publicChannel and antiSpam) or useDMForResponse:
             # send via DM
             send_message(msg, channel_number, message_from_id, deviceID)
