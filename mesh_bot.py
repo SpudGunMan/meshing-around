@@ -368,17 +368,16 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
         # consider this a command use for the cmdHistory list
         cmdHistory.append({'nodeID': message_from_id, 'cmd':  'llm-use', 'time': time.time()})
 
-        # if the message_from_id is not in the llmLocationTable send the welcome message
-        for i in range(0, len(llmLocationTable)):
-            if not any(d['nodeID'] == message_from_id for d in llmLocationTable):
-                if (channel_number == publicChannel and antiSpam) or useDMForResponse:
-                    # send via DM
-                    send_message(welcome_message, channel_number, message_from_id, deviceID)
-                    time.sleep(responseDelay)
-                else:
-                    # send via channel
-                    send_message(welcome_message, channel_number, 0, deviceID)
-                    time.sleep(responseDelay)
+        # check for a welcome message (is this redundant?)
+        if not any(node['nodeID'] == message_from_id and node['welcome'] == True for node in seenNodes):
+            if (channel_number == publicChannel and antiSpam) or useDMForResponse:
+                # send via DM
+                send_message(welcome_message, channel_number, message_from_id, deviceID)
+                time.sleep(responseDelay)
+            else:
+                # send via channel
+                send_message(welcome_message, channel_number, 0, deviceID)
+                time.sleep(responseDelay)
     
     # update the llmLocationTable for future use
     for i in range(0, len(llmLocationTable)):
@@ -397,26 +396,18 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
     # information for the user on how long the query will take on average
     if llmRunCounter > 0:
         averageRuntime = sum(llmTotalRuntime) / len(llmTotalRuntime)
-        if averageRuntime > 25:
-            msg = f"Please wait, average query time is: {int(averageRuntime)} seconds"
-            if (channel_number == publicChannel and antiSpam) or useDMForResponse:
-                # send via DM
-                send_message(msg, channel_number, message_from_id, deviceID)
-                time.sleep(responseDelay)
-            else:
-                # send via channel
-                send_message(msg, channel_number, 0, deviceID)
-                time.sleep(responseDelay)
+        msg = f"Please wait, average query time is: {int(averageRuntime)} seconds" if averageRuntime > 25 else None
     else:
         msg = "Please wait, response could take 30+ seconds. Fund the SysOp's GPU budget!"
+
+    if msg:
         if (channel_number == publicChannel and antiSpam) or useDMForResponse:
             # send via DM
             send_message(msg, channel_number, message_from_id, deviceID)
-            time.sleep(responseDelay)
         else:
             # send via channel
             send_message(msg, channel_number, 0, deviceID)
-            time.sleep(responseDelay)
+        time.sleep(responseDelay)
     
     start = time.time()
 
@@ -1197,6 +1188,7 @@ def onReceive(packet, interface):
             else:
                 # message is on a channel
                 if messageTrap(message_string):
+                    # message is for us to respond to
                     if ignoreDefaultChannel and channel_number == publicChannel:
                         logger.debug(f"System: ignoreDefaultChannel CMD:{message_string} From: {get_name_from_number(message_from_id, 'short', rxNode)}")
                     else:
@@ -1219,7 +1211,7 @@ def onReceive(packet, interface):
                                 send_message(auto_response(message_string, snr, rssi, hop, pkiStatus, message_from_id, channel_number, rxNode, isDM), channel_number, 0, rxNode)
 
                 else:
-                    # message is not for bot to respond to
+                    # message is not for us to respond to
                     # ignore the message but add it to the message history list
                     if zuluTime:
                         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
