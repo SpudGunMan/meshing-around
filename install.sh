@@ -267,7 +267,8 @@ if [[ $(echo "${embedded}" | grep -i "^n") ]]; then
         printf "sudo systemctl daemon-reload\n" >> install_notes.txt
         printf "sudo systemctl enable %s.service\n" "$service" >> install_notes.txt
         printf "sudo systemctl start %s.service\n" "$service" >> install_notes.txt
-        printf "sudo systemctl status %s.service\n\n" "$service" >> install_notes.txt
+        printf "sudo systemctl status %s.service\n" "$service" >> install_notes.txt
+        printf "sudo systemctl restart %s.service\n\n" "$service" >> install_notes.txt
         printf "To see logs and stop the service:\n" >> install_notes.txt
         printf "sudo journalctl -u %s.service\n" "$service" >> install_notes.txt
         printf "sudo systemctl stop %s.service\n" "$service" >> install_notes.txt
@@ -301,7 +302,9 @@ else
     sudo systemctl enable $service.service
     sudo systemctl start $service.service
     printf "Reference following commands:\n\n" "$service" > install_notes.txt
-    printf "sudo systemctl status %s.service\n\n" "$service" >> install_notes.txt
+    printf "sudo systemctl status %s.service\n" "$service" >> install_notes.txt
+    printf "sudo systemctl start %s.service\n" "$service" >> install_notes.txt
+    printf "sudo systemctl restart %s.service\n\n" "$service" >> install_notes.txt
     printf "To see logs and stop the service:\n" >> install_notes.txt
     printf "sudo journalctl -u %s.service\n" "$service" >> install_notes.txt
     printf "sudo systemctl stop %s.service\n" "$service" >> install_notes.txt
