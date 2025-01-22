@@ -158,10 +158,10 @@ else
 fi
 
 # if $1 is passed
-if [[ $1 == "mesh" ]] || [[ $(echo "${embedded}" | grep -i "^y") ]]; then
-    bot="mesh"
-elif [[ $1 == "pong" ]]; then
+if [[ $1 == "pong" ]]; then
     bot="pong"
+elif [[ $1 == "mesh" ]] || [[ $(echo "${embedded}" | grep -i "^y") ]]; then
+    bot="mesh"
 else
     printf "\n\n"
     echo "Which bot do you want to install as a service? Pong Mesh or None? (pong/mesh/n)"
