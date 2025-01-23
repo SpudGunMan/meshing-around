@@ -46,7 +46,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "checklist": lambda: handle_checklist(message, message_from_id, deviceID),
     "checkout": lambda: handle_checklist(message, message_from_id, deviceID),
     "clearsms": lambda: handle_sms(message_from_id, message),
-    "cmd": lambda: help_message,
+    "cmd": lambda: handle_cmd(message, message_from_id, deviceID),
     "cq": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
     "cqcq": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
     "cqcqcq": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
@@ -140,6 +140,11 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     time.sleep(responseDelay)
     return bot_response
 
+def handle_cmd(message, message_from_id, deviceID):
+    if " " in message and message.split(" ")[1] in trap_list:
+        return "🤖 just use the commands directly in chat"
+    return help_message
+    
 def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, channel_number):
     global multiPing
     myNodeNum = globals().get(f'myNodeNum{deviceID}', 777)
