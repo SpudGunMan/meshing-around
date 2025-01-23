@@ -141,6 +141,8 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     return bot_response
 
 def handle_cmd(message, message_from_id, deviceID):
+    # why CMD? its just a command list. a terminal would normally use "Help"
+    # I didnt want to invoke the word "help" in Meshtastic due to its possible emergency use
     if " " in message and message.split(" ")[1] in trap_list:
         return "🤖 just use the commands directly in chat"
     return help_message
