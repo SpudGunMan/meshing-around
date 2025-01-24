@@ -96,9 +96,9 @@ def getRepeaterBook(lat=0, lon=0):
                     }
                     data.append(repeater)
                 else:
-                    msg = "bug?Not enough columns"
+                    msg = "No Data for your Region, if this is wrong report it :)"
         else:
-            msg = "bug?Table not found"
+            msg = "No Data for your Region"
     except Exception as e:
         msg = "No repeaters found 😔"
     # Limit the output to the first 4 repeaters
