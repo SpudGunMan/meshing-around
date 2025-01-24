@@ -54,7 +54,6 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 - **FEMA iPAWS/EAS Alerts via API**: Use an internet-connected node to message Emergency Alerts from FEMA
 - **NOAA EAS Alerts via API**: Use an internet-connected node to message Emergency Alerts from NOAA.
 - **EAS Alerts over the air**: Utilizing external tools to report EAS alerts offline over mesh.
-- **UK.GOV Alerts**: Pulling data form the UK.GOV alert page
 - **NINA alerts for Germany**: Emergency Alerts from xrepository.de feed
 
 ### File Monitor Alerts
@@ -206,7 +205,7 @@ alert_interface = 1
 ### EAS Alerting
 To Alert on Mesh with the EAS API you can set the channels and enable, checks every 20min.
 
-#### FEMA iPAWS/EAS and UK.gov NINA
+#### FEMA iPAWS/EAS and NINA
 This uses USA: SAME, FIPS, ZIP code to locate the alerts in the feed. By default ignoring Test messages.
 
 ```ini
@@ -219,7 +218,6 @@ mySAME = 053029,053073
 
 # To use other country services enable only a single optional serivce
 
-enableGBalerts = False # use UK.gov for alert source
 enableDEalerts = False # Use DE Alert Broadcast Data see template for filters
 ```
 
@@ -375,7 +373,7 @@ There is no direct support for MQTT in the code, however, reports from Discord a
 ### Radio Propagation & Weather Forcasting
 | Command | Description | |
 |---------|-------------|-------------------
-| `ea` and `ealert` | Return FEMA iPAWS/EAS alerts in USA or UK/DE Headline or expanded details for USA | |
+| `ea` and `ealert` | Return FEMA iPAWS/EAS alerts in USA or DE Headline or expanded details for USA | |
 | `hfcond` | Returns a table of HF solar conditions | |
 | `rlist` | Returns a table of nearby repeaters from RepeaterBook | |
 | `riverflow` | Return information from NOAA for river flow info. Example: `riverflow modules/settings.py`| |
