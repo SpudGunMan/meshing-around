@@ -10,6 +10,7 @@ To help with code testing see `etc/simulator.py` to simulate a bot. I also enjoy
    def handle_newcommand(message, message_from_id, deviceID):
        return "This is a response from the new command."
    ```
+   Additionally you can add a whole new module.py, I recommend doing this if you need to import more stuff, try and wedge it into similar spots if you can. You will need to import the file as well, look further at `modules/system.py` for more.
 2. **Add the Command to the Auto Response**:
    Update the auto_response function in mesh_bot.py to include the new command:
    ```python
