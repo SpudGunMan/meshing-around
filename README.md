@@ -80,7 +80,7 @@ The code is under active development, so make sure to pull the latest changes re
 
 #### Automation of setup
 - **Automated Installation**: `install.sh` will automate optional venv and requirements installation.
-- **Launch Script**: `launch.sh` will activate and launch the app in the venv
+- **Launch Script**: `launch.sh` will activate and launch the app, as well as the html report generator, in the venv.
 
 #### Docker Installation
 If you prefer to use [Docker](script/docker/README.md)
