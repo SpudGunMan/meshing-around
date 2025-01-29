@@ -1,4 +1,8 @@
-By following these steps, you can add a new bbs option to the bot.
+# Modules and Adding stuff
+
+To help with code testing see `etc/simulator.py` to simulate a bot. I also enjoy meshtasticd(linux-native) in noradio with MQTT server and client to just emulate a mesh.
+
+## By following these steps, you can add a new bbs option to the bot.
 
 1. **Define the Command Handler**:
    Add a new function in mesh_bot.py to handle the new command. For example, if you want to add a command `newcommand`:
