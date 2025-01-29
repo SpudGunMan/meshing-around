@@ -78,14 +78,14 @@ git clone https://github.com/spudgunman/meshing-around
 ```
 The code is under active development, so make sure to pull the latest changes regularly!
 
-#### Automation of setup
+#### Quick setup
 - **Automated Installation**: `install.sh` will automate optional venv and requirements installation.
-- **Launch Script**: `launch.sh` will activate and launch the app, as well as the html report generator, in the venv.
+- **Launch Script**: `launch.sh` only used in a venv install, to launch the bot and the report generator.
 
 #### Docker Installation
-If you prefer to use [Docker](script/docker/README.md)
+See further info on the [docker.md](script/docker/README.md)
 
-#### Custom Install
+#### Manual Install
 Install the required dependencies using pip:
 ```sh
 pip install -r requirements.txt
@@ -96,8 +96,10 @@ Copy the configuration template to `config.ini` and edit it to suit your needs:
 cp config.template config.ini
 ```
 
-### Configuration
-Copy the [config.template](config.template) to `config.ini` and set the appropriate interface for your method (serial/ble/tcp). While BLE and TCP will work, they are not as reliable as serial connections. There is a watchdog to reconnect TCP if possible. To get the BLE MAC address, use:
+### Configuration Guide
+The following is documentation for the config.ini file
+
+If you have not done so, or want to 'factory reset', copy the [config.template](config.template) to `config.ini` and set the appropriate interface for your method (serial/ble/tcp). While BLE and TCP will work, they are not as reliable as serial connections. There is a watchdog to reconnect TCP if possible. To get the BLE MAC address, use:
 ```sh
 meshtastic --ble-scan
 ```
