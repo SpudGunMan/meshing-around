@@ -211,6 +211,10 @@ def llm_query(input, nodeID=0, location_name=None):
             if result.status_code == 200:
                 result_json = result.json()
                 result = result_json.get("response", "")
+
+                # deepseek-r1 has added <think> </think> tags to the response
+                if "<think>" in result:
+                    result = result.split("</think>")[1]
             else:
                 raise Exception(f"HTTP Error: {result.status_code}")
 
