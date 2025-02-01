@@ -703,9 +703,6 @@ def handle_emergency_alerts(message, message_from_id, deviceID):
     if enableDEalerts:
         # nina Alerts
         return get_nina_alerts()
-    if enableGBalerts:
-        # UK Alerts
-        return get_govUK_alerts(str(location[0]), str(location[1]))
     if message.lower().startswith("ealert"):
         # Detailed alert FEMA
         return getIpawsAlert(str(location[0]), str(location[1]))
