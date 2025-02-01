@@ -77,7 +77,7 @@ if location_enabled:
     help_message = help_message + ", whereami, wx, wxc, rlist"
     if enableGBalerts and not enableDEalerts:
         from modules.globalalert import * # from the spudgunman/meshing-around repo
-        trap_list = trap_list + trap_list_location_eu
+        logger.warning(f"System: GB Alerts not functional at this time need to find a source API")
         #help_message = help_message + ", ukalert, ukwx, ukflood"
     if enableDEalerts and not enableGBalerts:
         from modules.globalalert import * # from the spudgunman/meshing-around repo
