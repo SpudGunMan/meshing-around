@@ -260,20 +260,18 @@ if [[ $(echo "${embedded}" | grep -i "^n") ]]; then
         fi
     fi
 
-    if [[ $(echo "${embedded}" | grep -i "^n") ]]; then
-        # document the service install
-        printf "To install the %s service and keep notes, reference following commands:\n\n" "$service" > install_notes.txt
-        printf "sudo cp %s/etc/%s.service /etc/systemd/system/etc/%s.service\n" "$program_path" "$service" "$service" >> install_notes.txt
-        printf "sudo systemctl daemon-reload\n" >> install_notes.txt
-        printf "sudo systemctl enable %s.service\n" "$service" >> install_notes.txt
-        printf "sudo systemctl start %s.service\n" "$service" >> install_notes.txt
-        printf "sudo systemctl status %s.service\n" "$service" >> install_notes.txt
-        printf "sudo systemctl restart %s.service\n\n" "$service" >> install_notes.txt
-        printf "To see logs and stop the service:\n" >> install_notes.txt
-        printf "sudo journalctl -u %s.service\n" "$service" >> install_notes.txt
-        printf "sudo systemctl stop %s.service\n" "$service" >> install_notes.txt
-        printf "sudo systemctl disable %s.service\n" "$service" >> install_notes.txt
-    fi
+    # document the service install
+    printf "To install the %s service and keep notes, reference following commands:\n\n" "$service" > install_notes.txt
+    printf "sudo cp %s/etc/%s.service /etc/systemd/system/etc/%s.service\n" "$program_path" "$service" "$service" >> install_notes.txt
+    printf "sudo systemctl daemon-reload\n" >> install_notes.txt
+    printf "sudo systemctl enable %s.service\n" "$service" >> install_notes.txt
+    printf "sudo systemctl start %s.service\n" "$service" >> install_notes.txt
+    printf "sudo systemctl status %s.service\n" "$service" >> install_notes.txt
+    printf "sudo systemctl restart %s.service\n\n" "$service" >> install_notes.txt
+    printf "To see logs and stop the service:\n" >> install_notes.txt
+    printf "sudo journalctl -u %s.service\n" "$service" >> install_notes.txt
+    printf "sudo systemctl stop %s.service\n" "$service" >> install_notes.txt
+    printf "sudo systemctl disable %s.service\n" "$service" >> install_notes.txt
     
     if [[ $(echo "${venv}" | grep -i "^y") ]]; then
         printf "\nFor running on venv, virtual launch bot with './launch.sh mesh' in path $program_path\n" >> install_notes.txt
@@ -295,6 +293,8 @@ else
     replace="s|# hostname = meshtastic.local|hostname = localhost|g"
     sed -i "$replace" config.ini
     printf "\nConfig file updated for embedded\n"
+    # add service dependency for meshtasticd into service file
+    #replace="s|After=network.target|After=network.target meshtasticd.service|g"
 
     # Set up the meshing around service
     sudo cp /opt/meshing-around/etc/$service.service /etc/systemd/system/$service.service
