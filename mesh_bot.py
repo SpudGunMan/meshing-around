@@ -1341,7 +1341,9 @@ async def start_rx():
         logger.debug(f"System: Emergency Alert Broadcast Enabled on channels {emergencyAlertBroadcastCh}")
     if emergency_responder_enabled:
         logger.debug(f"System: Emergency Responder Enabled on channels {emergency_responder_alert_channel} for interface {emergency_responder_alert_interface}")
-    if qrz_hello_enabled:
+    if qrz_hello_enabled and train_qrz:
+        logger.debug(f"System: QRZ Hello Enabled with training mode")
+    if qrz_hello_enabled and not train_qrz:
         logger.debug(f"System: QRZ Hello Enabled")
     if checklist_enabled:
         logger.debug(f"System: CheckList Module Enabled")
