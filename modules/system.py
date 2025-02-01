@@ -439,8 +439,35 @@ def get_closest_nodes(nodeInt=1,returnCount=3):
     else:
         logger.warning(f"System: No nodes found in closest_nodes on interface {nodeInt}")
         return ERROR_FETCHING_DATA
+    
+def handleFavoritNode(nodeInt=1, nodeID=0, aor=False):
+    #aor is add or remove if True add, if False remove
+    interface = globals()[f'interface{nodeInt}']
+    myNodeNumber = globals().get(f'myNodeNum{nodeInt}')
+    if aor:
+        interface.getNode(myNodeNumber).addFavorite(nodeID)
+        logger.info(f"System: Added {nodeID} to favorites")
+    else:
+        interface.getNode(myNodeNumber).removeFavorite(nodeID)
+        logger.info(f"System: Removed {nodeID} from favorites")
+    
+def getFavoritNodes(nodeInt=1):
+    interface = globals()[f'interface{nodeInt}']
+    myNodeNumber = globals().get(f'myNodeNum{nodeInt}')
+    favList = []
+    for node in interface.getNode(myNodeNumber).favorites:
+        favList.append(node)
+    return favList
 
-        
+def handleSentinelIgnore(nodeInt=1, nodeID=0, aor=False):
+    #aor is add or remove if True add, if False remove
+    if aor:
+        sentryIgnoreList.append(str(nodeID))
+        logger.info(f"System: Added {nodeID} to sentry ignore list")
+    else:
+        sentryIgnoreList.remove(str(nodeID))
+        logger.info(f"System: Removed {nodeID} from sentry ignore list")
+         
 def messageChunker(message):
     message_list = []
     if len(message) > MESSAGE_CHUNK_SIZE:
