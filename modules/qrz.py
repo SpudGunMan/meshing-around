@@ -42,11 +42,11 @@ def hello(nodeID, name):
     conn = sqlite3.connect(qrz_db)
     c = conn.cursor()
     try:
-        c.execute("INSERT INTO qrz (qrz_call, qrz_name) VALUES (?, ?)", (nodeID, name))
+        c.execute("INSERT INTO qrz (qrz_call, qrz_name) VALUES (?, ?)", (nodeID, str(name)))
     except sqlite3.OperationalError as e:
         if "no such table" in str(e):
             initalize_qrz_database()
-            c.execute("INSERT INTO qrz (qrz_call, qrz_name) VALUES (?, ?)", (nodeID, name))
+            c.execute("INSERT INTO qrz (qrz_call, qrz_name) VALUES (?, ?)", (nodeID, str(name)))
         else:
             raise
     conn.commit()
