@@ -153,9 +153,6 @@ ignoreFEMAtest = True
 # find your SAME https://www.weather.gov/nwr/counties
 mySAME = 053029,053073
 
-# Use UK Alert Broadcast Data
-enableGBalerts = False
-
 # Use DE Alert Broadcast Data
 enableDEalerts = False
 # comma separated list of regional codes trigger local alert.
@@ -179,6 +176,8 @@ reverse_in_out = False
 enabled = False
 qrz_db = data/qrz.db
 qrz_hello_string = "send CMD or DM me for more info."
+# Training mode will not send the hello message to new nodes
+training = True
 
 # repeater module
 [repeater]

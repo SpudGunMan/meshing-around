@@ -1262,9 +1262,10 @@ def onReceive(packet, interface):
                             # add to qrz_hello list
                             hello(message_from_id, name)
                             # send a hello message as a DM
-                            time.sleep(responseDelay)
-                            send_message(f"Hello {name} {qrz_hello_string}", channel_number, message_from_id, rxNode)
-                            time.sleep(responseDelay)
+                            if not train_qrz:
+                                time.sleep(responseDelay)
+                                send_message(f"Hello {name} {qrz_hello_string}", channel_number, message_from_id, rxNode)
+                                time.sleep(responseDelay)
         else:
             # Evaluate non TEXT_MESSAGE_APP packets
             consumeMetadata(packet, rxNode)

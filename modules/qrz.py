@@ -23,12 +23,16 @@ def never_seen_before(nodeID):
         row = c.fetchone()
         conn.close()
         if row is None:
+            # we have not seen this node before
             return True
         else:
+            # we have seen this node before
             return False
     except sqlite3.OperationalError as e:
         if "no such table" in str(e):
             initalize_qrz_database()
+            logger.error("QRZ database table not found, created new table")
+            # we have not seen this node before
             return True
         else:
             raise

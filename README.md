@@ -321,6 +321,7 @@ This isnt QRZ.com this is Q code for who is calling me, this will track new node
 [qrz] 
 enabled = True # QRZ Hello to new nodes
 qrz_hello_string = "send CMD or DM me for more info." # will be sent to all heard nodes once
+training = True # Training mode will not send the hello message to new nodes, use this to build up database
 ```
 
 ### Scheduler
