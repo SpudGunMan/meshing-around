@@ -976,13 +976,14 @@ def checkPlayingGame(message_from_id, message_string, rxNode, channel_number):
     game = "None"
 
     trackers = [
-        (dwPlayerTracker, "DopeWars", handleDopeWars),
-        (lemonadeTracker, "LemonadeStand", handleLemonade),
-        (vpTracker, "VideoPoker", handleVideoPoker),
-        (jackTracker, "BlackJack", handleBlackJack),
-        (mindTracker, "MasterMind", handleMmind),
-        (golfTracker, "GolfSim", handleGolf),
+        (dwPlayerTracker, "DopeWars", handleDopeWars) if 'dwPlayerTracker' in globals() else None,
+        (lemonadeTracker, "LemonadeStand", handleLemonade) if 'lemonadeTracker' in globals() else None,
+        (vpTracker, "VideoPoker", handleVideoPoker) if 'vpTracker' in globals() else None,
+        (jackTracker, "BlackJack", handleBlackJack) if 'jackTracker' in globals() else None,
+        (mindTracker, "MasterMind", handleMmind) if 'mindTracker' in globals() else None,
+        (golfTracker, "GolfSim", handleGolf) if 'golfTracker' in globals() else None,
     ]
+    trackers = [tracker for tracker in trackers if tracker is not None]
 
     for tracker, game_name, handle_game_func in trackers:
         playingGame, game = check_and_play_game(tracker, message_from_id, message_string, rxNode, channel_number, game_name, handle_game_func)
