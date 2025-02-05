@@ -71,7 +71,16 @@ def where_am_i(lat=0, lon=0, short=False, zip=False):
 def getRepeaterBook(lat=0, lon=0):
     grid = mh.to_maiden(float(lat), float(lon))
     data = []
-    repeater_url = f"https://www.repeaterbook.com/repeaters/prox_result.php?city={grid}&lat=&long=&distance=50&Dunit=m&band%5B%5D=4&band%5B%5D=16&freq=&call=&mode%5B%5D=1&mode%5B%5D=2&mode%5B%5D=4&mode%5B%5D=64&status_id=1&use=%25&use=OPEN&order=distance_calc%2C+state_id+ASC"
+    # check if in the US or not
+    usapi ="https://www.repeaterbook.com/repeaters/prox_result.php?"
+    elsewhereapi = "https://www.repeaterbook.com/row_repeaters/prox2_result.php?"
+    if grid[:2] in ['CN', 'DN', 'EN', 'FN', 'CM', 'DM', 'EM', 'FM', 'DL', 'EL', 'FL']:
+        repeater_url = usapi
+    else:
+        repeater_url = elsewhereapi
+    
+    repeater_url += f"city={grid}&lat=&long=&distance=50&Dunit=m&band%5B%5D=4&band%5B%5D=16&freq=&call=&mode%5B%5D=1&mode%5B%5D=2&mode%5B%5D=4&mode%5B%5D=64&status_id=1&use=%25&use=OPEN&order=distance_calc%2C+state_id+ASC"
+    
     try:
         msg = ''
         response = requests.get(repeater_url)
@@ -95,8 +104,6 @@ def getRepeaterBook(lat=0, lon=0):
                         'direction': cells[i + 9].text.strip() if i + 9 < len(cells) else 'N/A'
                     }
                     data.append(repeater)
-                else:
-                    msg = "No Data for your Region, if this is wrong report it :)"
         else:
             msg = "No Data for your Region"
     except Exception as e:
