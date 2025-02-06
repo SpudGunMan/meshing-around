@@ -7,17 +7,26 @@
 import os
 import http.server
 
+# Set the desired IP address
+server_ip = '127.0.0.1'
+
 # Set the port for the server
 PORT = 8420
 
-# set webRoot index.html location
-webRoot = "etc/www"
+# Generate with: openssl req -new -x509 -keyout server.pem -out server.pem -days 365 -nodes
+SSL = False
 
 # Set to True to enable logging sdtout
 webServerLogs = False
 
-# Generate with: openssl req -new -x509 -keyout server.pem -out server.pem -days 365 -nodes
-SSL = False
+# Determine the directory where this script is located.
+script_dir = os.path.dirname(os.path.realpath(__file__))
+
+# Go up one level from the modules directory to the project root.
+project_root = os.path.abspath(os.path.join(script_dir, ".."))
+
+# Build the absolute path to the webRoot folder; to where index.html is located.
+webRoot = os.path.join(project_root, "etc", "www")
 
 if SSL:
     import ssl
@@ -43,7 +52,12 @@ if SSL:
         exit(1)
     httpd.socket = ctx.wrap_socket(httpd.socket, server_side=True)
 
-print(f"Serving reports at http://localhost:{PORT} Press ^C to quit.\n\n")
+# Create the HTTP server instance with the desired IP address
+httpd = http.server.HTTPServer((server_ip, PORT), QuietHandler)
+
+# Print out the URL using the IP address stored in server_ip
+print(f"Serving reports at http://{server_ip}:{PORT} Press ^C to quit.\n\n")
+
 if not webServerLogs:
     print("Server Logs are disabled")
 # Serve forever, that is until the user interrupts the process

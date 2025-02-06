@@ -1,0 +1,23 @@
+# /etc/systemd/system/mesh_bot_w3.service
+# sudo systemctl daemon-reload
+# sudo systemctl enable mesh_bot_w3.service
+# sudo systemctl start mesh_bot_w3.service
+
+[Unit]
+Description=MeshingAround-W3Server
+After=network.target
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+WorkingDirectory=/dir/
+ExecStart=python3 modules/web.py
+ExecStop=pkill -f mesh_bot_w3.py
+
+# Disable Python's buffering of STDOUT and STDERR, so that output from the
+# service shows up immediately in systemd's logs
+Environment=PYTHONUNBUFFERED=1
+
+Restart=on-failure
+Type=notify #try simple if any problems

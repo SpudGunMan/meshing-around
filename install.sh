@@ -80,6 +80,7 @@ sudo usermod -a -G bluetooth $USER
 cp etc/pong_bot.tmp etc/pong_bot.service
 cp etc/mesh_bot.tmp etc/mesh_bot.service
 cp etc/mesh_bot_reporting.tmp etc/mesh_bot_reporting.service
+cp etc/mesh_bot_w3.tmp etc/mesh_bot_w3.service
 
 # generate config file, check if it exists
 if [[ -f config.ini ]]; then
@@ -176,6 +177,7 @@ replace="s|/dir/|$program_path/|g"
 sed -i $replace etc/pong_bot.service
 sed -i $replace etc/mesh_bot.service
 sed -i $replace etc/mesh_bot_reporting.service
+sed -i $replace etc/mesh_bot_w3.service
 # set the correct user in the service file?
 
 #ask if we should add a user for the bot
@@ -207,10 +209,12 @@ replace="s|User=pi|User=$whoami|g"
 sed -i $replace etc/pong_bot.service
 sed -i $replace etc/mesh_bot.service
 sed -i $replace etc/mesh_bot_reporting.service
+sed -i $replace etc/mesh_bot_w3.service
 replace="s|Group=pi|Group=$whoami|g"
 sed -i $replace etc/pong_bot.service
 sed -i $replace etc/mesh_bot.service
 sed -i $replace etc/mesh_bot_reporting.service
+sed -i $replace etc/mesh_bot_w3.service
 printf "\n service files updated\n"
 
 if [[ $(echo "${bot}" | grep -i "^p") ]]; then
@@ -325,6 +329,7 @@ exit 0
 # sudo systemctl disable mesh_bot_reporting
 # sudo rm /etc/systemd/system/mesh_bot.service
 # sudo rm /etc/systemd/system/mesh_bot_reporting.service
+# sudo rm /etc/systemd/system/mesh_bot_w3.service
 # sudo rm /etc/systemd/system/pong_bot.service
 # sudo systemctl daemon-reload
 # sudo systemctl reset-failed
