@@ -31,7 +31,7 @@ def never_seen_before(nodeID):
     except sqlite3.OperationalError as e:
         if "no such table" in str(e):
             initalize_qrz_database()
-            logger.error("QRZ database table not found, created new table")
+            logger.warning("QRZ database table not found, created new table")
             # we have not seen this node before
             return True
         else:
