@@ -1,5 +1,6 @@
 # /etc/systemd/system/pong_bot.service
 # sudo systemctl daemon-reload
+# sudo systemctl enable pong_bot.service
 # sudo systemctl start pong_bot.service
 
 [Unit]

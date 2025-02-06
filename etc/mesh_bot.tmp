@@ -1,5 +1,6 @@
 # /etc/systemd/system/mesh_bot.service
 # sudo systemctl daemon-reload
+# sudo systemctl enable mesh_bot.service
 # sudo systemctl start mesh_bot.service
 
 [Unit]

@@ -1,6 +1,7 @@
-# /etc/systemd/system/mesh_bot.service
+# /etc/systemd/system/mesh_bot_reporting.service
 # sudo systemctl daemon-reload
-# sudo systemctl start mesh_bot.service
+# sudo systemctl enable mesh_bot_reporting.service
+# sudo systemctl start mesh_bot_reporting.service
 
 [Unit]
 Description=MeshingAround-Reporting
