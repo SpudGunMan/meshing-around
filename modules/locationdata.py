@@ -241,18 +241,18 @@ def get_NOAAweather(lat=0, lon=0, unit=0):
     try:
         weather_data = requests.get(weather_api, timeout=urlTimeoutSeconds)
         if not weather_data.ok:
-            logger.error("Location:Error fetching weather data from NOAA")
+            logger.warning("Location:Error fetching weather data from NOAA for location")
             return ERROR_FETCHING_DATA
     except (requests.exceptions.RequestException):
         logger.error("Location:Error fetching weather data from NOAA")
         return ERROR_FETCHING_DATA
-    
+    # get the forecast URL from the JSON response
     weather_json = weather_data.json()
     forecast_url = weather_json['properties']['forecast']
     try:
         forecast_data = requests.get(forecast_url, timeout=urlTimeoutSeconds)
         if not forecast_data.ok:
-            logger.error("Location:Error fetching weather data from NOAA")
+            logger.warning("Location:Error fetching weather forecast from NOAA")
             return ERROR_FETCHING_DATA
     except (requests.exceptions.RequestException):
         logger.error("Location:Error fetching weather data from NOAA")
