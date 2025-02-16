@@ -123,8 +123,8 @@ useMetric = False
 # repeaterList lookup location (rbook / artsci)
 repeaterLookup = rbook
 
-# NOAA weather forecast days, the first two rows are today and tonight
-NOAAforecastDuration = 4
+# NOAA weather forecast days
+NOAAforecastDuration = 3
 # number of weather alerts to display
 NOAAalertCount = 2
 

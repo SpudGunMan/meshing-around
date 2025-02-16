@@ -236,11 +236,10 @@ def get_NOAAweather(lat=0, lon=0, unit=0):
         unit = 1
         
     weather_url = "https://forecast.weather.gov/MapClick.php?FcstType=text&lat=" + str(lat) + "&lon=" + str(lon)
-    if unit == 1:
-        weather_url += "&unit=1"
-    
+    weather_api = "https://api.weather.gov/points/" + str(lat) + "," + str(lon)
+    # extract the "forecast": property from the JSON response
     try:
-        weather_data = requests.get(weather_url, timeout=urlTimeoutSeconds)
+        weather_data = requests.get(weather_api, timeout=urlTimeoutSeconds)
         if not weather_data.ok:
             logger.error("Location:Error fetching weather data from NOAA")
             return ERROR_FETCHING_DATA
@@ -248,24 +247,25 @@ def get_NOAAweather(lat=0, lon=0, unit=0):
         logger.error("Location:Error fetching weather data from NOAA")
         return ERROR_FETCHING_DATA
     
-    soup = bs.BeautifulSoup(weather_data.text, 'html.parser')
-    table = soup.find('div', id="detailed-forecast-body")
-
-    if table is None:
-        logger.error("Location:Bad weather data from NOAA")
+    weather_json = weather_data.json()
+    forecast_url = weather_json['properties']['forecast']
+    try:
+        forecast_data = requests.get(forecast_url, timeout=urlTimeoutSeconds)
+        if not forecast_data.ok:
+            logger.error("Location:Error fetching weather data from NOAA")
+            return ERROR_FETCHING_DATA
+    except (requests.exceptions.RequestException):
+        logger.error("Location:Error fetching weather data from NOAA")
         return ERROR_FETCHING_DATA
-    else:
-        # get rows
-        rows = table.find_all('div', class_="row")
+    
+    # from periods, get the detailedForecast from number of days in NOAAforecastDuration
+    forecast_json = forecast_data.json()
+    forecast = forecast_json['properties']['periods']
+    for day in forecast[:forecastDuration]:
+        # abreviate the forecast
 
-    # extract data from rows
-    for row in rows:
-        # shrink the text
-        line = abbreviate_noaa(row.text)
-        # only grab a few days of weather
-        if len(weather.split("\n")) < forecastDuration:
-            weather += line + "\n"
-    # trim off last newline
+        weather += day['name'] + ": " + abbreviate_noaa(day['detailedForecast']) + "\n"
+    # remove last newline
     weather = weather[:-1]
 
     # get any alerts and return the count
@@ -330,6 +330,9 @@ def abbreviate_noaa(row):
         "degrees": "°",
         "percent": "%",
         "department": "Dept.",
+        "New rainfall amounts less than a tenth of an inch possible.": "New rain < 0.1in",
+        "temperatures": "temps.",
+        "temperature": "temp.",
     }
 
     line = row
