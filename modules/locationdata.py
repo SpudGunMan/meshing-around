@@ -330,7 +330,7 @@ def abbreviate_noaa(row):
         "degrees": "°",
         "percent": "%",
         "department": "Dept.",
-        "New rainfall amounts less than a tenth of an inch possible.": "New rain < 0.1in",
+        "amounts less than a tenth of an inch possible.": "< 0.1in",
         "temperatures": "temps.",
         "temperature": "temp.",
     }
