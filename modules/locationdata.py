@@ -244,7 +244,7 @@ def get_NOAAweather(lat=0, lon=0, unit=0):
             logger.warning("Location:Error fetching weather data from NOAA for location")
             return ERROR_FETCHING_DATA
     except (requests.exceptions.RequestException):
-        logger.error("Location:Error fetching weather data from NOAA")
+        logger.warning("Location:Error fetching weather data from NOAA for location")
         return ERROR_FETCHING_DATA
     # get the forecast URL from the JSON response
     weather_json = weather_data.json()
@@ -255,7 +255,7 @@ def get_NOAAweather(lat=0, lon=0, unit=0):
             logger.warning("Location:Error fetching weather forecast from NOAA")
             return ERROR_FETCHING_DATA
     except (requests.exceptions.RequestException):
-        logger.error("Location:Error fetching weather data from NOAA")
+        logger.warning("Location:Error fetching weather forecast from NOAA")
         return ERROR_FETCHING_DATA
     
     # from periods, get the detailedForecast from number of days in NOAAforecastDuration
