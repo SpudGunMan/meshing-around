@@ -467,7 +467,7 @@ def handleSentinelIgnore(nodeInt=1, nodeID=0, aor=False):
     else:
         sentryIgnoreList.remove(str(nodeID))
         logger.info(f"System: Removed {nodeID} from sentry ignore list")
-         
+
 def messageChunker(message):
     message_list = []
     if len(message) > MESSAGE_CHUNK_SIZE:
@@ -487,9 +487,9 @@ def messageChunker(message):
                 sentence = ''
                 for char in part:
                     sentence += char
-                    if char in '.!?':
-                        sentences.append(sentence.strip())
-                        sentence = ''
+                    # if char in '.!?':
+                    #     sentences.append(sentence.strip())
+                    #     sentence = ''
                 if sentence:
                     sentences.append(sentence.strip())
 
@@ -523,8 +523,12 @@ def messageChunker(message):
         final_message_list = []
         for chunk in message_list:
             while len(chunk) > MESSAGE_CHUNK_SIZE:
-                final_message_list.append(chunk[:MESSAGE_CHUNK_SIZE])
-                chunk = chunk[MESSAGE_CHUNK_SIZE:]
+                # Find the last space within the chunk size limit
+                split_index = chunk.rfind(' ', 0, MESSAGE_CHUNK_SIZE)
+                if split_index == -1:
+                    split_index = MESSAGE_CHUNK_SIZE
+                final_message_list.append(chunk[:split_index])
+                chunk = chunk[split_index:].strip()
             if chunk:
                 final_message_list.append(chunk)
 
