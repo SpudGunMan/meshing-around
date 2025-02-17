@@ -295,8 +295,6 @@ def abbreviate_noaa(row):
         "saturday": "Sat ",
         "sunday": "Sun ",
         "today": "Today ",
-        "night": "Night ",
-        "tonight": "Tonight ",
         "tomorrow": "Tomorrow ",
         "day": "Day ",
         "this afternoon": "Afternoon ",
