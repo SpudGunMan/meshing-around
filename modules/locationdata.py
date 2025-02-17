@@ -264,7 +264,7 @@ def get_NOAAweather(lat=0, lon=0, unit=0):
     for day in forecast[:forecastDuration]:
         # abreviate the forecast
 
-        weather += day['name'] + ": " + abbreviate_noaa(day['detailedForecast']) + "\n"
+        weather += abbreviate_noaa(day['name']) + ": " + abbreviate_noaa(day['detailedForecast']) + "\n"
     # remove last newline
     weather = weather[:-1]
 
@@ -287,13 +287,13 @@ def get_NOAAweather(lat=0, lon=0, unit=0):
 def abbreviate_noaa(row):
     # replace long strings with shorter ones for display
     replacements = {
-        "monday": "Mon ",
-        "tuesday": "Tue ",
-        "wednesday": "Wed ",
-        "thursday": "Thu ",
-        "friday": "Fri ",
-        "saturday": "Sat ",
-        "sunday": "Sun ",
+        "monday": "Mon",
+        "tuesday": "Tue",
+        "wednesday": "Wed",
+        "thursday": "Thu",
+        "friday": "Fri",
+        "saturday": "Sat",
+        "sunday": "Sun",
         "northwest": "NW",
         "northeast": "NE",
         "southwest": "SW",
