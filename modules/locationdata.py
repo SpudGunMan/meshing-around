@@ -533,9 +533,10 @@ def getIpawsAlert(lat=0, lon=0, shortAlerts = False):
             if (sameVal in mySAME) or (geocode_value in mySAME):
                 # ignore the FEMA test alerts
                 if ignoreFEMAtest:
-                    if "Test" in headline:
-                        logger.debug(f"System: Ignoring FEMA Test Alert: {headline} for {areaDesc}")
-                        continue
+                    for word in ignoreFEMAwords:
+                        if word.lower() in headline.lower():
+                            logger.debug(f"System: Ignoring FEMA Alert: {headline} containing {word} at {areaDesc}")
+                            continue
 
                 # add to alerts list
                 alerts.append({

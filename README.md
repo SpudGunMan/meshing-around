@@ -213,7 +213,8 @@ This uses USA: SAME, FIPS, ZIP code to locate the alerts in the feed. By default
 ```ini
 eAlertBroadcastEnabled = False # Goverment IPAWS/CAP Alert Broadcast
 eAlertBroadcastCh = 2,3 # Goverment Emergency IPAWS/CAP Alert Broadcast Channels
-ignoreFEMAtest = True # Ignore any headline that includes the word Test
+ignoreFEMAtest = True # Ignore any headline that includes followig word list
+ignoreFEMAwords = test,exercise
 # comma separated list of codes (e.g., SAME,FIPS,ZIP) trigger local alert.
 # find your SAME https://www.weather.gov/nwr/counties
 mySAME = 053029,053073

@@ -258,6 +258,7 @@ try:
     enableExtraLocationWx = config['location'].getboolean('enableExtraLocationWx', False) # default False
     ipawsPIN = config['location'].get('ipawsPIN', '000000') # default 000000
     ignoreFEMAtest = config['location'].getboolean('ignoreFEMAtest', True) # default True
+    ignoreFEMAwords = config['location'].get('ignoreFEMAwords', 'test,exercise').split(',') # default test,exercise
     wxAlertBroadcastChannel = config['location'].get('wxAlertBroadcastCh', '2').split(',') # default Channel 2
     emergencyAlertBroadcastCh = config['location'].get('eAlertBroadcastCh', '2').split(',') # default Channel 2
     
