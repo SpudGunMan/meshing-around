@@ -254,6 +254,7 @@ blackjack = True
 videopoker = True
 mastermind = True
 golfsim = True
+hangman = True
 
 [messagingSettings]
 # delay in seconds for response to avoid message collision

@@ -15,7 +15,7 @@ from modules.log import *
 from modules.system import *
 
 # list of commands to remove from the default list for DM only
-restrictedCommands = ["blackjack", "videopoker", "dopewars", "lemonstand", "golfsim", "mastermind"]
+restrictedCommands = ["blackjack", "videopoker", "dopewars", "lemonstand", "golfsim", "mastermind", "hangman"]
 restrictedResponse = "🤖only available in a Direct Message📵" # "" for none
 
 # Global Variables
@@ -57,6 +57,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "games": lambda: gamesCmdList,
     "globalthermonuclearwar": lambda: handle_gTnW(),
     "golfsim": lambda: handleGolf(message, message_from_id, deviceID),
+    "hangman": lambda: handleHangman(message, message_from_id, deviceID),
     "hfcond": hf_band_conditions,
     "history": lambda: handle_history(message, message_from_id, deviceID, isDM),
     "joke": lambda: tell_joke(message_from_id),
@@ -658,6 +659,32 @@ def handleGolf(message, nodeID, deviceID):
     time.sleep(responseDelay + 1)
     return msg
 
+def handleHangman(message, nodeID, deviceID):
+    global hangmanTracker
+    index = 0
+    for i in range(len(hangmanTracker)):
+        if hangmanTracker[i]['nodeID'] == nodeID:
+            hangmanTracker[i]["last_played"] = time.time()
+            index = i+1
+            break
+
+    if index and "end" in message.lower():
+        hangman.end(nodeID)
+        hangmanTracker.pop(index-1)
+        return "bye."
+
+    if not index:
+        hangmanTracker.append(
+            {
+                "nodeID": nodeID,
+                "last_played": time.time()
+            }
+        )
+    msg = hangman.play(nodeID, message)
+
+    time.sleep(responseDelay + 1)
+    return msg
+
 def handle_riverFlow(message, message_from_id, deviceID):
     location = get_node_location(message_from_id, deviceID)
     userRiver = message.lower()
@@ -982,6 +1009,7 @@ def checkPlayingGame(message_from_id, message_string, rxNode, channel_number):
         (jackTracker, "BlackJack", handleBlackJack) if 'jackTracker' in globals() else None,
         (mindTracker, "MasterMind", handleMmind) if 'mindTracker' in globals() else None,
         (golfTracker, "GolfSim", handleGolf) if 'golfTracker' in globals() else None,
+        (hangmanTracker, "Hangman", handleHangman) if 'hangmanTracker' in globals() else None,
     ]
     trackers = [tracker for tracker in trackers if tracker is not None]
 
