@@ -36,7 +36,7 @@ config = configparser.ConfigParser()
 config_file = "config.ini"
 
 try:
-    config.read(config_file)
+    config.read(config_file, encoding='utf-8')
 except Exception as e:
     print(f"System: Error reading config file: {e}")
 
