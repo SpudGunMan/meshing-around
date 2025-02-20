@@ -46,7 +46,6 @@ class Hangman:
         for letter in g["word"]:
             if letter not in g["guesses"]:
                 return False
-        g["won"] += 1
         return True
 
     def mask(self, id):
@@ -57,7 +56,12 @@ class Hangman:
         g = self.game[id]
         emotions = "😀🙂😐😑😕😔💀"
         wrong = self.wrong_guesses(id)
-        ret = emotions[wrong] + "\n"
+        ret = ""
+        if self.won(id):
+            ret += "🥳" + "\n"
+            g["won"] += 1
+        else:
+            ret += emotions[wrong] + "\n"
         ret += hangman.mask(id) + "\n"
         if g["guesses"]:
             ret += ",".join(g["guesses"]) + "\n"
