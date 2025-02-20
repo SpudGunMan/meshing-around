@@ -213,7 +213,8 @@ This uses USA: SAME, FIPS, ZIP code to locate the alerts in the feed. By default
 ```ini
 eAlertBroadcastEnabled = False # Goverment IPAWS/CAP Alert Broadcast
 eAlertBroadcastCh = 2,3 # Goverment Emergency IPAWS/CAP Alert Broadcast Channels
-ignoreFEMAtest = True # Ignore any headline that includes the word Test
+ignoreFEMAenable = True # Ignore any headline that includes followig word list
+ignoreFEMAwords = test,exercise
 # comma separated list of codes (e.g., SAME,FIPS,ZIP) trigger local alert.
 # find your SAME https://www.weather.gov/nwr/counties
 mySAME = 053029,053073
@@ -455,6 +456,7 @@ I used ideas and snippets from other responder bots and want to call them out!
 - **PiDiBi**: For looking at test functions and other suggestions like wxc, CPU use, and alerting ideas.
 - **WH6GXZ nurse dude**: For bashing on installer
 - **Josh**: For more bashing on installer!
+- **dj505**: trying it on windows!
 - **Cisien, bitflip, **Woof**, **propstg**, **Josh** and Hailo1999**: For testing and feature ideas on Discord and GitHub.
 - **Meshtastic Discord Community**: For tossing out ideas and testing code.
 
