@@ -29,9 +29,9 @@ class Hangman:
         g = self.game[id]
         if not input:
             return
-        letter = input[0]
+        letter = input[0].lower()
         if letter.isalpha() and letter not in g["guesses"]:
-            g["guesses"].append(letter.lower())
+            g["guesses"].append(letter)
 
     def wrong_guesses(self, id):
         g = self.game[id]
