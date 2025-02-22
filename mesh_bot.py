@@ -662,6 +662,7 @@ def handleGolf(message, nodeID, deviceID):
 def handleHangman(message, nodeID, deviceID):
     global hangmanTracker
     index = 0
+    msg = ''
     for i in range(len(hangmanTracker)):
         if hangmanTracker[i]['nodeID'] == nodeID:
             hangmanTracker[i]["last_played"] = time.time()
@@ -671,7 +672,7 @@ def handleHangman(message, nodeID, deviceID):
     if index and "end" in message.lower():
         hangman.end(nodeID)
         hangmanTracker.pop(index-1)
-        return "bye."
+        return "Thanks for hanging out🤙"
 
     if not index:
         hangmanTracker.append(
@@ -680,7 +681,8 @@ def handleHangman(message, nodeID, deviceID):
                 "last_played": time.time()
             }
         )
-    msg = hangman.play(nodeID, message)
+        msg = "🧩Hangman🤖 'end' to cut rope🪢\n"
+    msg += hangman.play(nodeID, message)
 
     time.sleep(responseDelay + 1)
     return msg
