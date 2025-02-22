@@ -1,7 +1,5 @@
 # Written for Meshtastic mesh-bot by ZR1RF Johannes le Roux 2025
 import random
-import time
-
 
 class Hangman:
 
