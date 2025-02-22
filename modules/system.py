@@ -151,7 +151,12 @@ if golfSim_enabled:
     from modules.games.golfsim import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + ("golfsim",)
     games_enabled = True
-    
+
+if hangman_enabled:
+    from modules.games.hangman import * # from the spudgunman/meshing-around repo
+    trap_list = trap_list + ("hangman",)
+    games_enabled = True
+
 # Games Configuration
 if games_enabled is True:
     help_message = help_message + ", games"
@@ -172,6 +177,8 @@ if games_enabled is True:
         gamesCmdList += "masterMind, "
     if golfSim_enabled:
         gamesCmdList += "golfSim, "
+    if hangman_enabled:
+        gamesCmdList += "hangman, "
     gamesCmdList = gamesCmdList[:-2] # remove the last comma
 else:
     gamesCmdList = ""
