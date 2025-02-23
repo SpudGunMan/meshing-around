@@ -16,7 +16,7 @@ interface = meshtastic.tcp_interface.TCPInterface(hostname='127.0.0.1', noProto=
 # Create a telemetry data object
 telemetry_data = telemetry_pb2.Telemetry()
 telemetry_data.time = int(time.time())
-telemetry_data.local_stats.upTime = 0
+#telemetry_data.local_stats.upTime = 0
 telemetry_data.environment_metrics.temperature = 0
 # telemetry_data.environment_metrics.voltage = 0
 # telemetry_data.environment_metrics.current = 0
@@ -36,8 +36,8 @@ telemetry_data.environment_metrics.temperature = 0
 # telemetry_data.environment_metrics.weight = 0
 
 # Read the uptime
-with open('/proc/uptime', 'r') as uptime:
-    telemetry_data.local_stats.upTime = int(float(uptime.readline().split()[0]))
+# with open('/proc/uptime', 'r') as uptime:
+#     telemetry_data.local_stats.upTime = int(float(uptime.readline().split()[0]))
 
 # Read the CPU temperature
 with open('/sys/class/thermal/thermal_zone0/temp', 'r') as cpu_temp:
