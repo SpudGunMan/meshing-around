@@ -267,6 +267,6 @@ MESSAGE_CHUNK_SIZE = 160
 # Request Acknowledgement of message OTA
 wantAck = False
 # Max limit buffer for radio testing. 233 is hard limit 2.5+ firmware
-maxBuffer = 220
+maxBuffer = 200
 
 
