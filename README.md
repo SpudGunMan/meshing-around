@@ -461,6 +461,7 @@ I used ideas and snippets from other responder bots and want to call them out!
 - **WH6GXZ nurse dude**: For bashing on installer
 - **Josh**: For more bashing on installer!
 - **dj505**: trying it on windows!
+- **mikecarper**: ideas, and testing. hamtest
 - **Cisien, bitflip, **Woof**, **propstg**, **Josh** and Hailo1999**: For testing and feature ideas on Discord and GitHub.
 - **Meshtastic Discord Community**: For tossing out ideas and testing code.
 
