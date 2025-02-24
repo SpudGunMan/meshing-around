@@ -15,7 +15,7 @@ from modules.log import *
 from modules.system import *
 
 # list of commands to remove from the default list for DM only
-restrictedCommands = ["blackjack", "videopoker", "dopewars", "lemonstand", "golfsim", "mastermind", "hangman"]
+restrictedCommands = ["blackjack", "videopoker", "dopewars", "lemonstand", "golfsim", "mastermind", "hangman", "hamtest"]
 restrictedResponse = "🤖only available in a Direct Message📵" # "" for none
 
 # Global Variables
@@ -57,6 +57,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "games": lambda: gamesCmdList,
     "globalthermonuclearwar": lambda: handle_gTnW(),
     "golfsim": lambda: handleGolf(message, message_from_id, deviceID),
+    "hamtest": lambda: handleHamtest(message, message_from_id, deviceID),
     "hangman": lambda: handleHangman(message, message_from_id, deviceID),
     "hfcond": hf_band_conditions,
     "history": lambda: handle_history(message, message_from_id, deviceID, isDM),
@@ -687,6 +688,41 @@ def handleHangman(message, nodeID, deviceID):
     time.sleep(responseDelay + 1)
     return msg
 
+def handleHamtest(message, nodeID, deviceID):
+    global hamtestTracker
+    index = 0
+    msg = ''
+    response = message.split(' ')
+    for i in range(len(hamtestTracker)):
+        if hamtestTracker[i]['nodeID'] == nodeID:
+            hamtestTracker[i]["last_played"] = time.time()
+            index = i+1
+            break
+
+    if not index:
+        hamtestTracker.append({"nodeID": nodeID,"last_played": time.time()})
+
+    if "end" in response:
+        msg = hamtest.endGame(nodeID)
+    elif "score" in response:
+        msg = hamtest.getScore(nodeID)
+
+    if "hamtest" in response[0].lower():
+        if len(response) > 1:
+            if "gen" in response[1].lower():
+                msg = hamtest.newGame(nodeID, 'general')
+            elif "ex" in response[1].lower():
+                msg = hamtest.newGame(nodeID, 'extra')
+        else:
+            msg = hamtest.newGame(nodeID, 'technician')
+
+    # if the message is an answer A B C or D upper or lower case
+    if response[0].upper() in ['A', 'B', 'C', 'D']:
+        msg = hamtest.answer(nodeID, response[0])
+
+    time.sleep(responseDelay + 1)
+    return msg
+
 def handle_riverFlow(message, message_from_id, deviceID):
     location = get_node_location(message_from_id, deviceID)
     userRiver = message.lower()
@@ -1012,6 +1048,7 @@ def checkPlayingGame(message_from_id, message_string, rxNode, channel_number):
         (mindTracker, "MasterMind", handleMmind) if 'mindTracker' in globals() else None,
         (golfTracker, "GolfSim", handleGolf) if 'golfTracker' in globals() else None,
         (hangmanTracker, "Hangman", handleHangman) if 'hangmanTracker' in globals() else None,
+        (hamtestTracker, "HamTest", handleHamtest) if 'hamtestTracker' in globals() else None,
     ]
     trackers = [tracker for tracker in trackers if tracker is not None]
 

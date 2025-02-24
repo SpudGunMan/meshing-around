@@ -332,6 +332,7 @@ try:
     mastermind_enabled = config['games'].getboolean('mastermind', True)
     golfSim_enabled = config['games'].getboolean('golfSim', True)
     hangman_enabled = config['games'].getboolean('hangman', True)
+    hamtest_enabled = config['games'].getboolean('hamtest', True)
 
     # messaging settings
     responseDelay = config['messagingSettings'].getfloat('responseDelay', 0.7) # default 0.7

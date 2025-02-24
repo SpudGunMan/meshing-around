@@ -255,6 +255,7 @@ videopoker = True
 mastermind = True
 golfsim = True
 hangman = True
+hamtest = True
 
 [messagingSettings]
 # delay in seconds for response to avoid message collision

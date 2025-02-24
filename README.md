@@ -425,6 +425,7 @@ There is no direct support for MQTT in the code, however, reports from Discord a
 | `blackjack` | Plays Blackjack (Casino 21) | ✅ |
 | `dopewars` | Plays the classic drug trader game | ✅ |
 | `golfsim` | Plays a 9-hole Golf Simulator | ✅ |
+| `hamtest` | FCC/ARRL Quiz `hamtest general` or `hamtest extra` | ✅ |
 | `hangman` | Plays the classic word guess game | ✅ |
 | `joke` | Tells a joke | ✅ |
 | `lemonstand` | Plays the classic Lemonade Stand finance game | ✅ |
