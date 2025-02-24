@@ -702,9 +702,9 @@ def handleHamtest(message, nodeID, deviceID):
     if not index:
         hamtestTracker.append({"nodeID": nodeID,"last_played": time.time()})
 
-    if "end" in response:
+    if "end" in response[0].lower():
         msg = hamtest.endGame(nodeID)
-    elif "score" in response:
+    elif "score" in response[0].lower():
         msg = hamtest.getScore(nodeID)
 
     if "hamtest" in response[0].lower():
