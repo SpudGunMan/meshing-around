@@ -107,7 +107,7 @@ class HamTest:
         else:
             pool = 35
         
-        return f"Score: {score}/{pool} Questions left: {total} Area of study: {areaofstudy}"
+        return f"Score: {score}/{pool}\nQuestions left: {total}\nArea of study: {areaofstudy}"
     
     def endGame(self, id):
         if id not in self.game:
