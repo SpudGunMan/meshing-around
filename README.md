@@ -44,6 +44,7 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 
 ### Fun and Games
 - **Built-in Games**: Enjoy games like DopeWars, Lemonade Stand, BlackJack, and VideoPoker.
+- **FCC ARRL QuizBot**: The exam question pool quiz-bot
 - **Command-Based Gameplay**: Issue `games` to display help and start playing.
 
 ### Radio Frequency Monitoring
