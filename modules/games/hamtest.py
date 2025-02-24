@@ -124,14 +124,14 @@ class HamTest:
             passing = 26
 
         if score >= passing:
-            msg = f"Game over. Score: {score} 73! You passed the {level} exam."
+            msg = f"Game over. Score: {score} 73! 🎉You passed the {level} exam."
         else:
             # find the most common section of the questions missed
             if self.game[id]['errors']:
                 areaofstudy = max(set(self.game[id]['errors']), key = self.game[id]['errors'].count)
             else:
                 areaofstudy = "None"
-            msg = f"Game over. Score: {score} 73! You did not pass the {level} exam. \nYou may want to study {areaofstudy}."
+            msg = f"Game over. Score: {score} 73! 😿You did not pass the {level} exam. \nYou may want to study {areaofstudy}."
         
         # remove the game[id] from the list
         del self.game[id]
