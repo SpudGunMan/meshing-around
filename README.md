@@ -448,6 +448,7 @@ I used ideas and snippets from other responder bots and want to call them out!
 - [Video Poker Terminal Game](https://github.com/devtronvarma/Video-Poker-Terminal-Game)
 - [Python Mastermind](https://github.com/pwdkramer/pythonMastermind/)
 - [Golf](https://github.com/danfriedman30/pythongame)
+- ARRL Question Pool Data from https://github.com/russolsen/ham_radio_question_pool
 
 ### Special Thanks
 - **xdep**: For the reporting tools.
