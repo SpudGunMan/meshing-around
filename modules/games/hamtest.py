@@ -117,13 +117,13 @@ class HamTest:
         level = self.game[id]['level']
 
         if level == 'extra':
-            # passing score for extra is 37
-            pool = 50
+            # passing score for extra is 37 out of 50
+            passing = 37
         else:
-            # passing score for technician and general is 26
-            pool = 35
+            # passing score for technician and general is 26 out of 35
+            passing = 26
 
-        if score >= pool:
+        if score >= passing:
             msg = f"Game over. Score: {score} 73! You passed the {level} exam."
         else:
             # find the most common section of the questions missed
