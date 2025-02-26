@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # Meshtastic Autoresponder MESH Bot
-# K7MHI Kelly Keeton 2024
+# K7MHI Kelly Keeton 2025
 
 try:
     from pubsub import pub
@@ -1267,7 +1267,9 @@ def onReceive(packet, interface):
                 if messageTrap(message_string):
                     # message is for us to respond to
                     if ignoreDefaultChannel and channel_number == publicChannel:
-                        logger.debug(f"System: ignoreDefaultChannel CMD:{message_string} From: {get_name_from_number(message_from_id, 'short', rxNode)}")
+                        logger.debug(f"System: Ignoring CMD:{message_string} From: {get_name_from_number(message_from_id, 'short', rxNode)} Default Channel:{channel_number}")
+                    elif str(message_from_id) in bbs_ban_list:
+                        logger.debug(f"System: Ignoring CMD:{message_string} From: {get_name_from_number(message_from_id, 'short', rxNode)} Cantankerous Node")
                     else:
                         # message is for bot to respond to
                         logger.info(f"Device:{rxNode} Channel:{channel_number} " + CustomFormatter.green + "ReceivedChannel: " + CustomFormatter.white + f"{message_string} " + CustomFormatter.purple +\
