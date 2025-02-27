@@ -196,7 +196,9 @@ try:
     # general
     useDMForResponse = config['general'].getboolean('respond_by_dm_only', True)
     publicChannel = config['general'].getint('defaultChannel', 0) # the meshtastic public channel
+    ignoreChannels = config['general'].get('ignoreChannels', '').split(',') # ignore these channels
     ignoreDefaultChannel = config['general'].getboolean('ignoreDefaultChannel', False)
+    cmdBang = config['general'].getboolean('cmdBang', False) # default off
     zuluTime = config['general'].getboolean('zuluTime', False) # aka 24 hour time
     log_messages_to_file = config['general'].getboolean('LogMessagesToFile', False) # default off
     log_backup_count = config['general'].getint('LogBackupCount', 32) # default 32 days

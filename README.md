@@ -133,6 +133,8 @@ The following settings determine how the bot responds. By default, the bot will 
 respond_by_dm_only = True
 defaultChannel = 0
 ignoreDefaultChannel = False # ignoreDefaultChannel, the bot will ignore the default channel set above
+ignoreChannels = # ignoreChannels is a comma separated list of channels to ignore, e.g. 4,5
+cmdBang = False # require ! to be the first character in a command
 ```
 
 ### Location Settings

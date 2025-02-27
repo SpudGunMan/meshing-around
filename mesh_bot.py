@@ -115,6 +115,10 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     # check the message for commands words list, processed after system.messageTrap
     for key in command_handler:
         word = message_lower.split(' ')
+        if cmdBang:
+            # strip the !
+            if word[0].startswith("!"):
+                word[0] = word[0][1:]
         if key in word:
             # append all the commands found in the message to the cmds list
             cmds.append({'cmd': key, 'index': message_lower.index(key)})
@@ -1265,13 +1269,17 @@ def onReceive(packet, interface):
             else:
                 # message is on a channel
                 if messageTrap(message_string):
-                    # message is for us to respond to
+                    # message is for us to respond to, or is it...
                     if ignoreDefaultChannel and channel_number == publicChannel:
                         logger.debug(f"System: Ignoring CMD:{message_string} From: {get_name_from_number(message_from_id, 'short', rxNode)} Default Channel:{channel_number}")
                     elif str(message_from_id) in bbs_ban_list:
                         logger.debug(f"System: Ignoring CMD:{message_string} From: {get_name_from_number(message_from_id, 'short', rxNode)} Cantankerous Node")
+                    elif str(channel_number) in ignoreChannels:
+                        logger.debug(f"System: Ignoring CMD:{message_string} From: {get_name_from_number(message_from_id, 'short', rxNode)} Ignored Channel:{channel_number}")
+                    elif cmdBang and not message_string.startswith("!"):
+                        logger.debug(f"System: Ignoring CMD:{message_string} From: {get_name_from_number(message_from_id, 'short', rxNode)} Didnt sound like they meant it")
                     else:
-                        # message is for bot to respond to
+                        # message is for bot to respond to, seriously this time..
                         logger.info(f"Device:{rxNode} Channel:{channel_number} " + CustomFormatter.green + "ReceivedChannel: " + CustomFormatter.white + f"{message_string} " + CustomFormatter.purple +\
                                     "From: " + CustomFormatter.white + f"{get_name_from_number(message_from_id, 'long', rxNode)}")
                         if useDMForResponse:
@@ -1414,6 +1422,8 @@ async def start_rx():
         logger.debug(f"System: QRZ Welcome/Hello Enabled")
     if checklist_enabled:
         logger.debug(f"System: CheckList Module Enabled")
+    if ignoreChannels != []:
+        logger.debug(f"System: Ignoring Channels: {ignoreChannels}")
     if enableSMTP:
         if enableImap:
             logger.debug(f"System: SMTP Email Alerting Enabled using IMAP")

@@ -32,6 +32,10 @@ autoPingInChannel = False
 defaultChannel = 0
 # ignoreDefaultChannel, the bot will ignore the default channel set above
 ignoreDefaultChannel = False
+# ignoreChannels is a comma separated list of channels to ignore, e.g. 4,5
+ignoreChannels = 
+# require ! to be the first character in a command
+cmdBang = False
 
 # motd is reset to this value on boot
 motd = Thanks for using MeshBOT! Have a good day!
