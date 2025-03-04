@@ -90,6 +90,13 @@ if location_enabled:
     else:
         # NOAA only features
         help_message = help_message + ", wxa, tide, ealert"
+
+# NOAA alerts needs location module
+if wxAlertBroadcastEnabled or emergencyAlertBrodcastEnabled:
+    from modules.locationdata import * # from the spudgunman/meshing-around repo
+    # limited subset, this should be done better but eh..
+    trap_list = trap_list + ("wx", "wxc", "wxa", "wxalert", "ea", "ealert")
+    help_message = help_message + ", wxalert, ealert"
         
 # BBS Configuration
 if bbs_enabled:

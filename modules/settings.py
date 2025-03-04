@@ -26,7 +26,6 @@ max_retry_count2 = 4 # max retry count for interface 2
 retry_int1 = False
 retry_int2 = False
 wiki_return_limit = 3 # limit the number of sentences returned off the first paragraph first hit
-playingGame = False
 GAMEDELAY = 28800 # 8 hours in seconds for game mode holdoff
 cmdHistory = [] # list to hold the last commands
 seenNodes = [] # list to hold the last seen nodes

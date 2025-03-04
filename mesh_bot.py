@@ -1077,6 +1077,7 @@ def onReceive(packet, interface):
     replyIDset = False
     emojiSeen = False
     isDM = False
+    playingGame = False
 
     if DEBUGpacket:
         # Debug print the interface object
