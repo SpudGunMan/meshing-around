@@ -513,7 +513,6 @@ def getIpawsAlert(lat=0, lon=0, shortAlerts = False):
                 if info.getElementsByTagName("description") and info.getElementsByTagName("description")[0].childNodes:
                     description = info.getElementsByTagName("description")[0].childNodes[0].nodeValue
                 else:
-                    logger.debug(f"System: report this to discord - iPAWS No description for alert: {headline}")
                     description = headline
 
                 area_table = info.getElementsByTagName("area")[0]
