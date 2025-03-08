@@ -729,6 +729,7 @@ def handleAlertBroadcast(deviceID=1):
     alertDe = NO_ALERTS
     alertFema = NO_ALERTS
     wxAlert = NO_ALERTS
+    alertWx = False
     # only allow API call every 20 minutes
     # the watchdog will call this function 3 times, seeing possible throttling on the API
     clock = datetime.now()
