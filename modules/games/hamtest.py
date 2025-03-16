@@ -20,7 +20,7 @@ class HamTest:
     def load_questions(self):
         for level in ['technician', 'general', 'extra']:
             try:
-                with open(f'{os.path.dirname(__file__)}/../../data/hamradio/{level}.json') as f:
+                with open(f'{os.path.dirname(__file__)}/../../data/hamradio/{level}.json', encoding='utf-8') as f:
                     self.questions[level] = json.load(f)
             except FileNotFoundError:
                 logger.error(f"File not found: ../../data/hamradio/{level}.json")

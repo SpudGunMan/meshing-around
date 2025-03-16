@@ -17,12 +17,12 @@ def read_file(file_monitor_file_path, random_line_only=False):
                 return "🐝buzz 💐buzz buzz🍯"
         if random_line_only:
             # read a random line from the file
-            with open(file_monitor_file_path, 'r') as f:
+            with open(file_monitor_file_path, 'r', encoding='utf-8') as f:
                 lines = f.readlines()
                 return random.choice(lines)
         else:
             # read the whole file
-            with open(file_monitor_file_path, 'r') as f:
+            with open(file_monitor_file_path, 'r', encoding='utf-8') as f:
                 content = f.read()
             return content
     except Exception as e:
@@ -37,7 +37,7 @@ def read_news():
 def write_news(content, append=False):
     # write the news file on demand
     try:
-        with open(news_file_path, 'a' if append else 'w') as f:
+        with open(news_file_path, 'a' if append else 'w', encoding='utf-8') as f:
             f.write(content)
             logger.info(f"FileMon: Updated {news_file_path}")
         return True
@@ -76,7 +76,7 @@ def call_external_script(message, script="script/runShell.sh"):
                 logger.warning(f"FileMon: Script not found: {script_path}")
                 return "sorry I can't do that"
             
-        output = os.popen(f"bash {script_path} {message}").read()
+        output = os.popen(f"bash {script_path} {message}", encoding='utf-8').read()
         return output
     except Exception as e:
         logger.warning(f"FileMon: Error calling external script: {e}")
