@@ -8,7 +8,8 @@ config.ini
 venv/
 
 # logs
-logs/*.log
+logs/
+install_notes.txt
 
 # modified .service files
 etc/*.service
@@ -18,3 +19,6 @@ __pycache__/
 
 # rag data
 data/rag/*
+
+# qrz db
+data/qrz.db
