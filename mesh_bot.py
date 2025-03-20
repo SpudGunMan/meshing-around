@@ -1444,6 +1444,12 @@ async def start_rx():
 
         # Send WX every Morning at 08:00 using handle_wxc function to channel 2 on device 1
         #schedule.every().day.at("08:00").do(lambda: send_message(handle_wxc(0, 1, 'wx'), 2, 0, 1))
+        
+        # Send Weather Channel Notice Wed. Noon on channel 2, device 1
+        #schedule.every().wednesday.at("12:00").do(lambda: send_message("Weather alerts available on 'Alerts' channel with default 'AQ==' key.", 2, 0, 1))
+
+        # Send config URL for Medium Fast Network Use every other day at 10:00 to default channel 2 on device 1
+        #schedule.every(2).days.at("10:00").do(lambda: send_message("Join us on Medium Fast https://meshtastic.org/e/#CgcSAQE6AggNEg4IARAEOAFAA0gBUB5oAQ", 2, 0, 1))
 
         # Send a Net Starting Now Message Every Wednesday at 19:00 using send_message function to channel 2 on device 1
         #schedule.every().wednesday.at("19:00").do(lambda: send_message("Net Starting Now", 2, 0, 1))
