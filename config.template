@@ -158,6 +158,10 @@ ignoreFEMAwords = test,exercise
 # find your SAME https://www.weather.gov/nwr/counties
 mySAME = 053029,053073
 
+# USGS Volcano alerts Enable USGS Volcano Alert Broadcast
+volcanoAlertBroadcastEnabled = False
+volcanoAlertBroadcastChannel = 2
+
 # Use DE Alert Broadcast Data
 enableDEalerts = False
 # comma separated list of regional codes trigger local alert.

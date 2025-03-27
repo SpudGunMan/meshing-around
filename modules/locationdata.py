@@ -615,3 +615,43 @@ def get_flood_noaa(lat=0, lon=0, uid=0):
 
     return flood_data
 
+def get_volcano_usgs(lat=0, lon=0):
+    alerts = ''
+    if lat == 0 and lon == 0:
+        lat = latitudeValue
+        lon = longitudeValue
+    # get the latest volcano alert from USGS from CAP feed
+    usgs_volcano_url = "https://volcanoes.usgs.gov/hans-public/api/volcano/getCapElevated"
+    try:
+        volcano_data = requests.get(usgs_volcano_url, timeout=urlTimeoutSeconds)
+        if not volcano_data.ok:
+            logger.warning("System: USGS fetching volcano alerts from USGS")
+            return ERROR_FETCHING_DATA
+    except (requests.exceptions.RequestException):
+        logger.warning("System: USGS fetching volcano alerts from USGS")
+        return ERROR_FETCHING_DATA
+    volcano_json = volcano_data.json()
+    # extract alerts from main feed
+    for alert in volcano_json:
+        # check if the alert lat long is within the range of bot latitudeValue and longitudeValue
+        if (alert['latitude'] >= latitudeValue - 10 and alert['latitude'] <= latitudeValue + 10) and (alert['longitude'] >= longitudeValue - 10 and alert['longitude'] <= longitudeValue + 10):
+            volcano_name = alert['volcano_name_appended']
+            alert_level = alert['alert_level']
+            color_code = alert['color_code']
+            cap_severity = alert['cap_severity']
+            synopsis = alert['synopsis']
+            # format Alert
+            alerts += f"🌋🚨: {volcano_name} {alert_level} {color_code} {cap_severity}\n{synopsis}\n"
+        else:
+            logger.debug(f"System: USGS volcano alert not in range: {alert['volcano_name_appended']}")
+            continue
+    if alerts == "":
+        return NO_ALERTS
+    # trim off last newline
+    if alerts[-1] == "\n":
+        alerts = alerts[:-1]
+    # return the alerts
+    alerts = abbreviate_noaa(alerts)
+    return alerts
+
+

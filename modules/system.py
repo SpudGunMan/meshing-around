@@ -729,6 +729,7 @@ def handleAlertBroadcast(deviceID=1):
     alertDe = NO_ALERTS
     alertFema = NO_ALERTS
     wxAlert = NO_ALERTS
+    volcanoAlert = NO_ALERTS
     alertWx = False
     # only allow API call every 20 minutes
     # the watchdog will call this function 3 times, seeing possible throttling on the API
@@ -785,8 +786,8 @@ def handleAlertBroadcast(deviceID=1):
                 send_message(ukAlert, emergencyAlertBroadcastCh, 0, deviceID)
             return True
         
-    # pause for 10 seconds
-    time.sleep(10)
+    # pause for traffic
+    time.sleep(5)
 
     if wxAlertBroadcastEnabled:
         if wxAlert:
@@ -795,6 +796,19 @@ def handleAlertBroadcast(deviceID=1):
                     send_message(wxAlert, int(channel), 0, deviceID)
             else:
                 send_message(wxAlert, wxAlertBroadcastChannel, 0, deviceID)
+            return True
+    
+    # pause for traffic
+    time.sleep(5)
+
+    if volcanoAlertBroadcastEnabled:
+        volcanoAlert = get_volcano_usgs(latitudeValue, longitudeValue)
+        if volcanoAlert and NO_ALERTS not in volcanoAlert:
+            if isinstance(volcanoAlertBroadcastChannel, list):
+                for channel in volcanoAlertBroadcastChannel:
+                    send_message(volcanoAlert, int(channel), 0, deviceID)
+            else:
+                send_message(volcanoAlert, volcanoAlertBroadcastChannel, 0, deviceID)
             return True
 
 def onDisconnect(interface):
@@ -1210,7 +1224,7 @@ async def watchdog():
 
                     handleMultiPing(0, i)
 
-                    if wxAlertBroadcastEnabled or emergencyAlertBrodcastEnabled:
+                    if wxAlertBroadcastEnabled or emergencyAlertBrodcastEnabled or volcanoAlertBroadcastEnabled:
                         handleAlertBroadcast(i)
 
                     intData = displayNodeTelemetry(0, i)

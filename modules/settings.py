@@ -262,6 +262,8 @@ try:
     ignoreFEMAwords = config['location'].get('ignoreFEMAwords', 'test,exercise').split(',') # default test,exercise
     wxAlertBroadcastChannel = config['location'].get('wxAlertBroadcastCh', '2').split(',') # default Channel 2
     emergencyAlertBroadcastCh = config['location'].get('eAlertBroadcastCh', '2').split(',') # default Channel 2
+    volcanoAlertBroadcastEnabled = config['location'].getboolean('volcanoAlertBroadcastEnabled', False) # default False
+    volcanoAlertBroadcastChannel = config['location'].get('volcanoAlertBroadcastCh', '2').split(',') # default Channel 2
     
     # bbs
     bbs_enabled = config['bbs'].getboolean('enabled', False)
