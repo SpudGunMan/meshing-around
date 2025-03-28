@@ -643,7 +643,7 @@ def get_volcano_usgs(lat=0, lon=0):
             # format Alert
             alerts += f"🌋🚨: {volcano_name}, {alert_level} {color_code}, {cap_severity}.\n{synopsis}\n"
         else:
-            logger.debug(f"System: USGS volcano alert not in range: {alert['volcano_name_appended']}")
+            #logger.debug(f"System: USGS volcano alert not in range: {alert['volcano_name_appended']}")
             continue
     if alerts == "":
         return NO_ALERTS
