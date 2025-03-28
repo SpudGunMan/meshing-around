@@ -160,7 +160,7 @@ mySAME = 053029,053073
 
 # USGS Volcano alerts Enable USGS Volcano Alert Broadcast
 volcanoAlertBroadcastEnabled = False
-volcanoAlertBroadcastChannel = 2
+volcanoAlertBroadcastCh = 2
 
 # Use DE Alert Broadcast Data
 enableDEalerts = False
