@@ -54,6 +54,7 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 ### EAS Alerts
 - **FEMA iPAWS/EAS Alerts via API**: Use an internet-connected node to message Emergency Alerts from FEMA
 - **NOAA EAS Alerts via API**: Use an internet-connected node to message Emergency Alerts from NOAA.
+- **USGS Volcano Alerts via API**: Use an internet-connected node to message Emergency Alerts from USGS.
 - **EAS Alerts over the air**: Utilizing external tools to report EAS alerts offline over mesh.
 - **NINA alerts for Germany**: Emergency Alerts from xrepository.de feed
 
