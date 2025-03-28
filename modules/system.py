@@ -723,8 +723,9 @@ def handleMultiPing(nodeID=0, deviceID=1):
                             multiPingList.pop(j)
                             break
 
-
+priorVolcanoAlert = ""
 def handleAlertBroadcast(deviceID=1):
+    global priorVolcanoAlert
     alertUk = NO_ALERTS
     alertDe = NO_ALERTS
     alertFema = NO_ALERTS
@@ -803,13 +804,16 @@ def handleAlertBroadcast(deviceID=1):
 
     if volcanoAlertBroadcastEnabled:
         volcanoAlert = get_volcano_usgs(latitudeValue, longitudeValue)
-        if volcanoAlert and NO_ALERTS not in volcanoAlert:
-            if isinstance(volcanoAlertBroadcastChannel, list):
-                for channel in volcanoAlertBroadcastChannel:
-                    send_message(volcanoAlert, int(channel), 0, deviceID)
-            else:
-                send_message(volcanoAlert, volcanoAlertBroadcastChannel, 0, deviceID)
-            return True
+        if volcanoAlert and volcanoAlert != NO_ALERTS and volcanoAlert != ERROR_FETCHING_DATA:
+            # check if the alert is different from the last one
+            if volcanoAlert != priorVolcanoAlert:
+                priorVolcanoAlert = volcanoAlert
+                if isinstance(volcanoAlertBroadcastChannel, list):
+                    for channel in volcanoAlertBroadcastChannel:
+                        send_message(volcanoAlert, int(channel), 0, deviceID)
+                else:
+                    send_message(volcanoAlert, volcanoAlertBroadcastChannel, 0, deviceID)
+                return True
 
 def onDisconnect(interface):
     global retry_int1, retry_int2, retry_int3, retry_int4, retry_int5, retry_int6, retry_int7, retry_int8, retry_int9
