@@ -387,7 +387,8 @@ There is no direct support for MQTT in the code, however, reports from Discord a
 | `riverflow` | Return information from NOAA for river flow info. Example: `riverflow modules/settings.py`| |
 | `solar` | Gives an idea of the x-ray flux | |
 | `sun` and `moon` | Return info on rise and set local time | ✅ |
-| `tide` | Returns the local tides (NOAA data source) |
+| `tide` | Returns the local tides (NOAA data source) | |
+| `valert` | Returns USGS Volcano Data | |
 | `wx` and `wxc` | Return local weather forecast (wxc is metric value), NOAA or Open Meteo for weather forecasting | |
 | `wxa` and `wxalert` | Return NOAA alerts. Short title or expanded details | |
 
@@ -461,7 +462,7 @@ I used ideas and snippets from other responder bots and want to call them out!
 - **[https://github.com/A-c0rN](A-c0rN)**: Assistance with iPAWS and EAS
 - **Mike O'Connell/skrrt**: For [eas_alert_parser](etc/eas_alert_parser.py) enhanced by **sheer.cold**
 - **PiDiBi**: For looking at test functions and other suggestions like wxc, CPU use, and alerting ideas.
-- **WH6GXZ nurse dude**: For bashing on installer
+- **WH6GXZ nurse dude**: For bashing on installer, Volcano Alerts 🌋
 - **Josh**: For more bashing on installer!
 - **dj505**: trying it on windows!
 - **mikecarper**: ideas, and testing. hamtest
