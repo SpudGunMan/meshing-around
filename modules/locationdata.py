@@ -234,6 +234,7 @@ def get_NOAAweather(lat=0, lon=0, unit=0):
     # get weather data from NOAA units for metric unit = 1 is metric
     if use_metric:
         unit = 1
+        logger.debug("Location: new API metric units not implemented yet")
         
     weather_url = "https://forecast.weather.gov/MapClick.php?FcstType=text&lat=" + str(lat) + "&lon=" + str(lon)
     weather_api = "https://api.weather.gov/points/" + str(lat) + "," + str(lon)
