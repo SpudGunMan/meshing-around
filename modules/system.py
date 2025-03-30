@@ -89,7 +89,7 @@ if location_enabled:
         from modules.wx_meteo import * # from the spudgunman/meshing-around repo
     else:
         # NOAA only features
-        help_message = help_message + ", wxa, tide, ealert, valert"
+        help_message = help_message + ", wxa, tide"
 
 # NOAA alerts needs location module
 if wxAlertBroadcastEnabled or emergencyAlertBrodcastEnabled or volcanoAlertBroadcastEnabled:
