@@ -76,7 +76,7 @@ def call_external_script(message, script="script/runShell.sh"):
                 logger.warning(f"FileMon: Script not found: {script_path}")
                 return "sorry I can't do that"
             
-        output = os.popen(f"bash {script_path} {message}", encoding='utf-8').read()
+        output = os.popen(f"bash {script_path} {message}").read().encode('utf-8').decode('utf-8')
         return output
     except Exception as e:
         logger.warning(f"FileMon: Error calling external script: {e}")
