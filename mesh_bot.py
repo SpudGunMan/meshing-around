@@ -1474,6 +1474,7 @@ async def start_rx():
 
         # Send bbslink looking for peers every other day at 10:00 using send_message function to channel 3 on device 1
         #schedule.every(2).days.at("10:00").do(lambda: send_message("bbslink MeshBot looking for peers", 3, 0, 1))
+        
         logger.debug("System: Starting the broadcast scheduler")
         await BroadcastScheduler()
 
