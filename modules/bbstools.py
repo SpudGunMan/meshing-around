@@ -185,11 +185,17 @@ def bbs_sync_posts(input, peerNode, RxNode):
             return f"bbsack {messageID}"
     elif "bbsack" in input.lower():
         # increment the messageID
-        ack = int(input.split(" ")[1])
-        messageID = int(ack) + 1
+        if len(input.split(" ")) > 1:
+            try:
+                messageID = int(input.split(" ")[1]) + 1
+            except:
+                return "link error"
+        else:
+            return "link error"
 
     # send message with delay to keep chutil happy
     if messageID < len(bbs_messages):
+        logger.debug(f"System: Sending bbslink message {messageID} to peer " + str(peerNode))
         time.sleep(5 + responseDelay)
         # every 5 messages add extra delay
         if messageID % 5 == 0:
