@@ -143,6 +143,12 @@ if blackjack_enabled:
     trap_list = trap_list + ("blackjack",)
     games_enabled = True
 
+# BlackJack Configuration
+if chessplayer_enabled:
+    from modules.games.chessplayer import * # from the spudgunman/meshing-around repo
+    trap_list = trap_list + ("chessplayer",)
+    games_enabled = True
+
 # Video Poker Configuration
 if videoPoker_enabled:
     from modules.games.videopoker import * # from the spudgunman/meshing-around repo

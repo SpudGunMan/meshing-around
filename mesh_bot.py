@@ -15,7 +15,7 @@ from modules.log import *
 from modules.system import *
 
 # list of commands to remove from the default list for DM only
-restrictedCommands = ["blackjack", "videopoker", "dopewars", "lemonstand", "golfsim", "mastermind", "hangman", "hamtest"]
+restrictedCommands = ["blackjack", "videopoker", "dopewars", "lemonstand", "golfsim", "mastermind", "hangman", "hamtest", "chessplayer"]
 restrictedResponse = "🤖only available in a Direct Message📵" # "" for none
 
 # Global Variables
@@ -42,6 +42,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "bbspost": lambda: handle_bbspost(message, message_from_id, deviceID),
     "bbsread": lambda: handle_bbsread(message),
     "blackjack": lambda: handleBlackJack(message, message_from_id, deviceID),
+    "chessplayer": lambda: handleChessPlayer(message, message_from_id, deviceID),
     "checkin": lambda: handle_checklist(message, message_from_id, deviceID),
     "checklist": lambda: handle_checklist(message, message_from_id, deviceID),
     "checkout": lambda: handle_checklist(message, message_from_id, deviceID),
@@ -517,6 +518,9 @@ def handleLemonade(message, nodeID, deviceID):
     # wait a second to keep from message collision
     time.sleep(responseDelay + 1)
     return msg
+
+def handleChesssPlayer(message, nodeID, deviceID):
+    return playChess(nodeID=nodeID, message=message)
 
 def handleBlackJack(message, nodeID, deviceID):
     global jackTracker
