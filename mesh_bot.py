@@ -519,7 +519,7 @@ def handleLemonade(message, nodeID, deviceID):
     time.sleep(responseDelay + 1)
     return msg
 
-def handleChesssPlayer(message, nodeID, deviceID):
+def handleChessPlayer(message, nodeID, deviceID):
     return playChess(nodeID=nodeID, message=message)
 
 def handleBlackJack(message, nodeID, deviceID):

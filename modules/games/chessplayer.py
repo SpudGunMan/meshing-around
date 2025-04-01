@@ -34,6 +34,8 @@ def getFEN(nodeID):
     cur.close()
     con.close()
 
+    if row == None:
+        return None
     return row[0]
 
 def putFEN(nodeID, b):
@@ -48,7 +50,11 @@ def putFEN(nodeID, b):
 def playChess(nodeID, message):
     initDb()
 
-    if message in ('new', 'resign', 'abort', 'stop'):
+    parts = message.split()
+    if len(parts) < 2:
+        return 'Enter a move or "new"'
+
+    if parts[1] in ('new', 'resign', 'abort', 'stop'):
         b = chess.Board()
         putFEN(nodeID, b)
         return 'Ok, new game started'
@@ -59,7 +65,7 @@ def playChess(nodeID, message):
     else:
         b = chess.Board(fen)
 
-    move = message.split()[0]
+    move = parts[1].replace('-', '')
     try:
         b.push(chess.Move.from_uci(move))
     except Exception as e:
@@ -78,7 +84,8 @@ def playChess(nodeID, message):
     if b.is_game_over():
         return f'Game over, I won! (by moving {result.move.uci()})'
 
-    return f'I move {result.move.uci()}'
+    fen = b.fen().replace(' ', '_')
+    return f'I move {result.move.uci()}, new board: https://lichess.org/editor/' + fen
 
 if __name__ == "__main__":
     playChess('test', 'new')
