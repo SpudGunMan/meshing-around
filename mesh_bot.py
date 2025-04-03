@@ -1371,8 +1371,9 @@ async def start_rx():
     
     if llm_enabled:
         logger.debug(f"System: Ollama LLM Enabled, loading model {llmModel} please wait")
-        llm_query(" ")
-        logger.debug(f"System: LLM model {llmModel} loaded")
+        llmLoad = llm_query(" ")
+        if "trouble" not in llmLoad:
+            logger.debug(f"System: LLM Model {llmModel} loaded")
 
     if log_messages_to_file:
         logger.debug("System: Logging Messages to disk")
