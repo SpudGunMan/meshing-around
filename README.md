@@ -43,7 +43,7 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 - **Asset Tracking**: Maintain a list of node/asset checkin and checkout. Usefull for accountability of people, assets. Radio-Net, FEMA, Trailhead.
 
 ### Fun and Games
-- **Built-in Games**: Enjoy games like DopeWars, Lemonade Stand, BlackJack, and VideoPoker.
+- **Built-in Games**: Enjoy games like DopeWars, Lemonade Stand, BlackJack, Chess and VideoPoker.
 - **FCC ARRL QuizBot**: The exam question pool quiz-bot.
 - **Command-Based Gameplay**: Issue `games` to display help and start playing.
 
@@ -428,6 +428,7 @@ There is no direct support for MQTT in the code, however, reports from Discord a
 | Command | Description | |
 |---------|-------------|-
 | `blackjack` | Plays Blackjack (Casino 21) | ✅ |
+| `chess` | Plays chess | ✅ |
 | `dopewars` | Plays the classic drug trader game | ✅ |
 | `golfsim` | Plays a 9-hole Golf Simulator | ✅ |
 | `hamtest` | FCC/ARRL Quiz `hamtest general` or `hamtest extra` and `score` | ✅ |
@@ -503,6 +504,12 @@ To enable emoji in the Debian console, install the fonts:
 
 ```sh
 sudo apt-get install fonts-noto-color-emoji
+```
+
+For the chess game:
+
+```sh
+sudo apt-get install stockfish
 ```
 
 Meshtastic® is a registered trademark of Meshtastic LLC. Meshtastic software components are released under various licenses, see GitHub for details. No warranty is provided - use at your own risk.

@@ -259,6 +259,7 @@ game_hop_limit = 5
 dopeWars = True
 lemonade = True
 blackjack = True
+chessplayer = True
 videopoker = True
 mastermind = True
 golfsim = True

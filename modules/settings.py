@@ -67,7 +67,7 @@ if 'radioMon' not in config:
     config.write(open(config_file, 'w'))
 
 if 'games' not in config:
-    config['games'] = {'dopeWars': 'True', 'lemonade': 'True', 'blackjack': 'True', 'videoPoker': 'True'}
+    config['games'] = {'dopeWars': 'True', 'lemonade': 'True', 'blackjack': 'True', 'videoPoker': 'True', 'chessplayer': 'True'}
     config.write(open(config_file, 'w'))
 
 if 'messagingSettings' not in config:
@@ -331,6 +331,7 @@ try:
     dopewars_enabled = config['games'].getboolean('dopeWars', True)
     lemonade_enabled = config['games'].getboolean('lemonade', True)
     blackjack_enabled = config['games'].getboolean('blackjack', True)
+    chessplayer_enabled = config['games'].getboolean('chessplayer', True)
     videoPoker_enabled = config['games'].getboolean('videoPoker', True)
     mastermind_enabled = config['games'].getboolean('mastermind', True)
     golfSim_enabled = config['games'].getboolean('golfSim', True)
