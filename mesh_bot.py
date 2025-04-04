@@ -1341,14 +1341,18 @@ def onReceive(packet, interface):
                     # if QRZ enabled check if we have said hello
                     if qrz_hello_enabled:
                         if never_seen_before(message_from_id):
-                            name = {get_name_from_number(message_from_id, 'short', rxNode)}
-                            # add to qrz_hello list
-                            hello(message_from_id, name)
-                            # send a hello message as a DM
-                            if not train_qrz:
-                                time.sleep(responseDelay)
-                                send_message(f"Hello {name} {qrz_hello_string}", channel_number, message_from_id, rxNode)
-                                time.sleep(responseDelay)
+                            name = get_name_from_number(message_from_id, 'short', rxNode)
+                            if isinstance(name, str) and name.startswith("!") and len(name) == 9:
+                                # we didnt get a info packet yet so wait and ingore this go around
+                                logger.debug(f"System: QRZ Hello ignored, no info packet yet")
+                            else:
+                                # add to qrz_hello list
+                                hello(message_from_id, name)
+                                # send a hello message as a DM
+                                if not train_qrz:
+                                    time.sleep(responseDelay)
+                                    send_message(f"Hello {name} {qrz_hello_string}", channel_number, message_from_id, rxNode)
+                                    time.sleep(responseDelay)
         else:
             # Evaluate non TEXT_MESSAGE_APP packets
             consumeMetadata(packet, rxNode)
