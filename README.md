@@ -334,9 +334,20 @@ In the config.ini enable the module
 ```ini
 [scheduler]
 # enable or disable the scheduler module
-enabled = True
+enabled = False
+# interface to send the message to
+interface = 1
+# channel to send the message to
+channel = 2
+message = "MeshBot says Hello! DM for more info."
+# value can be min,hour,day,mon,tue,wed,thu,fri,sat,sun
+value =
+# interval to use when time is not set (e.g. every 2 days)
+interval = 
+# time of day in 24 hour format when value is 'day' and interval is not set
+time =
 ```
- The actions are via code only at this time. See mesh_bot.py around line [1097](https://github.com/SpudGunMan/meshing-around/blob/e94581936530c76ea43500eebb43f32ba7ed5e19/mesh_bot.py#L1097) to edit the schedule. See [schedule documentation](https://schedule.readthedocs.io/en/stable/) for more. Recomend to backup changes so they dont get lost.
+ The basic brodcast message can be setup in condig.ini. For advanced, See mesh_bot.py around the bottom of file, line [1491](https://github.com/SpudGunMan/meshing-around/blob/e94581936530c76ea43500eebb43f32ba7ed5e19/mesh_bot.py#L1491) to edit the schedule. See [schedule documentation](https://schedule.readthedocs.io/en/stable/) for more. Recomend to backup changes so they dont get lost.
 
 ```python
 #Send WX every Morning at 08:00 using handle_wxc function to channel 2 on device 1
