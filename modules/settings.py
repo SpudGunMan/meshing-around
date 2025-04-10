@@ -307,6 +307,12 @@ try:
 
     # scheduler
     scheduler_enabled = config['scheduler'].getboolean('enabled', False)
+    schedulerInterface = config['scheduler'].getint('interface', 1) # default interface 1
+    schedulerChannel = config['scheduler'].getint('channel', 2) # default channel 2
+    schedulerMessage = config['scheduler'].get('message', 'Scheduled message') # default message
+    schedulerInterval = config['scheduler'].get('interval', '') # default empty
+    schedulerTime = config['scheduler'].get('time', '') # default empty
+    schedulerValue = config['scheduler'].get('value', '') # default empty
 
     # radio monitoring
     radio_detection_enabled = config['radioMon'].getboolean('enabled', False)

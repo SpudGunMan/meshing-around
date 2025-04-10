@@ -200,6 +200,17 @@ repeater_channels =
 [scheduler]
 # enable or disable the scheduler module
 enabled = False
+# interface to send the message to
+interface = 1
+# channel to send the message to
+channel = 2
+message = "MeshBot says Hello! DM for more info."
+# value can be min,hour,day,mon,tue,wed,thu,fri,sat,sun
+value =
+# interval to use when time is not set (e.g. every 2 days)
+interval = 
+# time of day in 24 hour format when value is 'day'
+time =
 
 [radioMon]
 # using Hamlib rig control will monitor and alert on channel use
