@@ -904,7 +904,7 @@ def handle_history(message, nodeid, deviceID, isDM, lheard=False):
             prettyTime = getPrettyTime(cmdTime)
 
             # history display output
-            if nodeid in bbs_admin_list and cmdHistory[i]['nodeID'] not in lheardCmdIgnoreNode:
+            if str(nodeid) in bbs_admin_list and cmdHistory[i]['nodeID'] not in lheardCmdIgnoreNode:
                 buffer.append((get_name_from_number(cmdHistory[i]['nodeID'], 'short', deviceID), cmdHistory[i]['cmd'], prettyTime))
             elif cmdHistory[i]['nodeID'] == nodeid and cmdHistory[i]['nodeID'] not in lheardCmdIgnoreNode:
                 buffer.append((get_name_from_number(nodeid, 'short', deviceID), cmdHistory[i]['cmd'], prettyTime))
