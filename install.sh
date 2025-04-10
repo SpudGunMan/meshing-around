@@ -193,17 +193,19 @@ if [[ $(echo "${meshbotservice}" | grep -i "^y") ]] || [[ $(echo "${embedded}" |
     sudo usermod -a -G meshbot meshbot
     whoami="meshbot"
     echo "Added user meshbot with no home directory"
-    sudo usermod -a -G dialout $whoami
-    sudo usermod -a -G tty $whoami
-    sudo usermod -a -G bluetooth $whoami
-    echo "Added meshbot to dialout, tty, and bluetooth groups"
-
-    sudo chown -R $whoami:$whoami $program_path/logs
-    sudo chown -R $whoami:$whoami $program_path/data
-    echo "Permissions set for meshbot on logs and data directories"
 else
     whoami=$(whoami)
 fi
+# set basic permissions for the bot user
+sudo usermod -a -G dialout $whoami
+sudo usermod -a -G tty $whoami
+sudo usermod -a -G bluetooth $whoami
+echo "Added user $whoami to dialout, tty, and bluetooth groups"
+
+sudo chown -R $whoami:$whoami $program_path/logs
+sudo chown -R $whoami:$whoami $program_path/data
+echo "Permissions set for meshbot on logs and data directories"
+
 # set the correct user in the service file
 replace="s|User=pi|User=$whoami|g"
 sed -i $replace etc/pong_bot.service
