@@ -1454,7 +1454,7 @@ async def start_rx():
             if schedulerValue.lower() == 'day':
                 if schedulerTime != '':
                     # Send a message every day at the time set in schedulerTime
-                    schedule.every(int(schedulerInterval)).day.at(schedulerTime).do(lambda: send_message(schedulerMessage, schedulerChannel, 0, schedulerInterface))
+                    schedule.every().day.at(schedulerTime).do(lambda: send_message(schedulerMessage, schedulerChannel, 0, schedulerInterface))
                 else:
                     # Send a message every day at the time set in schedulerInterval
                     schedule.every(int(schedulerInterval)).days.do(lambda: send_message(schedulerMessage, schedulerChannel, 0, schedulerInterface))
