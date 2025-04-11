@@ -397,6 +397,12 @@ def alertBrodcastNOAA():
     elif currentAlert == NO_ALERTS:
         wxAlertCacheNOAA = ""
         return False
+    if ignoreEASenable:
+        # check if the alert is in the ignoreEAS list
+        for word in ignoreEASwords:
+            if word.lower() in currentAlert[0].lower():
+                logger.debug(f"Location:Ignoring NOAA Alert: {currentAlert[0]} containing {word}")
+                return False
     # broadcast the alerts send to wxBrodcastCh
     elif currentAlert[0] not in wxAlertCacheNOAA:
         # Check if the current alert is not in the weather alert cache
@@ -634,6 +640,12 @@ def get_volcano_usgs(lat=0, lon=0):
     volcano_json = volcano_data.json()
     # extract alerts from main feed
     for alert in volcano_json:
+        # check ignore list
+        if ignoreUSGSEnable:
+            for word in ignoreUSGSwords:
+                if word.lower() in alert['volcano_name_appended'].lower():
+                    logger.debug(f"System: Ignoring USGS Alert: {alert['volcano_name_appended']} containing {word}")
+                    continue
         # check if the alert lat long is within the range of bot latitudeValue and longitudeValue
         if (alert['latitude'] >= latitudeValue - 10 and alert['latitude'] <= latitudeValue + 10) and (alert['longitude'] >= longitudeValue - 10 and alert['longitude'] <= longitudeValue + 10):
             volcano_name = alert['volcano_name_appended']

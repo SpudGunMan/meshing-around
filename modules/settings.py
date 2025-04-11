@@ -252,6 +252,8 @@ try:
     enableGBalerts = config['location'].getboolean('enableGBalerts', False) # default False
     enableDEalerts = config['location'].getboolean('enableDEalerts', False) # default False
     wxAlertsEnabled = config['location'].getboolean('NOAAalertsEnabled', True) # default True
+    ignoreEASenable = config['location'].getboolean('ignoreEASenable', False) # default False
+    ignoreEASwords = config['location'].get('ignoreEASwords', 'test,advisory').split(',') # default test,advisory
     mySAME = config['location'].get('mySAME', '').split(',') # default empty
     myRegionalKeysDE = config['location'].get('myRegionalKeysDE', '110000000000').split(',') # default city Berlin
     forecastDuration = config['location'].getint('NOAAforecastDuration', 4) # NOAA forcast days
@@ -264,6 +266,8 @@ try:
     emergencyAlertBroadcastCh = config['location'].get('eAlertBroadcastCh', '2').split(',') # default Channel 2
     volcanoAlertBroadcastEnabled = config['location'].getboolean('volcanoAlertBroadcastEnabled', False) # default False
     volcanoAlertBroadcastChannel = config['location'].get('volcanoAlertBroadcastCh', '2').split(',') # default Channel 2
+    ignoreUSGSEnable = config['location'].getboolean('ignoreVolcanoEnable', False) # default False
+    ignoreUSGSWords = config['location'].get('ignoreVolcanoWords', 'test,advisory').split(',') # default test,advisory
     
     # bbs
     bbs_enabled = config['bbs'].getboolean('enabled', False)

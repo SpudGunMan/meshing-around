@@ -140,6 +140,9 @@ riverListDefault =
 
 # NOAA EAS Alert Broadcast
 wxAlertBroadcastEnabled = False
+#  Enable Ignore any message that includes following word list
+ignoreEASenable = False
+ignoreEASwords = test,advisory
 # EAS Alert Broadcast Channels
 wxAlertBroadcastCh = 2
 # Add extra location to the weather alert
@@ -151,7 +154,7 @@ eAlertBroadcastEnabled = False
 eAlertBroadcastCh = 2
 
 # FEMA Alert Broadcast Settings
-#  Enable Ignore any headline that includes followig word list
+#  Enable Ignore any headline that includes following word list
 ignoreFEMAenable = True
 ignoreFEMAwords = test,exercise
 # comma separated list of codes (e.g., SAME,FIPS,ZIP) trigger local alert.
@@ -161,6 +164,9 @@ mySAME = 053029,053073
 # USGS Volcano alerts Enable USGS Volcano Alert Broadcast
 volcanoAlertBroadcastEnabled = False
 volcanoAlertBroadcastCh = 2
+# Enable Ignore any message that includes following word list
+ignoreUSGSEnable = False
+ignoreUSGSWords = test,advisory
 
 # Use DE Alert Broadcast Data
 enableDEalerts = False

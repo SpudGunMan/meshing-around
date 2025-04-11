@@ -236,6 +236,8 @@ enableDEalerts = False # Use DE Alert Broadcast Data see template for filters
 wxAlertBroadcastEnabled = True
 # EAS Alert Broadcast Channels
 wxAlertBroadcastCh = 2,4
+ignoreEASenable = True # Ignore any headline that includes followig word list
+ignoreEASwords = test,advisory
 ```
 
 ### Repeater Settings
