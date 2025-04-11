@@ -40,3 +40,15 @@ To help with code testing see `etc/simulator.py` to simulate a bot. I also enjoy
 
 5. **Test the New Command**:
    Run MeshBot and test the new command by sending a message with the command `newcommand` to ensure it responds correctly.
+
+
+### Running a Shell command
+
+Using the above example and enabling the filemon module, you can make a command which calls a bash file to do things on the system.
+
+```python
+def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_number, deviceID, isDM):
+    #...
+    "switchON": lambda: call_external_script(message)
+```
+This would call the default script located in script/runShell.sh and return its output.
