@@ -215,7 +215,7 @@ message = "MeshBot says Hello! DM for more info."
 value =
 # interval to use when time is not set (e.g. every 2 days)
 interval = 
-# time of day in 24 hour format when value is 'day' and interval is not set
+# time of day in 24:00 hour format when value is 'day' and interval is not set
 time =
 
 [radioMon]
