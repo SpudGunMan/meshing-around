@@ -346,7 +346,7 @@ message = "MeshBot says Hello! DM for more info."
 value =
 # interval to use when time is not set (e.g. every 2 days)
 interval = 
-# time of day in 24 hour format when value is 'day' and interval is not set
+# time of day in 24:00 hour format when value is 'day' and interval is not set
 time =
 ```
  The basic brodcast message can be setup in condig.ini. For advanced, See mesh_bot.py around the bottom of file, line [1491](https://github.com/SpudGunMan/meshing-around/blob/e94581936530c76ea43500eebb43f32ba7ed5e19/mesh_bot.py#L1491) to edit the schedule. See [schedule documentation](https://schedule.readthedocs.io/en/stable/) for more. Recomend to backup changes so they dont get lost.
