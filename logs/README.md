@@ -25,3 +25,17 @@ log_backup_count = 32
 There is a web-server module. You can run `python3 modules/web.py` from the project root directory and it will serve up the web content.
 
 find it at. http://localhost:8420
+
+If you have linux-native running and errors such as..
+```bash
+  File "/usr/lib/python3.11/http/server.py", line 136, in server_bind
+    socketserver.TCPServer.server_bind(self)
+  File "/usr/lib/python3.11/socketserver.py", line 472, in server_bind
+    self.socket.bind(self.server_address)
+```
+modify the modules/web.py to use a real IP address, meshtasticD-native is binding to 127.0.0.1
+
+```python
+# Set the desired IP address
+server_ip = '127.0.0.1'
+```
