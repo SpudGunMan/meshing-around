@@ -804,7 +804,7 @@ def handleAlertBroadcast(deviceID=1):
 
     if volcanoAlertBroadcastEnabled:
         volcanoAlert = get_volcano_usgs(latitudeValue, longitudeValue)
-        if volcanoAlert and volcanoAlert != NO_ALERTS and volcanoAlert != ERROR_FETCHING_DATA:
+        if volcanoAlert and NO_ALERTS not in volcanoAlert and ERROR_FETCHING_DATA not in volcanoAlert:
             # check if the alert is different from the last one
             if volcanoAlert != priorVolcanoAlert:
                 priorVolcanoAlert = volcanoAlert
