@@ -40,8 +40,8 @@ class QuietHandler(http.server.SimpleHTTPRequestHandler):
 # Change the current working directory to webRoot
 os.chdir(webRoot)
 
-# boot up simple HTTP server
-httpd = http.server.HTTPServer(('127.0.0.1', PORT), QuietHandler)
+# Create the HTTP server instance with the desired IP address
+httpd = http.server.HTTPServer((server_ip, PORT), QuietHandler)
 
 if SSL:
     ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
@@ -51,12 +51,9 @@ if SSL:
         print("SSL certificate file not found. Please generate it using the command provided in the comments.")
         exit(1)
     httpd.socket = ctx.wrap_socket(httpd.socket, server_side=True)
-
-# Create the HTTP server instance with the desired IP address
-httpd = http.server.HTTPServer((server_ip, PORT), QuietHandler)
-
-# Print out the URL using the IP address stored in server_ip
-print(f"Serving reports at http://{server_ip}:{PORT} Press ^C to quit.\n\n")
+    print(f"Serving reports at https://{server_ip}:{PORT} Press ^C to quit.\n\n")
+else:
+    print(f"Serving reports at http://{server_ip}:{PORT} Press ^C to quit.\n\n")
 
 if not webServerLogs:
     print("Server Logs are disabled")
