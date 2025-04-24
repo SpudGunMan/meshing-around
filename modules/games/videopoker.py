@@ -164,7 +164,7 @@ class PlayerVP:
                 return self.show_hand()    
             except Exception as e:
                 pass
-    
+
         return "ex:1,3,4 deals them new, and keeps 2,5 or (N)o to keep current (H)and"
 
     # Method for scoring hand, calculating winnings, and outputting message
@@ -390,7 +390,7 @@ def playVideoPoker(nodeID, message):
         else:
             if drawCount <= 1:
                 msg = player.redraw(deck, message)
-                if msg.startswith("Send Card"):
+                if msg.startswith("ex:"):
                     # if returned error message, return it
                     return msg
                 drawCount += 1
@@ -403,7 +403,7 @@ def playVideoPoker(nodeID, message):
                 if drawCount == 2:
                     # this is the last draw will carry on to endGame for scoring
                     msg = player.redraw(deck, message) + f"\n"
-                    if msg.startswith("Send Card"):
+                    if msg.startswith("ex:"):
                         # if returned error message, return it
                         return msg
                     # redraw done
