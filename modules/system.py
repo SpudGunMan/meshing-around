@@ -384,27 +384,27 @@ def get_node_list(nodeInt=1):
     
     return node_list
 
-def get_node_location(number, nodeInt=1, channel=0):
+def get_node_location(nodeID, nodeInt=1, channel=0):
     interface = globals()[f'interface{nodeInt}']
     # Get the location of a node by its number from nodeDB on device
+    # if no location data, return default location
     latitude = latitudeValue
     longitude = longitudeValue
     position = [latitudeValue,longitudeValue]
-    lastheard = 0
     if interface.nodes:
         for node in interface.nodes.values():
-            if number == node['num']:
-                if 'position' in node:
+            if nodeID == node['num']:
+                if 'position' in node and node['position'] is not {}:
                     try:
                         latitude = node['position']['latitude']
                         longitude = node['position']['longitude']
+                        logger.debug(f"System: location data for {nodeID} is {latitude},{longitude}")
+                        position = [latitude,longitude]
                     except Exception as e:
-                        logger.warning(f"System: Error getting location data for {number}")
-                    logger.debug(f"System: location data for {number} is {latitude},{longitude}")
-                    position = [latitude,longitude]
+                        logger.debug(f"System: No location data for {nodeID} use default location")
                     return position
                 else:
-                    logger.warning(f"System: No location data for {number} using default location")
+                    logger.debug(f"System: No location data for {nodeID} using default location")
                     # request location data
                     # try:
                     #     logger.debug(f"System: Requesting location data for {number}")
@@ -413,7 +413,7 @@ def get_node_location(number, nodeInt=1, channel=0):
                     #     logger.error(f"System: Error requesting location data for {number}. Error: {e}")
                     return position
         else:
-            logger.warning(f"System: No nodes found")
+            logger.warning(f"System: Location for NodeID {nodeID} not found in nodeDb")
             return position
 
 
@@ -979,7 +979,7 @@ def consumeMetadata(packet, rxNode=0):
                 for key in keys:
                     positionMetadata[nodeID][key] = position_data.get(key, 0)
         
-                # Keep the positionMetadata dictionary at 5 records
+                # Keep the positionMetadata dictionary at a maximum size of 20
                 if len(positionMetadata) > 20:
                     # Remove the oldest entry
                     oldest_nodeID = next(iter(positionMetadata))
