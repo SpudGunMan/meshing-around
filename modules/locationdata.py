@@ -639,25 +639,29 @@ def get_volcano_usgs(lat=0, lon=0):
         return ERROR_FETCHING_DATA
     volcano_json = volcano_data.json()
     # extract alerts from main feed
-    for alert in volcano_json:
-        # check ignore list
-        if ignoreUSGSEnable:
-            for word in ignoreUSGSwords:
-                if word.lower() in alert['volcano_name_appended'].lower():
-                    logger.debug(f"System: Ignoring USGS Alert: {alert['volcano_name_appended']} containing {word}")
-                    continue
-        # check if the alert lat long is within the range of bot latitudeValue and longitudeValue
-        if (alert['latitude'] >= latitudeValue - 10 and alert['latitude'] <= latitudeValue + 10) and (alert['longitude'] >= longitudeValue - 10 and alert['longitude'] <= longitudeValue + 10):
-            volcano_name = alert['volcano_name_appended']
-            alert_level = alert['alert_level']
-            color_code = alert['color_code']
-            cap_severity = alert['cap_severity']
-            synopsis = alert['synopsis']
-            # format Alert
-            alerts += f"🌋🚨: {volcano_name}, {alert_level} {color_code}, {cap_severity}.\n{synopsis}\n"
-        else:
-            #logger.debug(f"System: USGS volcano alert not in range: {alert['volcano_name_appended']}")
-            continue
+    if volcano_json and isinstance(volcano_json, list):
+        for alert in volcano_json:
+            # check ignore list
+            if ignoreUSGSEnable:
+                for word in ignoreUSGSwords:
+                    if word.lower() in alert['volcano_name_appended'].lower():
+                        logger.debug(f"System: Ignoring USGS Alert: {alert['volcano_name_appended']} containing {word}")
+                        continue
+            # check if the alert lat long is within the range of bot latitudeValue and longitudeValue
+            if (alert['latitude'] >= latitudeValue - 10 and alert['latitude'] <= latitudeValue + 10) and (alert['longitude'] >= longitudeValue - 10 and alert['longitude'] <= longitudeValue + 10):
+                volcano_name = alert['volcano_name_appended']
+                alert_level = alert['alert_level']
+                color_code = alert['color_code']
+                cap_severity = alert['cap_severity']
+                synopsis = alert['synopsis']
+                # format Alert
+                alerts += f"🌋🚨: {volcano_name}, {alert_level} {color_code}, {cap_severity}.\n{synopsis}\n"
+            else:
+                #logger.debug(f"System: USGS volcano alert not in range: {alert['volcano_name_appended']}")
+                continue
+    else:
+        logger.debug("Location:Error fetching volcano data from USGS")
+        return NO_ALERTS
     if alerts == "":
         return NO_ALERTS
     # trim off last newline
