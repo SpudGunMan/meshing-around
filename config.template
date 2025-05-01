@@ -293,5 +293,7 @@ MESSAGE_CHUNK_SIZE = 160
 wantAck = False
 # Max limit buffer for radio testing. 233 is hard limit 2.5+ firmware
 maxBuffer = 200
+#Enable Extra logging of Hop count data
+enableHopLogs = False
 
 

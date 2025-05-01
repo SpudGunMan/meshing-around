@@ -20,7 +20,6 @@ restrictedResponse = "🤖only available in a Direct Message📵" # "" for none
 
 # Global Variables
 DEBUGpacket = False # Debug print the packet rx
-DEBUGhops = False # Debug print hop info and bad hop count packets
 
 def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_number, deviceID, isDM):
     global cmdHistory
@@ -1194,7 +1193,7 @@ def onReceive(packet, interface):
                 else:
                     hop_start = 0
             
-            if DEBUGhops:
+            if enableHopLogs:
                 logger.debug(f"System: Packet HopDebugger: hop_away:{hop_away} hop_limit:{hop_limit} hop_start:{hop_start}")
                 if hop_away == 0 and hop_limit == 0 and hop_start == 0:
                     logger.debug(f"System: Packet HopDebugger: No hop count found in PACKET {packet} END PACKET")
