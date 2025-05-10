@@ -4,6 +4,7 @@
 # install.sh
 cd "$(dirname "$0")"
 program_path=$(pwd)
+chronjob="0 1 * * * /usr/bin/python3 $program_path/report_generator5.py"
 printf "\n########################"
 printf "\nMeshing Around Installer\n"
 printf "########################\n"
@@ -278,6 +279,8 @@ if [[ $(echo "${embedded}" | grep -i "^n") ]]; then
     printf "sudo journalctl -u %s.service\n" "$service" >> install_notes.txt
     printf "sudo systemctl stop %s.service\n" "$service" >> install_notes.txt
     printf "sudo systemctl disable %s.service\n" "$service" >> install_notes.txt
+    printf "Reporting chron job added to run report_generator5.py\n" >> install_notes.txt
+    printf "chronjob: %s\n" "$chronjob" >> install_notes.txt
     
     if [[ $(echo "${venv}" | grep -i "^y") ]]; then
         printf "\nFor running on venv, virtual launch bot with './launch.sh mesh' in path $program_path\n" >> install_notes.txt
@@ -307,6 +310,14 @@ else
     sudo systemctl daemon-reload
     sudo systemctl enable $service.service
     sudo systemctl start $service.service
+    # check if the cron job already exists
+    if ! crontab -l | grep -q "$chronjob"; then
+        # add the cron job to run the report_generator5.py script
+        (crontab -l 2>/dev/null; echo "$chronjob") | crontab -
+        printf "\nAdded cron job to run report_generator5.py\n"
+    else
+        printf "\nCron job already exists, skipping\n"
+    fi
     printf "Reference following commands:\n\n" "$service" > install_notes.txt
     printf "sudo systemctl status %s.service\n" "$service" >> install_notes.txt
     printf "sudo systemctl start %s.service\n" "$service" >> install_notes.txt
@@ -330,7 +341,6 @@ exit 0
 # sudo systemctl stop mesh_bot_reporting
 # sudo systemctl disable mesh_bot_reporting
 # sudo rm /etc/systemd/system/mesh_bot.service
-# sudo rm /etc/systemd/system/mesh_bot_reporting.service
 # sudo rm /etc/systemd/system/mesh_bot_w3.service
 # sudo rm /etc/systemd/system/pong_bot.service
 # sudo systemctl daemon-reload
