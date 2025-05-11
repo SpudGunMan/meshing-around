@@ -4,7 +4,7 @@
 # install.sh
 cd "$(dirname "$0")"
 program_path=$(pwd)
-chronjob="0 1 * * * /usr/bin/python3 $program_path/report_generator5.py"
+chronjob="0 1 * * * /usr/bin/python3 $program_path/etc/report_generator5.py"
 printf "\n########################"
 printf "\nMeshing Around Installer\n"
 printf "########################\n"
