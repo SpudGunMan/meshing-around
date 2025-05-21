@@ -38,6 +38,7 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 
 ### Proximity Alerts
 - **Location-Based Alerts**: Get notified when members arrive back at a configured lat/long, perfect for remote locations like campsites.
+- **High Flying Alerts**: Get notified when nodes with high altitude are seen on mesh
 
 ### CheckList / Check In Out
 - **Asset Tracking**: Maintain a list of node/asset checkin and checkout. Usefull for accountability of people, assets. Radio-Net, FEMA, Trailhead.
@@ -181,6 +182,8 @@ SentryRadius = 100 # radius in meters to detect someone close to the bot
 SentryChannel = 9 # holdoff time multiplied by seconds(20) of the watchdog
 SentryHoldoff = 2 # channel to send a message to when the watchdog is triggered
 sentryIgnoreList = # list of ignored nodes numbers ex: 2813308004,4258675309
+highFlyingAlert = True # HighFlying Node alert
+highFlyingAlertAltitude = 2000 # Altitude in meters to trigger the alert
 ```
 
 ### E-Mail / SMS Settings
