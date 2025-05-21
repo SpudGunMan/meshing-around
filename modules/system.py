@@ -981,7 +981,7 @@ def consumeMetadata(packet, rxNode=0):
 
                 # if altitude is over 2000 send a log and message for high-flying nodes
                 if position_data.get('altitude', 0) > highfly_altitude and highfly_enabled:
-                    logger.warning(f"System: High Altitude {position_data['altitude']}m on Device: {rxNode} NodeID: {nodeID}")
+                    logger.info(f"System: High Altitude {position_data['altitude']}m on Device: {rxNode} NodeID: {nodeID}")
                     send_message(f"High Altitude {position_data['altitude']}m on Device: {rxNode} NodeID: {nodeID}", highfly_channel, 0, rxNode)
                     time.sleep(responseDelay)
         
