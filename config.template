@@ -103,6 +103,8 @@ SentryChannel = 2
 SentryHoldoff = 9
 # list of ignored nodes numbers ex: 2813308004,4258675309
 sentryIgnoreList = 
+# HighFlying Node alert, if the node is above 2,000 meters
+highFlyingAlert = True
 
 [bbs]
 enabled = True
