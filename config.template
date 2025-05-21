@@ -107,6 +107,8 @@ sentryIgnoreList =
 highFlyingAlert = True
 # Altitude in meters to trigger the alert
 highFlyingAlertAltitude = 2000
+# Channel to send Alert when the high flying node is detected
+highFlyingAlertChannel = 2
 
 [bbs]
 enabled = True

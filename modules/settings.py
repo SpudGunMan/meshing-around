@@ -237,6 +237,7 @@ try:
     email_sentry_alerts = config['sentry'].getboolean('emailSentryAlerts', False) # default False
     highfly_enabled = config['sentry'].getboolean('highFlyingAlert', True) # default True
     highfly_altitude = config['sentry'].getint('highFlyingAlertAltitude', 2000) # default 2000 meters
+    highfly_channel = config['sentry'].getint('highFlyingAlertChannel', 2) # default 2
 
     # location
     location_enabled = config['location'].getboolean('enabled', True)
