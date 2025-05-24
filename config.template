@@ -103,6 +103,12 @@ SentryChannel = 2
 SentryHoldoff = 9
 # list of ignored nodes numbers ex: 2813308004,4258675309
 sentryIgnoreList = 
+# HighFlying Node alert
+highFlyingAlert = True
+# Altitude in meters to trigger the alert
+highFlyingAlertAltitude = 2000
+# Channel to send Alert when the high flying node is detected
+highFlyingAlertChannel = 2
 
 [bbs]
 enabled = True
@@ -291,7 +297,7 @@ splitDelay = 0.0
 MESSAGE_CHUNK_SIZE = 160
 # Request Acknowledgement of message OTA
 wantAck = False
-# Max limit buffer for radio testing. 233 is hard limit 2.5+ firmware
+# Max limit buffer for radio testing
 maxBuffer = 200
 #Enable Extra logging of Hop count data
 enableHopLogs = False
