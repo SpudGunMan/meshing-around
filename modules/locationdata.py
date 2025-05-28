@@ -467,6 +467,7 @@ def getIpawsAlert(lat=0, lon=0, shortAlerts = False):
     # get the latest IPAWS alert from FEMA
     alert = ''
     alerts = []
+    linked_data = ''
     
     # set the API URL for IPAWS
     namespace = "urn:oasis:names:tc:emergency:cap:1.2"
@@ -496,15 +497,22 @@ def getIpawsAlert(lat=0, lon=0, shortAlerts = False):
                 link += "?pin=" + ipawsPIN
             # get the linked alert data from FEMA
             linked_data = requests.get(link, timeout=urlTimeoutSeconds)
-            if not linked_data.ok:
+            if not linked_data.ok or not linked_data.text.strip():
+                # if the linked data is not ok, skip this alert
                 #logger.warning(f"System: iPAWS Error fetching linked alert data from {link}")
                 continue
+            else:
+                linked_xml = xml.dom.minidom.parseString(linked_data.text)
+                # this alert is a full CAP alert
         except (requests.exceptions.RequestException):
             logger.warning(f"System: iPAWS Error fetching embedded alert data from {link}")
             continue
-        
-        # this alert is a full CAP alert
-        linked_xml = xml.dom.minidom.parseString(linked_data.text)
+        except xml.parsers.expat.ExpatError:
+            logger.warning(f"System: iPAWS Error parsing XML from {link}")
+            continue
+        except Exception as e:
+            logger.debug(f"System: iPAWS Error processing alert data from {link}: {e}")
+            continue
 
         for info in linked_xml.getElementsByTagName("info"):
             # extract values from XML
