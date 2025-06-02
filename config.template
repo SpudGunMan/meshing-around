@@ -60,6 +60,9 @@ ollama = False
 # ollamaModel = llama3.1
 # server instance to use (defaults to local machine install)
 ollamaHostName = http://localhost:11434
+# Produce LLM replies to messages that aren't commands?
+# If False, the LLM only replies to the "ask:" and "askai" commands.
+llmReplyToNonCommands = True
 
 # StoreForward Enabled and Limits
 StoreForward = True

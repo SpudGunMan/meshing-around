@@ -1243,7 +1243,7 @@ def onReceive(packet, interface):
                             playingGame = False
 
                     if not playingGame:
-                        if llm_enabled:
+                        if llm_enabled and llmReplyToNonCommands:
                             # respond with LLM
                             llm = handle_llm(message_from_id, channel_number, rxNode, message_string, publicChannel)
                             send_message(llm, channel_number, message_from_id, rxNode)

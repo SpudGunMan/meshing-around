@@ -31,7 +31,7 @@ def read_file(file_monitor_file_path, random_line_only=False):
     
 def read_news():
     # read the news file on demand
-    return read_file(news_file_path, read_news_enabled)
+    return read_file(news_file_path, news_random_line_only)
 
 
 def write_news(content, append=False):
