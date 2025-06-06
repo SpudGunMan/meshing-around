@@ -804,7 +804,7 @@ def handle_bbspost(message, message_from_id, deviceID):
                 toNode = int(toNode.strip("!"),16)
             except ValueError as e:
                 toNode = 0
-        elif toNode.isalpha() or not toNode.isnumeric():
+        elif toNode.isalpha() or not toNode.isnumeric() or len(toNode) < 5:
             # try short name
             toNode = get_num_from_short_name(toNode, deviceID)
 
