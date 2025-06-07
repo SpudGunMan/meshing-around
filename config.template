@@ -199,7 +199,7 @@ reverse_in_out = False
 # QRZ Hello to new nodes with message
 enabled = False
 qrz_db = data/qrz.db
-qrz_hello_string = "send CMD or DM me for more info."
+qrz_hello_string = "MeshBot says Hello! DM for more info."
 # Training mode will not send the hello message to new nodes
 training = True
 
