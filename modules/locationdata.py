@@ -645,10 +645,10 @@ def get_volcano_usgs(lat=0, lon=0):
     try:
         volcano_data = requests.get(usgs_volcano_url, timeout=urlTimeoutSeconds)
         if not volcano_data.ok:
-            logger.warning("System: USGS fetching volcano alerts from USGS")
+            logger.warning("System: Issue with fetching volcano alerts from USGS")
             return ERROR_FETCHING_DATA
     except (requests.exceptions.RequestException):
-        logger.warning("System: USGS fetching volcano alerts from USGS")
+        logger.warning("System: Issue with fetching volcano alerts from USGS")
         return ERROR_FETCHING_DATA
     volcano_json = volcano_data.json()
     # extract alerts from main feed
