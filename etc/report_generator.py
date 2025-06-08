@@ -350,7 +350,8 @@ def get_database_info():
                      os.path.join(base_dir, 'mmind_hs.pkl'),
                      os.path.join(base_dir, 'golfsim_hs.pkl'),
                      os.path.join(base_dir, 'bbsdb.pkl'),
-                     os.path.join(base_dir, 'bbsdm.pkl')]
+                     os.path.join(base_dir, 'bbsdm.pkl'),
+                     os.path.join(base_dir, 'qrz.db')]
     
     for file in databaseFiles:
         try:
@@ -371,6 +372,16 @@ def get_database_info():
                     bbsdb = pickle.load(f)
                 elif 'bbsdm' in file:
                     bbsdm = pickle.load(f)
+                elif 'qrz.db' in file:
+                    # open the qrz.db sqllite file 
+                    import sqlite3
+                    conn = sqlite3.connect(file)
+                    cursor = conn.cursor()
+                    cursor.execute("SELECT * FROM qrz")
+                    qrz_db = cursor.fetchall()
+                    # convert to a list of strings
+                    qrz_db = [f"{row[0]}: {row[1]} {row[2]}" for row in qrz_db]
+                    conn.close()
         except Exception as e:
             print(f"Warning issue reading database file: {str(e)}")
             if 'lemonstand' in file:
@@ -425,7 +436,8 @@ def get_database_info():
         'golfsim_score': golfsim_score,
         'banList': banList,
         'adminList': adminList,
-        'sentryIgnoreList': sentryIgnoreList
+        'sentryIgnoreList': sentryIgnoreList,
+        'qrz_db': qrz_db if 'qrz_db' in locals() else "no data"
     }
 
 def generate_main_html(log_data, system_info):
@@ -912,6 +924,11 @@ def generate_database_html(database_info):
             <tr><td>Video Poker</td><td>${videopoker_score}</td></tr>
             <tr><td>Mastermind</td><td>${mmind_score}</td></tr>
             <tr><td>Golf Simulator</td><td>${golfsim_score}</td></tr>
+        </table>
+        <h1>QRZ Database</h1>
+        <p>QRZ Database holds heard nodeID and Shortname</p>
+        <table>
+            <tr><td>${qrz_db}</td></tr>
         </table>
     </body>
     </html>
