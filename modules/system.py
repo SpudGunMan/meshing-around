@@ -1102,7 +1102,7 @@ async def handleFileWatcher():
                 # if fileWatchBroadcastCh list contains multiple channels, broadcast to all
                 if type(file_monitor_broadcastCh) is list:
                     for ch in file_monitor_broadcastCh:
-                        if antiSpam and ch != publicChannel:
+                        if antiSpam and int(ch) != publicChannel:
                             send_message(msg, int(ch), 0, 1)
                             time.sleep(responseDelay)
                             if multiple_interface:
