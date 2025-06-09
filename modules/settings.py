@@ -334,7 +334,7 @@ try:
     # file monitor
     file_monitor_enabled = config['fileMon'].getboolean('filemon_enabled', False)
     file_monitor_file_path = config['fileMon'].get('file_path', 'alert.txt') # default alert.txt
-    file_monitor_broadcastCh = config['fileMon'].getint('broadcastCh', 2) # default 2
+    file_monitor_broadcastCh = config['fileMon'].get('broadcastCh', '2').split(',') # default Channel 2
     read_news_enabled = config['fileMon'].getboolean('enable_read_news', False) # default disabled
     news_file_path = config['fileMon'].get('news_file_path', 'news.txt') # default news.txt
     news_random_line_only = config['fileMon'].getboolean('news_random_line', False) # default False
