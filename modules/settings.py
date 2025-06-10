@@ -289,7 +289,7 @@ try:
     # qrz hello
     qrz_hello_enabled = config['qrz'].getboolean('enabled', False)
     qrz_db = config['qrz'].get('qrz_db', 'data/qrz.db')
-    qrz_hello_string = config['qrz'].get('qrz_hello_string', 'send CMD or DM me for more info.')
+    qrz_hello_string = config['qrz'].get('qrz_hello_string', 'MeshBot says Hello! DM for more info.')
     train_qrz = config['qrz'].getboolean('training', True)
     
     # E-Mail Settings
