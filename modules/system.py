@@ -979,8 +979,8 @@ def consumeMetadata(packet, rxNode=0):
                 for key in keys:
                     positionMetadata[nodeID][key] = position_data.get(key, 0)
 
-                # if altitude is over 2000 send a log and message for high-flying nodes
-                if position_data.get('altitude', 0) > highfly_altitude and highfly_enabled:
+                # if altitude is over 2000 send a log and message for high-flying nodes and not in highfly_ignoreList
+                if position_data.get('altitude', 0) > highfly_altitude and highfly_enabled and str(nodeID) not in highfly_ignoreList:
                     logger.info(f"System: High Altitude {position_data['altitude']}m on Device: {rxNode} NodeID: {nodeID}")
                     send_message(f"High Altitude {position_data['altitude']}m on Device:{rxNode} Node:{get_name_from_number(nodeID,'short',rxNode)}", highfly_channel, 0, rxNode)
                     time.sleep(responseDelay)

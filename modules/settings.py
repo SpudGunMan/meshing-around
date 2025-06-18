@@ -239,6 +239,7 @@ try:
     highfly_enabled = config['sentry'].getboolean('highFlyingAlert', True) # default True
     highfly_altitude = config['sentry'].getint('highFlyingAlertAltitude', 2000) # default 2000 meters
     highfly_channel = config['sentry'].getint('highFlyingAlertChannel', 2) # default 2
+    highfly_ignoreList = config['sentry'].get('highFlyingIgnoreList', '').split(',') # default empty
 
     # location
     location_enabled = config['location'].getboolean('enabled', True)
