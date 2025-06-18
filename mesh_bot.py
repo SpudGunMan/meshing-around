@@ -375,7 +375,7 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
     if "ask:" in message.lower():
         user_input = message.split(":")[1]
     elif "askai" in message.lower():
-        user_input = message.replace("askai", "")
+        user_input = _replace_all_ignorecase(message, "askai", "")
     else:
         # likely a DM
         user_input = message
@@ -1546,6 +1546,16 @@ async def main():
         await asyncio.gather(fileMonTask)
 
     await asyncio.sleep(0.01)
+
+def _replace_all_ignorecase(input_string, find, replacement) -> str:
+    all_permutations = re.findall(re.escape(find), input_string, flags=re.IGNORECASE)
+    unique_permutations = set(all_permutations)
+
+    output_string = input_string
+    for permutation in unique_permutations:
+        output_string = output_string.replace(permutation, replacement)
+
+    return output_string
 
 try:
     if __name__ == "__main__":
