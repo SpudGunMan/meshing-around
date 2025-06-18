@@ -113,7 +113,7 @@ highFlyingAlertAltitude = 2000
 # Channel to send Alert when the high flying node is detected
 highFlyingAlertChannel = 2
 # list of nodes numbers to ignore high flying alert ex: 2813308004,4258675309
-highfly_ignoreList =
+highFlyingIgnoreList =
 
 [bbs]
 enabled = True
