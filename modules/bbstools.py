@@ -70,12 +70,13 @@ def bbs_help():
     # help message
     return "BBS Commands:\n'bbslist'\n'bbspost message...'\n'bbspost $subject #message'\n'bbsread #'\n'bbsdelete #'"
 
-def bbs_list_messages():
+def bbs_list_messages(listNode, listerInterface, get_name_from_number):
     #print (f"System: raw bbs_messages: {bbs_messages}")
     # return a string with new line for each message subject in the list bbs_messages
     message_list = ""
     for message in bbs_messages:
-        message_list += "Msg #" + str(message.message_id) + " " + message.subject + "\n"
+        from_short_name = get_name_from_number(message.from_node, 'short', listerInterface)
+        message_list += f"Msg #{message.message_id} {from_short_name}: {message.subject}\n"
 
     # last newline removed
     message_list = message_list[:-1]
@@ -140,13 +141,20 @@ def bbs_post_message(subject, message, fromNode):
 
     return "Message posted. ID is: " + str(messageID)
 
-def bbs_read_message(messageID = 0):
+# TODO: Cleaner way to access get_name_from_number?
+def bbs_read_message(messageID = 0, readerInterface=1, get_name_from_number=None):
     #if messageID out of range ignore
     if (messageID - 1) >= len(bbs_messages):
         return "Message not found."
     if messageID > 0:
         message = bbs_messages[messageID - 1]
-        return f"Msg #{message.message_id}\nMsg Body: {message.body}"
+        from_short_name = get_name_from_number(message.from_node, 'short', readerInterface)
+        return (
+            f"Msg #{message.message_id}\n"
+            f"From: {from_short_name}\n"
+            f"Subject: {message.subject}\n"
+            f"Body: {message.body}"
+        )
     else:
         return "Please specify a message number to read."
    

@@ -39,7 +39,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "bbslink": lambda: bbs_sync_posts(message, message_from_id, deviceID),
     "bbslist": bbs_list_messages,
     "bbspost": lambda: handle_bbspost(message, message_from_id, deviceID),
-    "bbsread": lambda: handle_bbsread(message),
+    "bbsread": lambda: handle_bbsread(message, deviceID),
     "blackjack": lambda: handleBlackJack(message, message_from_id, deviceID),
     "checkin": lambda: handle_checklist(message, message_from_id, deviceID),
     "checklist": lambda: handle_checklist(message, message_from_id, deviceID),
@@ -818,10 +818,10 @@ def handle_bbspost(message, message_from_id, deviceID):
         logger.info(f"System: BBS Post: {subject} Body: {body}")
         return bbs_post_message(subject, body, message_from_id)
 
-def handle_bbsread(message):
+def handle_bbsread(message, deviceID, get_name_from_number):
     if "#" in message and not "example:" in message:
         messageID = int(message.split("#")[1])
-        return bbs_read_message(messageID)
+        return bbs_read_message(messageID, deviceID, get_name_from_number)
     elif not "example:" in message:
         return "Please add a ✉️message number example: bbsread #14"
 

@@ -28,6 +28,14 @@ from modules.bbstools import *
 bbs_ban_list = []
 bbs_admin_list = ['1234567890']
 
+def get_name_from_number_mock(node_number, type, interface):
+    if type == 'short':
+        return str(node_number)[:4]
+    elif type == 'long':
+        return f"Node {node_number}"
+    else:
+        return f"Unknown type {type} for Node {node_number}"
+
 class TestBbstools(unittest.TestCase):
     def setUp(self):
         bbstools.bbs_messages.clear()
@@ -48,7 +56,7 @@ class TestBbstools(unittest.TestCase):
         self.assertEqual(bbs_help(), "BBS Commands:\n'bbslist'\n'bbspost message...'\n'bbspost $subject #message'\n'bbsread #'\n'bbsdelete #'")
 
     def test_bbs_list_messages(self):
-        self.assertEqual(bbs_list_messages(), "Msg #1 Test Subject 1\nMsg #2 Test Subject 2")
+        self.assertEqual(bbs_list_messages(None, None, get_name_from_number_mock), "Msg #1 1234: Test Subject 1\nMsg #2 6789: Test Subject 2")
 
     def test_bbs_post_message(self):
         bbs_post_message("New Subject", "New Message", 54321)
@@ -56,8 +64,8 @@ class TestBbstools(unittest.TestCase):
         self.assertEqual(bbstools.bbs_messages[2].subject, "New Subject")
 
     def test_bbs_read_message(self):
-        self.assertEqual(bbs_read_message(1), "Msg #1\nMsg Body: Test Message 1")
-        self.assertEqual(bbs_read_message(3), "Message not found.")
+        self.assertEqual(bbs_read_message(1, 1, get_name_from_number_mock), "Msg #1\nFrom: 1234\nSubject: Test Subject 1\nBody: Test Message 1")
+        self.assertEqual(bbs_read_message(3, 1, get_name_from_number_mock), "Message not found.")
 
     def test_bbs_delete_message(self):
         bbs_delete_message(1, 12345)
