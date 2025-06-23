@@ -22,8 +22,9 @@ fi
 
 # Update the local repository
 echo "Updating local repository..."
-git fetch --all
-git reset --hard origin/main    # Replace 'main' with your branch name if different
+#git fetch --all
+#git reset --hard origin/main    # Replace 'main' with your branch name if different
+git pull origin main --rebase  # Fetch and rebase to keep local changes if any
 echo "Local repository updated."
 
 # Install or update dependencies
