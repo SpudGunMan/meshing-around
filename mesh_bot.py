@@ -1355,7 +1355,7 @@ def onReceive(packet, interface):
             # Evaluate non TEXT_MESSAGE_APP packets
             consumeMetadata(packet, rxNode)
     except KeyError as e:
-        logger.critical(f"System: Error processing packet: {e} Device:{rxNode}")
+        logger.critical(f"System: Error processing packet: {e} Device:{rxNode}", exc_info=True)
         logger.debug(f"System: Error Packet = {packet}")
 
 async def start_rx():
