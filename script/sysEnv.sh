@@ -25,3 +25,20 @@ fi
 
 # print telemetry data rounded to 2 decimal places
 printf "Disk:%s RAM:%.2f%% CPU:%.2f%% CPU-T:%.2f°C (%.2f°F)\n" "$free_space" "$ram_usage" "$cpu_usage" "$temp" "$tempf"
+
+# attempt check for updates
+if command -v git &> /dev/null
+then
+    if [ -d ../.git ]; then
+        # check for updates
+        git fetch --quiet
+        local_branch=$(git rev-parse --abbrev-ref HEAD)
+        if [ "$local_branch" != "HEAD" ] && git show-ref --verify --quiet "refs/remotes/origin/$local_branch"; then
+            local_commit=$(git rev-parse "$local_branch")
+            remote_commit=$(git rev-parse "origin/$local_branch")
+            if [ "$local_commit" != "$remote_commit" ]; then
+                echo "Bot Update Available!"
+            fi
+        fi
+    fi
+fi
