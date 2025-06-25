@@ -217,15 +217,15 @@ def onReceive(packet, interface):
     
     if rxType == 'TCPInterface':
         rxHost = interface.__dict__.get('hostname', 'unknown')
-        if hostname1 in rxHost and interface1_type == 'tcp': rxNode = 1
-        elif multiple_interface and hostname2 in rxHost and interface2_type == 'tcp': rxNode = 2
-        elif multiple_interface and hostname3 in rxHost and interface3_type == 'tcp': rxNode = 3
-        elif multiple_interface and hostname4 in rxHost and interface4_type == 'tcp': rxNode = 4
-        elif multiple_interface and hostname5 in rxHost and interface5_type == 'tcp': rxNode = 5
-        elif multiple_interface and hostname6 in rxHost and interface6_type == 'tcp': rxNode = 6
-        elif multiple_interface and hostname7 in rxHost and interface7_type == 'tcp': rxNode = 7
-        elif multiple_interface and hostname8 in rxHost and interface8_type == 'tcp': rxNode = 8
-        elif multiple_interface and hostname9 in rxHost and interface9_type == 'tcp': rxNode = 9
+        if rxHost and hostname1 in rxHost and interface1_type == 'tcp': rxNode = 1
+        elif multiple_interface and rxHost and hostname2 in rxHost and interface2_type == 'tcp': rxNode = 2
+        elif multiple_interface and rxHost and hostname3 in rxHost and interface3_type == 'tcp': rxNode = 3
+        elif multiple_interface and rxHost and hostname4 in rxHost and interface4_type == 'tcp': rxNode = 4
+        elif multiple_interface and rxHost and hostname5 in rxHost and interface5_type == 'tcp': rxNode = 5
+        elif multiple_interface and rxHost and hostname6 in rxHost and interface6_type == 'tcp': rxNode = 6
+        elif multiple_interface and rxHost and hostname7 in rxHost and interface7_type == 'tcp': rxNode = 7
+        elif multiple_interface and rxHost and hostname8 in rxHost and interface8_type == 'tcp': rxNode = 8
+        elif multiple_interface and rxHost and hostname9 in rxHost and interface9_type == 'tcp': rxNode = 9
 
     if rxType == 'BLEInterface':
         if interface1_type == 'ble': rxNode = 1
