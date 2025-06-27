@@ -148,8 +148,8 @@ def llm_query(input, nodeID=0, location_name=None):
         location_name = "no location provided "
     
     # remove askai: and ask: from the input
-    if input.startswith(trap_list_llm):
-        input = input.split(":", 1)[1].strip()
+    if input.lower().startswith(trap_list_llm):
+        input = input.lower().replace("askai", "").replace("ask", "").strip()
 
     # add the naughty list here to stop the function before we continue
     # add a list of allowed nodes only to use the function
