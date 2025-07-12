@@ -4,6 +4,8 @@ services:
     tty: true
     devices:
       - /dev/ttyUSB0
+    ports:
+      - 8420:8420
     volumes:
       - /storage/location/config.ini:/app/config.ini:ro # Create this from config.template first. 
     image: ghcr.io/SpudGunMan/meshing-around:main
