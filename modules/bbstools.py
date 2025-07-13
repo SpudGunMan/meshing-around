@@ -32,7 +32,7 @@ def save_bbsdb():
 
 def bbs_help():
     # help message
-    return "BBS Commands:\n'bbslist'\n'bbspost $subject #message'\n'bbsread #'\n'bbsdelete #'\n'cmd'"
+    return "BBS Commands:\n'bbslist'\n'bbspost message...'\n'bbspost $subject #message'\n'bbsread #'\n'bbsdelete #'"
 
 def bbs_list_messages():
     #print (f"System: raw bbs_messages: {bbs_messages}")
@@ -69,6 +69,17 @@ def bbs_delete_message(messageID = 0, fromNode = 0):
             return "You are not authorized to delete this message."
     else:
         return "Please specify a message number to delete."
+
+def bbs_automatic_subject_from_body(body):
+    max_subject_length = 25
+
+    # Clean up any whitespace
+    subject = body.strip()
+
+    if len(subject) > max_subject_length:
+        subject = subject[:max_subject_length].strip() + '...'
+
+    return subject
 
 def bbs_post_message(subject, message, fromNode):
     # post a message to the bbsdb and assign a messageID

@@ -785,16 +785,13 @@ def handle_checklist(message, message_from_id, deviceID):
     return process_checklist_command(message_from_id, message, name, location)
 
 def handle_bbspost(message, message_from_id, deviceID):
-    if "$" in message and not "example:" in message:
+    if "$" in message and "#" in message and not "example:" in message:
         subject = message.split("$")[1].split("#")[0]
         subject = subject.rstrip()
-        if "#" in message:
-            body = message.split("#")[1]
-            body = body.rstrip()
-            logger.info(f"System: BBS Post: {subject} Body: {body}")
-            return bbs_post_message(subject, body, message_from_id)
-        elif not "example:" in message:
-            return "example: bbspost $subject #✉️message"
+        body = message.split("#")[1]
+        body = body.rstrip()
+        logger.info(f"System: BBS Post: {subject} Body: {body}")
+        return bbs_post_message(subject, body, message_from_id)
     elif "@" in message and not "example:" in message:
         toNode = message.split("@")[1].split("#")[0]
         toNode = toNode.rstrip()
@@ -816,7 +813,10 @@ def handle_bbspost(message, message_from_id, deviceID):
         else:
             return "example: bbspost @nodeNumber/ShortName/!hex #✉️message"
     elif not "example:" in message:
-        return "example: bbspost $subject #✉️message, or bbspost @node #✉️message"
+        body = _replace_all_ignorecase(message, "bbspost", "").strip()
+        subject = bbs_automatic_subject_from_body(body)
+        logger.info(f"System: BBS Post: {subject} Body: {body}")
+        return bbs_post_message(subject, body, message_from_id)
 
 def handle_bbsread(message):
     if "#" in message and not "example:" in message:
