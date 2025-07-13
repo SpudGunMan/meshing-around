@@ -34,12 +34,12 @@ class TestBbstools(unittest.TestCase):
         bbstools.bbs_dm.clear()
 
         bbstools.bbs_messages.extend([
-            [1, "Test Subject 1", "Test Message 1", 12345],
-            [2, "Test Subject 2", "Test Message 2", 67890]
+            BbsMessage(1, "Test Subject 1", "Test Message 1", 12345),
+            BbsMessage(2, "Test Subject 2", "Test Message 2", 67890)
         ])
         bbstools.bbs_dm.extend([
-            [12345, "Test DM 1", 67890],
-            [67890, "Test DM 2", 12345]
+            BbsDm(12345, "Test DM 1", 67890),
+            BbsDm(67890, "Test DM 2", 12345)
         ])
         save_bbsdb()
         save_bbsdm()
@@ -53,7 +53,7 @@ class TestBbstools(unittest.TestCase):
     def test_bbs_post_message(self):
         bbs_post_message("New Subject", "New Message", 54321)
         self.assertEqual(len(bbstools.bbs_messages), 3)
-        self.assertEqual(bbstools.bbs_messages[2][1], "New Subject")
+        self.assertEqual(bbstools.bbs_messages[2].subject, "New Subject")
 
     def test_bbs_read_message(self):
         self.assertEqual(bbs_read_message(1), "Msg #1\nMsg Body: Test Message 1")
@@ -73,13 +73,17 @@ class TestBbstools(unittest.TestCase):
     def test_bbs_post_dm(self):
         bbs_post_dm(98765, "New DM", 54321)
         self.assertEqual(len(bbstools.bbs_dm), 3)
-        self.assertEqual(bbstools.bbs_dm[2][1], "New DM")
+        self.assertEqual(bbstools.bbs_dm[2].message, "New DM")
 
     def test_get_bbs_stats(self):
         self.assertEqual(get_bbs_stats(), "📡BBSdb has 2 messages.\nDirect ✉️ Messages waiting: 1")
 
     def test_bbs_check_dm(self):
-        self.assertEqual(bbs_check_dm(12345), [12345, "Test DM 1", 67890])
+        dm = bbs_check_dm(12345)
+        self.assertIsNotNone(dm)
+        self.assertEqual(dm.to_node, 12345)
+        self.assertEqual(dm.message, "Test DM 1")
+        self.assertEqual(dm.from_node, 67890)
         self.assertFalse(bbs_check_dm(99999))
 
     def test_bbs_delete_dm(self):
@@ -89,39 +93,39 @@ class TestBbstools(unittest.TestCase):
 
     def test_save_and_load_bbsdb(self):
         # Modify the data
-        bbstools.bbs_messages.append([3, "New Message", "New Body", 123])
+        bbstools.bbs_messages.append(BbsMessage(3, "New Message", "New Body", 123))
         save_bbsdb()
 
         # Clear the current messages and reload
         load_bbsdb()
 
         self.assertEqual(len(bbstools.bbs_messages), 3)
-        self.assertEqual(bbstools.bbs_messages[2][1], "New Message")
+        self.assertEqual(bbstools.bbs_messages[2].subject, "New Message")
 
         # Test loading a non-existent file
         if os.path.exists('data/bbsdb.pkl'):
             os.remove('data/bbsdb.pkl')
         load_bbsdb()
         self.assertEqual(len(bbstools.bbs_messages), 1)
-        self.assertEqual(bbstools.bbs_messages[0][1], "Welcome to meshBBS")
+        self.assertEqual(bbstools.bbs_messages[0].subject, "Welcome to meshBBS")
 
     def test_save_and_load_bbsdm(self):
         # Modify the data
-        bbstools.bbs_dm.append([3, "New DM", 123])
+        bbstools.bbs_dm.append(BbsDm(3, "New DM", 123))
         save_bbsdm()
 
         # Clear the current messages and reload
         load_bbsdm()
 
         self.assertEqual(len(bbstools.bbs_dm), 3)
-        self.assertEqual(bbstools.bbs_dm[2][1], "New DM")
+        self.assertEqual(bbstools.bbs_dm[2].message, "New DM")
 
         # Test loading a non-existent file
         if os.path.exists('data/bbsdm.pkl'):
             os.remove('data/bbsdm.pkl')
         load_bbsdm()
         self.assertEqual(len(bbstools.bbs_dm), 1)
-        self.assertEqual(bbstools.bbs_dm[0][1], "Message")
+        self.assertEqual(bbstools.bbs_dm[0].message, "Message")
 
     def test_bbsdb_disk_format(self):
         save_bbsdb()

@@ -4,31 +4,67 @@
 import pickle # pip install pickle
 from modules.log import *
 import time
+from dataclasses import dataclass
+from typing import List
 
 trap_list_bbs = ("bbslist", "bbspost", "bbsread", "bbsdelete", "bbshelp", "bbsinfo", "bbslink", "bbsack")
 
+@dataclass
+class BbsMessage:
+    message_id: int
+    subject: str
+    body: str
+    from_node: int
+
+@dataclass
+class BbsDm:
+    to_node: int
+    message: str
+    from_node: int
+
 # global message list, later we will use a pickle on disk
-bbs_messages = []
-bbs_dm = []
+bbs_messages: List[BbsMessage] = [] 
+bbs_dm: List[BbsDm] = []
 
 def load_bbsdb():
     global bbs_messages
+
+    # Be clear that we're loading a fresh database
+    bbs_messages = []
+
     # load the bbs messages from the database file
     try:
         with open('data/bbsdb.pkl', 'rb') as f:
-            bbs_messages = pickle.load(f)
+            serialized_messages = pickle.load(f)
+            for message in serialized_messages:
+                message_id, subject, body, from_node = message
+                bbs_messages.append(BbsMessage(message_id, subject, body, from_node))
     except Exception as e:
-        bbs_messages = [[1, "Welcome to meshBBS", "Welcome to the BBS, please post a message!",0]]
+        bbs_messages = [BbsMessage(
+            message_id=1,
+            subject="Welcome to meshBBS",
+            body="Welcome to the BBS, please post a message!",
+            from_node=0
+        )]
         logger.debug("System: Creating new data/bbsdb.pkl")
-        with open('data/bbsdb.pkl', 'wb') as f:
-            pickle.dump(bbs_messages, f)
+        save_bbsdb()
 
 def save_bbsdb():
     global bbs_messages
+
+    serialized_messages = []
+    for message in bbs_messages:
+        serialized_messages.append([
+            message.message_id,
+            message.subject,
+            message.body,
+            message.from_node
+        ])
+
     # save the bbs messages to the database file
     logger.debug("System: Saving data/bbsdb.pkl")
     with open('data/bbsdb.pkl', 'wb') as f:
-        pickle.dump(bbs_messages, f)
+        pickle.dump(serialized_messages, f)
 
 def bbs_help():
     # help message
@@ -39,8 +75,7 @@ def bbs_list_messages():
     # return a string with new line for each message subject in the list bbs_messages
     message_list = ""
     for message in bbs_messages:
-        # message[0] is the messageID, message[1] is the subject
-        message_list += "Msg #" + str(message[0]) + " " + message[1] + "\n"
+        message_list += "Msg #" + str(message.message_id) + " " + message.subject + "\n"
 
     # last newline removed
     message_list = message_list[:-1]
@@ -54,11 +89,11 @@ def bbs_delete_message(messageID = 0, fromNode = 0):
     # delete a message from the bbsdb
     if messageID > 0:
         # if same user wrote message they can delete it
-        if fromNode == bbs_messages[messageID - 1][3] or str(fromNode) in bbs_admin_list:
+        if fromNode == bbs_messages[messageID - 1].from_node or str(fromNode) in bbs_admin_list:
             bbs_messages.pop(messageID - 1)
             # reset the messageID
             for i in range(len(bbs_messages)):
-                bbs_messages[i][0] = i + 1
+                bbs_messages[i].message_id = i + 1
 
             # save the bbsdb
             save_bbsdb()
@@ -92,12 +127,12 @@ def bbs_post_message(subject, message, fromNode):
     
     # validate not a duplicate message
     for msg in bbs_messages:
-        if msg[1].strip().lower() == subject.strip().lower() and msg[2].strip().lower() == message.strip().lower():
-            messageID = msg[0]
+        if msg.subject.strip().lower() == subject.strip().lower() and msg.body.strip().lower() == message.strip().lower():
+            messageID = msg.message_id
             return "Message posted. ID is: " + str(messageID)
 
     # append the message to the list
-    bbs_messages.append([messageID, subject, message, fromNode])
+    bbs_messages.append(BbsMessage(messageID, subject, message, fromNode))
     logger.info(f"System: NEW Message Posted, subject: {subject}, message: {message} from {fromNode}")
 
     # save the bbsdb
@@ -111,7 +146,7 @@ def bbs_read_message(messageID = 0):
         return "Message not found."
     if messageID > 0:
         message = bbs_messages[messageID - 1]
-        return f"Msg #{message[0]}\nMsg Body: {message[2]}"
+        return f"Msg #{message.message_id}\nMsg Body: {message.body}"
     else:
         return "Please specify a message number to read."
    
@@ -119,20 +154,27 @@ def save_bbsdm():
     global bbs_dm
     # save the bbs messages to the database file
     logger.debug("System: Saving Updated BBS Direct Messages data/bbsdm.pkl")
+
+    serialized_dms = []
+    for dm in bbs_dm:
+        serialized_dms.append([dm.to_node, dm.message, dm.from_node])
     with open('data/bbsdm.pkl', 'wb') as f:
-        pickle.dump(bbs_dm, f)
+        pickle.dump(serialized_dms, f)
 
 def load_bbsdm():
     global bbs_dm
     # load the bbs messages from the database file
     try:
         with open('data/bbsdm.pkl', 'rb') as f:
-            bbs_dm = pickle.load(f)
+            serialized_dms = pickle.load(f)
+            bbs_dm = []
+            for dm in serialized_dms:
+                to_node, message, from_node = dm
+                bbs_dm.append(BbsDm(to_node, message, from_node))
     except:
-        bbs_dm = [[1234567890, "Message", 1234567890]]
+        bbs_dm = [BbsDm(to_node=1234567890, message="Message", from_node=1234567890)]
         logger.debug("System: Creating new data/bbsdm.pkl")
-        with open('data/bbsdm.pkl', 'wb') as f:
-            pickle.dump(bbs_dm, f)
+        save_bbsdm()
 
 def bbs_post_dm(toNode, message, fromNode):
     global bbs_dm
@@ -142,7 +184,7 @@ def bbs_post_dm(toNode, message, fromNode):
         return "DM Posted for node " + str(toNode)
 
     # append the message to the list
-    bbs_dm.append([int(toNode), message, int(fromNode)])
+    bbs_dm.append(BbsDm(int(toNode), message, int(fromNode)))
 
     # save the bbsdb
     save_bbsdm()
@@ -157,7 +199,7 @@ def bbs_check_dm(toNode):
     global bbs_dm
     # Check for any messages for toNode
     for msg in bbs_dm:
-        if msg[0] == toNode:
+        if msg.to_node == toNode:
             return msg
     return False
 
@@ -165,13 +207,13 @@ def bbs_delete_dm(toNode, message):
     global bbs_dm
     # delete a message from the bbsdm
     for msg in bbs_dm:
-        if msg[0] == toNode:
+        if msg.to_node == toNode:
             # check if the message matches
-            if msg[1] == message:
+            if msg.message == message:
                 bbs_dm.remove(msg)
-            # save the bbsdb
-            save_bbsdm()
-            return "System: cleared mail for" + str(toNode)
+                # save the bbsdb
+                save_bbsdm()
+                return "System: cleared mail for" + str(toNode)
     return "System: No DM found for node " + str(toNode)
 
 def bbs_sync_posts(input, peerNode, RxNode):
@@ -211,7 +253,7 @@ def bbs_sync_posts(input, peerNode, RxNode):
         # every 5 messages add extra delay
         if messageID % 5 == 0:
             time.sleep(10 + responseDelay)
-        return f"bbslink {messageID} ${bbs_messages[messageID][1]} #{bbs_messages[messageID][2]}"
+        return f"bbslink {messageID} ${bbs_messages[messageID].subject} #{bbs_messages[messageID].body}"
     else:
         logger.debug("System: bbslink sync complete with peer " + str(peerNode))
 
