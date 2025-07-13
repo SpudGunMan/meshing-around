@@ -540,6 +540,15 @@ def messageChunker(message):
                 if current_chunk:
                     message_list.append(current_chunk)
 
+        # Consolidate any adjacent messages that can fit in a single chunk.
+        idx = 0
+        while idx < len(message_list) - 1:
+            if len(message_list[idx]) + len(message_list[idx+1]) < MESSAGE_CHUNK_SIZE:
+                message_list[idx] += '\n' + message_list[idx+1]
+                del message_list[idx+1]
+            else:
+                idx += 1
+
         # Ensure no chunk exceeds MESSAGE_CHUNK_SIZE
         final_message_list = []
         for chunk in message_list:
