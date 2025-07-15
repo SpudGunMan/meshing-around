@@ -627,6 +627,10 @@ def send_message(message, ch, nodeid=0, nodeInt=1, bypassChuncking=False):
                 logger.info(f"Device:{nodeInt} " + CustomFormatter.red + "Sending DM: " + CustomFormatter.white + message.replace('\n', ' ') + CustomFormatter.purple +\
                             " To: " + CustomFormatter.white + f"{get_name_from_number(nodeid, 'long', nodeInt)}")
                 interface.sendText(text=message, channelIndex=ch, destinationId=nodeid)
+
+            # wait an amout of time to prevent sending another message too quickly
+            time.sleep(splitDelay)
+
     return True
 
 def get_wikipedia_summary(search_term):
