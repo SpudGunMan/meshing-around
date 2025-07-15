@@ -1427,7 +1427,12 @@ async def start_rx():
     if wxAlertBroadcastEnabled:
         logger.debug(f"System: Weather Alert Broadcast Enabled on channels {wxAlertBroadcastChannel}")
     if emergencyAlertBrodcastEnabled:
-        logger.debug(f"System: Emergency Alert Broadcast Enabled on channels {emergencyAlertBroadcastCh}")
+        logger.debug(f"System: Emergency Alert Broadcast Enabled on channels {emergencyAlertBroadcastCh} for FIPS codes {myStateFIPSList}")
+        # check if the FIPS codes are set
+        if myStateFIPSList == ['']:
+            logger.warning(f"System: No FIPS codes set for iPAWS Alerts")
+
+
     if emergency_responder_enabled:
         logger.debug(f"System: Emergency Responder Enabled on channels {emergency_responder_alert_channel} for interface {emergency_responder_alert_interface}")
     if volcanoAlertBroadcastEnabled:
