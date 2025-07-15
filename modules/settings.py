@@ -98,6 +98,11 @@ if 'qrz' not in config:
     config['qrz'] = {'enabled': 'False', 'qrz_db': 'data/qrz.db', 'qrz_hello_string': 'send CMD or DM me for more info.'}
     config.write(open(config_file, 'w'))
 
+#  = 3 # number of google search results to include in the context more results = more compute time
+if 'LLM' not in config:
+    config['LLM'] = {'ollamaHost': 'localhost', 'openaiAPI': 'https://api.openai.com/v1/completions', 'llmEnableHistory': 'True', 'llmContext_fromGoogle': 'True', 'googleSearchResults': '3'}
+    config.write(open(config_file, 'w'))
+
 # interface1 settings
 interface1_type = config['interface'].get('type', 'serial')
 port1 = config['interface'].get('port', '')
@@ -359,6 +364,14 @@ try:
     wantAck = config['messagingSettings'].getboolean('wantAck', False) # default False
     maxBuffer = config['messagingSettings'].getint('maxBuffer', 220) # default 220
     enableHopLogs = config['messagingSettings'].getboolean('enableHopLogs', False) # default False
+
+    # LLM Settings 
+    config['LLM'] = {'googleSearchResults': '3'}
+    ollamaHost = config['LLM'].get('ollamaHost', '')
+    openaiAPI = config['LLM'].get('openaiAPI', 'https://api.openai.com/v1/completions') # Default from llm.py
+    llmEnableHistory = config['LLM'].getboolean('llmEnableHistory', True) # Default from llm.py
+    llmContext_fromGoogle = config['LLM'].getboolean('llmContext_fromGoogle', True) # Default from llm.py
+    googleSearchResults = config['LLM'].getint('googleSearchResults', 3) # Default from llm.py
 
 except KeyError as e:
     print(f"System: Error reading config file: {e}")
