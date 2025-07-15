@@ -83,18 +83,14 @@ if log_messages_to_file:
 
 # Pretty Timestamp
 def getPrettyTime(seconds):
-    # convert unix time to minutes, hours, or days, or years for simple display
-    designator = "s"
-    if seconds > 0:
-        seconds = round(seconds / 60)
-        designator = "m"
-    if seconds > 60:
-        seconds = round(seconds / 60)
-        designator = "h"
-    if seconds > 24:
-        seconds = round(seconds / 24)
-        designator = "d"
-    if seconds > 365:
-        seconds = round(seconds / 365)
-        designator = "y"
-    return str(seconds) + designator
+    # convert unix time to minutes, hours, days, or years for simple display
+    if seconds < 60:
+        return f"{int(seconds)}s"
+    elif seconds < 3600:
+        return f"{int(round(seconds / 60))}m"
+    elif seconds < 86400:
+        return f"{int(round(seconds / 3600))}h"
+    elif seconds < 31536000:
+        return f"{int(round(seconds / 86400))}d"
+    else:
+        return f"{int(round(seconds / 31536000))}y"
