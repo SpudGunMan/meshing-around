@@ -294,9 +294,9 @@ hangman = True
 hamtest = True
 
 [messagingSettings]
-# delay in seconds for response to avoid message collision
+# delay in seconds for response to avoid message collision /throttling
 responseDelay = 2.2
-# delay in seconds for splits in messages to avoid message collision
+# delay in seconds for splits in messages to avoid message collision /throttling
 splitDelay = 2.5
 # message chunk size for sending at high success rate, chunkr allows exceeding by 3 characters
 MESSAGE_CHUNK_SIZE = 160
