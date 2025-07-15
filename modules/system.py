@@ -923,11 +923,6 @@ def displayNodeTelemetry(nodeID=0, rxNode=0, userRequested=False):
     # Number of nodes
     dataResponse += " totalNodes:" + str(numTotalNodes) + " Online:" + str(totalOnlineNodes)
 
-    # calculate the channel utilization per node
-    if totalOnlineNodes > 0:
-        chutilPerNode = round(chutil / totalOnlineNodes, 2)
-        dataResponse += " ChUtil/Node:" + str(chutilPerNode)
-
     # Uptime
     uptimeSeconds = getPrettyTime(uptimeSeconds)
     dataResponse += " Uptime:" + str(uptimeSeconds)
