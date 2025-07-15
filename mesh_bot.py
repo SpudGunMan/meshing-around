@@ -1271,7 +1271,7 @@ def onReceive(packet, interface):
                             time.sleep(responseDelay)
                             
                     # log the message to the message log
-                    msgLogger.info(f"Device:{rxNode} Channel:{channel_number} | {get_name_from_number(message_from_id, 'long', rxNode)} | " + message_string.replace('\n', '-nl-'))
+                    msgLogger.info(f"Device:{rxNode} To:{get_name_from_number(packet['to'], 'long', rxNode)} | {get_name_from_number(message_from_id, 'long', rxNode)} | " + message_string.replace('\n', '-nl-'))
             else:
                 # message is on a channel
                 if messageTrap(message_string):
@@ -1355,7 +1355,7 @@ def onReceive(packet, interface):
             # Evaluate non TEXT_MESSAGE_APP packets
             consumeMetadata(packet, rxNode)
     except KeyError as e:
-        logger.critical(f"System: Error processing packet: {e} Device:{rxNode}")
+        logger.critical(f"System: Error processing packet: {e} Device:{rxNode}", exc_info=True)
         logger.debug(f"System: Error Packet = {packet}")
 
 async def start_rx():
