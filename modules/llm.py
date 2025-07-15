@@ -25,7 +25,7 @@ if ragDEV:
     ollamaClient = OllamaClient(host=ollamaHost)
 
 # LLM System Variables
-ollamaAPI = ollamaHost + "/api/generate"
+ollamaAPI = "http://%s/api/generate" % (ollamaHost)
 antiFloodLLM = []
 llmChat_history = {}
 trap_list_llm = ("ask:", "askai")
