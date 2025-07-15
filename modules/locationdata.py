@@ -472,8 +472,6 @@ def getIpawsAlert(lat=0, lon=0, shortAlerts = False):
     # set the API URL for IPAWS
     namespace = "urn:oasis:names:tc:emergency:cap:1.2"
     alert_url = "https://apps.fema.gov/IPAWSOPEN_EAS_SERVICE/rest/feed"
-    if ipawsPIN != "000000":
-        alert_url += "?pin=" + ipawsPIN
 
     # get the alerts from FEMA
     try:
@@ -491,10 +489,25 @@ def getIpawsAlert(lat=0, lon=0, shortAlerts = False):
     # extract alerts from main feed
     for entry in alertxml.getElementsByTagName("entry"):
         link = entry.getElementsByTagName("link")[0].getAttribute("href")
+
+        ## state FIPS
+        ## This logic is being added to reduce load on FEMA server.
+        stateFips = None
+        for cat in entry.getElementsByTagName("category"):
+            if cat.getAttribute("label") == "statefips":
+                stateFips = cat.getAttribute("term")
+                break
+
+        if stateFips is None:
+            # no stateFIPS found — skip
+            continue
+
+        # check if it matches your list
+        if stateFips not in myStateFIPSList:
+            #logger.debug(f"Skipping FEMA record link {link} with stateFIPS code of: {stateFips} because it doesn't match our StateFIPSList {myStateFIPSList}")
+            continue  # skip to next entry
+
         try:
-            #pin check
-            if ipawsPIN != "000000":
-                link += "?pin=" + ipawsPIN
             # get the linked alert data from FEMA
             linked_data = requests.get(link, timeout=urlTimeoutSeconds)
             if not linked_data.ok or not linked_data.text.strip():
@@ -533,44 +546,32 @@ def getIpawsAlert(lat=0, lon=0, shortAlerts = False):
                 area_table = info.getElementsByTagName("area")[0]
                 areaDesc = area_table.getElementsByTagName("areaDesc")[0].childNodes[0].nodeValue
                 
-                geocode_table = area_table.getElementsByTagName("geocode")[0]
-                geocode_type = geocode_table.getElementsByTagName("valueName")[0].childNodes[0].nodeValue
-                geocode_value = geocode_table.getElementsByTagName("value")[0].childNodes[0].nodeValue
-                if geocode_type == "SAME":
-                    sameVal = geocode_value
             except Exception as e:
                 logger.debug(f"System: iPAWS Error extracting alert data: {link}")
                 #print(f"DEBUG: {info.toprettyxml()}")
                 continue
 
-            # check if the alert is for the current location, if wanted keep alert
-            if (sameVal in mySAME) or (geocode_value in mySAME):
-                # ignore the FEMA test alerts
-                if ignoreFEMAenable:
-                    ignore_alert = False
-                    for word in ignoreFEMAwords:
-                        if word.lower() in headline.lower():
-                            logger.debug(f"System: Ignoring FEMA Alert: {headline} containing {word} at {areaDesc}")
-                            ignore_alert = True
-                            break
+            # ignore the FEMA test alerts
+            if ignoreFEMAenable:
+                ignore_alert = False
+                for word in ignoreFEMAwords:
+                    if word.lower() in headline.lower():
+                        logger.debug(f"System: Ignoring FEMA Alert: {headline} containing {word} at {areaDesc}")
+                        ignore_alert = True
+                        break
 
-                    if ignore_alert:
-                        continue
+                if ignore_alert:
+                    continue
 
-                # add to alerts list
-                alerts.append({
-                    'alertType': alertType,
-                    'alertCode': alertCode,
-                    'headline': headline,
-                    'areaDesc': areaDesc,
-                    'geocode_type': geocode_type,
-                    'geocode_value': geocode_value,
-                    'description': description
-                })
-            # else:
-            #     # these are discarded some day but logged for debugging currently
-            #     logger.debug(f"Debug iPAWS: Type:{alertType} Code:{alertCode} Desc:{areaDesc} GeoType:{geocode_type} GeoVal:{geocode_value}, Headline:{headline}")
-    
+            # add to alerts list
+            alerts.append({
+                'alertType': alertType,
+                'alertCode': alertCode,
+                'headline': headline,
+                'areaDesc': areaDesc,
+                'description': description
+            })
+
     # return the numWxAlerts of alerts
     if len(alerts) > 0:
         for alertItem in alerts[:numWxAlerts]:

@@ -259,12 +259,11 @@ try:
     wxAlertsEnabled = config['location'].getboolean('NOAAalertsEnabled', True) # default True
     ignoreEASenable = config['location'].getboolean('ignoreEASenable', False) # default False
     ignoreEASwords = config['location'].get('ignoreEASwords', 'test,advisory').split(',') # default test,advisory
-    mySAME = config['location'].get('mySAME', '').split(',') # default empty
     myRegionalKeysDE = config['location'].get('myRegionalKeysDE', '110000000000').split(',') # default city Berlin
     forecastDuration = config['location'].getint('NOAAforecastDuration', 4) # NOAA forcast days
     numWxAlerts = config['location'].getint('NOAAalertCount', 2) # default 2 alerts
     enableExtraLocationWx = config['location'].getboolean('enableExtraLocationWx', False) # default False
-    ipawsPIN = config['location'].get('ipawsPIN', '000000') # default 000000
+    myStateFIPSList = config['location'].get('myFIPSList', '').split(',') # default empty
     ignoreFEMAenable = config['location'].getboolean('ignoreFEMAenable', True) # default True
     ignoreFEMAwords = config['location'].get('ignoreFEMAwords', 'test,exercise').split(',') # default test,exercise
     wxAlertBroadcastChannel = config['location'].get('wxAlertBroadcastCh', '2').split(',') # default Channel 2

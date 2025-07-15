@@ -161,16 +161,13 @@ enableExtraLocationWx = False
 
 # Goverment Alert Broadcast defaults to FEMA IPAWS
 eAlertBroadcastEnabled = False
+# comma separated list of FIPS codes to trigger local alert. find your FIPS codes at https://en.wikipedia.org/wiki/Federal_Information_Processing_Standard_state_code
+myFIPSList = 57,58,53
 # Goverment Alert Broadcast Channels
 eAlertBroadcastCh = 2
-
-# FEMA Alert Broadcast Settings
-#  Enable Ignore any headline that includes following word list
+#  Enable Ignore, headline that includes following word list
 ignoreFEMAenable = True
 ignoreFEMAwords = test,exercise
-# comma separated list of codes (e.g., SAME,FIPS,ZIP) trigger local alert.
-# find your SAME https://www.weather.gov/nwr/counties
-mySAME = 053029,053073
 
 # USGS Volcano alerts Enable USGS Volcano Alert Broadcast
 volcanoAlertBroadcastEnabled = False
