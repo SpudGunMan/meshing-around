@@ -295,7 +295,7 @@ hamtest = True
 
 [messagingSettings]
 # delay in seconds for response to avoid message collision
-responseDelay = 1.2
+responseDelay = 2.2
 # delay in seconds for splits in messages to avoid message collision
 splitDelay = 2.5
 # message chunk size for sending at high success rate, chunkr allows exceeding by 3 characters
