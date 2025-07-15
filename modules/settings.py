@@ -100,7 +100,7 @@ if 'qrz' not in config:
 
 #  = 3 # number of google search results to include in the context more results = more compute time
 if 'LLM' not in config:
-    config['LLM'] = {'ollamaHost': 'localhost', 'openaiAPI': 'https://api.openai.com/v1/completions', 'llmEnableHistory': 'True', 'llmContext_fromGoogle': 'True', 'googleSearchResults': '3'}
+    config['LLM'] = {'ollama_host': 'localhost', 'openaiAPI': 'https://api.openai.com/v1/completions', 'llmEnableHistory': 'True', 'llmContext_fromGoogle': 'True', 'googleSearchResults': '3'}
     config.write(open(config_file, 'w'))
 
 # interface1 settings
@@ -367,7 +367,7 @@ try:
 
     # LLM Settings 
     config['LLM'] = {'googleSearchResults': '3'}
-    ollamaHost = config['LLM'].get('ollamaHost', '')
+    ollamaHost = config['LLM'].get('ollama_host', '')
     openaiAPI = config['LLM'].get('openaiAPI', 'https://api.openai.com/v1/completions') # Default from llm.py
     llmEnableHistory = config['LLM'].getboolean('llmEnableHistory', True) # Default from llm.py
     llmContext_fromGoogle = config['LLM'].getboolean('llmContext_fromGoogle', True) # Default from llm.py
