@@ -297,7 +297,7 @@ hamtest = True
 # delay in seconds for response to avoid message collision
 responseDelay = 1.2
 # delay in seconds for splits in messages to avoid message collision
-splitDelay = 0.0
+splitDelay = 2.5
 # message chunk size for sending at high success rate, chunkr allows exceeding by 3 characters
 MESSAGE_CHUNK_SIZE = 160
 # Request Acknowledgement of message OTA
