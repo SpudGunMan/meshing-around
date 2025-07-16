@@ -148,7 +148,6 @@ enabled = True
 lat = 48.50
 lon = -123.0
 UseMeteoWxAPI = True
-riverListDefault = # NOAA Hydrology data, unique identifiers, LID or USGS ID
 ```
 
 ### Module Settings
@@ -215,7 +214,7 @@ alert_interface = 1
 To Alert on Mesh with the EAS API you can set the channels and enable, checks every 20min.
 
 #### FEMA iPAWS/EAS and NINA
-This uses USA: SAME, FIPS, ZIP code to locate the alerts in the feed. By default ignoring Test messages.
+This uses USA: SAME, FIPS, to locate the alerts in the feed. By default ignoring Test messages.
 
 ```ini
 eAlertBroadcastEnabled = False # Goverment IPAWS/CAP Alert Broadcast
@@ -242,6 +241,13 @@ wxAlertBroadcastEnabled = True
 wxAlertBroadcastCh = 2,4
 ignoreEASenable = True # Ignore any headline that includes followig word list
 ignoreEASwords = test,advisory
+```
+
+#### USGS River flow data
+Using the USGS water data page locate a water flow device, for example Columbia River at Vancouver, WA - USGS-14144700
+```ini
+# NOAA Hydrology unique identifiers, LID or USGS ID https://waterdata.usgs.gov
+riverListDefault = 14144700
 ```
 
 ### Repeater Settings

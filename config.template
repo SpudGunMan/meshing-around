@@ -146,7 +146,7 @@ NOAAalertCount = 2
 # use Open-Meteo API for weather data not NOAA useful for non US locations
 UseMeteoWxAPI = False
 
-# NOAA Hydrology unique identifiers, LID or USGS ID
+# NOAA Hydrology unique identifiers, LID or USGS ID https://waterdata.usgs.gov
 riverListDefault = 
 
 # NOAA EAS Alert Broadcast
