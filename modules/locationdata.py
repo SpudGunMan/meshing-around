@@ -561,7 +561,7 @@ def getIpawsAlert(lat=0, lon=0, shortAlerts = False):
                 continue
 
              # check if the alert is for the SAME location, if wanted keep alert
-            if (sameVal in mySAMEList) or (geocode_value in mySAMEList):
+            if (sameVal in mySAMEList) or (geocode_value in mySAMEList) or mySAMEList == ['']:
                 # ignore the FEMA test alerts
                 if ignoreFEMAenable:
                     ignore_alert = False
