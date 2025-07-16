@@ -22,10 +22,10 @@ if ragDEV:
     import ollama # pip install ollama
     import chromadb # pip install chromadb
     from ollama import Client as OllamaClient
-    ollamaClient = OllamaClient(host=ollamaHost)
+    ollamaClient = OllamaClient(host=ollamaHostName)
 
 # LLM System Variables
-ollamaAPI = "http://%s/api/generate" % (ollamaHost)
+ollamaAPI = ollamaHostName + "/api/generate"
 antiFloodLLM = []
 llmChat_history = {}
 trap_list_llm = ("ask:", "askai")
