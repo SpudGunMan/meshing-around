@@ -367,7 +367,7 @@ try:
 
     # LLM Settings 
     config['LLM'] = {'googleSearchResults': '3'}
-    ollamaHost = config['LLM'].get('ollama_host', '')
+    ollamaHostName = config['LLM'].get('ollama_host', 'http:/localhost:11434')
     openaiAPI = config['LLM'].get('openaiAPI', 'https://api.openai.com/v1/completions') # Default from llm.py
     llmEnableHistory = config['LLM'].getboolean('llmEnableHistory', True) # Default from llm.py
     llmContext_fromGoogle = config['LLM'].getboolean('llmContext_fromGoogle', True) # Default from llm.py
