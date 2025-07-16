@@ -227,8 +227,8 @@ myFIPSList = 57,58,53
 mySAMEList = 053029,053073
 
 # To use other country services enable only a single optional serivce
-
 enableDEalerts = False # Use DE Alert Broadcast Data see template for filters
+myRegionalKeysDE = 110000000000,120510000000
 ```
 
 #### NOAA EAS
@@ -243,12 +243,18 @@ ignoreEASenable = True # Ignore any headline that includes followig word list
 ignoreEASwords = test,advisory
 ```
 
-#### USGS River flow data
+#### USGS River flow data and Volcano alerts
 Using the USGS water data page locate a water flow device, for example Columbia River at Vancouver, WA - USGS-14144700
+
+Volcano Alerts use lat/long to determine ~1000km radius
 ```ini
 [location]
-# NOAA Hydrology unique identifiers, LID or USGS ID https://waterdata.usgs.gov
+# USGS Hydrology unique identifiers, LID or USGS ID https://waterdata.usgs.gov
 riverListDefault = 14144700
+
+# USGS Volcano alerts Enable USGS Volcano Alert Broadcast
+volcanoAlertBroadcastEnabled = False
+volcanoAlertBroadcastCh = 2
 ```
 
 ### Repeater Settings
