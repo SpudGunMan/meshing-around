@@ -528,6 +528,10 @@ def getIpawsAlert(lat=0, lon=0, shortAlerts = False):
             continue
 
         for info in linked_xml.getElementsByTagName("info"):
+            # only get en-US language alerts (alternative is es-US)
+            language_nodes = info.getElementsByTagName("language")
+            if not any(node.firstChild and node.firstChild.nodeValue.strip() == "en-US" for node in language_nodes):
+                    continue  # skip if not en-US
             # extract values from XML
             sameVal = "NONE"
             geocode_value = "NONE"
@@ -545,32 +549,43 @@ def getIpawsAlert(lat=0, lon=0, shortAlerts = False):
 
                 area_table = info.getElementsByTagName("area")[0]
                 areaDesc = area_table.getElementsByTagName("areaDesc")[0].childNodes[0].nodeValue
+                geocode_table = area_table.getElementsByTagName("geocode")[0]
+                geocode_type = geocode_table.getElementsByTagName("valueName")[0].childNodes[0].nodeValue
+                geocode_value = geocode_table.getElementsByTagName("value")[0].childNodes[0].nodeValue
+                if geocode_type == "SAME":
+                    sameVal = geocode_value
                 
             except Exception as e:
                 logger.debug(f"System: iPAWS Error extracting alert data: {link}")
                 #print(f"DEBUG: {info.toprettyxml()}")
                 continue
 
-            # ignore the FEMA test alerts
-            if ignoreFEMAenable:
-                ignore_alert = False
-                for word in ignoreFEMAwords:
-                    if word.lower() in headline.lower():
-                        logger.debug(f"System: Ignoring FEMA Alert: {headline} containing {word} at {areaDesc}")
-                        ignore_alert = True
-                        break
-
+             # check if the alert is for the SAME location, if wanted keep alert
+            if (sameVal in mySAMEList) or (geocode_value in mySAMEList):
+                # ignore the FEMA test alerts
+                if ignoreFEMAenable:
+                    ignore_alert = False
+                    for word in ignoreFEMAwords:
+                        if word.lower() in headline.lower():
+                            logger.debug(f"System: Filtering FEMA Alert by WORD: {headline} containing {word} at {areaDesc}")
+                            ignore_alert = True
+                            break
                 if ignore_alert:
                     continue
 
-            # add to alerts list
-            alerts.append({
-                'alertType': alertType,
-                'alertCode': alertCode,
-                'headline': headline,
-                'areaDesc': areaDesc,
-                'description': description
-            })
+                # add to alert list
+                alerts.append({
+                    'alertType': alertType,
+                    'alertCode': alertCode,
+                    'headline': headline,
+                    'areaDesc': areaDesc,
+                    'geocode_type': geocode_type,
+                    'geocode_value': geocode_value,
+                    'description': description
+                })
+            else:
+                logger.debug(f"System: iPAWS Alert not in SAME List: {sameVal} or {geocode_value} for {headline} at {areaDesc}")
+                continue
 
     # return the numWxAlerts of alerts
     if len(alerts) > 0:
@@ -684,5 +699,3 @@ def get_volcano_usgs(lat=0, lon=0):
     # return the alerts
     alerts = abbreviate_noaa(alerts)
     return alerts
-
-

@@ -163,6 +163,8 @@ enableExtraLocationWx = False
 eAlertBroadcastEnabled = False
 # comma separated list of FIPS codes to trigger local alert. find your FIPS codes at https://en.wikipedia.org/wiki/Federal_Information_Processing_Standard_state_code
 myFIPSList = 57,58,53
+# find your SAME https://www.weather.gov/nwr/counties comma separated list of SAME code to further refine local alert.
+mySAMEList = 053029,053073
 # Goverment Alert Broadcast Channels
 eAlertBroadcastCh = 2
 #  Enable Ignore, headline that includes following word list

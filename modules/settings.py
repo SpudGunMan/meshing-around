@@ -264,6 +264,7 @@ try:
     numWxAlerts = config['location'].getint('NOAAalertCount', 2) # default 2 alerts
     enableExtraLocationWx = config['location'].getboolean('enableExtraLocationWx', False) # default False
     myStateFIPSList = config['location'].get('myFIPSList', '').split(',') # default empty
+    mySAMEList = config['location'].get('mySAMEList', '').split(',') # default empty
     ignoreFEMAenable = config['location'].getboolean('ignoreFEMAenable', True) # default True
     ignoreFEMAwords = config['location'].get('ignoreFEMAwords', 'test,exercise').split(',') # default test,exercise
     wxAlertBroadcastChannel = config['location'].get('wxAlertBroadcastCh', '2').split(',') # default Channel 2
