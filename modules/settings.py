@@ -98,6 +98,11 @@ if 'qrz' not in config:
     config['qrz'] = {'enabled': 'False', 'qrz_db': 'data/qrz.db', 'qrz_hello_string': 'send CMD or DM me for more info.'}
     config.write(open(config_file, 'w'))
 
+#  = 3 # number of google search results to include in the context more results = more compute time
+if 'LLM' not in config:
+    config['LLM'] = {'ollama_hostname': '', 'openai_api': 'https://api.openai.com/v1/completions', 'llm_enable_history': 'True', 'llm_context_from_google': 'True', 'google_search_results': '3', 'ollama_model': 'gemma2:2b'}
+    config.write(open(config_file, 'w'))
+
 # interface1 settings
 interface1_type = config['interface'].get('type', 'serial')
 port1 = config['interface'].get('port', '')
@@ -214,14 +219,13 @@ try:
     enableCmdHistory = config['general'].getboolean('enableCmdHistory', True)
     lheardCmdIgnoreNode = config['general'].get('lheardCmdIgnoreNode', '').split(',')
     whoami_enabled = config['general'].getboolean('whoami', True)
+    llm_enabled = config['general'].getboolean('ollama', False) # https://ollama.com
     dad_jokes_enabled = config['general'].getboolean('DadJokes', False)
     dad_jokes_emojiJokes = config['general'].getboolean('DadJokesEmoji', False)
     bee_enabled = config['general'].getboolean('bee', False) # 🐝 off by default undocumented
     solar_conditions_enabled = config['general'].getboolean('spaceWeather', True)
     wikipedia_enabled = config['general'].getboolean('wikipedia', False)
-    llm_enabled = config['general'].getboolean('ollama', False) # https://ollama.com
-    llmModel = config['general'].get('ollamaModel', 'gemma2:2b') # default gemma2:2b
-    ollamaHostName = config['general'].get('ollamaHostName', 'http://localhost:11434') # default localhost
+
     llmReplyToNonCommands = config['general'].getboolean('llmReplyToNonCommands', True)
     # emergency response
     emergency_responder_enabled = config['emergencyHandler'].getboolean('enabled', False)
@@ -360,6 +364,13 @@ try:
     maxBuffer = config['messagingSettings'].getint('maxBuffer', 220) # default 220
     enableHopLogs = config['messagingSettings'].getboolean('enableHopLogs', False) # default False
 
+    # LLM Settings 
+    ollamaHostName = config['LLM'].get('ollama_hostname', 'http://localhost:11434')
+    openaiAPI = config['LLM'].get('openai_api', 'https://api.openai.com/v1/completions') # Default from llm.py
+    llmEnableHistory = config['LLM'].getboolean('llm_enable_history', True) # Default from llm.py
+    llmContext_fromGoogle = config['LLM'].getboolean('llm_context_from_google', True) # Default from llm.py
+    googleSearchResults = config['LLM'].getint('google_search_results', 3) # Default from llm.py
+    llmModel = config['LLM'].get('ollama_model', 'gemma2:2b') # default gemma2:2b
 except KeyError as e:
     print(f"System: Error reading config file: {e}")
     print(f"System: Check the config.ini against config.template file for missing sections or values.")

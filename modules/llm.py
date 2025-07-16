@@ -26,10 +26,6 @@ if ragDEV:
 
 # LLM System Variables
 ollamaAPI = ollamaHostName + "/api/generate"
-openaiAPI = "https://api.openai.com/v1/completions" # not used, if you do push a enhancement!
-llmEnableHistory = True # enable last message history for the LLM model
-llmContext_fromGoogle = True # enable context from google search results adds to compute time but really helps with responses accuracy
-googleSearchResults = 3 # number of google search results to include in the context more results = more compute time
 antiFloodLLM = []
 llmChat_history = {}
 trap_list_llm = ("ask:", "askai")
