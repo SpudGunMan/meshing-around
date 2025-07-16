@@ -246,6 +246,7 @@ ignoreEASwords = test,advisory
 #### USGS River flow data
 Using the USGS water data page locate a water flow device, for example Columbia River at Vancouver, WA - USGS-14144700
 ```ini
+[location]
 # NOAA Hydrology unique identifiers, LID or USGS ID https://waterdata.usgs.gov
 riverListDefault = 14144700
 ```
