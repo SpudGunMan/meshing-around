@@ -818,20 +818,13 @@ def handleAlertBroadcast(deviceID=1):
 
 def onDisconnect(interface):
     global retry_int1, retry_int2, retry_int3, retry_int4, retry_int5, retry_int6, retry_int7, retry_int8, retry_int9
-    if interface is None:
-        logger.critical("System: Lost Connection to Device None")
-        exit_handler()
     rxType = type(interface).__name__
     if rxType in ['SerialInterface', 'TCPInterface', 'BLEInterface']:
-        identifier = interface.__dict__.get('devPath', interface.__dict__.get('hostname', 'BLE'))
-        logger.critical(f"System: Lost Connection to Device {identifier}")
+        logger.critical(f"System: Lost Connection to Device {interface}")
         for i in range(1, 10):
             if globals().get(f'interface{i}_enabled'):
-                if (rxType == 'SerialInterface' and globals().get(f'port{i}') in identifier) or \
-                   (rxType == 'TCPInterface' and globals().get(f'hostname{i}') in identifier) or \
-                   (rxType == 'BLEInterface' and globals().get(f'interface{i}_type') == 'ble'):
-                    globals()[f'retry_int{i}'] = True
-                    break
+                globals()[f'retry_int{i}'] = True
+                break
 
 def exit_handler():
     # Close the interface and save the BBS messages
