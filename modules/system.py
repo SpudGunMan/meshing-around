@@ -823,8 +823,13 @@ def onDisconnect(interface):
         logger.critical(f"System: Lost Connection to Device {interface}")
         for i in range(1, 10):
             if globals().get(f'interface{i}_enabled'):
-                globals()[f'retry_int{i}'] = True
-                break
+                if globals().get(f'max_retry_count{i}') > 0:
+                    retry_flag = globals().get(f'retry_int{i}')
+                    if not retry_flag:
+                        globals()[f'retry_int{i}'] = True
+                else:
+                    logger.critical(f"System: Interface{i} {globals()[f'interface{i}']} failed to reconnect after multiple attempts. Exiting")
+                    exit_handler()
 
 def exit_handler():
     # Close the interface and save the BBS messages

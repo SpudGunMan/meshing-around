@@ -21,8 +21,7 @@ ping_enabled = True # ping feature to respond to pings, ack's etc.
 sitrep_enabled = True # sitrep feature to respond to sitreps
 lastHamLibAlert = 0 # last alert from hamlib
 lastFileAlert = 0 # last alert from file monitor
-max_retry_count1 = 4 # max retry count for interface 1
-max_retry_count2 = 4 # max retry count for interface 2
+max_retry_count1 = max_retry_count2 = max_retry_count3 = max_retry_count4 = max_retry_count5 = max_retry_count6 = max_retry_count7 = max_retry_count8 = max_retry_count9 = 4 # default retry count for interfaces
 retry_int1 = False
 retry_int2 = False
 wiki_return_limit = 3 # limit the number of sentences returned off the first paragraph first hit
