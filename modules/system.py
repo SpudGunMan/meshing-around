@@ -831,28 +831,6 @@ def onDisconnect(interface):
                     logger.critical(f"System: Interface{i} {globals()[f'interface{i}']} failed to reconnect after multiple attempts. Exiting")
                     exit_handler()
 
-def exit_handler():
-    # Close the interface and save the BBS messages
-    logger.debug(f"System: Closing Autoresponder")
-    try:
-        logger.debug(f"System: Closing Interface1")
-        interface1.close()
-        if multiple_interface:
-            for i in range(2, 10):
-                if globals().get(f'interface{i}_enabled'):
-                    logger.debug(f"System: Closing Interface{i}")
-                    globals()[f'interface{i}'].close()
-    except Exception as e:
-        logger.error(f"System: closing: {e}")
-    if bbs_enabled:
-        save_bbsdb()
-        save_bbsdm()
-        logger.debug(f"System: BBS Messages Saved")
-    logger.debug(f"System: Exiting")
-    asyncLoop.stop()
-    asyncLoop.close()
-    exit (0)
-
 # Telemetry Functions
 telemetryData = {}
 def initialize_telemetryData():
@@ -1251,3 +1229,24 @@ async def watchdog():
                 except Exception as e:
                     logger.error(f"System: retrying interface{i}: {e}")
 
+def exit_handler():
+    # Close the interface and save the BBS messages
+    logger.debug(f"System: Closing Autoresponder")
+    try:
+        logger.debug(f"System: Closing Interface1")
+        interface1.close()
+        if multiple_interface:
+            for i in range(2, 10):
+                if globals().get(f'interface{i}_enabled'):
+                    logger.debug(f"System: Closing Interface{i}")
+                    globals()[f'interface{i}'].close()
+    except Exception as e:
+        logger.error(f"System: closing: {e}")
+    if bbs_enabled:
+        save_bbsdb()
+        save_bbsdm()
+        logger.debug(f"System: BBS Messages Saved")
+    logger.debug(f"System: Exiting")
+    asyncLoop.stop()
+    asyncLoop.close()
+    exit (0)
