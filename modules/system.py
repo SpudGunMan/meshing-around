@@ -790,7 +790,7 @@ def handleAlertBroadcast(deviceID=1):
                 send_message(ukAlert, emergencyAlertBroadcastCh, 0, deviceID)
             return True
 
-        if NO_ALERTS not in deAlert:
+        if NO_ALERTS not in alertDe:
             if isinstance(emergencyAlertBroadcastCh, list):
                 for channel in emergencyAlertBroadcastCh:
                     send_message(ukAlert, int(channel), 0, deviceID)
