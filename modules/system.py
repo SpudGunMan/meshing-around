@@ -817,7 +817,8 @@ def handleAlertBroadcast(deviceID=1):
                 return True
 
 def onDisconnect(interface):
-    global retry_int1, retry_int2, retry_int3, retry_int4, retry_int5, retry_int6, retry_int7, retry_int8, retry_int9
+    # Handle disconnection of the interface
+    logger.warning(f"System: Abrupt Disconnection of Interface detected")
     interface.close()
 
 # Telemetry Functions
