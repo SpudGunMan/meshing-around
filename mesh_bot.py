@@ -1553,10 +1553,11 @@ async def main():
 
     await asyncio.sleep(0.01)
 
-try:
-    if __name__ == "__main__":
+if __name__ == "__main__":
+    try:
         asyncio.run(main())
-except KeyboardInterrupt:
-    exit_handler()
-    pass
+    except KeyboardInterrupt:
+        exit_handler()
+    except SystemExit:
+        pass
 # EOF

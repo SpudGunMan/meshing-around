@@ -818,18 +818,7 @@ def handleAlertBroadcast(deviceID=1):
 
 def onDisconnect(interface):
     global retry_int1, retry_int2, retry_int3, retry_int4, retry_int5, retry_int6, retry_int7, retry_int8, retry_int9
-    rxType = type(interface).__name__
-    if rxType in ['SerialInterface', 'TCPInterface', 'BLEInterface']:
-        logger.critical(f"System: Lost Connection to Device {interface}")
-        for i in range(1, 10):
-            if globals().get(f'interface{i}_enabled'):
-                if globals().get(f'max_retry_count{i}') > 0:
-                    retry_flag = globals().get(f'retry_int{i}')
-                    if not retry_flag:
-                        globals()[f'retry_int{i}'] = True
-                else:
-                    logger.critical(f"System: Interface{i} {globals()[f'interface{i}']} failed to reconnect after multiple attempts. Exiting")
-                    exit_handler()
+    interface.close()
 
 # Telemetry Functions
 telemetryData = {}
@@ -1112,18 +1101,22 @@ async def retry_interface(nodeID):
     global max_retry_count1, max_retry_count2, max_retry_count3, max_retry_count4, max_retry_count5, max_retry_count6, max_retry_count7, max_retry_count8, max_retry_count9
     interface = globals()[f'interface{nodeID}']
     retry_int = globals()[f'retry_int{nodeID}']
-    max_retry_count = globals()[f'max_retry_count{nodeID}']
+
+    if dont_retry_disconnect:
+        logger.critical(f"System: dont_retry_disconnect is set, not retrying interface{nodeID}")
+        exit_handler()
 
     if interface is not None:
-        retry_int = True
-        max_retry_count -= 1
+        globals()[f'retry_int{nodeID}'] = True
+        globals()[f'max_retry_count{nodeID}'] -= 1
+        logger.debug(f"System: Retrying interface{nodeID} {globals()[f'max_retry_count{nodeID}']} attempts left")
         try:
             interface.close()
+            logger.debug(f"System: Retrying interface{nodeID} in 15 seconds")
         except Exception as e:
             logger.error(f"System: closing interface{nodeID}: {e}")
 
-    logger.debug(f"System: Retrying interface{nodeID} in 15 seconds")
-    if max_retry_count == 0:
+    if globals()[f'max_retry_count{nodeID}'] == 0:
         logger.critical(f"System: Max retry count reached for interface{nodeID}")
         exit_handler()
 
@@ -1133,13 +1126,15 @@ async def retry_interface(nodeID):
         if retry_int:
             interface = None
             globals()[f'interface{nodeID}'] = None
-            logger.debug(f"System: Retrying Interface{nodeID}")
             interface_type = globals()[f'interface{nodeID}_type']
             if interface_type == 'serial':
+                logger.debug(f"System: Retrying Interface{nodeID} Serial on port: {globals().get(f'port{nodeID}')}")
                 globals()[f'interface{nodeID}'] = meshtastic.serial_interface.SerialInterface(globals().get(f'port{nodeID}'))
             elif interface_type == 'tcp':
-                globals()[f'interface{nodeID}'] = meshtastic.tcp_interface.TCPInterface(globals().get(f'host{nodeID}'))
+                logger.debug(f"System: Retrying Interface{nodeID} TCP on hostname: {globals().get(f'hostname{nodeID}')}")
+                globals()[f'interface{nodeID}'] = meshtastic.tcp_interface.TCPInterface(globals().get(f'hostname{nodeID}'))
             elif interface_type == 'ble':
+                logger.debug(f"System: Retrying Interface{nodeID} BLE on mac: {globals().get(f'mac{nodeID}')}")
                 globals()[f'interface{nodeID}'] = meshtastic.ble_interface.BLEInterface(globals().get(f'mac{nodeID}'))
             logger.debug(f"System: Interface{nodeID} Opened!")
             globals()[f'retry_int{nodeID}'] = False
