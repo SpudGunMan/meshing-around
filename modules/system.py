@@ -18,6 +18,7 @@ help_message = "Bot CMD?:"
 asyncLoop = asyncio.new_event_loop()
 games_enabled = False
 multiPingList = [{'message_from_id': 0, 'count': 0, 'type': '', 'deviceID': 0, 'channel_number': 0, 'startCount': 0}]
+interface_retry_count = 3
 
 # Ping Configuration
 if ping_enabled:
@@ -255,7 +256,7 @@ if ble_count > 1:
 logger.debug(f"System: Initializing Interfaces")
 interface1 = interface2 = interface3 = interface4 = interface5 = interface6 = interface7 = interface8 = interface9 = None
 retry_int1 = retry_int2 = retry_int3 = retry_int4 = retry_int5 = retry_int6 = retry_int7 = retry_int8 = retry_int9 = False
-max_retry_count1 = max_retry_count2 = max_retry_count3 = max_retry_count4 = max_retry_count5 = max_retry_count6 = max_retry_count7 = max_retry_count8 = max_retry_count9 = 3
+max_retry_count1 = max_retry_count2 = max_retry_count3 = max_retry_count4 = max_retry_count5 = max_retry_count6 = max_retry_count7 = max_retry_count8 = max_retry_count9 = interface_retry_count
 for i in range(1, 10):
     interface_type = globals().get(f'interface{i}_type')
     if not interface_type or interface_type == 'none' or globals().get(f'interface{i}_enabled') == False:
@@ -1138,6 +1139,8 @@ async def retry_interface(nodeID):
                 logger.debug(f"System: Retrying Interface{nodeID} BLE on mac: {globals().get(f'mac{nodeID}')}")
                 globals()[f'interface{nodeID}'] = meshtastic.ble_interface.BLEInterface(globals().get(f'mac{nodeID}'))
             logger.debug(f"System: Interface{nodeID} Opened!")
+            # reset the retry_int and retry_count
+            globals()[f'max_retry_count{nodeID}'] = interface_retry_count
             globals()[f'retry_int{nodeID}'] = False
     except Exception as e:
         logger.error(f"System: Error Opening interface{nodeID} on: {e}")
