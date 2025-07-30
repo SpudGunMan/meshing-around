@@ -1402,6 +1402,8 @@ async def start_rx():
             logger.debug("System: Location Telemetry Enabled using NOAA API")
     if dad_jokes_enabled:
         logger.debug("System: Dad Jokes Enabled!")
+    if pzzEnabled:
+        logger.debug("Coastal Forcast and Tide Enabled!")
     if games_enabled:
         logger.debug("System: Games Enabled!")
     if wikipedia_enabled:
