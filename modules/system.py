@@ -70,12 +70,6 @@ else:
 if enableCmdHistory:
     trap_list = trap_list + ("history",)
     #help_message = help_message + ", history"
-
-# repeater list Configuration
-if repeater_enabled:
-    from modules.locationdata import * # from the spudgunman/meshing-around repo
-    trap_list = trap_list + ("rlist", )
-    help_message = help_message + ", rlist"
     
 # Location Configuration
 if location_enabled:
