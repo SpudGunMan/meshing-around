@@ -150,7 +150,7 @@ NOAAalertCount = 2
 # use Open-Meteo API for weather data not NOAA useful for non US locations
 UseMeteoWxAPI = False
 
-# NOAA Coastal Waters Forecasts Enable NOAA Coastal Waters Forecasts (PZZ)
+# NOAA Coastal Data Enable NOAA Coastal Waters Forecasts (PZZ) and tide cmd
 pzzEnabled = False
 # My Forecast Zone ID, https://www.weather.gov/marine select location and then look at the 'Forecast-by-Zone Map' and select PZZ zone
 pzzZoneID = 132

@@ -71,11 +71,17 @@ if enableCmdHistory:
     trap_list = trap_list + ("history",)
     #help_message = help_message + ", history"
 
+# repeater list Configuration
+if repeater_enabled:
+    from modules.locationdata import * # from the spudgunman/meshing-around repo
+    trap_list = trap_list + ("rlist", )
+    help_message = help_message + ", rlist"
+    
 # Location Configuration
 if location_enabled:
     from modules.locationdata import * # from the spudgunman/meshing-around repo
-    trap_list = trap_list + trap_list_location # items tide, whereami, wxc, wx
-    help_message = help_message + ", whereami, wx, wxc, rlist"
+    trap_list = trap_list + trap_list_location # items tide, whereami, wx
+    help_message = help_message + ", whereami, wx"
     if enableGBalerts and not enableDEalerts:
         from modules.globalalert import * # from the spudgunman/meshing-around repo
         logger.warning(f"System: GB Alerts not functional at this time need to find a source API")
@@ -87,23 +93,25 @@ if location_enabled:
     
     # Open-Meteo Configuration for worldwide weather
     if use_meteo_wxApi:
+        trap_list = trap_list + ("wxc",)
+        help_message = help_message + ", wxc"
         from modules.wx_meteo import * # from the spudgunman/meshing-around repo
     else:
         # NOAA only features
-        help_message = help_message + ", wxa, tide"
+        help_message = help_message + ", wxa"
 
 # NOAA alerts needs location module
 if wxAlertBroadcastEnabled or emergencyAlertBrodcastEnabled or volcanoAlertBroadcastEnabled:
     from modules.locationdata import * # from the spudgunman/meshing-around repo
     # limited subset, this should be done better but eh..
-    trap_list = trap_list + ("wx", "wxc", "wxa", "wxalert", "ea", "ealert", "valert")
+    trap_list = trap_list + ("wx", "wxa", "wxalert", "ea", "ealert", "valert")
     help_message = help_message + ", wxalert, ealert, valert"
 
 # NOAA Coastal Waters Forecasts PZZ
 if pzzEnabled:
     from modules.locationdata import * # from the spudgunman/meshing-around repo
-    trap_list = trap_list + ("mwx",)
-    help_message = help_message + ", mwx"
+    trap_list = trap_list + ("mwx", "tide",)
+    help_message = help_message + ", mwx, tide"
         
 # BBS Configuration
 if bbs_enabled:
