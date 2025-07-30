@@ -67,6 +67,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "messages": lambda: handle_messages(message, deviceID, channel_number, msg_history, publicChannel, isDM),
     "moon": lambda: handle_moon(message_from_id, deviceID, channel_number),
     "motd": lambda: handle_motd(message, message_from_id, isDM),
+    "mwx": lambda: handle_mwx(message_from_id, deviceID, channel_number),
     "ping": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
     "pinging": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
     "pong": lambda: "🏓PING!!🛜",
@@ -750,6 +751,9 @@ def handle_riverFlow(message, message_from_id, deviceID):
         msg = get_flood_noaa(location[0], location[1], userRiver)
         return msg
 
+def handle_mwx(message_from_id, deviceID, cmd):
+    # NOAA Coastal and Marine Weather PZZ
+    return get_nws_marine(zone=pzzZoneID, days=pzzForecastDays)
 
 def handle_wxc(message_from_id, deviceID, cmd):
     location = get_node_location(message_from_id, deviceID)
@@ -1431,8 +1435,6 @@ async def start_rx():
         # check if the FIPS codes are set
         if myStateFIPSList == ['']:
             logger.warning(f"System: No FIPS codes set for iPAWS Alerts")
-
-
     if emergency_responder_enabled:
         logger.debug(f"System: Emergency Responder Enabled on channels {emergency_responder_alert_channel} for interface {emergency_responder_alert_interface}")
     if volcanoAlertBroadcastEnabled:

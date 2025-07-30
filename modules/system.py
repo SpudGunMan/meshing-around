@@ -98,6 +98,12 @@ if wxAlertBroadcastEnabled or emergencyAlertBrodcastEnabled or volcanoAlertBroad
     # limited subset, this should be done better but eh..
     trap_list = trap_list + ("wx", "wxc", "wxa", "wxalert", "ea", "ealert", "valert")
     help_message = help_message + ", wxalert, ealert, valert"
+
+# NOAA Coastal Waters Forecasts PZZ
+if pzzEnabled:
+    from modules.locationdata import * # from the spudgunman/meshing-around repo
+    trap_list = trap_list + ("mwx",)
+    help_message = help_message + ", mwx"
         
 # BBS Configuration
 if bbs_enabled:

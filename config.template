@@ -108,7 +108,8 @@ SentryChannel = 2
 # holdoff time multiplied by seconds(20) of the watchdog
 SentryHoldoff = 9
 # list of ignored nodes numbers ex: 2813308004,4258675309
-sentryIgnoreList = 
+sentryIgnoreList =
+
 # HighFlying Node alert
 highFlyingAlert = True
 # Altitude in meters to trigger the alert
@@ -148,6 +149,13 @@ NOAAalertCount = 2
 
 # use Open-Meteo API for weather data not NOAA useful for non US locations
 UseMeteoWxAPI = False
+
+# NOAA Coastal Waters Forecasts Enable NOAA Coastal Waters Forecasts (PZZ)
+pzzEnabled = False
+# My Forecast Zone ID, https://www.weather.gov/marine select location and then look at the 'Forecast-by-Zone Map' and select PZZ zone
+pzzZoneID = 132
+# number of data points to return, default is 3
+pzzForecastDays = 3
 
 # USGS Hydrology unique identifiers, LID or USGS ID https://waterdata.usgs.gov
 riverListDefault = 

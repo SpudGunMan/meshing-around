@@ -699,3 +699,62 @@ def get_volcano_usgs(lat=0, lon=0):
     # return the alerts
     alerts = abbreviate_noaa(alerts)
     return alerts
+
+def get_nws_marine(zone, days=3):
+    # forcast from NWS coastal products
+    marine_pzz_url = "https://tgftp.nws.noaa.gov/data/forecasts/marine/coastal/pz/pzz" + str(zone) + ".txt"
+    try:
+        marine_pzz_data = requests.get(marine_pzz_url, timeout=urlTimeoutSeconds)
+        if not marine_pzz_data.ok:
+            logger.warning("Location:Error fetching NWS Marine PZ data")
+            return ERROR_FETCHING_DATA
+    except (requests.exceptions.RequestException):
+        logger.warning("Location:Error fetching NWS Marine PZ data")
+        return ERROR_FETCHING_DATA
+    
+    marine_pzz_data = marine_pzz_data.text
+    #validate data
+    todayDate = today.strftime("%Y%m%d")
+    if marine_pzz_data.startswith("Expires:"):
+        expires = marine_pzz_data.split(";;")[0].split(":")[1]
+        expires_date = expires[:8]
+        if expires_date < todayDate:
+            logger.debug("Location: NWS Marine PZ data expired")
+            return NO_DATA_NOGPS
+    else:
+        logger.debug("Location: NWS Marine PZ data not valid")
+        return NO_DATA_NOGPS
+    
+    # process the marine forecast data
+    marine_pzz_lines = marine_pzz_data.split("\n")
+    marine_pzz_report = ""
+    day_blocks = []
+    current_block = ""
+    in_forecast = False
+
+    for line in marine_pzz_lines:
+        if line.startswith(".") and "..." in line:
+            in_forecast = True
+            if current_block:
+                day_blocks.append(current_block.strip())
+                current_block = ""
+            current_block += line.strip() + " "
+        elif in_forecast and line.strip() != "":
+            current_block += line.strip() + " "
+    if current_block:
+        day_blocks.append(current_block.strip())
+
+    # Only keep up to pzzDays blocks
+    for block in day_blocks[:days]:
+        marine_pzz_report += block + "\n"
+
+    # remove last newline
+    if marine_pzz_report.endswith("\n"):
+        marine_pzz_report = marine_pzz_report[:-1]
+
+    # abbreviate the report
+    marine_pzz_report = abbreviate_noaa(marine_pzz_report)
+    if marine_pzz_report == "":
+        return NO_DATA_NOGPS
+    return marine_pzz_report
+

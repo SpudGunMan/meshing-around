@@ -148,6 +148,9 @@ enabled = True
 lat = 48.50
 lon = -123.0
 UseMeteoWxAPI = True
+
+pzzEnabled = False # NOAA Coastal Waters Forecasts Enable NOAA Coastal Waters Forecasts (PZZ)
+pzzZoneID = 132 # My Forecast Zone ID, https://www.weather.gov/marine select location and then look at the 'Forecast-by-Zone Map' and select PZZ zone
 ```
 
 ### Module Settings
@@ -421,6 +424,7 @@ There is no direct support for MQTT in the code, however, reports from Discord a
 | `valert` | Returns USGS Volcano Data | |
 | `wx` and `wxc` | Return local weather forecast (wxc is metric value), NOAA or Open Meteo for weather forecasting | |
 | `wxa` and `wxalert` | Return NOAA alerts. Short title or expanded details | |
+| `mwx` | Return the NOAA Coastal Marine Forcast data | |
 
 ### Bulletin Board & Mail
 | Command | Description | |
