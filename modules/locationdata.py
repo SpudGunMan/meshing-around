@@ -453,7 +453,7 @@ def getActiveWeatherAlertsDetailNOAA(lat=0, lon=0):
     alerts = alerts.split("\n***\n")[:numWxAlerts]
     
     if alerts == "" or alerts == ['']:
-        return ERROR_FETCHING_DATA
+        return NO_ALERTS
 
     # trim off last newline
     if alerts[-1] == "\n":
