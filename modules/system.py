@@ -18,6 +18,7 @@ help_message = "Bot CMD?:"
 asyncLoop = asyncio.new_event_loop()
 games_enabled = False
 multiPingList = [{'message_from_id': 0, 'count': 0, 'type': '', 'deviceID': 0, 'channel_number': 0, 'startCount': 0}]
+interface_retry_count = 3
 
 # Ping Configuration
 if ping_enabled:
@@ -69,12 +70,12 @@ else:
 if enableCmdHistory:
     trap_list = trap_list + ("history",)
     #help_message = help_message + ", history"
-
+    
 # Location Configuration
 if location_enabled:
     from modules.locationdata import * # from the spudgunman/meshing-around repo
-    trap_list = trap_list + trap_list_location # items tide, whereami, wxc, wx
-    help_message = help_message + ", whereami, wx, wxc, rlist"
+    trap_list = trap_list + trap_list_location + ("tide",)
+    help_message = help_message + ", whereami, wx, tide"
     if enableGBalerts and not enableDEalerts:
         from modules.globalalert import * # from the spudgunman/meshing-around repo
         logger.warning(f"System: GB Alerts not functional at this time need to find a source API")
@@ -86,17 +87,25 @@ if location_enabled:
     
     # Open-Meteo Configuration for worldwide weather
     if use_meteo_wxApi:
+        trap_list = trap_list + ("wxc",)
+        help_message = help_message + ", wxc"
         from modules.wx_meteo import * # from the spudgunman/meshing-around repo
     else:
         # NOAA only features
-        help_message = help_message + ", wxa, tide"
+        help_message = help_message + ", wxa"
 
 # NOAA alerts needs location module
 if wxAlertBroadcastEnabled or emergencyAlertBrodcastEnabled or volcanoAlertBroadcastEnabled:
     from modules.locationdata import * # from the spudgunman/meshing-around repo
     # limited subset, this should be done better but eh..
-    trap_list = trap_list + ("wx", "wxc", "wxa", "wxalert", "ea", "ealert", "valert")
+    trap_list = trap_list + ("wx", "wxa", "wxalert", "ea", "ealert", "valert")
     help_message = help_message + ", wxalert, ealert, valert"
+
+# NOAA Coastal Waters Forecasts PZZ
+if pzzEnabled:
+    from modules.locationdata import * # from the spudgunman/meshing-around repo
+    trap_list = trap_list + ("mwx",)
+    help_message = help_message + ", mwx"
         
 # BBS Configuration
 if bbs_enabled:
@@ -255,6 +264,7 @@ if ble_count > 1:
 logger.debug(f"System: Initializing Interfaces")
 interface1 = interface2 = interface3 = interface4 = interface5 = interface6 = interface7 = interface8 = interface9 = None
 retry_int1 = retry_int2 = retry_int3 = retry_int4 = retry_int5 = retry_int6 = retry_int7 = retry_int8 = retry_int9 = False
+max_retry_count1 = max_retry_count2 = max_retry_count3 = max_retry_count4 = max_retry_count5 = max_retry_count6 = max_retry_count7 = max_retry_count8 = max_retry_count9 = interface_retry_count
 for i in range(1, 10):
     interface_type = globals().get(f'interface{i}_type')
     if not interface_type or interface_type == 'none' or globals().get(f'interface{i}_enabled') == False:
@@ -540,6 +550,15 @@ def messageChunker(message):
                 if current_chunk:
                     message_list.append(current_chunk)
 
+        # Consolidate any adjacent messages that can fit in a single chunk.
+        idx = 0
+        while idx < len(message_list) - 1:
+            if len(message_list[idx]) + len(message_list[idx+1]) < MESSAGE_CHUNK_SIZE:
+                message_list[idx] += '\n' + message_list[idx+1]
+                del message_list[idx+1]
+            else:
+                idx += 1
+
         # Ensure no chunk exceeds MESSAGE_CHUNK_SIZE
         final_message_list = []
         for chunk in message_list:
@@ -779,7 +798,7 @@ def handleAlertBroadcast(deviceID=1):
                 send_message(ukAlert, emergencyAlertBroadcastCh, 0, deviceID)
             return True
 
-        if NO_ALERTS not in deAlert:
+        if NO_ALERTS not in alertDe:
             if isinstance(emergencyAlertBroadcastCh, list):
                 for channel in emergencyAlertBroadcastCh:
                     send_message(ukAlert, int(channel), 0, deviceID)
@@ -816,40 +835,9 @@ def handleAlertBroadcast(deviceID=1):
                 return True
 
 def onDisconnect(interface):
-    global retry_int1, retry_int2, retry_int3, retry_int4, retry_int5, retry_int6, retry_int7, retry_int8, retry_int9
-    rxType = type(interface).__name__
-    if rxType in ['SerialInterface', 'TCPInterface', 'BLEInterface']:
-        identifier = interface.__dict__.get('devPath', interface.__dict__.get('hostname', 'BLE'))
-        logger.critical(f"System: Lost Connection to Device {identifier}")
-        for i in range(1, 10):
-            if globals().get(f'interface{i}_enabled'):
-                if (rxType == 'SerialInterface' and globals().get(f'port{i}') in identifier) or \
-                   (rxType == 'TCPInterface' and globals().get(f'hostname{i}') in identifier) or \
-                   (rxType == 'BLEInterface' and globals().get(f'interface{i}_type') == 'ble'):
-                    globals()[f'retry_int{i}'] = True
-                    break
-
-def exit_handler():
-    # Close the interface and save the BBS messages
-    logger.debug(f"System: Closing Autoresponder")
-    try:
-        logger.debug(f"System: Closing Interface1")
-        interface1.close()
-        if multiple_interface:
-            for i in range(2, 10):
-                if globals().get(f'interface{i}_enabled'):
-                    logger.debug(f"System: Closing Interface{i}")
-                    globals()[f'interface{i}'].close()
-    except Exception as e:
-        logger.error(f"System: closing: {e}")
-    if bbs_enabled:
-        save_bbsdb()
-        save_bbsdm()
-        logger.debug(f"System: BBS Messages Saved")
-    logger.debug(f"System: Exiting")
-    asyncLoop.stop()
-    asyncLoop.close()
-    exit (0)
+    # Handle disconnection of the interface
+    logger.warning(f"System: Abrupt Disconnection of Interface detected")
+    interface.close()
 
 # Telemetry Functions
 telemetryData = {}
@@ -982,7 +970,8 @@ def consumeMetadata(packet, rxNode=0):
                 # if altitude is over 2000 send a log and message for high-flying nodes and not in highfly_ignoreList
                 if position_data.get('altitude', 0) > highfly_altitude and highfly_enabled and str(nodeID) not in highfly_ignoreList:
                     logger.info(f"System: High Altitude {position_data['altitude']}m on Device: {rxNode} NodeID: {nodeID}")
-                    send_message(f"High Altitude {position_data['altitude']}m on Device:{rxNode} Node:{get_name_from_number(nodeID,'short',rxNode)}", highfly_channel, 0, rxNode)
+                    altFeet = round(position_data['altitude'] * 3.28084, 2)
+                    send_message(f"High Altitude {altFeet}ft ({position_data['altitude']}m) on Device:{rxNode} Node:{get_name_from_number(nodeID,'short',rxNode)}", highfly_channel, 0, rxNode)
                     time.sleep(responseDelay)
         
                 # Keep the positionMetadata dictionary at a maximum size of 20
@@ -1128,21 +1117,26 @@ async def handleFileWatcher():
         pass
 
 async def retry_interface(nodeID):
-    global max_retry_count
+    global retry_int1, retry_int2, retry_int3, retry_int4, retry_int5, retry_int6, retry_int7, retry_int8, retry_int9
+    global max_retry_count1, max_retry_count2, max_retry_count3, max_retry_count4, max_retry_count5, max_retry_count6, max_retry_count7, max_retry_count8, max_retry_count9
     interface = globals()[f'interface{nodeID}']
     retry_int = globals()[f'retry_int{nodeID}']
-    max_retry_count = globals()[f'max_retry_count{nodeID}']
+
+    if dont_retry_disconnect:
+        logger.critical(f"System: dont_retry_disconnect is set, not retrying interface{nodeID}")
+        exit_handler()
 
     if interface is not None:
-        retry_int = True
-        max_retry_count -= 1
+        globals()[f'retry_int{nodeID}'] = True
+        globals()[f'max_retry_count{nodeID}'] -= 1
+        logger.debug(f"System: Retrying interface{nodeID} {globals()[f'max_retry_count{nodeID}']} attempts left")
         try:
             interface.close()
+            logger.debug(f"System: Retrying interface{nodeID} in 15 seconds")
         except Exception as e:
             logger.error(f"System: closing interface{nodeID}: {e}")
 
-    logger.debug(f"System: Retrying interface{nodeID} in 15 seconds")
-    if max_retry_count == 0:
+    if globals()[f'max_retry_count{nodeID}'] == 0:
         logger.critical(f"System: Max retry count reached for interface{nodeID}")
         exit_handler()
 
@@ -1152,15 +1146,19 @@ async def retry_interface(nodeID):
         if retry_int:
             interface = None
             globals()[f'interface{nodeID}'] = None
-            logger.debug(f"System: Retrying Interface{nodeID}")
             interface_type = globals()[f'interface{nodeID}_type']
             if interface_type == 'serial':
+                logger.debug(f"System: Retrying Interface{nodeID} Serial on port: {globals().get(f'port{nodeID}')}")
                 globals()[f'interface{nodeID}'] = meshtastic.serial_interface.SerialInterface(globals().get(f'port{nodeID}'))
             elif interface_type == 'tcp':
-                globals()[f'interface{nodeID}'] = meshtastic.tcp_interface.TCPInterface(globals().get(f'host{nodeID}'))
+                logger.debug(f"System: Retrying Interface{nodeID} TCP on hostname: {globals().get(f'hostname{nodeID}')}")
+                globals()[f'interface{nodeID}'] = meshtastic.tcp_interface.TCPInterface(globals().get(f'hostname{nodeID}'))
             elif interface_type == 'ble':
+                logger.debug(f"System: Retrying Interface{nodeID} BLE on mac: {globals().get(f'mac{nodeID}')}")
                 globals()[f'interface{nodeID}'] = meshtastic.ble_interface.BLEInterface(globals().get(f'mac{nodeID}'))
             logger.debug(f"System: Interface{nodeID} Opened!")
+            # reset the retry_int and retry_count
+            globals()[f'max_retry_count{nodeID}'] = interface_retry_count
             globals()[f'retry_int{nodeID}'] = False
     except Exception as e:
         logger.error(f"System: Error Opening interface{nodeID} on: {e}")
@@ -1248,3 +1246,24 @@ async def watchdog():
                 except Exception as e:
                     logger.error(f"System: retrying interface{i}: {e}")
 
+def exit_handler():
+    # Close the interface and save the BBS messages
+    logger.debug(f"System: Closing Autoresponder")
+    try:
+        logger.debug(f"System: Closing Interface1")
+        interface1.close()
+        if multiple_interface:
+            for i in range(2, 10):
+                if globals().get(f'interface{i}_enabled'):
+                    logger.debug(f"System: Closing Interface{i}")
+                    globals()[f'interface{i}'].close()
+    except Exception as e:
+        logger.error(f"System: closing: {e}")
+    if bbs_enabled:
+        save_bbsdb()
+        save_bbsdm()
+        logger.debug(f"System: BBS Messages Saved")
+    logger.debug(f"System: Exiting")
+    asyncLoop.stop()
+    asyncLoop.close()
+    exit (0)

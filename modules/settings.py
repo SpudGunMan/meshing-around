@@ -21,8 +21,7 @@ ping_enabled = True # ping feature to respond to pings, ack's etc.
 sitrep_enabled = True # sitrep feature to respond to sitreps
 lastHamLibAlert = 0 # last alert from hamlib
 lastFileAlert = 0 # last alert from file monitor
-max_retry_count1 = 4 # max retry count for interface 1
-max_retry_count2 = 4 # max retry count for interface 2
+max_retry_count1 = max_retry_count2 = max_retry_count3 = max_retry_count4 = max_retry_count5 = max_retry_count6 = max_retry_count7 = max_retry_count8 = max_retry_count9 = 4 # default retry count for interfaces
 retry_int1 = False
 retry_int2 = False
 wiki_return_limit = 3 # limit the number of sentences returned off the first paragraph first hit
@@ -223,6 +222,7 @@ try:
     llmModel = config['general'].get('ollamaModel', 'gemma2:2b') # default gemma2:2b
     ollamaHostName = config['general'].get('ollamaHostName', 'http://localhost:11434') # default localhost
     llmReplyToNonCommands = config['general'].getboolean('llmReplyToNonCommands', True)
+    dont_retry_disconnect = config['general'].getboolean('dont_retry_disconnect', False) # default False, retry on disconnect
     # emergency response
     emergency_responder_enabled = config['emergencyHandler'].getboolean('enabled', False)
     emergency_responder_alert_channel = config['emergencyHandler'].getint('alert_channel', 2) # default 2
@@ -251,6 +251,10 @@ try:
     n2yoAPIKey = config['location'].get('n2yoAPIKey', '') # default empty
     satListConfig = config['location'].get('satList', '25544').split(',') # default 25544 ISS
     riverListDefault = config['location'].get('riverList', '').split(',') # default 12061500 Skagit River
+    pzzEnabled = config['location'].getboolean('pzzEnabled', False) # default False
+    pzzZoneID = config['location'].getint('pzzZoneID', 100) # default 100, PZZ132 for Seattle area
+    pzzForecastDays = config['location'].getint('pzzForecastDays', 3) # default 3 days
+
     # location alerts
     emergencyAlertBrodcastEnabled = config['location'].getboolean('eAlertBroadcastEnabled', False) # default False
     wxAlertBroadcastEnabled = config['location'].getboolean('wxAlertBroadcastEnabled', False) # default False
@@ -259,12 +263,12 @@ try:
     wxAlertsEnabled = config['location'].getboolean('NOAAalertsEnabled', True) # default True
     ignoreEASenable = config['location'].getboolean('ignoreEASenable', False) # default False
     ignoreEASwords = config['location'].get('ignoreEASwords', 'test,advisory').split(',') # default test,advisory
-    mySAME = config['location'].get('mySAME', '').split(',') # default empty
     myRegionalKeysDE = config['location'].get('myRegionalKeysDE', '110000000000').split(',') # default city Berlin
     forecastDuration = config['location'].getint('NOAAforecastDuration', 4) # NOAA forcast days
     numWxAlerts = config['location'].getint('NOAAalertCount', 2) # default 2 alerts
     enableExtraLocationWx = config['location'].getboolean('enableExtraLocationWx', False) # default False
-    ipawsPIN = config['location'].get('ipawsPIN', '000000') # default 000000
+    myStateFIPSList = config['location'].get('myFIPSList', '').split(',') # default empty
+    mySAMEList = config['location'].get('mySAMEList', '').split(',') # default empty
     ignoreFEMAenable = config['location'].getboolean('ignoreFEMAenable', True) # default True
     ignoreFEMAwords = config['location'].get('ignoreFEMAwords', 'test,exercise').split(',') # default test,exercise
     wxAlertBroadcastChannel = config['location'].get('wxAlertBroadcastCh', '2').split(',') # default Channel 2

@@ -356,5 +356,5 @@ exit 0
 
 
 # after install shenannigans
-# add 'bee = True' to config.ini General section. You will likley want to clean the txt up a bit
-# wget https://courses.cs.washington.edu/courses/cse163/20wi/files/lectures/L04/bee-movie.txt -O bee.txt
+# add 'bee = True' to config.ini General section.
+# wget https://gist.github.com/MattIPv4/045239bc27b16b2bcf7a3a9a4648c08a -O bee.txt

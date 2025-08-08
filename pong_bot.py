@@ -310,7 +310,7 @@ def onReceive(packet, interface):
                 isDM = True
                 # check if the message contains a trap word, DMs are always responded to
                 if (messageTrap(message_string) and not llm_enabled) or messageTrap(message_string.split()[0]):
-                    # log the message to the message log
+                    # log the message to stdout
                     logger.info(f"Device:{rxNode} Channel: {channel_number} " + CustomFormatter.green + f"Received DM: " + CustomFormatter.white + f"{message_string} " + CustomFormatter.purple +\
                                 "From: " + CustomFormatter.white + f"{get_name_from_number(message_from_id, 'long', rxNode)}")
                     # respond with DM
@@ -321,7 +321,8 @@ def onReceive(packet, interface):
                     time.sleep(responseDelay)
                     
                     # log the message to the message log
-                    msgLogger.info(f"Device:{rxNode} Channel:{channel_number} | {get_name_from_number(message_from_id, 'long', rxNode)} | " + message_string.replace('\n', '-nl-'))
+                    if log_messages_to_file:
+                        msgLogger.info(f"Device:{rxNode} Channel:{channel_number} | {get_name_from_number(message_from_id, 'long', rxNode)} | DM | " + message_string.replace('\n', '-nl-'))
             else:
                 # message is on a channel
                 if messageTrap(message_string):
@@ -443,10 +444,11 @@ async def main():
 
     await asyncio.sleep(0.01)
 
-try:
-    if __name__ == "__main__":
+if __name__ == "__main__":
+    try:
         asyncio.run(main())
-except KeyboardInterrupt:
-    exit_handler()
-    pass
+    except KeyboardInterrupt:
+        exit_handler()
+    except SystemExit:
+        pass
 # EOF

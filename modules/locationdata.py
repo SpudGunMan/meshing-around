@@ -9,7 +9,7 @@ import bs4 as bs # pip install beautifulsoup4
 import xml.dom.minidom 
 from modules.log import *
 
-trap_list_location = ("whereami", "tide", "wx", "wxc", "wxa", "wxalert", "rlist", "ea", "ealert", "riverflow","valert")
+trap_list_location = ("whereami", "wx", "wxa", "wxalert", "rlist", "ea", "ealert", "riverflow", "valert")
 
 def where_am_i(lat=0, lon=0, short=False, zip=False):
     whereIam = ""
@@ -453,7 +453,7 @@ def getActiveWeatherAlertsDetailNOAA(lat=0, lon=0):
     alerts = alerts.split("\n***\n")[:numWxAlerts]
     
     if alerts == "" or alerts == ['']:
-        return ERROR_FETCHING_DATA
+        return NO_ALERTS
 
     # trim off last newline
     if alerts[-1] == "\n":
@@ -472,8 +472,6 @@ def getIpawsAlert(lat=0, lon=0, shortAlerts = False):
     # set the API URL for IPAWS
     namespace = "urn:oasis:names:tc:emergency:cap:1.2"
     alert_url = "https://apps.fema.gov/IPAWSOPEN_EAS_SERVICE/rest/feed"
-    if ipawsPIN != "000000":
-        alert_url += "?pin=" + ipawsPIN
 
     # get the alerts from FEMA
     try:
@@ -491,10 +489,25 @@ def getIpawsAlert(lat=0, lon=0, shortAlerts = False):
     # extract alerts from main feed
     for entry in alertxml.getElementsByTagName("entry"):
         link = entry.getElementsByTagName("link")[0].getAttribute("href")
+
+        ## state FIPS
+        ## This logic is being added to reduce load on FEMA server.
+        stateFips = None
+        for cat in entry.getElementsByTagName("category"):
+            if cat.getAttribute("label") == "statefips":
+                stateFips = cat.getAttribute("term")
+                break
+
+        if stateFips is None:
+            # no stateFIPS found — skip
+            continue
+
+        # check if it matches your list
+        if stateFips not in myStateFIPSList:
+            #logger.debug(f"Skipping FEMA record link {link} with stateFIPS code of: {stateFips} because it doesn't match our StateFIPSList {myStateFIPSList}")
+            continue  # skip to next entry
+
         try:
-            #pin check
-            if ipawsPIN != "000000":
-                link += "?pin=" + ipawsPIN
             # get the linked alert data from FEMA
             linked_data = requests.get(link, timeout=urlTimeoutSeconds)
             if not linked_data.ok or not linked_data.text.strip():
@@ -515,6 +528,10 @@ def getIpawsAlert(lat=0, lon=0, shortAlerts = False):
             continue
 
         for info in linked_xml.getElementsByTagName("info"):
+            # only get en-US language alerts (alternative is es-US)
+            language_nodes = info.getElementsByTagName("language")
+            if not any(node.firstChild and node.firstChild.nodeValue.strip() == "en-US" for node in language_nodes):
+                    continue  # skip if not en-US
             # extract values from XML
             sameVal = "NONE"
             geocode_value = "NONE"
@@ -532,32 +549,31 @@ def getIpawsAlert(lat=0, lon=0, shortAlerts = False):
 
                 area_table = info.getElementsByTagName("area")[0]
                 areaDesc = area_table.getElementsByTagName("areaDesc")[0].childNodes[0].nodeValue
-                
                 geocode_table = area_table.getElementsByTagName("geocode")[0]
                 geocode_type = geocode_table.getElementsByTagName("valueName")[0].childNodes[0].nodeValue
                 geocode_value = geocode_table.getElementsByTagName("value")[0].childNodes[0].nodeValue
                 if geocode_type == "SAME":
                     sameVal = geocode_value
+                
             except Exception as e:
                 logger.debug(f"System: iPAWS Error extracting alert data: {link}")
                 #print(f"DEBUG: {info.toprettyxml()}")
                 continue
 
-            # check if the alert is for the current location, if wanted keep alert
-            if (sameVal in mySAME) or (geocode_value in mySAME):
+             # check if the alert is for the SAME location, if wanted keep alert
+            if (sameVal in mySAMEList) or (geocode_value in mySAMEList) or mySAMEList == ['']:
                 # ignore the FEMA test alerts
                 if ignoreFEMAenable:
                     ignore_alert = False
                     for word in ignoreFEMAwords:
                         if word.lower() in headline.lower():
-                            logger.debug(f"System: Ignoring FEMA Alert: {headline} containing {word} at {areaDesc}")
+                            logger.debug(f"System: Filtering FEMA Alert by WORD: {headline} containing {word} at {areaDesc}")
                             ignore_alert = True
                             break
+                if ignore_alert:
+                    continue
 
-                    if ignore_alert:
-                        continue
-
-                # add to alerts list
+                # add to alert list
                 alerts.append({
                     'alertType': alertType,
                     'alertCode': alertCode,
@@ -567,10 +583,10 @@ def getIpawsAlert(lat=0, lon=0, shortAlerts = False):
                     'geocode_value': geocode_value,
                     'description': description
                 })
-            # else:
-            #     # these are discarded some day but logged for debugging currently
-            #     logger.debug(f"Debug iPAWS: Type:{alertType} Code:{alertCode} Desc:{areaDesc} GeoType:{geocode_type} GeoVal:{geocode_value}, Headline:{headline}")
-    
+            else:
+                logger.debug(f"System: iPAWS Alert not in SAME List: {sameVal} or {geocode_value} for {headline} at {areaDesc}")
+                continue
+
     # return the numWxAlerts of alerts
     if len(alerts) > 0:
         for alertItem in alerts[:numWxAlerts]:
@@ -684,4 +700,61 @@ def get_volcano_usgs(lat=0, lon=0):
     alerts = abbreviate_noaa(alerts)
     return alerts
 
+def get_nws_marine(zone, days=3):
+    # forcast from NWS coastal products
+    marine_pzz_url = "https://tgftp.nws.noaa.gov/data/forecasts/marine/coastal/pz/pzz" + str(zone) + ".txt"
+    try:
+        marine_pzz_data = requests.get(marine_pzz_url, timeout=urlTimeoutSeconds)
+        if not marine_pzz_data.ok:
+            logger.warning("Location:Error fetching NWS Marine PZ data")
+            return ERROR_FETCHING_DATA
+    except (requests.exceptions.RequestException):
+        logger.warning("Location:Error fetching NWS Marine PZ data")
+        return ERROR_FETCHING_DATA
+    
+    marine_pzz_data = marine_pzz_data.text
+    #validate data
+    todayDate = today.strftime("%Y%m%d")
+    if marine_pzz_data.startswith("Expires:"):
+        expires = marine_pzz_data.split(";;")[0].split(":")[1]
+        expires_date = expires[:8]
+        if expires_date < todayDate:
+            logger.debug("Location: NWS Marine PZ data expired")
+            return NO_DATA_NOGPS
+    else:
+        logger.debug("Location: NWS Marine PZ data not valid")
+        return NO_DATA_NOGPS
+    
+    # process the marine forecast data
+    marine_pzz_lines = marine_pzz_data.split("\n")
+    marine_pzz_report = ""
+    day_blocks = []
+    current_block = ""
+    in_forecast = False
+
+    for line in marine_pzz_lines:
+        if line.startswith(".") and "..." in line:
+            in_forecast = True
+            if current_block:
+                day_blocks.append(current_block.strip())
+                current_block = ""
+            current_block += line.strip() + " "
+        elif in_forecast and line.strip() != "":
+            current_block += line.strip() + " "
+    if current_block:
+        day_blocks.append(current_block.strip())
+
+    # Only keep up to pzzDays blocks
+    for block in day_blocks[:days]:
+        marine_pzz_report += block + "\n"
+
+    # remove last newline
+    if marine_pzz_report.endswith("\n"):
+        marine_pzz_report = marine_pzz_report[:-1]
+
+    # abbreviate the report
+    marine_pzz_report = abbreviate_noaa(marine_pzz_report)
+    if marine_pzz_report == "":
+        return NO_DATA_NOGPS
+    return marine_pzz_report
 
