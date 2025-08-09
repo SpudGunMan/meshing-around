@@ -1,0 +1,76 @@
+[config]
+version = 1
+
+[interface]
+type = serial
+port = /dev/ttyUSB0
+# port = /dev/ttyUSB0
+# hostname = meshtastic.local
+# mac = 00:11:22:33:44:55
+
+[general]
+respond_by_dm_only = True
+cmdBang = False
+zuluTime = False
+urlTimeout = 10
+autoPingInChannel = False
+lheardCmdIgnoreNode = 
+bee = False
+dont_retry_disconnect = True
+sysloglevel = DEBUG
+
+[channel_configuration]
+defaultChannel = 0
+ignoreChannels = 
+ignoreDefaultChannel = False
+
+[features]
+wikipedia = False
+whoami = True
+enableCmdHistory = True
+spaceWeather = True
+motdEnabled = True 
+ollama = False
+location_enabled = True
+bbs = False
+qrz = False
+smtp = False
+
+[logging]
+LogMessagesToFile = False
+LogBackupCount = 32
+SyslogToFile = True
+# logging level for the bot (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+sysloglevel = DEBUG
+# Number of log files to keep in days, 0 to keep all
+log_backup_count = 32
+
+[llm]
+# Ollama model to use (defaults to gemma2:2b)
+# ollamaModel = llama3.1
+# server instance to use (defaults to local machine install)
+ollamaHostName = http://localhost:11434
+# Produce LLM replies to messages that aren't commands?
+# If False, the LLM only replies to the "ask:" and "askai" commands.
+llmReplyToNonCommands = True
+
+
+# These modules are not configured. See config-all_1.0.template for more details.
+[smtp]
+[repeater]
+[scheduler]
+[radio_monitor]
+[file_monitor]
+[gameSettings]
+[messagingSettings]
+[automatic_messaging]
+[dad_jokes]
+[store_and_foward]
+[emergency_handler]
+[sentry]
+[location]
+[location_alerts]
+[bbs]
+[checklist]
+[qrz]
+

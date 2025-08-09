@@ -1,6 +1,8 @@
 # Settings for MeshBot and PongBot
 # 2024 Kelly Keeton K7MHI
 import configparser
+from modules.log import *
+
 
 # messages
 NO_DATA_NOGPS = "No location data: does your device have GPS?"
@@ -38,332 +40,534 @@ try:
 except Exception as e:
     print(f"System: Error reading config file: {e}")
 
-if config.sections() == []:
-    print(f"System: Error reading config file: {config_file} is empty or does not exist.")
-    config['interface'] = {'type': 'serial', 'port': "/dev/ttyACM0", 'hostname': '', 'mac': ''}
-    config['general'] = {'respond_by_dm_only': 'True', 'defaultChannel': '0', 'motd': MOTD, 'welcome_message': WELCOME_MSG, 'zuluTime': 'False'}
-    config.write(open(config_file, 'w'))
-    print (f"System: Config file created, check {config_file} or review the config.template")
-
-if 'sentry' not in config:
-    config['sentry'] = {'SentryEnabled': 'False', 'SentryChannel': '2', 'SentryHoldoff': '9', 'sentryIgnoreList': '', 'SentryRadius': '100'}
-    config.write(open(config_file, 'w'))
-
-if 'location' not in config:
-    config['location'] = {'enabled': 'True', 'lat': '48.50', 'lon': '-123.0', 'UseMeteoWxAPI': 'False', 'useMetric': 'False', 'NOAAforecastDuration': '4', 'NOAAalertCount': '2', 'NOAAalertsEnabled': 'True', 'wxAlertBroadcastEnabled': 'False', 'wxAlertBroadcastChannel': '2', 'repeaterLookup': 'rbook'}
-    config.write(open(config_file, 'w'))
-
-if 'bbs' not in config:
-    config['bbs'] = {'enabled': 'False', 'bbsdb': 'data/bbsdb.pkl', 'bbs_ban_list': '', 'bbs_admin_list': ''}
-    config.write(open(config_file, 'w'))
-
-if 'repeater' not in config:
-    config['repeater'] = {'enabled': 'False', 'repeater_channels': ''}
-    config.write(open(config_file, 'w'))
-
-if 'radioMon' not in config:
-    config['radioMon'] = {'enabled': 'False', 'rigControlServerAddress': 'localhost:4532', 'sigWatchBrodcastCh': '2', 'signalDetectionThreshold': '-10', 'signalHoldTime': '10', 'signalCooldown': '5', 'signalCycleLimit': '5'}
-    config.write(open(config_file, 'w'))
-
-if 'games' not in config:
-    config['games'] = {'dopeWars': 'True', 'lemonade': 'True', 'blackjack': 'True', 'videoPoker': 'True'}
-    config.write(open(config_file, 'w'))
-
-if 'messagingSettings' not in config:
-    config['messagingSettings'] = {'responseDelay': '0.7', 'splitDelay': '0', 'MESSAGE_CHUNK_SIZE': '160'}
-    config.write(open(config_file, 'w'))
-
-if 'fileMon' not in config:
-    config['fileMon'] = {'enabled': 'False', 'file_path': 'alert.txt', 'broadcastCh': '2'}
-    config.write(open(config_file, 'w'))
-
-if 'scheduler' not in config:
-    config['scheduler'] = {'enabled': 'False'}
-    config.write(open(config_file, 'w'))
-
-if 'emergencyHandler' not in config:
-    config['emergencyHandler'] = {'enabled': 'False', 'alert_channel': '2', 'alert_interface': '1', 'email': ''}
-    config.write(open(config_file, 'w'))
-
-if 'smtp' not in config:
-    config['smtp'] = {'sysopEmails': '', 'enableSMTP': 'False', 'enableImap': 'False'}
-    config.write(open(config_file, 'w'))
-
-if 'checklist' not in config:
-    config['checklist'] = {'enabled': 'False', 'checklist_db': 'data/checklist.db'}
-    config.write(open(config_file, 'w'))
-
-if 'qrz' not in config:
-    config['qrz'] = {'enabled': 'False', 'qrz_db': 'data/qrz.db', 'qrz_hello_string': 'send CMD or DM me for more info.'}
-    config.write(open(config_file, 'w'))
-
-# interface1 settings
-interface1_type = config['interface'].get('type', 'serial')
-port1 = config['interface'].get('port', '')
-hostname1 = config['interface'].get('hostname', '')
-mac1 = config['interface'].get('mac', '')
-interface1_enabled = True # gotta have at least one interface
-
-# interface2 settings
-if 'interface2' in config:
-    interface2_type = config['interface2'].get('type', 'serial')
-    port2 = config['interface2'].get('port', '')
-    hostname2 = config['interface2'].get('hostname', '')
-    mac2 = config['interface2'].get('mac', '')
-    interface2_enabled = config['interface2'].getboolean('enabled', False)
-else:
-    interface2_enabled = False
-
-# interface3 settings
-if 'interface3' in config:
-    interface3_type = config['interface3'].get('type', 'serial')
-    port3 = config['interface3'].get('port', '')
-    hostname3 = config['interface3'].get('hostname', '')
-    mac3 = config['interface3'].get('mac', '')
-    interface3_enabled = config['interface3'].getboolean('enabled', False)
-else:
-    interface3_enabled = False
-
-# interface4 settings
-if 'interface4' in config:
-    interface4_type = config['interface4'].get('type', 'serial')
-    port4 = config['interface4'].get('port', '')
-    hostname4 = config['interface4'].get('hostname', '')
-    mac4 = config['interface4'].get('mac', '')
-    interface4_enabled = config['interface4'].getboolean('enabled', False)
-else:
-    interface4_enabled = False
-
-# interface5 settings
-if 'interface5' in config:
-    interface5_type = config['interface5'].get('type', 'serial')
-    port5 = config['interface5'].get('port', '')
-    hostname5 = config['interface5'].get('hostname', '')
-    mac5 = config['interface5'].get('mac', '')
-    interface5_enabled = config['interface5'].getboolean('enabled', False)
-else:
-    interface5_enabled = False
-
-# interface6 settings
-if 'interface6' in config:
-    interface6_type = config['interface6'].get('type', 'serial')
-    port6 = config['interface6'].get('port', '')
-    hostname6 = config['interface6'].get('hostname', '')
-    mac6 = config['interface6'].get('mac', '')
-    interface6_enabled = config['interface6'].getboolean('enabled', False)
-else:
-    interface6_enabled = False
-
-# interface7 settings
-if 'interface7' in config:
-    interface7_type = config['interface7'].get('type', 'serial')
-    port7 = config['interface7'].get('port', '')
-    hostname7 = config['interface7'].get('hostname', '')
-    mac7 = config['interface7'].get('mac', '')
-    interface7_enabled = config['interface7'].getboolean('enabled', False)
-else:
-    interface7_enabled = False
-
-# interface8 settings
-if 'interface8' in config:
-    interface8_type = config['interface8'].get('type', 'serial')
-    port8 = config['interface8'].get('port', '')
-    hostname8 = config['interface8'].get('hostname', '')
-    mac8 = config['interface8'].get('mac', '')
-    interface8_enabled = config['interface8'].getboolean('enabled', False)
-else:
-    interface8_enabled = False
-
-# interface9 settings
-if 'interface9' in config:
-    interface9_type = config['interface9'].get('type', 'serial')
-    port9 = config['interface9'].get('port', '')
-    hostname9 = config['interface9'].get('hostname', '')
-    mac9 = config['interface9'].get('mac', '')
-    interface9_enabled = config['interface9'].getboolean('enabled', False)
-else:
-    interface9_enabled = False
-
-multiple_interface = False
-if interface2_enabled or interface3_enabled or interface4_enabled or interface5_enabled or interface6_enabled or interface7_enabled or interface8_enabled or interface9_enabled:
-    multiple_interface = True
-    
-
-# variables from the config.ini file
+# variables from the config.ini file, while maintaining 
 try:
-    # general
-    useDMForResponse = config['general'].getboolean('respond_by_dm_only', True)
-    publicChannel = config['general'].getint('defaultChannel', 0) # the meshtastic public channel
-    ignoreChannels = config['general'].get('ignoreChannels', '').split(',') # ignore these channels
-    ignoreDefaultChannel = config['general'].getboolean('ignoreDefaultChannel', False)
-    cmdBang = config['general'].getboolean('cmdBang', False) # default off
-    zuluTime = config['general'].getboolean('zuluTime', False) # aka 24 hour time
-    log_messages_to_file = config['general'].getboolean('LogMessagesToFile', False) # default off
-    log_backup_count = config['general'].getint('LogBackupCount', 32) # default 32 days
-    syslog_to_file = config['general'].getboolean('SyslogToFile', True) # default on
-    LOGGING_LEVEL = config['general'].get('sysloglevel', 'DEBUG') # default DEBUG
-    urlTimeoutSeconds = config['general'].getint('urlTimeout', 10) # default 10 seconds
-    store_forward_enabled = config['general'].getboolean('StoreForward', True)
-    storeFlimit = config['general'].getint('StoreLimit', 3) # default 3 messages for S&F
-    welcome_message = config['general'].get('welcome_message', WELCOME_MSG)
-    welcome_message = (f"{welcome_message}").replace('\\n', '\n') # allow for newlines in the welcome message
-    motd_enabled = config['general'].getboolean('motdEnabled', True)
-    MOTD = config['general'].get('motd', MOTD)
-    autoPingInChannel = config['general'].getboolean('autoPingInChannel', False)
-    enableCmdHistory = config['general'].getboolean('enableCmdHistory', True)
-    lheardCmdIgnoreNode = config['general'].get('lheardCmdIgnoreNode', '').split(',')
-    whoami_enabled = config['general'].getboolean('whoami', True)
-    dad_jokes_enabled = config['general'].getboolean('DadJokes', False)
-    dad_jokes_emojiJokes = config['general'].getboolean('DadJokesEmoji', False)
-    bee_enabled = config['general'].getboolean('bee', False) # 🐝 off by default undocumented
-    solar_conditions_enabled = config['general'].getboolean('spaceWeather', True)
-    wikipedia_enabled = config['general'].getboolean('wikipedia', False)
-    llm_enabled = config['general'].getboolean('ollama', False) # https://ollama.com
-    llmModel = config['general'].get('ollamaModel', 'gemma2:2b') # default gemma2:2b
-    ollamaHostName = config['general'].get('ollamaHostName', 'http://localhost:11434') # default localhost
-    llmReplyToNonCommands = config['general'].getboolean('llmReplyToNonCommands', True)
-    dont_retry_disconnect = config['general'].getboolean('dont_retry_disconnect', False) # default False, retry on disconnect
-    # emergency response
-    emergency_responder_enabled = config['emergencyHandler'].getboolean('enabled', False)
-    emergency_responder_alert_channel = config['emergencyHandler'].getint('alert_channel', 2) # default 2
-    emergency_responder_alert_interface = config['emergencyHandler'].getint('alert_interface', 1) # default 1
-    emergency_responder_email = config['emergencyHandler'].get('email', '').split(',')
+    if 'config' in config: # Compatability with legacy config.
+        match config['config'].getfloat('version'): # Allow for different config versions.
+            case 1.0:
+                # Logging
+                log_messages_to_file = config['logging'].getboolean('LogMessagesToFile', False) # default off
+                log_backup_count = config['logging'].getint('LogBackupCount', 32) # default 32 days
+                syslog_to_file = config['logging'].getboolean('SyslogToFile', True) # default on
+                LOGGING_LEVEL = config['logging'].get('sysloglevel', 'DEBUG') # default DEBUG
 
-    # sentry
-    sentry_enabled = config['sentry'].getboolean('SentryEnabled', False) # default False
-    secure_channel = config['sentry'].getint('SentryChannel', 2) # default 2
-    sentry_holdoff = config['sentry'].getint('SentryHoldoff', 9) # default 9
-    sentryIgnoreList = config['sentry'].get('sentryIgnoreList', '').split(',')
-    sentry_radius = config['sentry'].getint('SentryRadius', 100) # default 100 meters
-    email_sentry_alerts = config['sentry'].getboolean('emailSentryAlerts', False) # default False
-    highfly_enabled = config['sentry'].getboolean('highFlyingAlert', True) # default True
-    highfly_altitude = config['sentry'].getint('highFlyingAlertAltitude', 2000) # default 2000 meters
-    highfly_channel = config['sentry'].getint('highFlyingAlertChannel', 2) # default 2
-    highfly_ignoreList = config['sentry'].get('highFlyingIgnoreList', '').split(',') # default empty
+                # general
+                useDMForResponse = config['general'].getboolean('respond_by_dm_only', True)
+                cmdBang = config['general'].getboolean('cmdBang', False) # default off
+                zuluTime = config['general'].getboolean('zuluTime', False) # aka 24 hour time
+                urlTimeoutSeconds = config['general'].getint('urlTimeout', 10) # default 10 seconds
+                autoPingInChannel = config['general'].getboolean('autoPingInChannel', False)
+                lheardCmdIgnoreNode = config['general'].get('lheardCmdIgnoreNode', '').split(',')
+                bee_enabled = config['general'].getboolean('bee', False) # 🐝 off by default undocumented
+                dont_retry_disconnect = config['general'].getboolean('dont_retry_disconnect', False) # default False, retry on disconnect
 
-    # location
-    location_enabled = config['location'].getboolean('enabled', True)
-    latitudeValue = config['location'].getfloat('lat', 48.50)
-    longitudeValue = config['location'].getfloat('lon', -123.0)
-    use_meteo_wxApi = config['location'].getboolean('UseMeteoWxAPI', False) # default False use NOAA
-    use_metric = config['location'].getboolean('useMetric', False) # default Imperial units
-    repeater_lookup = config['location'].get('repeaterLookup', 'rbook') # default repeater lookup source
-    n2yoAPIKey = config['location'].get('n2yoAPIKey', '') # default empty
-    satListConfig = config['location'].get('satList', '25544').split(',') # default 25544 ISS
-    riverListDefault = config['location'].get('riverList', '').split(',') # default 12061500 Skagit River
-    pzzEnabled = config['location'].getboolean('pzzEnabled', False) # default False
-    pzzZoneID = config['location'].getint('pzzZoneID', 100) # default 100, PZZ132 for Seattle area
-    pzzForecastDays = config['location'].getint('pzzForecastDays', 3) # default 3 days
+                # Channel configuration
+                publicChannel = config['channel_configuration'].getint('defaultChannel', 0) # the meshtastic public channel
+                ignoreChannels = config['channel_configuration'].get('ignoreChannels', '').split(',') # ignore these channels
+                ignoreDefaultChannel = config['channel_configuration'].getboolean('ignoreDefaultChannel', False)
 
-    # location alerts
-    emergencyAlertBrodcastEnabled = config['location'].getboolean('eAlertBroadcastEnabled', False) # default False
-    wxAlertBroadcastEnabled = config['location'].getboolean('wxAlertBroadcastEnabled', False) # default False
-    enableGBalerts = config['location'].getboolean('enableGBalerts', False) # default False
-    enableDEalerts = config['location'].getboolean('enableDEalerts', False) # default False
-    wxAlertsEnabled = config['location'].getboolean('NOAAalertsEnabled', True) # default True
-    ignoreEASenable = config['location'].getboolean('ignoreEASenable', False) # default False
-    ignoreEASwords = config['location'].get('ignoreEASwords', 'test,advisory').split(',') # default test,advisory
-    myRegionalKeysDE = config['location'].get('myRegionalKeysDE', '110000000000').split(',') # default city Berlin
-    forecastDuration = config['location'].getint('NOAAforecastDuration', 4) # NOAA forcast days
-    numWxAlerts = config['location'].getint('NOAAalertCount', 2) # default 2 alerts
-    enableExtraLocationWx = config['location'].getboolean('enableExtraLocationWx', False) # default False
-    myStateFIPSList = config['location'].get('myFIPSList', '').split(',') # default empty
-    mySAMEList = config['location'].get('mySAMEList', '').split(',') # default empty
-    ignoreFEMAenable = config['location'].getboolean('ignoreFEMAenable', True) # default True
-    ignoreFEMAwords = config['location'].get('ignoreFEMAwords', 'test,exercise').split(',') # default test,exercise
-    wxAlertBroadcastChannel = config['location'].get('wxAlertBroadcastCh', '2').split(',') # default Channel 2
-    emergencyAlertBroadcastCh = config['location'].get('eAlertBroadcastCh', '2').split(',') # default Channel 2
-    volcanoAlertBroadcastEnabled = config['location'].getboolean('volcanoAlertBroadcastEnabled', False) # default False
-    volcanoAlertBroadcastChannel = config['location'].get('volcanoAlertBroadcastCh', '2').split(',') # default Channel 2
-    ignoreUSGSEnable = config['location'].getboolean('ignoreVolcanoEnable', False) # default False
-    ignoreUSGSWords = config['location'].get('ignoreVolcanoWords', 'test,advisory').split(',') # default test,advisory
-    
-    # bbs
-    bbs_enabled = config['bbs'].getboolean('enabled', False)
-    bbsdb = config['bbs'].get('bbsdb', 'data/bbsdb.pkl')
-    bbs_ban_list = config['bbs'].get('bbs_ban_list', '').split(',')
-    bbs_admin_list = config['bbs'].get('bbs_admin_list', '').split(',')
-    bbs_link_enabled = config['bbs'].getboolean('bbslink_enabled', False)
-    bbs_link_whitelist = config['bbs'].get('bbslink_whitelist', '').split(',')
-    
-    # checklist
-    checklist_enabled = config['checklist'].getboolean('enabled', False)
-    checklist_db = config['checklist'].get('checklist_db', 'data/checklist.db')
-    reverse_in_out = config['checklist'].getboolean('reverse_in_out', False)
+                # Automatic Messaging
+                welcome_message = config['automatic_messaging'].get('welcome_message', WELCOME_MSG)
+                welcome_message = (f"{welcome_message}").replace('\\n', '\n') # allow for newlines in the welcome message
+                motd_enabled = config['automatic_messaging'].getboolean('motdEnabled', True)
+                MOTD = config['automatic_messaging'].get('motd', MOTD)
 
-    # qrz hello
-    qrz_hello_enabled = config['qrz'].getboolean('enabled', False)
-    qrz_db = config['qrz'].get('qrz_db', 'data/qrz.db')
-    qrz_hello_string = config['qrz'].get('qrz_hello_string', 'MeshBot says Hello! DM for more info.')
-    train_qrz = config['qrz'].getboolean('training', True)
-    
-    # E-Mail Settings
-    sysopEmails = config['smtp'].get('sysopEmails', '').split(',')
-    enableSMTP = config['smtp'].getboolean('enableSMTP', False)
-    enableImap = config['smtp'].getboolean('enableImap', False)
-    SMTP_SERVER = config['smtp'].get('SMTP_SERVER', 'smtp.gmail.com')
-    SMTP_PORT = config['smtp'].getint('SMTP_PORT', 587)
-    FROM_EMAIL = config['smtp'].get('FROM_EMAIL', 'none@gmail.com')
-    SMTP_AUTH = config['smtp'].getboolean('SMTP_AUTH', True)
-    SMTP_USERNAME = config['smtp'].get('SMTP_USERNAME', FROM_EMAIL)
-    SMTP_PASSWORD = config['smtp'].get('SMTP_PASSWORD', 'password')
-    EMAIL_SUBJECT = config['smtp'].get('EMAIL_SUBJECT', 'Meshtastic✉️')
-    IMAP_SERVER = config['smtp'].get('IMAP_SERVER', 'imap.gmail.com')
-    IMAP_PORT = config['smtp'].getint('IMAP_PORT', 993)
-    IMAP_USERNAME = config['smtp'].get('IMAP_USERNAME', SMTP_USERNAME)
-    IMAP_PASSWORD = config['smtp'].get('IMAP_PASSWORD', SMTP_PASSWORD)
-    IMAP_FOLDER = config['smtp'].get('IMAP_FOLDER', 'inbox')
+                # Features
+                wikipedia_enabled = config['features'].getboolean('wikipedia', False)
+                whoami_enabled = config['features'].getboolean('whoami', True)
+                enableCmdHistory = config['features'].getboolean('enableCmdHistory', True)
+                solar_conditions_enabled = config['general'].getboolean('spaceWeather', True)
 
-    # repeater
-    repeater_enabled = config['repeater'].getboolean('enabled', False)
-    repeater_channels = config['repeater'].get('repeater_channels', '').split(',')
 
-    # scheduler
-    scheduler_enabled = config['scheduler'].getboolean('enabled', False)
-    schedulerInterface = config['scheduler'].getint('interface', 1) # default interface 1
-    schedulerChannel = config['scheduler'].getint('channel', 2) # default channel 2
-    schedulerMessage = config['scheduler'].get('message', 'Scheduled message') # default message
-    schedulerInterval = config['scheduler'].get('interval', '') # default empty
-    schedulerTime = config['scheduler'].get('time', '') # default empty
-    schedulerValue = config['scheduler'].get('value', '') # default empty
+                # dad jokes
+                dad_jokes_enabled = config['dad_jokes'].getboolean('DadJokes', False)
+                dad_jokes_emojiJokes = config['dad_jokes'].getboolean('DadJokesEmoji', False)
 
-    # radio monitoring
-    radio_detection_enabled = config['radioMon'].getboolean('enabled', False)
-    rigControlServerAddress = config['radioMon'].get('rigControlServerAddress', 'localhost:4532') # default localhost:4532
-    sigWatchBroadcastCh = config['radioMon'].get('sigWatchBroadcastCh', '2').split(',') # default Channel 2
-    signalDetectionThreshold = config['radioMon'].getint('signalDetectionThreshold', -10) # default -10 dBm
-    signalHoldTime = config['radioMon'].getint('signalHoldTime', 10) # default 10 seconds
-    signalCooldown = config['radioMon'].getint('signalCooldown', 5) # default 1 second
-    signalCycleLimit = config['radioMon'].getint('signalCycleLimit', 5) # default 5 cycles, used with SIGNAL_COOLDOWN
+                # store and forward
+                store_forward_enabled = config['store_and_foward'].getboolean('StoreForward', True)
+                storeFlimit = config['store_and_foward'].getint('StoreLimit', 3) # default 3 messages for S&F
 
-    # file monitor
-    file_monitor_enabled = config['fileMon'].getboolean('filemon_enabled', False)
-    file_monitor_file_path = config['fileMon'].get('file_path', 'alert.txt') # default alert.txt
-    file_monitor_broadcastCh = config['fileMon'].get('broadcastCh', '2').split(',') # default Channel 2
-    read_news_enabled = config['fileMon'].getboolean('enable_read_news', False) # default disabled
-    news_file_path = config['fileMon'].get('news_file_path', 'news.txt') # default news.txt
-    news_random_line_only = config['fileMon'].getboolean('news_random_line', False) # default False
-    enable_runShellCmd = config['fileMon'].getboolean('enable_runShellCmd', False) # default False
+                # emergency response
+                emergency_responder_enabled = config['emergency_handler'].getboolean('enabled', False)
+                emergency_responder_alert_channel = config['emergency_handler'].getint('alert_channel', 2) # default 2
+                emergency_responder_alert_interface = config['emergency_handler'].getint('alert_interface', 1) # default 1
+                emergency_responder_email = config['emergency_handler'].get('email', '').split(',')
 
-    # games
-    game_hop_limit = config['messagingSettings'].getint('game_hop_limit', 5) # default 3 hops
-    dopewars_enabled = config['games'].getboolean('dopeWars', True)
-    lemonade_enabled = config['games'].getboolean('lemonade', True)
-    blackjack_enabled = config['games'].getboolean('blackjack', True)
-    videoPoker_enabled = config['games'].getboolean('videoPoker', True)
-    mastermind_enabled = config['games'].getboolean('mastermind', True)
-    golfSim_enabled = config['games'].getboolean('golfSim', True)
-    hangman_enabled = config['games'].getboolean('hangman', True)
-    hamtest_enabled = config['games'].getboolean('hamtest', True)
+                # sentry
+                sentry_enabled = config['features'].getboolean('SentryEnabled', False) # default False
+                secure_channel = config['sentry'].getint('SentryChannel', 2) # default 2
+                sentry_holdoff = config['sentry'].getint('SentryHoldoff', 9) # default 9
+                sentryIgnoreList = config['sentry'].get('sentryIgnoreList', '').split(',')
+                sentry_radius = config['sentry'].getint('SentryRadius', 100) # default 100 meters
+                email_sentry_alerts = config['sentry'].getboolean('emailSentryAlerts', False) # default False
+                highfly_enabled = config['sentry'].getboolean('highFlyingAlert', True) # default True
+                highfly_altitude = config['sentry'].getint('highFlyingAlertAltitude', 2000) # default 2000 meters
+                highfly_channel = config['sentry'].getint('highFlyingAlertChannel', 2) # default 2
+                highfly_ignoreList = config['sentry'].get('highFlyingIgnoreList', '').split(',') # default empty
 
-    # messaging settings
-    responseDelay = config['messagingSettings'].getfloat('responseDelay', 0.7) # default 0.7
-    splitDelay = config['messagingSettings'].getfloat('splitDelay', 0) # default 0
-    MESSAGE_CHUNK_SIZE = config['messagingSettings'].getint('MESSAGE_CHUNK_SIZE', 160) # default 160
-    wantAck = config['messagingSettings'].getboolean('wantAck', False) # default False
-    maxBuffer = config['messagingSettings'].getint('maxBuffer', 220) # default 220
-    enableHopLogs = config['messagingSettings'].getboolean('enableHopLogs', False) # default False
+                # location
+                location_enabled = config['features'].getboolean('location_enabled', True)
+                latitudeValue = config['location'].getfloat('lat', 48.50)
+                longitudeValue = config['location'].getfloat('lon', -123.0)
+                use_meteo_wxApi = config['location_alerts'].getboolean('UseMeteoWxAPI', False) # default False use NOAA
+                use_metric = config['location'].getboolean('useMetric', False) # default Imperial units
+                repeater_lookup = config['location'].get('repeaterLookup', 'rbook') # default repeater lookup source
+                n2yoAPIKey = config['location'].get('n2yoAPIKey', '') # default empty
+                satListConfig = config['location'].get('satList', '25544').split(',') # default 25544 ISS
+                riverListDefault = config['location'].get('riverList', '').split(',') # default 12061500 Skagit River
+                pzzEnabled = config['location'].getboolean('pzzEnabled', False) # default False
+                pzzZoneID = config['location'].getint('pzzZoneID', 100) # default 100, PZZ132 for Seattle area
+                pzzForecastDays = config['location'].getint('pzzForecastDays', 3) # default 3 days
 
+                # location alerts
+                emergencyAlertBrodcastEnabled = config['location_alerts'].getboolean('eAlertBroadcastEnabled', False) # default False
+                wxAlertBroadcastEnabled = config['location_alerts'].getboolean('wxAlertBroadcastEnabled', False) # default False
+                enableGBalerts = config['location_alerts'].getboolean('enableGBalerts', False) # default False
+                enableDEalerts = config['location_alerts'].getboolean('enableDEalerts', False) # default False
+                wxAlertsEnabled = config['location_alerts'].getboolean('NOAAalertsEnabled', True) # default True
+                ignoreEASenable = config['location_alerts'].getboolean('ignoreEASenable', False) # default False
+                ignoreEASwords = config['location_alerts'].get('ignoreEASwords', 'test,advisory').split(',') # default test,advisory
+                myRegionalKeysDE = config['location_alerts'].get('myRegionalKeysDE', '110000000000').split(',') # default city Berlin
+                forecastDuration = config['location_alerts'].getint('NOAAforecastDuration', 4) # NOAA forcast days
+                numWxAlerts = config['location_alerts'].getint('NOAAalertCount', 2) # default 2 alerts
+                enableExtraLocationWx = config['location_alerts'].getboolean('enableExtraLocationWx', False) # default False
+                myStateFIPSList = config['location_alerts'].get('myFIPSList', '').split(',') # default empty
+                mySAMEList = config['location_alerts'].get('mySAMEList', '').split(',') # default empty
+                ignoreFEMAenable = config['location_alerts'].getboolean('ignoreFEMAenable', True) # default True
+                ignoreFEMAwords = config['location_alerts'].get('ignoreFEMAwords', 'test,exercise').split(',') # default test,exercise
+                wxAlertBroadcastChannel = config['location_alerts'].get('wxAlertBroadcastCh', '2').split(',') # default Channel 2
+                emergencyAlertBroadcastCh = config['location_alerts'].get('eAlertBroadcastCh', '2').split(',') # default Channel 2
+                volcanoAlertBroadcastEnabled = config['location_alerts'].getboolean('volcanoAlertBroadcastEnabled', False) # default False
+                volcanoAlertBroadcastChannel = config['location_alerts'].get('volcanoAlertBroadcastCh', '2').split(',') # default Channel 2
+                ignoreUSGSEnable = config['location_alerts'].getboolean('ignoreVolcanoEnable', False) # default False
+                ignoreUSGSWords = config['location_alerts'].get('ignoreVolcanoWords', 'test,advisory').split(',') # default test,advisory
+                
+                # bbs
+                bbs_enabled = config['features'].getboolean('bbs', False)
+                bbsdb = config['bbs'].get('bbsdb', 'data/bbsdb.pkl')
+                bbs_ban_list = config['bbs'].get('bbs_ban_list', '').split(',')
+                bbs_admin_list = config['bbs'].get('bbs_admin_list', '').split(',')
+                bbs_link_enabled = config['bbs'].getboolean('bbslink_enabled', False)
+                bbs_link_whitelist = config['bbs'].get('bbslink_whitelist', '').split(',')
+                
+                # checklist
+                checklist_enabled = config['checklist'].getboolean('enabled', False)
+                checklist_db = config['checklist'].get('checklist_db', 'data/checklist.db')
+                reverse_in_out = config['checklist'].getboolean('reverse_in_out', False)
+
+                # qrz hello
+                qrz_hello_enabled = config['qrz'].getboolean('enabled', False)
+                qrz_db = config['qrz'].get('qrz_db', 'data/qrz.db')
+                qrz_hello_string = config['qrz'].get('qrz_hello_string', 'MeshBot says Hello! DM for more info.')
+                train_qrz = config['qrz'].getboolean('training', True)
+                
+                # E-Mail Settings
+                sysopEmails = config['smtp'].get('sysopEmails', '').split(',')
+                enableSMTP = config['smtp'].getboolean('enableSMTP', False)
+                enableImap = config['smtp'].getboolean('enableImap', False)
+                SMTP_SERVER = config['smtp'].get('SMTP_SERVER', 'smtp.gmail.com')
+                SMTP_PORT = config['smtp'].getint('SMTP_PORT', 587)
+                FROM_EMAIL = config['smtp'].get('FROM_EMAIL', 'none@gmail.com')
+                SMTP_AUTH = config['smtp'].getboolean('SMTP_AUTH', True)
+                SMTP_USERNAME = config['smtp'].get('SMTP_USERNAME', FROM_EMAIL)
+                SMTP_PASSWORD = config['smtp'].get('SMTP_PASSWORD', 'password')
+                EMAIL_SUBJECT = config['smtp'].get('EMAIL_SUBJECT', 'Meshtastic✉️')
+                IMAP_SERVER = config['smtp'].get('IMAP_SERVER', 'imap.gmail.com')
+                IMAP_PORT = config['smtp'].getint('IMAP_PORT', 993)
+                IMAP_USERNAME = config['smtp'].get('IMAP_USERNAME', SMTP_USERNAME)
+                IMAP_PASSWORD = config['smtp'].get('IMAP_PASSWORD', SMTP_PASSWORD)
+                IMAP_FOLDER = config['smtp'].get('IMAP_FOLDER', 'inbox')
+
+                # repeater
+                repeater_enabled = config['repeater'].getboolean('enabled', False)
+                repeater_channels = config['repeater'].get('repeater_channels', '').split(',')
+
+                # scheduler
+                scheduler_enabled = config['scheduler'].getboolean('enabled', False)
+                schedulerInterface = config['scheduler'].getint('interface', 1) # default interface 1
+                schedulerChannel = config['scheduler'].getint('channel', 2) # default channel 2
+                schedulerMessage = config['scheduler'].get('message', 'Scheduled message') # default message
+                schedulerInterval = config['scheduler'].get('interval', '') # default empty
+                schedulerTime = config['scheduler'].get('time', '') # default empty
+                schedulerValue = config['scheduler'].get('value', '') # default empty
+
+                # radio monitoring
+                radio_detection_enabled = config['radio_monitor'].getboolean('enabled', False)
+                rigControlServerAddress = config['radio_monitor'].get('rigControlServerAddress', 'localhost:4532') # default localhost:4532
+                sigWatchBroadcastCh = config['radio_monitor'].get('sigWatchBroadcastCh', '2').split(',') # default Channel 2
+                signalDetectionThreshold = config['radio_monitor'].getint('signalDetectionThreshold', -10) # default -10 dBm
+                signalHoldTime = config['radio_monitor'].getint('signalHoldTime', 10) # default 10 seconds
+                signalCooldown = config['radio_monitor'].getint('signalCooldown', 5) # default 1 second
+                signalCycleLimit = config['radio_monitor'].getint('signalCycleLimit', 5) # default 5 cycles, used with SIGNAL_COOLDOWN
+
+                # file monitor
+                file_monitor_enabled = config['file_monitor'].getboolean('filemon_enabled', False)
+                file_monitor_file_path = config['file_monitor'].get('file_path', 'alert.txt') # default alert.txt
+                file_monitor_broadcastCh = config['file_monitor'].get('broadcastCh', '2').split(',') # default Channel 2
+                read_news_enabled = config['file_monitor'].getboolean('enable_read_news', False) # default disabled
+                news_file_path = config['file_monitor'].get('news_file_path', 'news.txt') # default news.txt
+                news_random_line_only = config['file_monitor'].getboolean('news_random_line', False) # default False
+                enable_runShellCmd = config['file_monitor'].getboolean('enable_runShellCmd', False) # default False
+
+                # games
+                game_hop_limit = config['gameSettings'].getint('game_hop_limit', 5) # default 3 hops
+                dopewars_enabled = config['gameSettings'].getboolean('dopeWars', True)
+                lemonade_enabled = config['gameSettings'].getboolean('lemonade', True)
+                blackjack_enabled = config['gameSettings'].getboolean('blackjack', True)
+                videoPoker_enabled = config['gameSettings'].getboolean('videoPoker', True)
+                mastermind_enabled = config['gameSettings'].getboolean('mastermind', True)
+                golfSim_enabled = config['gameSettings'].getboolean('golfSim', True)
+                hangman_enabled = config['gameSettings'].getboolean('hangman', True)
+                hamtest_enabled = config['gameSettings'].getboolean('hamtest', True)
+
+                # messaging settings
+                responseDelay = config['messagingSettings'].getfloat('responseDelay', 0.7) # default 0.7
+                splitDelay = config['messagingSettings'].getfloat('splitDelay', 0) # default 0
+                MESSAGE_CHUNK_SIZE = config['messagingSettings'].getint('MESSAGE_CHUNK_SIZE', 160) # default 160
+                wantAck = config['messagingSettings'].getboolean('wantAck', False) # default False
+                maxBuffer = config['messagingSettings'].getint('maxBuffer', 220) # default 220
+                enableHopLogs = config['messagingSettings'].getboolean('enableHopLogs', False) # default False
+
+                # large language model
+                llm_enabled = config['features'].getboolean('ollama', False) # https://ollama.com
+                llmModel = config['llm'].get('ollamaModel', 'gemma2:2b') # default gemma2:2b
+                ollamaHostName = config['llm'].get('ollamaHostName', 'http://localhost:11434') # default localhost
+                llmReplyToNonCommands = config['llm'].getboolean('llmReplyToNonCommands', True)
+
+
+            case _:
+                print(f"ERROR: This configuration is invalid. Refer to *_1.0.template or use the traditional configuration format.")
+                raise Exception
+
+    else: # Default Legacy.
+        print(f"System: Using classic config file.")
+        if config.sections() == []:
+            print(f"System: Error reading config file: {config_file} is empty or does not exist.")
+            config['interface'] = {'type': 'serial', 'port': "/dev/ttyACM0", 'hostname': '', 'mac': '', 'dryRun': ''}
+            config['general'] = {'respond_by_dm_only': 'True', 'defaultChannel': '0', 'motd': MOTD, 'welcome_message': WELCOME_MSG, 'zuluTime': 'False'}
+            config.write(open(config_file, 'w'))
+            print (f"System: Config file created, check {config_file} or review the config.template")
+
+        if 'sentry' not in config:
+            config['sentry'] = {'SentryEnabled': 'False', 'SentryChannel': '2', 'SentryHoldoff': '9', 'sentryIgnoreList': '', 'SentryRadius': '100'}
+            config.write(open(config_file, 'w'))
+
+        if 'location' not in config:
+            config['location'] = {'enabled': 'True', 'lat': '48.50', 'lon': '-123.0', 'UseMeteoWxAPI': 'False', 'useMetric': 'False', 'NOAAforecastDuration': '4', 'NOAAalertCount': '2', 'NOAAalertsEnabled': 'True', 'wxAlertBroadcastEnabled': 'False', 'wxAlertBroadcastChannel': '2', 'repeaterLookup': 'rbook'}
+            config.write(open(config_file, 'w'))
+
+        if 'bbs' not in config:
+            config['bbs'] = {'enabled': 'False', 'bbsdb': 'data/bbsdb.pkl', 'bbs_ban_list': '', 'bbs_admin_list': ''}
+            config.write(open(config_file, 'w'))
+
+        if 'repeater' not in config:
+            config['repeater'] = {'enabled': 'False', 'repeater_channels': ''}
+            config.write(open(config_file, 'w'))
+
+        if 'radioMon' not in config:
+            config['radioMon'] = {'enabled': 'False', 'rigControlServerAddress': 'localhost:4532', 'sigWatchBrodcastCh': '2', 'signalDetectionThreshold': '-10', 'signalHoldTime': '10', 'signalCooldown': '5', 'signalCycleLimit': '5'}
+            config.write(open(config_file, 'w'))
+
+        if 'gameSettings' not in config:
+            config['games'] = {'game_hop_limit': '','dopeWars': 'True', 'lemonade': 'True', 'blackjack': 'True', 'videoPoker': 'True'}
+            config.write(open(config_file, 'w'))
+
+        if 'messagingSettings' not in config:
+            config['messagingSettings'] = {'responseDelay': '0.7', 'splitDelay': '0', 'MESSAGE_CHUNK_SIZE': '160'}
+            config.write(open(config_file, 'w'))
+
+        if 'fileMon' not in config:
+            config['fileMon'] = {'enabled': 'False', 'file_path': 'alert.txt', 'broadcastCh': '2'}
+            config.write(open(config_file, 'w'))
+
+        if 'scheduler' not in config:
+            config['scheduler'] = {'enabled': 'False'}
+            config.write(open(config_file, 'w'))
+
+        if 'Emergency_handler' not in config:
+            config['Emergency_handler'] = {'enabled': 'False', 'alert_channel': '2', 'alert_interface': '1', 'email': ''}
+            config.write(open(config_file, 'w'))
+
+        if 'smtp' not in config:
+            config['smtp'] = {'sysopEmails': '', 'enableSMTP': 'False', 'enableImap': 'False'}
+            config.write(open(config_file, 'w'))
+
+        if 'checklist' not in config:
+            config['checklist'] = {'enabled': 'False', 'checklist_db': 'data/checklist.db'}
+            config.write(open(config_file, 'w'))
+
+        if 'qrz' not in config:
+            config['qrz'] = {'enabled': 'False', 'qrz_db': 'data/qrz.db', 'qrz_hello_string': 'send CMD or DM me for more info.'}
+            config.write(open(config_file, 'w'))
+
+        if 'llm' not in config:
+            config['llm'] = {'ollama': '', 'ollamaModel': '', 'ollamaHostName': '','llmReplyToNonCommands': ''}
+            config.write(open(config_file, 'w'))
+
+        print("Using legacy configuration schema")
+        # interface1 settings
+        interface1_type = config['interface'].get('type', 'serial')
+        port1 = config['interface'].get('port', '')
+        hostname1 = config['interface'].get('hostname', '')
+        mac1 = config['interface'].get('mac', '')
+        interface1_enabled = True # gotta have at least one interface
+
+        # interface2 settings
+        if 'interface2' in config:
+            interface2_type = config['interface2'].get('type', 'serial')
+            port2 = config['interface2'].get('port', '')
+            hostname2 = config['interface2'].get('hostname', '')
+            mac2 = config['interface2'].get('mac', '')
+            interface2_enabled = config['interface2'].getboolean('enabled', False)
+        else:
+            interface2_enabled = False
+
+        # interface3 settings
+        if 'interface3' in config:
+            interface3_type = config['interface3'].get('type', 'serial')
+            port3 = config['interface3'].get('port', '')
+            hostname3 = config['interface3'].get('hostname', '')
+            mac3 = config['interface3'].get('mac', '')
+            interface3_enabled = config['interface3'].getboolean('enabled', False)
+        else:
+            interface3_enabled = False
+
+        # interface4 settings
+        if 'interface4' in config:
+            interface4_type = config['interface4'].get('type', 'serial')
+            port4 = config['interface4'].get('port', '')
+            hostname4 = config['interface4'].get('hostname', '')
+            mac4 = config['interface4'].get('mac', '')
+            interface4_enabled = config['interface4'].getboolean('enabled', False)
+        else:
+            interface4_enabled = False
+
+        # interface5 settings
+        if 'interface5' in config:
+            interface5_type = config['interface5'].get('type', 'serial')
+            port5 = config['interface5'].get('port', '')
+            hostname5 = config['interface5'].get('hostname', '')
+            mac5 = config['interface5'].get('mac', '')
+            interface5_enabled = config['interface5'].getboolean('enabled', False)
+        else:
+            interface5_enabled = False
+
+        # interface6 settings
+        if 'interface6' in config:
+            interface6_type = config['interface6'].get('type', 'serial')
+            port6 = config['interface6'].get('port', '')
+            hostname6 = config['interface6'].get('hostname', '')
+            mac6 = config['interface6'].get('mac', '')
+            interface6_enabled = config['interface6'].getboolean('enabled', False)
+        else:
+            interface6_enabled = False
+
+        # interface7 settings
+        if 'interface7' in config:
+            interface7_type = config['interface7'].get('type', 'serial')
+            port7 = config['interface7'].get('port', '')
+            hostname7 = config['interface7'].get('hostname', '')
+            mac7 = config['interface7'].get('mac', '')
+            interface7_enabled = config['interface7'].getboolean('enabled', False)
+        else:
+            interface7_enabled = False
+
+        # interface8 settings
+        if 'interface8' in config:
+            interface8_type = config['interface8'].get('type', 'serial')
+            port8 = config['interface8'].get('port', '')
+            hostname8 = config['interface8'].get('hostname', '')
+            mac8 = config['interface8'].get('mac', '')
+            interface8_enabled = config['interface8'].getboolean('enabled', False)
+        else:
+            interface8_enabled = False
+
+        # interface9 settings
+        if 'interface9' in config:
+            interface9_type = config['interface9'].get('type', 'serial')
+            port9 = config['interface9'].get('port', '')
+            hostname9 = config['interface9'].get('hostname', '')
+            mac9 = config['interface9'].get('mac', '')
+            interface9_enabled = config['interface9'].getboolean('enabled', False)
+        else:
+            interface9_enabled = False
+
+        multiple_interface = False
+        if interface2_enabled or interface3_enabled or interface4_enabled or interface5_enabled or interface6_enabled or interface7_enabled or interface8_enabled or interface9_enabled:
+            multiple_interface = True
+                
+        useDMForResponse = config['general'].getboolean('respond_by_dm_only', True)
+        publicChannel = config['general'].getint('defaultChannel', 0) # the meshtastic public channel
+        ignoreChannels = config['general'].get('ignoreChannels', '').split(',') # ignore these channels
+        ignoreDefaultChannel = config['general'].getboolean('ignoreDefaultChannel', False)
+        cmdBang = config['general'].getboolean('cmdBang', False) # default off
+        zuluTime = config['general'].getboolean('zuluTime', False) # aka 24 hour time
+        log_messages_to_file = config['general'].getboolean('LogMessagesToFile', False) # default off
+        log_backup_count = config['general'].getint('LogBackupCount', 32) # default 32 days
+        syslog_to_file = config['general'].getboolean('SyslogToFile', True) # default on
+        LOGGING_LEVEL = config['general'].get('sysloglevel', 'DEBUG') # default DEBUG
+        urlTimeoutSeconds = config['general'].getint('urlTimeout', 10) # default 10 seconds
+        store_forward_enabled = config['general'].getboolean('StoreForward', True)
+        storeFlimit = config['general'].getint('StoreLimit', 3) # default 3 messages for S&F
+        welcome_message = config['general'].get('welcome_message', WELCOME_MSG)
+        welcome_message = (f"{welcome_message}").replace('\\n', '\n') # allow for newlines in the welcome message
+        motd_enabled = config['general'].getboolean('motdEnabled', True)
+        MOTD = config['general'].get('motd', MOTD)
+        autoPingInChannel = config['general'].getboolean('autoPingInChannel', False)
+        enableCmdHistory = config['general'].getboolean('enableCmdHistory', True)
+        lheardCmdIgnoreNode = config['general'].get('lheardCmdIgnoreNode', '').split(',')
+        whoami_enabled = config['general'].getboolean('whoami', True)
+        dad_jokes_enabled = config['general'].getboolean('DadJokes', False)
+        dad_jokes_emojiJokes = config['general'].getboolean('DadJokesEmoji', False)
+        bee_enabled = config['general'].getboolean('bee', False) # 🐝 off by default undocumented
+        solar_conditions_enabled = config['general'].getboolean('spaceWeather', True)
+        wikipedia_enabled = config['general'].getboolean('wikipedia', False)
+        llm_enabled = config['general'].getboolean('ollama', False) # https://ollama.com
+        llmModel = config['general'].get('ollamaModel', 'gemma2:2b') # default gemma2:2b
+        ollamaHostName = config['general'].get('ollamaHostName', 'http://localhost:11434') # default localhost
+        llmReplyToNonCommands = config['general'].getboolean('llmReplyToNonCommands', True)
+        dont_retry_disconnect = config['general'].getboolean('dont_retry_disconnect', False) # default False, retry on disconnect
+        # emergency response
+        emergency_responder_enabled = config['emergencyHandler'].getboolean('enabled', False)
+        emergency_responder_alert_channel = config['emergencyHandler'].getint('alert_channel', 2) # default 2
+        emergency_responder_alert_interface = config['emergencyHandler'].getint('alert_interface', 1) # default 1
+        emergency_responder_email = config['emergencyHandler'].get('email', '').split(',')
+
+        # sentry
+        sentry_enabled = config['sentry'].getboolean('SentryEnabled', False) # default False
+        secure_channel = config['sentry'].getint('SentryChannel', 2) # default 2
+        sentry_holdoff = config['sentry'].getint('SentryHoldoff', 9) # default 9
+        sentryIgnoreList = config['sentry'].get('sentryIgnoreList', '').split(',')
+        sentry_radius = config['sentry'].getint('SentryRadius', 100) # default 100 meters
+        email_sentry_alerts = config['sentry'].getboolean('emailSentryAlerts', False) # default False
+        highfly_enabled = config['sentry'].getboolean('highFlyingAlert', True) # default True
+        highfly_altitude = config['sentry'].getint('highFlyingAlertAltitude', 2000) # default 2000 meters
+        highfly_channel = config['sentry'].getint('highFlyingAlertChannel', 2) # default 2
+        highfly_ignoreList = config['sentry'].get('highFlyingIgnoreList', '').split(',') # default empty
+
+        # location
+        location_enabled = config['location'].getboolean('enabled', True)
+        latitudeValue = config['location'].getfloat('lat', 48.50)
+        longitudeValue = config['location'].getfloat('lon', -123.0)
+        use_meteo_wxApi = config['location'].getboolean('UseMeteoWxAPI', False) # default False use NOAA
+        use_metric = config['location'].getboolean('useMetric', False) # default Imperial units
+        repeater_lookup = config['location'].get('repeaterLookup', 'rbook') # default repeater lookup source
+        n2yoAPIKey = config['location'].get('n2yoAPIKey', '') # default empty
+        satListConfig = config['location'].get('satList', '25544').split(',') # default 25544 ISS
+        riverListDefault = config['location'].get('riverList', '').split(',') # default 12061500 Skagit River
+        pzzEnabled = config['location'].getboolean('pzzEnabled', False) # default False
+        pzzZoneID = config['location'].getint('pzzZoneID', 100) # default 100, PZZ132 for Seattle area
+        pzzForecastDays = config['location'].getint('pzzForecastDays', 3) # default 3 days
+
+        # location alerts
+        emergencyAlertBrodcastEnabled = config['location'].getboolean('eAlertBroadcastEnabled', False) # default False
+        wxAlertBroadcastEnabled = config['location'].getboolean('wxAlertBroadcastEnabled', False) # default False
+        enableGBalerts = config['location'].getboolean('enableGBalerts', False) # default False
+        enableDEalerts = config['location'].getboolean('enableDEalerts', False) # default False
+        wxAlertsEnabled = config['location'].getboolean('NOAAalertsEnabled', True) # default True
+        ignoreEASenable = config['location'].getboolean('ignoreEASenable', False) # default False
+        ignoreEASwords = config['location'].get('ignoreEASwords', 'test,advisory').split(',') # default test,advisory
+        myRegionalKeysDE = config['location'].get('myRegionalKeysDE', '110000000000').split(',') # default city Berlin
+        forecastDuration = config['location'].getint('NOAAforecastDuration', 4) # NOAA forcast days
+        numWxAlerts = config['location'].getint('NOAAalertCount', 2) # default 2 alerts
+        enableExtraLocationWx = config['location'].getboolean('enableExtraLocationWx', False) # default False
+        myStateFIPSList = config['location'].get('myFIPSList', '').split(',') # default empty
+        mySAMEList = config['location'].get('mySAMEList', '').split(',') # default empty
+        ignoreFEMAenable = config['location'].getboolean('ignoreFEMAenable', True) # default True
+        ignoreFEMAwords = config['location'].get('ignoreFEMAwords', 'test,exercise').split(',') # default test,exercise
+        wxAlertBroadcastChannel = config['location'].get('wxAlertBroadcastCh', '2').split(',') # default Channel 2
+        emergencyAlertBroadcastCh = config['location'].get('eAlertBroadcastCh', '2').split(',') # default Channel 2
+        volcanoAlertBroadcastEnabled = config['location'].getboolean('volcanoAlertBroadcastEnabled', False) # default False
+        volcanoAlertBroadcastChannel = config['location'].get('volcanoAlertBroadcastCh', '2').split(',') # default Channel 2
+        ignoreUSGSEnable = config['location'].getboolean('ignoreVolcanoEnable', False) # default False
+        ignoreUSGSWords = config['location'].get('ignoreVolcanoWords', 'test,advisory').split(',') # default test,advisory
+        
+        # bbs
+        bbs_enabled = config['bbs'].getboolean('enabled', False)
+        bbsdb = config['bbs'].get('bbsdb', 'data/bbsdb.pkl')
+        bbs_ban_list = config['bbs'].get('bbs_ban_list', '').split(',')
+        bbs_admin_list = config['bbs'].get('bbs_admin_list', '').split(',')
+        bbs_link_enabled = config['bbs'].getboolean('bbslink_enabled', False)
+        bbs_link_whitelist = config['bbs'].get('bbslink_whitelist', '').split(',')
+        
+        # checklist
+        checklist_enabled = config['checklist'].getboolean('enabled', False)
+        checklist_db = config['checklist'].get('checklist_db', 'data/checklist.db')
+        reverse_in_out = config['checklist'].getboolean('reverse_in_out', False)
+
+        # qrz hello
+        qrz_hello_enabled = config['features'].getboolean('qrz', False)
+        qrz_db = config['qrz'].get('qrz_db', 'data/qrz.db')
+        qrz_hello_string = config['qrz'].get('qrz_hello_string', 'MeshBot says Hello! DM for more info.')
+        train_qrz = config['qrz'].getboolean('training', True)
+        
+        # E-Mail Settings
+        sysopEmails = config['smtp'].get('sysopEmails', '').split(',')
+        enableSMTP = config['features'].getboolean('smtp', False)
+        enableImap = config['smtp'].getboolean('enableImap', False)
+        SMTP_SERVER = config['smtp'].get('SMTP_SERVER', 'smtp.gmail.com')
+        SMTP_PORT = config['smtp'].getint('SMTP_PORT', 587)
+        FROM_EMAIL = config['smtp'].get('FROM_EMAIL', 'none@gmail.com')
+        SMTP_AUTH = config['smtp'].getboolean('SMTP_AUTH', True)
+        SMTP_USERNAME = config['smtp'].get('SMTP_USERNAME', FROM_EMAIL)
+        SMTP_PASSWORD = config['smtp'].get('SMTP_PASSWORD', 'password')
+        EMAIL_SUBJECT = config['smtp'].get('EMAIL_SUBJECT', 'Meshtastic✉️')
+        IMAP_SERVER = config['smtp'].get('IMAP_SERVER', 'imap.gmail.com')
+        IMAP_PORT = config['smtp'].getint('IMAP_PORT', 993)
+        IMAP_USERNAME = config['smtp'].get('IMAP_USERNAME', SMTP_USERNAME)
+        IMAP_PASSWORD = config['smtp'].get('IMAP_PASSWORD', SMTP_PASSWORD)
+        IMAP_FOLDER = config['smtp'].get('IMAP_FOLDER', 'inbox')
+
+        # repeater
+        repeater_enabled = config['repeater'].getboolean('enabled', False)
+        repeater_channels = config['repeater'].get('repeater_channels', '').split(',')
+
+        # scheduler
+        scheduler_enabled = config['scheduler'].getboolean('enabled', False)
+        schedulerInterface = config['scheduler'].getint('interface', 1) # default interface 1
+        schedulerChannel = config['scheduler'].getint('channel', 2) # default channel 2
+        schedulerMessage = config['scheduler'].get('message', 'Scheduled message') # default message
+        schedulerInterval = config['scheduler'].get('interval', '') # default empty
+        schedulerTime = config['scheduler'].get('time', '') # default empty
+        schedulerValue = config['scheduler'].get('value', '') # default empty
+
+        # radio monitoring
+        radio_detection_enabled = config['radioMon'].getboolean('enabled', False)
+        rigControlServerAddress = config['radioMon'].get('rigControlServerAddress', 'localhost:4532') # default localhost:4532
+        sigWatchBroadcastCh = config['radioMon'].get('sigWatchBroadcastCh', '2').split(',') # default Channel 2
+        signalDetectionThreshold = config['radioMon'].getint('signalDetectionThreshold', -10) # default -10 dBm
+        signalHoldTime = config['radioMon'].getint('signalHoldTime', 10) # default 10 seconds
+        signalCooldown = config['radioMon'].getint('signalCooldown', 5) # default 1 second
+        signalCycleLimit = config['radioMon'].getint('signalCycleLimit', 5) # default 5 cycles, used with SIGNAL_COOLDOWN
+
+        # file monitor
+        file_monitor_enabled = config['fileMon'].getboolean('filemon_enabled', False)
+        file_monitor_file_path = config['fileMon'].get('file_path', 'alert.txt') # default alert.txt
+        file_monitor_broadcastCh = config['fileMon'].get('broadcastCh', '2').split(',') # default Channel 2
+        read_news_enabled = config['fileMon'].getboolean('enable_read_news', False) # default disabled
+        news_file_path = config['fileMon'].get('news_file_path', 'news.txt') # default news.txt
+        news_random_line_only = config['fileMon'].getboolean('news_random_line', False) # default False
+        enable_runShellCmd = config['fileMon'].getboolean('enable_runShellCmd', False) # default False
+
+        # games
+        game_hop_limit = config['messagingSettings'].getint('game_hop_limit', 5) # default 3 hops
+        dopewars_enabled = config['games'].getboolean('dopeWars', True)
+        lemonade_enabled = config['games'].getboolean('lemonade', True)
+        blackjack_enabled = config['games'].getboolean('blackjack', True)
+        videoPoker_enabled = config['games'].getboolean('videoPoker', True)
+        mastermind_enabled = config['games'].getboolean('mastermind', True)
+        golfSim_enabled = config['games'].getboolean('golfSim', True)
+        hangman_enabled = config['games'].getboolean('hangman', True)
+        hamtest_enabled = config['games'].getboolean('hamtest', True)
+
+        # messaging settings
+        responseDelay = config['messagingSettings'].getfloat('responseDelay', 0.7) # default 0.7
+        splitDelay = config['messagingSettings'].getfloat('splitDelay', 0) # default 0
+        MESSAGE_CHUNK_SIZE = config['messagingSettings'].getint('MESSAGE_CHUNK_SIZE', 160) # default 160
+        wantAck = config['messagingSettings'].getboolean('wantAck', False) # default False
+        maxBuffer = config['messagingSettings'].getint('maxBuffer', 220) # default 220
+        enableHopLogs = config['messagingSettings'].getboolean('enableHopLogs', False) # default False
+      
 except KeyError as e:
     print(f"System: Error reading config file: {e}")
     print(f"System: Check the config.ini against config.template file for missing sections or values.")
