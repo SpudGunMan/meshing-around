@@ -45,6 +45,96 @@ try:
     if 'config' in config: # Compatability with legacy config.
         match config['config'].getfloat('version'): # Allow for different config versions.
             case 1.0:
+                # interface1 settings
+                interface1_type = config['interface'].get('type', 'serial')
+                port1 = config['interface'].get('port', '')
+                hostname1 = config['interface'].get('hostname', '')
+                mac1 = config['interface'].get('mac', '')
+                interface1_enabled = True # gotta have at least one interface
+
+                # interface2 settings
+                if 'interface2' in config:
+                    interface2_type = config['interface2'].get('type', 'serial')
+                    port2 = config['interface2'].get('port', '')
+                    hostname2 = config['interface2'].get('hostname', '')
+                    mac2 = config['interface2'].get('mac', '')
+                    interface2_enabled = config['interface2'].getboolean('enabled', False)
+                else:
+                    interface2_enabled = False
+
+                # interface3 settings
+                if 'interface3' in config:
+                    interface3_type = config['interface3'].get('type', 'serial')
+                    port3 = config['interface3'].get('port', '')
+                    hostname3 = config['interface3'].get('hostname', '')
+                    mac3 = config['interface3'].get('mac', '')
+                    interface3_enabled = config['interface3'].getboolean('enabled', False)
+                else:
+                    interface3_enabled = False
+
+                # interface4 settings
+                if 'interface4' in config:
+                    interface4_type = config['interface4'].get('type', 'serial')
+                    port4 = config['interface4'].get('port', '')
+                    hostname4 = config['interface4'].get('hostname', '')
+                    mac4 = config['interface4'].get('mac', '')
+                    interface4_enabled = config['interface4'].getboolean('enabled', False)
+                else:
+                    interface4_enabled = False
+
+                # interface5 settings
+                if 'interface5' in config:
+                    interface5_type = config['interface5'].get('type', 'serial')
+                    port5 = config['interface5'].get('port', '')
+                    hostname5 = config['interface5'].get('hostname', '')
+                    mac5 = config['interface5'].get('mac', '')
+                    interface5_enabled = config['interface5'].getboolean('enabled', False)
+                else:
+                    interface5_enabled = False
+
+                # interface6 settings
+                if 'interface6' in config:
+                    interface6_type = config['interface6'].get('type', 'serial')
+                    port6 = config['interface6'].get('port', '')
+                    hostname6 = config['interface6'].get('hostname', '')
+                    mac6 = config['interface6'].get('mac', '')
+                    interface6_enabled = config['interface6'].getboolean('enabled', False)
+                else:
+                    interface6_enabled = False
+
+                # interface7 settings
+                if 'interface7' in config:
+                    interface7_type = config['interface7'].get('type', 'serial')
+                    port7 = config['interface7'].get('port', '')
+                    hostname7 = config['interface7'].get('hostname', '')
+                    mac7 = config['interface7'].get('mac', '')
+                    interface7_enabled = config['interface7'].getboolean('enabled', False)
+                else:
+                    interface7_enabled = False
+
+                # interface8 settings
+                if 'interface8' in config:
+                    interface8_type = config['interface8'].get('type', 'serial')
+                    port8 = config['interface8'].get('port', '')
+                    hostname8 = config['interface8'].get('hostname', '')
+                    mac8 = config['interface8'].get('mac', '')
+                    interface8_enabled = config['interface8'].getboolean('enabled', False)
+                else:
+                    interface8_enabled = False
+
+                # interface9 settings
+                if 'interface9' in config:
+                    interface9_type = config['interface9'].get('type', 'serial')
+                    port9 = config['interface9'].get('port', '')
+                    hostname9 = config['interface9'].get('hostname', '')
+                    mac9 = config['interface9'].get('mac', '')
+                    interface9_enabled = config['interface9'].getboolean('enabled', False)
+                else:
+                    interface9_enabled = False
+
+                multiple_interface = False
+                if interface2_enabled or interface3_enabled or interface4_enabled or interface5_enabled or interface6_enabled or interface7_enabled or interface8_enabled or interface9_enabled:
+                    multiple_interface = True
                 # Logging
                 log_messages_to_file = config['logging'].getboolean('LogMessagesToFile', False) # default off
                 log_backup_count = config['logging'].getint('LogBackupCount', 32) # default 32 days
@@ -304,7 +394,6 @@ try:
             config['llm'] = {'ollama': '', 'ollamaModel': '', 'ollamaHostName': '','llmReplyToNonCommands': ''}
             config.write(open(config_file, 'w'))
 
-        print("Using legacy configuration schema")
         # interface1 settings
         interface1_type = config['interface'].get('type', 'serial')
         port1 = config['interface'].get('port', '')
