@@ -158,7 +158,7 @@ coastalEnabled = False
 # myCoastalZone is the .txt file with the forecast data
 myCoastalZone = https://tgftp.nws.noaa.gov/data/forecasts/marine/coastal/pz/pzz135.txt
 # number of data points to return, default is 3
-castalForecastDays = 3
+costalForecastDays = 3
 
 # USGS Hydrology unique identifiers, LID or USGS ID https://waterdata.usgs.gov
 riverListDefault = 

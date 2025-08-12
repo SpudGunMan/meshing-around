@@ -253,7 +253,7 @@ try:
     riverListDefault = config['location'].get('riverList', '').split(',') # default 12061500 Skagit River
     coastalEnabled = config['location'].getboolean('coastalEnabled', False) # default False
     myCoastalZone = config['location'].get('myCoastalZone', None) # default None
-    castalForecastDays = config['location'].getint('castalForecastDays', 3) # default 3 days
+    coastalForecastDays = config['location'].getint('coastalForecastDays', 3) # default 3 days
 
     # location alerts
     emergencyAlertBrodcastEnabled = config['location'].getboolean('eAlertBroadcastEnabled', False) # default False
