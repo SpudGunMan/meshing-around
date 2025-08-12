@@ -1406,7 +1406,7 @@ async def start_rx():
     if dad_jokes_enabled:
         logger.debug("System: Dad Jokes Enabled!")
     if coastalEnabled:
-        logger.debug("Coastal Forcast and Tide Enabled!")
+        logger.debug("System: Coastal Forcast and Tide Enabled!")
     if games_enabled:
         logger.debug("System: Games Enabled!")
     if wikipedia_enabled:
