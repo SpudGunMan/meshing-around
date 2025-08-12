@@ -74,8 +74,8 @@ if enableCmdHistory:
 # Location Configuration
 if location_enabled:
     from modules.locationdata import * # from the spudgunman/meshing-around repo
-    trap_list = trap_list + trap_list_location + ("tide",)
-    help_message = help_message + ", whereami, wx, tide"
+    trap_list = trap_list + trap_list_location
+    help_message = help_message + ", whereami, wx"
     if enableGBalerts and not enableDEalerts:
         from modules.globalalert import * # from the spudgunman/meshing-around repo
         logger.warning(f"System: GB Alerts not functional at this time need to find a source API")
@@ -101,11 +101,11 @@ if wxAlertBroadcastEnabled or emergencyAlertBrodcastEnabled or volcanoAlertBroad
     trap_list = trap_list + ("wx", "wxa", "wxalert", "ea", "ealert", "valert")
     help_message = help_message + ", wxalert, ealert, valert"
 
-# NOAA Coastal Waters Forecasts PZZ
-if pzzEnabled:
+# NOAA Coastal Waters Forecasts
+if coastalEnabled:
     from modules.locationdata import * # from the spudgunman/meshing-around repo
-    trap_list = trap_list + ("mwx",)
-    help_message = help_message + ", mwx"
+    trap_list = trap_list + ("mwx","tide",)
+    help_message = help_message + ", mwx, tide"
         
 # BBS Configuration
 if bbs_enabled:

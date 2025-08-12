@@ -251,9 +251,9 @@ try:
     n2yoAPIKey = config['location'].get('n2yoAPIKey', '') # default empty
     satListConfig = config['location'].get('satList', '25544').split(',') # default 25544 ISS
     riverListDefault = config['location'].get('riverList', '').split(',') # default 12061500 Skagit River
-    pzzEnabled = config['location'].getboolean('pzzEnabled', False) # default False
-    pzzZoneID = config['location'].getint('pzzZoneID', 100) # default 100, PZZ132 for Seattle area
-    pzzForecastDays = config['location'].getint('pzzForecastDays', 3) # default 3 days
+    coastalEnabled = config['location'].getboolean('coastalEnabled', False) # default False
+    myCoastalZone = config['location'].get('myCoastalZone', None) # default None
+    castalForecastDays = config['location'].getint('castalForecastDays', 3) # default 3 days
 
     # location alerts
     emergencyAlertBrodcastEnabled = config['location'].getboolean('eAlertBroadcastEnabled', False) # default False

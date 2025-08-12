@@ -752,8 +752,11 @@ def handle_riverFlow(message, message_from_id, deviceID):
         return msg
 
 def handle_mwx(message_from_id, deviceID, cmd):
-    # NOAA Coastal and Marine Weather PZZ
-    return get_nws_marine(zone=pzzZoneID, days=pzzForecastDays)
+    # NOAA Coastal and Marine Weather
+    if myCoastalZone is None:
+        logger.warning("System: Coastal Zone not set, please set in config.ini")
+        return NO_ALERTS
+    return get_nws_marine(zone=myCoastalZone, days=castalForecastDays)
 
 def handle_wxc(message_from_id, deviceID, cmd):
     location = get_node_location(message_from_id, deviceID)
@@ -1402,7 +1405,7 @@ async def start_rx():
             logger.debug("System: Location Telemetry Enabled using NOAA API")
     if dad_jokes_enabled:
         logger.debug("System: Dad Jokes Enabled!")
-    if pzzEnabled:
+    if coastalEnabled:
         logger.debug("Coastal Forcast and Tide Enabled!")
     if games_enabled:
         logger.debug("System: Games Enabled!")

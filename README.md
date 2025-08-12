@@ -223,10 +223,11 @@ lat = 48.50
 lon = -123.0
 UseMeteoWxAPI = True
 
-# NOAA Coastal Data Enable NOAA Coastal Waters Forecasts (PZZ) and tide cmd
-pzzEnabled = False
-pzzZoneID = 132 # My Forecast Zone ID, https://www.weather.gov/marine select location and then look at the 'Forecast-by-Zone Map' and select PZZ zone
-pzzForecastDays = 3 # number of data points to return, default is 3
+coastalEnabled = False # NOAA Coastal Data Enable NOAA Coastal Waters Forecasts and Tide
+# Find the correct costal weather directory at https://tgftp.nws.noaa.gov/data/forecasts/marine/coastal/
+# this map can help https://www.weather.gov/marine select location and then look at the 'Forecast-by-Zone Map'
+myCoastalZone = https://tgftp.nws.noaa.gov/data/forecasts/marine/coastal/pz/pzz135.txt # myCoastalZone is the .txt file with the forecast data
+castalForecastDays = 3 # number of data points to return, default is 3
 ```
 
 ### Module Settings

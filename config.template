@@ -150,12 +150,15 @@ NOAAalertCount = 2
 # use Open-Meteo API for weather data not NOAA useful for non US locations
 UseMeteoWxAPI = False
 
-# NOAA Coastal Data Enable NOAA Coastal Waters Forecasts (PZZ) and tide cmd
-pzzEnabled = False
-# My Forecast Zone ID, https://www.weather.gov/marine select location and then look at the 'Forecast-by-Zone Map' and select PZZ zone
-pzzZoneID = 132
+# NOAA Coastal Data Enable NOAA Coastal Waters Forecasts and Tide
+coastalEnabled = False
+# Find the correct costal weather directory at https://tgftp.nws.noaa.gov/data/forecasts/marine/coastal/
+# pz = Puget Sound, ph = Honolulu HI, gm = Florida Keys, pk = Alaska
+# this map can help https://www.weather.gov/marine select location and then look at the 'Forecast-by-Zone Map'
+# myCoastalZone is the .txt file with the forecast data
+myCoastalZone = https://tgftp.nws.noaa.gov/data/forecasts/marine/coastal/pz/pzz135.txt
 # number of data points to return, default is 3
-pzzForecastDays = 3
+castalForecastDays = 3
 
 # USGS Hydrology unique identifiers, LID or USGS ID https://waterdata.usgs.gov
 riverListDefault = 

@@ -702,9 +702,8 @@ def get_volcano_usgs(lat=0, lon=0):
 
 def get_nws_marine(zone, days=3):
     # forcast from NWS coastal products
-    marine_pzz_url = "https://tgftp.nws.noaa.gov/data/forecasts/marine/coastal/pz/pzz" + str(zone) + ".txt"
     try:
-        marine_pzz_data = requests.get(marine_pzz_url, timeout=urlTimeoutSeconds)
+        marine_pzz_data = requests.get(zone, timeout=urlTimeoutSeconds)
         if not marine_pzz_data.ok:
             logger.warning("Location:Error fetching NWS Marine PZ data")
             return ERROR_FETCHING_DATA
@@ -720,10 +719,10 @@ def get_nws_marine(zone, days=3):
         expires_date = expires[:8]
         if expires_date < todayDate:
             logger.debug("Location: NWS Marine PZ data expired")
-            return NO_DATA_NOGPS
+            return ERROR_FETCHING_DATA
     else:
         logger.debug("Location: NWS Marine PZ data not valid")
-        return NO_DATA_NOGPS
+        return ERROR_FETCHING_DATA
     
     # process the marine forecast data
     marine_pzz_lines = marine_pzz_data.split("\n")
