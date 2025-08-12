@@ -756,7 +756,7 @@ def handle_mwx(message_from_id, deviceID, cmd):
     if myCoastalZone is None:
         logger.warning("System: Coastal Zone not set, please set in config.ini")
         return NO_ALERTS
-    return get_nws_marine(zone=myCoastalZone, days=castalForecastDays)
+    return get_nws_marine(zone=myCoastalZone, days=coastalForecastDays)
 
 def handle_wxc(message_from_id, deviceID, cmd):
     location = get_node_location(message_from_id, deviceID)
