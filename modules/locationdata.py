@@ -703,19 +703,19 @@ def get_volcano_usgs(lat=0, lon=0):
 def get_nws_marine(zone, days=3):
     # forcast from NWS coastal products
     try:
-        marine_pzz_data = requests.get(zone, timeout=urlTimeoutSeconds)
-        if not marine_pzz_data.ok:
+        marine_pz_data = requests.get(zone, timeout=urlTimeoutSeconds)
+        if not marine_pz_data.ok:
             logger.warning("Location:Error fetching NWS Marine PZ data")
             return ERROR_FETCHING_DATA
     except (requests.exceptions.RequestException):
         logger.warning("Location:Error fetching NWS Marine PZ data")
         return ERROR_FETCHING_DATA
     
-    marine_pzz_data = marine_pzz_data.text
+    marine_pz_data = marine_pz_data.text
     #validate data
     todayDate = today.strftime("%Y%m%d")
-    if marine_pzz_data.startswith("Expires:"):
-        expires = marine_pzz_data.split(";;")[0].split(":")[1]
+    if marine_pz_data.startswith("Expires:"):
+        expires = marine_pz_data.split(";;")[0].split(":")[1]
         expires_date = expires[:8]
         if expires_date < todayDate:
             logger.debug("Location: NWS Marine PZ data expired")
@@ -725,8 +725,8 @@ def get_nws_marine(zone, days=3):
         return ERROR_FETCHING_DATA
     
     # process the marine forecast data
-    marine_pzz_lines = marine_pzz_data.split("\n")
-    marine_pzz_report = ""
+    marine_pzz_lines = marine_pz_data.split("\n")
+    marine_pz_report = ""
     day_blocks = []
     current_block = ""
     in_forecast = False
@@ -743,17 +743,21 @@ def get_nws_marine(zone, days=3):
     if current_block:
         day_blocks.append(current_block.strip())
 
-    # Only keep up to pzzDays blocks
+    # Only keep up to pzDays blocks
     for block in day_blocks[:days]:
-        marine_pzz_report += block + "\n"
+        marine_pz_report += block + "\n"
 
     # remove last newline
-    if marine_pzz_report.endswith("\n"):
-        marine_pzz_report = marine_pzz_report[:-1]
+    if marine_pz_report.endswith("\n"):
+        marine_pz_report = marine_pz_report[:-1]
+
+    # remove NOAA EOF $$
+    if marine_pz_report.endswith("$$"):
+        marine_pz_report = marine_pz_report[:-2].strip()
 
     # abbreviate the report
-    marine_pzz_report = abbreviate_noaa(marine_pzz_report)
-    if marine_pzz_report == "":
+    marine_pz_report = abbreviate_noaa(marine_pz_report)
+    if marine_pz_report == "":
         return NO_DATA_NOGPS
-    return marine_pzz_report
+    return marine_pz_report
 
