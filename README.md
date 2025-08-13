@@ -86,13 +86,13 @@ git clone https://github.com/spudgunman/meshing-around
 ### Networking
 | Command | Description | ✅ Works Off-Grid |
 |---------|-------------|-
-| `ping`, `ack` | Return data for signal. Example: `ping 15 #DrivingI5` (activates auto-ping every 20 seconds for count 15) | ✅ |
+| `ping`, `ack` | Return data for signal. Example: `ping 15 #DrivingI5` (activates auto-ping every 20 seconds for count 15 via DM only) | ✅ |
 | `cmd` | Returns the list of commands (the help message) | ✅ |
 | `history` | Returns the last commands run by user(s) | ✅ |
 | `lheard` | Returns the last 5 heard nodes with SNR. Can also use `sitrep` | ✅ |
 | `motd` | Displays the message of the day or sets it. Example: `motd $New Message Of the day` | ✅ |
 | `sysinfo` | Returns the bot node telemetry info | ✅ |
-| `test` | used to test the limits of data transfer `test 4` sends data to the maxBuffer limit (default 220) | ✅ |
+| `test` | used to test the limits of data transfer `test 4` sends data to the maxBuffer limit (default 220) via DM only | ✅ |
 | `whereami` | Returns the address of the sender's location if known |
 | `whoami` | Returns details of the node asking, also returned when position exchanged 📍 | ✅ |
 | `whois` | Returns details known about node, more data with bbsadmin node | ✅ |
@@ -144,7 +144,7 @@ git clone https://github.com/spudgunman/meshing-around
 | `checkout` | Checkout the node in the checklist database, checkout all from node | ✅ |
 | `checklist` | Display the checklist database, with note | ✅ |
 
-### Games (via DM)
+### Games (via DM only)
 | Command | Description | |
 |---------|-------------|-
 | `blackjack` | Plays Blackjack (Casino 21) | ✅ |
@@ -227,7 +227,7 @@ coastalEnabled = False # NOAA Coastal Data Enable NOAA Coastal Waters Forecasts 
 # Find the correct costal weather directory at https://tgftp.nws.noaa.gov/data/forecasts/marine/coastal/
 # this map can help https://www.weather.gov/marine select location and then look at the 'Forecast-by-Zone Map'
 myCoastalZone = https://tgftp.nws.noaa.gov/data/forecasts/marine/coastal/pz/pzz135.txt # myCoastalZone is the .txt file with the forecast data
-castalForecastDays = 3 # number of data points to return, default is 3
+coastalForecastDays = 3 # number of data points to return, default is 3
 ```
 
 ### Module Settings
