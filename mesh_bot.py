@@ -1111,7 +1111,7 @@ def onReceive(packet, interface):
         elif multiple_interface and port7 in rxInterface: rxNode = 7
         elif multiple_interface and port8 in rxInterface: rxNode = 8
         elif multiple_interface and port9 in rxInterface: rxNode = 9
-    
+
     if rxType == 'TCPInterface':
         rxHost = interface.__dict__.get('hostname', 'unknown')
         if rxHost and hostname1 in rxHost and interface1_type == 'tcp': rxNode = 1
@@ -1165,7 +1165,7 @@ def onReceive(packet, interface):
 
             # check if the packet is from us
             if message_from_id in [myNodeNum1, myNodeNum2, myNodeNum3, myNodeNum4, myNodeNum5, myNodeNum6, myNodeNum7, myNodeNum8, myNodeNum9]:
-                logger.warning(f"System: Packet from self {message_from_id} loop or traffic replay deteted")
+                logger.warning(f"System: Packet from self {message_from_id} loop or traffic replay detected")
 
             # get the signal strength and snr if available
             if packet.get('rxSnr') or packet.get('rxRssi'):
