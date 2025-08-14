@@ -94,6 +94,10 @@ if location_enabled:
         # NOAA only features
         help_message = help_message + ", wxa"
 
+    # USGS riverFlow Configuration
+    if riverListDefault != ['']:
+        help_message = help_message + ", riverflow"
+
 # NOAA alerts needs location module
 if wxAlertBroadcastEnabled or emergencyAlertBrodcastEnabled or volcanoAlertBroadcastEnabled:
     from modules.locationdata import * # from the spudgunman/meshing-around repo

@@ -330,7 +330,7 @@ Volcano Alerts use lat/long to determine ~1000km radius
 ```ini
 [location]
 # USGS Hydrology unique identifiers, LID or USGS ID https://waterdata.usgs.gov
-riverListDefault = 14144700
+riverList = 14144700 # example Mouth of Columbia River
 
 # USGS Volcano alerts Enable USGS Volcano Alert Broadcast
 volcanoAlertBroadcastEnabled = False

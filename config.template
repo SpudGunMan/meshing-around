@@ -160,8 +160,8 @@ myCoastalZone = https://tgftp.nws.noaa.gov/data/forecasts/marine/coastal/pz/pzz1
 # number of data points to return, default is 3
 coastalForecastDays = 3
 
-# USGS Hydrology unique identifiers, LID or USGS ID https://waterdata.usgs.gov
-riverListDefault = 
+# NOAA USGS Hydrology river identifiers, LID or USGS ID https://waterdata.usgs.gov
+riverList = 
 
 # NOAA EAS Alert Broadcast
 wxAlertBroadcastEnabled = False

@@ -250,7 +250,7 @@ try:
     repeater_lookup = config['location'].get('repeaterLookup', 'rbook') # default repeater lookup source
     n2yoAPIKey = config['location'].get('n2yoAPIKey', '') # default empty
     satListConfig = config['location'].get('satList', '25544').split(',') # default 25544 ISS
-    riverListDefault = config['location'].get('riverList', '').split(',') # default 12061500 Skagit River
+    riverListDefault = config['location'].get('riverList', '').split(',') # default None
     coastalEnabled = config['location'].getboolean('coastalEnabled', False) # default False
     myCoastalZone = config['location'].get('myCoastalZone', None) # default None
     coastalForecastDays = config['location'].getint('coastalForecastDays', 3) # default 3 days
