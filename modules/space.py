@@ -129,7 +129,7 @@ def get_moon(lat=0, lon=0):
     if illum < 1.0:
         moon_phase = 'New Moon🌑'
     elif illum < 49:
-        moon_phase = 'Waxing Crescent🌒
+        moon_phase = 'Waxing Crescent🌒'
     elif 49 <= illum < 51:
         moon_phase = 'First Quarter🌓'
     elif illum < 99:
