@@ -119,7 +119,7 @@ def get_moon(lat=0, lon=0):
         obs.lon = str(lon)
     else:
         obs.lat = str(latitudeValue)
-        obs.lon = str(object=longitudeValue)
+        obs.lon = str(longitudeValue)
     
     obs.date = datetime.now(timezone.utc)
     moon.compute(obs)
