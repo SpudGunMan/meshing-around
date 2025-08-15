@@ -97,13 +97,17 @@ def get_sun(lat=0, lon=0):
     
     # if sunset is before sunrise, then data will be for tomorrow format sunset first and sunrise second
     if local_sunset < local_sunrise:
-        sun_data = "SunSet: " + sun_table['set_time'] + "\nRise: " + sun_table['rise_time'] + "\nDaylight: "
+        sun_data = "SunSet: " + sun_table['set_time'] + "\nRise: " + sun_table['rise_time']
     else:
-        sun_data = "SunRise: " + sun_table['rise_time'] + "\nSet: " + sun_table['set_time'] + "\nDaylight: "
+        sun_data = "SunRise: " + sun_table['rise_time'] + "\nSet: " + sun_table['set_time']
 
-    sun_data += str((local_sunset - local_sunrise).seconds // 3600) + "h " + str(((local_sunset - local_sunrise).seconds // 60) % 60) + "m" + \
-        "\nAzimuth: " + str('{0:.2f}'.format(sun_table['azimuth'] * 180 / ephem.pi)) + "°" + "\nAltitude: " + str('{0:.2f}'.format(sun_table['altitude'] * 180 / ephem.pi)) + "°" 
-
+    sun_data += "\nDaylight: " + str((local_sunset - local_sunrise).seconds // 3600) + "h " + str(((local_sunset - local_sunrise).seconds // 60) % 60) + "m"
+    if local_sunset > datetime.now():
+        sun_data += "Remaining: " + str((local_sunset - datetime.now()).seconds // 3600) + "h " + str(((local_sunset - datetime.now()).seconds // 60) % 60) + "m"
+    
+    sun_data += "\nAzimuth: " + str('{0:.2f}'.format(sun_table['azimuth'] * 180 / ephem.pi)) + "°"
+    if sun_table['altitude'] > 0:
+        sun_data += "\nAltitude: " + str('{0:.2f}'.format(sun_table['altitude'] * 180 / ephem.pi)) + "°"
     return sun_data
 
 def get_moon(lat=0, lon=0):
