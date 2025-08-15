@@ -103,7 +103,7 @@ def get_sun(lat=0, lon=0):
 
     sun_data += "\nDaylight: " + str((local_sunset - local_sunrise).seconds // 3600) + "h " + str(((local_sunset - local_sunrise).seconds // 60) % 60) + "m"
     if local_sunset > datetime.now():
-        sun_data += "Remaining: " + str((local_sunset - datetime.now()).seconds // 3600) + "h " + str(((local_sunset - datetime.now()).seconds // 60) % 60) + "m"
+        sun_data += "\nRemaining: " + str((local_sunset - datetime.now()).seconds // 3600) + "h " + str(((local_sunset - datetime.now()).seconds // 60) % 60) + "m"
     
     sun_data += "\nAzimuth: " + str('{0:.2f}'.format(sun_table['azimuth'] * 180 / ephem.pi)) + "°"
     if sun_table['altitude'] > 0:
