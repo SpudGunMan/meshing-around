@@ -163,8 +163,8 @@ def get_moon(lat=0, lon=0):
     
     # if moon is in the sky, add azimuth and altitude
     if moon_table['altitude'] > 0:
-        moon_data += "\nAzimuth: " + str('{0:.2f}'.format(moon_table['azimuth'] * 180 / ephem.pi)) + "°" + \
-            "\nAltitude: " + str('{0:.2f}'.format(moon_table['altitude'] * 180 / ephem.pi)) + "°"
+        moon_data += "\nAz: " + str('{0:.2f}'.format(moon_table['azimuth'] * 180 / ephem.pi)) + "°" + \
+            "\nAlt: " + str('{0:.2f}'.format(moon_table['altitude'] * 180 / ephem.pi)) + "°"
     
     return moon_data
 
