@@ -119,7 +119,7 @@ def get_moon(lat=0, lon=0):
         obs.lon = str(lon)
     else:
         obs.lat = str(latitudeValue)
-        obs.lon = str(longitudeValue)
+        obs.lon = str(object=longitudeValue)
     
     obs.date = datetime.now(timezone.utc)
     moon.compute(obs)
@@ -127,21 +127,21 @@ def get_moon(lat=0, lon=0):
     illum = moon.phase  # 0 = new, 50 = first/last quarter, 100 = full
     
     if illum < 1.0:
-        moon_phase = 'New Moon'
+        moon_phase = 'New Moon🌑'
     elif illum < 49:
-        moon_phase = 'Waxing Crescent'
+        moon_phase = 'Waxing Crescent🌒
     elif 49 <= illum < 51:
-        moon_phase = 'First Quarter'
+        moon_phase = 'First Quarter🌓'
     elif illum < 99:
-        moon_phase = 'Waxing Gibbous'
+        moon_phase = 'Waxing Gibbous🌔'
     elif illum >= 99:
-        moon_phase = 'Full Moon'
+        moon_phase = 'Full Moon🌕'
     elif illum > 51:
-        moon_phase = 'Waning Gibbous'
+        moon_phase = 'Waning Gibbous🌖'
     elif 51 >= illum > 49:
-        moon_phase = 'Last Quarter'
+        moon_phase = 'Last Quarter🌗'
     else:
-        moon_phase = 'Waning Crescent'
+        moon_phase = 'Waning Crescent🌘'
     
     moon_table['phase'] = moon_phase
     moon_table['illumination'] = moon.phase
