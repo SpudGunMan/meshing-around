@@ -95,15 +95,6 @@ def get_sun(lat=0, lon=0):
         sun_table['rise_time'] = local_sunrise.strftime('%a %d %I:%M%p')
         sun_table['set_time'] = local_sunset.strftime('%a %d %I:%M%p')
 
-    # if sunset is before sunrise, then data will be for tomorrow
-    if local_sunset < local_sunrise:
-        obs.date = obs.date + 1  # move observer's date forward by one day
-        local_sunset = ephem.localtime(obs.next_setting(sun))
-        if zuluTime:
-            sun_table['set_time'] = local_sunset.strftime('%a %d %H:%M')
-        else:
-            sun_table['set_time'] = local_sunset.strftime('%a %d %I:%M%p')
-
     sun_data = "SunRise: " + sun_table['rise_time'] + "\nSet: " + sun_table['set_time'] + "\nDaylight: " + \
         str((local_sunset - local_sunrise).seconds // 3600) + "h " + str(((local_sunset - local_sunrise).seconds // 60) % 60) + "m" + \
         "\nAzimuth: " + str('{0:.2f}'.format(sun_table['azimuth'] * 180 / ephem.pi)) + "°" + "\nAltitude: " + str('{0:.2f}'.format(sun_table['altitude'] * 180 / ephem.pi)) + "°" 
