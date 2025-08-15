@@ -112,7 +112,6 @@ def get_sun(lat=0, lon=0):
 
 def get_moon(lat=0, lon=0):
     # get moon phase and rise/set times using callers location or default
-    # the phase calculation mght not be accurate (followup later)
     obs = ephem.Observer()
     moon = ephem.Moon()
     if lat != 0 and lon != 0:
