@@ -125,7 +125,25 @@ def get_moon(lat=0, lon=0):
     obs.date = datetime.now(timezone.utc)
     moon.compute(obs)
     moon_table = {}
-    moon_phase = ['NewMoon', 'Waxing Crescent', 'First Quarter', 'Waxing Gibbous', 'FullMoon', 'Waning Gibbous', 'Last Quarter', 'Waning Crescent'][round(moon.phase / (2 * ephem.pi) * 8) % 8]
+    illum = moon.phase  # 0 = new, 50 = first/last quarter, 100 = full
+    
+    if illum < 1.0:
+        moon_phase = 'New Moon'
+    elif illum < 49:
+        moon_phase = 'Waxing Crescent'
+    elif 49 <= illum < 51:
+        moon_phase = 'First Quarter'
+    elif illum < 99:
+        moon_phase = 'Waxing Gibbous'
+    elif illum >= 99:
+        moon_phase = 'Full Moon'
+    elif illum > 51:
+        moon_phase = 'Waning Gibbous'
+    elif 51 >= illum > 49:
+        moon_phase = 'Last Quarter'
+    else:
+        moon_phase = 'Waning Crescent'
+    
     moon_table['phase'] = moon_phase
     moon_table['illumination'] = moon.phase
     moon_table['azimuth'] = moon.az
