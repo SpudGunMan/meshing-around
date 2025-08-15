@@ -6,7 +6,7 @@ import requests # pip install requests
 import xml.dom.minidom
 from datetime import datetime
 import ephem # pip install pyephem
-from datetime import timedelta
+from datetime import timezone
 from modules.log import *
 
 trap_list_solarconditions = ("sun", "moon", "solar", "hfcond", "satpass")
@@ -63,7 +63,7 @@ def drap_xray_conditions():
 def get_sun(lat=0, lon=0):
     # get sunrise and sunset times using callers location or default
     obs = ephem.Observer()
-    obs.date = datetime.now()
+    obs.date = datetime.now(timezone.utc)
     sun = ephem.Sun()
     if lat != 0 and lon != 0:
         obs.lat = str(lat)
@@ -74,8 +74,16 @@ def get_sun(lat=0, lon=0):
 
     sun.compute(obs)
     sun_table = {}
+
+    # get the sun azimuth and altitude
     sun_table['azimuth'] = sun.az
     sun_table['altitude'] = sun.alt
+
+    # sun is up include altitude
+    if sun_table['altitude'] > 0:
+        sun_table['altitude'] = sun.alt
+    else:
+        sun_table['altitude'] = 0
 
     # get the next rise and set times
     local_sunrise = ephem.localtime(obs.next_rising(sun))
@@ -86,14 +94,20 @@ def get_sun(lat=0, lon=0):
     else:
         sun_table['rise_time'] = local_sunrise.strftime('%a %d %I:%M%p')
         sun_table['set_time'] = local_sunset.strftime('%a %d %I:%M%p')
-    # if sunset is before sunrise, then it's tomorrow
+
+    # if sunset is before sunrise, then data will be for tomorrow
     if local_sunset < local_sunrise:
-        local_sunset = ephem.localtime(obs.next_setting(sun)) + timedelta(1)
+        obs.date = obs.date + 1  # move observer's date forward by one day
+        local_sunset = ephem.localtime(obs.next_setting(sun))
         if zuluTime:
             sun_table['set_time'] = local_sunset.strftime('%a %d %H:%M')
         else:
             sun_table['set_time'] = local_sunset.strftime('%a %d %I:%M%p')
-    sun_data = "SunRise: " + sun_table['rise_time'] + "\nSet: " + sun_table['set_time']
+
+    sun_data = "SunRise: " + sun_table['rise_time'] + "\nSet: " + sun_table['set_time'] + "\nDaylight: " + \
+        str((local_sunset - local_sunrise).seconds // 3600) + "h " + str(((local_sunset - local_sunrise).seconds // 60) % 60) + "m" + \
+        "\nAzimuth: " + str('{0:.2f}'.format(sun_table['azimuth'] * 180 / ephem.pi)) + "°" + "\nAltitude: " + str('{0:.2f}'.format(sun_table['altitude'] * 180 / ephem.pi)) + "°" 
+
     return sun_data
 
 def get_moon(lat=0, lon=0):
@@ -108,7 +122,7 @@ def get_moon(lat=0, lon=0):
         obs.lat = str(latitudeValue)
         obs.lon = str(longitudeValue)
     
-    obs.date = datetime.now()
+    obs.date = datetime.now(timezone.utc)
     moon.compute(obs)
     moon_table = {}
     moon_phase = ['NewMoon', 'Waxing Crescent', 'First Quarter', 'Waxing Gibbous', 'FullMoon', 'Waning Gibbous', 'Last Quarter', 'Waning Crescent'][round(moon.phase / (2 * ephem.pi) * 8) % 8]
@@ -138,6 +152,11 @@ def get_moon(lat=0, lon=0):
     moon_data = "MoonRise:" + moon_table['rise_time'] + "\nSet:" + moon_table['set_time'] + \
         "\nPhase:" + moon_table['phase'] + " @:" + str('{0:.2f}'.format(moon_table['illumination'])) + "%" \
         + "\nFullMoon:" + moon_table['next_full_moon'] + "\nNewMoon:" + moon_table['next_new_moon']
+    
+    # if moon is in the sky, add azimuth and altitude
+    if moon_table['altitude'] > 0:
+        moon_data += "\nAzimuth: " + str('{0:.2f}'.format(moon_table['azimuth'] * 180 / ephem.pi)) + "°" + \
+            "\nAltitude: " + str('{0:.2f}'.format(moon_table['altitude'] * 180 / ephem.pi)) + "°"
     
     return moon_data
 
