@@ -347,12 +347,12 @@ repeater_channels = [2, 3]
 ```
 
 ### Ollama (LLM/AI) Settings
-For Ollama to work, the command line `ollama run 'model'` needs to work properly. Ensure you have enough RAM and your GPU is working as expected. The default model for this project is set to `gemma2:2b`. Ollama can be remote [Ollama Server](https://github.com/ollama/ollama/blob/main/docs/faq.md#how-do-i-configure-ollama-server) works on a pi58GB with 40 second or less response time.
+For Ollama to work, the command line `ollama run 'model'` needs to work properly. Ensure you have enough RAM and your GPU is working as expected. The default model for this project is set to `gemma3:270m`. Ollama can be remote [Ollama Server](https://github.com/ollama/ollama/blob/main/docs/faq.md#how-do-i-configure-ollama-server) works on a pi58GB with 40 second or less response time.
 
 ```ini
 # Enable ollama LLM see more at https://ollama.com
 ollama = True # Ollama model to use (defaults to gemma2:2b)
-ollamaModel = gemma2 #ollamaModel = llama3.1
+ollamaModel = gemma3:latest # Ollama model to use (defaults to gemma3:270m)
 ollamaHostName = http://localhost:11434 # server instance to use (defaults to local machine install)
 ```
 
@@ -360,6 +360,9 @@ Also see `llm.py` for changing the defaults of:
 
 ```ini
 # LLM System Variables
+rawQuery = True # if True, the input is sent raw to the LLM if False, it is processed by the meshBotAI template
+
+# Used in the meshBotAI template (legacy)
 llmEnableHistory = True # enable history for the LLM model to use in responses adds to compute time
 llmContext_fromGoogle = True # enable context from google search results helps with responses accuracy
 googleSearchResults = 3 # number of google search results to include in the context more results = more compute time
