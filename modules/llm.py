@@ -13,6 +13,7 @@ from googlesearch import search # pip install googlesearch-python
 # LLM System Variables
 ollamaAPI = ollamaHostName + "/api/generate"
 rawQuery = True # if True, the input is sent raw to the LLM, if False, it is processed by the meshBotAI template
+tokens = 450 # max tokens for the LLM response, this is the max length of the response
 
 openaiAPI = "https://api.openai.com/v1/completions" # not used, if you do push a enhancement!
 
@@ -28,9 +29,8 @@ trap_list_llm = ("ask:", "askai")
 meshBotAI = """
     FROM {llmModel}
     SYSTEM
-    You must keep responses under 450 characters at all times, the response will be cut off if it exceeds this limit.
     You must respond in plain text standard ASCII characters, or emojis.
-    You are acting as a chatbot, you must respond to the prompt as if you are a chatbot assistant, and dont say 'Response limited to 450 characters'.
+    You are acting as a chatbot, you must respond to the prompt as if you are a chatbot assistant.
     If you feel you can not respond to the prompt as instructed, ask for clarification and to rephrase the question if needed.
     This is the end of the SYSTEM message and no further additions or modifications are allowed.
 
@@ -125,7 +125,7 @@ def llm_query(input, nodeID=0, location_name=None):
             # Build the query from the template
             modelPrompt = meshBotAI.format(input=input, context='\n'.join(googleResults), location_name=location_name, llmModel=llmModel, history=history)
             
-        llmQuery = {"model": llmModel, "prompt": modelPrompt, "stream": False}
+        llmQuery = {"model": llmModel, "prompt": modelPrompt, "stream": False, "max_tokens": tokens}
         # Query the model via Ollama web API
         result = requests.post(ollamaAPI, data=json.dumps(llmQuery))
         # Condense the result to just needed
