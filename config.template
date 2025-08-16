@@ -56,8 +56,8 @@ wikipedia = True
 
 # Enable ollama LLM see more at https://ollama.com
 ollama = False
-# Ollama model to use (defaults to gemma2:2b)
-# ollamaModel = llama3.1
+# Ollama model to use (defaults to gemma3:270m)
+# ollamaModel = gemma3:latest
 # server instance to use (defaults to local machine install)
 ollamaHostName = http://localhost:11434
 # Produce LLM replies to messages that aren't commands?

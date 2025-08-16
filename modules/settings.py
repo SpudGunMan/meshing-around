@@ -219,7 +219,7 @@ try:
     solar_conditions_enabled = config['general'].getboolean('spaceWeather', True)
     wikipedia_enabled = config['general'].getboolean('wikipedia', False)
     llm_enabled = config['general'].getboolean('ollama', False) # https://ollama.com
-    llmModel = config['general'].get('ollamaModel', 'gemma2:2b') # default gemma2:2b
+    llmModel = config['general'].get('ollamaModel', 'gemma3:270m') # default gemma3:270m
     ollamaHostName = config['general'].get('ollamaHostName', 'http://localhost:11434') # default localhost
     llmReplyToNonCommands = config['general'].getboolean('llmReplyToNonCommands', True)
     dont_retry_disconnect = config['general'].getboolean('dont_retry_disconnect', False) # default False, retry on disconnect
