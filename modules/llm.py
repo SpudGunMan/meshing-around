@@ -79,6 +79,7 @@ def llm_query(input, nodeID=0, location_name=None):
     # if this is the first initialization of the LLM the query of " " should bring meshbotAIinit OTA shouldnt reach this?
     # This is for LLM like gemma and others now?
     if input == " " and rawQuery:
+        logger.warning("System: These LLM models lack a traditional system prompt, they can be verbose and not very helpful be advised.")
         input = meshbotAIinit
 
     if not location_name:
@@ -132,6 +133,8 @@ def llm_query(input, nodeID=0, location_name=None):
     try:
         if rawQuery:
             # sanitize the input to remove tool call syntax
+            if '```' in input:
+                logger.warning("System: LLM Query: Code markdown detected, removing for raw query")
             input = input.replace('```', '').replace('```bash', '').replace('```python', '')
             modelPrompt = input
         else:
