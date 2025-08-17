@@ -135,7 +135,7 @@ def llm_query(input, nodeID=0, location_name=None):
             # sanitize the input to remove tool call syntax
             if '```' in input:
                 logger.warning("System: LLM Query: Code markdown detected, removing for raw query")
-            input = input.replace('```', '').replace('```bash', '').replace('```python', '')
+            input = input.replace('```bash', '').replace('```python', '').replace('```', '')
             modelPrompt = input
         else:
             # Build the query from the template
