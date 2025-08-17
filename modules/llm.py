@@ -26,6 +26,12 @@ antiFloodLLM = []
 llmChat_history = {}
 trap_list_llm = ("ask:", "askai")
 
+meshbotAIinit = """
+    You must keep responses under 450 characters at all times, the response will be cut off if it exceeds this limit.
+    You must respond in plain text standard ASCII characters, or emojis.
+    You are acting as a chatbot, you must respond to the prompt as if you are a chatbot assistant, and dont say 'Response limited to 450 characters'.
+    """
+
 meshBotAI = """
     FROM {llmModel}
     SYSTEM
@@ -69,6 +75,12 @@ if llmEnableHistory:
 def llm_query(input, nodeID=0, location_name=None):
     global antiFloodLLM, llmChat_history
     googleResults = []
+
+    # if this is the first initialization of the LLM the query of " " should bring meshbotAIinit OTA shouldnt reach this?
+    # This is for LLM like gemma and others now?
+    if input == " " and rawQuery:
+        input = meshbotAIinit
+
     if not location_name:
         location_name = "no location provided "
     
