@@ -1162,6 +1162,7 @@ def onReceive(packet, interface):
         if 'decoded' in packet and packet['decoded']['portnum'] == 'TEXT_MESSAGE_APP':
             message_bytes = packet['decoded']['payload']
             message_string = message_bytes.decode('utf-8')
+            via_mqtt = packet['decoded'].get('viaMqtt', False)
 
             # check if the packet is from us
             if message_from_id in [myNodeNum1, myNodeNum2, myNodeNum3, myNodeNum4, myNodeNum5, myNodeNum6, myNodeNum7, myNodeNum8, myNodeNum9]:
@@ -1207,7 +1208,7 @@ def onReceive(packet, interface):
             if hop_start == hop_limit:
                 hop = "Direct"
                 hop_count = 0
-            elif hop_start == 0 and hop_limit > 0:
+            elif hop_start == 0 and hop_limit > 0 or via_mqtt:
                 hop = "MQTT"
                 hop_count = 0
             else:
