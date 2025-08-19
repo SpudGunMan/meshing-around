@@ -1165,10 +1165,6 @@ def onReceive(packet, interface):
             via_mqtt = packet['decoded'].get('viaMqtt', False)
             rx_time = packet['decoded'].get('rxTime', time.time())
 
-                # ignore packets received during soft startup
-                logger.warning(f"System: Soft Startup: Ignoring packet from {message_from_id} with time {rx_time}")
-                return
-
             # check if the packet is from us
             if message_from_id in [myNodeNum1, myNodeNum2, myNodeNum3, myNodeNum4, myNodeNum5, myNodeNum6, myNodeNum7, myNodeNum8, myNodeNum9]:
                 logger.warning(f"System: Packet from self {message_from_id} loop or traffic replay detected")
