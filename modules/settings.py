@@ -361,7 +361,7 @@ try:
     splitDelay = config['messagingSettings'].getfloat('splitDelay', 0) # default 0
     MESSAGE_CHUNK_SIZE = config['messagingSettings'].getint('MESSAGE_CHUNK_SIZE', 160) # default 160
     wantAck = config['messagingSettings'].getboolean('wantAck', False) # default False
-    maxBuffer = config['messagingSettings'].getint('maxBuffer', 220) # default 220
+    maxBuffer = config['messagingSettings'].getint('maxBuffer', 200) # default 200
     enableHopLogs = config['messagingSettings'].getboolean('enableHopLogs', False) # default False
 
 except KeyError as e:
