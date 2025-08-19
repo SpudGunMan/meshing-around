@@ -284,6 +284,13 @@ def onReceive(packet, interface):
                 else:
                     hop_start = 0
 
+            if enableHopLogs:
+                logger.debug(f"System: Packet HopDebugger: hop_away:{hop_away} hop_limit:{hop_limit} hop_start:{hop_start}")
+            
+            if hop_away == 0 and hop_limit == 0 and hop_start == 0:
+                hop = "Last Hop"
+                hop_count = 0
+            
             if hop_start == hop_limit:
                 hop = "Direct"
                 hop_count = 0

@@ -1163,6 +1163,11 @@ def onReceive(packet, interface):
             message_bytes = packet['decoded']['payload']
             message_string = message_bytes.decode('utf-8')
             via_mqtt = packet['decoded'].get('viaMqtt', False)
+            rx_time = packet['decoded'].get('rxTime', time.time())
+
+                # ignore packets received during soft startup
+                logger.warning(f"System: Soft Startup: Ignoring packet from {message_from_id} with time {rx_time}")
+                return
 
             # check if the packet is from us
             if message_from_id in [myNodeNum1, myNodeNum2, myNodeNum3, myNodeNum4, myNodeNum5, myNodeNum6, myNodeNum7, myNodeNum8, myNodeNum9]:
@@ -1202,8 +1207,10 @@ def onReceive(packet, interface):
             
             if enableHopLogs:
                 logger.debug(f"System: Packet HopDebugger: hop_away:{hop_away} hop_limit:{hop_limit} hop_start:{hop_start}")
-                if hop_away == 0 and hop_limit == 0 and hop_start == 0:
-                    logger.debug(f"System: Packet HopDebugger: No hop count found in PACKET {packet} END PACKET")
+            
+            if hop_away == 0 and hop_limit == 0 and hop_start == 0:
+                hop = "Last Hop"
+                hop_count = 0
             
             if hop_start == hop_limit:
                 hop = "Direct"
