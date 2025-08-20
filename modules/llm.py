@@ -13,7 +13,8 @@ from googlesearch import search # pip install googlesearch-python
 # LLM System Variables
 ollamaAPI = ollamaHostName + "/api/generate"
 rawQuery = True # if True, the input is sent raw to the LLM, if False, it is processed by the meshBotAI template
-tokens = 450 # max tokens for the LLM response, this is the max length of the response
+tokens = 450 # max charcters for the LLM response, this is the max length of the response also in prompts
+requestTruncation = True # if True, the LLM "will" truncate the response 
 
 openaiAPI = "https://api.openai.com/v1/completions" # not used, if you do push a enhancement!
 
@@ -27,10 +28,11 @@ llmChat_history = {}
 trap_list_llm = ("ask:", "askai")
 
 meshbotAIinit = """
-    You must keep your responses under 450 tokens
-    You can not ask for clarification, you must respond to the prompt as if you are a chatbot assistant.
-    You must respond in plain text standard ASCII characters, or emojis.
+    keep responses as short as possible. chatbot assistant no followuyp questions, no asking for clarification.
+    You must respond in plain text standard ASCII characters or emojis.
     """
+
+truncatePrompt = f"truncate this as short as possible:\n"
 
 meshBotAI = """
     FROM {llmModel}
@@ -162,6 +164,23 @@ def llm_query(input, nodeID=0, location_name=None):
     
     # cleanup for message output
     response = result.strip().replace('\n', ' ')
+    
+    if rawQuery and requestTruncation and len(response) > 450:
+        #retryy loop to truncate the response
+        logger.warning(f"System: LLM Query: Response exceeded {tokens} characters, requesting truncation")
+        truncateQuery = {"model": llmModel, "prompt": truncatePrompt + response, "stream": False, "max_tokens": tokens}
+        truncateResult = requests.post(ollamaAPI, data=json.dumps(truncateQuery))
+        if truncateResult.status_code == 200:
+            truncate_json = truncateResult.json()
+            result = truncate_json.get("response", "")
+
+        else:
+            #use the original result if truncation fails
+            logger.warning("System: LLM Query: Truncation failed, using original response")
+        
+        # cleanup for message output
+        response = result.strip().replace('\n', ' ')
+
     # done with the query, remove the user from the anti flood list
     antiFloodLLM.remove(nodeID)
 
