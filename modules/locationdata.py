@@ -9,7 +9,7 @@ import bs4 as bs # pip install beautifulsoup4
 import xml.dom.minidom 
 from modules.log import *
 
-trap_list_location = ("whereami", "wx", "wxa", "wxalert", "rlist", "ea", "ealert", "riverflow", "valert")
+trap_list_location = ("whereami", "wx", "wxa", "wxalert", "rlist", "ea", "ealert", "riverflow", "valert", "earthquake")
 
 def where_am_i(lat=0, lon=0, short=False, zip=False):
     whereIam = ""
@@ -761,3 +761,48 @@ def get_nws_marine(zone, days=3):
         return NO_DATA_NOGPS
     return marine_pz_report
 
+def checkUSGSEarthQuake(lat=0, lon=0):
+    if lat == 0 and lon == 0:
+        lat = latitudeValue
+        lon = longitudeValue
+    radius = 100 # km
+    magnitude = 1.5
+    history = 7 # days
+    startDate = datetime.fromtimestamp(datetime.now().timestamp() - history*24*60*60).strftime("%Y-%m-%d")
+    USGSquake_url = f"https://earthquake.usgs.gov/fdsnws/event/1/query?&format=xml&latitude={lat}&longitude={lon}&maxradiuskm={radius}&minmagnitude={magnitude}&starttime={startDate}"
+    description_text = ""
+    quake_count = 0
+    # fetch the earthquake data from USGS
+    try:
+        quake_data = requests.get(USGSquake_url, timeout=urlTimeoutSeconds)
+        if not quake_data.ok:
+            logger.warning("Location:Error fetching earthquake data from USGS")
+            quake_count = 0
+        if not quake_data.text.strip():
+            quake_count = 0
+        try:
+            quake_xml = xml.dom.minidom.parseString(quake_data.text)
+        except Exception as e:
+            logger.warning(f"Location: USGS earthquake API returned invalid XML: {e}")
+            quake_count = 0
+    except (requests.exceptions.RequestException):
+        logger.warning("Location:Error fetching earthquake data from USGS")
+        quake_count = 0
+
+    quake_xml = xml.dom.minidom.parseString(quake_data.text)
+    quake_count = len(quake_xml.getElementsByTagName("event"))
+
+    #get largest mag in magnitude of the set of quakes
+    largest_mag = 0.0
+    for event in quake_xml.getElementsByTagName("event"):
+        mag = event.getElementsByTagName("magnitude")[0]
+        mag_value = float(mag.getElementsByTagName("value")[0].childNodes[0].nodeValue)
+        if mag_value > largest_mag:
+            largest_mag = mag_value
+            # set description text
+            description_text = event.getElementsByTagName("description")[0].getElementsByTagName("text")[0].childNodes[0].nodeValue
+
+    if quake_count == 0:
+        return NO_ALERTS
+    else:
+        return f"{quake_count} quakes in last {history} days within {radius}km of you largest was {largest_mag}. {description_text}"

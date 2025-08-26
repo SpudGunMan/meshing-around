@@ -31,7 +31,7 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 - **New Node Hello**: Send a hello to any new node seen in text message.
 
 ### Interactive AI and Data Lookup
-- **NOAA location Data**: Get localized weather(alerts), River Flow, and Tide information. Open-Meteo is used for wx only outside NOAA coverage. 
+- **NOAA/USGS location Data**: Get localized weather(alerts), Earthquake, River Flow, and Tide information. Open-Meteo is used for wx only outside NOAA coverage. 
 - **Wiki Integration**: Look up data using Wikipedia results.
 - **Ollama LLM AI**: Interact with the [Ollama](https://github.com/ollama/ollama/tree/main/docs) LLM AI for advanced queries and responses.
 - **Satalite Pass Info**: Get passes for satalite at your location.
@@ -101,6 +101,7 @@ git clone https://github.com/spudgunman/meshing-around
 | Command | Description | |
 |---------|-------------|-------------------
 | `ea` and `ealert` | Return FEMA iPAWS/EAS alerts in USA or DE Headline or expanded details for USA | |
+| `earthquake` | Returns the largest and number of USGS events for the location | |
 | `hfcond` | Returns a table of HF solar conditions | |
 | `rlist` | Returns a table of nearby repeaters from RepeaterBook | |
 | `riverflow` | Return information from NOAA for river flow info. Example: `riverflow modules/settings.py`| |

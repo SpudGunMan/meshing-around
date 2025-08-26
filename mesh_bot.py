@@ -52,6 +52,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "dopewars": lambda: handleDopeWars(message, message_from_id, deviceID),
     "ea": lambda: handle_emergency_alerts(message, message_from_id, deviceID),
     "ealert": lambda: handle_emergency_alerts(message, message_from_id, deviceID),
+    "earthquake": lambda: handleEarthquake(message, message_from_id, deviceID),
     "email:": lambda: handle_email(message_from_id, message),
     "games": lambda: gamesCmdList,
     "globalthermonuclearwar": lambda: handle_gTnW(),
@@ -785,6 +786,11 @@ def handle_emergency_alerts(message, message_from_id, deviceID):
     else:
         # Headlines only FEMA
         return getIpawsAlert(str(location[0]), str(location[1]), shortAlerts=True)
+
+def handleEarthquake(message, message_from_id, deviceID):
+    location = get_node_location(message_from_id, deviceID)
+    if "earthquake" in message.lower():
+        return checkUSGSEarthQuake(str(location[0]), str(location[1]))
     
 def handle_checklist(message, message_from_id, deviceID):
     name = get_name_from_number(message_from_id, 'short', deviceID)
