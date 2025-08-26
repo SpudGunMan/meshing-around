@@ -268,6 +268,7 @@ if ble_count > 1:
 logger.debug(f"System: Initializing Interfaces")
 interface1 = interface2 = interface3 = interface4 = interface5 = interface6 = interface7 = interface8 = interface9 = None
 retry_int1 = retry_int2 = retry_int3 = retry_int4 = retry_int5 = retry_int6 = retry_int7 = retry_int8 = retry_int9 = False
+myNodeNum1 = myNodeNum2 = myNodeNum3 = myNodeNum4 = myNodeNum5 = myNodeNum6 = myNodeNum7 = myNodeNum8 = myNodeNum9 = 777
 max_retry_count1 = max_retry_count2 = max_retry_count3 = max_retry_count4 = max_retry_count5 = max_retry_count6 = max_retry_count7 = max_retry_count8 = max_retry_count9 = interface_retry_count
 for i in range(1, 10):
     interface_type = globals().get(f'interface{i}_type')
@@ -686,11 +687,24 @@ def messageTrap(msg):
     message_list=msg.split(" ")
     for m in message_list:
         for t in trap_list:
-            # if word in message is in the trap list, return True
-            if t.lower() == m.lower():
-                return True
-            if cmdBang and m.startswith("!"):
-                return True
+            if not explicitCmd:
+                # if word in message is in the trap list, return True
+                if t.lower() == m.lower():
+                    if cmdBang:
+                        if m.startswith('!'):
+                            return True
+                        else:
+                            continue
+                    return True
+            else:
+                # if the index 0 of the message is a word in the trap list, return True
+                if t.lower() == m.lower() and message_list.index(m) == 0:
+                    if cmdBang:
+                        if m.startswith('!'):
+                            return True
+                        else:
+                            continue
+                    return True
     # if no trap words found, run a search for near misses like ping? or cmd?
     for m in message_list:
         for t in range(len(trap_list)):

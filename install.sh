@@ -250,7 +250,7 @@ if [[ $(echo "${embedded}" | grep -i "^n") ]]; then
 
     printf "\nOptionally if you want to install the multi gig LLM Ollama compnents we will execute the following commands\n"
     printf "\ncurl -fsSL https://ollama.com/install.sh | sh\n"
-    printf "ollama pull gemma2:2b\n"
+    printf "ollama pull gemma3:latest\n"
     printf "Total download is multi GB, recomend pi5/8GB or better for this\n"
     # ask if the user wants to install the LLM Ollama components
     printf "\nDo you want to install the LLM Ollama components? (y/n)"
@@ -258,12 +258,12 @@ if [[ $(echo "${embedded}" | grep -i "^n") ]]; then
     if [[ $(echo "${ollama}" | grep -i "^y") ]]; then
         curl -fsSL https://ollama.com/install.sh | sh
 
-        # ask if want to install gemma2:2b
-        printf "\n Ollama install done now we can install the Gemma2:2b components\n"
-        echo "Do you want to install the Gemma2:2b components? (y/n)"
+        # ask if want to install gemma3:latest
+        printf "\n Ollama install done now we can install the gemma3:latest components\n"
+        echo "Do you want to install the gemma3:latest components? (y/n)"
         read gemma
         if [[ $(echo "${gemma}" | grep -i "^y") ]]; then
-            ollama pull gemma2:2b
+            ollama pull gemma3:latest
         fi
     fi
 

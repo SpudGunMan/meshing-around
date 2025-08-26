@@ -197,6 +197,7 @@ try:
     ignoreChannels = config['general'].get('ignoreChannels', '').split(',') # ignore these channels
     ignoreDefaultChannel = config['general'].getboolean('ignoreDefaultChannel', False)
     cmdBang = config['general'].getboolean('cmdBang', False) # default off
+    explicitCmd = config['general'].getboolean('explicitCmd', True) # default on
     zuluTime = config['general'].getboolean('zuluTime', False) # aka 24 hour time
     log_messages_to_file = config['general'].getboolean('LogMessagesToFile', False) # default off
     log_backup_count = config['general'].getint('LogBackupCount', 32) # default 32 days
@@ -219,8 +220,9 @@ try:
     solar_conditions_enabled = config['general'].getboolean('spaceWeather', True)
     wikipedia_enabled = config['general'].getboolean('wikipedia', False)
     llm_enabled = config['general'].getboolean('ollama', False) # https://ollama.com
-    llmModel = config['general'].get('ollamaModel', 'gemma2:2b') # default gemma2:2b
     ollamaHostName = config['general'].get('ollamaHostName', 'http://localhost:11434') # default localhost
+    llmModel = config['general'].get('ollamaModel', 'gemma3:270m') # default gemma3:270m
+    rawLLMQuery = config['general'].getboolean('rawLLMQuery', True) #default True
     llmReplyToNonCommands = config['general'].getboolean('llmReplyToNonCommands', True)
     dont_retry_disconnect = config['general'].getboolean('dont_retry_disconnect', False) # default False, retry on disconnect
     # emergency response
@@ -361,7 +363,7 @@ try:
     splitDelay = config['messagingSettings'].getfloat('splitDelay', 0) # default 0
     MESSAGE_CHUNK_SIZE = config['messagingSettings'].getint('MESSAGE_CHUNK_SIZE', 160) # default 160
     wantAck = config['messagingSettings'].getboolean('wantAck', False) # default False
-    maxBuffer = config['messagingSettings'].getint('maxBuffer', 220) # default 220
+    maxBuffer = config['messagingSettings'].getint('maxBuffer', 200) # default 200
     enableHopLogs = config['messagingSettings'].getboolean('enableHopLogs', False) # default False
 
 except KeyError as e:

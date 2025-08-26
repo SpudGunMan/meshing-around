@@ -36,6 +36,8 @@ ignoreDefaultChannel = False
 ignoreChannels = 
 # require ! to be the first character in a command
 cmdBang = False
+# require explicit command, the message will only be processed if it starts with a command word
+explicitCmd = True
 
 # motd is reset to this value on boot
 motd = Thanks for using MeshBOT! Have a good day!
@@ -56,13 +58,15 @@ wikipedia = True
 
 # Enable ollama LLM see more at https://ollama.com
 ollama = False
-# Ollama model to use (defaults to gemma2:2b)
-# ollamaModel = llama3.1
+# Ollama model to use (defaults to gemma3:270m)
+# ollamaModel = gemma3:latest
 # server instance to use (defaults to local machine install)
 ollamaHostName = http://localhost:11434
 # Produce LLM replies to messages that aren't commands?
 # If False, the LLM only replies to the "ask:" and "askai" commands.
 llmReplyToNonCommands = True
+# if True, the input is sent raw to the LLM, if False uses legacy template query
+rawLLMQuery = True 
 
 # StoreForward Enabled and Limits
 StoreForward = True

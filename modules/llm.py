@@ -8,31 +8,33 @@ from modules.log import *
 # https://github.com/ollama/ollama/blob/main/docs/faq.md#how-do-i-configure-ollama-server
 import requests
 import json
-from googlesearch import search # pip install googlesearch-python
 
-# This is my attempt at a simple RAG implementation it will require some setup
-# you will need to have the RAG data in a folder named rag in the data directory (../data/rag)
-# This is lighter weight and can be used in a standalone environment, needs chromadb
-# "chat with a file" is the use concept here, the file is the RAG data
-# is anyone using this please let me know if you are Dec62024 -kelly
-ragDEV = False
-
-if ragDEV:
-    import os
-    import ollama # pip install ollama
-    import chromadb # pip install chromadb
-    from ollama import Client as OllamaClient
-    ollamaClient = OllamaClient(host=ollamaHostName)
+if not rawLLMQuery:
+    # this may be removed in the future
+    from googlesearch import search # pip install googlesearch-python
 
 # LLM System Variables
 ollamaAPI = ollamaHostName + "/api/generate"
+tokens = 450 # max charcters for the LLM response, this is the max length of the response also in prompts
+requestTruncation = True # if True, the LLM "will" truncate the response 
+
 openaiAPI = "https://api.openai.com/v1/completions" # not used, if you do push a enhancement!
+
+# Used in the meshBotAI template
 llmEnableHistory = True # enable last message history for the LLM model
 llmContext_fromGoogle = True # enable context from google search results adds to compute time but really helps with responses accuracy
+
 googleSearchResults = 3 # number of google search results to include in the context more results = more compute time
 antiFloodLLM = []
 llmChat_history = {}
 trap_list_llm = ("ask:", "askai")
+
+meshbotAIinit = """
+    keep responses as short as possible. chatbot assistant no followuyp questions, no asking for clarification.
+    You must respond in plain text standard ASCII characters or emojis.
+    """
+
+truncatePrompt = f"truncate this as short as possible:\n"
 
 meshBotAI = """
     FROM {llmModel}
@@ -74,76 +76,16 @@ if llmEnableHistory:
 
     """
 
-def llm_readTextFiles():
-    # read .txt files in ../data/rag
-    try:
-        text = []
-        directory = "../data/rag"
-        for filename in os.listdir(directory):
-            if filename.endswith(".txt"):
-                filepath = os.path.join(directory, filename)
-                with open(filepath, 'r') as f:
-                    text.append(f.read())
-        return text
-    except Exception as e:
-        logger.debug(f"System: LLM readTextFiles: {e}")
-        return False
-
-def store_text_embedding(text):
-    try:
-        # store each document in a vector embedding database
-        for i, d in enumerate(text):
-            response = ollama.embeddings(model="mxbai-embed-large", prompt=d)
-            embedding = response["embedding"]
-            collection.add(
-                ids=[str(i)],
-                embeddings=[embedding],
-                documents=[d]
-            )
-
-    except Exception as e:
-        logger.debug(f"System: Embedding failed: {e}")
-        return False
-
-## INITALIZATION of RAG
-if ragDEV:
-    try:
-        chromaHostname = "localhost:8000"
-        # connect to the chromaDB
-        chromaHost = chromaHostname.split(":")[0]
-        chromaPort = chromaHostname.split(":")[1]
-        if chromaHost == "localhost" and chromaPort == "8000":
-            # create a client using local python Client
-            chromaClient = chromadb.Client()
-        else:
-            # create a client using the remote python Client
-            # this isnt tested yet please test and report back
-            chromaClient = chromadb.Client(host=chromaHost, port=chromaPort)
-
-        clearCollection = False
-        if "meshBotAI" in chromaClient.list_collections() and clearCollection:
-            logger.debug(f"System: LLM: Clearing RAG files from chromaDB")
-            chromaClient.delete_collection("meshBotAI")
-        
-        # create a new collection
-        collection = chromaClient.create_collection("meshBotAI")
-
-        logger.debug(f"System: LLM: Cataloging RAG data")
-        store_text_embedding(llm_readTextFiles())
-
-    except Exception as e:
-        logger.debug(f"System: LLM: RAG Initalization failed: {e}")
-
-def query_collection(prompt):
-    # generate an embedding for the prompt and retrieve the most relevant doc
-    response = ollama.embeddings(prompt=prompt, model="mxbai-embed-large")
-    results = collection.query(query_embeddings=[response["embedding"]], n_results=1)
-    data = results['documents'][0][0]
-    return data
-
 def llm_query(input, nodeID=0, location_name=None):
     global antiFloodLLM, llmChat_history
     googleResults = []
+
+    # if this is the first initialization of the LLM the query of " " should bring meshbotAIinit OTA shouldnt reach this?
+    # This is for LLM like gemma and others now?
+    if input == " " and rawLLMQuery:
+        logger.warning("System: These LLM models lack a traditional system prompt, they can be verbose and not very helpful be advised.")
+        input = meshbotAIinit
+
     if not location_name:
         location_name = "no location provided "
     
@@ -162,7 +104,7 @@ def llm_query(input, nodeID=0, location_name=None):
     else:
         antiFloodLLM.append(nodeID)
 
-    if llmContext_fromGoogle:
+    if llmContext_fromGoogle and not rawLLMQuery:
         # grab some context from the internet using google search hits (if available)
         # localization details at https://pypi.org/project/googlesearch-python/
 
@@ -193,36 +135,29 @@ def llm_query(input, nodeID=0, location_name=None):
     location_name += f" at the current time of {datetime.now().strftime('%Y-%m-%d %H:%M:%S %Z')}"
 
     try:
-        # RAG context inclusion testing
-        ragContext = False
-        if ragDEV:
-            ragContext = query_collection(input)
-
-        if ragContext:
-            ragContextGooogle = ragContext + '\n'.join(googleResults)
-            # Build the query from the template
-            modelPrompt = meshBotAI.format(input=input, context=ragContext, location_name=location_name, llmModel=llmModel, history=history)
-            # Query the model with RAG context
-            result = ollamaClient.generate(model=llmModel, prompt=modelPrompt)
-            # Condense the result to just needed
-            if isinstance(result, dict):
-                result = result.get("response")
+        if rawLLMQuery:
+            # sanitize the input to remove tool call syntax
+            if '```' in input:
+                logger.warning("System: LLM Query: Code markdown detected, removing for raw query")
+            input = input.replace('```bash', '').replace('```python', '').replace('```', '')
+            modelPrompt = input
         else:
             # Build the query from the template
             modelPrompt = meshBotAI.format(input=input, context='\n'.join(googleResults), location_name=location_name, llmModel=llmModel, history=history)
-            llmQuery = {"model": llmModel, "prompt": modelPrompt, "stream": False}
-            # Query the model via Ollama web API
-            result = requests.post(ollamaAPI, data=json.dumps(llmQuery))
-            # Condense the result to just needed
-            if result.status_code == 200:
-                result_json = result.json()
-                result = result_json.get("response", "")
+            
+        llmQuery = {"model": llmModel, "prompt": modelPrompt, "stream": False, "max_tokens": tokens}
+        # Query the model via Ollama web API
+        result = requests.post(ollamaAPI, data=json.dumps(llmQuery))
+        # Condense the result to just needed
+        if result.status_code == 200:
+            result_json = result.json()
+            result = result_json.get("response", "")
 
-                # deepseek-r1 has added <think> </think> tags to the response
-                if "<think>" in result:
-                    result = result.split("</think>")[1]
-            else:
-                raise Exception(f"HTTP Error: {result.status_code}")
+            # deepseek-r1 has added <think> </think> tags to the response
+            if "<think>" in result:
+                result = result.split("</think>")[1]
+        else:
+            raise Exception(f"HTTP Error: {result.status_code}")
 
         #logger.debug(f"System: LLM Response: " + result.strip().replace('\n', ' '))
     except Exception as e:
@@ -231,6 +166,23 @@ def llm_query(input, nodeID=0, location_name=None):
     
     # cleanup for message output
     response = result.strip().replace('\n', ' ')
+    
+    if rawLLMQuery and requestTruncation and len(response) > 450:
+        #retryy loop to truncate the response
+        logger.warning(f"System: LLM Query: Response exceeded {tokens} characters, requesting truncation")
+        truncateQuery = {"model": llmModel, "prompt": truncatePrompt + response, "stream": False, "max_tokens": tokens}
+        truncateResult = requests.post(ollamaAPI, data=json.dumps(truncateQuery))
+        if truncateResult.status_code == 200:
+            truncate_json = truncateResult.json()
+            result = truncate_json.get("response", "")
+
+        else:
+            #use the original result if truncation fails
+            logger.warning("System: LLM Query: Truncation failed, using original response")
+        
+        # cleanup for message output
+        response = result.strip().replace('\n', ' ')
+
     # done with the query, remove the user from the anti flood list
     antiFloodLLM.remove(nodeID)
 
