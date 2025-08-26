@@ -197,6 +197,7 @@ try:
     ignoreChannels = config['general'].get('ignoreChannels', '').split(',') # ignore these channels
     ignoreDefaultChannel = config['general'].getboolean('ignoreDefaultChannel', False)
     cmdBang = config['general'].getboolean('cmdBang', False) # default off
+    explicitCmd = config['general'].getboolean('explicitCmd', True) # default on
     zuluTime = config['general'].getboolean('zuluTime', False) # aka 24 hour time
     log_messages_to_file = config['general'].getboolean('LogMessagesToFile', False) # default off
     log_backup_count = config['general'].getint('LogBackupCount', 32) # default 32 days

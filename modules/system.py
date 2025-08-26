@@ -687,11 +687,24 @@ def messageTrap(msg):
     message_list=msg.split(" ")
     for m in message_list:
         for t in trap_list:
-            # if word in message is in the trap list, return True
-            if t.lower() == m.lower():
-                return True
-            if cmdBang and m.startswith("!"):
-                return True
+            if not explicitCmd:
+                # if word in message is in the trap list, return True
+                if t.lower() == m.lower():
+                    if cmdBang:
+                        if m.startswith('!'):
+                            return True
+                        else:
+                            continue
+                    return True
+            else:
+                # if the index 0 of the message is a word in the trap list, return True
+                if t.lower() == m.lower() and message_list.index(m) == 0:
+                    if cmdBang:
+                        if m.startswith('!'):
+                            return True
+                        else:
+                            continue
+                    return True
     # if no trap words found, run a search for near misses like ping? or cmd?
     for m in message_list:
         for t in range(len(trap_list)):

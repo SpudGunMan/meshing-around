@@ -36,6 +36,8 @@ ignoreDefaultChannel = False
 ignoreChannels = 
 # require ! to be the first character in a command
 cmdBang = False
+# require explicit command, the message will only be processed if it starts with a command word
+explicitCmd = True
 
 # motd is reset to this value on boot
 motd = Thanks for using MeshBOT! Have a good day!

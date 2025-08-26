@@ -211,6 +211,7 @@ defaultChannel = 0
 ignoreDefaultChannel = False # ignoreDefaultChannel, the bot will ignore the default channel set above
 ignoreChannels = # ignoreChannels is a comma separated list of channels to ignore, e.g. 4,5
 cmdBang = False # require ! to be the first character in a command
+explicitCmd = True # require explicit command, the message will only be processed if it starts with a command word disable to get more activity
 ```
 
 ### Location Settings
