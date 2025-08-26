@@ -258,8 +258,8 @@ if [[ $(echo "${embedded}" | grep -i "^n") ]]; then
         curl -fsSL https://ollama.com/install.sh | sh
 
         # ask if want to install gemma3:latest
-        printf "\n Ollama install done now we can install the gemma3:latest components\n"
-        echo "Do you want to install the gemma3:latest components? (y/n)"
+        printf "\n Ollama install done now we can install the gemma3:270m components\n"
+        echo "Do you want to install the gemma3:270m components? (y/n)"
         read gemma
         if [[ $(echo "${gemma}" | grep -i "^y") ]]; then
             ollama pull gemma3:270m
