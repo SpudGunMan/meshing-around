@@ -63,6 +63,8 @@ ollamaHostName = http://localhost:11434
 # Produce LLM replies to messages that aren't commands?
 # If False, the LLM only replies to the "ask:" and "askai" commands.
 llmReplyToNonCommands = True
+# if True, the input is sent raw to the LLM, if False uses legacy template query
+rawLLMQuery = True 
 
 # StoreForward Enabled and Limits
 StoreForward = True

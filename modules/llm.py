@@ -8,11 +8,13 @@ from modules.log import *
 # https://github.com/ollama/ollama/blob/main/docs/faq.md#how-do-i-configure-ollama-server
 import requests
 import json
-from googlesearch import search # pip install googlesearch-python
+
+if not rawLLMQuery:
+    # this may be removed in the future
+    from googlesearch import search # pip install googlesearch-python
 
 # LLM System Variables
 ollamaAPI = ollamaHostName + "/api/generate"
-rawQuery = True # if True, the input is sent raw to the LLM, if False, it is processed by the meshBotAI template
 tokens = 450 # max charcters for the LLM response, this is the max length of the response also in prompts
 requestTruncation = True # if True, the LLM "will" truncate the response 
 
@@ -80,7 +82,7 @@ def llm_query(input, nodeID=0, location_name=None):
 
     # if this is the first initialization of the LLM the query of " " should bring meshbotAIinit OTA shouldnt reach this?
     # This is for LLM like gemma and others now?
-    if input == " " and rawQuery:
+    if input == " " and rawLLMQuery:
         logger.warning("System: These LLM models lack a traditional system prompt, they can be verbose and not very helpful be advised.")
         input = meshbotAIinit
 
@@ -102,7 +104,7 @@ def llm_query(input, nodeID=0, location_name=None):
     else:
         antiFloodLLM.append(nodeID)
 
-    if llmContext_fromGoogle and not rawQuery:
+    if llmContext_fromGoogle and not rawLLMQuery:
         # grab some context from the internet using google search hits (if available)
         # localization details at https://pypi.org/project/googlesearch-python/
 
@@ -133,7 +135,7 @@ def llm_query(input, nodeID=0, location_name=None):
     location_name += f" at the current time of {datetime.now().strftime('%Y-%m-%d %H:%M:%S %Z')}"
 
     try:
-        if rawQuery:
+        if rawLLMQuery:
             # sanitize the input to remove tool call syntax
             if '```' in input:
                 logger.warning("System: LLM Query: Code markdown detected, removing for raw query")
@@ -165,7 +167,7 @@ def llm_query(input, nodeID=0, location_name=None):
     # cleanup for message output
     response = result.strip().replace('\n', ' ')
     
-    if rawQuery and requestTruncation and len(response) > 450:
+    if rawLLMQuery and requestTruncation and len(response) > 450:
         #retryy loop to truncate the response
         logger.warning(f"System: LLM Query: Response exceeded {tokens} characters, requesting truncation")
         truncateQuery = {"model": llmModel, "prompt": truncatePrompt + response, "stream": False, "max_tokens": tokens}
