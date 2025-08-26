@@ -248,10 +248,9 @@ if [[ $(echo "${embedded}" | grep -i "^n") ]]; then
         echo "Emoji font installed!, reboot to load the font"
     fi
 
-    printf "\nOptionally if you want to install the multi gig LLM Ollama compnents we will execute the following commands\n"
+    printf "\nOptionally if you want to install the LLM Ollama compnents we will execute the following commands\n"
     printf "\ncurl -fsSL https://ollama.com/install.sh | sh\n"
-    printf "ollama pull gemma3:latest\n"
-    printf "Total download is multi GB, recomend pi5/8GB or better for this\n"
+    printf "ollama pull gemma3:270m\n"
     # ask if the user wants to install the LLM Ollama components
     printf "\nDo you want to install the LLM Ollama components? (y/n)"
     read ollama
@@ -263,7 +262,7 @@ if [[ $(echo "${embedded}" | grep -i "^n") ]]; then
         echo "Do you want to install the gemma3:latest components? (y/n)"
         read gemma
         if [[ $(echo "${gemma}" | grep -i "^y") ]]; then
-            ollama pull gemma3:latest
+            ollama pull gemma3:270m
         fi
     fi
 
