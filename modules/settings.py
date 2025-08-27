@@ -234,6 +234,7 @@ try:
     # sentry
     sentry_enabled = config['sentry'].getboolean('SentryEnabled', False) # default False
     secure_channel = config['sentry'].getint('SentryChannel', 2) # default 2
+    secure_interface = config['sentry'].getint('SentryInterface', 1) # default 1
     sentry_holdoff = config['sentry'].getint('SentryHoldoff', 9) # default 9
     sentryIgnoreList = config['sentry'].get('sentryIgnoreList', '').split(',')
     sentry_radius = config['sentry'].getint('SentryRadius', 100) # default 100 meters
@@ -241,6 +242,7 @@ try:
     highfly_enabled = config['sentry'].getboolean('highFlyingAlert', True) # default True
     highfly_altitude = config['sentry'].getint('highFlyingAlertAltitude', 2000) # default 2000 meters
     highfly_channel = config['sentry'].getint('highFlyingAlertChannel', 2) # default 2
+    highfly_interface = config['sentry'].getint('highFlyingAlertInterface', 1) # default 1
     highfly_ignoreList = config['sentry'].get('highFlyingIgnoreList', '').split(',') # default empty
 
     # location

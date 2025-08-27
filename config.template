@@ -107,7 +107,8 @@ SentryEnabled = True
 emailSentryAlerts = False
 # radius in meters to detect someone close to the bot
 SentryRadius = 100
-# channel to send a message to when the watchdog is triggered
+# device interface and channel to send the alert message to
+SentryInterface = 1
 SentryChannel = 2
 # holdoff time multiplied by seconds(20) of the watchdog
 SentryHoldoff = 9
@@ -119,6 +120,7 @@ highFlyingAlert = True
 # Altitude in meters to trigger the alert
 highFlyingAlertAltitude = 2000
 # Channel to send Alert when the high flying node is detected
+highFlyingAlertInterface = 1
 highFlyingAlertChannel = 2
 # list of nodes numbers to ignore high flying alert ex: 2813308004,4258675309
 highFlyingIgnoreList =

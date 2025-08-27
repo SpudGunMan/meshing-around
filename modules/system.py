@@ -939,6 +939,7 @@ def displayNodeTelemetry(nodeID=0, rxNode=0, userRequested=False):
 
     if batteryLevel < 25:
         logger.warning(f"System: Low Battery Level: {batteryLevel}{emji} on Device: {rxNode}")
+        send_message(f"Low Battery Level: {batteryLevel}{emji} on Device: {rxNode}", {secure_channel}, 0, {secure_interface})
     elif batteryLevel < 10:
         logger.critical(f"System: Critical Battery Level: {batteryLevel}{emji} on Device: {rxNode}")
     return dataResponse
@@ -989,7 +990,7 @@ def consumeMetadata(packet, rxNode=0):
                 if position_data.get('altitude', 0) > highfly_altitude and highfly_enabled and str(nodeID) not in highfly_ignoreList:
                     logger.info(f"System: High Altitude {position_data['altitude']}m on Device: {rxNode} NodeID: {nodeID}")
                     altFeet = round(position_data['altitude'] * 3.28084, 2)
-                    send_message(f"High Altitude {altFeet}ft ({position_data['altitude']}m) on Device:{rxNode} Node:{get_name_from_number(nodeID,'short',rxNode)}", highfly_channel, 0, rxNode)
+                    send_message(f"High Altitude {altFeet}ft ({position_data['altitude']}m) on Device:{rxNode} Node:{get_name_from_number(nodeID,'short',rxNode)}", highfly_channel, 0, highfly_interface)
                     time.sleep(responseDelay)
         
                 # Keep the positionMetadata dictionary at a maximum size of 20
@@ -1216,10 +1217,8 @@ async def handleSentinel(deviceID):
                 resolution = metadata.get('precisionBits')
 
         logger.warning(f"System: {detectedNearby} is close to your location on Interface{deviceID} Accuracy is {resolution}bits")
-        for i in range(1, 10):
-            if globals().get(f'interface{i}_enabled'):
-                send_message(f"Sentry{deviceID}: {detectedNearby}", secure_channel, 0, i)
-                time.sleep(responseDelay + 1)
+        send_message(f"Sentry{deviceID}: {detectedNearby}", secure_channel, 0, secure_interface)
+        time.sleep(responseDelay + 1)
         if enableSMTP and email_sentry_alerts:
             for email in sysopEmails:
                 send_email(email, f"Sentry{deviceID}: {detectedNearby}")
