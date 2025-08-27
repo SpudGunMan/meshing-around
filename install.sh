@@ -266,6 +266,19 @@ if [[ $(echo "${embedded}" | grep -i "^n") ]]; then
         fi
     fi
 
+    # ask if the user wants to edit the ollama service for API access
+    if [[ -f /etc/systemd/system/ollama.service ]]; then
+        printf "\nEdit /etc/systemd/system/ollama.service and add Environment=OLLAMA_HOST=0.0.0.0 for API? (y/n)"
+        read editollama
+        if [[ $(echo "${editollama}" | grep -i "^y") ]]; then
+            replace="s|\[Service\]|\[Service\]\nEnvironment=\"OLLAMA_HOST=0.0.0.0\"|g"
+            sudo sed -i "$replace" /etc/systemd/system/ollama.service
+            sudo systemctl daemon-reload
+            sudo systemctl restart ollama.service
+            printf "\nOllama service updated and restarted\n"
+        fi
+    fi
+
     # document the service install
     printf "To install the %s service and keep notes, reference following commands:\n\n" "$service" > install_notes.txt
     printf "sudo cp %s/etc/%s.service /etc/systemd/system/etc/%s.service\n" "$program_path" "$service" "$service" >> install_notes.txt
