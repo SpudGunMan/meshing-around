@@ -103,7 +103,7 @@ if wxAlertBroadcastEnabled or emergencyAlertBrodcastEnabled or volcanoAlertBroad
     from modules.locationdata import * # from the spudgunman/meshing-around repo
     # limited subset, this should be done better but eh..
     trap_list = trap_list + ("wx", "wxa", "wxalert", "ea", "ealert", "valert")
-    help_message = help_message + ", wxalert, ealert, valert"
+    help_message = help_message + ", ealert, valert"
 
 # NOAA Coastal Waters Forecasts
 if coastalEnabled:
