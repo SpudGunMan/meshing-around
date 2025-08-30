@@ -277,6 +277,12 @@ if [[ $(echo "${embedded}" | grep -i "^n") ]]; then
             sudo systemctl restart ollama.service
             printf "\nOllama service updated and restarted\n"
         fi
+        # assume we want to enable ollama in config.ini
+        if [[ -f config.ini ]]; then
+            replace="s|ollama = False|ollama = True|g"
+            sed -i "$replace" config.ini
+            printf "\nOllama enabled in config.ini\n"
+        fi
     fi
 
     # document the service install
