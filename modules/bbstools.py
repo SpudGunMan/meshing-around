@@ -99,8 +99,10 @@ def bbs_read_message(messageID = 0):
     if (messageID - 1) >= len(bbs_messages):
         return "Message not found."
     if messageID > 0:
+        fromNode = bbs_messages[messageID - 1][3]
+        fromNodeHex = hex(fromNode)[-4:]
         message = bbs_messages[messageID - 1]
-        return f"Msg #{message[0]}\nMsg Body: {message[2]}"
+        return f"Msg #{message[0]}\nFrom:{fromNodeHex}\n{message[2]}"
     else:
         return "Please specify a message number to read."
    
