@@ -83,9 +83,12 @@ def getRepeaterBook(lat=0, lon=0):
     
     try:
         msg = ''
-        response = requests.get(repeater_url)
+        user_agent = {'User-agent': 'Mozilla/5.0'}
+        response = requests.get(repeater_url, headers=user_agent, timeout=urlTimeoutSeconds)
+        if response.status_code!=200:
+            logger.error(f"Location:Error fetching repeater data from {repeater_url} with status code {response.status_code}")
         soup = bs.BeautifulSoup(response.text, 'html.parser')
-        table = soup.find('table', attrs={'class': 'w3-table w3-striped w3-responsive w3-mobile w3-auto sortable'})
+        table = soup.find('table', attrs={'class': 'table table-striped table-hover align-middle sortable'})
         if table is not None:
             cells = table.find_all('td')
             data = []
@@ -127,6 +130,8 @@ def getArtSciRepeaters(lat=0, lon=0):
         try:
             artsci_url = f"http://www.artscipub.com/mobile/showstate.asp?zip={zipCode}"
             response = requests.get(artsci_url)
+            if response.status_code!=200:
+                logger.error(f"Location:Error fetching data from {artsci_url} with status code {response.status_code}")
             soup = bs.BeautifulSoup(response.text, 'html.parser')
             # results needed xpath is /html/body/table[2]/tbody/tr/td/table/tbody/tr[2]/td/table
             table = soup.find_all('table')[1]
