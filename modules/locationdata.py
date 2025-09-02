@@ -782,17 +782,17 @@ def checkUSGSEarthQuake(lat=0, lon=0):
         quake_data = requests.get(USGSquake_url, timeout=urlTimeoutSeconds)
         if not quake_data.ok:
             logger.warning("Location:Error fetching earthquake data from USGS")
-            quake_count = 0
+            return NO_ALERTS
         if not quake_data.text.strip():
-            quake_count = 0
+            return NO_ALERTS
         try:
             quake_xml = xml.dom.minidom.parseString(quake_data.text)
         except Exception as e:
             logger.warning(f"Location: USGS earthquake API returned invalid XML: {e}")
-            quake_count = 0
+            return NO_ALERTS
     except (requests.exceptions.RequestException):
         logger.warning("Location:Error fetching earthquake data from USGS")
-        quake_count = 0
+        return NO_ALERTS
 
     quake_xml = xml.dom.minidom.parseString(quake_data.text)
     quake_count = len(quake_xml.getElementsByTagName("event"))

@@ -1158,11 +1158,11 @@ def onReceive(packet, interface):
         if msg:
             # wait a responseDelay to avoid message collision from lora-ack.
             time.sleep(responseDelay)
-            logger.info(f"System: BBS DM Found: {msg[1]} For: {get_name_from_number(message_from_id, 'long', rxNode)}")
+            logger.info(f"System: BBS DM Delivery: {msg[1]} For: {get_name_from_number(message_from_id, 'long', rxNode)}")
             message = "Mail: " + msg[1] + "  From: " + get_name_from_number(msg[2], 'long', rxNode)
             bbs_delete_dm(msg[0], msg[1])
             send_message(message, channel_number, message_from_id, rxNode)
-
+            
     # handle TEXT_MESSAGE_APP
     try:
         if 'decoded' in packet and packet['decoded']['portnum'] == 'TEXT_MESSAGE_APP':
