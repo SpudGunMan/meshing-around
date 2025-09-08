@@ -61,6 +61,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "hangman": lambda: handleHangman(message, message_from_id, deviceID),
     "hfcond": hf_band_conditions,
     "history": lambda: handle_history(message, message_from_id, deviceID, isDM),
+    "howfar": lambda: handle_howfar(message_from_id, deviceID, channel_number),
     "joke": lambda: tell_joke(message_from_id),
     "lemonstand": lambda: handleLemonade(message, message_from_id, deviceID),
     "lheard": lambda: handle_lheard(message, message_from_id, deviceID, isDM),
@@ -310,6 +311,16 @@ def handle_wxalert(message_from_id, deviceID, message):
         if NO_ALERTS not in weatherAlert:
             weatherAlert = weatherAlert[0]
         return weatherAlert
+
+def handle_howfar(message_from_id, deviceID, channel_number):
+    location = get_node_location(message_from_id, deviceID)
+    lat = location[0]
+    lon = location[1]
+    if lat == latitudeValue and lon == longitudeValue:
+        logger.debug(f"System: HowFar: No GPS location for {message_from_id}")
+        return "No GPS location available"
+    msg = distance(lat,lon,message_from_id)
+    return msg
 
 def handle_wiki(message, isDM):
     # location = get_node_location(message_from_id, deviceID)
