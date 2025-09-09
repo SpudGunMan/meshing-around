@@ -136,7 +136,7 @@ def get_moon(lat=0, lon=0):
     elif illum < 99:
         moon_phase = 'Waxing Gibbous 🌔'
     elif illum >= 99:
-        moon_phase = 'Full Moon 🌕'
+        moon_phase = 'Full Moon🌕'
     elif illum > 51:
         moon_phase = 'Waning Gibbous 🌖'
     elif 51 >= illum > 49:
