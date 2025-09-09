@@ -828,6 +828,9 @@ def distance(lat=0,lon=0,nodeID=0):
         howfarDB[nodeID] = [{'lat': lat, 'lon': lon, 'time': datetime.now()}]
         return "Starting Point Set"
     else:
+        #de-dupe points if same as last point
+        if howfarDB[nodeID][-1]['lat'] == lat and howfarDB[nodeID][-1]['lon'] == lon:
+            return "No movement detected"
         # calculate distance from last point in howfarDB
         last_point = howfarDB[nodeID][-1]
         lat1 = math.radians(last_point['lat'])
