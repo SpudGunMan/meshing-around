@@ -215,5 +215,5 @@ def getNextSatellitePass(satellite, lat=0, lon=0):
             pass_data = ERROR_FETCHING_DATA
     except Exception as e:
         logger.warning(f"System: User supplied value {satellite} unknown or invalid")
-        pass_data = "Provide NORAD# example use: 🛰️ satpass 25544,33591"
+        pass_data = "Provide NORAD# example use: 🛰️satpass 25544,33591"
     return pass_data
