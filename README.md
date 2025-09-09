@@ -35,6 +35,7 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 - **Wiki Integration**: Look up data using Wikipedia results.
 - **Ollama LLM AI**: Interact with the [Ollama](https://github.com/ollama/ollama/tree/main/docs) LLM AI for advanced queries and responses.
 - **Satalite Pass Info**: Get passes for satalite at your location.
+- **GeoMeasuring**: HowFar from point to point using collected GPS packets on the bot to plot a course or space.
 
 ### Proximity Alerts
 - **Location-Based Alerts**: Get notified when members arrive back at a configured lat/long, perfect for remote locations like campsites.
