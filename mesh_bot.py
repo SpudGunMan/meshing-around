@@ -61,6 +61,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "hangman": lambda: handleHangman(message, message_from_id, deviceID),
     "hfcond": hf_band_conditions,
     "history": lambda: handle_history(message, message_from_id, deviceID, isDM),
+    "howfar": lambda: handle_howfar(message, message_from_id, deviceID, isDM),
     "joke": lambda: tell_joke(message_from_id),
     "lemonstand": lambda: handleLemonade(message, message_from_id, deviceID),
     "lheard": lambda: handle_lheard(message, message_from_id, deviceID, isDM),
@@ -310,6 +311,31 @@ def handle_wxalert(message_from_id, deviceID, message):
         if NO_ALERTS not in weatherAlert:
             weatherAlert = weatherAlert[0]
         return weatherAlert
+
+def handle_howfar(message, message_from_id, deviceID, isDM):
+    msg = ''
+    location = get_node_location(message_from_id, deviceID)
+    lat = location[0]
+    lon = location[1]
+    # if ? in message
+    if "?" in message.lower():
+        return "command returns the distance you have traveled since your last HowFar-command. Add 'reset' to reset your starting point."
+    
+    # if no GPS location return
+    if lat == latitudeValue and lon == longitudeValue:
+        logger.debug(f"System: HowFar: No GPS location for {message_from_id}")
+        return "No GPS location available"
+    
+    if "reset" in message.lower():
+        msg = distance(lat,lon,message_from_id, reset=True)
+    else:
+        msg = distance(lat,lon,message_from_id)
+    
+    # if not a DM add the username to the beginning of msg
+    if not useDMForResponse and not isDM:
+        msg = "@" + get_name_from_number(message_from_id, 'short', deviceID) + " " + msg
+
+    return msg
 
 def handle_wiki(message, isDM):
     # location = get_node_location(message_from_id, deviceID)
