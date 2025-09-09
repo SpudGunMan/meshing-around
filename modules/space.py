@@ -14,12 +14,16 @@ trap_list_solarconditions = ("sun", "moon", "solar", "hfcond", "satpass")
 def hf_band_conditions():
     # ham radio HF band conditions
     hf_cond = ""
+    signalnoise = ""
     band_cond = requests.get("https://www.hamqsl.com/solarxml.php", timeout=urlTimeoutSeconds)
     if(band_cond.ok):
         solarxml = xml.dom.minidom.parseString(band_cond.text)
         for i in solarxml.getElementsByTagName("band"):
             hf_cond += i.getAttribute("time")[0]+i.getAttribute("name") +"="+str(i.childNodes[0].data)+"\n"
         hf_cond = hf_cond[:-1] # remove the last newline
+        for i in solarxml.getElementsByTagName("solardata"):
+            signalnoise = i.getElementsByTagName("signalnoise")[0].childNodes[0].data
+        hf_cond += "\nQRN:" + signalnoise
     else:
         logger.error("Solar: Error fetching HF band conditions")
         hf_cond = ERROR_FETCHING_DATA
