@@ -8,8 +8,10 @@ import requests # pip install requests
 import bs4 as bs # pip install beautifulsoup4
 import xml.dom.minidom 
 from modules.log import *
+import math
 
-trap_list_location = ("whereami", "wx", "wxa", "wxalert", "rlist", "ea", "ealert", "riverflow", "valert", "earthquake")
+
+trap_list_location = ("whereami", "wx", "wxa", "wxalert", "rlist", "ea", "ealert", "riverflow", "valert", "earthquake", "howfar")
 
 def where_am_i(lat=0, lon=0, short=False, zip=False):
     whereIam = ""
@@ -811,3 +813,121 @@ def checkUSGSEarthQuake(lat=0, lon=0):
         return NO_ALERTS
     else:
         return f"{quake_count} quakes in last {history} days within {radius}km of you largest was {largest_mag}. {description_text}"
+
+howfarDB = {}
+def distance(lat=0,lon=0,nodeID=0, reset=False):
+    # part of the howfar function, calculates the distance between two lat/lon points
+    msg = ""
+    if lat == 0 and lon == 0:
+        return NO_DATA_NOGPS
+    if nodeID == 0:
+        return "No NodeID provided"
+    
+    if reset:
+        if nodeID in howfarDB:
+            del howfarDB[nodeID]
+    
+    if nodeID not in howfarDB:
+        #register first point NodeID, lat, lon, time, point
+        howfarDB[nodeID] = [{'lat': lat, 'lon': lon, 'time': datetime.now()}]
+        if reset:
+            return "Tracking reset, new starting point registered🗺️"
+        else:
+            return "Starting point registered🗺️"
+    else:
+        #de-dupe points if same as last point
+        if howfarDB[nodeID][-1]['lat'] == lat and howfarDB[nodeID][-1]['lon'] == lon:
+            return "📍No movement detected yet"
+        # calculate distance from last point in howfarDB
+        last_point = howfarDB[nodeID][-1]
+        lat1 = math.radians(last_point['lat'])
+        lon1 = math.radians(last_point['lon'])
+        lat2 = math.radians(lat)
+        lon2 = math.radians(lon)
+        dlon = lon2 - lon1
+        dlat = lat2 - lat1
+        a = math.sin(dlat / 2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2)**2
+        c = 2 * math.asin(math.sqrt(a))
+        r = 6371 # Radius of earth in kilometers
+        distance_km = c * r
+        if use_metric:
+            msg += f"{distance_km:.2f} km"
+        else:
+            distance_miles = distance_km * 0.621371
+            msg += f"{distance_miles:.2f} miles"
+
+        # calculate the speed if time difference is more than 1 minute
+        time_diff = datetime.now() - last_point['time']
+        if time_diff.total_seconds() > 60:
+            hours = time_diff.total_seconds() / 3600
+            if use_metric:
+                speed = distance_km / hours
+                speed_str = f"{speed:.2f} km/h"
+            else:
+                speed_mph = (distance_km * 0.621371) / hours
+                speed_str = f"{speed_mph:.2f} mph"
+            msg += f", travel time: {int(time_diff.total_seconds()//60)} min, Speed: {speed_str}"
+        
+        #calculate bearing
+        x = math.sin(dlon) * math.cos(lat2)
+        y = math.cos(lat1) * math.sin(lat2) - (math.sin(lat1) * math.cos(lat2) * math.cos(dlon))
+        initial_bearing = math.atan2(x, y)
+        initial_bearing = math.degrees(initial_bearing)
+        compass_bearing = (initial_bearing + 360) % 360
+        msg += f", Bearing from last point: {compass_bearing:.2f}°"
+        
+        # if points 3+ are within 30 meters of the first point add the area of the polygon
+        if len(howfarDB[nodeID]) >= 3:
+            points = []
+            # loop the howfarDB to get all the points except the current nodeID
+            for key in howfarDB:
+                if key != nodeID:
+                    points.append((howfarDB[key][-1]['lat'], howfarDB[key][-1]['lon']))
+            # loop the howfarDB[nodeID] to get the points
+            for point in howfarDB[nodeID]:
+                points.append((point['lat'], point['lon']))
+            # close the polygon by adding the first point to the end
+            points.append((howfarDB[nodeID][0]['lat'], howfarDB[nodeID][0]['lon']))
+            # calculate the area of the polygon
+            area = 0.0
+            for i in range(len(points)-1):
+                lat1 = math.radians(points[i][0])
+                lon1 = math.radians(points[i][1])
+                lat2 = math.radians(points[i+1][0])
+                lon2 = math.radians(points[i+1][1])
+                area += (lon2 - lon1) * (2 + math.sin(lat1) + math.sin(lat2))
+            area = area * (6378137 ** 2) / 2.0
+            area = abs(area) / 1e6 # convert to square kilometers
+
+            if use_metric:
+                msg += f", Area Sq.Km: {area:.2f} sq.km (approx)"
+            else:
+                area_miles = area * 0.386102
+                msg += f", Area Sq.Miles: {area_miles:.2f} sq.mi (approx)"
+            
+            #calculate the centroid of the polygon
+            x = 0.0
+            y = 0.0
+            z = 0.0
+            for point in points[:-1]:
+                lat_rad = math.radians(point[0])
+                lon_rad = math.radians(point[1])
+                x += math.cos(lat_rad) * math.cos(lon_rad)
+                y += math.cos(lat_rad) * math.sin(lon_rad)
+                z += math.sin(lat_rad)
+            total_points = len(points) - 1
+            x /= total_points
+            y /= total_points
+            z /= total_points
+            lon_centroid = math.atan2(y, x)
+            hyp = math.sqrt(x * x + y * y)
+            lat_centroid = math.atan2(z, hyp)
+            lat_centroid = math.degrees(lat_centroid)
+            lon_centroid = math.degrees(lon_centroid)
+            msg += f", Centroid: {lat_centroid:.5f}, {lon_centroid:.5f}"
+
+
+        # update the last point in howfarDB
+        howfarDB[nodeID].append({'lat': lat, 'lon': lon, 'time': datetime.now()})
+
+        return msg
