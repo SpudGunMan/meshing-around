@@ -128,21 +128,21 @@ def get_moon(lat=0, lon=0):
     illum = moon.phase  # 0 = new, 50 = first/last quarter, 100 = full
     
     if illum < 1.0:
-        moon_phase = 'New Moon🌑'
+        moon_phase = 'New Moon 🌑'
     elif illum < 49:
-        moon_phase = 'Waxing Crescent🌒'
+        moon_phase = 'Waxing Crescent 🌒'
     elif 49 <= illum < 51:
-        moon_phase = 'First Quarter🌓'
+        moon_phase = 'First Quarter 🌓'
     elif illum < 99:
-        moon_phase = 'Waxing Gibbous🌔'
+        moon_phase = 'Waxing Gibbous 🌔'
     elif illum >= 99:
-        moon_phase = 'Full Moon🌕'
+        moon_phase = 'Full Moon 🌕'
     elif illum > 51:
-        moon_phase = 'Waning Gibbous🌖'
+        moon_phase = 'Waning Gibbous 🌖'
     elif 51 >= illum > 49:
-        moon_phase = 'Last Quarter🌗'
+        moon_phase = 'Last Quarter 🌗'
     else:
-        moon_phase = 'Waning Crescent🌘'
+        moon_phase = 'Waning Crescent 🌘'
     
     moon_table['phase'] = moon_phase
     moon_table['illumination'] = moon.phase
@@ -167,9 +167,9 @@ def get_moon(lat=0, lon=0):
         moon_table['next_full_moon'] = local_next_full_moon.strftime('%a %b %d %I:%M%p')
         moon_table['next_new_moon'] = local_next_new_moon.strftime('%a %b %d %I:%M%p')
 
-    moon_data = "MoonRise:" + moon_table['rise_time'] + "\nSet:" + moon_table['set_time'] + \
-        "\nPhase:" + moon_table['phase'] + " @:" + str('{0:.2f}'.format(moon_table['illumination'])) + "%" \
-        + "\nFullMoon:" + moon_table['next_full_moon'] + "\nNewMoon:" + moon_table['next_new_moon']
+    moon_data = "MoonRise: " + moon_table['rise_time'] + "\nSet: " + moon_table['set_time'] + \
+        "\nPhase: " + moon_table['phase'] + " @: " + str('{0:.2f}'.format(moon_table['illumination'])) + "%" \
+        + "\nFullMoon: " + moon_table['next_full_moon'] + "\nNewMoon: " + moon_table['next_new_moon']
     
     # if moon is in the sky, add azimuth and altitude
     if moon_table['altitude'] > 0:
@@ -206,7 +206,7 @@ def getNextSatellitePass(satellite, lat=0, lon=0):
                 pass_startAzCompass = pass_json['passes'][0]['startAzCompass']
                 pass_set_time = datetime.fromtimestamp(pass_time + pass_duration).strftime('%a %d %I:%M%p')
                 pass__endAzCompass = pass_json['passes'][0]['endAzCompass']
-                pass_data = f"{satname} @{pass_rise_time} Az:{pass_startAzCompass} for{getPrettyTime(pass_duration)}, MaxEl:{pass_maxEl}° Set@{pass_set_time} Az:{pass__endAzCompass}"
+                pass_data = f"{satname} @{pass_rise_time} Az: {pass_startAzCompass} for{getPrettyTime(pass_duration)}, MaxEl: {pass_maxEl}° Set @{pass_set_time} Az: {pass__endAzCompass}"
             elif pass_json['info']['passescount'] == 0:
                 satname = pass_json['info']['satname']
                 pass_data = f"{satname} has no upcoming passes"
@@ -215,5 +215,5 @@ def getNextSatellitePass(satellite, lat=0, lon=0):
             pass_data = ERROR_FETCHING_DATA
     except Exception as e:
         logger.warning(f"System: User supplied value {satellite} unknown or invalid")
-        pass_data = "Provide NORAD# example use:🛰️satpass 25544,33591"
+        pass_data = "Provide NORAD# example use: 🛰️ satpass 25544,33591"
     return pass_data
