@@ -815,7 +815,7 @@ def checkUSGSEarthQuake(lat=0, lon=0):
         return f"{quake_count} quakes in last {history} days within {radius}km of you largest was {largest_mag}. {description_text}"
 
 howfarDB = {}
-def distance(lat=0,lon=0,nodeID=0):
+def distance(lat=0,lon=0,nodeID=0, reset=False):
     # part of the howfar function, calculates the distance between two lat/lon points
     msg = ""
     if lat == 0 and lon == 0:
@@ -823,14 +823,21 @@ def distance(lat=0,lon=0,nodeID=0):
     if nodeID == 0:
         return "No NodeID provided"
     
+    if reset:
+        if nodeID in howfarDB:
+            del howfarDB[nodeID]
+    
     if nodeID not in howfarDB:
         #register first point NodeID, lat, lon, time, point
         howfarDB[nodeID] = [{'lat': lat, 'lon': lon, 'time': datetime.now()}]
-        return "Starting Point Set"
+        if reset:
+            return "Tracking reset, new starting point registered🗺️"
+        else:
+            return "Starting point registered🗺️"
     else:
         #de-dupe points if same as last point
         if howfarDB[nodeID][-1]['lat'] == lat and howfarDB[nodeID][-1]['lon'] == lon:
-            return "No movement detected"
+            return "📍No movement detected yet"
         # calculate distance from last point in howfarDB
         last_point = howfarDB[nodeID][-1]
         lat1 = math.radians(last_point['lat'])
