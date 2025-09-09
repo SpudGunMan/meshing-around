@@ -818,6 +818,7 @@ howfarDB = {}
 def distance(lat=0,lon=0,nodeID=0, reset=False):
     # part of the howfar function, calculates the distance between two lat/lon points
     msg = ""
+    dupe = False
     if lat == 0 and lon == 0:
         return NO_DATA_NOGPS
     if nodeID == 0:
@@ -837,7 +838,8 @@ def distance(lat=0,lon=0,nodeID=0, reset=False):
     else:
         #de-dupe points if same as last point
         if howfarDB[nodeID][-1]['lat'] == lat and howfarDB[nodeID][-1]['lon'] == lon:
-            return "📍No movement detected yet"
+            dupe = True
+            msg = "No New GPS📍 "
         # calculate distance from last point in howfarDB
         last_point = howfarDB[nodeID][-1]
         lat1 = math.radians(last_point['lat'])
@@ -846,15 +848,25 @@ def distance(lat=0,lon=0,nodeID=0, reset=False):
         lon2 = math.radians(lon)
         dlon = lon2 - lon1
         dlat = lat2 - lat1
+        # haversine formula
         a = math.sin(dlat / 2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2)**2
         c = 2 * math.asin(math.sqrt(a))
         r = 6371 # Radius of earth in kilometers
+        #
         distance_km = c * r
         if use_metric:
             msg += f"{distance_km:.2f} km"
         else:
             distance_miles = distance_km * 0.621371
             msg += f"{distance_miles:.2f} miles"
+        
+        #calculate bearing
+        x = math.sin(dlon) * math.cos(lat2)
+        y = math.cos(lat1) * math.sin(lat2) - (math.sin(lat1) * math.cos(lat2) * math.cos(dlon))
+        initial_bearing = math.atan2(x, y)
+        initial_bearing = math.degrees(initial_bearing)
+        compass_bearing = (initial_bearing + 360) % 360
+        msg += f" 🧭{compass_bearing:.2f}° Bearing from last📍"
 
         # calculate the speed if time difference is more than 1 minute
         time_diff = datetime.now() - last_point['time']
@@ -867,14 +879,26 @@ def distance(lat=0,lon=0,nodeID=0, reset=False):
                 speed_mph = (distance_km * 0.621371) / hours
                 speed_str = f"{speed_mph:.2f} mph"
             msg += f", travel time: {int(time_diff.total_seconds()//60)} min, Speed: {speed_str}"
-        
-        #calculate bearing
-        x = math.sin(dlon) * math.cos(lat2)
-        y = math.cos(lat1) * math.sin(lat2) - (math.sin(lat1) * math.cos(lat2) * math.cos(dlon))
-        initial_bearing = math.atan2(x, y)
-        initial_bearing = math.degrees(initial_bearing)
-        compass_bearing = (initial_bearing + 360) % 360
-        msg += f", Bearing from last point: {compass_bearing:.2f}°"
+
+        # calculate total distance traveled including this point computed in distance_km from calculate distance from last point in howfarDB
+        total_distance_km = 0.0
+        for i in range(1, len(howfarDB[nodeID])):
+            point1 = howfarDB[nodeID][i-1]
+            point2 = howfarDB[nodeID][i]
+            lat1 = math.radians(point1['lat'])
+            lon1 = math.radians(point1['lon'])
+            lat2 = math.radians(point2['lat'])
+            lon2 = math.radians(point2['lon'])
+            dlon = lon2 - lon1
+            dlat = lat2 - lat1
+            total_distance_km += c * r
+        # add the distance from last point to current point
+        total_distance_km += distance_km
+        if use_metric:
+            msg += f", Total: {total_distance_km:.2f} km"
+        else:
+            total_distance_miles = total_distance_km * 0.621371
+            msg += f", Total: {total_distance_miles:.2f} miles"
         
         # if points 3+ are within 30 meters of the first point add the area of the polygon
         if len(howfarDB[nodeID]) >= 3:
@@ -928,6 +952,7 @@ def distance(lat=0,lon=0,nodeID=0, reset=False):
 
 
         # update the last point in howfarDB
-        howfarDB[nodeID].append({'lat': lat, 'lon': lon, 'time': datetime.now()})
+        if not dupe:
+            howfarDB[nodeID].append({'lat': lat, 'lon': lon, 'time': datetime.now()})
 
         return msg
