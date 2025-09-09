@@ -1465,10 +1465,10 @@ async def start_rx():
         logger.debug(f"System: File Monitor Enabled for {file_monitor_file_path}, broadcasting to channels: {file_monitor_broadcastCh}")
         if enable_runShellCmd:
             logger.debug(f"System: Shell Command monitor enabled")
-        if read_news_enabled:
-            logger.debug(f"System: File Monitor News Reader Enabled for {news_file_path}")
-        if bee_enabled:
-            logger.debug(f"System: File Monitor Bee Monitor Enabled for bee.txt")
+    if read_news_enabled:
+        logger.debug(f"System: News Reader Enabled for {news_file_path}")
+    if bee_enabled:
+        logger.debug(f"System: Bee Monitor Enabled for bee.txt")
     if wxAlertBroadcastEnabled:
         logger.debug(f"System: Weather Alert Broadcast Enabled on channels {wxAlertBroadcastChannel}")
     if emergencyAlertBrodcastEnabled:
