@@ -926,10 +926,10 @@ def distance(lat=0,lon=0,nodeID=0, reset=False):
             area = abs(area) / 1e6 # convert to square kilometers
 
             if use_metric:
-                msg += f", Area Sq.Km: {area:.2f} sq.km (approx)"
+                msg += f", Area: {area:.2f} sq.km (approx)"
             else:
                 area_miles = area * 0.386102
-                msg += f", Area Sq.Miles: {area_miles:.2f} sq.mi (approx)"
+                msg += f", Area: {area_miles:.2f} sq.mi (approx)"
             
             #calculate the centroid of the polygon
             x = 0.0
