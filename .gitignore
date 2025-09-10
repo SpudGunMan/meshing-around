@@ -22,3 +22,8 @@ data/rag/*
 
 # qrz db
 data/qrz.db
+
+# fileMon
+news.txt
+alert.txt
+bee.txt
