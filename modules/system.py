@@ -819,9 +819,9 @@ def handleAlertBroadcast(deviceID=1):
         if NO_ALERTS not in alertDe:
             if isinstance(emergencyAlertBroadcastCh, list):
                 for channel in emergencyAlertBroadcastCh:
-                    send_message(ukAlert, int(channel), 0, deviceID)
+                    send_message(deAlert, int(channel), 0, deviceID)
             else:
-                send_message(ukAlert, emergencyAlertBroadcastCh, 0, deviceID)
+                send_message(deAlert, emergencyAlertBroadcastCh, 0, deviceID)
             return True
         
     # pause for traffic
