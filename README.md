@@ -27,22 +27,22 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 - **Store and Forward**: Replay messages with the `messages` command, and log messages locally to disk.
 - **Send Mail**: Send mail to nodes using `bbspost @nodeNumber #message` or `bbspost @nodeShortName #message`.
 - **BBS Linking**: Combine multiple bots to expand BBS reach.
-- **E-Mail/SMS**: Send mesh-messages to E-Mail or SMS(Email) expanding visability.
+- **E-Mail/SMS**: Send mesh-messages to E-Mail or SMS(Email) expanding visibility.
 - **New Node Hello**: Send a hello to any new node seen in text message.
 
 ### Interactive AI and Data Lookup
 - **NOAA/USGS location Data**: Get localized weather(alerts), Earthquake, River Flow, and Tide information. Open-Meteo is used for wx only outside NOAA coverage. 
 - **Wiki Integration**: Look up data using Wikipedia results.
 - **Ollama LLM AI**: Interact with the [Ollama](https://github.com/ollama/ollama/tree/main/docs) LLM AI for advanced queries and responses.
-- **Satalite Pass Info**: Get passes for satalite at your location.
-- **GeoMeasuring**: HowFar from point to point using collected GPS packets on the bot to plot a course or space.
+- **Satellite Pass Info**: Get passes for satellite at your location.
+- **GeoMeasuring**: HowFar from point to point using collected GPS packets on the bot to plot a course or space. Find Center of points for Fox&Hound direction finding.
 
 ### Proximity Alerts
 - **Location-Based Alerts**: Get notified when members arrive back at a configured lat/long, perfect for remote locations like campsites.
 - **High Flying Alerts**: Get notified when nodes with high altitude are seen on mesh
 
 ### CheckList / Check In Out
-- **Asset Tracking**: Maintain a list of node/asset checkin and checkout. Usefull for accountability of people, assets. Radio-Net, FEMA, Trailhead.
+- **Asset Tracking**: Maintain a list of node/asset checkin and checkout. Useful foraccountability of people, assets. Radio-Net, FEMA, Trailhead.
 
 ### Fun and Games
 - **Built-in Games**: Enjoy games like DopeWars, Lemonade Stand, BlackJack, and VideoPoker.
@@ -98,7 +98,7 @@ git clone https://github.com/spudgunman/meshing-around
 | `whoami` | Returns details of the node asking, also returned when position exchanged 📍 | ✅ |
 | `whois` | Returns details known about node, more data with bbsadmin node | ✅ |
 
-### Radio Propagation & Weather Forcasting
+### Radio Propagation & Weather Forecasting
 | Command | Description | |
 |---------|-------------|-------------------
 | `ea` and `ealert` | Return FEMA iPAWS/EAS alerts in USA or DE Headline or expanded details for USA | |
@@ -112,7 +112,7 @@ git clone https://github.com/spudgunman/meshing-around
 | `valert` | Returns USGS Volcano Data | |
 | `wx` | Return local weather forecast, NOAA or Open Meteo (which also has `wxc` for metric and imperial) | |
 | `wxa` and `wxalert` | Return NOAA alerts. Short title or expanded details | |
-| `mwx` | Return the NOAA Coastal Marine Forcast data | |
+| `mwx` | Return the NOAA Coastal Marine Forecast data | |
 
 ### Bulletin Board & Mail
 | Command | Description | |
@@ -126,7 +126,7 @@ git clone https://github.com/spudgunman/meshing-around
 | `bbslink` | Links Bulletin Messages between BBS Systems | ✅ |
 | `email:`  | Sends email to address on file for the node or `email: bob@test.net # hello from mesh` | |
 | `sms:`    | Send sms-email to multiple address on file | |
-| `setemail`| Sets the email for easy communciations | |
+| `setemail`| Sets the email for easy communications | |
 | `setsms` | Adds the SMS-Email for quick communications | |
 | `clearsms` | Clears all SMS-Emails on file for node | |
 
@@ -228,7 +228,7 @@ lon = -123.0
 UseMeteoWxAPI = True
 
 coastalEnabled = False # NOAA Coastal Data Enable NOAA Coastal Waters Forecasts and Tide
-# Find the correct costal weather directory at https://tgftp.nws.noaa.gov/data/forecasts/marine/coastal/
+# Find the correct coastal weather directory at https://tgftp.nws.noaa.gov/data/forecasts/marine/coastal/
 # this map can help https://www.weather.gov/marine select location and then look at the 'Forecast-by-Zone Map'
 myCoastalZone = https://tgftp.nws.noaa.gov/data/forecasts/marine/coastal/pz/pzz135.txt # myCoastalZone is the .txt file with the forecast data
 coastalForecastDays = 3 # number of data points to return, default is 3
@@ -275,8 +275,8 @@ To enable connectivity with SMTP allows messages from meshtastic into SMTP. The 
 ```ini
 [smtp]
 # enable or disable the SMTP module, minimum required for outbound notifications
-enableSMTP = True # enable or disable the IMAP module for inbound email, not implimented yet
-enableImap = False # list of Sysop Emails seperate with commas, used only in emergemcy responder currently
+enableSMTP = True # enable or disable the IMAP module for inbound email, not implemented yet
+enableImap = False # list of Sysop Emails separate with commas, used only in emergency responder currently
 sysopEmails =
 # See config.template for all the SMTP settings
 SMTP_SERVER = smtp.gmail.com
@@ -464,7 +464,7 @@ schedule.every().wednesday.at("19:00").do(lambda: send_message("Net Starting Now
 ```
 
 #### BBS Link
-The scheduler also handles the BBS Link Brodcast message, this would be an esxample of a mesh-admin channel on 8 being used to pass BBS post traffic between two bots as the initator, one direction pull.
+The scheduler also handles the BBS Link Broadcast message, this would be an example of a mesh-admin channel on 8 being used to pass BBS post traffic between two bots as the initiator, one direction pull.
 ```python
 # Send bbslink looking for peers every other day at 10:00 using send_message function to channel 8 on device 1
 schedule.every(2).days.at("10:00").do(lambda: send_message("bbslink MeshBot looking for peers", 8, 0, 1))
