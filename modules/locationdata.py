@@ -819,6 +819,8 @@ def distance(lat=0,lon=0,nodeID=0, reset=False):
     # part of the howfar function, calculates the distance between two lat/lon points
     msg = ""
     dupe = False
+    r = 6371 # Radius of earth in kilometers # haversine formula
+    
     if lat == 0 and lon == 0:
         return NO_DATA_NOGPS
     if nodeID == 0:
@@ -848,11 +850,9 @@ def distance(lat=0,lon=0,nodeID=0, reset=False):
         lon2 = math.radians(lon)
         dlon = lon2 - lon1
         dlat = lat2 - lat1
-        # haversine formula
         a = math.sin(dlat / 2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2)**2
         c = 2 * math.asin(math.sqrt(a))
-        r = 6371 # Radius of earth in kilometers
-        #
+
         distance_km = c * r
         if use_metric:
             msg += f"{distance_km:.2f} km"
@@ -891,6 +891,8 @@ def distance(lat=0,lon=0,nodeID=0, reset=False):
             lon2 = math.radians(point2['lon'])
             dlon = lon2 - lon1
             dlat = lat2 - lat1
+            a = math.sin(dlat / 2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2)**2
+            c = 2 * math.asin(math.sqrt(a))
             total_distance_km += c * r
         # add the distance from last point to current point
         total_distance_km += distance_km
