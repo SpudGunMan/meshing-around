@@ -796,32 +796,28 @@ def handleAlertBroadcast(deviceID=1):
     else:
         wxAlert = False
 
-    femaAlert = alertFema
-    ukAlert = alertUk
-    deAlert = alertDe
-
     if emergencyAlertBrodcastEnabled:
-        if NO_ALERTS not in femaAlert and ERROR_FETCHING_DATA not in femaAlert:
+        if NO_ALERTS not in alertFema and ERROR_FETCHING_DATA not in alertFema:
             if isinstance(emergencyAlertBroadcastCh, list):
                 for channel in emergencyAlertBroadcastCh:
-                    send_message(femaAlert, int(channel), 0, deviceID)
+                    send_message(alertFema, int(channel), 0, deviceID)
             else:
-                send_message(femaAlert, emergencyAlertBroadcastCh, 0, deviceID)
+                send_message(alertFema, emergencyAlertBroadcastCh, 0, deviceID)
             return True
-        if NO_ALERTS not in ukAlert:
+        if NO_ALERTS not in alertUk:
             if isinstance(emergencyAlertBroadcastCh, list):
                 for channel in emergencyAlertBroadcastCh:
-                    send_message(ukAlert, int(channel), 0, deviceID)
+                    send_message(alertUk, int(channel), 0, deviceID)
             else:
-                send_message(ukAlert, emergencyAlertBroadcastCh, 0, deviceID)
+                send_message(alertUk, emergencyAlertBroadcastCh, 0, deviceID)
             return True
 
         if NO_ALERTS not in alertDe:
             if isinstance(emergencyAlertBroadcastCh, list):
                 for channel in emergencyAlertBroadcastCh:
-                    send_message(ukAlert, int(channel), 0, deviceID)
+                    send_message(alertDE, int(channel), 0, deviceID)
             else:
-                send_message(ukAlert, emergencyAlertBroadcastCh, 0, deviceID)
+                send_message(alertDE, emergencyAlertBroadcastCh, 0, deviceID)
             return True
         
     # pause for traffic
