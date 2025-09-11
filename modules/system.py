@@ -764,7 +764,7 @@ priorVolcanoAlert = ""
 priorEmergencyAlert = ""
 priorWxAlert = ""
 def handleAlertBroadcast(deviceID=1):
-    global priorVolcanoAlert
+    global priorVolcanoAlert, priorEmergencyAlert, priorWxAlert
     alertUk = NO_ALERTS
     alertDe = NO_ALERTS
     alertFema = NO_ALERTS
@@ -1009,7 +1009,7 @@ def consumeMetadata(packet, rxNode=0):
                     logger.info(f"System: High Altitude {position_data['altitude']}m on Device: {rxNode} NodeID: {nodeID}")
                     altFeet = round(position_data['altitude'] * 3.28084, 2)
                     msg = f"🚀 High Altitude Detected! NodeID:{nodeID} Alt:{position_data['altitude']}m/{altFeet}ft"
-                    
+
                     if highfly_check_openskynetwork:
                          # check get_openskynetwork to see if the node is an aircraft
                         flight_info = get_openskynetwork(position_data.get('latitude', 0), position_data.get('longitude', 0), position_data.get('altitude', 0))
