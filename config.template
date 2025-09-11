@@ -120,7 +120,7 @@ highFlyingAlert = True
 # Altitude in meters to trigger the alert
 highFlyingAlertAltitude = 2000
 # check with OpenSkyNetwork if highfly detected for aircraft
-highfly_openskynetwork = True
+highflyOpenskynetwork = True
 # Channel to send Alert when the high flying node is detected
 highFlyingAlertInterface = 1
 highFlyingAlertChannel = 2

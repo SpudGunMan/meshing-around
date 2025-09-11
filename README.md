@@ -267,6 +267,7 @@ SentryHoldoff = 2 # channel to send a message to when the watchdog is triggered
 sentryIgnoreList = # list of ignored nodes numbers ex: 2813308004,4258675309
 highFlyingAlert = True # HighFlying Node alert
 highFlyingAlertAltitude = 2000 # Altitude in meters to trigger the alert
+highflyOpenskynetwork = True # check with OpenSkyNetwork if highfly detected for aircraft
 ```
 
 ### E-Mail / SMS Settings

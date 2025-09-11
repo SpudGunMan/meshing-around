@@ -244,7 +244,7 @@ try:
     highfly_channel = config['sentry'].getint('highFlyingAlertChannel', 2) # default 2
     highfly_interface = config['sentry'].getint('highFlyingAlertInterface', 1) # default 1
     highfly_ignoreList = config['sentry'].get('highFlyingIgnoreList', '').split(',') # default empty
-    highfly_check_openskynetwork = config['sentry'].getboolean('highfly_openskynetwork', True) # default True check with OpenSkyNetwork if highfly detected
+    highfly_check_openskynetwork = config['sentry'].getboolean('highflyOpenskynetwork', True) # default True check with OpenSkyNetwork if highfly detected
 
     # location
     location_enabled = config['location'].getboolean('enabled', True)
