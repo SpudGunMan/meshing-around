@@ -1012,9 +1012,10 @@ def consumeMetadata(packet, rxNode=0):
 
                     if highfly_check_openskynetwork:
                          # check get_openskynetwork to see if the node is an aircraft
-                        flight_info = get_openskynetwork(position_data.get('latitude', 0), position_data.get('longitude', 0), position_data.get('altitude', 0))
-                        if flight_info and NO_ALERTS not in flight_info and ERROR_FETCHING_DATA not in flight_info:
-                            msg += f"\n✈️Detected near: {flight_info}"
+                         if 'latitude' in position_data and 'longitude' in position_data:
+                            flight_info = get_openskynetwork(position_data.get('latitude', 0), position_data.get('longitude', 0))
+                            if flight_info and NO_ALERTS not in flight_info and ERROR_FETCHING_DATA not in flight_info:
+                                msg += f"\n✈️Detected near: {flight_info}"
 
                     send_message(msg, highfly_channel, 0, highfly_interface)
                     time.sleep(responseDelay)
