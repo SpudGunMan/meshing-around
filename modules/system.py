@@ -1004,11 +1004,19 @@ def consumeMetadata(packet, rxNode=0):
                 for key in keys:
                     positionMetadata[nodeID][key] = position_data.get(key, 0)
 
-                # if altitude is over 2000 send a log and message for high-flying nodes and not in highfly_ignoreList
+                # if altitude is over highfly_altitude send a log and message for high-flying nodes and not in highfly_ignoreList
                 if position_data.get('altitude', 0) > highfly_altitude and highfly_enabled and str(nodeID) not in highfly_ignoreList:
                     logger.info(f"System: High Altitude {position_data['altitude']}m on Device: {rxNode} NodeID: {nodeID}")
                     altFeet = round(position_data['altitude'] * 3.28084, 2)
-                    send_message(f"High Altitude {altFeet}ft ({position_data['altitude']}m) on Device:{rxNode} Node:{get_name_from_number(nodeID,'short',rxNode)}", highfly_channel, 0, highfly_interface)
+                    msg = f"🚀 High Altitude Detected! NodeID:{nodeID} Alt:{position_data['altitude']}m/{altFeet}ft"
+                    
+                    if highfly_check_openskynetwork:
+                         # check get_openskynetwork to see if the node is an aircraft
+                        flight_info = get_openskynetwork(position_data.get('latitude', 0), position_data.get('longitude', 0), position_data.get('altitude', 0))
+                        if flight_info and NO_ALERTS not in flight_info and ERROR_FETCHING_DATA not in flight_info:
+                            msg += f"\n✈️Detected near: {flight_info}"
+
+                    send_message(msg, highfly_channel, 0, highfly_interface)
                     time.sleep(responseDelay)
         
                 # Keep the positionMetadata dictionary at a maximum size of 20
