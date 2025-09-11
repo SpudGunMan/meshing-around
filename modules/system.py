@@ -1008,7 +1008,7 @@ def consumeMetadata(packet, rxNode=0):
                 if position_data.get('altitude', 0) > highfly_altitude and highfly_enabled and str(nodeID) not in highfly_ignoreList:
                     logger.info(f"System: High Altitude {position_data['altitude']}m on Device: {rxNode} NodeID: {nodeID}")
                     altFeet = round(position_data['altitude'] * 3.28084, 2)
-                    msg = f"🚀 High Altitude Detected! NodeID:{nodeID} Alt:{position_data['altitude']}m/{altFeet}ft"
+                    msg = f"🚀 High Altitude Detected! NodeID:{nodeID} Alt:{altFeet:,.0f}ft/{position_data['altitude']:,.0f}m"
 
                     if highfly_check_openskynetwork:
                          # check get_openskynetwork to see if the node is an aircraft
