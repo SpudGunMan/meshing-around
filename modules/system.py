@@ -761,6 +761,8 @@ def handleMultiPing(nodeID=0, deviceID=1):
                             break
 
 priorVolcanoAlert = ""
+priorEmergencyAlert = ""
+priorWxAlert = ""
 def handleAlertBroadcast(deviceID=1):
     global priorVolcanoAlert
     alertUk = NO_ALERTS
@@ -802,6 +804,10 @@ def handleAlertBroadcast(deviceID=1):
 
     if emergencyAlertBrodcastEnabled:
         if NO_ALERTS not in femaAlert and ERROR_FETCHING_DATA not in femaAlert:
+            if femaAlert != priorEmergencyAlert:
+                priorEmergencyAlert = femaAlert
+            else:
+                return False
             if isinstance(emergencyAlertBroadcastCh, list):
                 for channel in emergencyAlertBroadcastCh:
                     send_message(femaAlert, int(channel), 0, deviceID)
@@ -809,6 +815,10 @@ def handleAlertBroadcast(deviceID=1):
                 send_message(femaAlert, emergencyAlertBroadcastCh, 0, deviceID)
             return True
         if NO_ALERTS not in ukAlert:
+            if ukAlert != priorEmergencyAlert:
+                priorEmergencyAlert = ukAlert
+            else:
+                return False
             if isinstance(emergencyAlertBroadcastCh, list):
                 for channel in emergencyAlertBroadcastCh:
                     send_message(ukAlert, int(channel), 0, deviceID)
@@ -817,6 +827,10 @@ def handleAlertBroadcast(deviceID=1):
             return True
 
         if NO_ALERTS not in alertDe:
+            if deAlert != priorEmergencyAlert:
+                priorEmergencyAlert = deAlert
+            else:
+                return False
             if isinstance(emergencyAlertBroadcastCh, list):
                 for channel in emergencyAlertBroadcastCh:
                     send_message(deAlert, int(channel), 0, deviceID)
@@ -829,6 +843,10 @@ def handleAlertBroadcast(deviceID=1):
 
     if wxAlertBroadcastEnabled:
         if wxAlert:
+            if wxAlert != priorWxAlert:
+                priorWxAlert = wxAlert
+            else:
+                return False
             if isinstance(wxAlertBroadcastChannel, list):
                 for channel in wxAlertBroadcastChannel:
                     send_message(wxAlert, int(channel), 0, deviceID)
