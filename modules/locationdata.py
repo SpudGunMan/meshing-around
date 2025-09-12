@@ -966,7 +966,7 @@ def get_openskynetwork(lat=0, lon=0):
     # setup a bounding box of 50km around the lat/lon
     box_size = 0.45 # approx 50km
     # return limits for aircraft search
-    search_limit = 5
+    search_limit = 3
     lamin = lat - box_size
     lamax = lat + box_size
     lomin = lon - box_size
@@ -1005,7 +1005,7 @@ def get_openskynetwork(lat=0, lon=0):
             continue
         
         # format the aircraft data
-        aircraft_report += f"✈️{callsign} Alt:{int(geo_altitude) if geo_altitude else 'N/A'}m Vel:{int(velocity) if velocity else 'N/A'}m/s Heading:{int(true_track) if true_track else 'N/A'}°\n"
+        aircraft_report += f"{callsign} Alt:{int(geo_altitude) if geo_altitude else 'N/A'}m Vel:{int(velocity) if velocity else 'N/A'}m/s Heading:{int(true_track) if true_track else 'N/A'}°\n"
     
     # remove last newline
     if aircraft_report.endswith("\n"):
