@@ -804,16 +804,19 @@ def checkUSGSEarthQuake(lat=0, lon=0):
     for event in quake_xml.getElementsByTagName("event"):
         mag = event.getElementsByTagName("magnitude")[0]
         mag_value = float(mag.getElementsByTagName("value")[0].childNodes[0].nodeValue)
-        mag_value = round(mag_value, 1)
         if mag_value > largest_mag:
             largest_mag = mag_value
             # set description text
             description_text = event.getElementsByTagName("description")[0].getElementsByTagName("text")[0].childNodes[0].nodeValue
-
+    largest_mag = round(largest_mag, 1)
     if quake_count == 0:
         return NO_ALERTS
     else:
-        return f"{quake_count} 🫨quakes in last {history} days within {radius}km of you largest was {largest_mag}. {description_text}"
+        if use_metric:
+            return f"{quake_count} 🫨quakes in last {history} days within {radius} km. Largest: {largest_mag}M\n{description_text}"
+        else:
+            radius = round(radius * 0.621371)
+            return f"{quake_count} 🫨quakes in last {history} days within {radius} mi. Largest: {largest_mag}M\n{description_text}"
 
 howfarDB = {}
 def distance(lat=0,lon=0,nodeID=0, reset=False):
