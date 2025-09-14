@@ -812,11 +812,8 @@ def checkUSGSEarthQuake(lat=0, lon=0):
     if quake_count == 0:
         return NO_ALERTS
     else:
-        if use_metric:
-            return f"{quake_count} 🫨quakes in last {history} days within {radius} km. Largest: {largest_mag}M\n{description_text}"
-        else:
-            radius = round(radius * 0.621371)
-            return f"{quake_count} 🫨quakes in last {history} days within {radius} mi. Largest: {largest_mag}M\n{description_text}"
+        return f"{quake_count} 🫨quakes in last {history} days within {radius} km. Largest: {largest_mag}M\n{description_text}"
+
 
 howfarDB = {}
 def distance(lat=0,lon=0,nodeID=0, reset=False):
