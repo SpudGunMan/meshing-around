@@ -155,7 +155,7 @@ git clone https://github.com/spudgunman/meshing-around
 | `golfsim` | Plays a 9-hole Golf Simulator | ✅ |
 | `hamtest` | FCC/ARRL Quiz `hamtest general` or `hamtest extra` and `score` | ✅ |
 | `hangman` | Plays the classic word guess game | ✅ |
-| `joke` | Tells a joke | ✅ |
+| `joke` | Tells a joke | |
 | `lemonstand` | Plays the classic Lemonade Stand finance game | ✅ |
 | `mastermind` | Plays the classic code-breaking game | ✅ |
 | `videopoker` | Plays basic 5-card hold Video Poker | ✅ |
