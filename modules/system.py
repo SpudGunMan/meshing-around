@@ -1267,9 +1267,6 @@ async def watchdog():
 
                     handleMultiPing(0, i)
 
-                    if noisyNodeLogging:
-                        noisyTelemetryCheck()
-
                     if wxAlertBroadcastEnabled or emergencyAlertBrodcastEnabled or volcanoAlertBroadcastEnabled:
                         handleAlertBroadcast(i)
 
@@ -1283,6 +1280,10 @@ async def watchdog():
                     await retry_interface(i)
                 except Exception as e:
                     logger.error(f"System: retrying interface{i}: {e}")
+        
+        # check for noisy telemetry
+        if noisyNodeLogging:
+            noisyTelemetryCheck()
 
 def exit_handler():
     # Close the interface and save the BBS messages
