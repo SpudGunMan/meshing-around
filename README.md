@@ -16,6 +16,7 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 ### Network Tools
 - **Build, Test Local Mesh**: Ping allow for message delivery testing with more realistic packets vs. telemetry
 - **Test Node Hardware**: `test` will send incremental sized data into the radio buffer for overall length of message testing
+- **Network Monitoring**: Alert on noisy nodes, node locations, and best placment for relay nodes.
 
 ### Multi Radio/Node Support
 - **Simultaneous Monitoring**: Monitor up to nine networks at the same time.
@@ -318,10 +319,9 @@ myRegionalKeysDE = 110000000000,120510000000
  This uses the defined lat-long of the bot for collecting of data from the API. see [File-Monitoring](#File-Monitoring) for ideas to collect EAS alerts from a RTL-SDR.
 
 ```ini
-# EAS Alert Broadcast 
-wxAlertBroadcastEnabled = True
-# EAS Alert Broadcast Channels
-wxAlertBroadcastCh = 2,4
+
+wxAlertBroadcastEnabled = True # EAS Alert Broadcast 
+wxAlertBroadcastCh = 2,4 # EAS Alert Broadcast Channels
 ignoreEASenable = True # Ignore any headline that includes followig word list
 ignoreEASwords = test,advisory
 ```
@@ -438,19 +438,13 @@ training = True # Training mode will not send the hello message to new nodes, us
 In the config.ini enable the module
 ```ini
 [scheduler]
-# enable or disable the scheduler module
-enabled = False
-# interface to send the message to
-interface = 1
-# channel to send the message to
+enabled = False # enable or disable the scheduler module
+interface = 1 # channel to send the message to
 channel = 2
 message = "MeshBot says Hello! DM for more info."
-# value can be min,hour,day,mon,tue,wed,thu,fri,sat,sun
-value =
-# interval to use when time is not set (e.g. every 2 days)
-interval = 
-# time of day in 24:00 hour format when value is 'day' and interval is not set
-time =
+value = # value can be min,hour,day,mon,tue,wed,thu,fri,sat,sun
+interval =  # interval to use when time is not set (e.g. every 2 days)
+time = # time of day in 24:00 hour format when value is 'day' and interval is not set
 ```
  The basic brodcast message can be setup in condig.ini. For advanced, See mesh_bot.py around the bottom of file, line [1491](https://github.com/SpudGunMan/meshing-around/blob/e94581936530c76ea43500eebb43f32ba7ed5e19/mesh_bot.py#L1491) to edit the schedule. See [schedule documentation](https://schedule.readthedocs.io/en/stable/) for more. Recomend to backup changes so they dont get lost.
 
