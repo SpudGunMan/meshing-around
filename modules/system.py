@@ -1025,6 +1025,13 @@ def consumeMetadata(packet, rxNode=0):
                     # Remove the oldest entry
                     oldest_nodeID = next(iter(positionMetadata))
                     del positionMetadata[oldest_nodeID]
+                
+                # add a packet count to the positionMetadata for the node
+                if 'packetCount' in positionMetadata[nodeID]:
+                    positionMetadata[nodeID]['packetCount'] += 1
+                else:
+                    positionMetadata[nodeID]['packetCount'] = 1
+
             except Exception as e:
                 logger.debug(f"System: POSITION_APP decode error: {e} packet {packet}")
 
@@ -1066,6 +1073,19 @@ def consumeMetadata(packet, rxNode=0):
     except KeyError as e:
         logger.critical(f"System: Error consuming metadata: {e} Device:{rxNode}")
         logger.debug(f"System: Error Packet = {packet}")
+
+def noisyTelemetryCheck():
+    global positionMetadata
+    if len(positionMetadata) == 0:
+        return
+    # sort the positionMetadata by packetCount
+    sorted_positionMetadata = dict(sorted(positionMetadata.items(), key=lambda item: item[1].get('packetCount', 0), reverse=True))
+    top_three = list(sorted_positionMetadata.items())[:3]
+    for nodeID, data in top_three:
+        if data.get('packetCount', 0) > noisyTelemetryLimit:
+            logger.warning(f"System: Noisy Telemetry Detected from NodeID:{nodeID} ShortName:{get_name_from_number(nodeID, 'short', 1)} Packets:{data.get('packetCount', 0)}")
+            # reset the packet count for the node
+            positionMetadata[nodeID]['packetCount'] = 0
 
 def get_sysinfo(nodeID=0, deviceID=1):
     # Get the system telemetry data for return on the sysinfo command
@@ -1289,6 +1309,10 @@ async def watchdog():
                     await retry_interface(i)
                 except Exception as e:
                     logger.error(f"System: retrying interface{i}: {e}")
+        
+        # check for noisy telemetry
+        if noisyNodeLogging:
+            noisyTelemetryCheck()
 
 def exit_handler():
     # Close the interface and save the BBS messages
