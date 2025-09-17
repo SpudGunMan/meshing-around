@@ -903,6 +903,10 @@ def distance(lat=0,lon=0,nodeID=0, reset=False):
             total_distance_miles = total_distance_km * 0.621371
             msg += f", Total: {total_distance_miles:.2f} miles"
         
+        # update the last point in howfarDB
+        if not dupe:
+            howfarDB[nodeID].append({'lat': lat, 'lon': lon, 'time': datetime.now()})
+        
         # if points 3+ are within 30 meters of the first point add the area of the polygon
         if len(howfarDB[nodeID]) >= 3:
             points = []
@@ -952,11 +956,6 @@ def distance(lat=0,lon=0,nodeID=0, reset=False):
             lat_centroid = math.degrees(lat_centroid)
             lon_centroid = math.degrees(lon_centroid)
             msg += f", Centroid: {lat_centroid:.5f}, {lon_centroid:.5f}"
-
-
-        # update the last point in howfarDB
-        if not dupe:
-            howfarDB[nodeID].append({'lat': lat, 'lon': lon, 'time': datetime.now()})
 
         return msg
 
