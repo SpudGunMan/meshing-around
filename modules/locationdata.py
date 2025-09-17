@@ -867,6 +867,27 @@ def distance(lat=0,lon=0,nodeID=0, reset=False):
                 speed_mph = (distance_km * 0.621371) / hours
                 speed_str = f"{speed_mph:.2f} mph"
             msg += f", travel time: {int(time_diff.total_seconds()//60)} min, Speed: {speed_str}"
+
+        #calculate total distance traveled
+        total_distance_km = 0.0
+        for i in range(1, len(howfarDB[nodeID])):
+            point1 = howfarDB[nodeID][i-1]
+            point2 = howfarDB[nodeID][i]
+            lat1 = math.radians(point1['lat'])
+            lon1 = math.radians(point1['lon'])
+            lat2 = math.radians(point2['lat'])
+            lon2 = math.radians(point2['lon'])
+            dlon = lon2 - lon1
+            dlat = lat2 - lat1
+            a = math.sin(dlat / 2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2)**2
+            c = 2 * math.asin(math.sqrt(a))
+            distance_km_segment = c * r
+            total_distance_km += distance_km_segment
+        if use_metric and total_distance_km < 1:
+            msg += f", Total: {total_distance_km:.2f} km"
+        elif total_distance_km >= 1:
+            total_distance_miles = total_distance_km * 0.621371
+            msg += f", Total: {total_distance_miles:.2f} miles"
         
         #calculate bearing
         x = math.sin(dlon) * math.cos(lat2)
@@ -874,7 +895,7 @@ def distance(lat=0,lon=0,nodeID=0, reset=False):
         initial_bearing = math.atan2(x, y)
         initial_bearing = math.degrees(initial_bearing)
         compass_bearing = (initial_bearing + 360) % 360
-        msg += f", Bearing from last point: {compass_bearing:.2f}°"
+        msg += f", 🧭Bearing from last: {compass_bearing:.2f}°"
         
         # if points 3+ are within 30 meters of the first point add the area of the polygon
         if len(howfarDB[nodeID]) >= 3:
