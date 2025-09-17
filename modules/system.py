@@ -1057,6 +1057,8 @@ def noisyTelemetryCheck():
     for nodeID, data in top_three:
         if data.get('packetCount', 0) > noisyTelemetryLimit:
             logger.warning(f"System: Noisy Telemetry Detected from NodeID:{nodeID} ShortName:{get_name_from_number(nodeID, 'short', 1)} Packets:{data.get('packetCount', 0)}")
+            # reset the packet count for the node
+            positionMetadata[nodeID]['packetCount'] = 0
 
 def get_sysinfo(nodeID=0, deviceID=1):
     # Get the system telemetry data for return on the sysinfo command
