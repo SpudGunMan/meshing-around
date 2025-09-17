@@ -1013,5 +1013,3 @@ def get_openskynetwork(lat=0, lon=0):
         aircraft_report = aircraft_report[:-1]
     aircraft_report = abbreviate_noaa(aircraft_report)
     return aircraft_report if aircraft_report else NO_ALERTS
-
-
