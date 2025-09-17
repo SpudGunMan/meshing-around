@@ -808,16 +808,20 @@ def checkUSGSEarthQuake(lat=0, lon=0):
             largest_mag = mag_value
             # set description text
             description_text = event.getElementsByTagName("description")[0].getElementsByTagName("text")[0].childNodes[0].nodeValue
-
+    largest_mag = round(largest_mag, 1)
     if quake_count == 0:
         return NO_ALERTS
     else:
-        return f"{quake_count} quakes in last {history} days within {radius}km of you largest was {largest_mag}. {description_text}"
+        return f"{quake_count} 🫨quakes in last {history} days within {radius} km. Largest: {largest_mag}M\n{description_text}"
+
 
 howfarDB = {}
 def distance(lat=0,lon=0,nodeID=0, reset=False):
     # part of the howfar function, calculates the distance between two lat/lon points
     msg = ""
+    dupe = False
+    r = 6371 # Radius of earth in kilometers # haversine formula
+    
     if lat == 0 and lon == 0:
         return NO_DATA_NOGPS
     if nodeID == 0:
@@ -837,7 +841,8 @@ def distance(lat=0,lon=0,nodeID=0, reset=False):
     else:
         #de-dupe points if same as last point
         if howfarDB[nodeID][-1]['lat'] == lat and howfarDB[nodeID][-1]['lon'] == lon:
-            return "📍No movement detected yet"
+            dupe = True
+            msg = "No New GPS📍 "
         # calculate distance from last point in howfarDB
         last_point = howfarDB[nodeID][-1]
         lat1 = math.radians(last_point['lat'])
@@ -848,13 +853,21 @@ def distance(lat=0,lon=0,nodeID=0, reset=False):
         dlat = lat2 - lat1
         a = math.sin(dlat / 2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2)**2
         c = 2 * math.asin(math.sqrt(a))
-        r = 6371 # Radius of earth in kilometers
+
         distance_km = c * r
         if use_metric:
             msg += f"{distance_km:.2f} km"
         else:
             distance_miles = distance_km * 0.621371
             msg += f"{distance_miles:.2f} miles"
+        
+        #calculate bearing
+        x = math.sin(dlon) * math.cos(lat2)
+        y = math.cos(lat1) * math.sin(lat2) - (math.sin(lat1) * math.cos(lat2) * math.cos(dlon))
+        initial_bearing = math.atan2(x, y)
+        initial_bearing = math.degrees(initial_bearing)
+        compass_bearing = (initial_bearing + 360) % 360
+        msg += f" 🧭{compass_bearing:.2f}° Bearing from last📍"
 
         # calculate the speed if time difference is more than 1 minute
         time_diff = datetime.now() - last_point['time']
@@ -867,14 +880,28 @@ def distance(lat=0,lon=0,nodeID=0, reset=False):
                 speed_mph = (distance_km * 0.621371) / hours
                 speed_str = f"{speed_mph:.2f} mph"
             msg += f", travel time: {int(time_diff.total_seconds()//60)} min, Speed: {speed_str}"
-        
-        #calculate bearing
-        x = math.sin(dlon) * math.cos(lat2)
-        y = math.cos(lat1) * math.sin(lat2) - (math.sin(lat1) * math.cos(lat2) * math.cos(dlon))
-        initial_bearing = math.atan2(x, y)
-        initial_bearing = math.degrees(initial_bearing)
-        compass_bearing = (initial_bearing + 360) % 360
-        msg += f", Bearing from last point: {compass_bearing:.2f}°"
+
+        # calculate total distance traveled including this point computed in distance_km from calculate distance from last point in howfarDB
+        total_distance_km = 0.0
+        for i in range(1, len(howfarDB[nodeID])):
+            point1 = howfarDB[nodeID][i-1]
+            point2 = howfarDB[nodeID][i]
+            lat1 = math.radians(point1['lat'])
+            lon1 = math.radians(point1['lon'])
+            lat2 = math.radians(point2['lat'])
+            lon2 = math.radians(point2['lon'])
+            dlon = lon2 - lon1
+            dlat = lat2 - lat1
+            a = math.sin(dlat / 2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2)**2
+            c = 2 * math.asin(math.sqrt(a))
+            total_distance_km += c * r
+        # add the distance from last point to current point
+        total_distance_km += distance_km
+        if use_metric:
+            msg += f", Total: {total_distance_km:.2f} km"
+        else:
+            total_distance_miles = total_distance_km * 0.621371
+            msg += f", Total: {total_distance_miles:.2f} miles"
         
         # if points 3+ are within 30 meters of the first point add the area of the polygon
         if len(howfarDB[nodeID]) >= 3:
@@ -900,10 +927,10 @@ def distance(lat=0,lon=0,nodeID=0, reset=False):
             area = abs(area) / 1e6 # convert to square kilometers
 
             if use_metric:
-                msg += f", Area Sq.Km: {area:.2f} sq.km (approx)"
+                msg += f", Area: {area:.2f} sq.km (approx)"
             else:
                 area_miles = area * 0.386102
-                msg += f", Area Sq.Miles: {area_miles:.2f} sq.mi (approx)"
+                msg += f", Area: {area_miles:.2f} sq.mi (approx)"
             
             #calculate the centroid of the polygon
             x = 0.0
@@ -928,6 +955,63 @@ def distance(lat=0,lon=0,nodeID=0, reset=False):
 
 
         # update the last point in howfarDB
-        howfarDB[nodeID].append({'lat': lat, 'lon': lon, 'time': datetime.now()})
+        if not dupe:
+            howfarDB[nodeID].append({'lat': lat, 'lon': lon, 'time': datetime.now()})
 
         return msg
+
+def get_openskynetwork(lat=0, lon=0):
+    # get the latest aircraft data from OpenSky Network in the area
+    if lat == 0 and lon == 0:
+        return NO_ALERTS
+    # setup a bounding box of 50km around the lat/lon
+    box_size = 0.45 # approx 50km
+    # return limits for aircraft search
+    search_limit = 3
+    lamin = lat - box_size
+    lamax = lat + box_size
+    lomin = lon - box_size
+    lomax = lon + box_size
+
+    # fetch the aircraft data from OpenSky Network
+    opensky_url = f"https://opensky-network.org/api/states/all?lamin={lamin}&lomin={lomin}&lamax={lamax}&lomax={lomax}"
+    try:
+        aircraft_data = requests.get(opensky_url, timeout=urlTimeoutSeconds)
+        if not aircraft_data.ok:
+            logger.warning("Location:Error fetching aircraft data from OpenSky Network")
+            return ERROR_FETCHING_DATA
+    except (requests.exceptions.RequestException):
+        logger.warning("Location:Error fetching aircraft data from OpenSky Network")
+        return ERROR_FETCHING_DATA
+    aircraft_json = aircraft_data.json()
+    if 'states' not in aircraft_json or not aircraft_json['states']:
+        return NO_ALERTS
+    aircraft_list = aircraft_json['states']
+    aircraft_report = ""
+    for aircraft in aircraft_list:
+        if len(aircraft_report.split("\n")) >= search_limit:
+            break
+        # extract values from JSON
+        try:
+            callsign = aircraft[1].strip() if aircraft[1] else "N/A"
+            origin_country = aircraft[2]
+            velocity = aircraft[9]
+            true_track = aircraft[10]
+            vertical_rate = aircraft[11]
+            sensors = aircraft[12]
+            geo_altitude = aircraft[13]
+            squawk = aircraft[14] if len(aircraft) > 14 else "N/A"
+        except Exception as e:
+            logger.debug("Location:Error extracting aircraft data from OpenSky Network")
+            continue
+        
+        # format the aircraft data
+        aircraft_report += f"{callsign} Alt:{int(geo_altitude) if geo_altitude else 'N/A'}m Vel:{int(velocity) if velocity else 'N/A'}m/s Heading:{int(true_track) if true_track else 'N/A'}°\n"
+    
+    # remove last newline
+    if aircraft_report.endswith("\n"):
+        aircraft_report = aircraft_report[:-1]
+    aircraft_report = abbreviate_noaa(aircraft_report)
+    return aircraft_report if aircraft_report else NO_ALERTS
+
+
