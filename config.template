@@ -327,6 +327,6 @@ maxBuffer = 200
 enableHopLogs = False
 # Noisy Node Telemetry Logging and packet threshold
 noisyNodeLogging = False
-noisyTelemetryLimit = 20
+noisyTelemetryLimit = 5
 
 
