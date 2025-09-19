@@ -685,25 +685,23 @@ def messageTrap(msg):
     # Split Message on assumed words spaces m for m = msg.split(" ")
     # t in trap_list, built by the config and system.py not the user
     message_list=msg.split(" ")
+    
+    if cmdBang:
+        # check for ! at the start of the message to force a command
+        if not message_list[0].startswith('!'):
+            return False
+        else:
+            message_list[0] = message_list[0][1:]
+
     for m in message_list:
         for t in trap_list:
             if not explicitCmd:
                 # if word in message is in the trap list, return True
                 if t.lower() == m.lower():
-                    if cmdBang:
-                        if m.startswith('!'):
-                            return True
-                        else:
-                            continue
                     return True
             else:
                 # if the index 0 of the message is a word in the trap list, return True
                 if t.lower() == m.lower() and message_list.index(m) == 0:
-                    if cmdBang:
-                        if m.startswith('!'):
-                            return True
-                        else:
-                            continue
                     return True
     # if no trap words found, run a search for near misses like ping? or cmd?
     for m in message_list:
