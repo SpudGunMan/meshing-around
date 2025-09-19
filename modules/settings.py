@@ -370,7 +370,7 @@ try:
     enableHopLogs = config['messagingSettings'].getboolean('enableHopLogs', False) # default False
     noisyNodeLogging = config['messagingSettings'].getboolean('noisyNodeLogging', False) # default False
     noisyTelemetryLimit = config['messagingSettings'].getint('noisyTelemetryLimit', 5) # default 5 packets
-except KeyError as e:
+except (KeyError, ValueError) as e:
     print(f"System: Error reading config file: {e}")
     print(f"System: Check the config.ini against config.template file for missing sections or values.")
     print(f"System: Exiting...")
