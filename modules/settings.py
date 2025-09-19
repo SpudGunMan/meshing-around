@@ -37,6 +37,10 @@ try:
     config.read(config_file, encoding='utf-8')
 except Exception as e:
     print(f"System: Error reading config file: {e}")
+    # exit if we can't read the config file
+    print(f"System: Check the config.ini against config.template file for missing sections or values.")
+    print(f"System: Exiting...")
+    exit(1)
 
 if config.sections() == []:
     print(f"System: Error reading config file: {config_file} is empty or does not exist.")
@@ -370,7 +374,7 @@ try:
     enableHopLogs = config['messagingSettings'].getboolean('enableHopLogs', False) # default False
     noisyNodeLogging = config['messagingSettings'].getboolean('noisyNodeLogging', False) # default False
     noisyTelemetryLimit = config['messagingSettings'].getint('noisyTelemetryLimit', 5) # default 5 packets
-except (KeyError, ValueError) as e:
+except Exception as e:
     print(f"System: Error reading config file: {e}")
     print(f"System: Check the config.ini against config.template file for missing sections or values.")
     print(f"System: Exiting...")
