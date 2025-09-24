@@ -17,9 +17,7 @@ from modules.system import *
 # list of commands to remove from the default list for DM only
 restrictedCommands = ["blackjack", "videopoker", "dopewars", "lemonstand", "golfsim", "mastermind", "hangman", "hamtest"]
 restrictedResponse = "🤖only available in a Direct Message📵" # "" for none
-
-# Global Variables
-DEBUGpacket = False # Debug print the packet rx
+cmdHistory = [] # list to hold the command history for lheard and history commands
 
 def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_number, deviceID, isDM):
     global cmdHistory
