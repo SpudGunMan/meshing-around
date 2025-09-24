@@ -12,7 +12,6 @@ import io # for suppressing output on watchdog
 from modules.log import *
 
 # Global Variables
-debugMetadata = False # packet debug for non text messages
 trap_list = ("cmd","cmd?") # default trap list
 help_message = "Bot CMD?:"
 asyncLoop = asyncio.new_event_loop()
