@@ -1056,6 +1056,11 @@ def consumeMetadata(packet, rxNode=0):
             if debugMetadata: print(f"DEBUG DETECTION_SENSOR_APP: {packet}\n\n")
             # get the detection sensor data
             detection_data = packet['decoded']
+            detction_text = detection_data.get('text', '')
+            if detction_text != '':
+                logger.info(f"System: Detection Sensor Data from NodeID:{nodeID} Text:{detction_text}")
+                #send_message(f"📡Detection Sensor Data from NodeID:{nodeID} Text:{detction_text}", detection_sensor_channel, 0, detection_sensor_interface)
+                #time.sleep(responseDelay)
 
         # PAXCOUNTER_APP
         if packet_type ==  'PAXCOUNTER_APP':
