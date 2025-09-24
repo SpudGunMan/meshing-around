@@ -330,5 +330,8 @@ enableHopLogs = False
 # Noisy Node Telemetry Logging and packet threshold
 noisyNodeLogging = False
 noisyTelemetryLimit = 5
+# Enable detailed packet logging
+debugMetadata = False
+DEBUGpacket = False
 
 
