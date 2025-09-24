@@ -372,6 +372,7 @@ try:
     wantAck = config['messagingSettings'].getboolean('wantAck', False) # default False
     maxBuffer = config['messagingSettings'].getint('maxBuffer', 200) # default 200
     enableHopLogs = config['messagingSettings'].getboolean('enableHopLogs', False) # default False
+    debugMetadata = config['messagingSettings'].getboolean('debugMetadata', False) # default False
     noisyNodeLogging = config['messagingSettings'].getboolean('noisyNodeLogging', False) # default False
     noisyTelemetryLimit = config['messagingSettings'].getint('noisyTelemetryLimit', 5) # default 5 packets
 except Exception as e:
