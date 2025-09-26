@@ -470,13 +470,15 @@ bbslink_whitelist = # list of whitelisted nodes numbers ex: 2813308004,425867530
 ```
 
 ### Firmware 2.6 DM Key, and 2.7 CLIENT_BASE Favorite Nodes
-The 2.6 firmware added [PKC](https://meshtastic.org/blog/introducing-new-public-key-cryptography-in-v2_5/) which adds needed keys to the node for private messages. To capoltize on this favorite node use is neded to lock in the keys. A tool to help facilitate adding favorite nodes like BBS admin to the lock in list. 
-- run this helper script from the main program directory `python3 script/addFav.py`
-- default adds bbs_admin_list and bbslink_whitelist
-- if venv `launch.sh addfav`
+Firmware 2.6 introduced [PKC](https://meshtastic.org/blog/introducing-new-public-key-cryptography-in-v2_5/), enabling secure private messaging by adding necessary keys to each node. To fully utilize this feature, you should add favorite nodes—such as BBS admins—to your node’s favorites list to ensure their keys are retained. A helper script is provided to simplify this process:
+- Run the helper script from the main program directory: `python3 script/addFav.py`
+- By default, this script adds nodes from `bbs_admin_list` and `bbslink_whitelist`
+- If using a virtual environment, run: `launch.sh addfav`
+
+To configure favorite nodes, add their numbers to your config file:
 ```conf
 [general]
-setFavorites = # list of favorite nodes numbers ex: 2813308004,4258675309 used by script/addFav.py
+favoriteNodeList = # list of favorite nodes numbers ex: 2813308004,4258675309 used by script/addFav.py
 ```
 
 ### MQTT Notes
