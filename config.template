@@ -38,6 +38,8 @@ ignoreChannels =
 cmdBang = False
 # require explicit command, the message will only be processed if it starts with a command word
 explicitCmd = True
+# list of favorite nodes numbers ex: 2813308004,4258675309 used by script/addFav.py
+favoriteNodeList = 
 
 # motd is reset to this value on boot
 motd = Thanks for using MeshBOT! Have a good day!

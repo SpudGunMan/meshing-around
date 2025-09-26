@@ -480,11 +480,11 @@ def handleFavoritNode(nodeInt=1, nodeID=0, aor=False):
     interface = globals()[f'interface{nodeInt}']
     myNodeNumber = globals().get(f'myNodeNum{nodeInt}')
     if aor:
-        interface.getNode(myNodeNumber).addFavorite(nodeID)
-        logger.info(f"System: Added {nodeID} to favorites")
+        interface.getNode(myNodeNumber).setFavorite(nodeID)
+        logger.info(f"System: Added {nodeID} to favorites for device {nodeInt}")
     else:
         interface.getNode(myNodeNumber).removeFavorite(nodeID)
-        logger.info(f"System: Removed {nodeID} from favorites")
+        logger.info(f"System: Removed {nodeID} from favorites for device {nodeInt}")
     
 def getFavoritNodes(nodeInt=1):
     interface = globals()[f'interface{nodeInt}']
@@ -896,6 +896,23 @@ def getNodeFirmware(nodeID=0, nodeInt=1):
         fwVer = console_output.split("firmware_version: ")[1].split("\n")[0]
         return fwVer
     return -1
+
+def compileFavoriteList():
+    # build a list of favorite nodes to add to the device
+    fav_list = []
+    if (bbs_admin_list != [0] or favoriteNodeList != ['']):
+        logger.debug(f"System: Collecting Favorite Nodes to add to device(s)")
+         # loop through each interface and add the favorite nodes
+        for i in range(1, 10):
+            if globals().get(f'interface{i}') and globals().get(f'interface{i}_enabled'):
+                for fav in bbs_admin_list + favoriteNodeList:
+                    if fav != 0 and fav != globals().get(f'myNodeNum{i}') and fav != '' and fav is not None:
+                        # check not already in the node's favorite list local
+                        if fav not in fav_list:
+                            logger.debug(f"System: Adding Favorite Node {fav} to Device {i}")
+                            object = {'nodeID': fav, 'deviceID': i}
+                            fav_list.append(object)
+    return fav_list
 
 def displayNodeTelemetry(nodeID=0, rxNode=0, userRequested=False):
     interface = globals()[f'interface{rxNode}']

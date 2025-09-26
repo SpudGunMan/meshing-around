@@ -469,8 +469,16 @@ bbslink_enabled = True
 bbslink_whitelist = # list of whitelisted nodes numbers ex: 2813308004,4258675309 empty list allows all
 ```
 
+### Firmware 2.6 DM Key, and 2.7 CLIENT_BASE Favorite Nodes
+The 2.6 firmware added [PKC](https://meshtastic.org/blog/introducing-new-public-key-cryptography-in-v2_5/) which adds needed keys to the node for private messages. To capoltize on this favorite node use is neded to lock in the keys. A tool to help facilitate adding favorite nodes like BBS admin to the lock in list. 
+- run this helper script from the main program directory `python3 script/addFav.py`
+```conf
+[general]
+setFavorites = # list of favorite nodes numbers ex: 2813308004,4258675309 used by script/addFav.py
+```
+
 ### MQTT Notes
-There is no direct support for MQTT in the code, however, reports from Discord are that using [meshtasticd](https://meshtastic.org/docs/hardware/devices/linux-native-hardware/) with no radio and attaching the bot to the software node, which is MQTT-linked, allows routing. Tested working fully Firmware:2.5.15.79da236 with [mosquitto](https://meshtastic.org/docs/software/integrations/mqtt/mosquitto/).
+There is no direct support for MQTT in the code, however, reports from Discord are that using [meshtasticd](https://meshtastic.org/docs/hardware/devices/linux-native-hardware/) with no radio and attaching the bot to the software node, which is MQTT-linked, allows routing. Tested working fully Firmware:2.6.11 with [mosquitto](https://meshtastic.org/docs/software/integrations/mqtt/mosquitto/).
 
 ~~There also seems to be a quicker way to enable MQTT by having your bot node with the enabled [serial](https://meshtastic.org/docs/configuration/module/serial/) module with echo enabled and MQTT uplink and downlink. These two~~ 
 
