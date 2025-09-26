@@ -229,7 +229,7 @@ try:
     rawLLMQuery = config['general'].getboolean('rawLLMQuery', True) #default True
     llmReplyToNonCommands = config['general'].getboolean('llmReplyToNonCommands', True)
     dont_retry_disconnect = config['general'].getboolean('dont_retry_disconnect', False) # default False, retry on disconnect
-    favoriteNodeList = config['general'].get('setFavorite', '').split(',')
+    favoriteNodeList = config['general'].get('favoriteNodeList', '').split(',')
 
     # emergency response
     emergency_responder_enabled = config['emergencyHandler'].getboolean('enabled', False)

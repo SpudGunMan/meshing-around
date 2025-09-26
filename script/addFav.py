@@ -20,7 +20,7 @@ except Exception as e:
 try:
     # compile the favorite list wich returns node,interface tuples
     favList = compileFavoriteList()
-
+    logger.debug(f"addFav: Compiled favorite list:\n {favList}")
 except Exception as e:
     logger.error(f"addFav: Error compiling favorite list: {e} - run this program from the main program directory 'python3 script/addFav.py'")
     exit(1)
