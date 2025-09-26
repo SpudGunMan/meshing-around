@@ -906,15 +906,12 @@ def compileFavoriteList():
         for i in range(1, 10):
             if globals().get(f'interface{i}') and globals().get(f'interface{i}_enabled'):
                 for fav in bbs_admin_list + favoriteNodeList + bbs_link_whitelist:
-                    if fav != 0 and fav != globals().get(f'myNodeNum{i}') and fav != '' and fav is not None:
-                        # check not already in the node's favorite list local
-                        if fav not in fav_list:
-                            logger.debug(f"System: Adding Favorite Node {fav} to Device {i}")
-                            object = {'nodeID': fav, 'deviceID': i}
+                    if fav != 0 and fav != '' and fav is not None:
+                        object = {'nodeID': fav, 'deviceID': i}
+                        # check object not already in the list
+                        if object not in fav_list:
                             fav_list.append(object)
-    #deduplicate the list
-    seen = set()
-    fav_list = [x for x in fav_list if not (x['nodeID'] in seen or seen.add(x['nodeID']))]
+                            logger.debug(f"System: Adding Favorite Node {fav} to Device {i}")
     return fav_list
 
 def displayNodeTelemetry(nodeID=0, rxNode=0, userRequested=False):
