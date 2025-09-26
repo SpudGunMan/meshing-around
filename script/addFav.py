@@ -37,5 +37,7 @@ else:
     logger.info("addFav: No favorite nodes to add to device(s)")
     exit(0)
 
-logger.info(f"addFav: Finished adding {len(favList)} favorite nodes to device(s)")
+count_devices = set([fav['deviceID'] for fav in favList])
+count_nodes = set([fav['nodeID'] for fav in favList])
+logger.info(f"addFav: Finished adding {len(count_nodes)} favorite nodes to {len(count_devices)} device(s)")
 exit(0)
