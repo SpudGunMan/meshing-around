@@ -912,6 +912,9 @@ def compileFavoriteList():
                             logger.debug(f"System: Adding Favorite Node {fav} to Device {i}")
                             object = {'nodeID': fav, 'deviceID': i}
                             fav_list.append(object)
+    #deduplicate the list
+    seen = set()
+    fav_list = [x for x in fav_list if not (x['nodeID'] in seen or seen.add(x['nodeID']))]
     return fav_list
 
 def displayNodeTelemetry(nodeID=0, rxNode=0, userRequested=False):
