@@ -900,12 +900,12 @@ def getNodeFirmware(nodeID=0, nodeInt=1):
 def compileFavoriteList():
     # build a list of favorite nodes to add to the device
     fav_list = []
-    if (bbs_admin_list != [0] or favoriteNodeList != ['']):
+    if (bbs_admin_list != [0] or favoriteNodeList != ['']) or bbs_link_whitelist != [0]:
         logger.debug(f"System: Collecting Favorite Nodes to add to device(s)")
          # loop through each interface and add the favorite nodes
         for i in range(1, 10):
             if globals().get(f'interface{i}') and globals().get(f'interface{i}_enabled'):
-                for fav in bbs_admin_list + favoriteNodeList:
+                for fav in bbs_admin_list + favoriteNodeList + bbs_link_whitelist:
                     if fav != 0 and fav != globals().get(f'myNodeNum{i}') and fav != '' and fav is not None:
                         # check not already in the node's favorite list local
                         if fav not in fav_list:
