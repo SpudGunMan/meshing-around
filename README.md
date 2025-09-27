@@ -140,6 +140,7 @@ git clone https://github.com/spudgunman/meshing-around
 | `satpass` | returns the pass info from API for defined NORAD ID in config or Example: `satpass 25544,33591`| |
 | `wiki:` | Searches Wikipedia and returns the first few sentences of the first result if a match. Example: `wiki: lora radio` |
 | `howfar` | returns the distance you have traveled since your last HowFar. `howfar reset` to start over | ✅ |
+| `howtall` | returns height of something you give a shadow by using sun angle | ✅ |
 
 ### CheckList
 | Command | Description | |

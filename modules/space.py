@@ -237,16 +237,16 @@ def measureHeight(lat=0, lon=0, shadow=0):
     sun.compute(obs)
     sun_altitude = sun.alt * 180 / ephem.pi
     if sun_altitude <= 0:
-        return NO_ALERTS
+        return "☀️Sun is below horizon, I dont belive your shadow measurement"
     try:
         if use_metric:
             height = float(shadow) * (1 / math.tan(sun.alt))
-            return f"Object Height: {height:.2f} m (Shadow: {shadow} m, Sun Alt: {sun_altitude:.2f}°)"
+            return f"📏Object Height: {height:.2f} m (Shadow: {shadow} m, 📐Sun Alt: {sun_altitude:.2f}°)"
         else:
             # Assume shadow is in feet if imperial, otherwise convert from meters to feet
             shadow_ft = float(shadow)
             height_ft = shadow_ft * (1 / math.tan(sun.alt))
-            return f"Object Height: {height_ft:.2f} ft (Shadow: {shadow_ft} ft, Sun Alt: {sun_altitude:.2f}°)"
+            return f"📏Object Height: {height_ft:.2f} ft (Shadow: {shadow_ft} ft, 📐Sun Alt: {sun_altitude:.2f}°)"
     except Exception as e:
         logger.error(f"Space: Error calculating height: {e}")
         return NO_ALERTS

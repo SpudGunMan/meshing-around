@@ -59,7 +59,7 @@ if whoami_enabled:
 if solar_conditions_enabled:
     from modules.space import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + trap_list_solarconditions # items hfcond, solar, sun, moon
-    help_message = help_message + ", sun, hfcond, solar, moon"
+    help_message = help_message + ", sun, hfcond, solar, moon, howtall"
     if n2yoAPIKey != "":
         help_message = help_message + ", satpass"
 else:
