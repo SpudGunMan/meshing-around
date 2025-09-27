@@ -162,6 +162,17 @@ def process_checklist_command(nodeID, message, name="none", location="none"):
         return delete_checkin(nodeID)
     elif "purgeout" in message.lower():
         return delete_checkout(nodeID)
+    elif "?" in message.lower():
+        if not reverse_in_out:
+            return ("Command: checklist followed by\n"
+                    "checkout to check out\n"
+                    "purgeout to delete your checkout record\n"
+                    "Example: checkin Arrived at park")
+        else:
+            return ("Command: checklist followed by\n"
+                    "checkin to check out\n"
+                    "purgeout to delete your checkin record\n"
+                    "Example: checkout Leaving park")
     elif "checklist" in message.lower():
         return list_checkin()
     else:
