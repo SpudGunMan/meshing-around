@@ -8,8 +8,9 @@ from datetime import datetime
 import ephem # pip install pyephem
 from datetime import timezone
 from modules.log import *
+import math
 
-trap_list_solarconditions = ("sun", "moon", "solar", "hfcond", "satpass")
+trap_list_solarconditions = ("sun", "moon", "solar", "hfcond", "satpass", "howtall")
 
 def hf_band_conditions():
     # ham radio HF band conditions
@@ -221,3 +222,31 @@ def getNextSatellitePass(satellite, lat=0, lon=0):
         logger.warning(f"System: User supplied value {satellite} unknown or invalid")
         pass_data = "Provide NORAD# example use: 🛰️satpass 25544,33591"
     return pass_data
+
+def measureHeight(lat=0, lon=0, shadow=0):
+    # measure height of a given location using sun angle and shadow length
+    if lat == 0 and lon == 0:
+        return NO_DATA_NOGPS
+    if shadow == 0:
+        return NO_ALERTS
+    obs = ephem.Observer()
+    obs.lat = str(lat)
+    obs.lon = str(lon)
+    obs.date = datetime.now(timezone.utc)
+    sun = ephem.Sun()
+    sun.compute(obs)
+    sun_altitude = sun.alt * 180 / ephem.pi
+    if sun_altitude <= 0:
+        return NO_ALERTS
+    try:
+        if use_metric:
+            height = float(shadow) * (1 / math.tan(sun.alt))
+            return f"Object Height: {height:.2f} m (Shadow: {shadow} m, Sun Alt: {sun_altitude:.2f}°)"
+        else:
+            # Assume shadow is in feet if imperial, otherwise convert from meters to feet
+            shadow_ft = float(shadow)
+            height_ft = shadow_ft * (1 / math.tan(sun.alt))
+            return f"Object Height: {height_ft:.2f} ft (Shadow: {shadow_ft} ft, Sun Alt: {sun_altitude:.2f}°)"
+    except Exception as e:
+        logger.error(f"Space: Error calculating height: {e}")
+        return NO_ALERTS

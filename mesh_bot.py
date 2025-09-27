@@ -60,6 +60,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "hfcond": hf_band_conditions,
     "history": lambda: handle_history(message, message_from_id, deviceID, isDM),
     "howfar": lambda: handle_howfar(message, message_from_id, deviceID, isDM),
+    "howtall": lambda: handle_howtall(message, message_from_id, deviceID, isDM),
     "joke": lambda: tell_joke(message_from_id),
     "lemonstand": lambda: handleLemonade(message, message_from_id, deviceID),
     "lheard": lambda: handle_lheard(message, message_from_id, deviceID, isDM),
@@ -333,6 +334,36 @@ def handle_howfar(message, message_from_id, deviceID, isDM):
     if not useDMForResponse and not isDM:
         msg = "@" + get_name_from_number(message_from_id, 'short', deviceID) + " " + msg
 
+    return msg
+
+def handle_howtall(message, message_from_id, deviceID, isDM):
+    msg = ''
+    location = get_node_location(message_from_id, deviceID)
+    lat = location[0]
+    lon = location[1]
+    if lat == latitudeValue and lon == longitudeValue:
+        logger.debug(f"System: HowTall: No GPS location for {message_from_id}")
+        return "No GPS location available"
+    if use_metric:
+            measure = "meters" 
+    else:
+            measure = "feet"
+    # if ? in message
+    if "?" in message.lower():
+        return f"command estimates your height based on the shadow length you provide in {measure}. Example: howtall 5.5"
+    # get the shadow length from the message split after howtall
+    try:
+        shadow_length = float(message.lower().split("howtall ")[1].split(" ")[0])
+    except:
+        return f"Please provide a shadow length in {measure} example: howtall 5.5"
+    
+    # get data
+    msg = measureHeight(lat, lon, shadow_length)
+
+    # if data has NO_ALERTS return help
+    if NO_ALERTS in msg:
+        return f"Please provide a shadow length in {measure} example: howtall 5.5"
+    
     return msg
 
 def handle_wiki(message, isDM):
