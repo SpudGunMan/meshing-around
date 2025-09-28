@@ -49,6 +49,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "cqcqcq": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
     "dopewars": lambda: handleDopeWars(message, message_from_id, deviceID),
     "ea": lambda: handle_emergency_alerts(message, message_from_id, deviceID),
+    "echo": lambda: handle_echo(message, message_from_id, deviceID, isDM, channel_number),
     "ealert": lambda: handle_emergency_alerts(message, message_from_id, deviceID),
     "earthquake": lambda: handleEarthquake(message, message_from_id, deviceID),
     "email:": lambda: handle_email(message_from_id, message),
@@ -295,6 +296,17 @@ def handle_motd(message, message_from_id, isDM):
     else:
         msg = "MOTD: " + MOTD
     return msg
+
+def handle_echo(message, message_from_id, deviceID, isDM, channel_number):
+    if "?" in message and isDM:
+        return "echo command returns your message back to you. Example:echo Hello World"
+    elif "echo " in message.lower():
+        echo_msg = message.split("echo ")[1]
+        if echo_msg.strip() == "":
+            return "Please provide a message to echo back to you. Example:echo Hello World"
+        return echo_msg
+    else:
+        return "Please provide a message to echo back to you. Example:echo Hello World"
 
 def handle_wxalert(message_from_id, deviceID, message):
     if use_meteo_wxApi:
@@ -1486,6 +1498,8 @@ async def start_rx():
         logger.debug(f"System: Store and Forward Enabled using limit: {storeFlimit}")
     if useDMForResponse:
         logger.debug(f"System: Respond by DM only")
+    if enableEcho:
+        logger.debug(f"System: Echo command Enabled")
     if repeater_enabled and multiple_interface:
         logger.debug(f"System: Repeater Enabled for Channels: {repeater_channels}")
     if radio_detection_enabled:

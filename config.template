@@ -96,6 +96,9 @@ log_backup_count = 32
 #Do not retry enabling interface if it fails, just exit to let OS restart the bot
 dont_retry_disconnect = False
 
+#echo command, will echo back your message as the bot
+enableEcho = False
+
 [emergencyHandler]
 # enable or disable the emergency response handler
 enabled = False

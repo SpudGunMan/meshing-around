@@ -29,6 +29,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
         "cq": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
         "cqcq": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
         "cqcqcq": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
+        "echo": lambda: handle_echo(message, message_from_id, deviceID, isDM, channel_number),
         "lheard": lambda: handle_lheard(message, message_from_id, deviceID, isDM),
         "motd": lambda: handle_motd(message, MOTD),
         "ping": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
@@ -154,6 +155,17 @@ def handle_motd(message):
         return "MOTD Set to: " + MOTD
     else:
         return MOTD
+
+def handle_echo(message, message_from_id, deviceID, isDM, channel_number):
+    if "?" in message and isDM:
+        return "echo command returns your message back to you. Example:echo Hello World"
+    elif "echo " in message.lower():
+        echo_msg = message.split("echo ")[1]
+        if echo_msg.strip() == "":
+            return "Please provide a message to echo back to you. Example:echo Hello World"
+        return echo_msg
+    else:
+        return "Please provide a message to echo back to you. Example:echo Hello World"
     
 def sysinfo(message, message_from_id, deviceID):
     if "?" in message:

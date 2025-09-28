@@ -26,6 +26,12 @@ if ping_enabled:
     trap_list = trap_list + trap_list_ping
     help_message = help_message + "ping"
 
+# Echo Configuration
+if enableEcho:
+    trap_list_echo = ("echo",)
+    trap_list = trap_list + trap_list_echo
+    help_message = help_message + ", echo"
+
 # Sitrep Configuration
 if sitrep_enabled:
     trap_list_sitrep = ("sitrep", "lheard", "sysinfo")
