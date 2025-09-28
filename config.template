@@ -98,6 +98,8 @@ dont_retry_disconnect = False
 
 #echo command, will echo back your message as the bot
 enableEcho = False
+# command will only echo 1:1 if sent on this channel, otherwise it will prepend @yourname
+echoChannel = 9
 
 [emergencyHandler]
 # enable or disable the emergency response handler

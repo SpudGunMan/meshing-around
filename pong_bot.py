@@ -147,22 +147,44 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, chann
             
     return msg
 
-def handle_motd(message):
+def handle_motd(message, message_from_id, isDM):
     global MOTD
-    if "$" in message:
+    isAdmin = False
+    msg = ""
+    # check if the message_from_id is in the bbs_admin_list
+    if bbs_admin_list != ['']:
+        for admin in bbs_admin_list:
+            if str(message_from_id) == admin:
+                isAdmin = True
+                break
+    else:
+        isAdmin = True
+
+    # admin help via DM
+    if  "?" in message and isDM and isAdmin:
+        msg = "Message of the day, set with 'motd $ HelloWorld!'"
+    elif  "?" in message and isDM and not isAdmin:
+        # non-admin help via DM
+        msg = "Message of the day"
+    elif "$" in message and isAdmin:
         motd = message.split("$")[1]
         MOTD = motd.rstrip()
-        return "MOTD Set to: " + MOTD
+        logger.debug(f"System: {message_from_id} changed MOTD: {MOTD}")
+        msg = "MOTD changed to: " + MOTD
     else:
-        return MOTD
+        msg = "MOTD: " + MOTD
+    return msg
 
 def handle_echo(message, message_from_id, deviceID, isDM, channel_number):
-    if "?" in message and isDM:
+    if "?" in message.lower() and isDM:
         return "echo command returns your message back to you. Example:echo Hello World"
     elif "echo " in message.lower():
         echo_msg = message.split("echo ")[1]
         if echo_msg.strip() == "":
             return "Please provide a message to echo back to you. Example:echo Hello World"
+        if echoChannel and channel_number != echoChannel:
+            echo_msg = "@" + get_name_from_number(message_from_id, 'short', deviceID) + " " + echo_msg
+        # return the echo message
         return echo_msg
     else:
         return "Please provide a message to echo back to you. Example:echo Hello World"
@@ -425,6 +447,8 @@ async def start_rx():
         logger.debug("System: Celestial Telemetry Enabled")
     if motd_enabled:
         logger.debug(f"System: MOTD Enabled using {MOTD}")
+    if enableEcho:
+        logger.debug(f"System: Echo command Enabled")
     if sentry_enabled:
         logger.debug(f"System: Sentry Mode Enabled {sentry_radius}m radius reporting to channel:{secure_channel}")
     if store_forward_enabled:

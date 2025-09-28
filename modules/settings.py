@@ -230,7 +230,8 @@ try:
     llmReplyToNonCommands = config['general'].getboolean('llmReplyToNonCommands', True)
     dont_retry_disconnect = config['general'].getboolean('dont_retry_disconnect', False) # default False, retry on disconnect
     favoriteNodeList = config['general'].get('favoriteNodeList', '').split(',')
-    enableEcho = config['general'].getboolean('enableEcho', False) # default False, undocumented
+    enableEcho = config['general'].getboolean('enableEcho', False) # default False
+    echoChannel = config['general'].getint('echoChannel', '9') # default 9, empty string to ignore
 
     # emergency response
     emergency_responder_enabled = config['emergencyHandler'].getboolean('enabled', False)

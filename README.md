@@ -98,6 +98,7 @@ git clone https://github.com/spudgunman/meshing-around
 | `whereami` | Returns the address of the sender's location if known |
 | `whoami` | Returns details of the node asking, also returned when position exchanged 📍 | ✅ |
 | `whois` | Returns details known about node, more data with bbsadmin node | ✅ |
+| 'echo' | Echo string back, disabled by default | ✅ |
 
 ### Radio Propagation & Weather Forecasting
 | Command | Description | |
