@@ -24,9 +24,9 @@ if systemctl is-active --quiet mesh_bot_w3.service; then
     service_stopped=true
 fi
 
-# if git pull has conflicts, ask to reset hard
-if ! command -v git &> /dev/null; then
-    echo "Git command not found. Please run this script with permissions to access git. (if updating in venv, run outside of it)"
+# handle git with venv
+if [ -n "$VIRTUAL_ENV" ]; then
+    echo "You are inside a Python virtual environment. Please run this script outside the venv for git operations."
 else
     echo "Pulling latest changes from GitHub..."
     if ! git pull origin main --rebase; then
