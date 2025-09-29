@@ -176,11 +176,13 @@ def handle_motd(message, message_from_id, isDM):
     return msg
 
 def handle_echo(message, message_from_id, deviceID, isDM, channel_number):
-    if "?" in message.lower() and isDM:
+    if "?" in message.lower():
         return "echo command returns your message back to you. Example:echo Hello World"
     elif "echo " in message.lower():
-        echo_msg = message.split("echo ")[1]
-        if echo_msg.strip() == "":
+        parts = message.split("echo ", 1)
+        if len(parts) > 1 and parts[1].strip() != "":
+            echo_msg = parts[1]
+        else:
             return "Please provide a message to echo back to you. Example:echo Hello World"
         if echoChannel and channel_number != echoChannel:
             echo_msg = "@" + get_name_from_number(message_from_id, 'short', deviceID) + " " + echo_msg
