@@ -24,20 +24,16 @@ if systemctl is-active --quiet mesh_bot_w3.service; then
     service_stopped=true
 fi
 
-# handle git with venv
-if [ -n "$VIRTUAL_ENV" ]; then
-    echo "You are inside a Python virtual environment. Please run this script outside the venv for git operations."
-else
-    echo "Pulling latest changes from GitHub..."
-    if ! git pull origin main --rebase; then
-        read -p "Git pull resulted in conflicts. Do you want to reset hard to origin/main? This will discard local changes. (y/n): " choice
-        if [[ "$choice" == "y" || "$choice" == "Y" ]]; then
-            git fetch --all
-            git reset --hard origin/main
-            echo "Local repository updated."
-        else
-            echo "Update aborted due to git conflicts."
-        fi
+# git pull with rebase to avoid unnecessary merge commits
+echo "Pulling latest changes from GitHub..."
+if ! git pull origin main --rebase; then
+    read -p "Git pull resulted in conflicts. Do you want to reset hard to origin/main? This will discard local changes. (y/n): " choice
+    if [[ "$choice" == "y" || "$choice" == "Y" ]]; then
+        git fetch --all
+        git reset --hard origin/main
+        echo "Local repository updated."
+    else
+        echo "Update aborted due to git conflicts."
     fi
 fi
 
