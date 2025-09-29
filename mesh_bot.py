@@ -385,7 +385,7 @@ def handle_wiki(message, isDM):
     # location = get_node_location(message_from_id, deviceID)
     msg = "Wikipedia search function. \nUsage example:📲wiki: travelling gnome"
     try:
-        if "wiki?" in message.lower() or "wiki ?" in message.lower():
+        if "wiki:?" in message.lower() or "wiki: ?" in message.lower() or "wiki?" in message.lower() or "wiki ?" in message.lower():
             return msg
         if "wiki" in message.lower():
             search = message.split(":")[1]
