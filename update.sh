@@ -29,17 +29,20 @@ echo "Updating local repository..."
 #git fetch --all
 
 # if git pull has conflicts, ask to reset hard
-if ! git pull origin main --rebase; then
-    read -p "Git pull resulted in conflicts. Do you want to reset hard to origin/main? This will discard local changes. (y/n): " choice
-    if [[ "$choice" == "y" || "$choice" == "Y" ]]; then
-        git fetch --all
-        git reset --hard origin/main
-    else
-        echo "Update aborted due to git conflicts."
+# check if git is here (if not likely in venv ask to run outside as well)
+if ! command -v git &> /dev/null; then
+    echo "Git command not found. Please run this script with permissions to access git. (if updating in venv, run outside of it)"
+else
+    if ! git pull origin main --rebase; then
+        read -p "Git pull resulted in conflicts. Do you want to reset hard to origin/main? This will discard local changes. (y/n): " choice
+        if [[ "$choice" == "y" || "$choice" == "Y" ]]; then
+            git fetch --all
+            git reset --hard origin/main
+            echo "Local repository updated."
+        else
+            echo "Update aborted due to git conflicts."
+        fi
     fi
-fi
-
-echo "Local repository updated."
 
 # Install or update dependencies
 echo "Installing or updating dependencies..."
@@ -58,8 +61,6 @@ if pip install -r requirements.txt --upgrade 2>&1 | grep -q "externally-managed-
 else
     echo "Dependencies installed or updated."
 fi
-
-echo "Dependencies installed or updated."
 
 # if service was stopped earlier, restart it
 if [ "$service_stopped" = true ]; then
