@@ -93,7 +93,6 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "whoami": lambda: handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus),
     "whois": lambda: handle_whois(message, deviceID, channel_number, message_from_id),
     "wiki:": lambda: handle_wiki(message, isDM),
-    "wiki?": lambda: handle_wiki(message, isDM),
     "wx": lambda: handle_wxc(message_from_id, deviceID, 'wx'),
     "wxa": lambda: handle_wxalert(message_from_id, deviceID, message),
     "wxalert": lambda: handle_wxalert(message_from_id, deviceID, message),
@@ -386,6 +385,8 @@ def handle_wiki(message, isDM):
     # location = get_node_location(message_from_id, deviceID)
     msg = "Wikipedia search function. \nUsage example:📲wiki: travelling gnome"
     try:
+        if "wiki?" in message.lower() or "wiki ?" in message.lower():
+            return msg
         if "wiki" in message.lower():
             search = message.split(":")[1]
             search = search.strip()
