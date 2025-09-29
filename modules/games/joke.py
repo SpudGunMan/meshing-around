@@ -4,6 +4,24 @@
 from dadjokes import Dadjoke # pip install dadjokes
 from modules.log import *
 
+lameJokes = [
+    "Why don't scientists trust atoms? Because they make up everything!",
+    "Why did the scarecrow win an award? Because he was outstanding in his field!",
+    "Why don't skeletons fight each other? They don't have the guts.",
+    "What do you call fake spaghetti? An impasta!",
+    "Why did the bicycle fall over? Because it was two-tired!",
+    "Why did the math book look sad? Because it had too many problems.",
+    "Why did the golfer bring two pairs of pants? In case he got a hole in one.",
+    "Why did the coffee file a police report? It got mugged.",
+    "Why did the tomato turn red? Because it saw the salad dressing!",
+    "Why did the cookie go to the doctor? Because it felt crummy.",
+    "Why did the computer go to the doctor? Because it had a virus!",
+    "Why did the chicken join a band? Because it had the drumsticks!",
+    "Why did the banana go to the doctor? Because it wasn't peeling well.",
+    "Why did the cow go to space? To see the moooon!",
+    "Why did the fish blush? Because it saw the ocean's bottom!",
+    "Why did the elephant bring a suitcase to the zoo? Because it wanted to pack its trunk!"]
+
 def tableOfContents():
     wordToEmojiMap = {
         'love': '❤️', 'heart': '❤️', 'happy': '😊', 'smile': '😊', 'sad': '😢', 'angry': '😠', 'mad': '😠', 'cry': '😢', 'laugh': '😂', 'funny': '😂', 'cool': '😎',
@@ -117,10 +135,14 @@ def sendWithEmoji(message):
 
 def tell_joke(nodeID=0):
     dadjoke = Dadjoke()
-
-    if dad_jokes_emojiJokes:
-        renderedLaugh = sendWithEmoji(dadjoke.joke)
-    else:
-        renderedLaugh = dadjoke.joke
-    return renderedLaugh
+    try:
+        if dad_jokes_emojiJokes:
+            renderedLaugh = sendWithEmoji(dadjoke.joke)
+        else:
+            renderedLaugh = dadjoke.joke
+        return renderedLaugh
+    except Exception as e:
+        logger.error(f"Error accessing dadjokes: {e}")
+        return lameJokes[nodeID % len(lameJokes)]
+        
 
