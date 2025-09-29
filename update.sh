@@ -42,7 +42,7 @@ echo "Installing or updating dependencies..."
 if pip install -r requirements.txt --upgrade 2>&1 | grep -q "externally-managed-environment"; then
     # if venv is found ask to run with launch.sh
     if [ -d "venv" ]; then
-        echo "A virtual environment (venv) was found. Use launch.sh to update dependencies in the venv."
+        echo "A virtual environment (venv) was found. run from inside venv"
     else
         read -p "Warning: You are in an externally managed environment. Do you want to continue with --break-system-packages? (y/n): " choice
         if [[ "$choice" == "y" || "$choice" == "Y" ]]; then
