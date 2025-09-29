@@ -28,7 +28,7 @@ elif [ "$1" == "html5" ]; then
     python3 etc/report_generator5.py
 elif [[ "$1" == add* ]]; then
     python3 script/addFav.py
-elif [ "$1" == "update" ]; then
+elif [ "$1" == update* ]; then
     ./update.sh
 else
     echo "Please provide a bot to launch (pong/mesh) or a report to generate (html/html5) or addFav"
