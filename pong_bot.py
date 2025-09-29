@@ -179,7 +179,7 @@ def handle_echo(message, message_from_id, deviceID, isDM, channel_number):
     if "?" in message.lower():
         return "echo command returns your message back to you. Example:echo Hello World"
     elif "echo " in message.lower():
-        parts = message.split("echo ", 1)
+        parts = message.lower().split("echo ", 1)
         if len(parts) > 1 and parts[1].strip() != "":
             echo_msg = parts[1]
             if channel_number != echoChannel:
