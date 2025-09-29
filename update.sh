@@ -43,16 +43,20 @@ echo "Local repository updated."
 
 # Install or update dependencies
 echo "Installing or updating dependencies..."
-# check for error: externally-managed-environment and ask if user wants to continue with --break-system-packages
-if ! pip install -r requirements.txt --upgrade 2>&1 | grep -q "externally-managed-environment"; then
-    pip install -r requirements.txt --upgrade
-else
-    read -p "Warning: You are in an externally managed environment. Do you want to continue with --break-system-packages? (y/n): " choice
-    if [[ "$choice" == "y" || "$choice" == "Y" ]]; then
-        pip install --break-system-packages -r requirements.txt --upgrade
+if pip install -r requirements.txt --upgrade 2>&1 | grep -q "externally-managed-environment"; then
+    # if venv is found ask to run with launch.sh
+    if [ -d "venv" ]; then
+        echo "A virtual environment (venv) was found. Use launch.sh to update dependencies in the venv."
     else
-        echo "Update aborted due to dependency installation issue."
+        read -p "Warning: You are in an externally managed environment. Do you want to continue with --break-system-packages? (y/n): " choice
+        if [[ "$choice" == "y" || "$choice" == "Y" ]]; then
+            pip install --break-system-packages -r requirements.txt --upgrade
+        else
+            echo "Update aborted due to dependency installation issue."
+        fi
     fi
+else
+    echo "Dependencies installed or updated."
 fi
 
 echo "Dependencies installed or updated."
