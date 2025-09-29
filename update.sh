@@ -36,7 +36,6 @@ if ! git pull origin main --rebase; then
         git reset --hard origin/main
     else
         echo "Update aborted due to git conflicts."
-        exit 1
     fi
 fi
 
@@ -53,7 +52,6 @@ else
         pip install --break-system-packages -r requirements.txt --upgrade
     else
         echo "Update aborted due to dependency installation issue."
-        exit 1
     fi
 fi
 
