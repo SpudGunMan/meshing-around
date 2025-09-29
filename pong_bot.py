@@ -182,7 +182,7 @@ def handle_echo(message, message_from_id, deviceID, isDM, channel_number):
         parts = message.split("echo ", 1)
         if len(parts) > 1 and parts[1].strip() != "":
             echo_msg = parts[1]
-            if echoChannel and channel_number != echoChannel:
+            if channel_number != echoChannel:
                 echo_msg = "@" + get_name_from_number(message_from_id, 'short', deviceID) + " " + echo_msg
             return echo_msg
         else:
