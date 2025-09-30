@@ -1194,7 +1194,27 @@ async def handleFileWatcher():
                             logger.warning(f"System: antiSpam prevented Alert from FileWatcher")
                 else:
                     if antiSpam and file_monitor_broadcastCh != publicChannel:
-                        send_message(msg, int(file_monitor_broadcastCh), 0, 1)
+                        # Else not multiple channels configured, so check whether channel prefix should be used
+                        if file_monitor_lineChEnabled:
+                            prefix = re.match(r"^(\d)([A-Z]) ", msg)
+                            if prefix is not None and len(prefix.strip()) == 2:
+                                num_prefix = prefix[0]
+                                alpha_prefix = prefix[1]
+                            else:
+                                num_prefix = False
+                                alpha_prefix = False
+                        else:
+                            num_prefix = False
+                        if num_prefix:
+                        # if lineChEnabled and there is a numeric prefix, use that as channel number
+                        # there also will be an alpha prefix for the target node
+                            channel_num = num_prefix.group(0).trim()
+                            if( int(channel_num) > 7 ):
+                                channel_num = file_monitor_broadcastCh
+                        else:
+                            channel_num = file_monitor_broadcastCh
+                        send_message(msg, int(channel_num), 0, 1)
+ 
                         time.sleep(responseDelay)
                         if multiple_interface:
                             for i in range(2, 10):

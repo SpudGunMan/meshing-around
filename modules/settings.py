@@ -376,6 +376,7 @@ try:
     wantAck = config['messagingSettings'].getboolean('wantAck', False) # default False
     maxBuffer = config['messagingSettings'].getint('maxBuffer', 200) # default 200
     enableHopLogs = config['messagingSettings'].getboolean('enableHopLogs', False) # default False
+    file_monitor_lineChEnabled = config['fileMon'].getboolean('lineChEnabled', False) # default False
     debugMetadata = config['messagingSettings'].getboolean('debugMetadata', False) # default False
     DEBUGpacket = config['messagingSettings'].getboolean('DEBUGpacket', False) # default False
     noisyNodeLogging = config['messagingSettings'].getboolean('noisyNodeLogging', False) # default False

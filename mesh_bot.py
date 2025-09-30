@@ -1515,7 +1515,7 @@ async def start_rx():
     if radio_detection_enabled:
         logger.debug(f"System: Radio Detection Enabled using rigctld at {rigControlServerAddress} brodcasting to channels: {sigWatchBroadcastCh} for {get_freq_common_name(get_hamlib('f'))}")
     if file_monitor_enabled:
-        logger.debug(f"System: File Monitor Enabled for {file_monitor_file_path}, broadcasting to channels: {file_monitor_broadcastCh}")
+        logger.debug(f"System: File Monitor Enabled for {file_monitor_file_path}, broadcasting to channels: {file_monitor_broadcastCh}, lineChEnabled: {file_monitor_lineChEnabled}")
         if enable_runShellCmd:
             logger.debug(f"System: Shell Command monitor enabled")
         if read_news_enabled:

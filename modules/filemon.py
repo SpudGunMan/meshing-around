@@ -5,6 +5,8 @@ from modules.log import *
 import asyncio
 import random
 import os
+from pathlib import Path
+from datetime import datetime
 
 trap_list_filemon = ("readnews",)
 
@@ -48,20 +50,56 @@ def write_news(content, append=False):
 async def watch_file():
     
     if not os.path.exists(file_monitor_file_path):
+        logger.warning(f"FileMon: Not exist: {file_monitor_file_path}")
         return None
     else:
+        # Initialize the last_modified_time
         last_modified_time = os.path.getmtime(file_monitor_file_path)
+        path_is_dir = os.path.isdir(file_monitor_file_path)
+        if path_is_dir:
+            last_modified_time = None   # Force processing of files in dir
         while True:
-            current_modified_time = os.path.getmtime(file_monitor_file_path)
-            if current_modified_time != last_modified_time:
-                # File has been modified
-                content = read_file(file_monitor_file_path)
-                last_modified_time = current_modified_time
-                # Cleanup the content
-                content = content.replace('\n', ' ').replace('\r', '').strip()
-                if content:
-                    return content
-            await asyncio.sleep(1)  # Check every
+            await asyncio.sleep(60)  # Check every minute, to slow messaging
+            if last_modified_time is None or ( (last_modified_time+60) < datetime.now() ):
+                oldest_file_pathname = file_monitor_file_path
+                if_delete_file = False # By default, do not delete file
+                # logger.debug(f"FileMon: Watching: {oldest_file_pathname}")
+                if path_is_dir:
+                    # If it is a directory
+                    # Get all files and sort by modification time (oldest first)
+                    files_sorted_by_time = sorted(
+                        [f for f in Path(file_monitor_file_path).iterdir() if f.is_file()],
+                        key=os.path.getmtime
+                    )
+
+                    # Get the pathname of the first (oldest) file
+                    if files_sorted_by_time:
+                        oldest_file_pathname = files_sorted_by_time[0]
+                        logger.debug(f"FileMon: Found file: {oldest_file_pathname}")
+                        if_delete_file = True  # Delete this file when done
+
+                current_modified_time = os.path.getmtime(oldest_file_pathname)
+                if ( current_modified_time != last_modified_time ) or if_delete_file == True:
+                    if oldest_file_pathname != file_monitor_file_path:
+                        # File has been modified
+                        logger.debug(f"FileMon: Reading file: {oldest_file_pathname}")
+                        content = read_file(oldest_file_pathname)
+                        last_modified_time = current_modified_time
+                        # Cleanup the content
+                        content = content.replace('\n', ' ').replace('\r', '').strip()
+                        if if_delete_file == True:
+                            if oldest_file_pathname != file_monitor_file_path:
+                                try:
+                                    logger.debug(f"FileMon: Deleting file: {oldest_file_pathname}")
+                                    os.remove(oldest_file_pathname)
+                                except Exception as e:
+                                    logger.warning(f"FileMon: Error deleting file: {oldest_file_pathname}")
+                                    # return False
+                            if_delete_file = False
+                        if content:
+                            return content
+                    else:
+                        if_delete_file = False
 
 def call_external_script(message, script="script/runShell.sh"):
     try:
