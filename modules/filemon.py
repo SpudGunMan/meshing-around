@@ -46,7 +46,7 @@ def write_news(content, append=False):
         return False
 
 async def watch_file():
-    
+    # Watch the file for changes and return the new content when it changes
     if not os.path.exists(file_monitor_file_path):
         return None
     else:
@@ -64,6 +64,7 @@ async def watch_file():
             await asyncio.sleep(1)  # Check every
 
 def call_external_script(message, script="script/runShell.sh"):
+    # Call an external script with the message as an argument this is a example only
     try:
         # Debugging: Print the current working directory and resolved script path
         current_working_directory = os.getcwd()
