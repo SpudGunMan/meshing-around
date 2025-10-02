@@ -13,6 +13,8 @@ import time # for sleep, get some when you can :)
 import random
 from modules.log import *
 from modules.system import *
+from modules.filemon import read_file
+import local_commands   # Add any locally-defined commands in local_commands.py
 
 # list of commands to remove from the default list for DM only
 restrictedCommands = ["blackjack", "videopoker", "dopewars", "lemonstand", "golfsim", "mastermind", "hangman", "hamtest"]
@@ -112,7 +114,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     }
 
     # set the command handler
-    command_handler = default_commands
+    command_handler = default_commands | local_commands.local_commands
     cmds = [] # list to hold the commands found in the message
     # check the message for commands words list, processed after system.messageTrap
     for key in command_handler:

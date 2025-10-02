@@ -10,6 +10,7 @@ import random
 import contextlib # for suppressing output on watchdog
 import io # for suppressing output on watchdog
 from modules.log import *
+import local_commands
 
 # Global Variables
 trap_list = ("cmd","cmd?") # default trap list
@@ -254,6 +255,11 @@ if file_monitor_enabled or read_news_enabled or bee_enabled:
     # Bee Configuration uses file monitor module
     if bee_enabled:
         trap_list = trap_list + ("🐝",)
+        
+# Insert the local commands
+from local_commands import local_commands
+for key in local_commands:
+    trap_list = trap_list + (key,)
 
 # clean up the help message
 help_message = help_message.split(", ")
