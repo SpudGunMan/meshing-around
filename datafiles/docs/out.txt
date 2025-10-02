@@ -1,3 +1,0 @@
-"out.txt": lambda: read_file("datafiles/docs/out.txt", True),
-"regions": lambda: read_file("datafiles/docs/regions", True),
-"wx-intro": lambda: read_file("datafiles/docs/wx-intro", True),
