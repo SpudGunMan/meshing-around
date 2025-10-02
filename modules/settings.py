@@ -227,7 +227,7 @@ try:
     ollamaHostName = config['general'].get('ollamaHostName', 'http://localhost:11434') # default localhost
     llmModel = config['general'].get('ollamaModel', 'gemma3:270m') # default gemma3:270m
     rawLLMQuery = config['general'].getboolean('rawLLMQuery', True) #default True
-    llmReplyToNonCommands = config['general'].getboolean('llmReplyToNonCommands', True)
+    llmReplyToNonCommands = config['general'].getboolean('llmReplyToNonCommands', True) # default True
     dont_retry_disconnect = config['general'].getboolean('dont_retry_disconnect', False) # default False, retry on disconnect
     favoriteNodeList = config['general'].get('favoriteNodeList', '').split(',')
     enableEcho = config['general'].getboolean('enableEcho', False) # default False

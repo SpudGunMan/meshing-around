@@ -144,4 +144,3 @@ def tell_joke(nodeID=0):
     except Exception as e:
         return lameJokes[nodeID % len(lameJokes)]
         
-

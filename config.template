@@ -154,7 +154,7 @@ lon = -123.0
 # Default to metric units rather than imperial
 useMetric = False
 
-# repeaterList lookup location (rbook / artsci)
+# repeaterList lookup location (rbook / artsci / False)
 repeaterLookup = rbook
 
 # NOAA weather forecast days
