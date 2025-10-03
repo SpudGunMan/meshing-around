@@ -64,6 +64,7 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 ### File Monitor Alerts
 - **File Monitor**: Monitor a flat/text file for changes, broadcast the contents of the message to the mesh channel.
 - **News File**: On request of news, the contents of the file are returned.
+- **Shell Command Access**: Pass commands via DM directly to the host OS
 
 ### Data Reporting
 - **HTML Generator**: Visualize bot traffic and data flows with a built-in HTML generator for [data reporting](logs/README.md).
@@ -396,12 +397,15 @@ Some dev notes for ideas of use
 ```ini
 [fileMon]
 filemon_enabled = True
-file_path = alert.txt
-broadcastCh = 2,4
-enable_read_news = False
+file_path = alert.txt # text file to monitor for changes
+broadcastCh = 2 # channel to send the message to can be 2,3 multiple channels comma separated
+enable_read_news = False # news  command will return the contents of a text file
 news_file_path = news.txt
 news_random_line = False # only return a single random line from the news file
-enable_runShellCmd = False # enables running of bash commands runShell.sh demo for sysinfo
+enable_runShellCmd = False # enable the use of exernal shell commands, this enables some data in `sysinfo`
+# if runShellCmd and you think it is safe to allow the x: command to run
+# direct shell command handler the x: command in DMs user must be in bbs_admin_list
+allowXcmd = True
 ```
 
 #### Offline EAS
