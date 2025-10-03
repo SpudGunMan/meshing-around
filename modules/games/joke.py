@@ -44,7 +44,6 @@ lameJokes = [
     "Chuck Norris can do a wheelie on a unicycle.",
     "Chuck Norris can kill two stones with one bird.",
     "Chuck Norris can speak braille.",
-    "Chuck Norris's tears cure cancer. Too bad he has never cried.",
     "Chuck Norris can build a snowman out of rain.",
     "Chuck Norris can hear sign language.",
     "Death once had a near-Chuck Norris experience.",
