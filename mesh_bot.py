@@ -811,25 +811,19 @@ def handleHamtest(message, nodeID, deviceID):
 
 def handle_riverFlow(message, message_from_id, deviceID):
     location = get_node_location(message_from_id, deviceID)
-    userRiver = message.lower()
     
-    if "riverflow " in userRiver:
-        userRiver = userRiver.split("riverflow ")[1] if "riverflow " in userRiver else riverListDefault
+    if "riverflow " in message.lower() and "," in message:
+        userRiver = message.lower().split("riverflow ", 1)[1].strip()
+        userRiver = [r.strip() for r in userRiver.split(",") if r.strip()]
     else:
-        userRiver = userRiver.split(",") if "," in userRiver else riverListDefault
+        userRiver = riverListDefault
     
-    # return river flow data
     if use_meteo_wxApi:
         return get_flood_openmeteo(location[0], location[1])
     else:
-        # if userRiver a list
-        if type(userRiver) == list:
-            msg = ""
-            for river in userRiver:
-                msg += get_flood_noaa(location[0], location[1], river)
-            return msg
-        # if single river
-        msg = get_flood_noaa(location[0], location[1], userRiver)
+        msg = ""
+        for river in userRiver:
+            msg += get_flood_noaa(location[0], location[1], river)
         return msg
 
 def handle_mwx(message_from_id, deviceID, cmd):

@@ -7,6 +7,7 @@ import random
 import os
 from pathlib import Path
 from datetime import datetime
+import subprocess
 
 trap_list_filemon = ("readnews",)
 
@@ -133,26 +134,26 @@ def handleShellCmd(message, message_from_id, channel_number, isDM, deviceID):
         return "x: command not authorized in group chat"
     
     if enable_runShellCmd:
+        # clean up the command input
         if message.lower().startswith("x:"):
-            # Remove 'x:' (case-insensitive)
             command = message[2:]
-            # If there's a space after 'x:', remove it
             if command.startswith(" "):
                 command = command[1:]
             command = command.strip()
         else:
             return "x: invalid command format"
-        
+        # Run the shell command as a subprocess
         try:
             logger.info(f"FileMon: Running shell command from {message_from_id}: {command}")
-            output = os.popen(command).read().encode('utf-8').decode('utf-8')
+            result = subprocess.run(command, shell=True, capture_output=True, text=True, timeout=10, start_new_session=True)
+            output = result.stdout.strip()
             if output:
                 return output
-            else:
-                return "x: command returned no output"
         except Exception as e:
             logger.warning(f"FileMon: Error running shell command: {e}")
-            return "x: command error"
+            logger.debug(f"FileMon: This command is not good for use over the mesh network")
     else:
         logger.debug("FileMon: x: command is disabled by no enable_runShellCmd")
         return "x: command is disabled"
+    
+    return "x: command executed with no output"

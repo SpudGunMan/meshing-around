@@ -283,6 +283,7 @@ enable_read_news = False
 news_file_path = news.txt
 # only return a single random line from the news file
 news_random_line = False
+
 # enable the use of exernal shell commands, this enables some data in `sysinfo`
 enable_runShellCmd = False
 # if runShellCmd and you think it is safe to allow the x: command to run
