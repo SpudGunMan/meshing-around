@@ -53,8 +53,7 @@ lameJokes = [
     "Chuck Norris can make a snowman out of rain.",
     "Chuck Norris can strangle you with a cordless phone.",
     "Chuck Norris can do a wheelie on a unicycle.",
-    "Chuck Norris can kill two stones with one bird.",
-    "Chuck Norris's tears cure cancer. Too bad he has never cried."]
+    "Chuck Norris can kill two stones with one bird."]
 
 def tableOfContents():
     wordToEmojiMap = {
