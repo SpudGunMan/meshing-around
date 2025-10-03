@@ -812,21 +812,17 @@ def handle_riverFlow(message, message_from_id, deviceID):
     
     if "riverflow " in message.lower():
         userRiver = message.lower().split("riverflow ")[1].strip()
+        # Always make userRiver a list
+        userRiver = [r.strip() for r in userRiver.split(",") if r.strip()]
     else:
-        userRiver = riverListDefault
-    
-    # return river flow data
+        userRiver = riverListDefault if isinstance(riverListDefault, list) else [riverListDefault]
+
     if use_meteo_wxApi:
         return get_flood_openmeteo(location[0], location[1])
     else:
-        # if userRiver a list
-        if type(userRiver) == list:
-            msg = ""
-            for river in userRiver:
-                msg += get_flood_noaa(location[0], location[1], river)
-            return msg
-        # if single river
-        msg = get_flood_noaa(location[0], location[1], userRiver)
+        msg = ""
+        for river in userRiver:
+            msg += get_flood_noaa(location[0], location[1], river)
         return msg
 
 def handle_mwx(message_from_id, deviceID, cmd):
