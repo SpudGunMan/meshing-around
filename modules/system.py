@@ -255,11 +255,15 @@ if file_monitor_enabled or read_news_enabled or bee_enabled:
     # Bee Configuration uses file monitor module
     if bee_enabled:
         trap_list = trap_list + ("🐝",)
+    # x: command for shell access
+    if enable_runShellCmd and allowXcmd:
+        trap_list = trap_list + ("x:",)
         
 # Insert the local commands
 from local_commands import local_commands
 for key in local_commands:
     trap_list = trap_list + (key,)
+
 
 # clean up the help message
 help_message = help_message.split(", ")

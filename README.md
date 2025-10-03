@@ -396,13 +396,22 @@ Some dev notes for ideas of use
 ```ini
 [fileMon]
 filemon_enabled = True
-file_path = alert.txt # Can be a directory. See lineChEnabled. Oldest file sent first, then file deleted.
-broadcastCh = 2,4 # Channels to broadcast file to. If only one listed, can be overidden with lineChEnabled.
+file_path = alert.txt # Can be a directory. See lineChEnabled. 
+# Oldest file sent first, then file deleted.
+broadcastCh = 2,4 # Channels to broadcast file to. If only one listed, can 
+# be overidden with lineChEnabled.
+lineChEnabled = False # if True and file_path is a directory, start a message 
+# with "1A " to send to Channel 1 of node A. Channels 0-7 supported. 
+# Node A-Z at present ignored. 
+# (Note to future dev: Do not depend on USB port names, examine node ID to 
+# know which radio is connected.)
 enable_read_news = False
 news_file_path = news.txt
 news_random_line = False # only return a single random line from the news file
 enable_runShellCmd = False # enables running of bash commands runShell.sh demo for sysinfo
-lineChEnabled = False # if True and file_path is a directory, start a message with "1A " to send to Channel 1 of node A. Channels 0-7 supported. Node A-Z at present ignored. (Note to future dev: Do not depend on USB port names, examine node ID to know which radio is connected.)
+# if runShellCmd and you think it is safe to allow the x: command to run
+# direct shell command handler the x: command in DMs user must be in bbs_admin_list
+allowXcmd = True
 ```
 
 #### Offline EAS
