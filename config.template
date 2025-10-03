@@ -285,6 +285,9 @@ news_file_path = news.txt
 news_random_line = False
 # enable the use of exernal shell commands, this enables some data in `sysinfo`
 enable_runShellCmd = False
+# if runShellCmd and you think it is safe to allow the x: command to run
+# direct shell command handler the x: command in DMs
+allowXcmd = False
 
 [smtp]
 # enable or disable the SMTP module

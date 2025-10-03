@@ -357,6 +357,7 @@ try:
     news_file_path = config['fileMon'].get('news_file_path', 'news.txt') # default news.txt
     news_random_line_only = config['fileMon'].getboolean('news_random_line', False) # default False
     enable_runShellCmd = config['fileMon'].getboolean('enable_runShellCmd', False) # default False
+    allowXcmd = config['fileMon'].getboolean('allowXcmd', False) # default False
 
     # games
     game_hop_limit = config['messagingSettings'].getint('game_hop_limit', 5) # default 3 hops

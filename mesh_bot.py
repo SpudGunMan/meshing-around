@@ -96,6 +96,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "wx": lambda: handle_wxc(message_from_id, deviceID, 'wx'),
     "wxa": lambda: handle_wxalert(message_from_id, deviceID, message),
     "wxalert": lambda: handle_wxalert(message_from_id, deviceID, message),
+    "x:": lambda: handleShellCmd(message, message_from_id, channel_number, isDM, deviceID),
     "wxc": lambda: handle_wxc(message_from_id, deviceID, 'wxc'),
     "📍": lambda: handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus),
     "🔔": lambda: handle_alertBell(message_from_id, deviceID, message),
@@ -1518,6 +1519,8 @@ async def start_rx():
         logger.debug(f"System: File Monitor Enabled for {file_monitor_file_path}, broadcasting to channels: {file_monitor_broadcastCh}")
         if enable_runShellCmd:
             logger.debug(f"System: Shell Command monitor enabled")
+        if allowXcmd and enable_runShellCmd:
+            logger.warning(f"System: File Monitor shell XCMD Enabled")
         if read_news_enabled:
             logger.debug(f"System: File Monitor News Reader Enabled for {news_file_path}")
         if bee_enabled:

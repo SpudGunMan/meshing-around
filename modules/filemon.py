@@ -82,4 +82,29 @@ def call_external_script(message, script="script/runShell.sh"):
     except Exception as e:
         logger.warning(f"FileMon: Error calling external script: {e}")
         return None
+
+def handleShellCmd(message, message_from_id, channel_number, isDM, deviceID):
+    if not allowXcmd:
+        return "x: command is disabled"
     
+    if str(message_from_id) not in bbs_admin_list:
+        logger.warning(f"FileMon: Unauthorized x: command attempt from {message_from_id}")
+        return "x: command not authorized"
+    
+    if not isDM:
+        return "x: command not authorized in group chat"
+    
+    if enable_runShellCmd:
+        command = message.removeprefix("x: ").strip()
+        try:
+            logger.info(f"FileMon: Running shell command from {message_from_id}: {command}")
+            output = os.popen(command).read().encode('utf-8').decode('utf-8')
+            if output:
+                return output
+            else:
+                return "x: command returned no output"
+        except Exception as e:
+            logger.warning(f"FileMon: Error running shell command: {e}")
+            return "x: command error"
+    else:
+        return "x: command is disabled"

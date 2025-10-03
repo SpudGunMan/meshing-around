@@ -260,6 +260,10 @@ if file_monitor_enabled or read_news_enabled or bee_enabled:
     # Bee Configuration uses file monitor module
     if bee_enabled:
         trap_list = trap_list + ("🐝",)
+    # x: command for shell access
+    if enable_runShellCmd and allowXcmd:
+        trap_list = trap_list + ("x:",)
+        help_message = help_message + ", x:"
 
 # clean up the help message
 help_message = help_message.split(", ")
