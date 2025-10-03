@@ -95,7 +95,13 @@ def handleShellCmd(message, message_from_id, channel_number, isDM, deviceID):
         return "x: command not authorized in group chat"
     
     if enable_runShellCmd:
-        command = message.removeprefix("x: ").strip()
+        if message.startswith("x: "):
+            command = message.removeprefix("x: ").strip()
+        elif message.startswith("x:"):
+            command = message.removeprefix("x:").strip()
+        else:
+            return "x: invalid command format"
+        
         try:
             logger.info(f"FileMon: Running shell command from {message_from_id}: {command}")
             output = os.popen(command).read().encode('utf-8').decode('utf-8')
