@@ -142,7 +142,5 @@ def tell_joke(nodeID=0):
             renderedLaugh = dadjoke.joke
         return renderedLaugh
     except Exception as e:
-        logger.error(f"Error accessing dadjokes: {e}")
         return lameJokes[nodeID % len(lameJokes)]
         
-

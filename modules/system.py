@@ -66,7 +66,7 @@ if whoami_enabled:
 if solar_conditions_enabled:
     from modules.space import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + trap_list_solarconditions # items hfcond, solar, sun, moon
-    help_message = help_message + ", sun, hfcond, solar, moon, howtall"
+    help_message = help_message + ", sun, hfcond, solar, moon"
     if n2yoAPIKey != "":
         help_message = help_message + ", satpass"
 else:
@@ -81,7 +81,7 @@ if enableCmdHistory:
 if location_enabled:
     from modules.locationdata import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + trap_list_location
-    help_message = help_message + ", whereami, wx, rlist, howfar"
+    help_message = help_message + ", whereami, wx, howfar"
     if enableGBalerts and not enableDEalerts:
         from modules.globalalert import * # from the spudgunman/meshing-around repo
         logger.warning(f"System: GB Alerts not functional at this time need to find a source API")
@@ -103,6 +103,12 @@ if location_enabled:
     # USGS riverFlow Configuration
     if riverListDefault != ['']:
         help_message = help_message + ", riverflow"
+
+    if repeater_lookup != False:
+        help_message = help_message + ", rlist"
+
+    if solar_conditions_enabled:
+        help_message = help_message + ", howtall"
 
 # NOAA alerts needs location module
 if wxAlertBroadcastEnabled or emergencyAlertBrodcastEnabled or volcanoAlertBroadcastEnabled:
@@ -258,12 +264,6 @@ if file_monitor_enabled or read_news_enabled or bee_enabled:
     # x: command for shell access
     if enable_runShellCmd and allowXcmd:
         trap_list = trap_list + ("x:",)
-        
-# Insert the local commands
-from local_commands import local_commands
-for key in local_commands:
-    trap_list = trap_list + (key,)
-
 
 # clean up the help message
 help_message = help_message.split(", ")

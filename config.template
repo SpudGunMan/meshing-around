@@ -154,7 +154,7 @@ lon = -123.0
 # Default to metric units rather than imperial
 useMetric = False
 
-# repeaterList lookup location (rbook / artsci)
+# repeaterList lookup location (rbook / artsci / False)
 repeaterLookup = rbook
 
 # NOAA weather forecast days
@@ -273,14 +273,21 @@ signalCycleLimit = 5
 
 [fileMon]
 filemon_enabled = False
+# text file to monitor for changes
 file_path = alert.txt
+# channel to send the message to can be 2,3 multiple channels comma separated
 broadcastCh = 2
+
+# news  command will return the contents of a text file
 enable_read_news = False
 news_file_path = news.txt
 # only return a single random line from the news file
 news_random_line = False
-# enable the use of exernal shell commands
+# enable the use of exernal shell commands, this enables some data in `sysinfo`
 enable_runShellCmd = False
+# if runShellCmd and you think it is safe to allow the x: command to run
+# direct shell command handler the x: command in DMs
+allowXcmd = False
 
 [smtp]
 # enable or disable the SMTP module

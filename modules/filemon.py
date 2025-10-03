@@ -48,7 +48,7 @@ def write_news(content, append=False):
         return False
 
 async def watch_file():
-    
+    # Watch the file for changes and return the new content when it changes
     if not os.path.exists(file_monitor_file_path):
         logger.warning(f"FileMon: Not exist: {file_monitor_file_path}")
         return None
@@ -102,6 +102,7 @@ async def watch_file():
                         if_delete_file = False
 
 def call_external_script(message, script="script/runShell.sh"):
+    # Call an external script with the message as an argument this is a example only
     try:
         # Debugging: Print the current working directory and resolved script path
         current_working_directory = os.getcwd()
@@ -123,14 +124,14 @@ def call_external_script(message, script="script/runShell.sh"):
 def handleShellCmd(message, message_from_id, channel_number, isDM, deviceID):
     if not allowXcmd:
         return "x: command is disabled"
-
+    
     if str(message_from_id) not in bbs_admin_list:
         logger.warning(f"FileMon: Unauthorized x: command attempt from {message_from_id}")
         return "x: command not authorized"
-
+    
     if not isDM:
         return "x: command not authorized in group chat"
-
+    
     if enable_runShellCmd:
         if message.lower().startswith("x:"):
             # Remove 'x:' (case-insensitive)
@@ -141,7 +142,7 @@ def handleShellCmd(message, message_from_id, channel_number, isDM, deviceID):
             command = command.strip()
         else:
             return "x: invalid command format"
-
+        
         try:
             logger.info(f"FileMon: Running shell command from {message_from_id}: {command}")
             output = os.popen(command).read().encode('utf-8').decode('utf-8')
