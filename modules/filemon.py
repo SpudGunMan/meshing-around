@@ -107,12 +107,13 @@ def handleShellCmd(message, message_from_id, channel_number, isDM, deviceID):
         # Run the shell command as a subprocess
         try:
             logger.info(f"FileMon: Running shell command from {message_from_id}: {command}")
-            result = subprocess.run(command, shell=True, capture_output=True, text=True, timeout=10)
+            result = subprocess.run(command, shell=True, capture_output=True, text=True, timeout=10, start_new_session=True)
             output = result.stdout.strip()
             if output:
                 return output
         except Exception as e:
             logger.warning(f"FileMon: Error running shell command: {e}")
+            logger.debug(f"FileMon: This command is not good for use over the mesh network")
     else:
         logger.debug("FileMon: x: command is disabled by no enable_runShellCmd")
         return "x: command is disabled"
