@@ -647,7 +647,7 @@ def get_flood_noaa(lat=0, lon=0, uid=0):
         # except TypeError as e:
         #     print(f"Type error in data: {e}")
     except Exception as e:
-        logger.debug("Location:Error extracting flood gauge data from NOAA for " + str(uid) + f" {e}")
+        logger.debug("Location:Error extracting flood gauge data from NOAA for " + str(uid))
         return ERROR_FETCHING_DATA
     
     # format the flood data
