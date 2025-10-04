@@ -459,7 +459,7 @@ async def start_rx():
     if repeater_enabled and multiple_interface:
         logger.debug(f"System: Repeater Enabled for Channels: {repeater_channels}")
     if file_monitor_enabled:
-        logger.debug(f"System: File Monitor Enabled for {file_monitor_file_path}, broadcasting to channels: {file_monitor_broadcastCh}")
+        logger.debug(f"System: File Monitor Enabled for {file_monitor_file_path}, broadcasting to channels: {file_monitor_broadcastCh}, lineChEnabled: {file_monitor_lineChEnabled}")
     if read_news_enabled:
         logger.debug(f"System: File Monitor News Reader Enabled for {news_file_path}")
     if scheduler_enabled:

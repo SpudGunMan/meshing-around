@@ -13,6 +13,8 @@ import time # for sleep, get some when you can :)
 import random
 from modules.log import *
 from modules.system import *
+from modules.filemon import read_file
+import local_commands   # Add any locally-defined commands in local_commands.py
 
 # list of commands to remove from the default list for DM only
 restrictedCommands = ["blackjack", "videopoker", "dopewars", "lemonstand", "golfsim", "mastermind", "hangman", "hamtest"]
@@ -113,7 +115,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     }
 
     # set the command handler
-    command_handler = default_commands
+    command_handler = default_commands | local_commands.local_commands
     cmds = [] # list to hold the commands found in the message
     # check the message for commands words list, processed after system.messageTrap
     for key in command_handler:
@@ -1510,7 +1512,7 @@ async def start_rx():
     if radio_detection_enabled:
         logger.debug(f"System: Radio Detection Enabled using rigctld at {rigControlServerAddress} brodcasting to channels: {sigWatchBroadcastCh} for {get_freq_common_name(get_hamlib('f'))}")
     if file_monitor_enabled:
-        logger.debug(f"System: File Monitor Enabled for {file_monitor_file_path}, broadcasting to channels: {file_monitor_broadcastCh}")
+        logger.debug(f"System: File Monitor Enabled for {file_monitor_file_path}, broadcasting to channels: {file_monitor_broadcastCh}, lineChEnabled: {file_monitor_lineChEnabled}")
         if enable_runShellCmd:
             logger.debug(f"System: Shell Command monitor enabled")
         if allowXcmd and enable_runShellCmd:
