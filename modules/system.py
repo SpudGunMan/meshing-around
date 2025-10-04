@@ -1351,6 +1351,7 @@ async def watchdog():
         # check the load_bbsdm flag to reload the BBS messages from disk
         if bbs_enabled and bbsAPI_enabled:
             load_bbsdm()
+            load_bbsdb()
 
 def exit_handler():
     # Close the interface and save the BBS messages

@@ -16,7 +16,11 @@ def load_bbsdb():
     # load the bbs messages from the database file
     try:
         with open('data/bbsdb.pkl', 'rb') as f:
-            bbs_messages = pickle.load(f)
+            new_bbs_messages = pickle.load(f)
+            if isinstance(new_bbs_messages, list):
+                for msg in new_bbs_messages:
+                    if msg not in bbs_messages:
+                        bbs_messages.append(msg)
     except Exception as e:
         bbs_messages = [[1, "Welcome to meshBBS", "Welcome to the BBS, please post a message!",0]]
         logger.debug("System: Creating new data/bbsdb.pkl")
