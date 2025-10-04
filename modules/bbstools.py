@@ -118,7 +118,11 @@ def load_bbsdm():
     # load the bbs messages from the database file
     try:
         with open('data/bbsdm.pkl', 'rb') as f:
-            bbs_dm = pickle.load(f)
+            new_bbs_dm = pickle.load(f)
+            if isinstance(new_bbs_dm, list):
+                for msg in new_bbs_dm:
+                    if msg not in bbs_dm:
+                        bbs_dm.append(msg)
     except:
         bbs_dm = [[1234567890, "Message", 1234567890]]
         logger.debug("System: Creating new data/bbsdm.pkl")

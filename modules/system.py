@@ -1347,6 +1347,10 @@ async def watchdog():
         # check for noisy telemetry
         if noisyNodeLogging:
             noisyTelemetryCheck()
+        
+        # check the load_bbsdm flag to reload the BBS messages from disk
+        if bbs_enabled:
+            load_bbsdm()
 
 def exit_handler():
     # Close the interface and save the BBS messages
