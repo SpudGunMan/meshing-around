@@ -49,4 +49,5 @@ if __name__ == "__main__":
 
     # show stats get_bbs_stats
     stats = get_bbs_stats()
+    stats = stats.replace("\n", " | ")
     logger.info(f"BBS Stats: {stats}")
