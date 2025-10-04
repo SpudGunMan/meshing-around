@@ -298,6 +298,7 @@ try:
     bbs_admin_list = config['bbs'].get('bbs_admin_list', '').split(',')
     bbs_link_enabled = config['bbs'].getboolean('bbslink_enabled', False)
     bbs_link_whitelist = config['bbs'].get('bbslink_whitelist', '').split(',')
+    bbsAPI_enabled = config['bbs'].getboolean('bbsAPI_enabled', False)
     
     # checklist
     checklist_enabled = config['checklist'].getboolean('enabled', False)
