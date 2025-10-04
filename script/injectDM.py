@@ -8,6 +8,7 @@ import argparse
 # welcome header
 print("meshing-around: injectDM.py -s NODEID -d NODEID -m 'Hello World'")
 print("Auto-Inject DM messages to data/bbsdm.pkl")
+print(" needs config.ini [bbs] bbsAPI_enabled = True ")
 print("---------------------------------------------------------------")
 
 try:
