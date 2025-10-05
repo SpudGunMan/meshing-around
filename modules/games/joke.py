@@ -2,6 +2,7 @@
 # The emoji table of contents is used to replace words in the joke with emojis
 # As a Ham, is this obsecuring the meaning of the joke? Or is it enhancing it?
 from dadjokes import Dadjoke # pip install dadjokes
+import random
 from modules.log import *
 
 lameJokes = [
@@ -174,5 +175,5 @@ def tell_joke(nodeID=0):
             renderedLaugh = dadjoke.joke
         return renderedLaugh
     except Exception as e:
-        return lameJokes[nodeID % len(lameJokes)]
+        return random.choice(lameJokes)
         
