@@ -44,7 +44,7 @@ def bbs_list_messages():
     message_list = ""
     for message in bbs_messages:
         # message[0] is the messageID, message[1] is the subject
-        message_list += "Msg #" + str(message[0]) + " " + message[1] + "\n"
+        message_list += "[#" + str(message[0]) + "] " + message[1] + "\n"
 
     # last newline removed
     message_list = message_list[:-1]
