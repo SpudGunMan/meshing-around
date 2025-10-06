@@ -1090,6 +1090,12 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
             latitudeI = waypoint_data.get('latitudeI', 0)
             longitudeI = waypoint_data.get('longitudeI', 0)
             expire = waypoint_data.get('expire', 0)
+            if expire == 1:
+                expire = "Now"
+            elif expire == 0:
+                expire = "Never"
+            else:
+                expire = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(expire))
             description = waypoint_data.get('description', '')
             name = waypoint_data.get('name', '')
             logger.info(f"System: Waypoint from Device: {rxNode} Channel: {channel} NodeID:{nodeID} ID:{id} Lat:{latitudeI/1e7} Lon:{longitudeI/1e7} Expire:{expire} Name:{name} Desc:{description}")
