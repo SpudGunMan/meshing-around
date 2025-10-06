@@ -995,18 +995,21 @@ positionMetadata = {}
 def consumeMetadata(packet, rxNode=0, channel=-1):
     global positionMetadata, telemetryData
 
-    # Process Telemetry and Position metadata packets
+    # check type of packet
     try:
         packet_type = ''
         if packet.get('decoded'):
             packet_type = packet['decoded']['portnum']
             nodeID = packet['from']
+    except Exception as e:
+        logger.debug(f"System: Metadata decode error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
 
-        # TELEMETRY packets
-        if packet_type == 'TELEMETRY_APP':
-            if debugMetadata and 'TELEMETRY_APP' not in metadataFilter:
-                print(f"DEBUG TELEMETRY_APP: {packet}\n\n")
-            # get the telemetry data
+    # TELEMETRY packets
+    if packet_type == 'TELEMETRY_APP':
+        if debugMetadata and 'TELEMETRY_APP' not in metadataFilter:
+            print(f"DEBUG TELEMETRY_APP: {packet}\n\n")
+        # get the telemetry data
+        try:
             telemetry_packet = packet['decoded']['telemetry']
             if telemetry_packet.get('deviceMetrics'):
                 deviceMetrics = telemetry_packet['deviceMetrics']
@@ -1028,51 +1031,53 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
                     for key in keys:
                         if localStats.get(key) is not None:
                             telemetryData[rxNode][key] = localStats.get(key)
-        
-        # POSITION_APP packets
-        if packet_type == 'POSITION_APP':
-            if debugMetadata and 'POSITION_APP' not in metadataFilter:
-                print(f"DEBUG POSITION_APP: {packet}\n\n")
-            # get the position data
-            keys = ['altitude', 'groundSpeed', 'precisionBits']
-            position_data = packet['decoded']['position']
-            try:
-                if nodeID not in positionMetadata:
-                    positionMetadata[nodeID] = {}
-        
-                for key in keys:
-                    positionMetadata[nodeID][key] = position_data.get(key, 0)
+        except Exception as e:
+            logger.debug(f"System: TELEMETRY_APP decode error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
 
-                # if altitude is over highfly_altitude send a log and message for high-flying nodes and not in highfly_ignoreList
-                if position_data.get('altitude', 0) > highfly_altitude and highfly_enabled and str(nodeID) not in highfly_ignoreList:
-                    logger.info(f"System: High Altitude {position_data['altitude']}m on Device: {rxNode} Channel: {channel} NodeID:{nodeID} Lat:{position_data.get('latitude', 0)} Lon:{position_data.get('longitude', 0)}")
-                    altFeet = round(position_data['altitude'] * 3.28084, 2)
-                    msg = f"🚀 High Altitude Detected! NodeID:{nodeID} Alt:{altFeet:,.0f}ft/{position_data['altitude']:,.0f}m"
+    # POSITION_APP packets
+    if packet_type == 'POSITION_APP':
+        if debugMetadata and 'POSITION_APP' not in metadataFilter:
+            print(f"DEBUG POSITION_APP: {packet}\n\n")
+        # get the position data
+        keys = ['altitude', 'groundSpeed', 'precisionBits']
+        position_data = packet['decoded']['position']
+        try:
+            if nodeID not in positionMetadata:
+                positionMetadata[nodeID] = {}
+    
+            for key in keys:
+                positionMetadata[nodeID][key] = position_data.get(key, 0)
 
-                    if highfly_check_openskynetwork:
-                         # check get_openskynetwork to see if the node is an aircraft
-                         if 'latitude' in position_data and 'longitude' in position_data:
-                            flight_info = get_openskynetwork(position_data.get('latitude', 0), position_data.get('longitude', 0))
-                            if flight_info and NO_ALERTS not in flight_info and ERROR_FETCHING_DATA not in flight_info:
-                                msg += f"\n✈️Detected near:\n{flight_info}"
+            # if altitude is over highfly_altitude send a log and message for high-flying nodes and not in highfly_ignoreList
+            if position_data.get('altitude', 0) > highfly_altitude and highfly_enabled and str(nodeID) not in highfly_ignoreList:
+                logger.info(f"System: High Altitude {position_data['altitude']}m on Device: {rxNode} Channel: {channel} NodeID:{nodeID} Lat:{position_data.get('latitude', 0)} Lon:{position_data.get('longitude', 0)}")
+                altFeet = round(position_data['altitude'] * 3.28084, 2)
+                msg = f"🚀 High Altitude Detected! NodeID:{nodeID} Alt:{altFeet:,.0f}ft/{position_data['altitude']:,.0f}m"
 
-                    send_message(msg, highfly_channel, 0, highfly_interface)
-                    time.sleep(responseDelay)
-        
-                # Keep the positionMetadata dictionary at a maximum size of 20
-                if len(positionMetadata) > 20:
-                    # Remove the oldest entry
-                    oldest_nodeID = next(iter(positionMetadata))
-                    del positionMetadata[oldest_nodeID]
-                
-                # add a packet count to the positionMetadata for the node
-                if 'packetCount' in positionMetadata[nodeID]:
-                    positionMetadata[nodeID]['packetCount'] += 1
-                else:
-                    positionMetadata[nodeID]['packetCount'] = 1
+                if highfly_check_openskynetwork:
+                    # check get_openskynetwork to see if the node is an aircraft
+                    if 'latitude' in position_data and 'longitude' in position_data:
+                        flight_info = get_openskynetwork(position_data.get('latitude', 0), position_data.get('longitude', 0))
+                    if flight_info and NO_ALERTS not in flight_info and ERROR_FETCHING_DATA not in flight_info:
+                        msg += f"\n✈️Detected near:\n{flight_info}"
 
-            except Exception as e:
-                logger.debug(f"System: POSITION_APP decode error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
+                send_message(msg, highfly_channel, 0, highfly_interface)
+                time.sleep(responseDelay)
+    
+            # Keep the positionMetadata dictionary at a maximum size of 20
+            if len(positionMetadata) > 20:
+                # Remove the oldest entry
+                oldest_nodeID = next(iter(positionMetadata))
+                del positionMetadata[oldest_nodeID]
+            
+            # add a packet count to the positionMetadata for the node
+            if 'packetCount' in positionMetadata[nodeID]:
+                positionMetadata[nodeID]['packetCount'] += 1
+            else:
+                positionMetadata[nodeID]['packetCount'] = 1
+
+        except Exception as e:
+            logger.debug(f"System: POSITION_APP decode error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
 
         # WAYPOINT_APP packets
         if packet_type ==  'WAYPOINT_APP':
@@ -1080,15 +1085,17 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
                 print(f"DEBUG WAYPOINT_APP: {packet}\n\n")
             # get the waypoint data
             waypoint_data = packet['decoded']['waypoint']
-            # if waypoint_data contains latitude and longitude log it
-            id = waypoint_data.get('id', 0)
-            latitudeI = waypoint_data.get('latitudeI', 0)
-            longitudeI = waypoint_data.get('longitudeI', 0)
-            expire = waypoint_data.get('expire', 0)
-            description = waypoint_data.get('description', '')
-            name = waypoint_data.get('name', '')
-            logger.info(f"System: Waypoint from Device: {rxNode} Channel: {channel} NodeID:{nodeID} ID:{id} Lat:{latitudeI/1e7} Lon:{longitudeI/1e7} Expire:{expire} Name:{name} Desc:{description}")
-
+            try:
+                id = waypoint_data.get('id', 0)
+                latitudeI = waypoint_data.get('latitudeI', 0)
+                longitudeI = waypoint_data.get('longitudeI', 0)
+                expire = waypoint_data.get('expire', 0)
+                description = waypoint_data.get('description', '')
+                name = waypoint_data.get('name', '')
+                logger.info(f"System: Waypoint from Device: {rxNode} Channel: {channel} NodeID:{nodeID} ID:{id} Lat:{latitudeI/1e7} Lon:{longitudeI/1e7} Expire:{expire} Name:{name} Desc:{description}")
+            except Exception as e:
+                logger.debug(f"System: WAYPOINT_APP decode error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
+        
         # NEIGHBORINFO_APP
         if packet_type ==  'NEIGHBORINFO_APP':
             if debugMetadata and 'NEIGHBORINFO_APP' not in metadataFilter:
@@ -1112,11 +1119,14 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
             # get the detection sensor data
             detection_data = packet['decoded']
             detction_text = detection_data.get('text', '')
-            if detction_text != '':
-                logger.info(f"System: Detection Sensor Data from Device: {rxNode} Channel: {channel} NodeID:{nodeID} Text:{detction_text}")
-                if detctionSensorAlert:
-                    send_message(f"🚨Detection Sensor from Device: {rxNode} Channel: {channel} NodeID:{nodeID} Alert:{detction_text}", secure_channel, 0, secure_interface)
-                    time.sleep(responseDelay)
+            try:
+                if detction_text != '':
+                    logger.info(f"System: Detection Sensor Data from Device: {rxNode} Channel: {channel} NodeID:{nodeID} Text:{detction_text}")
+                    if detctionSensorAlert:
+                        send_message(f"🚨Detection Sensor from Device: {rxNode} Channel: {channel} NodeID:{nodeID} Alert:{detction_text}", secure_channel, 0, secure_interface)
+                        time.sleep(responseDelay)
+            except Exception as e:
+                logger.debug(f"System: DETECTION_SENSOR_APP decode error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
 
         # PAXCOUNTER_APP
         if packet_type ==  'PAXCOUNTER_APP':
@@ -1124,10 +1134,13 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
                 print(f"DEBUG PAXCOUNTER_APP: {packet}\n\n")
             # get the paxcounter data
             paxcounter_data = packet['decoded']
-            wifi_count = paxcounter_data.get('wifi_count', 0)
-            ble_count = paxcounter_data.get('ble_count', 0)
-            uptime = paxcounter_data.get('uptime', 0)
-            logger.info(f"System: Paxcounter Data from Device: {rxNode} Channel: {channel} NodeID:{nodeID} WiFi:{wifi_count} BLE:{ble_count} Uptime:{uptime}s")
+            try:
+                wifi_count = paxcounter_data.get('wifi_count', 0)
+                ble_count = paxcounter_data.get('ble_count', 0)
+                uptime = paxcounter_data.get('uptime', 0)
+                logger.info(f"System: Paxcounter Data from Device: {rxNode} Channel: {channel} NodeID:{nodeID} WiFi:{wifi_count} BLE:{ble_count} Uptime:{uptime}s")
+            except Exception as e:
+                logger.debug(f"System: PAXCOUNTER_APP decode error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
 
         # REMOTE_HARDWARE_APP
         if packet_type ==  'REMOTE_HARDWARE_APP':
@@ -1135,9 +1148,12 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
                 print(f"DEBUG REMOTE_HARDWARE_APP: {packet}\n\n")
             # get the remote hardware data
             remote_hardware_data = packet['decoded']
-    except KeyError as e:
-        logger.critical(f"System: Error consuming metadata: Device: {rxNode} Channel: {channel} {e}")
-        logger.debug(f"System: Error Packet = {packet}")
+            try:
+                hardware_info = remote_hardware_data.get('hardware_info', '')
+                logger.info(f"System: Remote Hardware Data from Device: {rxNode} Channel: {channel} NodeID:{nodeID} Info:{hardware_info}")
+            except Exception as e:
+                logger.debug(f"System: REMOTE_HARDWARE_APP decode error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
+    return True
 
 def noisyTelemetryCheck():
     global positionMetadata
