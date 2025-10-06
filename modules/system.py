@@ -67,7 +67,7 @@ def cleanup_game_trackers(current_time):
         tracker_names = [
             'dwPlayerTracker', 'lemonadeTracker', 'jackTracker', 
             'vpTracker', 'mindTracker', 'golfTracker', 
-            'hangmanTracker', 'hamtestTracker'
+            'hangmanTracker', 'hamtestTracker', 'tictactoeTracker'
         ]
         
         for tracker_name in tracker_names:
@@ -261,6 +261,11 @@ if hamtest_enabled:
     trap_list = trap_list + ("hamtest",)
     games_enabled = True
 
+if tictactoe_enabled:
+    from modules.games.tictactoe import * # from the spudgunman/meshing-around repo
+    trap_list = trap_list + ("tictactoe",)
+    games_enabled = True
+
 # Games Configuration
 if games_enabled is True:
     help_message = help_message + ", games"
@@ -285,6 +290,8 @@ if games_enabled is True:
         gamesCmdList += "hangman, "
     if hamtest_enabled:
         gamesCmdList += "hamTest, "
+    if tictactoe_enabled:
+        gamesCmdList += "ticTacToe, "
     gamesCmdList = gamesCmdList[:-2] # remove the last comma
 else:
     gamesCmdList = ""
