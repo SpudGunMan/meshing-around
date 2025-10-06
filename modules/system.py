@@ -993,8 +993,10 @@ def displayNodeTelemetry(nodeID=0, rxNode=0, userRequested=False):
 
 positionMetadata = {}
 def consumeMetadata(packet, rxNode=0):
+    global positionMetadata, telemetryData
+
+    # Process Telemetry and Position metadata packets
     try:
-        # keep records of recent telemetry data
         packet_type = ''
         if packet.get('decoded'):
             packet_type = packet['decoded']['portnum']
@@ -1002,11 +1004,18 @@ def consumeMetadata(packet, rxNode=0):
 
         # TELEMETRY packets
         if packet_type == 'TELEMETRY_APP':
-            if debugMetadata: print(f"DEBUG TELEMETRY_APP: {packet}\n\n")
+            if debugMetadata and 'TELEMETRY_APP' not in metadataFilter:
+                print(f"DEBUG TELEMETRY_APP: {packet}\n\n")
             # get the telemetry data
             telemetry_packet = packet['decoded']['telemetry']
             if telemetry_packet.get('deviceMetrics'):
                 deviceMetrics = telemetry_packet['deviceMetrics']
+                #if uptime is in deviceMetrics and uptime is not 0 set uptime
+                # if deviceMetrics.get('uptimeSeconds') is not None and deviceMetrics['uptimeSeconds'] != 0:
+                #     if highestUptime < deviceMetrics['uptimeSeconds']:
+                #         highestUptime = deviceMetrics['uptimeSeconds']
+                #         highestUptimeNode = nodeID
+            
             if telemetry_packet.get('localStats'):
                 localStats = telemetry_packet['localStats']
                 # Check if 'numPacketsTx' and 'numPacketsRx' exist and are not zero
@@ -1022,7 +1031,8 @@ def consumeMetadata(packet, rxNode=0):
         
         # POSITION_APP packets
         if packet_type == 'POSITION_APP':
-            if debugMetadata: print(f"DEBUG POSITION_APP: {packet}\n\n")
+            if debugMetadata and 'POSITION_APP' not in metadataFilter:
+                print(f"DEBUG POSITION_APP: {packet}\n\n")
             # get the position data
             keys = ['altitude', 'groundSpeed', 'precisionBits']
             position_data = packet['decoded']['position']
@@ -1066,42 +1076,63 @@ def consumeMetadata(packet, rxNode=0):
 
         # WAYPOINT_APP packets
         if packet_type ==  'WAYPOINT_APP':
-            if debugMetadata: print(f"DEBUG WAYPOINT_APP: {packet['decoded']['waypoint']}\n\n")
+            if debugMetadata and 'WAYPOINT_APP' not in metadataFilter:
+                print(f"DEBUG WAYPOINT_APP: {packet}\n\n")
             # get the waypoint data
-            waypoint_data = packet['decoded']
+            waypoint_data = packet['decoded']['waypoint']
+            # if waypoint_data contains latitude and longitude log it
+            id = waypoint_data.get('id', 0)
+            latitudeI = waypoint_data.get('latitudeI', 0)
+            longitudeI = waypoint_data.get('longitudeI', 0)
+            expire = waypoint_data.get('expire', 0)
+            description = waypoint_data.get('description', '')
+            name = waypoint_data.get('name', '')
+            logger.info(f"System: Waypoint from NodeID:{nodeID} ID:{id} Name:{name} Desc:{description} Lat:{latitudeI/10000000} Lon:{longitudeI/10000000} Expire:{getPrettyTime(expire)}")
 
         # NEIGHBORINFO_APP
         if packet_type ==  'NEIGHBORINFO_APP':
-            if debugMetadata: print(f"DEBUG NEIGHBORINFO_APP: {packet}\n\n")
+            if debugMetadata and 'NEIGHBORINFO_APP' not in metadataFilter:
+                print(f"DEBUG NEIGHBORINFO_APP: {packet}\n\n")
             # get the neighbor info data
             neighbor_data = packet['decoded']
-        
+            neighbor_list = neighbor_data.get('neighbors', [])
+            logger.info(f"System: Neighbor Info from NodeID:{nodeID} Neighbors:{neighbor_list}")
+
         # TRACEROUTE_APP
         if packet_type ==  'TRACEROUTE_APP':
-            if debugMetadata: print(f"DEBUG TRACEROUTE_APP: {packet}\n\n")
+            if debugMetadata and 'TRACEROUTE_APP' not in metadataFilter:
+                print(f"DEBUG TRACEROUTE_APP: {packet}\n\n")
             # get the traceroute data
             traceroute_data = packet['decoded']
 
         # DETECTION_SENSOR_APP
         if packet_type ==  'DETECTION_SENSOR_APP':
-            if debugMetadata: print(f"DEBUG DETECTION_SENSOR_APP: {packet}\n\n")
+            if debugMetadata and 'DETECTION_SENSOR_APP' not in metadataFilter:
+                print(f"DEBUG DETECTION_SENSOR_APP: {packet}\n\n")
             # get the detection sensor data
             detection_data = packet['decoded']
             detction_text = detection_data.get('text', '')
             if detction_text != '':
                 logger.info(f"System: Detection Sensor Data from NodeID:{nodeID} Text:{detction_text}")
-                #send_message(f"📡Detection Sensor Data from NodeID:{nodeID} Text:{detction_text}", detection_sensor_channel, 0, detection_sensor_interface)
-                #time.sleep(responseDelay)
+                if detctionSensorAlert:
+                    send_message(f"🚨Detection Sensor from NodeID:{nodeID} Alert:{detction_text}", secure_channel, 0, secure_interface)
+                    time.sleep(responseDelay)
 
         # PAXCOUNTER_APP
         if packet_type ==  'PAXCOUNTER_APP':
-            if debugMetadata: print(f"DEBUG PAXCOUNTER_APP: {packet}\n\n")
+            if debugMetadata and 'PAXCOUNTER_APP' not in metadataFilter:
+                print(f"DEBUG PAXCOUNTER_APP: {packet}\n\n")
             # get the paxcounter data
             paxcounter_data = packet['decoded']
+            wifi_count = paxcounter_data.get('wifi_count', 0)
+            ble_count = paxcounter_data.get('ble_count', 0)
+            uptime = paxcounter_data.get('uptime', 0)
+            logger.info(f"System: Paxcounter Data from NodeID:{nodeID} WiFi:{wifi_count} BLE:{ble_count} Uptime:{uptime}s")
 
         # REMOTE_HARDWARE_APP
         if packet_type ==  'REMOTE_HARDWARE_APP':
-            if debugMetadata: print(f"DEBUG REMOTE_HARDWARE_APP: {packet}\n\n")
+            if debugMetadata and 'REMOTE_HARDWARE_APP' not in metadataFilter:
+                print(f"DEBUG REMOTE_HARDWARE_APP: {packet}\n\n")
             # get the remote hardware data
             remote_hardware_data = packet['decoded']
     except KeyError as e:

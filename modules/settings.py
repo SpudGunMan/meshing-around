@@ -253,6 +253,7 @@ try:
     highfly_interface = config['sentry'].getint('highFlyingAlertInterface', 1) # default 1
     highfly_ignoreList = config['sentry'].get('highFlyingIgnoreList', '').split(',') # default empty
     highfly_check_openskynetwork = config['sentry'].getboolean('highflyOpenskynetwork', True) # default True check with OpenSkyNetwork if highfly detected
+    detctionSensorAlert = config['sentry'].getboolean('detectionSensorAlert', False) # default False
 
     # location
     location_enabled = config['location'].getboolean('enabled', True)
@@ -379,6 +380,7 @@ try:
     maxBuffer = config['messagingSettings'].getint('maxBuffer', 200) # default 200
     enableHopLogs = config['messagingSettings'].getboolean('enableHopLogs', False) # default False
     debugMetadata = config['messagingSettings'].getboolean('debugMetadata', False) # default False
+    metadataFilter = config['messagingSettings'].get('metadataFilter', '').split(',') # default empty
     DEBUGpacket = config['messagingSettings'].getboolean('DEBUGpacket', False) # default False
     noisyNodeLogging = config['messagingSettings'].getboolean('noisyNodeLogging', False) # default False
     noisyTelemetryLimit = config['messagingSettings'].getint('noisyTelemetryLimit', 5) # default 5 packets
