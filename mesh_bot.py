@@ -21,7 +21,7 @@ cmdHistory = [] # list to hold the command history for lheard and history comman
 msg_history = [] # list to hold the message history for the messages command
 
 def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_number, deviceID, isDM):
-    global cmdHistory
+    global cmdHistory, msg_history
     #Auto response to messages
     message_lower = message.lower()
     bot_response = "🤖I'm sorry, I'm afraid I can't do that."
