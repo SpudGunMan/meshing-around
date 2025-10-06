@@ -478,14 +478,41 @@ async def start_rx():
 
 # Hello World 
 async def main():
-    meshRxTask = asyncio.create_task(start_rx())
-    watchdogTask = asyncio.create_task(watchdog())
-    if file_monitor_enabled:
-        fileMonTask: asyncio.Task = asyncio.create_task(handleFileWatcher())
-
-    await asyncio.gather(meshRxTask, watchdogTask)
-    if file_monitor_enabled:
-        await asyncio.gather(fileMonTask)
+    tasks = []
+    
+    try:
+        # Create core tasks
+        tasks.append(asyncio.create_task(start_rx(), name="pong_rx"))
+        tasks.append(asyncio.create_task(watchdog(), name="watchdog"))
+        
+        # Add optional tasks
+        if file_monitor_enabled:
+            tasks.append(asyncio.create_task(handleFileWatcher(), name="file_monitor"))
+        
+        logger.info(f"System: Starting {len(tasks)} async tasks")
+        
+        # Wait for all tasks with proper exception handling
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+        
+        # Check for exceptions in results
+        for i, result in enumerate(results):
+            if isinstance(result, Exception):
+                logger.error(f"Task {tasks[i].get_name()} failed with: {result}")
+        
+    except Exception as e:
+        logger.error(f"Main loop error: {e}")
+    finally:
+        # Cleanup tasks
+        logger.info("System: Cleaning up async tasks")
+        for task in tasks:
+            if not task.done():
+                task.cancel()
+                try:
+                    await task
+                except asyncio.CancelledError:
+                    logger.debug(f"Task {task.get_name()} cancelled successfully")
+                except Exception as e:
+                    logger.warning(f"Error cancelling task {task.get_name()}: {e}")
 
     await asyncio.sleep(0.01)
 

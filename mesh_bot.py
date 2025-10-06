@@ -9,6 +9,7 @@ except ImportError:
     exit(1)
 
 import asyncio
+import sys
 import time # for sleep, get some when you can :)
 import random
 from modules.log import *
@@ -24,6 +25,16 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     #Auto response to messages
     message_lower = message.lower()
     bot_response = "🤖I'm sorry, I'm afraid I can't do that."
+    
+    # Manage cmdHistory size to prevent memory bloat
+    try:
+        from modules.system import MAX_CMD_HISTORY
+        max_cmd_history = MAX_CMD_HISTORY
+    except ImportError:
+        max_cmd_history = 1000
+    
+    if len(cmdHistory) >= max_cmd_history:
+        cmdHistory = cmdHistory[-(max_cmd_history-1):]
 
     # Command List processes system.trap_list. system.messageTrap() sends any commands to here
     default_commands = {
@@ -1401,11 +1412,18 @@ def onReceive(packet, interface):
                     else:
                         timestamp = datetime.now().strftime("%Y-%m-%d %I:%M:%S%p")
                     
-                    if len(msg_history) < storeFlimit:
-                        msg_history.append((get_name_from_number(message_from_id, 'long', rxNode), message_string, channel_number, timestamp, rxNode))
-                    else:
-                        msg_history.pop(0)
-                        msg_history.append((get_name_from_number(message_from_id, 'long', rxNode), message_string, channel_number, timestamp, rxNode))
+                    # Use the safer MAX_MSG_HISTORY limit to prevent unbounded growth
+                    try:
+                        from modules.system import MAX_MSG_HISTORY
+                        max_history = MAX_MSG_HISTORY
+                    except ImportError:
+                        max_history = storeFlimit
+                    
+                    if len(msg_history) >= max_history:
+                        # Remove oldest entries to maintain size limit
+                        msg_history = msg_history[-(max_history-1):]
+                    
+                    msg_history.append((get_name_from_number(message_from_id, 'long', rxNode), message_string, channel_number, timestamp, rxNode))
 
                     # print the message to the log and sdout
                     logger.info(f"Device:{rxNode} Channel:{channel_number} " + CustomFormatter.green + "Ignoring Message:" + CustomFormatter.white +\
@@ -1633,18 +1651,44 @@ async def start_rx():
 
 # Hello World 
 async def main():
-    meshRxTask = asyncio.create_task(start_rx())
-    watchdogTask = asyncio.create_task(watchdog())
-    if file_monitor_enabled:
-        fileMonTask: asyncio.Task = asyncio.create_task(handleFileWatcher())
-    if radio_detection_enabled:
-        hamlibTask = asyncio.create_task(handleSignalWatcher())
-
-    await asyncio.gather(meshRxTask, watchdogTask)
-    if radio_detection_enabled:
-        await asyncio.gather(hamlibTask)
-    if file_monitor_enabled:
-        await asyncio.gather(fileMonTask)
+    tasks = []
+    
+    try:
+        # Create core tasks
+        tasks.append(asyncio.create_task(start_rx(), name="mesh_rx"))
+        tasks.append(asyncio.create_task(watchdog(), name="watchdog"))
+        
+        # Add optional tasks
+        if file_monitor_enabled:
+            tasks.append(asyncio.create_task(handleFileWatcher(), name="file_monitor"))
+        
+        if radio_detection_enabled:
+            tasks.append(asyncio.create_task(handleSignalWatcher(), name="hamlib"))
+        
+        logger.info(f"System: Starting {len(tasks)} async tasks")
+        
+        # Wait for all tasks with proper exception handling
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+        
+        # Check for exceptions in results
+        for i, result in enumerate(results):
+            if isinstance(result, Exception):
+                logger.error(f"Task {tasks[i].get_name()} failed with: {result}")
+        
+    except Exception as e:
+        logger.error(f"Main loop error: {e}")
+    finally:
+        # Cleanup tasks
+        logger.info("System: Cleaning up async tasks")
+        for task in tasks:
+            if not task.done():
+                task.cancel()
+                try:
+                    await task
+                except asyncio.CancelledError:
+                    logger.debug(f"Task {task.get_name()} cancelled successfully")
+                except Exception as e:
+                    logger.warning(f"Error cancelling task {task.get_name()}: {e}")
 
     await asyncio.sleep(0.01)
 

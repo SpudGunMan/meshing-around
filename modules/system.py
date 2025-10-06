@@ -9,6 +9,7 @@ import asyncio
 import random
 import contextlib # for suppressing output on watchdog
 import io # for suppressing output on watchdog
+import atexit # for graceful shutdown
 from modules.log import *
 
 # Global Variables
@@ -18,6 +19,73 @@ asyncLoop = asyncio.new_event_loop()
 games_enabled = False
 multiPingList = [{'message_from_id': 0, 'count': 0, 'type': '', 'deviceID': 0, 'channel_number': 0, 'startCount': 0}]
 interface_retry_count = 3
+
+# Memory Management Constants
+MAX_CMD_HISTORY = 1000
+MAX_SEEN_NODES = 500
+MAX_MSG_HISTORY = 100
+CLEANUP_INTERVAL = 3600  # 1 hour
+last_cleanup_time = 0
+
+def cleanup_memory():
+    """Clean up memory by limiting list sizes and removing stale entries"""
+    global cmdHistory, seenNodes, last_cleanup_time
+    current_time = time.time()
+    
+    try:
+        # Limit cmdHistory size
+        if 'cmdHistory' in globals() and len(cmdHistory) > MAX_CMD_HISTORY:
+            cmdHistory = cmdHistory[-MAX_CMD_HISTORY:]
+            logger.debug(f"System: Trimmed cmdHistory to {MAX_CMD_HISTORY} entries")
+        
+        # Clean up old seenNodes entries (older than 24 hours)
+        if 'seenNodes' in globals():
+            initial_count = len(seenNodes)
+            seenNodes = [node for node in seenNodes 
+                        if current_time - node.get('lastSeen', 0) < 86400]
+            if len(seenNodes) < initial_count:
+                logger.debug(f"System: Cleaned up {initial_count - len(seenNodes)} old seenNodes entries")
+        
+        # Clean up stale game tracker entries
+        cleanup_game_trackers(current_time)
+        
+        # Clean up multiPingList of completed or stale entries
+        if 'multiPingList' in globals():
+            multiPingList[:] = [ping for ping in multiPingList 
+                              if ping.get('message_from_id', 0) != 0 and 
+                              ping.get('count', 0) > 0]
+        
+        last_cleanup_time = current_time
+        
+    except Exception as e:
+        logger.error(f"System: Error during memory cleanup: {e}")
+
+def cleanup_game_trackers(current_time):
+    """Clean up all game tracker lists of stale entries"""
+    try:
+        # List of game tracker global variable names
+        tracker_names = [
+            'dwPlayerTracker', 'lemonadeTracker', 'jackTracker', 
+            'vpTracker', 'mindTracker', 'golfTracker', 
+            'hangmanTracker', 'hamtestTracker'
+        ]
+        
+        for tracker_name in tracker_names:
+            if tracker_name in globals():
+                tracker = globals()[tracker_name]
+                if isinstance(tracker, list):
+                    initial_count = len(tracker)
+                    # Remove entries older than GAMEDELAY
+                    globals()[tracker_name] = [
+                        entry for entry in tracker 
+                        if current_time - entry.get('last_played', entry.get('time', 0)) < GAMEDELAY
+                    ]
+                    cleaned_count = initial_count - len(globals()[tracker_name])
+                    if cleaned_count > 0:
+                        logger.debug(f"System: Cleaned up {cleaned_count} stale entries from {tracker_name}")
+                        
+    except Exception as e:
+        logger.error(f"System: Error cleaning up game trackers: {e}")
 
 # Ping Configuration
 if ping_enabled:

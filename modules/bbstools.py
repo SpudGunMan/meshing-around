@@ -26,18 +26,27 @@ def load_bbsdb():
                         # if the message is not a duplicate, add it to bbs_messages Maintain the message ID sequence
                         new_id = len(bbs_messages) + 1
                         bbs_messages.append([new_id, msg[1], msg[2], msg[3]])
-    except Exception as e:
+    except FileNotFoundError:
+        logger.debug("System: bbsdb.pkl not found, creating new one")
         bbs_messages = [[1, "Welcome to meshBBS", "Welcome to the BBS, please post a message!",0]]
-        logger.debug("System: Creating new data/bbsdb.pkl")
-        with open('data/bbsdb.pkl', 'wb') as f:
-            pickle.dump(bbs_messages, f)
+        try:
+            with open('data/bbsdb.pkl', 'wb') as f:
+                pickle.dump(bbs_messages, f)
+        except Exception as e:
+            logger.error(f"System: Error creating bbsdb.pkl: {e}")
+    except Exception as e:
+        logger.error(f"System: Error loading bbsdb.pkl: {e}")
+        bbs_messages = [[1, "Welcome to meshBBS", "Welcome to the BBS, please post a message!",0]]
 
 def save_bbsdb():
     global bbs_messages
     # save the bbs messages to the database file
-    logger.debug("System: Saving data/bbsdb.pkl")
-    with open('data/bbsdb.pkl', 'wb') as f:
-        pickle.dump(bbs_messages, f)
+    try:
+        logger.debug("System: Saving data/bbsdb.pkl")
+        with open('data/bbsdb.pkl', 'wb') as f:
+            pickle.dump(bbs_messages, f)
+    except Exception as e:
+        logger.error(f"System: Error saving bbsdb: {e}")
 
 def bbs_help():
     # help message
