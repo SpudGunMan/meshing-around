@@ -1129,7 +1129,7 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
             if detction_text != '':
                 logger.info(f"System: Detection Sensor Data from Device: {rxNode} Channel: {channel} NodeID:{nodeID} Text:{detction_text}")
                 if detctionSensorAlert:
-                    send_message(f"🚨Detection Sensor from Device: {rxNode} Channel: {channel} NodeID:{nodeID} Alert:{detction_text}", secure_channel, 0, secure_interface)
+                    send_message(f"🚨Detection Sensor from Device: {rxNode} Channel: {channel} NodeID:{get_name_from_number(nodeID,'short',rxNode)} Alert:{detction_text}", secure_channel, 0, secure_interface)
                     time.sleep(responseDelay)
         except Exception as e:
             logger.debug(f"System: DETECTION_SENSOR_APP decode error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
