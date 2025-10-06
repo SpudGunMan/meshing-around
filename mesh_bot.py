@@ -1443,7 +1443,7 @@ def onReceive(packet, interface):
                                     time.sleep(responseDelay)
         else:
             # Evaluate non TEXT_MESSAGE_APP packets
-            consumeMetadata(packet, rxNode)
+            consumeMetadata(packet, rxNode, channel_number)
     except KeyError as e:
         logger.critical(f"System: Error processing packet: {e} Device:{rxNode}")
         logger.debug(f"System: Error Packet = {packet}")

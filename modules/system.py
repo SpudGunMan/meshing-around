@@ -992,7 +992,7 @@ def displayNodeTelemetry(nodeID=0, rxNode=0, userRequested=False):
     return dataResponse
 
 positionMetadata = {}
-def consumeMetadata(packet, rxNode=0):
+def consumeMetadata(packet, rxNode=0, channel=-1):
     global positionMetadata, telemetryData
 
     # Process Telemetry and Position metadata packets
@@ -1045,7 +1045,7 @@ def consumeMetadata(packet, rxNode=0):
 
                 # if altitude is over highfly_altitude send a log and message for high-flying nodes and not in highfly_ignoreList
                 if position_data.get('altitude', 0) > highfly_altitude and highfly_enabled and str(nodeID) not in highfly_ignoreList:
-                    logger.info(f"System: High Altitude {position_data['altitude']}m on Device: {rxNode} NodeID: {nodeID}")
+                    logger.info(f"System: High Altitude {position_data['altitude']}m on Device: {rxNode} Channel: {channel} NodeID:{nodeID} Lat:{position_data.get('latitude', 0)} Lon:{position_data.get('longitude', 0)}")
                     altFeet = round(position_data['altitude'] * 3.28084, 2)
                     msg = f"🚀 High Altitude Detected! NodeID:{nodeID} Alt:{altFeet:,.0f}ft/{position_data['altitude']:,.0f}m"
 
@@ -1072,7 +1072,7 @@ def consumeMetadata(packet, rxNode=0):
                     positionMetadata[nodeID]['packetCount'] = 1
 
             except Exception as e:
-                logger.debug(f"System: POSITION_APP decode error: {e} packet {packet}")
+                logger.debug(f"System: POSITION_APP decode error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
 
         # WAYPOINT_APP packets
         if packet_type ==  'WAYPOINT_APP':
@@ -1087,7 +1087,7 @@ def consumeMetadata(packet, rxNode=0):
             expire = waypoint_data.get('expire', 0)
             description = waypoint_data.get('description', '')
             name = waypoint_data.get('name', '')
-            logger.info(f"System: Waypoint from NodeID:{nodeID} ID:{id} Name:{name} Desc:{description} Lat:{latitudeI/10000000} Lon:{longitudeI/10000000} Expire:{getPrettyTime(expire)}")
+            logger.info(f"System: Waypoint from Device: {rxNode} Channel: {channel} NodeID:{nodeID} ID:{id} Lat:{latitudeI/1e7} Lon:{longitudeI/1e7} Expire:{expire} Name:{name} Desc:{description}")
 
         # NEIGHBORINFO_APP
         if packet_type ==  'NEIGHBORINFO_APP':
@@ -1096,7 +1096,7 @@ def consumeMetadata(packet, rxNode=0):
             # get the neighbor info data
             neighbor_data = packet['decoded']
             neighbor_list = neighbor_data.get('neighbors', [])
-            logger.info(f"System: Neighbor Info from NodeID:{nodeID} Neighbors:{neighbor_list}")
+            logger.info(f"System: Neighbor Info from Device: {rxNode} Channel: {channel} NodeID:{nodeID} Neighbors:{len(neighbor_list)}")
 
         # TRACEROUTE_APP
         if packet_type ==  'TRACEROUTE_APP':
@@ -1113,9 +1113,9 @@ def consumeMetadata(packet, rxNode=0):
             detection_data = packet['decoded']
             detction_text = detection_data.get('text', '')
             if detction_text != '':
-                logger.info(f"System: Detection Sensor Data from NodeID:{nodeID} Text:{detction_text}")
+                logger.info(f"System: Detection Sensor Data from Device: {rxNode} Channel: {channel} NodeID:{nodeID} Text:{detction_text}")
                 if detctionSensorAlert:
-                    send_message(f"🚨Detection Sensor from NodeID:{nodeID} Alert:{detction_text}", secure_channel, 0, secure_interface)
+                    send_message(f"🚨Detection Sensor from Device: {rxNode} Channel: {channel} NodeID:{nodeID} Alert:{detction_text}", secure_channel, 0, secure_interface)
                     time.sleep(responseDelay)
 
         # PAXCOUNTER_APP
@@ -1127,7 +1127,7 @@ def consumeMetadata(packet, rxNode=0):
             wifi_count = paxcounter_data.get('wifi_count', 0)
             ble_count = paxcounter_data.get('ble_count', 0)
             uptime = paxcounter_data.get('uptime', 0)
-            logger.info(f"System: Paxcounter Data from NodeID:{nodeID} WiFi:{wifi_count} BLE:{ble_count} Uptime:{uptime}s")
+            logger.info(f"System: Paxcounter Data from Device: {rxNode} Channel: {channel} NodeID:{nodeID} WiFi:{wifi_count} BLE:{ble_count} Uptime:{uptime}s")
 
         # REMOTE_HARDWARE_APP
         if packet_type ==  'REMOTE_HARDWARE_APP':
@@ -1136,7 +1136,7 @@ def consumeMetadata(packet, rxNode=0):
             # get the remote hardware data
             remote_hardware_data = packet['decoded']
     except KeyError as e:
-        logger.critical(f"System: Error consuming metadata: {e} Device:{rxNode}")
+        logger.critical(f"System: Error consuming metadata: Device: {rxNode} Channel: {channel} {e}")
         logger.debug(f"System: Error Packet = {packet}")
 
 def noisyTelemetryCheck():
