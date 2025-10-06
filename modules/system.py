@@ -1063,7 +1063,7 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
 
                 send_message(msg, highfly_channel, 0, highfly_interface)
                 time.sleep(responseDelay)
-    
+
             # Keep the positionMetadata dictionary at a maximum size of 20
             if len(positionMetadata) > 20:
                 # Remove the oldest entry
@@ -1079,81 +1079,80 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
         except Exception as e:
             logger.debug(f"System: POSITION_APP decode error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
 
-        # WAYPOINT_APP packets
-        if packet_type ==  'WAYPOINT_APP':
-            if debugMetadata and 'WAYPOINT_APP' not in metadataFilter:
-                print(f"DEBUG WAYPOINT_APP: {packet}\n\n")
-            # get the waypoint data
-            waypoint_data = packet['decoded']['waypoint']
-            try:
-                id = waypoint_data.get('id', 0)
-                latitudeI = waypoint_data.get('latitudeI', 0)
-                longitudeI = waypoint_data.get('longitudeI', 0)
-                expire = waypoint_data.get('expire', 0)
-                description = waypoint_data.get('description', '')
-                name = waypoint_data.get('name', '')
-                logger.info(f"System: Waypoint from Device: {rxNode} Channel: {channel} NodeID:{nodeID} ID:{id} Lat:{latitudeI/1e7} Lon:{longitudeI/1e7} Expire:{expire} Name:{name} Desc:{description}")
-            except Exception as e:
-                logger.debug(f"System: WAYPOINT_APP decode error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
-        
-        # NEIGHBORINFO_APP
-        if packet_type ==  'NEIGHBORINFO_APP':
-            if debugMetadata and 'NEIGHBORINFO_APP' not in metadataFilter:
-                print(f"DEBUG NEIGHBORINFO_APP: {packet}\n\n")
-            # get the neighbor info data
-            neighbor_data = packet['decoded']
-            neighbor_list = neighbor_data.get('neighbors', [])
-            logger.info(f"System: Neighbor Info from Device: {rxNode} Channel: {channel} NodeID:{nodeID} Neighbors:{len(neighbor_list)}")
+    # WAYPOINT_APP packets
+    if packet_type ==  'WAYPOINT_APP':
+        if debugMetadata and 'WAYPOINT_APP' not in metadataFilter:
+            print(f"DEBUG WAYPOINT_APP: {packet}\n\n")
+        # get the waypoint data
+        waypoint_data = packet['decoded']['waypoint']
+        try:
+            id = waypoint_data.get('id', 0)
+            latitudeI = waypoint_data.get('latitudeI', 0)
+            longitudeI = waypoint_data.get('longitudeI', 0)
+            expire = waypoint_data.get('expire', 0)
+            description = waypoint_data.get('description', '')
+            name = waypoint_data.get('name', '')
+            logger.info(f"System: Waypoint from Device: {rxNode} Channel: {channel} NodeID:{nodeID} ID:{id} Lat:{latitudeI/1e7} Lon:{longitudeI/1e7} Expire:{expire} Name:{name} Desc:{description}")
+        except Exception as e:
+            logger.debug(f"System: WAYPOINT_APP decode error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
+    
+    # NEIGHBORINFO_APP
+    if packet_type ==  'NEIGHBORINFO_APP':
+        if debugMetadata and 'NEIGHBORINFO_APP' not in metadataFilter:
+            print(f"DEBUG NEIGHBORINFO_APP: {packet}\n\n")
+        # get the neighbor info data
+        neighbor_data = packet['decoded']
+        neighbor_list = neighbor_data.get('neighbors', [])
+        logger.info(f"System: Neighbor Info from Device: {rxNode} Channel: {channel} NodeID:{nodeID} Neighbors:{len(neighbor_list)}")
 
-        # TRACEROUTE_APP
-        if packet_type ==  'TRACEROUTE_APP':
-            if debugMetadata and 'TRACEROUTE_APP' not in metadataFilter:
-                print(f"DEBUG TRACEROUTE_APP: {packet}\n\n")
-            # get the traceroute data
-            traceroute_data = packet['decoded']
+    # TRACEROUTE_APP
+    if packet_type ==  'TRACEROUTE_APP':
+        if debugMetadata and 'TRACEROUTE_APP' not in metadataFilter:
+            print(f"DEBUG TRACEROUTE_APP: {packet}\n\n")
+        # get the traceroute data
+        traceroute_data = packet['decoded']
 
-        # DETECTION_SENSOR_APP
-        if packet_type ==  'DETECTION_SENSOR_APP':
-            if debugMetadata and 'DETECTION_SENSOR_APP' not in metadataFilter:
-                print(f"DEBUG DETECTION_SENSOR_APP: {packet}\n\n")
-            # get the detection sensor data
-            detection_data = packet['decoded']
-            detction_text = detection_data.get('text', '')
-            try:
-                if detction_text != '':
-                    logger.info(f"System: Detection Sensor Data from Device: {rxNode} Channel: {channel} NodeID:{nodeID} Text:{detction_text}")
-                    if detctionSensorAlert:
-                        send_message(f"🚨Detection Sensor from Device: {rxNode} Channel: {channel} NodeID:{nodeID} Alert:{detction_text}", secure_channel, 0, secure_interface)
-                        time.sleep(responseDelay)
-            except Exception as e:
-                logger.debug(f"System: DETECTION_SENSOR_APP decode error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
+    # DETECTION_SENSOR_APP
+    if packet_type ==  'DETECTION_SENSOR_APP':
+        if debugMetadata and 'DETECTION_SENSOR_APP' not in metadataFilter:
+            print(f"DEBUG DETECTION_SENSOR_APP: {packet}\n\n")
+        # get the detection sensor data
+        detection_data = packet['decoded']
+        detction_text = detection_data.get('text', '')
+        try:
+            if detction_text != '':
+                logger.info(f"System: Detection Sensor Data from Device: {rxNode} Channel: {channel} NodeID:{nodeID} Text:{detction_text}")
+                if detctionSensorAlert:
+                    send_message(f"🚨Detection Sensor from Device: {rxNode} Channel: {channel} NodeID:{nodeID} Alert:{detction_text}", secure_channel, 0, secure_interface)
+                    time.sleep(responseDelay)
+        except Exception as e:
+            logger.debug(f"System: DETECTION_SENSOR_APP decode error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
 
-        # PAXCOUNTER_APP
-        if packet_type ==  'PAXCOUNTER_APP':
-            if debugMetadata and 'PAXCOUNTER_APP' not in metadataFilter:
-                print(f"DEBUG PAXCOUNTER_APP: {packet}\n\n")
-            # get the paxcounter data
-            paxcounter_data = packet['decoded']
-            try:
-                wifi_count = paxcounter_data.get('wifi_count', 0)
-                ble_count = paxcounter_data.get('ble_count', 0)
-                uptime = paxcounter_data.get('uptime', 0)
-                logger.info(f"System: Paxcounter Data from Device: {rxNode} Channel: {channel} NodeID:{nodeID} WiFi:{wifi_count} BLE:{ble_count} Uptime:{uptime}s")
-            except Exception as e:
-                logger.debug(f"System: PAXCOUNTER_APP decode error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
+    # PAXCOUNTER_APP
+    if packet_type ==  'PAXCOUNTER_APP':
+        if debugMetadata and 'PAXCOUNTER_APP' not in metadataFilter:
+            print(f"DEBUG PAXCOUNTER_APP: {packet}\n\n")
+        # get the paxcounter data
+        paxcounter_data = packet['decoded']
+        try:
+            wifi_count = paxcounter_data.get('wifi_count', 0)
+            ble_count = paxcounter_data.get('ble_count', 0)
+            uptime = paxcounter_data.get('uptime', 0)
+            logger.info(f"System: Paxcounter Data from Device: {rxNode} Channel: {channel} NodeID:{nodeID} WiFi:{wifi_count} BLE:{ble_count} Uptime:{uptime}s")
+        except Exception as e:
+            logger.debug(f"System: PAXCOUNTER_APP decode error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
 
-        # REMOTE_HARDWARE_APP
-        if packet_type ==  'REMOTE_HARDWARE_APP':
-            if debugMetadata and 'REMOTE_HARDWARE_APP' not in metadataFilter:
-                print(f"DEBUG REMOTE_HARDWARE_APP: {packet}\n\n")
-            # get the remote hardware data
-            remote_hardware_data = packet['decoded']
-            try:
-                hardware_info = remote_hardware_data.get('hardware_info', '')
-                logger.info(f"System: Remote Hardware Data from Device: {rxNode} Channel: {channel} NodeID:{nodeID} Info:{hardware_info}")
-            except Exception as e:
-                logger.debug(f"System: REMOTE_HARDWARE_APP decode error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
-    return True
+    # REMOTE_HARDWARE_APP
+    if packet_type ==  'REMOTE_HARDWARE_APP':
+        if debugMetadata and 'REMOTE_HARDWARE_APP' not in metadataFilter:
+            print(f"DEBUG REMOTE_HARDWARE_APP: {packet}\n\n")
+        # get the remote hardware data
+        remote_hardware_data = packet['decoded']
+        try:
+            hardware_info = remote_hardware_data.get('hardware_info', '')
+            logger.info(f"System: Remote Hardware Data from Device: {rxNode} Channel: {channel} NodeID:{nodeID} Info:{hardware_info}")
+        except Exception as e:
+            logger.debug(f"System: REMOTE_HARDWARE_APP decode error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
 
 def noisyTelemetryCheck():
     global positionMetadata
