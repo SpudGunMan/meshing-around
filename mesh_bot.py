@@ -16,7 +16,7 @@ from modules.log import *
 from modules.system import *
 
 # list of commands to remove from the default list for DM only
-restrictedCommands = ["blackjack", "videopoker", "dopewars", "lemonstand", "golfsim", "mastermind", "hangman", "hamtest"]
+restrictedCommands = ["blackjack", "videopoker", "dopewars", "lemonstand", "golfsim", "mastermind", "hangman", "hamtest", "tictactoe"]
 restrictedResponse = "🤖only available in a Direct Message📵" # "" for none
 cmdHistory = [] # list to hold the command history for lheard and history commands
 
@@ -97,6 +97,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "sysinfo": lambda: sysinfo(message, message_from_id, deviceID),
     "test": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
     "testing": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
+    "tictactoe": lambda: handleTicTacToe(message, message_from_id, deviceID),
     "tide": lambda: handle_tide(message_from_id, deviceID, channel_number),
     "valert": lambda: get_volcano_usgs(),
     "videopoker": lambda: handleVideoPoker(message, message_from_id, deviceID),
@@ -818,6 +819,36 @@ def handleHamtest(message, nodeID, deviceID):
     time.sleep(responseDelay + 1)
     return msg
 
+def handleTicTacToe(message, nodeID, deviceID):
+    global tictactoeTracker
+    index = 0
+    msg = ''
+    
+    # Find or create player tracker entry
+    for i in range(len(tictactoeTracker)):
+        if tictactoeTracker[i]['nodeID'] == nodeID:
+            tictactoeTracker[i]["last_played"] = time.time()
+            index = i+1
+            break
+
+    if "end" in message.lower():
+        if index:
+            tictactoe.end(nodeID)
+            tictactoeTracker.pop(index-1)
+        return "Thanks for playing! 🎯"
+
+    if not index:
+        tictactoeTracker.append({
+            "nodeID": nodeID,
+            "last_played": time.time()
+        })
+        msg = "🎯Tic-Tac-Toe🤖 'end' to quit\n"
+    
+    msg += tictactoe.play(nodeID, message)
+    
+    time.sleep(responseDelay + 1)
+    return msg
+
 def handle_riverFlow(message, message_from_id, deviceID):
     location = get_node_location(message_from_id, deviceID)
     
@@ -1155,6 +1186,7 @@ def checkPlayingGame(message_from_id, message_string, rxNode, channel_number):
         (golfTracker, "GolfSim", handleGolf) if 'golfTracker' in globals() else None,
         (hangmanTracker, "Hangman", handleHangman) if 'hangmanTracker' in globals() else None,
         (hamtestTracker, "HamTest", handleHamtest) if 'hamtestTracker' in globals() else None,
+        (tictactoeTracker, "TicTacToe", handleTicTacToe) if 'tictactoeTracker' in globals() else None,
     ]
     trackers = [tracker for tracker in trackers if tracker is not None]
 
