@@ -88,6 +88,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "test": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
     "testing": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
     "tictactoe": lambda: handleTicTacToe(message, message_from_id, deviceID),
+    "tic-tac-toe": lambda: handleTicTacToe(message, message_from_id, deviceID),
     "tide": lambda: handle_tide(message_from_id, deviceID, channel_number),
     "valert": lambda: get_volcano_usgs(),
     "videopoker": lambda: handleVideoPoker(message, message_from_id, deviceID),
@@ -832,7 +833,7 @@ def handleTicTacToe(message, nodeID, deviceID):
             "nodeID": nodeID,
             "last_played": time.time()
         })
-        msg = "🎯Tic-Tac-Toe🤖 '(e)nd' to Quit\n"
+        msg = "🎯Tic-Tac-Toe🤖 '(e)nd'\n"
     
     msg += tictactoe.play(nodeID, message)
     
