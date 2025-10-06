@@ -15,12 +15,13 @@ from modules.log import *
 from modules.system import *
 
 # list of commands to remove from the default list for DM only
-restrictedCommands = ["blackjack", "videopoker", "dopewars", "lemonstand", "golfsim", "mastermind", "hangman", "hamtest"]
+restrictedCommands = ["blackjack", "videopoker", "dopewars", "lemonstand", "golfsim", "mastermind", "hangman", "hamtest", "tictactoe"]
 restrictedResponse = "🤖only available in a Direct Message📵" # "" for none
 cmdHistory = [] # list to hold the command history for lheard and history commands
+msg_history = [] # list to hold the message history for the messages command
 
 def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_number, deviceID, isDM):
-    global cmdHistory
+    global cmdHistory, msg_history
     #Auto response to messages
     message_lower = message.lower()
     bot_response = "🤖I'm sorry, I'm afraid I can't do that."
@@ -86,6 +87,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "sysinfo": lambda: sysinfo(message, message_from_id, deviceID),
     "test": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
     "testing": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
+    "tictactoe": lambda: handleTicTacToe(message, message_from_id, deviceID),
     "tide": lambda: handle_tide(message_from_id, deviceID, channel_number),
     "valert": lambda: get_volcano_usgs(),
     "videopoker": lambda: handleVideoPoker(message, message_from_id, deviceID),
@@ -807,6 +809,36 @@ def handleHamtest(message, nodeID, deviceID):
     time.sleep(responseDelay + 1)
     return msg
 
+def handleTicTacToe(message, nodeID, deviceID):
+    global tictactoeTracker
+    index = 0
+    msg = ''
+    
+    # Find or create player tracker entry
+    for i in range(len(tictactoeTracker)):
+        if tictactoeTracker[i]['nodeID'] == nodeID:
+            tictactoeTracker[i]["last_played"] = time.time()
+            index = i+1
+            break
+
+    if message.lower().startswith('e'):
+        if index:
+            tictactoe.end(nodeID)
+            tictactoeTracker.pop(index-1)
+        return "Thanks for playing! 🎯"
+
+    if not index:
+        tictactoeTracker.append({
+            "nodeID": nodeID,
+            "last_played": time.time()
+        })
+        msg = "🎯Tic-Tac-Toe🤖 '(e)nd' to Quit\n"
+    
+    msg += tictactoe.play(nodeID, message)
+    
+    time.sleep(responseDelay + 1)
+    return msg
+
 def handle_riverFlow(message, message_from_id, deviceID):
     location = get_node_location(message_from_id, deviceID)
     
@@ -1047,7 +1079,6 @@ def handle_moon(message_from_id, deviceID, channel_number):
     location = get_node_location(message_from_id, deviceID, channel_number)
     return get_moon(str(location[0]), str(location[1]))
 
-
 def handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus):
     try:
         loc = []
@@ -1144,6 +1175,7 @@ def checkPlayingGame(message_from_id, message_string, rxNode, channel_number):
         (golfTracker, "GolfSim", handleGolf) if 'golfTracker' in globals() else None,
         (hangmanTracker, "Hangman", handleHangman) if 'hangmanTracker' in globals() else None,
         (hamtestTracker, "HamTest", handleHamtest) if 'hamtestTracker' in globals() else None,
+        (tictactoeTracker, "TicTacToe", handleTicTacToe) if 'tictactoeTracker' in globals() else None,
     ]
     trackers = [tracker for tracker in trackers if tracker is not None]
 
@@ -1155,7 +1187,7 @@ def checkPlayingGame(message_from_id, message_string, rxNode, channel_number):
     return playingGame
 
 def onReceive(packet, interface):
-    global seenNodes
+    global seenNodes, msg_history, cmdHistory
     # Priocess the incoming packet, handles the responses to the packet with auto_response()
     # Sends the packet to the correct handler for processing
 
@@ -1400,12 +1432,14 @@ def onReceive(packet, interface):
                         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     else:
                         timestamp = datetime.now().strftime("%Y-%m-%d %I:%M:%S%p")
-                    
-                    if len(msg_history) < storeFlimit:
-                        msg_history.append((get_name_from_number(message_from_id, 'long', rxNode), message_string, channel_number, timestamp, rxNode))
-                    else:
-                        msg_history.pop(0)
-                        msg_history.append((get_name_from_number(message_from_id, 'long', rxNode), message_string, channel_number, timestamp, rxNode))
+
+                    # trim the history list if it exceeds max_history
+                    if len(msg_history) >= MAX_MSG_HISTORY:
+                        # Remove oldest entries by cutting in half
+                        msg_history = msg_history[len(msg_history)//2:]
+
+                    # add the message to the history list
+                    msg_history.append((get_name_from_number(message_from_id, 'long', rxNode), message_string, channel_number, timestamp, rxNode))
 
                     # print the message to the log and sdout
                     logger.info(f"Device:{rxNode} Channel:{channel_number} " + CustomFormatter.green + "Ignoring Message:" + CustomFormatter.white +\
@@ -1500,7 +1534,7 @@ async def start_rx():
     if highfly_enabled:
         logger.debug(f"System: HighFly Enabled using {highfly_altitude}m limit reporting to channel:{highfly_channel}")
     if store_forward_enabled:
-        logger.debug(f"System: Store and Forward Enabled using limit: {storeFlimit}")
+        logger.debug(f"System: S&F(messages command) Enabled using limit: {storeFlimit}")
     if useDMForResponse:
         logger.debug(f"System: Respond by DM only")
     if enableEcho:
@@ -1633,18 +1667,44 @@ async def start_rx():
 
 # Hello World 
 async def main():
-    meshRxTask = asyncio.create_task(start_rx())
-    watchdogTask = asyncio.create_task(watchdog())
-    if file_monitor_enabled:
-        fileMonTask: asyncio.Task = asyncio.create_task(handleFileWatcher())
-    if radio_detection_enabled:
-        hamlibTask = asyncio.create_task(handleSignalWatcher())
-
-    await asyncio.gather(meshRxTask, watchdogTask)
-    if radio_detection_enabled:
-        await asyncio.gather(hamlibTask)
-    if file_monitor_enabled:
-        await asyncio.gather(fileMonTask)
+    tasks = []
+    
+    try:
+        # Create core tasks
+        tasks.append(asyncio.create_task(start_rx(), name="mesh_rx"))
+        tasks.append(asyncio.create_task(watchdog(), name="watchdog"))
+        
+        # Add optional tasks
+        if file_monitor_enabled:
+            tasks.append(asyncio.create_task(handleFileWatcher(), name="file_monitor"))
+        
+        if radio_detection_enabled:
+            tasks.append(asyncio.create_task(handleSignalWatcher(), name="hamlib"))
+        
+        logger.info(f"System: Starting {len(tasks)} async tasks")
+        
+        # Wait for all tasks with proper exception handling
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+        
+        # Check for exceptions in results
+        for i, result in enumerate(results):
+            if isinstance(result, Exception):
+                logger.error(f"Task {tasks[i].get_name()} failed with: {result}")
+        
+    except Exception as e:
+        logger.error(f"Main loop error: {e}")
+    finally:
+        # Cleanup tasks
+        logger.info("System: Cleaning up async tasks")
+        for task in tasks:
+            if not task.done():
+                task.cancel()
+                try:
+                    await task
+                except asyncio.CancelledError:
+                    logger.debug(f"Task {task.get_name()} cancelled successfully")
+                except Exception as e:
+                    logger.warning(f"Error cancelling task {task.get_name()}: {e}")
 
     await asyncio.sleep(0.01)
 
