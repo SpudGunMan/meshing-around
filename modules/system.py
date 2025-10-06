@@ -1233,6 +1233,23 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
             logger.info(f"System: Remote Hardware Data from Device: {rxNode} Channel: {channel} NodeID:{nodeID} Info:{hardware_info}")
         except Exception as e:
             logger.debug(f"System: REMOTE_HARDWARE_APP decode error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
+    
+    # ADMIN_APP
+    
+    # IP_TUNNEL_APP
+
+    # SERIAL_APP
+
+    # STORE_FOWARD_APP
+
+    # RANGE_TEST_APP
+
+    # COMPRESSED_TEXT_APP
+
+    # AUDIO_APP
+
+    # SIMULATOR_APP
+    return True
 
 def noisyTelemetryCheck():
     global positionMetadata
