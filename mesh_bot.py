@@ -1681,7 +1681,7 @@ async def main():
         if radio_detection_enabled:
             tasks.append(asyncio.create_task(handleSignalWatcher(), name="hamlib"))
         
-        logger.info(f"System: Starting {len(tasks)} async tasks")
+        logger.debug(f"System: Starting {len(tasks)} async tasks")
         
         # Wait for all tasks with proper exception handling
         results = await asyncio.gather(*tasks, return_exceptions=True)
@@ -1695,7 +1695,7 @@ async def main():
         logger.error(f"Main loop error: {e}")
     finally:
         # Cleanup tasks
-        logger.info("System: Cleaning up async tasks")
+        logger.debug("System: Cleaning up async tasks")
         for task in tasks:
             if not task.done():
                 task.cancel()
