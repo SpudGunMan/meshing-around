@@ -1,7 +1,8 @@
 # Tic-Tac-Toe game for Meshtastic mesh-bot
-
+# Human is X, bot is O
+# Board positions chosen by numbers 1-9
+# 2025
 import random
-import time
 
 class TicTacToe:
     def __init__(self):
@@ -152,10 +153,16 @@ class TicTacToe:
             # Extract just the number from the input
             numbers = [char for char in input_msg if char.isdigit()]
             if not numbers:
-                return "Enter 1-9:"
+                if input_msg.lower().startswith('q'):
+                    self.end_game(id)
+                    return "Game ended. To start a new game, type 'tictactoe'."
+                elif input_msg.lower().startswith('n'):
+                    return self.new_game(id)
+                elif input_msg.lower().startswith('b'):
+                    return self.show_board(id) + "Your turn! Pick 1-9:"
             position = int(numbers[0])
         except:
-            return "Enter 1-9:"
+            return "Enter 1-9, or (e)nd (n)ew game, send (b)oard to see board🧩"
         
         # Make player move
         if not self.make_move(id, position):

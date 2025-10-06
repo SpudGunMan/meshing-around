@@ -821,7 +821,7 @@ def handleTicTacToe(message, nodeID, deviceID):
             index = i+1
             break
 
-    if "end" in message.lower():
+    if message.lower().startswith('e'):
         if index:
             tictactoe.end(nodeID)
             tictactoeTracker.pop(index-1)
