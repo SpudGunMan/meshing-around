@@ -1,8 +1,8 @@
 # Tic-Tac-Toe game for Meshtastic mesh-bot
-# Human is X, bot is O
 # Board positions chosen by numbers 1-9
 # 2025
 import random
+# to molly and jake, I miss you both so much.
 
 class TicTacToe:
     def __init__(self):
@@ -131,11 +131,11 @@ class TicTacToe:
         
         if winner == "X":
             g["won"] += 1
-            return "🎉You won!"
+            return "🎉You won! (n)ew (e)nd"
         elif winner == "O":
-            return "🤖Bot wins!"
+            return "🤖Bot wins! (n)ew (e)nd"
         else:
-            return "🤝Tie game!"
+            return "🤝Tie game!  (n)ew (e)nd"
 
     def play(self, id, input_msg):
         """Main game play function"""
@@ -201,8 +201,6 @@ class TicTacToe:
     def end_game(self, id):
         """Clean up finished game but keep stats"""
         if id in self.game:
-            games = self.game[id]["games"]
-            won = self.game[id]["won"]
             # Remove game but we'll create new one on next play
             del self.game[id]
 

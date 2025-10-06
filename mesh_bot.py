@@ -832,7 +832,7 @@ def handleTicTacToe(message, nodeID, deviceID):
             "nodeID": nodeID,
             "last_played": time.time()
         })
-        msg = "🎯Tic-Tac-Toe🤖 'end' to quit\n"
+        msg = "🎯Tic-Tac-Toe🤖 '(e)nd' to Quit\n"
     
     msg += tictactoe.play(nodeID, message)
     
