@@ -195,7 +195,12 @@ def bbs_sync_posts(input, peerNode, RxNode):
             #store the message
             subject = input.split("$")[1].split("#")[0]
             body = input.split("#")[1]
-            bbs_post_message(subject, body, peerNode)
+            fromNodeHex = input.split("@")[1]
+            try:
+                bbs_post_message(subject, body, int(fromNodeHex, 16))
+            except:
+                logger.error(f"System: Error parsing bbslink from node {peerNode}: {input}")
+                fromNodeHex = hex(peerNode)
             messageID = input.split(" ")[1]
             return f"bbsack {messageID}"
     elif "bbsack" in input.lower():
@@ -210,12 +215,14 @@ def bbs_sync_posts(input, peerNode, RxNode):
 
     # send message with delay to keep chutil happy
     if messageID < len(bbs_messages):
-        logger.debug(f"System: Sending bbslink message {messageID} to peer " + str(peerNode))
+        logger.debug(f"System: wait to bbslink with peer " + str(peerNode))
+        fromNodeHex = hex(bbs_messages[messageID][3])
         time.sleep(5 + responseDelay)
         # every 5 messages add extra delay
         if messageID % 5 == 0:
             time.sleep(10 + responseDelay)
-        return f"bbslink {messageID} ${bbs_messages[messageID][1]} #{bbs_messages[messageID][2]}"
+        logger.debug(f"System: Sending bbslink message {messageID} of {len(bbs_messages)} to peer " + str(peerNode))
+        return f"bbslink {messageID} ${bbs_messages[messageID][1]} #{bbs_messages[messageID][2]} @{fromNodeHex}"
     else:
         logger.debug("System: bbslink sync complete with peer " + str(peerNode))
 
