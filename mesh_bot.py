@@ -9,7 +9,6 @@ except ImportError:
     exit(1)
 
 import asyncio
-import sys
 import time # for sleep, get some when you can :)
 import random
 from modules.log import *
@@ -19,22 +18,13 @@ from modules.system import *
 restrictedCommands = ["blackjack", "videopoker", "dopewars", "lemonstand", "golfsim", "mastermind", "hangman", "hamtest", "tictactoe"]
 restrictedResponse = "🤖only available in a Direct Message📵" # "" for none
 cmdHistory = [] # list to hold the command history for lheard and history commands
+msg_history = [] # list to hold the message history for the messages command
 
 def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_number, deviceID, isDM):
     global cmdHistory
     #Auto response to messages
     message_lower = message.lower()
     bot_response = "🤖I'm sorry, I'm afraid I can't do that."
-    
-    # Manage cmdHistory size to prevent memory bloat
-    try:
-        from modules.system import MAX_CMD_HISTORY
-        max_cmd_history = MAX_CMD_HISTORY
-    except ImportError:
-        max_cmd_history = 1000
-    
-    if len(cmdHistory) >= max_cmd_history:
-        cmdHistory = cmdHistory[-(max_cmd_history-1):]
 
     # Command List processes system.trap_list. system.messageTrap() sends any commands to here
     default_commands = {
@@ -1089,7 +1079,6 @@ def handle_moon(message_from_id, deviceID, channel_number):
     location = get_node_location(message_from_id, deviceID, channel_number)
     return get_moon(str(location[0]), str(location[1]))
 
-
 def handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus):
     try:
         loc = []
@@ -1443,18 +1432,13 @@ def onReceive(packet, interface):
                         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     else:
                         timestamp = datetime.now().strftime("%Y-%m-%d %I:%M:%S%p")
-                    
-                    # Use the safer MAX_MSG_HISTORY limit to prevent unbounded growth
-                    try:
-                        from modules.system import MAX_MSG_HISTORY
-                        max_history = MAX_MSG_HISTORY
-                    except ImportError:
-                        max_history = storeFlimit
-                    
-                    if len(msg_history) >= max_history:
-                        # Remove oldest entries to maintain size limit
-                        msg_history = msg_history[-(max_history-1):]
-                    
+
+                    # trim the history list if it exceeds max_history
+                    if len(msg_history) >= MAX_MSG_HISTORY:
+                        # Remove oldest entries by cutting in half
+                        msg_history = msg_history[len(msg_history)//2:]
+
+                    # add the message to the history list
                     msg_history.append((get_name_from_number(message_from_id, 'long', rxNode), message_string, channel_number, timestamp, rxNode))
 
                     # print the message to the log and sdout
@@ -1550,7 +1534,7 @@ async def start_rx():
     if highfly_enabled:
         logger.debug(f"System: HighFly Enabled using {highfly_altitude}m limit reporting to channel:{highfly_channel}")
     if store_forward_enabled:
-        logger.debug(f"System: Store and Forward Enabled using limit: {storeFlimit}")
+        logger.debug(f"System: S&F(messages command) Enabled using limit: {storeFlimit}")
     if useDMForResponse:
         logger.debug(f"System: Respond by DM only")
     if enableEcho:

@@ -204,14 +204,6 @@ def handle_lheard(message, nodeid, deviceID, isDM):
     bot_response = "Last Heard\n"
     bot_response += str(get_node_list(1))
 
-    # show last users of the bot with the cmdHistory list
-    history = handle_history(message, nodeid, deviceID, isDM, lheard=True)
-    if history:
-        bot_response += f'LastSeen\n{history}'
-    else:
-        # trim the last \n
-        bot_response = bot_response[:-1]
-
     # bot_response += getNodeTelemetry(deviceID)
     return bot_response
 
@@ -453,7 +445,7 @@ async def start_rx():
     if sentry_enabled:
         logger.debug(f"System: Sentry Mode Enabled {sentry_radius}m radius reporting to channel:{secure_channel}")
     if store_forward_enabled:
-        logger.debug(f"System: Store and Forward Enabled using limit: {storeFlimit}")
+        logger.debug(f"System: S&F(messages command) Enabled using limit: {storeFlimit}")
     if useDMForResponse:
         logger.debug(f"System: Respond by DM only")
     if repeater_enabled and multiple_interface:

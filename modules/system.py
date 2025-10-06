@@ -7,9 +7,10 @@ import meshtastic.ble_interface
 import time
 import asyncio
 import random
+# not ideal but needed?
 import contextlib # for suppressing output on watchdog
 import io # for suppressing output on watchdog
-import atexit # for graceful shutdown
+# homebrew 'modules'
 from modules.log import *
 
 # Global Variables
@@ -21,22 +22,22 @@ multiPingList = [{'message_from_id': 0, 'count': 0, 'type': '', 'deviceID': 0, '
 interface_retry_count = 3
 
 # Memory Management Constants
-MAX_CMD_HISTORY = 1000
-MAX_SEEN_NODES = 500
 MAX_MSG_HISTORY = 100
-CLEANUP_INTERVAL = 3600  # 1 hour
-last_cleanup_time = 0
+MAX_CMD_HISTORY = 200
+MAX_SEEN_NODES = 200
+CLEANUP_INTERVAL = 86400 # 24 hours in seconds
+GAMEDELAY = CLEANUP_INTERVAL # the age of game entries in seconds before they are cleaned up
 
 def cleanup_memory():
     """Clean up memory by limiting list sizes and removing stale entries"""
-    global cmdHistory, seenNodes, last_cleanup_time
+    global cmdHistory, seenNodes, multiPingList
     current_time = time.time()
     
     try:
         # Limit cmdHistory size
         if 'cmdHistory' in globals() and len(cmdHistory) > MAX_CMD_HISTORY:
-            cmdHistory = cmdHistory[-MAX_CMD_HISTORY:]
-            logger.debug(f"System: Trimmed cmdHistory to {MAX_CMD_HISTORY} entries")
+            cmdHistory = cmdHistory[-(MAX_CMD_HISTORY - 50):] # keep the most recent 50 entries
+            logger.debug(f"System: Trimmed cmdHistory to {len(cmdHistory)} entries")
         
         # Clean up old seenNodes entries (older than 24 hours)
         if 'seenNodes' in globals():
@@ -54,8 +55,6 @@ def cleanup_memory():
             multiPingList[:] = [ping for ping in multiPingList 
                               if ping.get('message_from_id', 0) != 0 and 
                               ping.get('count', 0) > 0]
-        
-        last_cleanup_time = current_time
         
     except Exception as e:
         logger.error(f"System: Error during memory cleanup: {e}")
@@ -1479,6 +1478,10 @@ async def watchdog():
         if bbs_enabled and bbsAPI_enabled:
             load_bbsdm()
             load_bbsdb()
+
+        # perform memory cleanup every 10 minutes
+        if datetime.now().minute % 10 == 0:
+            cleanup_memory()
 
 def exit_handler():
     # Close the interface and save the BBS messages
