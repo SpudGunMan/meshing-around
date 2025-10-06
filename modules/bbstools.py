@@ -19,8 +19,13 @@ def load_bbsdb():
             new_bbs_messages = pickle.load(f)
             if isinstance(new_bbs_messages, list):
                 for msg in new_bbs_messages:
-                    if msg not in bbs_messages:
-                        bbs_messages.append(msg)
+                    #example [1, 'Welcome to meshBBS', 'Welcome to the BBS, please post a message!', 0]
+                    msgHash = hash(tuple(msg[1:3]))  # Create a hash of the message content (subject and body)
+                    # Check if the message already exists in bbs_messages
+                    if all(hash(tuple(existing_msg[1:3])) != msgHash for existing_msg in bbs_messages):
+                        # if the message is not a duplicate, add it to bbs_messages Maintain the message ID sequence
+                        new_id = len(bbs_messages) + 1
+                        bbs_messages.append([new_id, msg[1], msg[2], msg[3]])
     except Exception as e:
         bbs_messages = [[1, "Welcome to meshBBS", "Welcome to the BBS, please post a message!",0]]
         logger.debug("System: Creating new data/bbsdb.pkl")
