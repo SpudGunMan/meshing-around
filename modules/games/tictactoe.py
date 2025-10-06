@@ -161,7 +161,7 @@ class TicTacToe:
                 elif input_msg.lower().startswith('b'):
                     return self.show_board(id) + "Your turn! Pick 1-9:"
             position = int(numbers[0])
-        except:
+        except (ValueError, IndexError):
             return "Enter 1-9, or (e)nd (n)ew game, send (b)oard to see board🧩"
         
         # Make player move
