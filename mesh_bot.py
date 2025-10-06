@@ -1187,7 +1187,7 @@ def checkPlayingGame(message_from_id, message_string, rxNode, channel_number):
     return playingGame
 
 def onReceive(packet, interface):
-    global seenNodes
+    global seenNodes, msg_history, cmdHistory
     # Priocess the incoming packet, handles the responses to the packet with auto_response()
     # Sends the packet to the correct handler for processing
 
