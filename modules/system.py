@@ -1139,12 +1139,12 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
         if debugMetadata and 'PAXCOUNTER_APP' not in metadataFilter:
             print(f"DEBUG PAXCOUNTER_APP: {packet}\n\n")
         # get the paxcounter data
-        paxcounter_data = packet['decoded']
+        paxcounter_data = packet['decoded']['paxcounter']
         try:
-            wifi_count = paxcounter_data.get('wifi_count', 0)
-            ble_count = paxcounter_data.get('ble_count', 0)
+            wifi_count = paxcounter_data.get('wifi', 0)
+            ble_count = paxcounter_data.get('ble', 0)
             uptime = paxcounter_data.get('uptime', 0)
-            logger.info(f"System: Paxcounter Data from Device: {rxNode} Channel: {channel} NodeID:{nodeID} WiFi:{wifi_count} BLE:{ble_count} Uptime:{uptime}s")
+            logger.info(f"System: Paxcounter Data from Device: {rxNode} Channel: {channel} NodeID:{nodeID} WiFi:{wifi_count} BLE:{ble_count} Uptime:{getPrettyTime(uptime)}")
         except Exception as e:
             logger.debug(f"System: PAXCOUNTER_APP decode error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
 
