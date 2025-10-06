@@ -45,7 +45,7 @@ class TicTacToe:
                     row += "|"
             board_str += row
             if i < 2:
-                board_str += "\n-----\n"
+                board_str += "\n-+-+-\n"
         
         return board_str + "\n"
 
