@@ -38,7 +38,7 @@ location = f"{lat},{lon}"
 
 
 # # Function to handle, or the project in test
-from modules.games.quiz import *
+#from modules.llm import * # Import the LLM module
 # # Project handler function code here
 
 # example handler function canada()
