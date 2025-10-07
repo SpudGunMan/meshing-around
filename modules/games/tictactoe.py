@@ -159,7 +159,7 @@ class TicTacToe:
         elif winner == X:
             return "🤖Bot wins! (n)ew (e)nd"
         else:
-            return "🤝Tie game!  (n)ew (e)nd"
+            return "🤝Tie, The only winning move! (n)ew (e)nd"
 
     def play(self, id, input_msg):
         """Main game play function"""
