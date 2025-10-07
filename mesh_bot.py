@@ -971,7 +971,7 @@ def handle_messages(message, deviceID, channel_number, msg_history, publicChanne
                 if msgH[2] == channel_number or msgH[2] == publicChannel:
                     response += f"\n{msgH[0]}: {msgH[1]}"
         if len(response) > 0:
-            return "Message History:" + response
+            return "📨Messages:" + response
         else:
             return "No messages in history"
 
