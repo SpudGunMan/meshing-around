@@ -276,7 +276,8 @@ if games_enabled is True:
     if lemonade_enabled:
         gamesCmdList += "lemonStand, "
     if gTnW_enabled:
-        trap_list = trap_list + ("globalthermonuclearwar",)
+        trap_list = trap_list + ("globalthermonuclearwar","chess")
+        gamesCmdList += "chess, "
     if blackjack_enabled:
         gamesCmdList += "blackJack, "
     if videoPoker_enabled:

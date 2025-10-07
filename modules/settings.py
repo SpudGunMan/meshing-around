@@ -362,7 +362,8 @@ try:
     allowXcmd = config['fileMon'].getboolean('allowXcmd', False) # default False
 
     # games
-    game_hop_limit = config['messagingSettings'].getint('game_hop_limit', 5) # default 3 hops
+    game_hop_limit = config['games'].getint('game_hop_limit', 5) # default 5 hops
+    disable_emojis_in_games = config['games'].getboolean('disable_emojis', False) # default False
     dopewars_enabled = config['games'].getboolean('dopeWars', True)
     lemonade_enabled = config['games'].getboolean('lemonade', True)
     blackjack_enabled = config['games'].getboolean('blackjack', True)

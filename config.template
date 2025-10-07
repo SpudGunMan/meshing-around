@@ -323,6 +323,7 @@ IMAP_FOLDER = inbox
 [games]
 # if hop limit for the user exceeds this value, the message will be dropped
 game_hop_limit = 5
+disable_emojis = False
 # enable or disable the games module(s)
 dopeWars = True
 lemonade = True

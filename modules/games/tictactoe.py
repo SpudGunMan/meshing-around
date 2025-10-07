@@ -1,25 +1,45 @@
 # Tic-Tac-Toe game for Meshtastic mesh-bot
 # Board positions chosen by numbers 1-9
 # 2025
+from modules.log import *
 import random
 # to molly and jake, I miss you both so much.
+
+if disable_emojis_in_games:
+    X = "X"
+    O = "O"
+else:
+    X = "❌"
+    O = "⭕️"
 
 class TicTacToe:
     def __init__(self):
         self.game = {}
 
     def new_game(self, id):
+        positiveThoughts = ["🚀I need to call NATO",
+                            "🏅Going for the gold!",
+                            "Mastering ❌TTT⭕️",]
+        sorryNotGoinWell = ["😭Not your day, huh?",
+                        "📉Results here dont define you.",
+                        "🤖WOPR would be proud."]
         """Start a new game"""
         games = won = 0
         ret = ""
         if id in self.game:
             games = self.game[id]["games"]
             won = self.game[id]["won"]
-            ret += f"Games:{games} Won:{won}\n"
+            if games > 0:
+                if won / games >= 3.14159265358979323846: # win rate > pi
+                    ret += random.choice(positiveThoughts) + "\n"
+                else:
+                    ret += random.choice(sorryNotGoinWell) + "\n"
+            # Retain stats
+            ret += f"Games:{games} 🥇❌:{won}\n"
 
         self.game[id] = {
             "board": [" "] * 9,  # 3x3 board as flat list
-            "player": "X",       # Human is X, bot is O
+            "player": X,       # Human is X, bot is O
             "games": games + 1,
             "won": won,
             "turn": "human"      # whose turn it is
@@ -39,13 +59,17 @@ class TicTacToe:
             row = ""
             for j in range(3):
                 pos = i * 3 + j
-                cell = b[pos] if b[pos] != " " else str(pos + 1)
+                if disable_emojis_in_games:
+                    cell = b[pos] if b[pos] != " " else str(pos + 1)
+                else:
+                    cell = b[pos] if b[pos] != " " else f" {str(pos + 1)} "
                 row += cell
                 if j < 2:
-                    row += "|"
+                    row += " | "
             board_str += row
             if i < 2:
-                board_str += "\n-+-+-\n"
+                #board_str += "\n-+-+-\n"
+                board_str += "\n"
         
         return board_str + "\n"
 
@@ -62,7 +86,7 @@ class TicTacToe:
             return False
         
         # Make human move
-        g["board"][pos] = "X"
+        g["board"][pos] = X
         return True
 
     def bot_move(self, id):
@@ -70,14 +94,14 @@ class TicTacToe:
         g = self.game[id]
         
         # Simple AI: Try to win, block, or pick random
-        move = self.find_winning_move(id, "O")  # Try to win
+        move = self.find_winning_move(id, O)  # Try to win
         if move == -1:
-            move = self.find_winning_move(id, "X")  # Block player
+            move = self.find_winning_move(id, X)  # Block player
         if move == -1:
             move = self.find_random_move(id)  # Random move
         
         if move != -1:
-            g["board"][move] = "O"
+            g["board"][move] = O
         return move
 
     def find_winning_move(self, id, player):
@@ -129,10 +153,10 @@ class TicTacToe:
         g = self.game[id]
         winner = self.check_winner(id)
         
-        if winner == "X":
+        if winner == X:
             g["won"] += 1
             return "🎉You won! (n)ew (e)nd"
-        elif winner == "O":
+        elif winner == X:
             return "🤖Bot wins! (n)ew (e)nd"
         else:
             return "🤝Tie game!  (n)ew (e)nd"
@@ -143,7 +167,7 @@ class TicTacToe:
             return self.new_game(id)
         
         # If input is just "tictactoe", show current board
-        if input_msg.lower().strip() == "tictactoe":
+        if input_msg.lower().strip() == ("tictactoe" or "tic-tac-toe"):
             return self.show_board(id) + "Your turn! Pick 1-9:"
         
         g = self.game[id]
@@ -201,8 +225,19 @@ class TicTacToe:
     def end_game(self, id):
         """Clean up finished game but keep stats"""
         if id in self.game:
+            games = self.game[id]["games"]
+            won = self.game[id]["won"]
             # Remove game but we'll create new one on next play
             del self.game[id]
+            # Preserve stats for next game
+            self.game[id] = {
+                "board": [" "] * 9,
+                "player": X,
+                "games": games,
+                "won": won,
+                "turn": "human"
+            }
+
 
     def end(self, id):
         """End game completely (called by 'end' command)"""

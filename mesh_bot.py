@@ -43,6 +43,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "checkin": lambda: handle_checklist(message, message_from_id, deviceID),
     "checklist": lambda: handle_checklist(message, message_from_id, deviceID),
     "checkout": lambda: handle_checklist(message, message_from_id, deviceID),
+    "chess": lambda: handle_gTnW(chess=True),
     "clearsms": lambda: handle_sms(message_from_id, message),
     "cmd": lambda: handle_cmd(message, message_from_id, deviceID),
     "cq": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
@@ -544,12 +545,17 @@ def handleDopeWars(message, nodeID, rxNode):
     time.sleep(responseDelay + 1)
     return msg
 
-def handle_gTnW():
+def handle_gTnW(chess = False):
+    chess = ["How about a nice game of chess?", "Shall we play a game of chess?", "Would you like to play a game of chess?", "f3, to e5, g4??"]
     response = ["The only winning move is not to play.", "What are you doing, Dave?",\
                   "Greetings, Professor Falken.", "Shall we play a game?", "How about a nice game of chess?",\
                   "You are a hard man to reach. Could not find you in Seattle and no terminal is in operation at your classified address.",\
                   "I should reach Defcon 1 and release my missiles in 28 hours.","T-minus thirty","Malfunction 54: Treatment pause;dose input 2", "reticulating splines"]
     length = len(response)
+    chess_length = len(chess)
+    if chess:
+        response = chess
+        length = chess_length
     indices = list(range(length))
     # Shuffle the indices using a convoluted method
     for i in range(length):
