@@ -961,7 +961,8 @@ def handle_messages(message, deviceID, channel_number, msg_history, publicChanne
         return message.split("?")[0].title() + " command returns the last " + str(storeFlimit) + " messages sent on a channel."
     else:
         response = ""
-        for msgH in msg_history:
+        # Reverse the message history to show most recent first
+        for msgH in reversed(msg_history):
             # number of messages to return +1 for the header line
             if len(response.split("\n")) >= storeFlimit + 1:
                 break
