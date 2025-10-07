@@ -962,8 +962,8 @@ def handle_messages(message, deviceID, channel_number, msg_history, publicChanne
     else:
         response = ""
         for msgH in msg_history:
-            # number of messages to return
-            if len(response.split("\n"))/2 >= storeFlimit:
+            # number of messages to return +1 for the header line
+            if len(response.split("\n")) >= storeFlimit + 1:
                 break
             # if the message is for this deviceID and channel or publicChannel
             if msgH[4] == deviceID:
