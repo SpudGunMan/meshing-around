@@ -137,7 +137,7 @@ git clone https://github.com/spudgunman/meshing-around
 | Command | Description | |
 |---------|-------------|-
 | `askai` and `ask:` | Ask Ollama LLM AI for a response. Example: `askai what temp do I cook chicken` | ✅ |
-| `messages` | Replays the last messages heard, like Store and Forward | ✅ |
+| `messages` | Replays the last messages heard on device, like Store and Forward, returns the PublicChannel and Current | ✅ |
 | `readnews` | returns the contents of a file (news.txt, by default) via the chunker on air | ✅ |
 | `satpass` | returns the pass info from API for defined NORAD ID in config or Example: `satpass 25544,33591`| |
 | `wiki:` | Searches Wikipedia and returns the first few sentences of the first result if a match. Example: `wiki: lora radio` |
