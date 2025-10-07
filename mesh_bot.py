@@ -973,7 +973,7 @@ def handle_messages(message, deviceID, channel_number, msg_history, publicChanne
         if len(response) > 0:
             return "📨Messages:" + response
         else:
-            return "No messages in history"
+            return "No 📭messages in history"
 
 def handle_sun(message_from_id, deviceID, channel_number):
     location = get_node_location(message_from_id, deviceID, channel_number)
