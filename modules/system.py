@@ -263,6 +263,11 @@ if hamtest_enabled:
 if tictactoe_enabled:
     from modules.games.tictactoe import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + ("tictactoe","tic-tac-toe",)
+
+if quiz_enabled:
+    from modules.games.quiz import * # from the spudgunman/meshing-around repo
+    trap_list = trap_list + trap_list_quiz # items quiz, q:
+    help_message = help_message + ", quiz"
     games_enabled = True
 
 # Games Configuration

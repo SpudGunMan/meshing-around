@@ -162,6 +162,8 @@ git clone https://github.com/spudgunman/meshing-around
 | `joke` | Tells a joke | |
 | `lemonstand` | Plays the classic Lemonade Stand finance game | ✅ |
 | `mastermind` | Plays the classic code-breaking game | ✅ |
+| `quiz` | QuizMaster Bot `q: ?` for more |  ✅ |
+| `tic-tac-toe`| Plays the game classic game | ✅ |
 | `videopoker` | Plays basic 5-card hold Video Poker | ✅ |
 
 ## Other Install Options

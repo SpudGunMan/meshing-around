@@ -373,6 +373,7 @@ try:
     hangman_enabled = config['games'].getboolean('hangman', True)
     hamtest_enabled = config['games'].getboolean('hamtest', True)
     tictactoe_enabled = config['games'].getboolean('tictactoe', True)
+    quiz_enabled = config['games'].getboolean('quiz', True)
 
     # messaging settings
     responseDelay = config['messagingSettings'].getfloat('responseDelay', 0.7) # default 0.7

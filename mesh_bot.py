@@ -15,7 +15,7 @@ from modules.log import *
 from modules.system import *
 
 # list of commands to remove from the default list for DM only
-restrictedCommands = ["blackjack", "videopoker", "dopewars", "lemonstand", "golfsim", "mastermind", "hangman", "hamtest", "tictactoe"]
+restrictedCommands = ["blackjack", "videopoker", "dopewars", "lemonstand", "golfsim", "mastermind", "hangman", "hamtest", "tictactoe", "quiz", "q:"]
 restrictedResponse = "🤖only available in a Direct Message📵" # "" for none
 cmdHistory = [] # list to hold the command history for lheard and history commands
 msg_history = [] # list to hold the message history for the messages command
@@ -75,6 +75,8 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "ping": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
     "pinging": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
     "pong": lambda: "🏓PING!!🛜",
+    "q:": lambda: quizHandler(message, message_from_id, deviceID),
+    "quiz": lambda: quizHandler(message, message_from_id, deviceID),
     "readnews": lambda: read_news(),
     "riverflow": lambda: handle_riverFlow(message, message_from_id, deviceID),
     "rlist": lambda: handle_repeaterQuery(message_from_id, deviceID, channel_number),
@@ -846,6 +848,46 @@ def handleTicTacToe(message, nodeID, deviceID):
     time.sleep(responseDelay + 1)
     return msg
 
+def quizHandler(message, nodeID, deviceID):
+    user_name = get_name_from_number(nodeID)
+    user_id = nodeID
+    msg = ""
+    user_answer = message.lower().replace("quiz","").replace("q:","").replace("quiz ","").replace("q: ","").strip()
+    if message.startswith("quiz") or message.lower().startswith("q:"):
+        if user_answer.startswith("start"):
+            msg = quizGamePlayer.start_game(user_id)
+        elif user_answer.startswith("stop"):
+            msg = quizGamePlayer.stop_game(user_id)
+        elif user_answer.startswith("join"):
+            msg = quizGamePlayer.join(user_id)
+        elif user_answer.startswith("leave"):
+            msg = quizGamePlayer.leave(user_id)
+        elif user_answer.startswith("next"):
+            msg = quizGamePlayer.next_question(user_id)
+        elif user_answer.startswith("score"):
+            if user_id in quizGamePlayer.players:
+                score = quizGamePlayer.players[user_id]['score']
+                msg = f"Your score: {score}"
+            else:
+                msg = "You are not in the quiz."
+        elif user_answer.startswith("top"):
+            msg = quizGamePlayer.top_three()
+        elif user_answer.startswith("broadcast"):
+            broadcast_msg = user_answer.replace("broadcast", "", 1).strip()
+            msg = quizGamePlayer.broadcast(user_id, broadcast_msg)
+        elif user_answer.startswith("?"):
+            msg = ("Quiz Commands:\n"
+                   "q: join - Join the current quiz\n"
+                   "q: leave - Leave the current quiz\n"
+                   "q: next - Get the next question\n"
+                   "q: <your answer> - Answer the current question\n"
+                   "q: score - Show your current score\n"
+                   "q: top - Show top 3 players\n")
+        else:
+            msg = quizGamePlayer.answer(user_id, user_answer)
+
+    return msg
+
 def handle_riverFlow(message, message_from_id, deviceID):
     location = get_node_location(message_from_id, deviceID)
     
@@ -1188,6 +1230,7 @@ def checkPlayingGame(message_from_id, message_string, rxNode, channel_number):
         (hangmanTracker, "Hangman", handleHangman) if 'hangmanTracker' in globals() else None,
         (hamtestTracker, "HamTest", handleHamtest) if 'hamtestTracker' in globals() else None,
         (tictactoeTracker, "TicTacToe", handleTicTacToe) if 'tictactoeTracker' in globals() else None,
+        #quiz does not use a tracker (quizGamePlayer) always active
     ]
     trackers = [tracker for tracker in trackers if tracker is not None]
 
