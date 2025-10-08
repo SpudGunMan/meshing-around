@@ -132,6 +132,7 @@ highFlyingAlertAltitude = 2000
 highflyOpenskynetwork = True
 # Channel to send Alert when the high flying node is detected
 highFlyingAlertInterface = 1
+# to disable OTA alert set to unused channel like 9
 highFlyingAlertChannel = 2
 # list of nodes numbers to ignore high flying alert ex: 2813308004,4258675309
 highFlyingIgnoreList =
