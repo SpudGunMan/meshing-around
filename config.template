@@ -284,7 +284,7 @@ broadcastCh = 2
 
 # news  command will return the contents of a text file
 enable_read_news = False
-news_file_path = news.txt
+news_file_path = ../data/news.txt
 # only return a single random line from the news file
 news_random_line = False
 

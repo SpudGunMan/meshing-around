@@ -9,11 +9,12 @@ import subprocess
 
 trap_list_filemon = ("readnews",)
 
-def read_file(file_monitor_file_path, random_line_only=False):
+NEWS_DATA_DIR = os.path.join(os.path.dirname(__file__), '..', 'data')
+newsSourcesList = []
 
+def read_file(file_monitor_file_path, random_line_only=False):
     try:
         if not os.path.exists(file_monitor_file_path):
-            logger.warning(f"FileMon: File not found: {file_monitor_file_path}")
             if file_monitor_file_path == "bee.txt":
                 return "🐝buzz 💐buzz buzz🍯"
         if random_line_only:
@@ -29,21 +30,25 @@ def read_file(file_monitor_file_path, random_line_only=False):
     except Exception as e:
         logger.warning(f"FileMon: Error reading file: {file_monitor_file_path}")
         return None
-    
-def read_news():
-    # read the news file on demand
-    return read_file(news_file_path, news_random_line_only)
 
+def read_news(source=None):
+    # Reads the news file. If a source is provided, reads {source}_news.txt.
+    if source:
+        file_path = os.path.join(NEWS_DATA_DIR, f"{source}_news.txt")
+    else:
+        file_path = os.path.join(NEWS_DATA_DIR, news_file_path)
+    return read_file(file_path, news_random_line_only)
 
 def write_news(content, append=False):
     # write the news file on demand
     try:
-        with open(news_file_path, 'a' if append else 'w', encoding='utf-8') as f:
-            f.write(content)
-            logger.info(f"FileMon: Updated {news_file_path}")
+        file_path = os.path.join(NEWS_DATA_DIR, news_file_path)
+        with open(file_path, 'a' if append else 'w', encoding='utf-8') as f:
+            #f.write(content)
+            logger.info(f"FileMon: Updated {file_path}")
         return True
     except Exception as e:
-        logger.warning(f"FileMon: Error writing file: {news_file_path}")
+        logger.warning(f"FileMon: Error writing file: {file_path}")
         return False
 
 async def watch_file():
@@ -119,3 +124,15 @@ def handleShellCmd(message, message_from_id, channel_number, isDM, deviceID):
         return "x: command is disabled"
     
     return "x: command executed with no output"
+
+def initNewsSources():
+    #check for the files _news.txt and add to the newsHeadlines list
+    global newsSourcesList
+    newsSourcesList = []
+    for file in os.listdir(NEWS_DATA_DIR):
+        if file.endswith('_news.txt'):
+            source = file[:-9]  # remove _news.txt
+            newsSourcesList.append(source)
+
+#initialize the headlines on startup
+initNewsSources()

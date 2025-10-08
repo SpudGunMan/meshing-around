@@ -75,7 +75,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "pong": lambda: "🏓PING!!🛜",
     "q:": lambda: quizHandler(message, message_from_id, deviceID),
     "quiz": lambda: quizHandler(message, message_from_id, deviceID),
-    "readnews": lambda: read_news(),
+    "readnews": lambda: handleNews(message_from_id, deviceID, message, isDM),
     "riverflow": lambda: handle_riverFlow(message, message_from_id, deviceID),
     "rlist": lambda: handle_repeaterQuery(message_from_id, deviceID, channel_number),
     "satpass": lambda: handle_satpass(message_from_id, deviceID, channel_number, message),
@@ -333,6 +333,26 @@ def handle_wxalert(message_from_id, deviceID, message):
             weatherAlert = weatherAlert[0]
         return weatherAlert
 
+def handleNews(message_from_id, deviceID, message, isDM):
+    news = ''
+    # if news source is provided pass that to read_news()
+    if "?" in message.lower():
+        return "returns the news. Add a source e.g. 📰readnews mesh"
+    elif "readnews" in message.lower():
+        source = message.lower().replace("readnews", "").strip()
+        if source:
+            news = read_news(source)
+        else:
+            news = read_news()
+
+    if news:
+        # if not a DM add the username to the beginning of msg
+        if not useDMForResponse and not isDM:
+            news = "@" + get_name_from_number(message_from_id, 'short', deviceID) + " " + news
+        return news
+    else:
+        return "No news for you!"
+    
 def handle_howfar(message, message_from_id, deviceID, isDM):
     msg = ''
     location = get_node_location(message_from_id, deviceID)
