@@ -39,6 +39,23 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
         "test": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
         "testing": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
     }
+    
+    # Add custom ping words to command handler dynamically
+    if customPingWords and customPingWords[0]:
+        for word in customPingWords:
+            if word.strip():
+                word_lower = word.strip().lower()
+                if word_lower not in command_handler:
+                    command_handler[word_lower] = lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number)
+    
+    # Add custom test words to command handler dynamically
+    if customTestWords and customTestWords[0]:
+        for word in customTestWords:
+            if word.strip():
+                word_lower = word.strip().lower()
+                if word_lower not in command_handler:
+                    command_handler[word_lower] = lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number)
+    
     cmds = [] # list to hold the commands found in the message
     for key in command_handler:
         if key in message_lower.split(' '):
@@ -70,11 +87,28 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, chann
     
     msg = ""
     type = ''
+    message_lower = message.lower()
+    
+    # Check for custom ping words from config
+    custom_ping_match = False
+    custom_test_match = False
+    
+    if customPingWords and customPingWords[0]:
+        for word in customPingWords:
+            if word.strip() and word.strip().lower() in message_lower:
+                custom_ping_match = True
+                break
+    
+    if customTestWords and customTestWords[0]:
+        for word in customTestWords:
+            if word.strip() and word.strip().lower() in message_lower:
+                custom_test_match = True
+                break
 
-    if "ping" in message.lower():
+    if "ping" in message_lower or custom_ping_match:
         msg = "🏓PONG\n"
         type = "🏓PING"
-    elif "test" in message.lower() or "testing" in message.lower():
+    elif "test" in message_lower or "testing" in message_lower or custom_test_match:
         msg = random.choice(["🎙Testing 1,2,3\n", "🎙Testing\n",\
                              "🎙Testing, testing\n",\
                              "🎙Ah-wun, ah-two...\n", "🎙Is this thing on?\n",\

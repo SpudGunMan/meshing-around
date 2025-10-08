@@ -236,6 +236,9 @@ try:
     favoriteNodeList = config['general'].get('favoriteNodeList', '').split(',')
     enableEcho = config['general'].getboolean('enableEcho', False) # default False
     echoChannel = config['general'].getint('echoChannel', '9') # default 9, empty string to ignore
+    customPingWords = config['general'].get('customPingWords', '').split(',') # custom trigger words for ping
+    customTestWords = config['general'].get('customTestWords', '').split(',') # custom trigger words for test
+    enableStatsTracking = config['general'].getboolean('enableStatsTracking', True) # default True
 
     # emergency response
     emergency_responder_enabled = config['emergencyHandler'].getboolean('enabled', False)

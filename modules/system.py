@@ -56,6 +56,11 @@ def cleanup_memory():
                               if ping.get('message_from_id', 0) != 0 and 
                               ping.get('count', 0) > 0]
         
+        # Save user statistics if stats tracking is enabled
+        if enableStatsTracking:
+            save_stats()
+            logger.debug(f"System: Saved user statistics")
+        
     except Exception as e:
         logger.error(f"System: Error during memory cleanup: {e}")
 
@@ -89,8 +94,21 @@ def cleanup_game_trackers(current_time):
 # Ping Configuration
 if ping_enabled:
     # ping, pinging, ack, testing, test, pong
-    trap_list_ping = ("ping", "pinging", "ack", "testing", "test", "pong", "🔔", "cq","cqcq", "cqcqcq")
-    trap_list = trap_list + trap_list_ping
+    trap_list_ping = ["ping", "pinging", "ack", "testing", "test", "pong", "🔔", "cq","cqcq", "cqcqcq"]
+    
+    # Add custom ping words from config
+    if customPingWords and customPingWords[0]:  # Check if list is not empty and first item is not empty string
+        custom_ping = [word.strip().lower() for word in customPingWords if word.strip()]
+        trap_list_ping.extend(custom_ping)
+        logger.info(f"System: Added custom ping words: {custom_ping}")
+    
+    # Add custom test words from config
+    if customTestWords and customTestWords[0]:  # Check if list is not empty and first item is not empty string
+        custom_test = [word.strip().lower() for word in customTestWords if word.strip()]
+        trap_list_ping.extend(custom_test)
+        logger.info(f"System: Added custom test words: {custom_test}")
+    
+    trap_list = trap_list + tuple(trap_list_ping)
     help_message = help_message + "ping"
 
 # Echo Configuration
@@ -127,6 +145,12 @@ if whoami_enabled:
     trap_list_whoami = ("whoami", "📍", "whois")
     trap_list = trap_list + trap_list_whoami
     help_message = help_message + ", whoami"
+
+# Stats Tracking Configuration
+if enableStatsTracking:
+    from modules.stats import * # from the spudgunman/meshing-around repo
+    trap_list = trap_list + ("top", "leaderboard")
+    help_message = help_message + ", top"
 
 # Solar Conditions Configuration
 if solar_conditions_enabled:
@@ -1099,6 +1123,14 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
             telemetry_packet = packet['decoded']['telemetry']
             if telemetry_packet.get('deviceMetrics'):
                 deviceMetrics = telemetry_packet['deviceMetrics']
+                
+                # Track battery and uptime stats
+                if enableStatsTracking:
+                    if deviceMetrics.get('batteryLevel') is not None:
+                        update_user_stat(nodeID, 'battery', deviceMetrics['batteryLevel'], rxNode)
+                    if deviceMetrics.get('uptimeSeconds') is not None:
+                        update_user_stat(nodeID, 'uptime', deviceMetrics['uptimeSeconds'], rxNode)
+                
                 #if uptime is in deviceMetrics and uptime is not 0 set uptime
                 # if deviceMetrics.get('uptimeSeconds') is not None and deviceMetrics['uptimeSeconds'] != 0:
                 #     if highestUptime < deviceMetrics['uptimeSeconds']:

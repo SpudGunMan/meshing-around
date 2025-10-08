@@ -93,6 +93,8 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "tictactoe": lambda: handleTicTacToe(message, message_from_id, deviceID),
     "tic-tac-toe": lambda: handleTicTacToe(message, message_from_id, deviceID),
     "tide": lambda: handle_tide(message_from_id, deviceID, channel_number),
+    "top": lambda: handle_top(message, message_from_id, deviceID, isDM),
+    "leaderboard": lambda: handle_top(message, message_from_id, deviceID, isDM),
     "valert": lambda: get_volcano_usgs(),
     "videopoker": lambda: handleVideoPoker(message, message_from_id, deviceID),
     "whereami": lambda: handle_whereami(message_from_id, deviceID, channel_number),
@@ -120,6 +122,23 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
 
     # set the command handler
     command_handler = default_commands
+    
+    # Add custom ping words to command handler dynamically
+    if customPingWords and customPingWords[0]:
+        for word in customPingWords:
+            if word.strip():
+                word_lower = word.strip().lower()
+                if word_lower not in command_handler:
+                    command_handler[word_lower] = lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number)
+    
+    # Add custom test words to command handler dynamically
+    if customTestWords and customTestWords[0]:
+        for word in customTestWords:
+            if word.strip():
+                word_lower = word.strip().lower()
+                if word_lower not in command_handler:
+                    command_handler[word_lower] = lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number)
+    
     cmds = [] # list to hold the commands found in the message
     # check the message for commands words list, processed after system.messageTrap
     for key in command_handler:
@@ -146,6 +165,11 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
         else:
             # run the first command after sorting
             bot_response = command_handler[cmds[0]['cmd']]()
+            
+            # Track command usage stats
+            if enableStatsTracking:
+                update_user_stat(message_from_id, 'commands', 1, deviceID)
+            
             # append the command to the cmdHistory list for lheard and history
             if len(cmdHistory) > 50:
                 cmdHistory.pop(0)
@@ -170,20 +194,37 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, chann
     
     msg = ""
     type = ''
+    message_lower = message.lower()
 
-    if "ping" in message.lower():
+    # Check for custom ping words from config
+    custom_ping_match = False
+    custom_test_match = False
+    
+    if customPingWords and customPingWords[0]:
+        for word in customPingWords:
+            if word.strip() and word.strip().lower() in message_lower:
+                custom_ping_match = True
+                break
+    
+    if customTestWords and customTestWords[0]:
+        for word in customTestWords:
+            if word.strip() and word.strip().lower() in message_lower:
+                custom_test_match = True
+                break
+
+    if "ping" in message_lower or custom_ping_match:
         msg = "🏓PONG\n"
         type = "🏓PING"
-    elif "test" in message.lower() or "testing" in message.lower():
+    elif "test" in message_lower or "testing" in message_lower or custom_test_match:
         msg = random.choice(["🎙Testing 1,2,3\n", "🎙Testing\n",\
                              "🎙Testing, testing\n",\
                              "🎙Ah-wun, ah-two...\n", "🎙Is this thing on?\n",\
                              "🎙Roger that!\n",])
         type = "🎙TEST"
-    elif "ack" in message.lower():
+    elif "ack" in message_lower:
         msg = random.choice(["✋ACK-ACK!\n", "✋Ack to you!\n"])
         type = "✋ACK"
-    elif "cqcq" in message.lower() or "cq" in message.lower() or "cqcqcq" in message.lower():
+    elif "cqcq" in message_lower or "cq" in message_lower or "cqcqcq" in message_lower:
         myname = get_name_from_number(myNodeNum, 'short', deviceID)
         msg = f"QSP QSL OM DE  {myname}   K\n"
     else:
@@ -317,6 +358,55 @@ def handle_echo(message, message_from_id, deviceID, isDM, channel_number):
             return "Please provide a message to echo back to you. Example:echo Hello World"
     else:
         return "Please provide a message to echo back to you. Example:echo Hello World"
+
+def handle_top(message, message_from_id, deviceID, isDM):
+    """
+    Handle the top/leaderboard command for user statistics
+    Usage: 
+        top or leaderboard - shows top message senders
+        top messages - top message senders
+        top commands - top command users
+        top battery - lowest battery users
+        top online - most recently active users
+    """
+    if not enableStatsTracking:
+        return "Statistics tracking is disabled."
+    
+    if "?" in message:
+        return ("Top/Leaderboard commands:\n"
+                "top or top messages - Most messages sent\n"
+                "top commands - Most commands used\n"
+                "top battery - Lowest battery levels\n"
+                "top online - Most recently active\n"
+                "Add number for limit (e.g., top 5)")
+    
+    message_lower = message.lower()
+    stat_type = 'messages'  # default
+    limit = 10  # default
+    
+    # Parse the command to get stat type and limit
+    parts = message_lower.split()
+    for part in parts:
+        if part.isdigit():
+            limit = min(int(part), 20)  # Cap at 20
+        elif part in ['messages', 'commands', 'battery', 'online']:
+            stat_type = part
+    
+    # Generate and format the leaderboard
+    msg = format_leaderboard(stat_type, limit)
+    
+    # Replace node IDs with short names for better readability
+    if "🏆" in msg:
+        for part in msg.split():
+            part_clean = part.rstrip(':,%')
+            if len(part_clean) == 10 and part_clean.isdigit():
+                try:
+                    short_name = get_name_from_number(int(part_clean), 'short', deviceID)
+                    msg = msg.replace(part_clean, short_name)
+                except:
+                    pass
+    
+    return msg
 
 def handle_wxalert(message_from_id, deviceID, message):
     if use_meteo_wxApi:
@@ -1415,6 +1505,12 @@ def onReceive(packet, interface):
     # if message_from_id is not in the seenNodes list add it
     if not any(node['nodeID'] == message_from_id for node in seenNodes):
         seenNodes.append({'nodeID': message_from_id, 'rxInterface': rxNode, 'channel': channel_number, 'welcome': False, 'lastSeen': time.time()})
+    else:
+        # Update last seen time for existing node
+        for node in seenNodes:
+            if node['nodeID'] == message_from_id:
+                node['lastSeen'] = time.time()
+                break
 
     # BBS DM MAIL CHECKER
     if bbs_enabled and 'decoded' in packet:
@@ -1435,6 +1531,11 @@ def onReceive(packet, interface):
             message_string = message_bytes.decode('utf-8')
             via_mqtt = packet['decoded'].get('viaMqtt', False)
             rx_time = packet['decoded'].get('rxTime', time.time())
+            
+            # Track message stats
+            if enableStatsTracking:
+                update_user_stat(message_from_id, 'messages', 1, rxNode)
+                update_user_stat(message_from_id, 'last_seen', time.time(), rxNode)
 
             # check if the packet is from us
             if message_from_id in [myNodeNum1, myNodeNum2, myNodeNum3, myNodeNum4, myNodeNum5, myNodeNum6, myNodeNum7, myNodeNum8, myNodeNum9]:
