@@ -15,7 +15,7 @@ from modules.log import *
 
 allowedSurveys = []  # List of allowed survey names
 
-trap_list_survey = ("survey")
+trap_list_survey = ("survey",)
 
 class SurveyModule:
     def __init__(self):
