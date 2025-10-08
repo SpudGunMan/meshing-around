@@ -915,24 +915,22 @@ def surveyHandler(message, nodeID, deviceID):
     msg = ''
     # Normalize and parse the command
     msg_lower = message.lower().strip()
-    if msg_lower.startswith("survey "):
-        surveySays = msg_lower.split("survey ", 1)
+    surveySays = msg_lower
+    if msg_lower.startswith("survey"):
+        surveySays = surveySays.removeprefix("survey").strip()
     elif msg_lower.startswith("s:"):
-        surveySays = msg_lower.split("s:", 1)
-    else:
-        surveySays = [msg_lower]
-
-    # Determine survey name or answer
-    survey = surveySays[1].strip() if len(surveySays) > 1 else "example"
-    command = surveySays[0].strip()
-
+        surveySays = surveySays.removeprefix("s:").strip()
+    
     # Handle end command
-    if command == "end":
+    if surveySays == "end":
+        if nodeID not in survey_module.responses:
+            return "No active survey session to end."
         return survey_module.end_survey(user_id=nodeID)
 
     # Handle report command
-    if survey == "report":
+    if surveySays == "report":
         #return survey_module.quiz_report()
+        # reminder to fix int and open question reporting
         return "Report not implemented yet"
 
     # Update last played or add new tracker entry
@@ -947,9 +945,9 @@ def surveyHandler(message, nodeID, deviceID):
 
     # If not in survey session, start one
     if nodeID not in survey_module.responses:
-        msg = survey_module.start_survey(user_id=nodeID, survey_name=survey, location=location)
+        msg = survey_module.start_survey(user_id=nodeID, survey_name=surveySays, location=location)
     else:
-        msg = survey_module.answer(user_id=nodeID, answer=survey, location=location)
+        msg = survey_module.answer(user_id=nodeID, answer=surveySays, location=location)
 
     return msg
 

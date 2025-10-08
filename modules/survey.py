@@ -23,20 +23,23 @@ class SurveyModule:
         """Load all surveys from the surveys directory with _survey.json suffix."""
         global allowedSurveys
         allowedSurveys.clear()
-        for filename in os.listdir(self.survey_dir):
-            if filename.endswith('_survey.json'):
-                survey_name = filename[:-12]  # Remove '_survey.json'
-                allowedSurveys.append(survey_name)
-                path = os.path.join(self.survey_dir, filename)
-                try:
-                    with open(path, encoding='utf-8') as f:
-                        self.surveys[survey_name] = json.load(f)
-                except FileNotFoundError:
-                    logger.error(f"File not found: {path}")
-                    self.surveys[survey_name] = []
-                except json.JSONDecodeError:
-                    logger.error(f"Error decoding JSON from file: {path}")
-                    self.surveys[survey_name] = []
+        try:
+            for filename in os.listdir(self.survey_dir):
+                if filename.endswith('_survey.json'):
+                    survey_name = filename[:-12]  # Remove '_survey.json'
+                    allowedSurveys.append(survey_name)
+                    path = os.path.join(self.survey_dir, filename)
+                    try:
+                        with open(path, encoding='utf-8') as f:
+                            self.surveys[survey_name] = json.load(f)
+                    except FileNotFoundError:
+                        logger.error(f"File not found: {path}")
+                        self.surveys[survey_name] = []
+                    except json.JSONDecodeError:
+                        logger.error(f"Error decoding JSON from file: {path}")
+                        self.surveys[survey_name] = []
+        except Exception as e:
+            logger.error(f"Survey: Error loading surveys: {e}")
 
     def start_survey(self, user_id, survey_name='example', location=None):
         """Begin a new survey session for a user."""
@@ -93,42 +96,46 @@ class SurveyModule:
             logger.error(f"Error saving responses to {filename}: {e}")
 
     def answer(self, user_id, answer, location=None):
-        """Record an answer and return the next question or end message."""
-        if user_id not in self.responses:
-            return self.start_survey(user_id, location=location)
-        question_index = self.responses[user_id]['current_question']
-        survey_name = self.responses[user_id]['survey_name']
-        questions = self.surveys.get(survey_name, [])
-        if question_index < 0 or question_index >= len(questions):
-            return "No current question to answer."
-        question = questions[question_index]
-        qtype = question.get('type', 'multiple_choice')
-        if qtype == 'multiple_choice':
-            answer_char = answer.strip().upper()[:1]
-            if len(answer_char) != 1 or not answer_char.isalpha():
-                return "Please answer with a letter (A, B, C, ...)."
-            option_index = ord(answer_char) - 65
-            if 0 <= option_index < len(question['options']):
-                self.responses[user_id]['answers'].append(str(option_index))
+        try:
+            """Record an answer and return the next question or end message."""
+            if user_id not in self.responses:
+                return self.start_survey(user_id, location=location)
+            question_index = self.responses[user_id]['current_question']
+            survey_name = self.responses[user_id]['survey_name']
+            questions = self.surveys.get(survey_name, [])
+            if question_index < 0 or question_index >= len(questions):
+                return "No current question to answer."
+            question = questions[question_index]
+            qtype = question.get('type', 'multiple_choice')
+            if qtype == 'multiple_choice':
+                answer_char = answer.strip().upper()[:1]
+                if len(answer_char) != 1 or not answer_char.isalpha():
+                    return "Please answer with a letter (A, B, C, ...)."
+                option_index = ord(answer_char) - 65
+                if 0 <= option_index < len(question['options']):
+                    self.responses[user_id]['answers'].append(str(option_index))
+                    self.responses[user_id]['current_question'] += 1
+                    return f"Recorded..\n" + self.show_question(user_id)
+                else:
+                    print(f"Invalid option index {option_index} for question with {len(question['options'])} options. user entered '{answer}'")
+                    return "Invalid answer option. Please try again."
+            elif qtype == 'integer':
+                try:
+                    int_answer = int(answer)
+                    self.responses[user_id]['answers'].append(str(int_answer))
+                    self.responses[user_id]['current_question'] += 1
+                    return f"Recorded..\n" + self.show_question(user_id)
+                except ValueError:
+                    return "Please enter a valid integer."
+            elif qtype == 'text':
+                self.responses[user_id]['answers'].append(answer.strip())
                 self.responses[user_id]['current_question'] += 1
                 return f"Recorded..\n" + self.show_question(user_id)
             else:
-                print(f"Invalid option index {option_index} for question with {len(question['options'])} options. user entered '{answer}'")
-                return "Invalid answer option. Please try again."
-        elif qtype == 'integer':
-            try:
-                int_answer = int(answer)
-                self.responses[user_id]['answers'].append(str(int_answer))
-                self.responses[user_id]['current_question'] += 1
-                return f"Recorded..\n" + self.show_question(user_id)
-            except ValueError:
-                return "Please enter a valid integer."
-        elif qtype == 'text':
-            self.responses[user_id]['answers'].append(answer.strip())
-            self.responses[user_id]['current_question'] += 1
-            return f"Recorded..\n" + self.show_question(user_id)
-        else:
-            return f"error: unknown question type '{qtype}' and cannot record answer '{answer}'"
+                return f"error: unknown question type '{qtype}' and cannot record answer '{answer}'"
+        except Exception as e:
+            logger.error(f"Error recording answer for user {user_id}: {e}")
+            return "An error occurred while recording your answer. Please try again."
 
     def end_survey(self, user_id):
         """End the survey for the user and save responses."""
