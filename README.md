@@ -162,13 +162,18 @@ git clone https://github.com/spudgunman/meshing-around
 | `joke` | Tells a joke | |
 | `lemonstand` | Plays the classic Lemonade Stand finance game | ✅ |
 | `mastermind` | Plays the classic code-breaking game | ✅ |
-| `quiz` | QuizMaster Bot `q: ?` for more |  ✅ |
+| `survey` | Issues out a survey to the user | ✅ |
+| `quiz` | QuizMaster Bot `q: ?` for more | ✅ |
 | `tic-tac-toe`| Plays the game classic game | ✅ |
 | `videopoker` | Plays basic 5-card hold Video Poker | ✅ |
 
+#### QuizMaster
 To use QuizMaster the bbs_admin_list is the QuizMaster, who can `q: start` and q: stop` to start and stop the game,  `q: broadcast <message>` to send a message to all players.
 Players can `q: join` to join the game, `q: leave` to leave the game, `q: score` to see their score, and `q: top` to see the top 3 players.
 To Answer a question, just type the answer prefixed with `q: <answer>`.
+
+#### Survey
+To use the Survey feature edit the json files in data/survey multiple surveys are possible.
 
 ## Other Install Options
 
