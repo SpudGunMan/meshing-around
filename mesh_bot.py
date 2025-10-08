@@ -1089,8 +1089,6 @@ def handle_messages(message, deviceID, channel_number, msg_history, publicChanne
         response = ""
         header = "📨Messages:"
         # Calculate safe byte limit (account for header and some overhead)
-        # Meshtastic has ~237 byte limit, use conservative 200 bytes for message content
-        max_bytes = 200
         header_bytes = len(header.encode('utf-8'))
         available_bytes = max_bytes - header_bytes
         
