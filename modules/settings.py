@@ -377,7 +377,7 @@ try:
     hamtest_enabled = config['games'].getboolean('hamtest', True)
     tictactoe_enabled = config['games'].getboolean('tictactoe', True)
     quiz_enabled = config['games'].getboolean('quiz', False)
-    survey_enabled = config['games'].getboolean('survey', True)
+    survey_enabled = config['games'].getboolean('survey', False)
     surveyRecordID = config['games'].getboolean('surveyRecordID', True)
     surveyRecordLocation = config['games'].getboolean('surveyRecordLocation', True)
 
