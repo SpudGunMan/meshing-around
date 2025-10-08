@@ -1428,7 +1428,7 @@ def saveLeaderboard():
         with open('data/leaderboard.pkl', 'wb') as f:
             pickle.dump(meshLeaderboard, f)
         if logMetaStats:
-            logger.debug("System: Mesh Leaderboard saved to mesh_leaderboard.pkl")
+            logger.debug("System: Mesh Leaderboard saved to leaderboard.pkl")
     except Exception as e:
         logger.warning(f"System: Error saving Mesh Leaderboard: {e}")
 
@@ -1439,7 +1439,7 @@ def loadLeaderboard():
         with open('data/leaderboard.pkl', 'rb') as f:
             meshLeaderboard = pickle.load(f)
         if logMetaStats:
-            logger.debug("System: Mesh Leaderboard loaded from mesh_leaderboard.pkl")
+            logger.debug("System: Mesh Leaderboard loaded from leaderboard.pkl")
     except FileNotFoundError:
         if logMetaStats:
             logger.debug("System: No existing Mesh Leaderboard found, starting fresh")
