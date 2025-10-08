@@ -912,24 +912,34 @@ def quizHandler(message, nodeID, deviceID):
 def surveyHandler(message, nodeID, deviceID):
     global surveyTracker
     location = get_node_location(nodeID, deviceID)
-    if "survey " in message.lower():
-        surveySays = message.lower().strip().split("survey ", 1)
-    elif "s:" in message.lower():
-        surveySays = message.lower().strip().split("s:", 1)
+    msg = ''
+    # Normalize and parse the command
+    msg_lower = message.lower().strip()
+    if msg_lower.startswith("survey "):
+        surveySays = msg_lower.split("survey ", 1)
+    elif msg_lower.startswith("s:"):
+        surveySays = msg_lower.split("s:", 1)
     else:
-        surveySays = [message.lower().strip()]
-    
-    survey = surveySays[1] if len(surveySays) > 1 else "example"
+        surveySays = [msg_lower]
 
-    if surveySays[0].strip().lower() == "end":
-        msg = survey_module.end_survey(user_id=nodeID)
-        return msg
+    # Determine survey name or answer
+    survey = surveySays[1].strip() if len(surveySays) > 1 else "example"
+    command = surveySays[0].strip()
+
+    # Handle end command
+    if command == "end":
+        return survey_module.end_survey(user_id=nodeID)
+
+    # Handle report command
+    if survey == "report":
+        #return survey_module.quiz_report()
+        return "Report not implemented yet"
 
     # Update last played or add new tracker entry
     found = False
-    for i in range(len(surveyTracker)):
-        if surveyTracker[i].get('nodeID') == nodeID:
-            surveyTracker[i]['last_played'] = time.time()
+    for entry in surveyTracker:
+        if entry.get('nodeID') == nodeID:
+            entry['last_played'] = time.time()
             found = True
             break
     if not found:
@@ -939,7 +949,7 @@ def surveyHandler(message, nodeID, deviceID):
     if nodeID not in survey_module.responses:
         msg = survey_module.start_survey(user_id=nodeID, survey_name=survey, location=location)
     else:
-        msg = survey_module.answer(user_id=nodeID, answer=surveySays[1].strip())
+        msg = survey_module.answer(user_id=nodeID, answer=survey, location=location)
 
     return msg
 
