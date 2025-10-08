@@ -773,7 +773,7 @@ if wikipedia_enabled and use_kiwix_server:
     def text_from_html(body):
         """Extract visible text from HTML content"""
         soup = BeautifulSoup(body, 'html.parser')
-        texts = soup.findAll(string=True)
+        texts = soup.find_all(string=True)
         visible_texts = filter(tag_visible, texts)
         return " ".join(t.strip() for t in visible_texts if t.strip())
 
