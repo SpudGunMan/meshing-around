@@ -10,8 +10,19 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 ### Intelligent Keyword Responder
 - **Automated Responses**: The bot detects keywords like "ping" and responds with "pong" in direct messages (DMs) or group channels.
 - **Customizable Triggers**: Monitor group channels for specific keywords and set custom responses.
+- **Localization Support**: Add custom trigger words in any language via `customPingWords` and `customTestWords` config options for international mesh networks.
 - **Emergency Response**: Monitor channels for keywords indicating emergencies and alert a wider audience.
 - **New Node Hello**: Greet new nodes on the mesh with a hello message
+
+### User Statistics and Leaderboards
+- **Activity Tracking**: Automatically tracks user statistics including message count, command usage, battery levels, and uptime.
+- **Leaderboard Commands**: Use `top` or `leaderboard` to view rankings:
+  - `top` or `top messages` - Most active message senders
+  - `top commands` - Most command users
+  - `top battery` - Lowest battery levels (most depleted)
+  - `top online` - Most recently active users
+  - `top 5` - Show top 5 instead of default 10
+- **Competitive Engagement**: Encourage mesh network participation through friendly competition.
 
 ### Network Tools
 - **Build, Test Local Mesh**: Ping allow for message delivery testing with more realistic packets vs. telemetry
@@ -105,6 +116,7 @@ git clone https://github.com/spudgunman/meshing-around
 | `motd` | Displays the message of the day or sets it. Example: `motd $New Message Of the day` | ✅ |
 | `sysinfo` | Returns the bot node telemetry info | ✅ |
 | `test` | used to test the limits of data transfer `test 4` sends data to the maxBuffer limit (default 220) via DM only | ✅ |
+| `top` or `leaderboard` | Show user statistics leaderboard. Options: `top messages`, `top commands`, `top battery`, `top online`, `top 5` | ✅ |
 | `whereami` | Returns the address of the sender's location if known |
 | `whoami` | Returns details of the node asking, also returned when position exchanged 📍 | ✅ |
 | `whois` | Returns details known about node, more data with bbsadmin node | ✅ |
@@ -239,7 +251,44 @@ ignoreDefaultChannel = False # ignoreDefaultChannel, the bot will ignore the def
 ignoreChannels = # ignoreChannels is a comma separated list of channels to ignore, e.g. 4,5
 cmdBang = False # require ! to be the first character in a command
 explicitCmd = True # require explicit command, the message will only be processed if it starts with a command word disable to get more activity
+
+# Custom trigger words for localization support
+customPingWords = # comma-separated list of words that trigger ping response (e.g., hola,привет,bonjour)
+customTestWords = # comma-separated list of words that trigger test response (e.g., prueba,测试,testen)
+
+# User statistics and leaderboard tracking
+enableStatsTracking = True # enable tracking of user activity for leaderboard features
 ```
+
+### Localization and Custom Trigger Words
+The bot supports custom trigger words in any language, allowing international mesh networks to use familiar commands. Add comma-separated words to the config:
+
+```ini
+[general]
+# Example: Add Spanish and Russian ping equivalents
+customPingWords = hola,привет,bonjour
+# Example: Add Spanish and Chinese test equivalents  
+customTestWords = prueba,测试,testen
+```
+
+These custom words will behave exactly like "ping" and "test" commands, responding with the same messages and metrics.
+
+### User Statistics and Leaderboards
+Enable activity tracking to create competitive engagement on your mesh network:
+
+```ini
+[general]
+enableStatsTracking = True
+```
+
+Use the `top` command to view various leaderboards:
+- `top` or `top messages` - See most active messagers
+- `top commands` - View most command users
+- `top battery` - Check who needs a charge (lowest battery)
+- `top online` - See most recently active users
+- `top 5` - Limit results to top 5 users
+
+Statistics are automatically tracked for all users and persisted in `data/user_stats.json`.
 
 ### Location Settings
 The weather forecasting defaults to NOAA, for locations outside the USA, you can set `UseMeteoWxAPI` to `True`, to use a global weather API. The `lat` and `lon` are default values when a node has no location data, as well as the default for all NOAA, repeater lookup. It is also the center of radius for Sentry.
