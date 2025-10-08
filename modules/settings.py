@@ -393,6 +393,7 @@ try:
     metadataFilter = config['messagingSettings'].get('metadataFilter', '').split(',') # default empty
     DEBUGpacket = config['messagingSettings'].getboolean('DEBUGpacket', False) # default False
     noisyNodeLogging = config['messagingSettings'].getboolean('noisyNodeLogging', False) # default False
+    logMetaStats = config['messagingSettings'].getboolean('logMetaStats', True) # default True
     noisyTelemetryLimit = config['messagingSettings'].getint('noisyTelemetryLimit', 5) # default 5 packets
 except Exception as e:
     print(f"System: Error reading config file: {e}")

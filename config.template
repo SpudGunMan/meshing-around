@@ -362,6 +362,7 @@ enableHopLogs = False
 # Noisy Node Telemetry Logging and packet threshold
 noisyNodeLogging = False
 noisyTelemetryLimit = 5
+logMetaStats = True
 # Enable detailed packet logging all packets
 DEBUGpacket = False
 # metaPacket detailed logging, the filter negates the port ID
