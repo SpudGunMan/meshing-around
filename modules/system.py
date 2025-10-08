@@ -101,9 +101,9 @@ if enableEcho:
 
 # Sitrep Configuration
 if sitrep_enabled:
-    trap_list_sitrep = ("sitrep", "lheard", "sysinfo")
+    trap_list_sitrep = ("sitrep", "lheard", "sysinfo", "leaderboard")
     trap_list = trap_list + trap_list_sitrep
-    help_message = help_message + ", sitrep, sysinfo"
+    help_message = help_message + ", sitrep, sysinfo, leaderboard"
 
 # MOTD Configuration
 if motd_enabled:
@@ -1078,8 +1078,24 @@ def displayNodeTelemetry(nodeID=0, rxNode=0, userRequested=False):
     return dataResponse
 
 positionMetadata = {}
+
+# Leaderboard for tracking extreme metrics
+meshLeaderboard = {
+    'lowestBattery': {'nodeID': None, 'value': 101, 'timestamp': 0},  # 🪫
+    'longestUptime': {'nodeID': None, 'value': 0, 'timestamp': 0},    # 🕰️
+    'fastestSpeed': {'nodeID': None, 'value': 0, 'timestamp': 0},     # 🚓
+    'highestAltitude': {'nodeID': None, 'value': 0, 'timestamp': 0},  # 🚀
+    'coldestTemp': {'nodeID': None, 'value': 999, 'timestamp': 0},    # 🥶
+    'hottestTemp': {'nodeID': None, 'value': -999, 'timestamp': 0},   # 🥵
+    'worstAirQuality': {'nodeID': None, 'value': 0, 'timestamp': 0},  # 💨
+    'adminPackets': [],      # 🚨
+    'tunnelPackets': [],     # 🚨
+    'audioPackets': [],      # ☎️
+    'simulatorPackets': []   # 🤖
+}
+
 def consumeMetadata(packet, rxNode=0, channel=-1):
-    global positionMetadata, telemetryData
+    global positionMetadata, telemetryData, meshLeaderboard
 
     # check type of packet
     try:
@@ -1099,11 +1115,55 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
             telemetry_packet = packet['decoded']['telemetry']
             if telemetry_packet.get('deviceMetrics'):
                 deviceMetrics = telemetry_packet['deviceMetrics']
-                #if uptime is in deviceMetrics and uptime is not 0 set uptime
-                # if deviceMetrics.get('uptimeSeconds') is not None and deviceMetrics['uptimeSeconds'] != 0:
-                #     if highestUptime < deviceMetrics['uptimeSeconds']:
-                #         highestUptime = deviceMetrics['uptimeSeconds']
-                #         highestUptimeNode = nodeID
+                current_time = time.time()
+                
+                # Track lowest battery 🪫
+                if deviceMetrics.get('batteryLevel') is not None:
+                    battery = deviceMetrics['batteryLevel']
+                    if battery > 0 and battery < meshLeaderboard['lowestBattery']['value']:
+                        meshLeaderboard['lowestBattery'] = {'nodeID': nodeID, 'value': battery, 'timestamp': current_time}
+                        if logMetaStats:
+                            logger.info(f"System: 🪫 New low battery record: {battery}% from NodeID:{nodeID} ShortName:{get_name_from_number(nodeID, 'short', rxNode)}")
+                
+                # Track longest uptime 🕰️
+                if deviceMetrics.get('uptimeSeconds') is not None:
+                    uptime = deviceMetrics['uptimeSeconds']
+                    if uptime > meshLeaderboard['longestUptime']['value']:
+                        # if the packet if from local bot node ignore it
+                        if nodeID != globals().get(f'myNodeNum{rxNode}'):
+                            wasItMe = True
+                        else:
+                            if uptime > 259200:  # 3 days in seconds
+                                meshLeaderboard['longestUptime'] = {'nodeID': nodeID, 'value': uptime, 'timestamp': current_time}
+                                if logMetaStats:
+                                    logger.info(f"System: 🕰️ New uptime record: {getPrettyTime(uptime)} from NodeID:{nodeID} ShortName:{get_name_from_number(nodeID, 'short', rxNode)}")
+            
+            # Track environment metrics (temperature, air quality)
+            if telemetry_packet.get('environmentMetrics'):
+                envMetrics = telemetry_packet['environmentMetrics']
+                current_time = time.time()
+                
+                # Track coldest temperature 🥶
+                if envMetrics.get('temperature') is not None:
+                    temp = envMetrics['temperature']
+                    if temp < meshLeaderboard['coldestTemp']['value']:
+                        meshLeaderboard['coldestTemp'] = {'nodeID': nodeID, 'value': temp, 'timestamp': current_time}
+                        if logMetaStats:
+                            logger.info(f"System: 🥶 New coldest temp record: {temp}°C from NodeID:{nodeID} ShortName:{get_name_from_number(nodeID, 'short', rxNode)}")
+                    
+                    # Track hottest temperature 🥵
+                    if temp > meshLeaderboard['hottestTemp']['value']:
+                        meshLeaderboard['hottestTemp'] = {'nodeID': nodeID, 'value': temp, 'timestamp': current_time}
+                        if logMetaStats:
+                            logger.info(f"System: 🥵 New hottest temp record: {temp}°C from NodeID:{nodeID} ShortName:{get_name_from_number(nodeID, 'short', rxNode)}")
+                
+                # Track worst air quality 💨 (IAQ - higher is worse)
+                if envMetrics.get('iaq') is not None:
+                    iaq = envMetrics['iaq']
+                    if iaq > meshLeaderboard['worstAirQuality']['value']:
+                        meshLeaderboard['worstAirQuality'] = {'nodeID': nodeID, 'value': iaq, 'timestamp': current_time}
+                        if logMetaStats:
+                            logger.info(f"System: 💨 New worst air quality record: IAQ {iaq} from NodeID:{nodeID} ShortName:{get_name_from_number(nodeID, 'short', rxNode)}")
             
             if telemetry_packet.get('localStats'):
                 localStats = telemetry_packet['localStats']
@@ -1133,6 +1193,22 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
     
             for key in keys:
                 positionMetadata[nodeID][key] = position_data.get(key, 0)
+            
+            # Track fastest speed 🚓
+            if position_data.get('groundSpeed') is not None:
+                speed = position_data['groundSpeed']
+                if speed > meshLeaderboard['fastestSpeed']['value']:
+                    meshLeaderboard['fastestSpeed'] = {'nodeID': nodeID, 'value': speed, 'timestamp': time.time()}
+                    if logMetaStats:
+                        logger.info(f"System: 🚓 New speed record: {speed} km/h from NodeID:{nodeID} ShortName:{get_name_from_number(nodeID, 'short', rxNode)}")
+            
+            # Track highest altitude 🚀 (also log if over highfly_altitude threshold)
+            if position_data.get('altitude') is not None:
+                altitude = position_data['altitude']
+                if altitude > meshLeaderboard['highestAltitude']['value']:
+                    meshLeaderboard['highestAltitude'] = {'nodeID': nodeID, 'value': altitude, 'timestamp': time.time()}
+                    if logMetaStats:
+                        logger.info(f"System: 🚀 New altitude record: {altitude}m from NodeID:{nodeID} ShortName:{get_name_from_number(nodeID, 'short', rxNode)}")
 
             # if altitude is over highfly_altitude send a log and message for high-flying nodes and not in highfly_ignoreList
             if position_data.get('altitude', 0) > highfly_altitude and highfly_enabled and str(nodeID) not in highfly_ignoreList:
@@ -1184,7 +1260,8 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
                 expire = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(expire))
             description = waypoint_data.get('description', '')
             name = waypoint_data.get('name', '')
-            logger.info(f"System: Waypoint from Device: {rxNode} Channel: {channel} NodeID:{nodeID} ID:{id} Lat:{latitudeI/1e7} Lon:{longitudeI/1e7} Expire:{expire} Name:{name} Desc:{description}")
+            if logMetaStats:
+                logger.info(f"System: Waypoint from Device: {rxNode} Channel: {channel} NodeID:{nodeID} ID:{id} Lat:{latitudeI/1e7} Lon:{longitudeI/1e7} Expire:{expire} Name:{name} Desc:{description}")
         except Exception as e:
             logger.debug(f"System: WAYPOINT_APP decode error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
     
@@ -1195,7 +1272,8 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
         # get the neighbor info data
         neighbor_data = packet['decoded']
         neighbor_list = neighbor_data.get('neighbors', [])
-        logger.info(f"System: Neighbor Info from Device: {rxNode} Channel: {channel} NodeID:{nodeID} Neighbors:{len(neighbor_list)}")
+        if logMetaStats:
+            logger.info(f"System: Neighbor Info from Device: {rxNode} Channel: {channel} NodeID:{nodeID} Neighbors:{len(neighbor_list)}")
 
     # TRACEROUTE_APP
     if packet_type ==  'TRACEROUTE_APP':
@@ -1213,7 +1291,8 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
         detction_text = detection_data.get('text', '')
         try:
             if detction_text != '':
-                logger.info(f"System: Detection Sensor Data from Device: {rxNode} Channel: {channel} NodeID:{nodeID} Text:{detction_text}")
+                if logMetaStats:
+                    logger.info(f"System: Detection Sensor Data from Device: {rxNode} Channel: {channel} NodeID:{nodeID} Text:{detction_text}")
                 if detctionSensorAlert:
                     send_message(f"🚨Detection Sensor from Device: {rxNode} Channel: {channel} NodeID:{get_name_from_number(nodeID,'long',rxNode)} Alert:{detction_text}", secure_channel, 0, secure_interface)
                     time.sleep(responseDelay)
@@ -1230,7 +1309,8 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
             wifi_count = paxcounter_data.get('wifi', 0)
             ble_count = paxcounter_data.get('ble', 0)
             uptime = paxcounter_data.get('uptime', 0)
-            logger.info(f"System: Paxcounter Data from Device: {rxNode} Channel: {channel} NodeID:{nodeID} WiFi:{wifi_count} BLE:{ble_count} Uptime:{getPrettyTime(uptime)}")
+            if logMetaStats:
+                logger.info(f"System: Paxcounter Data from Device: {rxNode} Channel: {channel} NodeID:{nodeID} WiFi:{wifi_count} BLE:{ble_count} Uptime:{getPrettyTime(uptime)}")
         except Exception as e:
             logger.debug(f"System: PAXCOUNTER_APP decode error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
 
@@ -1242,13 +1322,45 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
         remote_hardware_data = packet['decoded']
         try:
             hardware_info = remote_hardware_data.get('hardware_info', '')
-            logger.info(f"System: Remote Hardware Data from Device: {rxNode} Channel: {channel} NodeID:{nodeID} Info:{hardware_info}")
+            if logMetaStats:
+                logger.info(f"System: Remote Hardware Data from Device: {rxNode} Channel: {channel} NodeID:{nodeID} Info:{hardware_info}")
         except Exception as e:
             logger.debug(f"System: REMOTE_HARDWARE_APP decode error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
     
-    # ADMIN_APP
+    # ADMIN_APP - Track admin packets 🚨
+    if packet_type == 'ADMIN_APP':
+        if debugMetadata and 'ADMIN_APP' not in metadataFilter:
+            print(f"DEBUG ADMIN_APP: {packet}\n\n")
+        try:
+            # if the packet if from local bot node ignore it
+            if nodeID == globals().get(f'myNodeNum{rxNode}'):
+                # ignore local node admin packets
+                wasItMe = True
+            else:
+                packet_info = {'nodeID': nodeID, 'timestamp': time.time(), 'device': rxNode, 'channel': channel}
+                # Keep only last 10 admin packets
+                meshLeaderboard['adminPackets'].append(packet_info)
+                if len(meshLeaderboard['adminPackets']) > 10:
+                    meshLeaderboard['adminPackets'].pop(0)
+                if logMetaStats
+                    logger.info(f"System: 🚨 Admin packet detected from Device: {rxNode} Channel: {channel} NodeID:{nodeID} ShortName:{get_name_from_number(nodeID, 'short', rxNode)}")
+        except Exception as e:
+            logger.debug(f"System: ADMIN_APP decode error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
     
-    # IP_TUNNEL_APP
+    # IP_TUNNEL_APP - Track tunneling packets 🚨
+    if packet_type == 'IP_TUNNEL_APP':
+        if debugMetadata and 'IP_TUNNEL_APP' not in metadataFilter:
+            print(f"DEBUG IP_TUNNEL_APP: {packet}\n\n")
+        try:
+            packet_info = {'nodeID': nodeID, 'timestamp': time.time(), 'device': rxNode, 'channel': channel}
+            # Keep only last 10 tunnel packets
+            meshLeaderboard['tunnelPackets'].append(packet_info)
+            if len(meshLeaderboard['tunnelPackets']) > 10:
+                meshLeaderboard['tunnelPackets'].pop(0)
+            if logMetaStats:
+                logger.info(f"System: 🚨 IP Tunnel packet detected from Device: {rxNode} Channel: {channel} NodeID:{nodeID} ShortName:{get_name_from_number(nodeID, 'short', rxNode)}")
+        except Exception as e:
+            logger.debug(f"System: IP_TUNNEL_APP decode error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
 
     # SERIAL_APP
 
@@ -1258,9 +1370,35 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
 
     # COMPRESSED_TEXT_APP
 
-    # AUDIO_APP
+    # AUDIO_APP - Track audio/voice packets ☎️
+    if packet_type == 'AUDIO_APP':
+        if debugMetadata and 'AUDIO_APP' not in metadataFilter:
+            print(f"DEBUG AUDIO_APP: {packet}\n\n")
+        try:
+            packet_info = {'nodeID': nodeID, 'timestamp': time.time(), 'device': rxNode, 'channel': channel}
+            # Keep only last 10 audio packets
+            meshLeaderboard['audioPackets'].append(packet_info)
+            if len(meshLeaderboard['audioPackets']) > 10:
+                meshLeaderboard['audioPackets'].pop(0)
+            if logMetaStats:
+                logger.info(f"System: ☎️ Audio packet detected from Device: {rxNode} Channel: {channel} NodeID:{nodeID} ShortName:{get_name_from_number(nodeID, 'short', rxNode)}")
+        except Exception as e:
+            logger.debug(f"System: AUDIO_APP decode error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
 
-    # SIMULATOR_APP
+    # SIMULATOR_APP - Track simulator packets 🤖
+    if packet_type == 'SIMULATOR_APP':
+        if debugMetadata and 'SIMULATOR_APP' not in metadataFilter:
+            print(f"DEBUG SIMULATOR_APP: {packet}\n\n")
+        try:
+            packet_info = {'nodeID': nodeID, 'timestamp': time.time(), 'device': rxNode, 'channel': channel}
+            # Keep only last 10 simulator packets
+            meshLeaderboard['simulatorPackets'].append(packet_info)
+            if len(meshLeaderboard['simulatorPackets']) > 10:
+                meshLeaderboard['simulatorPackets'].pop(0)
+            if logMetaStats:
+                logger.info(f"System: 🤖 Simulator packet detected from Device: {rxNode} Channel: {channel} NodeID:{nodeID} ShortName:{get_name_from_number(nodeID, 'short', rxNode)}")
+        except Exception as e:
+            logger.debug(f"System: SIMULATOR_APP decode error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
     return True
 
 def noisyTelemetryCheck():
@@ -1275,6 +1413,73 @@ def noisyTelemetryCheck():
             logger.warning(f"System: Noisy Telemetry Detected from NodeID:{nodeID} ShortName:{get_name_from_number(nodeID, 'short', 1)} Packets:{data.get('packetCount', 0)}")
             # reset the packet count for the node
             positionMetadata[nodeID]['packetCount'] = 0
+
+def get_mesh_leaderboard():
+    """Get formatted leaderboard of extreme mesh metrics"""
+    global meshLeaderboard
+    
+    result = "📊 Mesh Leaderboard 📊\n"
+    
+    # Lowest battery
+    if meshLeaderboard['lowestBattery']['nodeID']:
+        nodeID = meshLeaderboard['lowestBattery']['nodeID']
+        value = meshLeaderboard['lowestBattery']['value']
+        result += f"🪫 Low Battery: {value}% {get_name_from_number(nodeID, 'short', 1)}\n"
+    
+    # Longest uptime
+    if meshLeaderboard['longestUptime']['nodeID']:
+        nodeID = meshLeaderboard['longestUptime']['nodeID']
+        value = meshLeaderboard['longestUptime']['value']
+        result += f"🕰️ Longest Uptime: {getPrettyTime(value)} {get_name_from_number(nodeID, 'short', 1)}\n"
+    
+    # Fastest speed
+    if meshLeaderboard['fastestSpeed']['nodeID']:
+        nodeID = meshLeaderboard['fastestSpeed']['nodeID']
+        value = meshLeaderboard['fastestSpeed']['value']
+        result += f"🚓 Fastest Speed: {value} km/h {get_name_from_number(nodeID, 'short', 1)}\n"
+    
+    # Highest altitude
+    if meshLeaderboard['highestAltitude']['nodeID']:
+        nodeID = meshLeaderboard['highestAltitude']['nodeID']
+        value = meshLeaderboard['highestAltitude']['value']
+        altFeet = round(value * 3.28084, 0)
+        result += f"🚀 Highest Alt: {altFeet:,.0f}ft/{value:,.0f}m {get_name_from_number(nodeID, 'short', 1)}\n"
+    
+    # Coldest temperature
+    if meshLeaderboard['coldestTemp']['nodeID']:
+        nodeID = meshLeaderboard['coldestTemp']['nodeID']
+        value = meshLeaderboard['coldestTemp']['value']
+        result += f"🥶 Coldest: {value}°C {get_name_from_number(nodeID, 'short', 1)}\n"
+    
+    # Hottest temperature
+    if meshLeaderboard['hottestTemp']['nodeID']:
+        nodeID = meshLeaderboard['hottestTemp']['nodeID']
+        value = meshLeaderboard['hottestTemp']['value']
+        result += f"🥵 Hottest: {value}°C {get_name_from_number(nodeID, 'short', 1)}\n"
+    
+    # Worst air quality
+    if meshLeaderboard['worstAirQuality']['nodeID']:
+        nodeID = meshLeaderboard['worstAirQuality']['nodeID']
+        value = meshLeaderboard['worstAirQuality']['value']
+        result += f"💨 Worst Air: IAQ {value} {get_name_from_number(nodeID, 'short', 1)}\n"
+    
+    # Special packet detections
+    if len(meshLeaderboard['adminPackets']) > 0:
+        result += f"🚨 Admin packets: {len(meshLeaderboard['adminPackets'])}\n"
+    
+    if len(meshLeaderboard['tunnelPackets']) > 0:
+        result += f"🚨 Tunnel packets: {len(meshLeaderboard['tunnelPackets'])}\n"
+    
+    if len(meshLeaderboard['audioPackets']) > 0:
+        result += f"☎️ Audio packets: {len(meshLeaderboard['audioPackets'])}\n"
+    
+    if len(meshLeaderboard['simulatorPackets']) > 0:
+        result += f"🤖 Simulator packets: {len(meshLeaderboard['simulatorPackets'])}\n"
+    
+    if result == "📊 Mesh Leaderboard 📊\n":
+        result += "No records yet! Keep meshing! 📡"
+    
+    return result
 
 def get_sysinfo(nodeID=0, deviceID=1):
     # Get the system telemetry data for return on the sysinfo command
