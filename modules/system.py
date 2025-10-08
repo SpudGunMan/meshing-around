@@ -1136,6 +1136,7 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
                             if uptime > 259200:  # 3 days in seconds
                                 meshLeaderboard['longestUptime'] = {'nodeID': nodeID, 'value': uptime, 'timestamp': current_time}
                                 if logMetaStats:
+                                    uptime = getPrettyTime(uptime)
                                     logger.info(f"System: 🕰️ New uptime record: {getPrettyTime(uptime)} from NodeID:{nodeID} ShortName:{get_name_from_number(nodeID, 'short', rxNode)}")
             
             # Track environment metrics (temperature, air quality)
@@ -1161,6 +1162,9 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
                 if envMetrics.get('iaq') is not None:
                     iaq = envMetrics['iaq']
                     if iaq > meshLeaderboard['worstAirQuality']['value']:
+                        # if its a bot node ID add a debug log
+                        if nodeID == globals().get(f'myNodeNum{rxNode}'):
+                            logger.debug(f"System: {nodeID} its time to open a window!")
                         meshLeaderboard['worstAirQuality'] = {'nodeID': nodeID, 'value': iaq, 'timestamp': current_time}
                         if logMetaStats:
                             logger.info(f"System: 💨 New worst air quality record: IAQ {iaq} from NodeID:{nodeID} ShortName:{get_name_from_number(nodeID, 'short', rxNode)}")
@@ -1196,7 +1200,10 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
             
             # Track fastest speed 🚓
             if position_data.get('groundSpeed') is not None:
-                speed = position_data['groundSpeed']
+                if use_metric:
+                    speed = position_data['groundSpeed']
+                else:
+                    speed = round(position_data['groundSpeed'] * 1.60934, 1)  # Convert mph to km/h
                 if speed > meshLeaderboard['fastestSpeed']['value']:
                     meshLeaderboard['fastestSpeed'] = {'nodeID': nodeID, 'value': speed, 'timestamp': time.time()}
                     if logMetaStats:
@@ -1418,12 +1425,12 @@ def get_mesh_leaderboard():
     """Get formatted leaderboard of extreme mesh metrics"""
     global meshLeaderboard
     
-    result = "📊 Mesh Leaderboard 📊\n"
+    result = "📊 Leaderboard 📊\n"
     
     # Lowest battery
     if meshLeaderboard['lowestBattery']['nodeID']:
         nodeID = meshLeaderboard['lowestBattery']['nodeID']
-        value = meshLeaderboard['lowestBattery']['value']
+        value = round(meshLeaderboard['lowestBattery']['value'], 1)
         result += f"🪫 Low Battery: {value}% {get_name_from_number(nodeID, 'short', 1)}\n"
     
     # Longest uptime
@@ -1435,32 +1442,39 @@ def get_mesh_leaderboard():
     # Fastest speed
     if meshLeaderboard['fastestSpeed']['nodeID']:
         nodeID = meshLeaderboard['fastestSpeed']['nodeID']
-        value = meshLeaderboard['fastestSpeed']['value']
+        if use_metric:
+            value = round(meshLeaderboard['fastestSpeed']['value'], 1)
+        else:
+            value = round(meshLeaderboard['fastestSpeed']['value'] * 1.60934, 1)  # Convert mph to km/h
         result += f"🚓 Fastest Speed: {value} km/h {get_name_from_number(nodeID, 'short', 1)}\n"
     
-    # Highest altitude
     if meshLeaderboard['highestAltitude']['nodeID']:
         nodeID = meshLeaderboard['highestAltitude']['nodeID']
         value = meshLeaderboard['highestAltitude']['value']
-        altFeet = round(value * 3.28084, 0)
-        result += f"🚀 Highest Alt: {altFeet:,.0f}ft/{value:,.0f}m {get_name_from_number(nodeID, 'short', 1)}\n"
+        if use_metric:
+            value = round(value, 0)
+            v1 = "m"
+            result += f"🚀 Highest Altitude: {int(value)}{v1} {get_name_from_number(nodeID, 'short', 1)}\n"
+        else:
+            altFeet = round(value * 3.28084, 0)
+            result += f"🚀 Highest Altitude: {int(altFeet)}ft {get_name_from_number(nodeID, 'short', 1)}\n"
     
     # Coldest temperature
     if meshLeaderboard['coldestTemp']['nodeID']:
         nodeID = meshLeaderboard['coldestTemp']['nodeID']
-        value = meshLeaderboard['coldestTemp']['value']
+        value = round(meshLeaderboard['coldestTemp']['value'], 1)
         result += f"🥶 Coldest: {value}°C {get_name_from_number(nodeID, 'short', 1)}\n"
     
     # Hottest temperature
     if meshLeaderboard['hottestTemp']['nodeID']:
         nodeID = meshLeaderboard['hottestTemp']['nodeID']
-        value = meshLeaderboard['hottestTemp']['value']
+        value = round(meshLeaderboard['hottestTemp']['value'], 1)
         result += f"🥵 Hottest: {value}°C {get_name_from_number(nodeID, 'short', 1)}\n"
     
     # Worst air quality
     if meshLeaderboard['worstAirQuality']['nodeID']:
         nodeID = meshLeaderboard['worstAirQuality']['nodeID']
-        value = meshLeaderboard['worstAirQuality']['value']
+        value = round(meshLeaderboard['worstAirQuality']['value'], 1)
         result += f"💨 Worst Air: IAQ {value} {get_name_from_number(nodeID, 'short', 1)}\n"
     
     # Special packet detections
