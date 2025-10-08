@@ -31,6 +31,7 @@ seenNodes = [] # list to hold the last seen nodes
 surveyTracker, tictactoeTracker, hamtestTracker, hangmanTracker, golfTracker, mastermindTracker, vpTracker, blackjackTracker, lemonadeTracker, dwPlayerTracker = ([], [], [], [], [], [], [], [], [], [])
 cmdHistory = [] # list to hold the command history for lheard and history commands
 msg_history = [] # list to hold the message history for the messages command
+max_bytes = 200 # Meshtastic has ~237 byte limit, use conservative 200 bytes for message content
 
 # Read the config file, if it does not exist, create basic config file
 config = configparser.ConfigParser() 
@@ -384,7 +385,7 @@ try:
     # messaging settings
     responseDelay = config['messagingSettings'].getfloat('responseDelay', 0.7) # default 0.7
     splitDelay = config['messagingSettings'].getfloat('splitDelay', 0) # default 0
-    MESSAGE_CHUNK_SIZE = config['messagingSettings'].getint('MESSAGE_CHUNK_SIZE', 160) # default 160
+    MESSAGE_CHUNK_SIZE = config['messagingSettings'].getint('MESSAGE_CHUNK_SIZE', 160) # default 160 chars
     wantAck = config['messagingSettings'].getboolean('wantAck', False) # default False
     maxBuffer = config['messagingSettings'].getint('maxBuffer', 200) # default 200
     enableHopLogs = config['messagingSettings'].getboolean('enableHopLogs', False) # default False

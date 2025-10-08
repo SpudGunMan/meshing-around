@@ -1087,6 +1087,11 @@ def handle_messages(message, deviceID, channel_number, msg_history, publicChanne
         return message.split("?")[0].title() + " command returns the last " + str(storeFlimit) + " messages sent on a channel."
     else:
         response = ""
+        header = "📨Messages:"
+        # Calculate safe byte limit (account for header and some overhead)
+        header_bytes = len(header.encode('utf-8'))
+        available_bytes = max_bytes - header_bytes
+        
         # Reverse the message history to show most recent first
         for msgH in reversed(msg_history):
             # number of messages to return +1 for the header line
@@ -1095,9 +1100,25 @@ def handle_messages(message, deviceID, channel_number, msg_history, publicChanne
             # if the message is for this deviceID and channel or publicChannel
             if msgH[4] == deviceID:
                 if msgH[2] == channel_number or msgH[2] == publicChannel:
-                    response += f"\n{msgH[0]}: {msgH[1]}"
+                    new_line = f"\n{msgH[0]}: {msgH[1]}"
+                    # Check if adding this line would exceed byte limit
+                    test_response = response + new_line
+                    if len(test_response.encode('utf-8')) > available_bytes:
+                        # Try to add truncated version of the message
+                        msg_text = msgH[1]
+                        truncated = False
+                        while len(msg_text) > 0 and len((response + f"\n{msgH[0]}: {msg_text}").encode('utf-8')) > available_bytes:
+                            # Remove one character at a time from the end
+                            msg_text = msg_text[:-1]
+                            truncated = True
+                        if len(msg_text) > 10:  # Only add if we have at least 10 chars left
+                            response += f"\n{msgH[0]}: {msg_text}" + ("..." if truncated else "")
+                        break  # Stop adding more messages
+                    else:
+                        response += new_line
+        
         if len(response) > 0:
-            return "📨Messages:" + response
+            return header + response
         else:
             return "No 📭messages in history"
 

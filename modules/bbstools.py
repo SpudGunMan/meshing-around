@@ -96,13 +96,15 @@ def bbs_post_message(subject, message, fromNode):
     if str(fromNode) in bbs_ban_list:
         logger.warning(f"System: Naughty node {fromNode}, tried to post a message: {subject}, {message} and was dropped.")
         return "Message posted. ID is: " + str(messageID)
-    
+    # validate message length isnt three times the MESSAGE_CHUNK_SIZE
+    if len(message) > (3 * MESSAGE_CHUNK_SIZE):
+        return "Message too long, max length is " + str(3 * MESSAGE_CHUNK_SIZE) + " characters."
     # validate not a duplicate message
     for msg in bbs_messages:
         if msg[1].strip().lower() == subject.strip().lower() and msg[2].strip().lower() == message.strip().lower():
             messageID = msg[0]
             return "Message posted. ID is: " + str(messageID)
-
+    # validate its not overlength by keeping in chunker limit
     # append the message to the list
     bbs_messages.append([messageID, subject, message, fromNode])
     logger.info(f"System: NEW Message Posted, subject: {subject}, message: {message} from {fromNode}")
@@ -153,6 +155,14 @@ def bbs_post_dm(toNode, message, fromNode):
     if str(fromNode) in bbs_ban_list:
         logger.warning(f"System: Naughty node {fromNode}, tried to post a message: {message} and was dropped.")
         return "DM Posted for node " + str(toNode)
+    
+    # validate message length isnt three times the MESSAGE_CHUNK_SIZE
+    if len(message) > (3 * MESSAGE_CHUNK_SIZE):
+        return "Message too long, max length is " + str(3 * MESSAGE_CHUNK_SIZE) + " characters."
+    # validate not a duplicate message
+    for msg in bbs_dm:
+        if msg[0] == int(toNode) and msg[1].strip().lower() == message.strip().lower():
+            return "DM Posted for node " + str(toNode)
 
     # append the message to the list
     bbs_dm.append([int(toNode), message, int(fromNode)])

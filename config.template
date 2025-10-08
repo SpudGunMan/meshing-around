@@ -351,7 +351,7 @@ surveyRecordLocation=True
 responseDelay = 2.2
 # delay in seconds for splits in messages to avoid message collision /throttling
 splitDelay = 2.5
-# message chunk size for sending at high success rate, chunkr allows exceeding by 3 characters
+# message chunk size in charcters, chunkr allows exceeding by 3 characters
 MESSAGE_CHUNK_SIZE = 160
 # Request Acknowledgement of message OTA
 wantAck = False
