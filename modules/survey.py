@@ -53,7 +53,7 @@ class SurveyModule:
             'answers': [],
             'location': location if surveyRecordLocation and location is not None else 'N/A'
         }
-        msg = f"'{survey_name}'📝survey\nSend 's: <answer>' 'end' to exit."
+        msg = f"'{survey_name}'📝survey\nSend 's: <answer>' or 'end'\n"
         msg += self.show_question(user_id)
         return msg
 
