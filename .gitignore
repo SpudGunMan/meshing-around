@@ -23,6 +23,9 @@ data/rag/*
 # qrz db
 data/qrz.db
 
+# user stats database
+data/user_stats.json
+
 # fileMonitor test file
 bee.txt
 
