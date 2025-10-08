@@ -19,7 +19,7 @@ restrictedCommands = ["blackjack", "videopoker", "dopewars", "lemonstand", "golf
 restrictedResponse = "🤖only available in a Direct Message📵" # "" for none
 
 def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_number, deviceID, isDM):
-    global cmdHistory, msg_history
+    global cmdHistory
     #Auto response to messages
     message_lower = message.lower()
     bot_response = "🤖I'm sorry, I'm afraid I can't do that."
