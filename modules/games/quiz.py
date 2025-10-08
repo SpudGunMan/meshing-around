@@ -1,3 +1,13 @@
+# Quiz Module for meshbot 2025
+# Provides a quiz game function with multiple choice and free-text questions
+# Quizmaster can start/stop the quiz, players can join/leave, answer questions
+# Scores are tracked, first correct answer is noted, top 3 players announced at end
+# Questions are loaded from a JSON file in data/quiz_questions.json
+# Questions can be multiple choice (with answers array) or free-text (with answer string)
+# Players answer with "Q: <answer>" format, "Q: ?" for next question, locked to DM
+# unlike a normal game, players can join/leave anytime during the quiz but the QuizMaster needs to start or open game
+# Quizmaster can broadcast messages to all players
+
 import json
 import os
 import random
