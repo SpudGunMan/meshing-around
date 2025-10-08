@@ -1421,6 +1421,31 @@ def noisyTelemetryCheck():
             # reset the packet count for the node
             positionMetadata[nodeID]['packetCount'] = 0
 
+def saveLeaderboard():
+    # save the meshLeaderboard to a pickle file
+    global meshLeaderboard
+    try:
+        with open('data/leaderboard.pkl', 'wb') as f:
+            pickle.dump(meshLeaderboard, f)
+        if logMetaStats:
+            logger.debug("System: Mesh Leaderboard saved to mesh_leaderboard.pkl")
+    except Exception as e:
+        logger.warning(f"System: Error saving Mesh Leaderboard: {e}")
+
+def loadLeaderboard():
+    # load the meshLeaderboard from a pickle file
+    global meshLeaderboard
+    try:
+        with open('data/leaderboard.pkl', 'rb') as f:
+            meshLeaderboard = pickle.load(f)
+        if logMetaStats:
+            logger.debug("System: Mesh Leaderboard loaded from mesh_leaderboard.pkl")
+    except FileNotFoundError:
+        if logMetaStats:
+            logger.debug("System: No existing Mesh Leaderboard found, starting fresh")
+    except Exception as e:
+        logger.warning(f"System: Error loading Mesh Leaderboard: {e}")
+
 def get_mesh_leaderboard():
     """Get formatted leaderboard of extreme mesh metrics"""
     global meshLeaderboard
@@ -1748,6 +1773,8 @@ def exit_handler():
         save_bbsdb()
         save_bbsdm()
         logger.debug(f"System: BBS Messages Saved")
+    if logMetaStats:
+        saveLeaderboard()
     logger.debug(f"System: Exiting")
     asyncLoop.stop()
     asyncLoop.close()

@@ -1736,6 +1736,9 @@ async def start_rx():
         logger.debug(f"System: Ignoring Channels: {ignoreChannels}")
     if noisyNodeLogging:
         logger.debug(f"System: Noisy Node Logging Enabled")
+    if logMetaStats:
+        logger.debug(f"System: Logging Metadata Stats Enabled, leaderboard")
+        loadLeaderboard()
     if enableSMTP:
         if enableImap:
             logger.debug(f"System: SMTP Email Alerting Enabled using IMAP")
