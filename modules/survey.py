@@ -8,7 +8,7 @@ from modules.log import *
 
 allowedSurveys = []  # List of allowed survey names
 
-trap_list_survey = ("survey", "s:")
+trap_list_survey = ("survey")
 
 class SurveyModule:
     def __init__(self):
@@ -53,7 +53,7 @@ class SurveyModule:
             'answers': [],
             'location': location if surveyRecordLocation and location is not None else 'N/A'
         }
-        msg = f"'{survey_name}'📝survey\nSend 's: <answer>' or 'end'\n"
+        msg = f"'{survey_name}'📝survey\nSend answer' or 'end'\n"
         msg += self.show_question(user_id)
         return msg
 
