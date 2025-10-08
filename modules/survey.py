@@ -1,5 +1,12 @@
 # Survey Module for meshbot 2025
 # Provides a survey function to collect responses and put into a CSV file
+# this module reads survey definitions from JSON files in the data/surveys directory
+# Each survey is defined in a separate JSON file named <survey_name>_survey.json
+# Example survey file: example_survey.json
+# Example survey response file: example_responses.csv
+# Each survey consists of multiple questions, which can be multiple choice, integer, or text
+# Users can start a survey, answer questions, and end the survey
+# Module acts like a game locking DM until the survey is complete or ended
 
 import json
 import os # For file operations
