@@ -166,6 +166,10 @@ git clone https://github.com/spudgunman/meshing-around
 | `tic-tac-toe`| Plays the game classic game | ✅ |
 | `videopoker` | Plays basic 5-card hold Video Poker | ✅ |
 
+To use QuizMaster the bbs_admin_list is the QuizMaster, who can `q: start` and q: stop` to start and stop the game,  `q: broadcast <message>` to send a message to all players.
+Players can `q: join` to join the game, `q: leave` to leave the game, `q: score` to see their score, and `q: top` to see the top 3 players.
+To Answer a question, just type the answer prefixed with `q: <answer>`.
+
 ## Other Install Options
 
 ### Docker Installation - handy for windows

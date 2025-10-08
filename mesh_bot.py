@@ -875,6 +875,7 @@ def quizHandler(message, nodeID, deviceID):
         elif user_answer.startswith("broadcast"):
             broadcast_msg = user_answer.replace("broadcast", "", 1).strip()
             msg = quizGamePlayer.broadcast(user_id, broadcast_msg)
+            msg = f"Broadcast message to players spud, finish this later"
         elif user_answer.startswith("?"):
             msg = ("Quiz Commands:\n"
                    "q: join - Join the current quiz\n"
