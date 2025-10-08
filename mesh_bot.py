@@ -855,6 +855,8 @@ def quizHandler(message, nodeID, deviceID):
     user_answer = ''
     user_answer = message.lower()
     user_answer = user_answer.replace("quiz","").replace("q:","").strip()
+    if user_answer.startswith("!") and cmdBang:
+        user_answer = user_answer[1:].strip()
     if user_answer:
         if user_answer.startswith("start"):
             msg = quizGamePlayer.start_game(user_id)
