@@ -1575,8 +1575,8 @@ def onReceive(packet, interface):
 
                     # trim the history list if it exceeds max_history
                     if len(msg_history) >= MAX_MSG_HISTORY:
-                        # Remove oldest entries by cutting in half
-                        msg_history = msg_history[len(msg_history)//2:]
+                        # Always keep only the most recent MAX_MSG_HISTORY entries
+                        msg_history = msg_history[-MAX_MSG_HISTORY:]
 
                     # add the message to the history list
                     msg_history.append((get_name_from_number(message_from_id, 'long', rxNode), message_string, channel_number, timestamp, rxNode))
