@@ -53,7 +53,7 @@ class SurveyModule:
             'answers': [],
             'location': location if surveyRecordLocation and location is not None else 'N/A'
         }
-        msg = f"'{survey_name}'📝survey use 's: <answer>' 'end' to exit."
+        msg = f"'{survey_name}'📝survey\nSend 's: <answer>' 'end' to exit."
         msg += self.show_question(user_id)
         return msg
 
@@ -73,6 +73,7 @@ class SurveyModule:
             msg += "(Please enter a number)\n"
         elif question['type'] == 'text':
             msg += "(Please enter your response)\n"
+        msg = msg.rstrip('\n')
         return msg
 
     def save_responses(self, user_id):
