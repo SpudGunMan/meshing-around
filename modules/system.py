@@ -66,7 +66,7 @@ def cleanup_game_trackers(current_time):
         tracker_names = [
             'dwPlayerTracker', 'lemonadeTracker', 'jackTracker', 
             'vpTracker', 'mindTracker', 'golfTracker', 
-            'hangmanTracker', 'hamtestTracker', 'tictactoeTracker'
+            'hangmanTracker', 'hamtestTracker', 'tictactoeTracker, surveyTracker'
         ]
         
         for tracker_name in tracker_names:
@@ -268,6 +268,12 @@ if quiz_enabled:
     from modules.games.quiz import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + trap_list_quiz # items quiz, q:
     help_message = help_message + ", quiz"
+    games_enabled = True
+
+if survey_enabled:
+    from modules.survey import * # from the spudgunman/meshing-around repo
+    trap_list = trap_list + trap_list_survey # items survey, s:
+    help_message = help_message + ", survey"
     games_enabled = True
 
 # Games Configuration

@@ -27,3 +27,6 @@ data/qrz.db
 news.txt
 alert.txt
 bee.txt
+
+# .csv files
+*.csv

@@ -15,10 +15,8 @@ from modules.log import *
 from modules.system import *
 
 # list of commands to remove from the default list for DM only
-restrictedCommands = ["blackjack", "videopoker", "dopewars", "lemonstand", "golfsim", "mastermind", "hangman", "hamtest", "tictactoe", "quiz", "q:"]
+restrictedCommands = ["blackjack", "videopoker", "dopewars", "lemonstand", "golfsim", "mastermind", "hangman", "hamtest", "tictactoe", "quiz", "q:", "survey", "s:"]
 restrictedResponse = "🤖only available in a Direct Message📵" # "" for none
-cmdHistory = [] # list to hold the command history for lheard and history commands
-msg_history = [] # list to hold the message history for the messages command
 
 def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_number, deviceID, isDM):
     global cmdHistory, msg_history
@@ -87,6 +85,8 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "sms:": lambda: handle_sms(message_from_id, message),
     "solar": lambda: drap_xray_conditions() + "\n" + solar_conditions(),
     "sun": lambda: handle_sun(message_from_id, deviceID, channel_number),
+    "survey": lambda: surveyHandler(message, message_from_id, deviceID),
+    "s:": lambda: surveyHandler(message, message_from_id, deviceID),
     "sysinfo": lambda: sysinfo(message, message_from_id, deviceID),
     "test": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
     "testing": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
@@ -909,6 +909,40 @@ def quizHandler(message, nodeID, deviceID):
     else:
         return "🧠Please provide an answer or command, or send q: ?"
 
+def surveyHandler(message, nodeID, deviceID):
+    global surveyTracker
+    location = get_node_location(nodeID, deviceID)
+    if "survey " in message.lower():
+        surveySays = message.lower().strip().split("survey ", 1)
+    elif "s:" in message.lower():
+        surveySays = message.lower().strip().split("s:", 1)
+    else:
+        surveySays = [message.lower().strip()]
+    
+    survey = surveySays[1] if len(surveySays) > 1 else "example"
+
+    if surveySays[0].strip().lower() == "end":
+        msg = survey_module.end_survey(user_id=nodeID)
+        return msg
+
+    # Update last played or add new tracker entry
+    found = False
+    for i in range(len(surveyTracker)):
+        if surveyTracker[i].get('nodeID') == nodeID:
+            surveyTracker[i]['last_played'] = time.time()
+            found = True
+            break
+    if not found:
+        surveyTracker.append({'nodeID': nodeID, 'last_played': time.time()})
+
+    # If not in survey session, start one
+    if nodeID not in survey_module.responses:
+        msg = survey_module.start_survey(user_id=nodeID, survey_name=survey, location=location)
+    else:
+        msg = survey_module.answer(user_id=nodeID, answer=surveySays[1].strip())
+
+    return msg
+
 def handle_riverFlow(message, message_from_id, deviceID):
     location = get_node_location(message_from_id, deviceID)
     
@@ -1251,6 +1285,7 @@ def checkPlayingGame(message_from_id, message_string, rxNode, channel_number):
         (hangmanTracker, "Hangman", handleHangman) if 'hangmanTracker' in globals() else None,
         (hamtestTracker, "HamTest", handleHamtest) if 'hamtestTracker' in globals() else None,
         (tictactoeTracker, "TicTacToe", handleTicTacToe) if 'tictactoeTracker' in globals() else None,
+        (surveyTracker, "Survey", surveyHandler) if 'surveyTracker' in globals() else None,
         #quiz does not use a tracker (quizGamePlayer) always active
     ]
     trackers = [tracker for tracker in trackers if tracker is not None]

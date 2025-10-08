@@ -28,6 +28,9 @@ wiki_return_limit = 3 # limit the number of sentences returned off the first par
 GAMEDELAY = 28800 # 8 hours in seconds for game mode holdoff
 cmdHistory = [] # list to hold the last commands
 seenNodes = [] # list to hold the last seen nodes
+surveyTracker, tictactoeTracker, hamtestTracker, hangmanTracker, golfTracker, mastermindTracker, vpTracker, blackjackTracker, lemonadeTracker, dwPlayerTracker = ([], [], [], [], [], [], [], [], [], [])
+cmdHistory = [] # list to hold the command history for lheard and history commands
+msg_history = [] # list to hold the message history for the messages command
 
 # Read the config file, if it does not exist, create basic config file
 config = configparser.ConfigParser() 
@@ -373,7 +376,10 @@ try:
     hangman_enabled = config['games'].getboolean('hangman', True)
     hamtest_enabled = config['games'].getboolean('hamtest', True)
     tictactoe_enabled = config['games'].getboolean('tictactoe', True)
-    quiz_enabled = config['games'].getboolean('quiz', True)
+    quiz_enabled = config['games'].getboolean('quiz', False)
+    survey_enabled = config['games'].getboolean('survey', True)
+    surveyRecordID = config['games'].getboolean('surveyRecordID', True)
+    surveyRecordLocation = config['games'].getboolean('surveyRecordLocation', True)
 
     # messaging settings
     responseDelay = config['messagingSettings'].getfloat('responseDelay', 0.7) # default 0.7

@@ -1,0 +1,15 @@
+[
+  {
+    "type": "multiple_choice",
+    "question": "How Did you hear about us?",
+    "options": ["Meshtastic", "Discord", "Friend", "Other"]
+  },
+  {
+    "type": "integer",
+    "question": "How many nodes do you own?"
+  },
+  {
+    "type": "text",
+    "question": "What feature would you like to see next?"
+  }
+]
