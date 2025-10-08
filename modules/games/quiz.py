@@ -133,7 +133,7 @@ class QuizGame:
         ranking = sorted(self.players.items(), key=lambda x: x[1]['score'], reverse=True)
         count = min(3, len(ranking))
         msg = f"🏆 Top {count} Player{'s' if count > 1 else ''}:\n"
-        for idx, (uid, pdata) in enumerate(ranking[:count], start=1):
+        for idx, (uid, pdata) in enumerate(iterable=ranking[:count], start=1):
             msg += f"{idx}. {uid}: @{pdata['score']}\n"
         return msg
 
