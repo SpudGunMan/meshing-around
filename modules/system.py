@@ -1342,7 +1342,7 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
                 meshLeaderboard['adminPackets'].append(packet_info)
                 if len(meshLeaderboard['adminPackets']) > 10:
                     meshLeaderboard['adminPackets'].pop(0)
-                if logMetaStats
+                if logMetaStats:
                     logger.info(f"System: 🚨 Admin packet detected from Device: {rxNode} Channel: {channel} NodeID:{nodeID} ShortName:{get_name_from_number(nodeID, 'short', rxNode)}")
         except Exception as e:
             logger.debug(f"System: ADMIN_APP decode error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
