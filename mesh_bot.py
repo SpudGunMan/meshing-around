@@ -892,7 +892,7 @@ def quizHandler(message, nodeID, deviceID):
             #replace all the 10 digit numbers with the short name
             for part in msg.split():
                 part = part.rstrip(":")
-                if len(part) == 10 and part.isdigit():
+                if len(part) == 10:
                     player_name = get_name_from_number(int(part), 'short', deviceID)
                     msg = msg.replace(part, player_name)
         
@@ -900,6 +900,7 @@ def quizHandler(message, nodeID, deviceID):
         if isinstance(msg, dict) and str(nodeID) in bbs_admin_list and 'message' in msg:
             for player_id in quizGamePlayer.players:
                 send_message(msg['message'], 0, player_id, deviceID)
+                time.sleep(responseDelay)
             msg = f"Message sent to {len(quizGamePlayer.players)} players"
 
         return msg
