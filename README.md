@@ -57,9 +57,7 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 
 #### Survey Module
 - **Custom Surveys**: Easily create and deploy custom surveys by editing JSON files in `data/survey`. Multiple surveys can be managed (e.g., `survey snow`).
-- **User Feedback Collection**: Users can participate in surveys via DM or channel, and responses are logged for later review.
-- **Flexible Deployment**: Surveys can be triggered on demand or scheduled for regular check-ins.
-
+- **User Feedback Collection**: Users can participate in surveys via DM, and responses are logged for later review.
 
 ### Radio Frequency Monitoring
 - **SNR RF Activity Alerts**: Monitor a radio frequency and get alerts when high SNR RF activity is detected.
