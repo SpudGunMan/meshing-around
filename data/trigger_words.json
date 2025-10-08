@@ -1,0 +1,16 @@
+{
+  "ping_aliases": {
+    "description": "Custom trigger words that work like 'ping'",
+    "enabled": true,
+    "words": []
+  },
+  "test_aliases": {
+    "description": "Custom trigger words that work like 'test'",
+    "enabled": true,
+    "words": []
+  },
+  "examples": {
+    "ping_aliases": ["привет", "hola", "bonjour", "ciao"],
+    "test_aliases": ["prueba", "テスト", "testen", "测试"]
+  }
+}

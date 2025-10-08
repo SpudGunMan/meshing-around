@@ -41,6 +41,14 @@ explicitCmd = True
 # list of favorite nodes numbers ex: 2813308004,4258675309 used by script/addFav.py
 favoriteNodeList = 
 
+# Custom trigger words for localization (comma-separated)
+# These words will trigger the same response as 'ping' command
+customPingWords = 
+# These words will trigger the same response as 'test' command
+customTestWords = 
+# Enable user statistics tracking for leaderboard/top command
+enableStatsTracking = True
+
 # motd is reset to this value on boot
 motd = Thanks for using MeshBOT! Have a good day!
 welcome_message = MeshBot, here for you like a friend who is not. Try sending: ping @foo or, cmd
