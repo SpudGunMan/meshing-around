@@ -50,6 +50,17 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 - **FCC ARRL QuizBot**: The exam question pool quiz-bot.
 - **Command-Based Gameplay**: Issue `games` to display help and start playing.
 
+#### QuizMaster
+- **Interactive Group Quizzes**: The QuizMaster module allows admins to start and stop quiz games for groups. Players can join, leave, and answer questions directly via DM or channel.
+- **Scoring and Leaderboards**: Players can check their scores and see the top performers with `q: score` and `q: top`.
+- **Easy Participation**: Players answer questions by prefixing their answer with `q:`, e.g., `q: 42`.
+
+#### Survey Module
+- **Custom Surveys**: Easily create and deploy custom surveys by editing JSON files in `data/survey`. Multiple surveys can be managed (e.g., `survey snow`).
+- **User Feedback Collection**: Users can participate in surveys via DM or channel, and responses are logged for later review.
+- **Flexible Deployment**: Surveys can be triggered on demand or scheduled for regular check-ins.
+
+
 ### Radio Frequency Monitoring
 - **SNR RF Activity Alerts**: Monitor a radio frequency and get alerts when high SNR RF activity is detected.
 - **Hamlib Integration**: Use Hamlib (rigctld) to watch the S meter on a connected radio.
