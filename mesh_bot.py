@@ -851,9 +851,11 @@ def handleTicTacToe(message, nodeID, deviceID):
 def quizHandler(message, nodeID, deviceID):
     user_name = get_name_from_number(nodeID)
     user_id = nodeID
-    msg = ""
-    user_answer = message.lower().replace("quiz","").replace("q:","").replace("quiz ","").replace("q: ","").strip()
-    if message.startswith("quiz") or message.lower().startswith("q:"):
+    msg = ''
+    user_answer = ''
+    user_answer = message.lower()
+    user_answer = user_answer.replace("quiz","").replace("q:","").strip()
+    if user_answer:
         if user_answer.startswith("start"):
             msg = quizGamePlayer.start_game(user_id)
         elif user_answer.startswith("stop"):
@@ -875,19 +877,34 @@ def quizHandler(message, nodeID, deviceID):
         elif user_answer.startswith("broadcast"):
             broadcast_msg = user_answer.replace("broadcast", "", 1).strip()
             msg = quizGamePlayer.broadcast(user_id, broadcast_msg)
-            msg = f"Broadcast message to players spud, finish this later"
         elif user_answer.startswith("?"):
             msg = ("Quiz Commands:\n"
                    "q: join - Join the current quiz\n"
                    "q: leave - Leave the current quiz\n"
-                   "q: next - Get the next question\n"
                    "q: <your answer> - Answer the current question\n"
                    "q: score - Show your current score\n"
                    "q: top - Show top 3 players\n")
         else:
             msg = quizGamePlayer.answer(user_id, user_answer)
 
-    return msg
+        # set username on top 3
+        if "🏆 Top" in msg:
+            #replace all the 10 digit numbers with the short name
+            for part in msg.split():
+                part = part.rstrip(":")
+                if len(part) == 10 and part.isdigit():
+                    player_name = get_name_from_number(int(part), 'short', deviceID)
+                    msg = msg.replace(part, player_name)
+        
+        # broadcast message to all players if user is in bbs_admin_list and msg is a dict with 'message' key
+        if isinstance(msg, dict) and str(nodeID) in bbs_admin_list and 'message' in msg:
+            for player_id in quizGamePlayer.players:
+                send_message(msg['message'], 0, player_id, deviceID)
+            msg = f"Message sent to {len(quizGamePlayer.players)} players"
+
+        return msg
+    else:
+        return "🧠Please provide an answer or command, or send q: ?"
 
 def handle_riverFlow(message, message_from_id, deviceID):
     location = get_node_location(message_from_id, deviceID)

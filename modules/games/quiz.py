@@ -15,6 +15,7 @@ class QuizGame:
         self.active = False
         self.players = {}  # user_id: {'score': int, 'current_q': int, 'answered': set()}
         self.questions = []  # Loaded from JSON
+        self.first_correct = {}  # q_idx: user_id
         self.load_questions()
 
     def start_game(self, quizmaster_id):
@@ -23,7 +24,9 @@ class QuizGame:
         if self.active:
             return "Quiz already running."
         self.active = True
+        logger.debug(f"QuizMaster: {quizmaster_id} started a new quiz round.")
         self.players = {}
+        self.first_correct = {}  # Reset on new game
         self.load_questions()
         return "Quiz started! Players can now join."
     
@@ -31,7 +34,8 @@ class QuizGame:
         try:
             with open(QUIZ_JSON, 'r') as f:
                 self.questions = json.load(f)
-            random.shuffle(self.questions)
+            # Shuffle questions to ensure randomness each game
+            #random.shuffle(self.questions)
         except Exception as e:
             logger.error(f"Failed to load quiz questions: {e}")
             self.questions = []
@@ -40,6 +44,7 @@ class QuizGame:
         if not self.active or str(quizmaster_id) not in self.quizmaster:
             return "Only the quizmaster can stop the quiz."
         return_msg = "Quiz stopped! Final scores:\n" + self.top_three()
+        logger.debug(f"QuizMaster: {quizmaster_id} stopped the quiz.")
         self.active = False
         self.players = {}
         return return_msg
@@ -50,12 +55,14 @@ class QuizGame:
         if user_id in self.players:
             return "You are already in the quiz."
         self.players[user_id] = {'score': 0, 'current_q': 0, 'answered': set()}
-        reminder = f"Joined!\n'Q: <Answer>' to answer, 'Q: ?' for more.\n"
+        reminder = f"Joined!\n'Q: <Answer>' 'Q: ?' for more.\n"
+        logger.debug(f"QuizMaster: Player {user_id} joined the round.")
         return reminder + self.next_question(user_id)
 
     def leave(self, user_id):
         if user_id in self.players:
             del self.players[user_id]
+            logger.debug(f"QuizMaster: Player {user_id} left the round.")
             return "You left the quiz."
         return "You are not in the quiz."
 
@@ -72,6 +79,7 @@ class QuizGame:
         if "answers" in q:
             for i, opt in enumerate(q['answers']):
                 msg += f"{chr(65+i)}. {opt}\n"
+            msg = msg.strip()
         return msg
 
     def answer(self, user_id, answer):
@@ -86,11 +94,14 @@ class QuizGame:
         q = self.questions[q_idx]
         # Check if it's multiple choice or free-text
         if "answers" in q and "correct" in q:
-            # Multiple choice
             try:
                 ans_idx = ord(answer.upper()) - 65
                 if ans_idx == q['correct']:
                     player['score'] += 1
+                    # Track first correct answer
+                    if q_idx not in self.first_correct:
+                        self.first_correct[q_idx] = user_id
+                        logger.info(f"QuizMaster: Question {q_idx+1} first user with correct answer by {user_id}")
                     result = "Correct! 🎉"
                 else:
                     result = f"Wrong. Correct answer: {chr(65+q['correct'])}"
@@ -100,11 +111,13 @@ class QuizGame:
             except Exception:
                 return "Invalid answer. Use A, B, C, etc."
         elif "answer" in q:
-            # Free-text answer
             user_ans = answer.strip().lower()
             correct_ans = str(q['answer']).strip().lower()
             if user_ans == correct_ans:
                 player['score'] += 1
+                if q_idx not in self.first_correct:
+                    self.first_correct[q_idx] = user_id
+                    logger.info(f"QuizMaster: Question {q_idx+1} first user with correct answer by {user_id}")
                 result = "Correct! 🎉"
             else:
                 result = f"Wrong. Correct answer: {q['answer']}"
@@ -118,9 +131,10 @@ class QuizGame:
         if not self.players:
             return "No players in the quiz."
         ranking = sorted(self.players.items(), key=lambda x: x[1]['score'], reverse=True)
-        msg = "🏆 Top 3 Players:\n"
-        for i, (uid, pdata) in enumerate(ranking[:3]):
-            msg += f"{i+1}. {uid}: {pdata['score']}\n"
+        count = min(3, len(ranking))
+        msg = f"🏆 Top {count} Player{'s' if count > 1 else ''}:\n"
+        for idx, (uid, pdata) in enumerate(ranking[:count], start=1):
+            msg += f"{idx}. {uid}: @{pdata['score']}\n"
         return msg
 
     def broadcast(self, quizmaster_id, message):
