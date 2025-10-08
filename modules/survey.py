@@ -92,7 +92,7 @@ class SurveyModule:
                     location = self.responses[user_id].get('location')
                     row.insert(1 if surveyRecordID else 0, str(location) if location is not None else "N/A")
                 f.write(','.join(row) + '\n')
-            logger.info(f"Responses saved to {filename}")
+            logger.info(f"Survey: Responses for user {user_id} saved for survey '{survey_name}' to {filename}.")
         except Exception as e:
             logger.error(f"Error saving responses to {filename}: {e}")
 

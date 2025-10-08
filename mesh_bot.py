@@ -947,6 +947,7 @@ def surveyHandler(message, nodeID, deviceID):
     if nodeID not in survey_module.responses:
         msg = survey_module.start_survey(user_id=nodeID, survey_name=surveySays, location=location)
     else:
+        # Process the answer
         msg = survey_module.answer(user_id=nodeID, answer=surveySays, location=location)
 
     return msg
