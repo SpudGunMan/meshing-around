@@ -140,6 +140,8 @@ class SurveyModule:
 
     def end_survey(self, user_id):
         """End the survey for the user and save responses."""
+        if user_id not in self.responses:
+            return "No active survey session to end."
         self.save_responses(user_id)
         self.responses.pop(user_id, None)
         return "✅ Survey complete. Thank you for your responses!"
