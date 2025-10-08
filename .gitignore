@@ -23,9 +23,7 @@ data/rag/*
 # qrz db
 data/qrz.db
 
-# fileMon
-news.txt
-alert.txt
+# fileMonitor test file
 bee.txt
 
 # .csv files
