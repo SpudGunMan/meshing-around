@@ -1119,8 +1119,8 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
                 
                 # Track lowest battery 🪫
                 if deviceMetrics.get('batteryLevel') is not None:
-                    battery = deviceMetrics['batteryLevel']
-                    if battery > 0 and battery < meshLeaderboard['lowestBattery']['value']:
+                    battery = float(deviceMetrics['batteryLevel'])
+                    if battery > 0 and battery < float(meshLeaderboard['lowestBattery']['value']):
                         meshLeaderboard['lowestBattery'] = {'nodeID': nodeID, 'value': battery, 'timestamp': current_time}
                         if logMetaStats:
                             logger.info(f"System: 🪫 New low battery record: {battery}% from NodeID:{nodeID} ShortName:{get_name_from_number(nodeID, 'short', rxNode)}")
@@ -1144,24 +1144,21 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
                 envMetrics = telemetry_packet['environmentMetrics']
                 current_time = time.time()
                 
-                # Track coldest temperature 🥶
                 if envMetrics.get('temperature') is not None:
-                    temp = envMetrics['temperature']
-                    if float(temp) < float(meshLeaderboard['coldestTemp']['value']):
+                    temp = float(envMetrics['temperature'])
+                    if temp < float(meshLeaderboard['coldestTemp']['value']):
                         meshLeaderboard['coldestTemp'] = {'nodeID': nodeID, 'value': temp, 'timestamp': current_time}
                         if logMetaStats:
                             logger.info(f"System: 🥶 New coldest temp record: {temp}°C from NodeID:{nodeID} ShortName:{get_name_from_number(nodeID, 'short', rxNode)}")
-                    
-                    # Track hottest temperature 🥵
-                    if temp > meshLeaderboard['hottestTemp']['value']:
+                    if temp > float(meshLeaderboard['hottestTemp']['value']):
                         meshLeaderboard['hottestTemp'] = {'nodeID': nodeID, 'value': temp, 'timestamp': current_time}
                         if logMetaStats:
                             logger.info(f"System: 🥵 New hottest temp record: {temp}°C from NodeID:{nodeID} ShortName:{get_name_from_number(nodeID, 'short', rxNode)}")
                 
                 # Track worst air quality 💨 (IAQ - higher is worse)
                 if envMetrics.get('iaq') is not None:
-                    iaq = envMetrics['iaq']
-                    if iaq > meshLeaderboard['worstAirQuality']['value']:
+                    iaq = float(envMetrics['iaq'])
+                    if iaq > float(meshLeaderboard['worstAirQuality']['value']):
                         # if its a bot node ID add a debug log
                         if nodeID == globals().get(f'myNodeNum{rxNode}'):
                             logger.debug(f"System: {nodeID} its time to open a window!")
