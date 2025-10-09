@@ -75,7 +75,9 @@ if wikipedia_enabled and use_kiwix_server:
                         return summary.strip()[:500]
             
             logger.warning(f"System: No Kiwix Results for:{search_term}")
-            return ERROR_FETCHING_DATA
+            # try to fall back to online Wikipedia if available
+            return get_wikipedia_summary(search_term, force=True)
+            
             
         except requests.RequestException as e:
             logger.warning(f"System: Kiwix connection error: {e}")
@@ -84,16 +86,17 @@ if wikipedia_enabled and use_kiwix_server:
             logger.warning(f"System: Error with Kiwix for:{search_term} {e}")
             return ERROR_FETCHING_DATA
 
-def get_wikipedia_summary(search_term):
+def get_wikipedia_summary(search_term, location=None, force=False):
+    lat, lon = location if location else (None, None)
     # Use Kiwix if configured
-    if use_kiwix_server:
+    if use_kiwix_server and not force:
         return get_kiwix_summary(search_term)
     
     try:
         # Otherwise use online Wikipedia
         wikipedia_search = wikipedia.search(search_term, results=3)
         wikipedia_suggest = wikipedia.suggest(search_term)
-        #wikipedia_aroundme = wikipedia.geosearch(location[0], location[1], results=3)
+        #wikipedia_aroundme = wikipedia.geosearch(lat,lon, results=3)
         #logger.debug(f"System: Wikipedia Nearby:{wikipedia_aroundme}")
     except Exception as e:
         logger.debug(f"System: Wikipedia search error for:{search_term} {e}")
