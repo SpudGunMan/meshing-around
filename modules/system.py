@@ -206,8 +206,8 @@ if dad_jokes_enabled:
 
 # Wikipedia Search Configuration
 if wikipedia_enabled:
-    import wikipedia # pip install wikipedia
-    trap_list = trap_list + ("wiki:", "wiki?",)
+    from modules.wiki import * # from the spudgunman/meshing-around repo
+    trap_list = trap_list + ("wiki:",)
     help_message = help_message + ", wiki:"
 
 # LLM Configuration
@@ -752,31 +752,6 @@ def send_message(message, ch, nodeid=0, nodeInt=1, bypassChuncking=False):
                             " To: " + CustomFormatter.white + f"{get_name_from_number(nodeid, 'long', nodeInt)}")
                 interface.sendText(text=message, channelIndex=ch, destinationId=nodeid)
     return True
-
-def get_wikipedia_summary(search_term):
-    wikipedia_search = wikipedia.search(search_term, results=3)
-    wikipedia_suggest = wikipedia.suggest(search_term)
-    #wikipedia_aroundme = wikipedia.geosearch(location[0], location[1], results=3)
-    #logger.debug(f"System: Wikipedia Nearby:{wikipedia_aroundme}")
-    
-    if len(wikipedia_search) == 0:
-        logger.warning(f"System: No Wikipedia Results for:{search_term}")
-        return ERROR_FETCHING_DATA
-    
-    try:
-        logger.debug(f"System: Searching Wikipedia for:{search_term}, First Result:{wikipedia_search[0]}, Suggest Word:{wikipedia_suggest}")
-        summary = wikipedia.summary(search_term, sentences=wiki_return_limit, auto_suggest=False, redirect=True)
-    except wikipedia.DisambiguationError as e:
-        logger.warning(f"System: Disambiguation Error for:{search_term} trying {wikipedia_search[0]}")
-        summary = wikipedia.summary(wikipedia_search[0], sentences=wiki_return_limit, auto_suggest=True, redirect=True)
-    except wikipedia.PageError as e:
-        logger.warning(f"System: Wikipedia Page Error for:{search_term} {e} trying {wikipedia_search[0]}")
-        summary = wikipedia.summary(wikipedia_search[0], sentences=wiki_return_limit, auto_suggest=True, redirect=True)
-    except Exception as e:
-        logger.warning(f"System: Error with Wikipedia for:{search_term} {e}")
-        return ERROR_FETCHING_DATA
-    
-    return summary
 
 def messageTrap(msg):
     # Check if the message contains a trap word, this is the first filter for listning to messages

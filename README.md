@@ -150,7 +150,7 @@ git clone https://github.com/spudgunman/meshing-around
 | `messages` | Replays the last messages heard on device, like Store and Forward, returns the PublicChannel and Current | ✅ |
 | `readnews` | returns the contents of a file (data/news.txt, by default) can also `news mesh` via the chunker on air | ✅ |
 | `satpass` | returns the pass info from API for defined NORAD ID in config or Example: `satpass 25544,33591`| |
-| `wiki:` | Searches Wikipedia and returns the first few sentences of the first result if a match. Example: `wiki: lora radio` |
+| `wiki:` | Searches Wikipedia (or local Kiwix server) and returns the first few sentences of the first result if a match. Example: `wiki: lora radio` |
 | `howfar` | returns the distance you have traveled since your last HowFar. `howfar reset` to start over | ✅ |
 | `howtall` | returns height of something you give a shadow by using sun angle | ✅ |
 
@@ -397,6 +397,33 @@ llmContext_fromGoogle = True # enable context from google search results helps w
 googleSearchResults = 3 # number of google search results to include in the context more results = more compute time
 ```
 Note for LLM in docker with [NVIDIA](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/docker-specialized.html). Needed for the container with ollama running. 
+
+### Wikipedia Search Settings
+The Wikipedia search module can use either the online Wikipedia API or a local Kiwix server for offline wiki access. Kiwix is especially useful for mesh networks operating in remote or offline environments.
+
+```ini
+# Enable or disable the wikipedia search module
+wikipedia = True
+
+# Use local Kiwix server instead of online Wikipedia
+# Set to False to use online Wikipedia (default)
+useKiwixServer = False
+
+# Kiwix server URL (only used if useKiwixServer is True)
+kiwixURL = http://127.0.0.1:8080
+
+# Kiwix library name (e.g., wikipedia_en_100_nopic_2024-06)
+# Find available libraries at https://library.kiwix.org/
+kiwixLibraryName = wikipedia_en_100_nopic_2024-06
+```
+
+To set up a local Kiwix server:
+1. Install Kiwix tools: https://kiwix.org/en/ `sudo apt install kiwix-tools -y`
+2. Download a Wikipedia ZIM file to `data/`: https://library.kiwix.org/ `wget https://download.kiwix.org/zim/wikipedia/wikipedia_en_100_nopic_2025-09.zim`
+3. Run the server: `kiwix-serve --port 8080 wikipedia_en_100_nopic_2025-09.zim`
+4. Set `useKiwixServer = True` in your config.ini
+
+The bot will automatically extract and truncate content to fit Meshtastic's message size limits (~500 characters).
 
 ### Radio Monitoring
 A module allowing a Hamlib compatible radio to connect to the bot. When functioning, it will message the configured channel with a message of in use. **Requires hamlib/rigctld to be running as a service.**

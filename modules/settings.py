@@ -227,6 +227,9 @@ try:
     bee_enabled = config['general'].getboolean('bee', False) # 🐝 off by default undocumented
     solar_conditions_enabled = config['general'].getboolean('spaceWeather', True)
     wikipedia_enabled = config['general'].getboolean('wikipedia', False)
+    use_kiwix_server = config['general'].getboolean('useKiwixServer', False)
+    kiwix_url = config['general'].get('kiwixURL', 'http://127.0.0.1:8080')
+    kiwix_library_name = config['general'].get('kiwixLibraryName', 'wikipedia_en_100_nopic_2024-06')
     llm_enabled = config['general'].getboolean('ollama', False) # https://ollama.com
     ollamaHostName = config['general'].get('ollamaHostName', 'http://localhost:11434') # default localhost
     llmModel = config['general'].get('ollamaModel', 'gemma3:270m') # default gemma3:270m
