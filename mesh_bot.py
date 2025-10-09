@@ -1613,14 +1613,17 @@ def onReceive(packet, interface):
                     if repeater_enabled and multiple_interface:         
                         # wait a responseDelay to avoid message collision from lora-ack.
                         time.sleep(responseDelay)
-                        rMsg = (f"{message_string} From:{get_name_from_number(message_from_id, 'short', rxNode)}")
-                        # if channel found in the repeater list repeat the message
-                        if str(channel_number) in repeater_channels:
-                            for i in range(1, 10):
-                                if globals().get(f'interface{i}_enabled', False) and i != rxNode:
-                                    logger.debug(f"Repeating message on Device{i} Channel:{channel_number}")
-                                    send_message(rMsg, channel_number, 0, i)
-                                    time.sleep(responseDelay)
+                        if len(message_string) > (3 * MESSAGE_CHUNK_SIZE):
+                            logger.warning(f"System: Not repeating message, exceeds size limit ({len(message_string)} > {3 * MESSAGE_CHUNK_SIZE})")
+                        else:
+                            rMsg = (f"{message_string} From:{get_name_from_number(message_from_id, 'short', rxNode)}")
+                            # if channel found in the repeater list repeat the message
+                            if str(channel_number) in repeater_channels:
+                                for i in range(1, 10):
+                                    if globals().get(f'interface{i}_enabled', False) and i != rxNode:
+                                        logger.debug(f"Repeating message on Device{i} Channel:{channel_number}")
+                                        send_message(rMsg, channel_number, 0, i)
+                                        time.sleep(responseDelay)
                     
                     # if QRZ enabled check if we have said hello
                     if qrz_hello_enabled:
