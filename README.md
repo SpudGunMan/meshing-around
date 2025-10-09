@@ -105,7 +105,7 @@ git clone https://github.com/spudgunman/meshing-around
 | `lheard` | Returns the last 5 heard nodes with SNR. Can also use `sitrep` | ✅ |
 | `motd` | Displays the message of the day or sets it. Example: `motd $New Message Of the day` | ✅ |
 | `sysinfo` | Returns the bot node telemetry info | ✅ |
-| `test` | used to test the limits of data transfer `test 4` sends data to the maxBuffer limit (default 220) via DM only | ✅ |
+| `test` | used to test the limits of data transfer (`test 4` sends data to the maxBuffer limit default 200 charcters) via DM only | ✅ |
 | `whereami` | Returns the address of the sender's location if known |
 | `whoami` | Returns details of the node asking, also returned when position exchanged 📍 | ✅ |
 | `whois` | Returns details known about node, more data with bbsadmin node | ✅ |
@@ -118,7 +118,7 @@ git clone https://github.com/spudgunman/meshing-around
 | `earthquake` | Returns the largest and number of USGS events for the location | |
 | `hfcond` | Returns a table of HF solar conditions | |
 | `rlist` | Returns a table of nearby repeaters from RepeaterBook | |
-| `riverflow` | Return information from NOAA for river flow info. Example: `riverflow modules/settings.py`| |
+| `riverflow` | Return information from NOAA for river flow info. | |
 | `solar` | Gives an idea of the x-ray flux | |
 | `sun` and `moon` | Return info on rise and set local time | ✅ |
 | `tide` | Returns the local tides (NOAA data source) | |
@@ -178,9 +178,9 @@ git clone https://github.com/spudgunman/meshing-around
 | `videopoker` | Plays basic 5-card hold Video Poker | ✅ |
 
 #### QuizMaster
-To use QuizMaster the bbs_admin_list is the QuizMaster, who can `q: start` and q: stop` to start and stop the game,  `q: broadcast <message>` to send a message to all players.
+To use QuizMaster the bbs_admin_list is the QuizMaster, who can `q: start` and `q: stop` to start and stop the game,  `q: broadcast <message>` to send a message to all players.
 Players can `q: join` to join the game, `q: leave` to leave the game, `q: score` to see their score, and `q: top` to see the top 3 players.
-To Answer a question, just type the answer prefixed with `q: <answer>`.
+To Answer a question, just type the answer prefixed with `q: <answer>`
 
 #### Survey
 To use the Survey feature edit the json files in data/survey multiple surveys are possible such as `survey snow`
