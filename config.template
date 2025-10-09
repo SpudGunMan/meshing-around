@@ -62,8 +62,8 @@ wikipedia = True
 useKiwixServer = False
 # Kiwix server URL (e.g., http://127.0.0.1:8080)
 kiwixURL = http://127.0.0.1:8080
-# Kiwix library name (e.g., wikipedia_en_100_nopic_2024-06)
-kiwixLibraryName = wikipedia_en_100_nopic_2024-06
+# Kiwix library name (e.g., wikipedia_en_100_nopic_2025-09)
+kiwixLibraryName = wikipedia_en_100_nopic_2025-09
 
 # Enable ollama LLM see more at https://ollama.com
 ollama = False

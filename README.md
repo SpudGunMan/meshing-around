@@ -417,9 +417,9 @@ kiwixLibraryName = wikipedia_en_100_nopic_2024-06
 ```
 
 To set up a local Kiwix server:
-1. Install Kiwix tools: https://kiwix.org/en/
-2. Download a Wikipedia ZIM file: https://library.kiwix.org/
-3. Run the server: `kiwix-serve --port 8080 wikipedia_en_100_nopic_2024-06.zim`
+1. Install Kiwix tools: https://kiwix.org/en/ `sudo apt install kiwix-tools -y`
+2. Download a Wikipedia ZIM file to `data/`: https://library.kiwix.org/ `wget https://download.kiwix.org/zim/wikipedia/wikipedia_en_100_nopic_2025-09.zim`
+3. Run the server: `kiwix-serve --port 8080 wikipedia_en_100_nopic_2025-09.zim`
 4. Set `useKiwixServer = True` in your config.ini
 
 The bot will automatically extract and truncate content to fit Meshtastic's message size limits (~500 characters).
