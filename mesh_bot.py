@@ -1748,12 +1748,10 @@ async def start_rx():
         else:
             logger.debug(f"System: SMTP Email Alerting Enabled")
     if scheduler_enabled:
-        # Reminder Scheduler is enabled every Monday at noon send a log message
-        schedule.every().monday.at("12:00").do(lambda: logger.info("System: Scheduled Broadcast Enabled Reminder"))
-
         # basic scheduler
+        if schedulerMotd:
+            schedulerMessage = MOTD
         if schedulerValue != '':
-            logger.debug(f"System: Starting the broadcast scheduler from config.ini")
             if schedulerValue.lower() == 'day':
                 if schedulerTime != '':
                     # Send a message every day at the time set in schedulerTime
@@ -1788,8 +1786,13 @@ async def start_rx():
             elif 'min' in schedulerValue.lower():
                 # Send a message every minute at the time set in schedulerTime
                 schedule.every(int(schedulerInterval)).minutes.do(lambda: send_message(schedulerMessage, schedulerChannel, 0, schedulerInterface))
+            logger.debug(f"System: Starting the scheduler to send '{schedulerMessage}' every {schedulerValue} at {schedulerTime} on Device:{schedulerInterface} Channel:{schedulerChannel}")
         else:
-            logger.debug(f"System: Starting the broadcast scheduler")
+            logger.warning("System: No schedule.Value set edit the .py file to do more. See examples in the code.")
+            # Reminder Scheduler is enabled every Monday at noon send a log message
+            schedule.every().monday.at("12:00").do(lambda: logger.info("System: Scheduled Broadcast Enabled Reminder"))
+            # example scheduler message
+            logger.debug(f"System: Starting the scheduler to send '{schedulerMessage}' every Monday at noon on Device:{schedulerInterface} Channel:{schedulerChannel}")
 
         # Enhanced Examples of using the scheduler, Times here are in 24hr format
         # https://schedule.readthedocs.io/en/stable/
@@ -1826,6 +1829,7 @@ async def start_rx():
 
         # Send bbslink looking for peers every other day at 10:00 using send_message function to channel 3 on device 1
         #schedule.every(2).days.at("10:00").do(lambda: send_message("bbslink MeshBot looking for peers", 3, 0, 1))
+        # show schedual details
         await BroadcastScheduler()
 
     # here we go loopty loo

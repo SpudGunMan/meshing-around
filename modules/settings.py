@@ -348,6 +348,7 @@ try:
     schedulerInterval = config['scheduler'].get('interval', '') # default empty
     schedulerTime = config['scheduler'].get('time', '') # default empty
     schedulerValue = config['scheduler'].get('value', '') # default empty
+    schedulerMotd = config['scheduler'].getboolean('schedulerMotd', False) # default False
 
     # radio monitoring
     radio_detection_enabled = config['radioMon'].getboolean('enabled', False)
