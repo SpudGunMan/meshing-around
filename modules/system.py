@@ -1147,7 +1147,7 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
                 # Track coldest temperature 🥶
                 if envMetrics.get('temperature') is not None:
                     temp = envMetrics['temperature']
-                    if temp < meshLeaderboard['coldestTemp']['value']:
+                    if float(temp) < float(meshLeaderboard['coldestTemp']['value']):
                         meshLeaderboard['coldestTemp'] = {'nodeID': nodeID, 'value': temp, 'timestamp': current_time}
                         if logMetaStats:
                             logger.info(f"System: 🥶 New coldest temp record: {temp}°C from NodeID:{nodeID} ShortName:{get_name_from_number(nodeID, 'short', rxNode)}")
