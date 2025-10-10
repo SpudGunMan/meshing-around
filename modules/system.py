@@ -1461,7 +1461,7 @@ def get_mesh_leaderboard(msg, fromID, deviceID):
 
     if "reset" in msg.lower() and str(fromID) in bbs_admin_list:
         initializeMeshLeaderboard()
-        return "✅ Leaderboard has been reset.\n"
+        return "✅ Leaderboard has been reset."
 
     # Lowest battery
     if meshLeaderboard['lowestBattery']['nodeID']:
