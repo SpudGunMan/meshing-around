@@ -1089,7 +1089,7 @@ def handle_messages(message, deviceID, channel_number, msg_history, publicChanne
         return message.split("?")[0].title() + " command returns the last " + str(storeFlimit) + " messages sent on a channel."
     else:
         response = ""
-        header = "📨Messages:"
+        header = f"📨Messages:\n"
         # Calculate safe byte limit (account for header and some overhead)
         header_bytes = len(header.encode('utf-8'))
         available_bytes = max_bytes - header_bytes
