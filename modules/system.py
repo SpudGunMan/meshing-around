@@ -210,6 +210,12 @@ if wikipedia_enabled:
     trap_list = trap_list + ("wiki:",)
     help_message = help_message + ", wiki:"
 
+# RSS Feed Configuration
+if rssEnable:
+    from modules.rss import * # from the spudgunman/meshing-around repo
+    trap_list = trap_list + ("readrss",)
+    help_message = help_message + ", readrss"
+
 # LLM Configuration
 if llm_enabled:
     from modules.llm import * # from the spudgunman/meshing-around repo

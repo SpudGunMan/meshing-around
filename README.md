@@ -77,6 +77,7 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 
 ### Data Reporting
 - **HTML Generator**: Visualize bot traffic and data flows with a built-in HTML generator for [data reporting](logs/README.md).
+- **RSS and news feeds**: Get data in mesh from many sources!
 
 ### Robust Message Handling
 - **Message Chunking**: Automatically chunk messages over 160 characters to ensure higher delivery success across hops.
@@ -149,6 +150,7 @@ git clone https://github.com/spudgunman/meshing-around
 | `askai` and `ask:` | Ask Ollama LLM AI for a response. Example: `askai what temp do I cook chicken` | ✅ |
 | `messages` | Replays the last messages heard on device, like Store and Forward, returns the PublicChannel and Current | ✅ |
 | `readnews` | returns the contents of a file (data/news.txt, by default) can also `news mesh` via the chunker on air | ✅ |
+| `readrss` | returns a set RSS feed on air | |
 | `satpass` | returns the pass info from API for defined NORAD ID in config or Example: `satpass 25544,33591`| |
 | `wiki:` | Searches Wikipedia (or local Kiwix server) and returns the first few sentences of the first result if a match. Example: `wiki: lora radio` |
 | `howfar` | returns the distance you have traveled since your last HowFar. `howfar reset` to start over | ✅ |
@@ -576,7 +578,7 @@ I used ideas and snippets from other responder bots and want to call them out!
 - **mikecarper**: ideas, and testing. hamtest
 - **c.merphy360**: high altitude alerts
 - **Iris**: testing and finding 🐞
-- **Cisien, bitflip, Woof, propstg, snydermesh, trs2982, Josh, mesb1, and Hailo1999**: For testing and feature ideas on Discord and GitHub.
+- **Cisien, bitflip, Woof, propstg, snydermesh, trs2982, FJRPilot, Josh, mesb1, and Hailo1999**: For testing and feature ideas on Discord and GitHub.
 - **Meshtastic Discord Community**: For tossing out ideas and testing code.
 
 ### Tools

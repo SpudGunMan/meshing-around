@@ -240,6 +240,10 @@ try:
     favoriteNodeList = config['general'].get('favoriteNodeList', '').split(',')
     enableEcho = config['general'].getboolean('enableEcho', False) # default False
     echoChannel = config['general'].getint('echoChannel', '9') # default 9, empty string to ignore
+    rssEnable = config['general'].getboolean('rssEnable', True) # default True
+    rssFeedURL = config['general'].get('rssFeedURL', 'http://www.hackaday.com/rss.xml')
+    rssMaxItems = config['general'].getint('rssMaxItems', 3) # default 3 items
+    rssTruncate = config['general'].getint('rssTruncate', 100) # default 100 characters
 
     # emergency response
     emergency_responder_enabled = config['emergencyHandler'].getboolean('enabled', False)

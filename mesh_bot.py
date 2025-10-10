@@ -77,6 +77,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "q:": lambda: quizHandler(message, message_from_id, deviceID),
     "quiz": lambda: quizHandler(message, message_from_id, deviceID),
     "readnews": lambda: handleNews(message_from_id, deviceID, message, isDM),
+    "readrss": lambda: get_rss_feed() if rssEnable else "RSS feed module is disabled",
     "riverflow": lambda: handle_riverFlow(message, message_from_id, deviceID),
     "rlist": lambda: handle_repeaterQuery(message_from_id, deviceID, channel_number),
     "satpass": lambda: handle_satpass(message_from_id, deviceID, channel_number, message),
@@ -1701,6 +1702,8 @@ async def start_rx():
         logger.debug("System: Games Enabled!")
     if wikipedia_enabled:
         logger.debug("System: Wikipedia search Enabled")
+    if rssEnabled:
+        logger.debug(f"System: RSS Feed Reader Enabled for {rssFeedURL}")
     if motd_enabled:
         logger.debug(f"System: MOTD Enabled using {MOTD}")
     if sentry_enabled:

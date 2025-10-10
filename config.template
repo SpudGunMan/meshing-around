@@ -55,6 +55,12 @@ DadJokesEmoji = False
 # enable or disable the Solar module
 spaceWeather = True
 
+# enable or disable the RSS module, and truncate the story
+rssEnable = True
+rssFeedURL = http://www.hackaday.com/rss.xml
+rssMaxItems = 3
+rssTruncate = 100
+
 # enable or disable the wikipedia search module
 wikipedia = True
 # Use local Kiwix server instead of online Wikipedia
