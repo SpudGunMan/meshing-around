@@ -1062,7 +1062,7 @@ positionMetadata = {}
 meshLeaderboard = {}
 def initializeMeshLeaderboard():
     global meshLeaderboard
-    # Leaderboard for tracking extreme metrics, if changed update loadLeaderboard
+    # Leaderboard for tracking extreme metrics
     meshLeaderboard = {
         'lowestBattery': {'nodeID': None, 'value': 101, 'timestamp': 0},  # 🪫
         'longestUptime': {'nodeID': None, 'value': 0, 'timestamp': 0},    # 🕰️
@@ -1081,6 +1081,7 @@ def initializeMeshLeaderboard():
         'simulatorPackets': []   # 🤖
     }
 
+initializeMeshLeaderboard()
 def consumeMetadata(packet, rxNode=0, channel=-1):
     global positionMetadata, telemetryData, meshLeaderboard
     uptime = battery = temp = iaq = nodeID = 0
@@ -1452,7 +1453,7 @@ def loadLeaderboard():
     except Exception as e:
         logger.warning(f"System: Error loading Mesh Leaderboard: {e}")
         initializeMeshLeaderboard()
-        
+
 def get_mesh_leaderboard(msg, fromID, deviceID):
     """Get formatted leaderboard of extreme mesh metrics"""
     global meshLeaderboard
