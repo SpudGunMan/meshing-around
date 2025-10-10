@@ -1118,9 +1118,6 @@ def handle_messages(message, deviceID, channel_number, msg_history, publicChanne
                         break  # Stop adding more messages
                     else:
                         response += new_line
-        
-        #remove extra new line
-        response = response.lstrip("\n")
 
         if reverseSF:
             # segassem reverse the order of the messages
