@@ -1054,7 +1054,7 @@ def displayNodeTelemetry(nodeID=0, rxNode=0, userRequested=False):
 
 positionMetadata = {}
 
-# Leaderboard for tracking extreme metrics
+# Leaderboard for tracking extreme metrics, if changed update loadLeaderboard
 meshLeaderboard = {
     'lowestBattery': {'nodeID': None, 'value': 101, 'timestamp': 0},  # 🪫
     'longestUptime': {'nodeID': None, 'value': 0, 'timestamp': 0},    # 🕰️
@@ -1443,6 +1443,12 @@ def loadLeaderboard():
     # Ensure 'mostMessages' exists (versioning issues)
     if 'mostMessages' not in meshLeaderboard:
         meshLeaderboard['mostMessages'] = {'nodeID': None, 'value': 0, 'timestamp': 0}
+    # Ensure 'highestDBm' exists (versioning issues)
+    if 'highestDBm' not in meshLeaderboard:
+        meshLeaderboard['highestDBm'] = {'nodeID': None, 'value': -999, 'timestamp': 0}
+    # Ensure 'weakestDBm' exists (versioning issues)
+    if 'weakestDBm' not in meshLeaderboard:
+        meshLeaderboard['weakestDBm'] = {'nodeID': None, 'value': 999, 'timestamp': 0}
 
 def get_mesh_leaderboard():
     """Get formatted leaderboard of extreme mesh metrics"""
