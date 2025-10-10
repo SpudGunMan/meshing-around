@@ -643,6 +643,9 @@ def get_flood_noaa(lat=0, lon=0, uid=None):
         flood_data = f"Flood Data {name}:\n"
         flood_data += f"Observed: {observed.get('primary', '?')}{observed.get('primaryUnit', '')} ({observed.get('secondary', '?')}{observed.get('secondaryUnit', '')}) risk: {observed.get('floodCategory', '?')}"
         flood_data += f"\nForecast: {forecast.get('primary', '?')}{forecast.get('primaryUnit', '')} ({forecast.get('secondary', '?')}{forecast.get('secondaryUnit', '')}) risk: {forecast.get('floodCategory', '?')}"
+        #flood_data += f"\nStage: {data.get('stage', '?')} {data.get('stageUnit', '')}, Flow: {data.get('flow', '?')} {data.get('flowUnit', '')}"
+        #flood_data += f"\nLast Updated: {data.get('status', {}).get('lastUpdated', '?')}"
+        flood_data += f"\n"
         return flood_data
     except Exception as e:
         logger.debug(f"Location:Error extracting flood gauge data from NOAA for {uid}: {e}")
