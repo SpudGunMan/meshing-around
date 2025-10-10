@@ -211,7 +211,7 @@ try:
     log_backup_count = config['general'].getint('LogBackupCount', 32) # default 32 days
     syslog_to_file = config['general'].getboolean('SyslogToFile', True) # default on
     LOGGING_LEVEL = config['general'].get('sysloglevel', 'DEBUG') # default DEBUG
-    urlTimeoutSeconds = config['general'].getint('urlTimeout', 10) # default 10 seconds
+    urlTimeoutSeconds = config['general'].getint('urlTimeout', 15) # default 15 seconds for URL fetch timeout
     store_forward_enabled = config['general'].getboolean('StoreForward', True)
     storeFlimit = config['general'].getint('StoreLimit', 3) # default 3 messages for S&F
     reverseSF = config['general'].getboolean('reverseSF', False) # default False, send oldest first
