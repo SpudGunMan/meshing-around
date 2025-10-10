@@ -1091,19 +1091,18 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
             nodeID = packet['from']
 
         # if not a bot ID track it
-        if nodeID == globals().get(f'myNodeNum{rxNode}'):
+        if nodeID != globals().get(f'myNodeNum{rxNode}') or nodeID != 0:
             wasItMe = True
         else:
-            if nodeID != globals().get(f'myNodeNum{rxNode}') or nodeID == 0:
-                # consider Meta for most messages leaderboard
-                node_message_count = meshLeaderboard.get('nodeMessageCounts', {})
-                node_message_count[nodeID] = node_message_count.get(nodeID, 0) + 1
-                meshLeaderboard['nodeMessageCounts'] = node_message_count    
-                
-                if node_message_count[nodeID] > meshLeaderboard['mostMessages']['value']:
-                    meshLeaderboard['mostMessages']['value'] = node_message_count[nodeID]
-                    meshLeaderboard['mostMessages']['nodeID'] = nodeID
-                    meshLeaderboard['mostMessages']['timestamp'] = time.time()
+            # consider Meta for most messages leaderboard
+            node_message_count = meshLeaderboard.get('nodeMessageCounts', {})
+            node_message_count[nodeID] = node_message_count.get(nodeID, 0) + 1
+            meshLeaderboard['nodeMessageCounts'] = node_message_count    
+            
+            if node_message_count[nodeID] > meshLeaderboard['mostMessages']['value']:
+                meshLeaderboard['mostMessages']['value'] = node_message_count[nodeID]
+                meshLeaderboard['mostMessages']['nodeID'] = nodeID
+                meshLeaderboard['mostMessages']['timestamp'] = time.time()
 
         # consider Meta for highest and weakest DBm
         if packet.get('rxSnr') is not None and nodeID != 0:
@@ -1138,18 +1137,14 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
             # Track longest uptime 🕰️
             try:
                 # if not a bot ID track it
-                if nodeID != globals().get(f'myNodeNum{rxNode}') or nodeID == 0:
+                if nodeID != globals().get(f'myNodeNum{rxNode}') or nodeID != 0:
                     wasItMe = False
                 else:
                     if deviceMetrics.get('uptimeSeconds') is not None:
                         uptime = float(deviceMetrics['uptimeSeconds'])
                         longest_uptime = float(meshLeaderboard['longestUptime']['value'])
                         if uptime > longest_uptime:
-                            # if the packet is from local bot node ignore it
-                            if nodeID != globals().get(f'myNodeNum{rxNode}'):
-                                wasItMe = True
-                            else:
-                                meshLeaderboard['longestUptime'] = {'nodeID': nodeID, 'value': uptime, 'timestamp': current_time}
+                            meshLeaderboard['longestUptime'] = {'nodeID': nodeID, 'value': uptime, 'timestamp': current_time}
             except Exception as e:
                 logger.debug(f"System: TELEMETRY_APP uptimeSeconds error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
 
@@ -1347,7 +1342,7 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
             if debugMetadata and 'ADMIN_APP' not in metadataFilter:
                 print(f"DEBUG ADMIN_APP: {packet}\n\n")
             # if the packet is from local bot node ignore it
-            if nodeID == globals().get(f'myNodeNum{rxNode}'):
+            if nodeID != globals().get(f'myNodeNum{rxNode}') or nodeID != 0:
                 wasItMe = True
             else:
                 packet_info = {'nodeID': nodeID, 'timestamp': time.time(), 'device': rxNode, 'channel': channel}
