@@ -1530,7 +1530,7 @@ def get_mesh_leaderboard():
     if 'nodeMessageCounts' in meshLeaderboard and meshLeaderboard['mostMessages']['nodeID'] is not None:
         nodeID = meshLeaderboard['mostMessages']['nodeID']
         value = meshLeaderboard['mostMessages']['value']
-        result += f"💬 Most Messages: {value} {get_name_from_number(nodeID, 'short', 1)}\n"
+        result += f"💬 Most Telemetry: {value} {get_name_from_number(nodeID, 'short', 1)}\n"
     
     # # Special packet detections
     # if len(meshLeaderboard['adminPackets']) > 0:
