@@ -118,7 +118,7 @@ def handleShellCmd(message, message_from_id, channel_number, isDM, deviceID):
                     logger.info(f"FileMon: Running shell command from {message_from_id}: {orig_command}")
                     result = subprocess.run(orig_command, shell=True, capture_output=True, text=True, timeout=10, start_new_session=True)
                     output = result.stdout.strip()
-                    return output if output else "x: command executed with no output"
+                    return output if output else "✅ x: processed finished, no output"
                 except Exception as e:
                     logger.warning(f"FileMon: Error running shell command: {e}")
                     logger.debug(f"FileMon: This command is not good for use over the mesh network")
