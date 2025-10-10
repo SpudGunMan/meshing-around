@@ -24,7 +24,7 @@ interface_retry_count = 3
 # Memory Management Constants
 MAX_MSG_HISTORY = 100
 MAX_CMD_HISTORY = 200
-MAX_SEEN_NODES = 200
+MAX_SEEN_NODES = 500
 CLEANUP_INTERVAL = 86400 # 24 hours in seconds
 GAMEDELAY = CLEANUP_INTERVAL # the age of game entries in seconds before they are cleaned up
 
@@ -42,10 +42,10 @@ def cleanup_memory():
         # Clean up old seenNodes entries (older than 24 hours)
         if 'seenNodes' in globals():
             initial_count = len(seenNodes)
-            seenNodes = [node for node in seenNodes 
-                        if current_time - node.get('lastSeen', 0) < 86400]
-            if len(seenNodes) < initial_count:
-                logger.debug(f"System: Cleaned up {initial_count - len(seenNodes)} old seenNodes entries")
+            if len(seenNodes) > MAX_SEEN_NODES:
+                # cut the list in half if it exceeds max size
+                seenNodes = seenNodes[-(MAX_SEEN_NODES // 2):]
+                logger.debug(f"System: Trimmed seenNodes to {len(seenNodes)} entries")
         
         # Clean up stale game tracker entries
         cleanup_game_trackers(current_time)
