@@ -49,7 +49,6 @@ def cleanup_memory():
             if cleaned_count > 0:
                 logger.debug(f"System: Cleaned up {cleaned_count} stale entries from waitingXroom")
 
-            
         # Clean up old seenNodes entries
         if 'seenNodes' in globals():
             initial_count = len(seenNodes)

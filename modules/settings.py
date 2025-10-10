@@ -373,6 +373,8 @@ try:
     news_random_line_only = config['fileMon'].getboolean('news_random_line', False) # default False
     enable_runShellCmd = config['fileMon'].getboolean('enable_runShellCmd', False) # default False
     allowXcmd = config['fileMon'].getboolean('allowXcmd', False) # default False
+    xCmd2factorEnabled = config['fileMon'].getboolean('2factor_enabled', False) # default False
+    xCmd2factor_timeout = config['fileMon'].getint('2factor_timeout', 100) # default 100 seconds
 
     # games
     game_hop_limit = config['games'].getint('game_hop_limit', 5) # default 5 hops

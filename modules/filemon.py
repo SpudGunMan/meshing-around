@@ -89,9 +89,8 @@ def call_external_script(message, script="script/runShell.sh"):
         logger.warning(f"FileMon: Error calling external script: {e}")
         return None
 
-xCmd2factor = True  # Enable 2FA for x: commands
+
 waitingXroom = {}   # {message_from_id: (expected_answer, original_command, timestamp)}
-xCmd2factor_timeout = 100  # seconds
 def handleShellCmd(message, message_from_id, channel_number, isDM, deviceID):
     if not allowXcmd:
         return "x: command is disabled"
@@ -102,7 +101,7 @@ def handleShellCmd(message, message_from_id, channel_number, isDM, deviceID):
         return "x: command not authorized in group chat"
 
     # 2FA logic
-    if xCmd2factor:
+    if xCmd2factorEnabled:
         timeNOW = datetime.utcnow()
         # If user is waiting for 2FA, treat message as answer
         if message_from_id in waitingXroom:
