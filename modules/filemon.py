@@ -110,7 +110,7 @@ def handleShellCmd(message, message_from_id, channel_number, isDM, deviceID):
             expected, orig_command, ts = waitingXroom[message_from_id]
             if timeNOW - ts > timedelta(seconds=xCmd2factor_timeout):
                 del waitingXroom[message_from_id]
-                return "x: 2FA timed out, please try again"
+                return "x2FA timed out, please try again"
             if answer == str(expected):
                 del waitingXroom[message_from_id]
                 # Run the original command
@@ -124,7 +124,8 @@ def handleShellCmd(message, message_from_id, channel_number, isDM, deviceID):
                     logger.debug(f"FileMon: This command is not good for use over the mesh network")
                     return "x: error running command"
             else:
-                return "x: 2FA incorrect, try again"
+                logger.warning(f"FileMon: 🚨Incorrect 2FA answer from {message_from_id}")
+                return "x2FA incorrect, try again"
         # If not waiting, treat as new command and issue challenge
         if message.lower().startswith("x:"):
             command = message[2:].strip()
@@ -135,16 +136,16 @@ def handleShellCmd(message, message_from_id, channel_number, isDM, deviceID):
             b = rnd.randint(10, 99)
             expected = a + b
             waitingXroom[message_from_id] = (expected, command, timeNOW)
-            return f"x: 2FA required.\nReply `x: answer`\nWhat is {a} + {b}? "
+            return f"x2FA required.\nReply `x: answer`\nWhat is {a} + {b}? "
         else:
-            return "x: invalid command format"
+            return "invalid command format"
 
     # If we reach here, 2FA is disabled or passed
     if enable_runShellCmd:
         if message.lower().startswith("x:"):
             command = message[2:].strip()
         else:
-            return "x: invalid command format"
+            return "invalid command format"
         try:
             logger.info(f"FileMon: Running shell command from {message_from_id}: {command}")
             result = subprocess.run(command, shell=True, capture_output=True, text=True, timeout=10, start_new_session=True)
@@ -153,10 +154,10 @@ def handleShellCmd(message, message_from_id, channel_number, isDM, deviceID):
         except Exception as e:
             logger.warning(f"FileMon: Error running shell command: {e}")
             logger.debug(f"FileMon: This command is not good for use over the mesh network")
-            return "x: error running command"
+            return "error running command"
     else:
         logger.debug("FileMon: x: command is disabled by no enable_runShellCmd")
-        return "x: command is disabled"
+        return "command is disabled"
 
 def initNewsSources():
     #check for the files _news.txt and add to the newsHeadlines list
