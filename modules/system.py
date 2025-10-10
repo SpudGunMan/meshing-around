@@ -624,9 +624,6 @@ def messageChunker(message):
     message_list = []
     try:
         if len(message) > MESSAGE_CHUNK_SIZE:
-            # Log if message is much larger than chunk size
-            if len(message) > (4 * MESSAGE_CHUNK_SIZE):
-                logger.warning(f"System: Excessive chunking detected. Message length: {len(message)} (>{4 * MESSAGE_CHUNK_SIZE}). Possible abuse or misconfiguration.")
             # Split the message into parts by new lines
             parts = message.split('\n')
             for part in parts:
@@ -712,69 +709,76 @@ def send_message(message, ch, nodeid=0, nodeInt=1, bypassChuncking=False):
     # Send a message to a channel or DM
     interface = globals()[f'interface{nodeInt}']
     # Check if the message is empty
-    if message == "" or message == None or len(message) == 0:
+    if message == "" or message is None or len(message) == 0:
         return False
 
-    if not bypassChuncking:
-        # Split the message into chunks if it exceeds the MESSAGE_CHUNK_SIZE
-        message_list = messageChunker(message)
-    else:
-        message_list = [message]
+    try:
+        # Force chunking and log if message exceeds maxBuffer
+        if len(message.encode('utf-8')) > maxBuffer:
+            logger.warning(f"System: Message length {len(message.encode('utf-8'))} exceeds maxBuffer{maxBuffer}, forcing chunking.")
+            message_list = messageChunker(message)
+        elif not bypassChuncking:
+            # Split the message into chunks if it exceeds the MESSAGE_CHUNK_SIZE
+            message_list = messageChunker(message)
+        else:
+            message_list = [message]
 
-    if isinstance(message_list, list):
-        # Send the message to the channel or DM
-        total_length = sum(len(chunk) for chunk in message_list)
-        num_chunks = len(message_list)
-        for m in message_list:
-            chunkOf = f"{message_list.index(m)+1}/{num_chunks}"
+        if isinstance(message_list, list):
+            # Send the message to the channel or DM
+            total_length = sum(len(chunk) for chunk in message_list)
+            num_chunks = len(message_list)
+            for m in message_list:
+                chunkOf = f"{message_list.index(m)+1}/{num_chunks}"
+                if nodeid == 0:
+                    # Send to channel
+                    if wantAck:
+                        logger.info(f"Device:{nodeInt} Channel:{ch} " + CustomFormatter.red + f"req.ACK " + f"Chunker{chunkOf} SendingChannel: " + CustomFormatter.white + m.replace('\n', ' '))
+                        interface.sendText(text=m, channelIndex=ch, wantAck=True)
+                    else:
+                        logger.info(f"Device:{nodeInt} Channel:{ch} " + CustomFormatter.red + f"Chunker{chunkOf} SendingChannel: " + CustomFormatter.white + m.replace('\n', ' '))
+                        interface.sendText(text=m, channelIndex=ch)
+                else:
+                    # Send to DM
+                    if wantAck:
+                        logger.info(f"Device:{nodeInt} " + CustomFormatter.red + f"req.ACK " + f"Chunker{chunkOf} Sending DM: " + CustomFormatter.white + m.replace('\n', ' ') + CustomFormatter.purple +\
+                                 " To: " + CustomFormatter.white + f"{get_name_from_number(nodeid, 'long', nodeInt)}")
+                        interface.sendText(text=m, channelIndex=ch, destinationId=nodeid, wantAck=True)
+                    else:
+                        logger.info(f"Device:{nodeInt} " + CustomFormatter.red + f"Chunker{chunkOf} Sending DM: " + CustomFormatter.white + m.replace('\n', ' ') + CustomFormatter.purple +\
+                                    " To: " + CustomFormatter.white + f"{get_name_from_number(nodeid, 'long', nodeInt)}")
+                        interface.sendText(text=m, channelIndex=ch, destinationId=nodeid)
+
+                # Throttle the message sending to prevent spamming the device
+                if (message_list.index(m)+1) % 4 == 0:
+                    time.sleep(responseDelay + 1)
+                    if (message_list.index(m)+1) % 5 == 0:
+                        logger.warning(f"System: throttling rate Interface{nodeInt} on {chunkOf}")
+
+                # wait an amount of time between sending each split message
+                time.sleep(splitDelay)
+        else: # message is less than MESSAGE_CHUNK_SIZE characters
             if nodeid == 0:
                 # Send to channel
                 if wantAck:
-                    logger.info(f"Device:{nodeInt} Channel:{ch} " + CustomFormatter.red + f"req.ACK " + f"Chunker{chunkOf} SendingChannel: " + CustomFormatter.white + m.replace('\n', ' '))
-                    interface.sendText(text=m, channelIndex=ch, wantAck=True)
+                    logger.info(f"Device:{nodeInt} Channel:{ch} " + CustomFormatter.red + "req.ACK " + "SendingChannel: " + CustomFormatter.white + message.replace('\n', ' '))
+                    interface.sendText(text=message, channelIndex=ch, wantAck=True)
                 else:
-                    logger.info(f"Device:{nodeInt} Channel:{ch} " + CustomFormatter.red + f"Chunker{chunkOf} SendingChannel: " + CustomFormatter.white + m.replace('\n', ' '))
-                    interface.sendText(text=m, channelIndex=ch)
+                    logger.info(f"Device:{nodeInt} Channel:{ch} " + CustomFormatter.red + "SendingChannel: " + CustomFormatter.white + message.replace('\n', ' '))
+                    interface.sendText(text=message, channelIndex=ch)
             else:
                 # Send to DM
                 if wantAck:
-                    logger.info(f"Device:{nodeInt} " + CustomFormatter.red + f"req.ACK " + f"Chunker{chunkOf} Sending DM: " + CustomFormatter.white + m.replace('\n', ' ') + CustomFormatter.purple +\
-                             " To: " + CustomFormatter.white + f"{get_name_from_number(nodeid, 'long', nodeInt)}")
-                    interface.sendText(text=m, channelIndex=ch, destinationId=nodeid, wantAck=True)
+                    logger.info(f"Device:{nodeInt} " + CustomFormatter.red + "req.ACK " + "Sending DM: " + CustomFormatter.white + message.replace('\n', ' ') + CustomFormatter.purple +\
+                                 " To: " + CustomFormatter.white + f"{get_name_from_number(nodeid, 'long', nodeInt)}")
+                    interface.sendText(text=message, channelIndex=ch, destinationId=nodeid, wantAck=True)
                 else:
-                    logger.info(f"Device:{nodeInt} " + CustomFormatter.red + f"Chunker{chunkOf} Sending DM: " + CustomFormatter.white + m.replace('\n', ' ') + CustomFormatter.purple +\
+                    logger.info(f"Device:{nodeInt} " + CustomFormatter.red + "Sending DM: " + CustomFormatter.white + message.replace('\n', ' ') + CustomFormatter.purple +\
                                 " To: " + CustomFormatter.white + f"{get_name_from_number(nodeid, 'long', nodeInt)}")
-                    interface.sendText(text=m, channelIndex=ch, destinationId=nodeid)
-
-            # Throttle the message sending to prevent spamming the device
-            if (message_list.index(m)+1) % 4 == 0:
-                time.sleep(responseDelay + 1)
-                if (message_list.index(m)+1) % 5 == 0:
-                    logger.warning(f"System: throttling rate Interface{nodeInt} on {chunkOf}")
-                
-
-            # wait an amout of time between sending each split message
-            time.sleep(splitDelay)
-    else: # message is less than MESSAGE_CHUNK_SIZE characters
-        if nodeid == 0:
-            # Send to channel
-            if wantAck:
-                logger.info(f"Device:{nodeInt} Channel:{ch} " + CustomFormatter.red + "req.ACK " + "SendingChannel: " + CustomFormatter.white + message.replace('\n', ' '))
-                interface.sendText(text=message, channelIndex=ch, wantAck=True)
-            else:
-                logger.info(f"Device:{nodeInt} Channel:{ch} " + CustomFormatter.red + "SendingChannel: " + CustomFormatter.white + message.replace('\n', ' '))
-                interface.sendText(text=message, channelIndex=ch)
-        else:
-            # Send to DM
-            if wantAck:
-                logger.info(f"Device:{nodeInt} " + CustomFormatter.red + "req.ACK " + "Sending DM: " + CustomFormatter.white + message.replace('\n', ' ') + CustomFormatter.purple +\
-                             " To: " + CustomFormatter.white + f"{get_name_from_number(nodeid, 'long', nodeInt)}")
-                interface.sendText(text=message, channelIndex=ch, destinationId=nodeid, wantAck=True)
-            else:
-                logger.info(f"Device:{nodeInt} " + CustomFormatter.red + "Sending DM: " + CustomFormatter.white + message.replace('\n', ' ') + CustomFormatter.purple +\
-                            " To: " + CustomFormatter.white + f"{get_name_from_number(nodeid, 'long', nodeInt)}")
-                interface.sendText(text=message, channelIndex=ch, destinationId=nodeid)
-    return True
+                    interface.sendText(text=message, channelIndex=ch, destinationId=nodeid)
+        return True
+    except Exception as e:
+        logger.error(f"System: Exception during send_message: {e} (message length: {len(message)})")
+        return False
 
 def messageTrap(msg):
     # Check if the message contains a trap word, this is the first filter for listning to messages
