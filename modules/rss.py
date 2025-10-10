@@ -3,13 +3,31 @@ from modules.log import *
 import urllib.request
 import xml.etree.ElementTree as ET
 
-RSS_FEED_URL = rssFeedURL
+RSS_FEED_URLS = rssFeedURL
+RSS_FEED_NAMES = rssFeedNames
 RSS_RETURN_COUNT = rssMaxItems
 RSS_TRIM_LENGTH = rssTruncate
 
-def get_rss_feed():
+def get_rss_feed(msg):
+    # Determine which feed to use
+    feed_name = "default"
+    if msg and any(name in msg for name in RSS_FEED_NAMES):
+        for name in RSS_FEED_NAMES:
+            if name in msg:
+                feed_name = name
+                break
+
     try:
-        with urllib.request.urlopen(RSS_FEED_URL) as response:
+        idx = RSS_FEED_NAMES.index(feed_name)
+        feed_url = RSS_FEED_URLS[idx]
+    except (ValueError, IndexError):
+        return f"Feed '{feed_name}' not found."
+
+    if "?" in msg:
+        return f"Fetches the latest {RSS_RETURN_COUNT} entries from the {feed_name} RSS feed."
+
+    try:
+        with urllib.request.urlopen(feed_url) as response:
             xml_data = response.read()
         root = ET.fromstring(xml_data)
         items = root.findall('.//item')[:RSS_RETURN_COUNT]
@@ -30,4 +48,4 @@ def get_rss_feed():
             formatted_entries.append(f"{title}\n{description}\n")
         return "\n".join(formatted_entries)
     except Exception as e:
-        return f"Error fetching RSS feed: {e}"
+        return ERROR_FETCHING_DATA

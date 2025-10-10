@@ -77,7 +77,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "q:": lambda: quizHandler(message, message_from_id, deviceID),
     "quiz": lambda: quizHandler(message, message_from_id, deviceID),
     "readnews": lambda: handleNews(message_from_id, deviceID, message, isDM),
-    "readrss": lambda: get_rss_feed() if rssEnable else "RSS feed module is disabled",
+    "readrss": lambda: get_rss_feed(message),
     "riverflow": lambda: handle_riverFlow(message, message_from_id, deviceID),
     "rlist": lambda: handle_repeaterQuery(message_from_id, deviceID, channel_number),
     "satpass": lambda: handle_satpass(message_from_id, deviceID, channel_number, message),
