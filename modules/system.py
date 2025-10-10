@@ -1105,7 +1105,7 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
                 meshLeaderboard['mostMessages']['timestamp'] = time.time()
 
         # consider Meta for highest and weakest DBm
-        if packet.get('rxSnr') is not None:
+        if packet.get('rxSnr') is not None and nodeID != 0:
             dbm = packet['rxSnr']
             if dbm > meshLeaderboard['highestDBm']['value']:
                 meshLeaderboard['highestDBm'] = {'nodeID': nodeID, 'value': dbm, 'timestamp': time.time()}
