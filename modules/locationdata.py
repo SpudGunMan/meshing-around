@@ -621,7 +621,7 @@ def get_flood_noaa(lat=0, lon=0, uid=0):
             logger.warning("Location:Error fetching flood gauge data from NOAA for " + str(uid))
             return ERROR_FETCHING_DATA
     except (requests.exceptions.RequestException):
-        logger.warning("Location:Error fetching flood gauge data from NOAA for " + str(uid))
+        logger.warning("Location:Error fetching flood gauge data from:" + api_url + str(uid) + " response: " + str(response.status_code))
         return ERROR_FETCHING_DATA
     
     data = response.json()
