@@ -1452,6 +1452,7 @@ def loadLeaderboard():
     except Exception as e:
         logger.warning(f"System: Error loading Mesh Leaderboard: {e}")
         initializeMeshLeaderboard()
+        
 def get_mesh_leaderboard(msg, fromID, deviceID):
     """Get formatted leaderboard of extreme mesh metrics"""
     global meshLeaderboard
