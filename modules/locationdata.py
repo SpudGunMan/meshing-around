@@ -609,54 +609,44 @@ def getIpawsAlert(lat=0, lon=0, shortAlerts = False):
 
     return alert
 
-def get_flood_noaa(lat=0, lon=0, uid=0):
-    # get the latest flood alert from NOAA
+def get_flood_noaa(lat=0, lon=0, uid=None):
+    """
+    Fetch the latest flood alert from NOAA for a given gauge UID.
+    Returns a formatted string or an error message.
+    """
     api_url = "https://api.water.noaa.gov/nwps/v1/gauges/"
     headers = {'accept': 'application/json'}
-    if uid == 0:
-        return "No flood gauge data found"
+    if not uid:
+        logger.warning(f"Location:No flood gauge data found for UID {uid}")
+        return ERROR_FETCHING_DATA
     try:
         response = requests.get(api_url + str(uid), headers=headers, timeout=urlTimeoutSeconds)
         if not response.ok:
-            logger.warning("Location:Error fetching flood gauge data from NOAA for " + str(uid))
+            logger.warning(f"Location:Error fetching flood gauge data from NOAA for {uid} (HTTP {response.status_code})")
             return ERROR_FETCHING_DATA
-    except (requests.exceptions.RequestException):
-        logger.warning("Location:Error fetching flood gauge data from:" + api_url + str(uid) + " response: " + str(response.status_code))
+        data = response.json()
+        if not data or 'status' not in data:
+            logger.warning(f"Location:No flood gauge data found for UID {uid}")
+            return "No flood gauge data found"
+    except requests.exceptions.RequestException as e:
+        logger.warning(f"Location:Error fetching flood gauge data from: {api_url}{uid} ({e})")
         return ERROR_FETCHING_DATA
-    
-    data = response.json()
-    if not data:
-        return "No flood gauge data found"
-    
-    # extract values from JSON
-    try:
-        name = data['name']
-        status_observed_primary = data['status']['observed']['primary']
-        status_observed_primary_unit = data['status']['observed']['primaryUnit']
-        status_observed_secondary = data['status']['observed']['secondary']
-        status_observed_secondary_unit = data['status']['observed']['secondaryUnit']
-        status_observed_floodCategory = data['status']['observed']['floodCategory']
-        status_forecast_primary = data['status']['forecast']['primary']
-        status_forecast_primary_unit = data['status']['forecast']['primaryUnit']
-        status_forecast_secondary = data['status']['forecast']['secondary']
-        status_forecast_secondary_unit = data['status']['forecast']['secondaryUnit']
-        status_forecast_floodCategory = data['status']['forecast']['floodCategory']
-
-        # except KeyError as e:
-        #     print(f"Missing key in data: {e}")
-        # except TypeError as e:
-        #     print(f"Type error in data: {e}")
     except Exception as e:
-        logger.debug("Location:Error extracting flood gauge data from NOAA for " + str(uid))
+        logger.warning(f"Location:Unexpected error: {e}")
         return ERROR_FETCHING_DATA
-    
-    # format the flood data
-    logger.debug(f"System: NOAA Flood data for {str(uid)}")
-    flood_data = f"Flood Data {name}:\n"
-    flood_data += f"Observed: {status_observed_primary}{status_observed_primary_unit}({status_observed_secondary}{status_observed_secondary_unit}) risk: {status_observed_floodCategory}"
-    flood_data += f"\nForecast: {status_forecast_primary}{status_forecast_primary_unit}({status_forecast_secondary}{status_forecast_secondary_unit}) risk: {status_forecast_floodCategory}"
 
-    return flood_data
+    # extract values from JSON safely
+    try:
+        name = data.get('name', 'Unknown')
+        observed = data['status'].get('observed', {})
+        forecast = data['status'].get('forecast', {})
+        flood_data = f"Flood Data {name}:\n"
+        flood_data += f"Observed: {observed.get('primary', '?')}{observed.get('primaryUnit', '')} ({observed.get('secondary', '?')}{observed.get('secondaryUnit', '')}) risk: {observed.get('floodCategory', '?')}"
+        flood_data += f"\nForecast: {forecast.get('primary', '?')}{forecast.get('primaryUnit', '')} ({forecast.get('secondary', '?')}{forecast.get('secondaryUnit', '')}) risk: {forecast.get('floodCategory', '?')}"
+        return flood_data
+    except Exception as e:
+        logger.debug(f"Location:Error extracting flood gauge data from NOAA for {uid}: {e}")
+        return ERROR_FETCHING_DATA
 
 def get_volcano_usgs(lat=0, lon=0):
     alerts = ''

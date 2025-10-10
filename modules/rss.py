@@ -27,7 +27,7 @@ def get_rss_feed(msg):
         return f"Fetches the latest {RSS_RETURN_COUNT} entries from the {feed_name} RSS feed."
 
     try:
-        with urllib.request.urlopen(feed_url) as response:
+        with urllib.request.urlopen(feed_url, timeout= urlTimeoutSeconds) as response:
             xml_data = response.read()
         root = ET.fromstring(xml_data)
         items = root.findall('.//item')[:RSS_RETURN_COUNT]
