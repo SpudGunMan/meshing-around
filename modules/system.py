@@ -1130,15 +1130,19 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
 
             # Track longest uptime 🕰️
             try:
-                if deviceMetrics.get('uptimeSeconds') is not None:
-                    uptime = float(deviceMetrics['uptimeSeconds'])
-                    longest_uptime = float(meshLeaderboard['longestUptime']['value'])
-                    if uptime > longest_uptime:
-                        # if the packet is from local bot node ignore it
-                        if nodeID != globals().get(f'myNodeNum{rxNode}'):
-                            wasItMe = True
-                        else:
-                            meshLeaderboard['longestUptime'] = {'nodeID': nodeID, 'value': uptime, 'timestamp': current_time}
+                # if not a bot ID track it
+                if nodeID != globals().get(f'myNodeNum{rxNode}'):
+                    wasItMe = False
+                else:
+                    if deviceMetrics.get('uptimeSeconds') is not None:
+                        uptime = float(deviceMetrics['uptimeSeconds'])
+                        longest_uptime = float(meshLeaderboard['longestUptime']['value'])
+                        if uptime > longest_uptime:
+                            # if the packet is from local bot node ignore it
+                            if nodeID != globals().get(f'myNodeNum{rxNode}'):
+                                wasItMe = True
+                            else:
+                                meshLeaderboard['longestUptime'] = {'nodeID': nodeID, 'value': uptime, 'timestamp': current_time}
             except Exception as e:
                 logger.debug(f"System: TELEMETRY_APP uptimeSeconds error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
 
