@@ -976,13 +976,16 @@ def surveyHandler(message, nodeID, deviceID):
 
 def handle_riverFlow(message, message_from_id, deviceID):
     location = get_node_location(message_from_id, deviceID)
-    
-    if "riverflow " in message.lower() and "," in message:
-        userRiver = message.lower().split("riverflow ", 1)[1].strip()
-        userRiver = [r.strip() for r in userRiver.split(",") if r.strip()]
+    msg_lower = message.lower()
+    if "riverflow " in msg_lower:
+        user_input = msg_lower.split("riverflow ", 1)[1].strip()
+        if user_input:
+            userRiver = [r.strip() for r in user_input.split(",") if r.strip()]
+        else:
+            userRiver = riverListDefault
     else:
         userRiver = riverListDefault
-    
+
     if use_meteo_wxApi:
         return get_flood_openmeteo(location[0], location[1])
     else:
