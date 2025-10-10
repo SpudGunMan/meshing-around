@@ -63,7 +63,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "howfar": lambda: handle_howfar(message, message_from_id, deviceID, isDM),
     "howtall": lambda: handle_howtall(message, message_from_id, deviceID, isDM),
     "joke": lambda: tell_joke(message_from_id),
-    "leaderboard": lambda: get_mesh_leaderboard(),
+    "leaderboard": lambda: get_mesh_leaderboard(message, message_from_id, deviceID),
     "lemonstand": lambda: handleLemonade(message, message_from_id, deviceID),
     "lheard": lambda: handle_lheard(message, message_from_id, deviceID, isDM),
     "mastermind": lambda: handleMmind(message, message_from_id, deviceID),

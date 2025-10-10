@@ -1059,25 +1059,28 @@ def displayNodeTelemetry(nodeID=0, rxNode=0, userRequested=False):
     return dataResponse
 
 positionMetadata = {}
+meshLeaderboard = {}
+def initializeMeshLeaderboard():
+    global meshLeaderboard
+    # Leaderboard for tracking extreme metrics, if changed update loadLeaderboard
+    meshLeaderboard = {
+        'lowestBattery': {'nodeID': None, 'value': 101, 'timestamp': 0},  # 🪫
+        'longestUptime': {'nodeID': None, 'value': 0, 'timestamp': 0},    # 🕰️
+        'fastestSpeed': {'nodeID': None, 'value': 0, 'timestamp': 0},     # 🚓
+        'highestAltitude': {'nodeID': None, 'value': 0, 'timestamp': 0},  # 🚀
+        'coldestTemp': {'nodeID': None, 'value': 999, 'timestamp': 0},    # 🥶
+        'hottestTemp': {'nodeID': None, 'value': -999, 'timestamp': 0},   # 🥵
+        'worstAirQuality': {'nodeID': None, 'value': 0, 'timestamp': 0},  # 💨
+        'mostMessages': {'nodeID': None, 'value': 0, 'timestamp': 0},   # 💬
+        'highestDBm': {'nodeID': None, 'value': -999, 'timestamp': 0},      # 📶
+        'weakestDBm': {'nodeID': None, 'value': 999, 'timestamp': 0},        # 📶
+        'mostReactions': {'nodeID': None, 'value': 0, 'timestamp': 0},        # ❤️
+        'adminPackets': [],      # 🚨
+        'tunnelPackets': [],     # 🚨
+        'audioPackets': [],      # ☎️
+        'simulatorPackets': []   # 🤖
+    }
 
-# Leaderboard for tracking extreme metrics, if changed update loadLeaderboard
-meshLeaderboard = {
-    'lowestBattery': {'nodeID': None, 'value': 101, 'timestamp': 0},  # 🪫
-    'longestUptime': {'nodeID': None, 'value': 0, 'timestamp': 0},    # 🕰️
-    'fastestSpeed': {'nodeID': None, 'value': 0, 'timestamp': 0},     # 🚓
-    'highestAltitude': {'nodeID': None, 'value': 0, 'timestamp': 0},  # 🚀
-    'coldestTemp': {'nodeID': None, 'value': 999, 'timestamp': 0},    # 🥶
-    'hottestTemp': {'nodeID': None, 'value': -999, 'timestamp': 0},   # 🥵
-    'worstAirQuality': {'nodeID': None, 'value': 0, 'timestamp': 0},  # 💨
-    'mostMessages': {'nodeID': None, 'value': 0, 'timestamp': 0},   # 💬
-    'highestDBm': {'nodeID': None, 'value': -999, 'timestamp': 0},      # 📶
-    'weakestDBm': {'nodeID': None, 'value': 999, 'timestamp': 0},        # 📶
-    'mostReactions': {'nodeID': None, 'value': 0, 'timestamp': 0},        # ❤️
-    'adminPackets': [],      # 🚨
-    'tunnelPackets': [],     # 🚨
-    'audioPackets': [],      # ☎️
-    'simulatorPackets': []   # 🤖
-}
 def consumeMetadata(packet, rxNode=0, channel=-1):
     global positionMetadata, telemetryData, meshLeaderboard
     uptime = battery = temp = iaq = nodeID = 0
@@ -1431,41 +1434,33 @@ def saveLeaderboard():
         logger.warning(f"System: Error saving Mesh Leaderboard: {e}")
 
 def loadLeaderboard():
-    # load the meshLeaderboard from a pickle file
     global meshLeaderboard
     try:
         with open('data/leaderboard.pkl', 'rb') as f:
             meshLeaderboard = pickle.load(f)
+        # Ensure all keys from the default exist
+        defaults = {}
+        initializeMeshLeaderboard()
+        defaults.update(meshLeaderboard)  # loaded values overwrite defaults
+        meshLeaderboard = defaults
         if logMetaStats:
             logger.debug("System: Mesh Leaderboard loaded from leaderboard.pkl")
-            # Ensure leaderboard keys exist (for versioning/migrations)
-            if 'mostMessages' not in meshLeaderboard:
-                meshLeaderboard['mostMessages'] = {'nodeID': None, 'value': 0, 'timestamp': 0}
-            if 'highestDBm' not in meshLeaderboard:
-                meshLeaderboard['highestDBm'] = {'nodeID': None, 'value': -999, 'timestamp': 0}
-            if 'weakestDBm' not in meshLeaderboard:
-                meshLeaderboard['weakestDBm'] = {'nodeID': None, 'value': 999, 'timestamp': 0}
     except FileNotFoundError:
         if logMetaStats:
             logger.debug("System: No existing Mesh Leaderboard found, starting fresh")
+        initializeMeshLeaderboard()
     except Exception as e:
         logger.warning(f"System: Error loading Mesh Leaderboard: {e}")
-    # Ensure 'mostMessages' exists (versioning issues)
-    if 'mostMessages' not in meshLeaderboard:
-        meshLeaderboard['mostMessages'] = {'nodeID': None, 'value': 0, 'timestamp': 0}
-    # Ensure 'highestDBm' exists (versioning issues)
-    if 'highestDBm' not in meshLeaderboard:
-        meshLeaderboard['highestDBm'] = {'nodeID': None, 'value': -999, 'timestamp': 0}
-    # Ensure 'weakestDBm' exists (versioning issues)
-    if 'weakestDBm' not in meshLeaderboard:
-        meshLeaderboard['weakestDBm'] = {'nodeID': None, 'value': 999, 'timestamp': 0}
-
-def get_mesh_leaderboard():
+        initializeMeshLeaderboard()
+def get_mesh_leaderboard(msg, fromID, deviceID):
     """Get formatted leaderboard of extreme mesh metrics"""
     global meshLeaderboard
-    
     result = "📊 Leaderboard 📊\n"
-    
+
+    if "reset" in msg.lower() and str(fromID) in bbs_admin_list:
+        initializeMeshLeaderboard()
+        return "✅ Leaderboard has been reset.\n"
+
     # Lowest battery
     if meshLeaderboard['lowestBattery']['nodeID']:
         nodeID = meshLeaderboard['lowestBattery']['nodeID']
