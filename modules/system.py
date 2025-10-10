@@ -30,7 +30,7 @@ GAMEDELAY = CLEANUP_INTERVAL # the age of game entries in seconds before they ar
 
 def cleanup_memory():
     """Clean up memory by limiting list sizes and removing stale entries"""
-    global cmdHistory, seenNodes, multiPingList
+    global cmdHistory, seenNodes, multiPingList, waitingXroom
     current_time = time.time()
     
     try:
@@ -38,6 +38,17 @@ def cleanup_memory():
         if 'cmdHistory' in globals() and len(cmdHistory) > MAX_CMD_HISTORY:
             cmdHistory = cmdHistory[-(MAX_CMD_HISTORY - 50):] # keep the most recent 50 entries
             logger.debug(f"System: Trimmed cmdHistory to {len(cmdHistory)} entries")
+        
+        # limit waitingXroom size by time
+        if 'waitingXroom' in globals():
+            initial_count = len(waitingXroom)
+            to_delete = [key for key, (_, _, ts) in waitingXroom.items() if current_time - ts.timestamp() > xCmd2factor_timeout]
+            for key in to_delete:
+                del waitingXroom[key]
+            cleaned_count = initial_count - len(waitingXroom)
+            if cleaned_count > 0:
+                logger.debug(f"System: Cleaned up {cleaned_count} stale entries from waitingXroom")
+
             
         # Clean up old seenNodes entries
         if 'seenNodes' in globals():
