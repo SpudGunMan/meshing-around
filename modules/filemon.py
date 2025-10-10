@@ -89,42 +89,74 @@ def call_external_script(message, script="script/runShell.sh"):
         logger.warning(f"FileMon: Error calling external script: {e}")
         return None
 
+xCmd2factor = True  # Enable 2FA for x: commands
+waitingXroom = {}   # {message_from_id: (expected_answer, original_command, timestamp)}
+xCmd2factor_timeout = 100  # seconds
 def handleShellCmd(message, message_from_id, channel_number, isDM, deviceID):
     if not allowXcmd:
         return "x: command is disabled"
-    
     if str(message_from_id) not in bbs_admin_list:
         logger.warning(f"FileMon: Unauthorized x: command attempt from {message_from_id}")
         return "x: command not authorized"
-    
     if not isDM:
         return "x: command not authorized in group chat"
-    
-    if enable_runShellCmd:
-        # clean up the command input
+
+    # 2FA logic
+    if xCmd2factor:
+        timeNOW = datetime.utcnow()
+        # If user is waiting for 2FA, treat message as answer
+        if message_from_id in waitingXroom:
+            answer = message[2:].strip() if message.lower().startswith("x:") else message.strip()
+            expected, orig_command, ts = waitingXroom[message_from_id]
+            if timeNOW - ts > timedelta(seconds=xCmd2factor_timeout):
+                del waitingXroom[message_from_id]
+                return "x: 2FA timed out, please try again"
+            if answer == str(expected):
+                del waitingXroom[message_from_id]
+                # Run the original command
+                try:
+                    logger.info(f"FileMon: Running shell command from {message_from_id}: {orig_command}")
+                    result = subprocess.run(orig_command, shell=True, capture_output=True, text=True, timeout=10, start_new_session=True)
+                    output = result.stdout.strip()
+                    return output if output else "x: command executed with no output"
+                except Exception as e:
+                    logger.warning(f"FileMon: Error running shell command: {e}")
+                    logger.debug(f"FileMon: This command is not good for use over the mesh network")
+                    return "x: error running command"
+            else:
+                return "x: 2FA incorrect, try again"
+        # If not waiting, treat as new command and issue challenge
         if message.lower().startswith("x:"):
-            command = message[2:]
-            if command.startswith(" "):
-                command = command[1:]
-            command = command.strip()
+            command = message[2:].strip()
+            # Generate two random numbers, seed with message_from_id and time of day
+            seed = timeNOW.hour + hash(str(message_from_id))
+            rnd = random.Random(seed)
+            a = rnd.randint(10, 99)
+            b = rnd.randint(10, 99)
+            expected = a + b
+            waitingXroom[message_from_id] = (expected, command, timeNOW)
+            return f"x: 2FA required.\nReply `x: answer`\nWhat is {a} + {b}? "
         else:
             return "x: invalid command format"
-        # Run the shell command as a subprocess
+
+    # If we reach here, 2FA is disabled or passed
+    if enable_runShellCmd:
+        if message.lower().startswith("x:"):
+            command = message[2:].strip()
+        else:
+            return "x: invalid command format"
         try:
             logger.info(f"FileMon: Running shell command from {message_from_id}: {command}")
             result = subprocess.run(command, shell=True, capture_output=True, text=True, timeout=10, start_new_session=True)
             output = result.stdout.strip()
-            if output:
-                return output
+            return output if output else "x: command executed with no output"
         except Exception as e:
             logger.warning(f"FileMon: Error running shell command: {e}")
             logger.debug(f"FileMon: This command is not good for use over the mesh network")
+            return "x: error running command"
     else:
         logger.debug("FileMon: x: command is disabled by no enable_runShellCmd")
         return "x: command is disabled"
-    
-    return "x: command executed with no output"
-
 def initNewsSources():
     #check for the files _news.txt and add to the newsHeadlines list
     global newsSourcesList

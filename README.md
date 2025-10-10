@@ -73,7 +73,7 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 ### File Monitor Alerts
 - **File Monitor**: Monitor a flat/text file for changes, broadcast the contents of the message to the mesh channel.
 - **News File**: On request of news, the contents of the file are returned. Can also call multiple news sources or files.
-- **Shell Command Access**: Pass commands via DM directly to the host OS
+- **Shell Command Access**: Pass commands via DM directly to the host OS with replay protection.
 
 ### Data Reporting
 - **HTML Generator**: Visualize bot traffic and data flows with a built-in HTML generator for [data reporting](logs/README.md).

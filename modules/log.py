@@ -1,7 +1,7 @@
 import logging
 from logging.handlers import TimedRotatingFileHandler
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 from modules.settings import *
 # if LOGGING_LEVEL is not set in settings.py, default to DEBUG
 if not LOGGING_LEVEL:
