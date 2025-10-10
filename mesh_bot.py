@@ -1702,7 +1702,7 @@ async def start_rx():
         logger.debug("System: Games Enabled!")
     if wikipedia_enabled:
         logger.debug("System: Wikipedia search Enabled")
-    if rssEnabled:
+    if rssEnable:
         logger.debug(f"System: RSS Feed Reader Enabled for {rssFeedURL}")
     if motd_enabled:
         logger.debug(f"System: MOTD Enabled using {MOTD}")
