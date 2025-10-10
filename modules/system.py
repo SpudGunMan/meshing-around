@@ -1551,6 +1551,8 @@ def get_mesh_leaderboard(msg, fromID, deviceID):
     
     # if len(meshLeaderboard['simulatorPackets']) > 0:
     #     result += f"🤖 Simulator packets: {len(meshLeaderboard['simulatorPackets'])}\n"
+
+    result = result.strip()
     
     if result == "📊 Leaderboard 📊\n":
         result += "No records yet! Keep meshing! 📡"
