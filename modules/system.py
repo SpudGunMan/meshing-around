@@ -1094,15 +1094,16 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
         if nodeID == globals().get(f'myNodeNum{rxNode}'):
             wasItMe = True
         else:
-            # consider Meta for most messages leaderboard
-            node_message_count = meshLeaderboard.get('nodeMessageCounts', {})
-            node_message_count[nodeID] = node_message_count.get(nodeID, 0) + 1
-            meshLeaderboard['nodeMessageCounts'] = node_message_count    
-            
-            if node_message_count[nodeID] > meshLeaderboard['mostMessages']['value']:
-                meshLeaderboard['mostMessages']['value'] = node_message_count[nodeID]
-                meshLeaderboard['mostMessages']['nodeID'] = nodeID
-                meshLeaderboard['mostMessages']['timestamp'] = time.time()
+            if nodeID != globals().get(f'myNodeNum{rxNode}') or nodeID == 0:
+                # consider Meta for most messages leaderboard
+                node_message_count = meshLeaderboard.get('nodeMessageCounts', {})
+                node_message_count[nodeID] = node_message_count.get(nodeID, 0) + 1
+                meshLeaderboard['nodeMessageCounts'] = node_message_count    
+                
+                if node_message_count[nodeID] > meshLeaderboard['mostMessages']['value']:
+                    meshLeaderboard['mostMessages']['value'] = node_message_count[nodeID]
+                    meshLeaderboard['mostMessages']['nodeID'] = nodeID
+                    meshLeaderboard['mostMessages']['timestamp'] = time.time()
 
         # consider Meta for highest and weakest DBm
         if packet.get('rxSnr') is not None and nodeID != 0:
@@ -1137,7 +1138,7 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
             # Track longest uptime 🕰️
             try:
                 # if not a bot ID track it
-                if nodeID != globals().get(f'myNodeNum{rxNode}'):
+                if nodeID != globals().get(f'myNodeNum{rxNode}') or nodeID == 0:
                     wasItMe = False
                 else:
                     if deviceMetrics.get('uptimeSeconds') is not None:
