@@ -129,7 +129,7 @@ def handleShellCmd(message, message_from_id, channel_number, isDM, deviceID):
         if message.lower().startswith("x:"):
             command = message[2:].strip()
             # Generate two random numbers, seed with message_from_id and time of day
-            seed = timeNOW.hour + hash(str(message_from_id))
+            seed = timeNOW.second + timeNOW.minute * 60 + timeNOW.hour * 3600 + int(message_from_id)
             rnd = random.Random(seed)
             a = rnd.randint(10, 99)
             b = rnd.randint(10, 99)
@@ -157,6 +157,7 @@ def handleShellCmd(message, message_from_id, channel_number, isDM, deviceID):
     else:
         logger.debug("FileMon: x: command is disabled by no enable_runShellCmd")
         return "x: command is disabled"
+
 def initNewsSources():
     #check for the files _news.txt and add to the newsHeadlines list
     global newsSourcesList
