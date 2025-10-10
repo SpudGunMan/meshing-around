@@ -576,7 +576,7 @@ I used ideas and snippets from other responder bots and want to call them out!
 - **mikecarper**: ideas, and testing. hamtest
 - **c.merphy360**: high altitude alerts
 - **Iris**: testing and finding 🐞
-- **Cisien, bitflip, Woof, propstg, trs2982, Josh, mesb1, and Hailo1999**: For testing and feature ideas on Discord and GitHub.
+- **Cisien, bitflip, Woof, propstg, snydermesh, trs2982, Josh, mesb1, and Hailo1999**: For testing and feature ideas on Discord and GitHub.
 - **Meshtastic Discord Community**: For tossing out ideas and testing code.
 
 ### Tools

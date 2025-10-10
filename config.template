@@ -80,6 +80,7 @@ rawLLMQuery = True
 # StoreForward Enabled and Limits
 StoreForward = True
 StoreLimit = 3
+reverseSF = False
 
 # history command 
 enableCmdHistory = True

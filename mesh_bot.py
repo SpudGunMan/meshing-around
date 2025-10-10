@@ -1118,6 +1118,15 @@ def handle_messages(message, deviceID, channel_number, msg_history, publicChanne
                     else:
                         response += new_line
         
+        #remove extra new line
+        response = response.lstrip("\n")
+
+        if reverseSF:
+            # segassem reverse the order of the messages
+            response_lines = response.split("\n")
+            response_lines.reverse()
+            response = "\n".join(response_lines)
+        
         if len(response) > 0:
             return header + response
         else:

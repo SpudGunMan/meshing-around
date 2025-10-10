@@ -38,7 +38,7 @@ def cleanup_memory():
         if 'cmdHistory' in globals() and len(cmdHistory) > MAX_CMD_HISTORY:
             cmdHistory = cmdHistory[-(MAX_CMD_HISTORY - 50):] # keep the most recent 50 entries
             logger.debug(f"System: Trimmed cmdHistory to {len(cmdHistory)} entries")
-        
+            
         # Clean up old seenNodes entries
         if 'seenNodes' in globals():
             initial_count = len(seenNodes)
