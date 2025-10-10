@@ -45,7 +45,7 @@ def cleanup_memory():
             if len(seenNodes) > MAX_SEEN_NODES:
                 # cut the list in half if it exceeds max size
                 seenNodes = seenNodes[-(MAX_SEEN_NODES // 2):]
-                logger.debug(f"System: Trimmed seenNodes to {len(seenNodes)} entries")
+                logger.warning(f"System: Trimmed seenNodes to {len(seenNodes)} entries due to size limit of {MAX_SEEN_NODES}")
         
         # Clean up stale game tracker entries
         cleanup_game_trackers(current_time)
