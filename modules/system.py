@@ -622,84 +622,91 @@ def handleSentinelIgnore(nodeInt=1, nodeID=0, aor=False):
 
 def messageChunker(message):
     message_list = []
-    if len(message) > MESSAGE_CHUNK_SIZE:
-        parts = message.split('\n')
-        for part in parts:
-            part = part.strip()
-            # remove empty parts
-            if not part:
-                continue
-            # if part is under the MESSAGE_CHUNK_SIZE, add it to the list
-            if len(part) < MESSAGE_CHUNK_SIZE:
-                message_list.append(part)
-            else:
-                # split the part into chunks
-                current_chunk = ''
-                sentences = []
-                sentence = ''
-                for char in part:
-                    sentence += char
-                    # if char in '.!?':
-                    #     sentences.append(sentence.strip())
-                    #     sentence = ''
-                if sentence:
-                    sentences.append(sentence.strip())
+    try:
+        if len(message) > MESSAGE_CHUNK_SIZE:
+            # Log if message is much larger than chunk size
+            if len(message) > (4 * MESSAGE_CHUNK_SIZE):
+                logger.warning(f"System: Excessive chunking detected. Message length: {len(message)} (>{4 * MESSAGE_CHUNK_SIZE}). Possible abuse or misconfiguration.")
+            # Split the message into parts by new lines
+            parts = message.split('\n')
+            for part in parts:
+                part = part.strip()
+                # remove empty parts
+                if not part:
+                    continue
+                # if part is under the MESSAGE_CHUNK_SIZE, add it to the list
+                if len(part) < MESSAGE_CHUNK_SIZE:
+                    message_list.append(part)
+                else:
+                    # split the part into chunks
+                    current_chunk = ''
+                    sentences = []
+                    sentence = ''
+                    for char in part:
+                        sentence += char
+                        # if char in '.!?':
+                        #     sentences.append(sentence.strip())
+                        #     sentence = ''
+                    if sentence:
+                        sentences.append(sentence.strip())
 
-                for sentence in sentences:
-                    sentence = sentence.replace('  ', ' ')
-                    # remove empty sentences
-                    if not sentence:
-                        continue
-                    # remove junk sentences and append to the previous sentence this may exceed the MESSAGE_CHUNK_SIZE by 3
-                    if len(sentence) < 4:
-                        if current_chunk:
-                            current_chunk += sentence
-                        else:
+                    for sentence in sentences:
+                        sentence = sentence.replace('  ', ' ')
+                        # remove empty sentences
+                        if not sentence:
+                            continue
+                        # remove junk sentences and append to the previous sentence this may exceed the MESSAGE_CHUNK_SIZE by 3char
+                        if len(sentence) < 4:
+                            if current_chunk:
+                                current_chunk += sentence
+                            else:
+                                current_chunk = sentence
+                            continue
+
+                        # if sentence is too long, split it by words
+                        if len(current_chunk) + len(sentence) > MESSAGE_CHUNK_SIZE:
+                            if current_chunk:
+                                message_list.append(current_chunk)
                             current_chunk = sentence
-                        continue
-
-                    # if sentence is too long, split it by words
-                    if len(current_chunk) + len(sentence) > MESSAGE_CHUNK_SIZE:
-                        if current_chunk:
-                            message_list.append(current_chunk)
-                        current_chunk = sentence
-                    else:
-                        if current_chunk:
-                            current_chunk += ' ' + sentence
                         else:
-                            current_chunk = sentence
-                if current_chunk:
-                    message_list.append(current_chunk)
+                            if current_chunk:
+                                current_chunk += ' ' + sentence
+                            else:
+                                current_chunk = sentence
+                    if current_chunk:
+                        message_list.append(current_chunk)
 
-        # Consolidate any adjacent messages that can fit in a single chunk.
-        idx = 0
-        while idx < len(message_list) - 1:
-            if len(message_list[idx]) + len(message_list[idx+1]) < MESSAGE_CHUNK_SIZE:
-                message_list[idx] += '\n' + message_list[idx+1]
-                del message_list[idx+1]
-            else:
-                idx += 1
+            # Consolidate any adjacent messages that can fit in a single chunk.
+            idx = 0
+            while idx < len(message_list) - 1:
+                if len(message_list[idx]) + len(message_list[idx+1]) < MESSAGE_CHUNK_SIZE:
+                    message_list[idx] += '\n' + message_list[idx+1]
+                    del message_list[idx+1]
+                else:
+                    idx += 1
 
-        # Ensure no chunk exceeds MESSAGE_CHUNK_SIZE
-        final_message_list = []
-        for chunk in message_list:
-            while len(chunk) > MESSAGE_CHUNK_SIZE:
-                # Find the last space within the chunk size limit
-                split_index = chunk.rfind(' ', 0, MESSAGE_CHUNK_SIZE)
-                if split_index == -1:
-                    split_index = MESSAGE_CHUNK_SIZE
-                final_message_list.append(chunk[:split_index])
-                chunk = chunk[split_index:].strip()
-            if chunk:
-                final_message_list.append(chunk)
+            # Ensure no chunk exceeds MESSAGE_CHUNK_SIZE
+            final_message_list = []
+            for chunk in message_list:
+                while len(chunk) > MESSAGE_CHUNK_SIZE:
+                    # Find the last space within the chunk size limit
+                    split_index = chunk.rfind(' ', 0, MESSAGE_CHUNK_SIZE)
+                    if split_index == -1:
+                        split_index = MESSAGE_CHUNK_SIZE
+                    final_message_list.append(chunk[:split_index])
+                    chunk = chunk[split_index:].strip()
+                if chunk:
+                    final_message_list.append(chunk)
 
-        # Calculate the total length of the message
-        total_length = sum(len(chunk) for chunk in final_message_list)
-        num_chunks = len(final_message_list)
-        logger.debug(f"System: Splitting #chunks: {num_chunks}, Total length: {total_length}")
-        return final_message_list
+            # Calculate the total length of the message
+            total_length = sum(len(chunk) for chunk in final_message_list)
+            num_chunks = len(final_message_list)
+            logger.debug(f"System: Splitting #chunks: {num_chunks}, Total length: {total_length}")
+            return final_message_list
 
-    return message
+        return message
+    except Exception as e:
+        logger.warning(f"System: Exception during message chunking: {e} (message length: {len(message)})")
         
 def send_message(message, ch, nodeid=0, nodeInt=1, bypassChuncking=False):
     # Send a message to a channel or DM
