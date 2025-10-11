@@ -103,7 +103,7 @@ git clone https://github.com/spudgunman/meshing-around
 | `ping`, `ack` | Return data for signal. Example: `ping 15 #DrivingI5` (activates auto-ping every 20 seconds for count 15 via DM only) | ✅ |
 | `cmd` | Returns the list of commands (the help message) | ✅ |
 | `history` | Returns the last commands run by user(s) | ✅ |
-| `leaderboard` | Shows extreme mesh metrics like lowest battery 🪫 | ✅ |
+| `leaderboard` | Shows extreme mesh metrics like lowest battery 🪫 `leaderboard reset` allows admin reset | ✅ |
 | `lheard` | Returns the last 5 heard nodes with SNR. Can also use `sitrep` | ✅ |
 | `motd` | Displays the message of the day or sets it. Example: `motd $New Message Of the day` | ✅ |
 | `sysinfo` | Returns the bot node telemetry info | ✅ |
