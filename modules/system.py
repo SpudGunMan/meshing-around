@@ -1476,11 +1476,10 @@ def saveLeaderboard():
 def loadLeaderboard():
     global meshLeaderboard
     try:
-        with open('data/leaderboard.pkl', 'rb') as f:
-            meshLeaderboard = pickle.load(f)
-        # Ensure all keys from the default exist
         defaults = {}
         initializeMeshLeaderboard()
+        with open('data/leaderboard.pkl', 'rb') as f:
+            meshLeaderboard = pickle.load(f)
         defaults.update(meshLeaderboard)  # loaded values overwrite defaults
         meshLeaderboard = defaults
         if logMetaStats:
