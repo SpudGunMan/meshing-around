@@ -1208,9 +1208,6 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
                 if envMetrics.get('iaq') is not None:
                     iaq = float(envMetrics['iaq'])
                     if iaq > float(meshLeaderboard['worstAirQuality']['value']):
-                        # if its a bot node ID add a debug log
-                        if nodeID == globals().get(f'myNodeNum{rxNode}'):
-                            logger.debug(f"System: {nodeID} its time to open a window!")
                         meshLeaderboard['worstAirQuality'] = {'nodeID': nodeID, 'value': iaq, 'timestamp': current_time}
                         if logMetaStats:
                             logger.info(f"System: 💨 New worst air quality record: IAQ {iaq} from NodeID:{nodeID} ShortName:{get_name_from_number(nodeID, 'short', rxNode)}")
