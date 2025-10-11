@@ -105,5 +105,5 @@ logger.info("addFav: You may need to restart the mesh service on the device(s)")
 print(f"Finished adding {len(count_nodes)} favorite nodes to {len(count_devices)} device(s)")
 print(f"Data file for roof client_base has been saved to roofNodeList.pkl")
 if not roof_node:
-    logger.info(f"addFav: You can now run this script on the roof client_base node to priortize these nodes for routing")
+    logger.info(f"addFav: You can now run this repo+script & roofNodeList.pkl on the roof node to add the favorite nodes to the roof client_base")
 exit(0)
