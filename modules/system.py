@@ -1122,17 +1122,15 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
     uptime = battery = temp = iaq = nodeID = 0
     deviceMetrics, envMetrics, localStats = {}, {}, {}
 
-    # check type of packet
+    # update telemetry data for the device
     try:
         packet_type = ''
         if packet.get('decoded'):
             packet_type = packet['decoded']['portnum']
             nodeID = packet['from']
-
+        
         # if not a bot ID track it
-        if nodeID != globals().get(f'myNodeNum{rxNode}') or nodeID != 0:
-            wasItMe = True
-        else:
+        if nodeID != globals().get(f'myNodeNum{rxNode}') and nodeID != 0:
             # consider Meta for most messages leaderboard
             node_message_count = meshLeaderboard.get('nodeMessageCounts', {})
             node_message_count[nodeID] = node_message_count.get(nodeID, 0) + 1
@@ -1143,13 +1141,13 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
                 meshLeaderboard['mostMessages']['nodeID'] = nodeID
                 meshLeaderboard['mostMessages']['timestamp'] = time.time()
 
-        # consider Meta for highest and weakest DBm
-        if packet.get('rxSnr') is not None and nodeID != 0:
-            dbm = packet['rxSnr']
-            if dbm > meshLeaderboard['highestDBm']['value']:
-                meshLeaderboard['highestDBm'] = {'nodeID': nodeID, 'value': dbm, 'timestamp': time.time()}
-            if dbm < meshLeaderboard['weakestDBm']['value']:
-                meshLeaderboard['weakestDBm'] = {'nodeID': nodeID, 'value': dbm, 'timestamp': time.time()}
+            # consider Meta for highest and weakest DBm
+            if packet.get('rxSnr') is not None:
+                dbm = packet['rxSnr']
+                if dbm > meshLeaderboard['highestDBm']['value']:
+                    meshLeaderboard['highestDBm'] = {'nodeID': nodeID, 'value': dbm, 'timestamp': time.time()}
+                if dbm < meshLeaderboard['weakestDBm']['value']:
+                    meshLeaderboard['weakestDBm'] = {'nodeID': nodeID, 'value': dbm, 'timestamp': time.time()}
         
     except Exception as e:
         logger.debug(f"System: Metadata decode error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
@@ -1176,9 +1174,7 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
             # Track longest uptime 🕰️
             try:
                 # if not a bot ID track it
-                if nodeID != globals().get(f'myNodeNum{rxNode}') or nodeID != 0:
-                    wasItMe = False
-                else:
+                if nodeID != globals().get(f'myNodeNum{rxNode}') and nodeID != 0:
                     if deviceMetrics.get('uptimeSeconds') is not None:
                         uptime = float(deviceMetrics['uptimeSeconds'])
                         longest_uptime = float(meshLeaderboard['longestUptime']['value'])
@@ -1380,10 +1376,8 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
         try:
             if debugMetadata and 'ADMIN_APP' not in metadataFilter:
                 print(f"DEBUG ADMIN_APP: {packet}\n\n")
-            # if the packet is from local bot node ignore it
-            if nodeID != globals().get(f'myNodeNum{rxNode}') or nodeID != 0:
-                wasItMe = True
-            else:
+            # if not a bot ID track it
+            if nodeID != globals().get(f'myNodeNum{rxNode}') and nodeID != 0:
                 packet_info = {'nodeID': nodeID, 'timestamp': time.time(), 'device': rxNode, 'channel': channel}
                 meshLeaderboard['adminPackets'].append(packet_info)
                 if len(meshLeaderboard['adminPackets']) > 10:
