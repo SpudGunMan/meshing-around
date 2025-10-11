@@ -36,7 +36,9 @@ try:
     from modules.log import *
     from modules.system import *
 except Exception as e:
-    print(f"Error importing modules run this program from the main program directory 'python3 script/addFav.py'")
+    print(f"Error importing modules run this program from the main repo directory 'python3 script/addFav.py'")
+    print(f"if you forgot the rest of it.. git clone https://github.com/spudgunman/meshing-around")
+    print(f"Import Error: {e}")
     exit(1)
 
 try:
