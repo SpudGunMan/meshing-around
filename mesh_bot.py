@@ -1676,10 +1676,14 @@ async def start_rx():
         if "trouble" not in llmLoad:
             logger.debug(f"System: LLM Model {llmModel} loaded")
 
+    if useDMForResponse:
+        logger.debug("System: Respond by DM only")
+
     if log_messages_to_file:
         logger.debug("System: Logging Messages to disk")
     if syslog_to_file:
         logger.debug("System: Logging System Logs to disk")
+    
     if bbs_enabled:
         logger.debug(f"System: BBS Enabled, {bbsdb} has {len(bbs_messages)} messages. Direct Mail Messages waiting: {(len(bbs_dm) - 1)}")
         if bbs_link_enabled:
@@ -1687,78 +1691,105 @@ async def start_rx():
                 logger.debug(f"System: BBS Link Enabled with {len(bbs_link_whitelist)} peers")
             else:
                 logger.debug(f"System: BBS Link Enabled allowing all")
+    
     if solar_conditions_enabled:
         logger.debug("System: Celestial Telemetry Enabled")
+    
     if location_enabled:
         if use_meteo_wxApi:
             logger.debug("System: Location Telemetry Enabled using Open-Meteo API")
         else:
             logger.debug("System: Location Telemetry Enabled using NOAA API")
+    
     if dad_jokes_enabled:
         logger.debug("System: Dad Jokes Enabled!")
+    
     if coastalEnabled:
-        logger.debug("System: Coastal Forcast and Tide Enabled!")
+        logger.debug("System: Coastal Forecast and Tide Enabled!")
+    
     if games_enabled:
         logger.debug("System: Games Enabled!")
+    
     if wikipedia_enabled:
-        logger.debug("System: Wikipedia search Enabled")
+        if use_kiwix_server:
+            logger.debug(f"System: Wikipedia search Enabled using Kiwix server at {kiwix_server_address}")
+        else:
+            logger.debug("System: Wikipedia search Enabled")
+    
     if rssEnable:
-        logger.debug(f"System: RSS Feed Reader Enabled for {rssFeedURL}")
+        logger.debug(f"System: RSS Feed Reader Enabled for feeds: {rssFeedNames}")
+    
     if motd_enabled:
-        logger.debug(f"System: MOTD Enabled using {MOTD}")
+        logger.debug(f"System: MOTD Enabled using {MOTD} scheduler:{schedulerMotd}")
+    
     if sentry_enabled:
         logger.debug(f"System: Sentry Mode Enabled {sentry_radius}m radius reporting to channel:{secure_channel}")
+    
     if highfly_enabled:
         logger.debug(f"System: HighFly Enabled using {highfly_altitude}m limit reporting to channel:{highfly_channel}")
+    
     if store_forward_enabled:
         logger.debug(f"System: S&F(messages command) Enabled using limit: {storeFlimit}")
-    if useDMForResponse:
-        logger.debug(f"System: Respond by DM only")
+    
     if enableEcho:
-        logger.debug(f"System: Echo command Enabled")
+        logger.debug("System: Echo command Enabled")
+    
     if repeater_enabled and multiple_interface:
         logger.debug(f"System: Repeater Enabled for Channels: {repeater_channels}")
+    
     if radio_detection_enabled:
-        logger.debug(f"System: Radio Detection Enabled using rigctld at {rigControlServerAddress} brodcasting to channels: {sigWatchBroadcastCh} for {get_freq_common_name(get_hamlib('f'))}")
+        logger.debug(f"System: Radio Detection Enabled using rigctld at {rigControlServerAddress} broadcasting to channels: {sigWatchBroadcastCh} for {get_freq_common_name(get_hamlib('f'))}")
+    
     if file_monitor_enabled:
         logger.warning(f"System: File Monitor Enabled for {file_monitor_file_path}, broadcasting to channels: {file_monitor_broadcastCh}")
-        if enable_runShellCmd:
-            logger.debug(f"System: Shell Command monitor enabled")
-        if allowXcmd and enable_runShellCmd:
-            logger.warning(f"System: File Monitor shell XCMD Enabled")
-        if read_news_enabled:
-            logger.debug(f"System: File Monitor News Reader Enabled for {news_file_path}")
-        if bee_enabled:
-            logger.debug(f"System: File Monitor Bee Monitor Enabled for bee.txt")
+    if enable_runShellCmd:
+        logger.debug("System: Shell Command monitor enabled")
+        if allowXcmd:
+            logger.warning("System: File Monitor shell XCMD Enabled")
+    if read_news_enabled:
+        logger.debug(f"System: File Monitor News Reader Enabled for {news_file_path}")
+    if bee_enabled:
+        logger.debug("System: File Monitor Bee Monitor Enabled for bee.txt")
+    
     if wxAlertBroadcastEnabled:
         logger.debug(f"System: Weather Alert Broadcast Enabled on channels {wxAlertBroadcastChannel}")
+    
     if emergencyAlertBrodcastEnabled:
         logger.debug(f"System: Emergency Alert Broadcast Enabled on channels {emergencyAlertBroadcastCh} for FIPS codes {myStateFIPSList}")
-        # check if the FIPS codes are set
         if myStateFIPSList == ['']:
-            logger.warning(f"System: No FIPS codes set for iPAWS Alerts")
+            logger.warning("System: No FIPS codes set for iPAWS Alerts")
+    
     if emergency_responder_enabled:
         logger.debug(f"System: Emergency Responder Enabled on channels {emergency_responder_alert_channel} for interface {emergency_responder_alert_interface}")
+    
     if volcanoAlertBroadcastEnabled:
         logger.debug(f"System: Volcano Alert Broadcast Enabled on channels {volcanoAlertBroadcastChannel}")
-    if qrz_hello_enabled and train_qrz:
-        logger.debug(f"System: QRZ Welcome/Hello Enabled with training mode")
-    if qrz_hello_enabled and not train_qrz:
-        logger.debug(f"System: QRZ Welcome/Hello Enabled")
+    
+    if qrz_hello_enabled:
+        if train_qrz:
+            logger.debug("System: QRZ Welcome/Hello Enabled with training mode")
+        else:
+            logger.debug("System: QRZ Welcome/Hello Enabled")
+    
     if checklist_enabled:
-        logger.debug(f"System: CheckList Module Enabled")
-    if ignoreChannels != []:
+        logger.debug("System: CheckList Module Enabled")
+    
+    if ignoreChannels:
         logger.debug(f"System: Ignoring Channels: {ignoreChannels}")
+    
     if noisyNodeLogging:
-        logger.debug(f"System: Noisy Node Logging Enabled")
+        logger.debug("System: Noisy Node Logging Enabled")
+    
     if logMetaStats:
-        logger.debug(f"System: Logging Metadata Stats Enabled, leaderboard")
+        logger.debug("System: Logging Metadata Stats Enabled, leaderboard")
         loadLeaderboard()
+    
     if enableSMTP:
         if enableImap:
-            logger.debug(f"System: SMTP Email Alerting Enabled using IMAP")
+            logger.debug("System: SMTP Email Alerting Enabled using IMAP")
         else:
-            logger.debug(f"System: SMTP Email Alerting Enabled")
+            logger.warning("System: SMTP Email Alerting Enabled")
+
     if scheduler_enabled:
         # basic scheduler
         if schedulerMotd:

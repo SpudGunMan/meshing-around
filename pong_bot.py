@@ -432,28 +432,29 @@ async def start_rx():
             logger.info(f"System: Autoresponder Started for Device{i} {get_name_from_number(myNodeNum, 'long', i)},"
                         f"{get_name_from_number(myNodeNum, 'short', i)}. NodeID: {myNodeNum}, {decimal_to_hex(myNodeNum)}")
     
+    if useDMForResponse:
+        logger.debug(f"System: Respond by DM only")
     if log_messages_to_file:
         logger.debug("System: Logging Messages to disk")
     if syslog_to_file:
         logger.debug("System: Logging System Logs to disk")
-    if solar_conditions_enabled:
-        logger.debug("System: Celestial Telemetry Enabled")
     if motd_enabled:
         logger.debug(f"System: MOTD Enabled using {MOTD}")
     if enableEcho:
         logger.debug(f"System: Echo command Enabled")
     if sentry_enabled:
         logger.debug(f"System: Sentry Mode Enabled {sentry_radius}m radius reporting to channel:{secure_channel}")
-    if store_forward_enabled:
-        logger.debug(f"System: S&F(messages command) Enabled using limit: {storeFlimit}")
-    if useDMForResponse:
-        logger.debug(f"System: Respond by DM only")
+    if highfly_enabled:
+        logger.debug(f"System: HighFly Enabled using {highfly_altitude}m limit reporting to channel:{highfly_channel}")
     if repeater_enabled and multiple_interface:
         logger.debug(f"System: Repeater Enabled for Channels: {repeater_channels}")
-    if file_monitor_enabled:
-        logger.debug(f"System: File Monitor Enabled for {file_monitor_file_path}, broadcasting to channels: {file_monitor_broadcastCh}")
-    if read_news_enabled:
-        logger.debug(f"System: File Monitor News Reader Enabled for {news_file_path}")
+    if bbs_enabled:
+        logger.debug(f"System: BBS Enabled, {bbsdb} has {len(bbs_messages)} messages. Direct Mail Messages waiting: {(len(bbs_dm) - 1)}")
+        if bbs_link_enabled:
+            if len(bbs_link_whitelist) > 0:
+                logger.debug(f"System: BBS Link Enabled with {len(bbs_link_whitelist)} peers")
+            else:
+                logger.debug(f"System: BBS Link Enabled allowing all")
     if scheduler_enabled:
         # Examples of using the scheduler, Times here are in 24hr format
         # https://schedule.readthedocs.io/en/stable/
