@@ -4,10 +4,27 @@
 import sys
 import os
 import pickle
+import argparse
 
 favList = []
 roofNodeList = []
 roof_node = False
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Add favorite nodes or print pickle contents.")
+    parser.add_argument('-pickle', '-p', action='store_true', help="Print the contents of roofNodeList.pkl and exit")
+    args = parser.parse_args()
+
+    if args.pickle:
+        try:
+            with open('roofNodeList.pkl', 'rb') as f:
+                data = pickle.load(f)
+            #print a simple list of nodeID:x\n
+            for item in data:
+                print(f"{item.get('nodeID', 'N/A')}")
+        except Exception as e:
+            print(f"Error reading roofNodeList.pkl: {e}")
+        exit(0)
 
 # welcome header
 print("meshing-around: addFav - Auto-Add favorite nodes to all interfaces from config.ini data")
