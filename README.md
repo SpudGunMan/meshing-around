@@ -49,6 +49,7 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 - **Built-in Games**: Enjoy games like DopeWars, Lemonade Stand, BlackJack, and VideoPoker.
 - **FCC ARRL QuizBot**: The exam question pool quiz-bot.
 - **Command-Based Gameplay**: Issue `games` to display help and start playing.
+- **Telemetry Leaderboard**: Fun stats like lowest 🪫 battery or coldest temp 🥶
 
 #### QuizMaster
 - **Interactive Group Quizzes**: The QuizMaster module allows admins to start and stop quiz games for groups. Players can join, leave, and answer questions directly via DM or channel.
