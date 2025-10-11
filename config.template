@@ -57,9 +57,9 @@ spaceWeather = True
 
 # enable or disable the RSS module, and truncate the story
 rssEnable = True
-rssFeedURL = http://www.hackaday.com/rss.xml,https://news.sparkfun.com/feeds/news
+rssFeedURL = http://www.hackaday.com/rss.xml,http://rss.slashdot.org/Slashdot/slashdotMain
 # RSS feed names must match the order of the URLs above, default is used if no match
-rssFeedNames = default,sparkfun
+rssFeedNames = default,slashdot
 rssMaxItems = 3
 rssTruncate = 100
 
