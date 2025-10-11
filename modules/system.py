@@ -1106,10 +1106,12 @@ def initializeMeshLeaderboard():
         'coldestTemp': {'nodeID': None, 'value': 999, 'timestamp': 0},    # 🥶
         'hottestTemp': {'nodeID': None, 'value': -999, 'timestamp': 0},   # 🥵
         'worstAirQuality': {'nodeID': None, 'value': 0, 'timestamp': 0},  # 💨
-        'mostMessages': {'nodeID': None, 'value': 0, 'timestamp': 0},   # 💬
-        'highestDBm': {'nodeID': None, 'value': -999, 'timestamp': 0},      # 📶
-        'weakestDBm': {'nodeID': None, 'value': 999, 'timestamp': 0},        # 📶
-        'mostReactions': {'nodeID': None, 'value': 0, 'timestamp': 0},        # ❤️
+        'mostMessages': {'nodeID': None, 'value': 0, 'timestamp': 0},     # 💬
+        'highestDBm': {'nodeID': None, 'value': -999, 'timestamp': 0},    # 📶
+        'weakestDBm': {'nodeID': None, 'value': 999, 'timestamp': 0},     # 📶
+        'mostReactions': {'nodeID': None, 'value': 0, 'timestamp': 0},    # ❤️
+        'mostPaxWiFi': {'nodeID': None, 'value': 0, 'timestamp': 0},      # 👥
+        'mostPaxBLE': {'nodeID': None, 'value': 0, 'timestamp': 0},       # 👥
         'adminPackets': [],      # 🚨
         'tunnelPackets': [],     # 🚨
         'audioPackets': [],      # ☎️
@@ -1216,20 +1218,20 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
                 logger.debug(f"System: TELEMETRY_APP iaq error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
 
         # Track localStats
-        if telemetry_packet.get('localStats'):
-            localStats = telemetry_packet['localStats']
-            try:
-                # Check if 'numPacketsTx' and 'numPacketsRx' exist and are not zero
-                if localStats.get('numPacketsTx') is not None and localStats.get('numPacketsRx') is not None and localStats['numPacketsTx'] != 0:
-                    # Assign the values to the telemetry dictionary
-                    keys = [
-                        'numPacketsTx', 'numPacketsRx', 'numOnlineNodes', 
-                        'numOfflineNodes', 'numPacketsTxErr', 'numPacketsRxErr', 'numTotalNodes']
-                    for key in keys:
-                        if localStats.get(key) is not None:
-                            telemetryData[rxNode][key] = localStats.get(key)
-            except Exception as e:
-                logger.debug(f"System: TELEMETRY_APP localStats error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
+        # if telemetry_packet.get('localStats'):
+        #     localStats = telemetry_packet['localStats']
+        #     try:
+        #         # Check if 'numPacketsTx' and 'numPacketsRx' exist and are not zero
+        #         if localStats.get('numPacketsTx') is not None and localStats.get('numPacketsRx') is not None and localStats['numPacketsTx'] != 0:
+        #             # Assign the values to the telemetry dictionary
+        #             keys = [
+        #                 'numPacketsTx', 'numPacketsRx', 'numOnlineNodes', 
+        #                 'numOfflineNodes', 'numPacketsTxErr', 'numPacketsRxErr', 'numTotalNodes']
+        #             for key in keys:
+        #                 if localStats.get(key) is not None:
+        #                     telemetryData[rxNode][key] = localStats.get(key)
+        #     except Exception as e:
+        #         logger.debug(f"System: TELEMETRY_APP localStats error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
     # POSITION_APP packets
     if packet_type == 'POSITION_APP':
         try:
@@ -1354,11 +1356,18 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
             wifi_count = paxcounter_data.get('wifi', 0)
             ble_count = paxcounter_data.get('ble', 0)
             uptime = paxcounter_data.get('uptime', 0)
+            current_time = time.time()
+            # Track most WiFi
+            if wifi_count > meshLeaderboard['mostPaxWiFi']['value']:
+                meshLeaderboard['mostPaxWiFi'] = {'nodeID': nodeID, 'value': wifi_count, 'timestamp': current_time}
+            # Track most BLE
+            if ble_count > meshLeaderboard['mostPaxBLE']['value']:
+                meshLeaderboard['mostPaxBLE'] = {'nodeID': nodeID, 'value': ble_count, 'timestamp': current_time}
             if logMetaStats:
                 logger.info(f"System: Paxcounter Data from Device: {rxNode} Channel: {channel} NodeID:{nodeID} WiFi:{wifi_count} BLE:{ble_count} Uptime:{getPrettyTime(uptime)}")
         except Exception as e:
             logger.debug(f"System: PAXCOUNTER_APP decode error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
-
+    
     # REMOTE_HARDWARE_APP
     if packet_type == 'REMOTE_HARDWARE_APP':
         try:
@@ -1379,7 +1388,9 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
             # if not a bot ID track it
             if nodeID != globals().get(f'myNodeNum{rxNode}') and nodeID != 0:
                 packet_info = {'nodeID': nodeID, 'timestamp': time.time(), 'device': rxNode, 'channel': channel}
-                meshLeaderboard['adminPackets'].append(packet_info)
+                # if not a bot ID track it
+                if nodeID != globals().get(f'myNodeNum{rxNode}') and nodeID != 0:
+                    meshLeaderboard['adminPackets'].append(packet_info)
                 if len(meshLeaderboard['adminPackets']) > 10:
                     meshLeaderboard['adminPackets'].pop(0)
                 if logMetaStats:
@@ -1429,7 +1440,9 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
             if debugMetadata and 'SIMULATOR_APP' not in metadataFilter:
                 print(f"DEBUG SIMULATOR_APP: {packet}\n\n")
             packet_info = {'nodeID': nodeID, 'timestamp': time.time(), 'device': rxNode, 'channel': channel}
-            meshLeaderboard['simulatorPackets'].append(packet_info)
+            # if not a bot ID track it
+            if nodeID != globals().get(f'myNodeNum{rxNode}') and nodeID != 0:
+                meshLeaderboard['simulatorPackets'].append(packet_info)
             if len(meshLeaderboard['simulatorPackets']) > 10:
                 meshLeaderboard['simulatorPackets'].pop(0)
             if logMetaStats:
@@ -1567,19 +1580,30 @@ def get_mesh_leaderboard(msg, fromID, deviceID):
         nodeID = meshLeaderboard['mostMessages']['nodeID']
         value = meshLeaderboard['mostMessages']['value']
         result += f"💬 Most Telemetry: {value} {get_name_from_number(nodeID, 'short', 1)}\n"
+
+    # Most WiFi devices seen
+    if meshLeaderboard.get('mostPaxWiFi', {}).get('nodeID'):
+        nodeID = meshLeaderboard['mostPaxWiFi']['nodeID']
+        value = meshLeaderboard['mostPaxWiFi']['value']
+        result += f"📶 PAX Wifi: {value} {get_name_from_number(nodeID, 'short', 1)}\n"
+    # Most BLE devices seen
+    if meshLeaderboard.get('mostPaxBLE', {}).get('nodeID'):
+        nodeID = meshLeaderboard['mostPaxBLE']['nodeID']
+        value = meshLeaderboard['mostPaxBLE']['value']
+        result += f"📲 PAX BLE: {value} {get_name_from_number(nodeID, 'short', 1)}\n"
     
-    # # Special packet detections
-    # if len(meshLeaderboard['adminPackets']) > 0:
-    #     result += f"🚨 Admin packets: {len(meshLeaderboard['adminPackets'])}\n"
+    # Special packet detections
+    if len(meshLeaderboard['adminPackets']) > 0:
+        result += f"🚨 Admin packets: {len(meshLeaderboard['adminPackets'])}\n"
     
-    # if len(meshLeaderboard['tunnelPackets']) > 0:
-    #     result += f"🚨 Tunnel packets: {len(meshLeaderboard['tunnelPackets'])}\n"
+    if len(meshLeaderboard['tunnelPackets']) > 0:
+        result += f"🚨 Tunnel packets: {len(meshLeaderboard['tunnelPackets'])}\n"
     
-    # if len(meshLeaderboard['audioPackets']) > 0:
-    #     result += f"☎️ Audio packets: {len(meshLeaderboard['audioPackets'])}\n"
+    if len(meshLeaderboard['audioPackets']) > 0:
+        result += f"☎️ Audio packets: {len(meshLeaderboard['audioPackets'])}\n"
     
-    # if len(meshLeaderboard['simulatorPackets']) > 0:
-    #     result += f"🤖 Simulator packets: {len(meshLeaderboard['simulatorPackets'])}\n"
+    if len(meshLeaderboard['simulatorPackets']) > 0:
+        result += f"🤖 Simulator packets: {len(meshLeaderboard['simulatorPackets'])}\n"
 
     result = result.strip()
     
