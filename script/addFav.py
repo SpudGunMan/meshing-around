@@ -27,7 +27,7 @@ try:
     print("This script can be run on a client_base or on the bot under a roof node.")
     print("The purpose of this script is to add favorite nodes to the bot to retain DM keys.")
     print("If you are running this script on a roof (base) node, stop and rerun it on the bot first to collect all node ID's.")
-    roof_node = input("Are you running this script on a client_base node? (y/n): ").strip().lower()
+    roof_node = input("Are you running this script on a client_base node which has no BOT? (y/n): ").strip().lower()
     if roof_node not in ['y', 'n']:
         raise ValueError("Invalid input. Please enter 'y' or 'n'.")
     roof_node = (roof_node == 'y')
