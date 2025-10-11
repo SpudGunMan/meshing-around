@@ -28,74 +28,6 @@ MAX_SEEN_NODES = 500
 CLEANUP_INTERVAL = 86400 # 24 hours in seconds
 GAMEDELAY = CLEANUP_INTERVAL # the age of game entries in seconds before they are cleaned up
 
-def cleanup_memory():
-    """Clean up memory by limiting list sizes and removing stale entries"""
-    global cmdHistory, seenNodes, multiPingList, waitingXroom
-    current_time = time.time()
-    
-    try:
-        # Limit cmdHistory size
-        if 'cmdHistory' in globals() and len(cmdHistory) > MAX_CMD_HISTORY:
-            cmdHistory = cmdHistory[-(MAX_CMD_HISTORY - 50):] # keep the most recent 50 entries
-            logger.debug(f"System: Trimmed cmdHistory to {len(cmdHistory)} entries")
-        
-        # limit waitingXroom size by time
-        if 'waitingXroom' in globals():
-            initial_count = len(waitingXroom)
-            to_delete = [key for key, (_, _, ts) in waitingXroom.items() if current_time - ts.timestamp() > xCmd2factor_timeout]
-            for key in to_delete:
-                del waitingXroom[key]
-            cleaned_count = initial_count - len(waitingXroom)
-            if cleaned_count > 0:
-                logger.debug(f"System: Cleaned up {cleaned_count} stale entries from waitingXroom")
-
-        # Clean up old seenNodes entries
-        if 'seenNodes' in globals():
-            initial_count = len(seenNodes)
-            if len(seenNodes) > MAX_SEEN_NODES:
-                # cut the list in half if it exceeds max size
-                seenNodes = seenNodes[-(MAX_SEEN_NODES // 2):]
-                logger.warning(f"System: Trimmed seenNodes to {len(seenNodes)} entries due to size limit of {MAX_SEEN_NODES}")
-        
-        # Clean up stale game tracker entries
-        cleanup_game_trackers(current_time)
-        
-        # Clean up multiPingList of completed or stale entries
-        if 'multiPingList' in globals():
-            multiPingList[:] = [ping for ping in multiPingList 
-                              if ping.get('message_from_id', 0) != 0 and 
-                              ping.get('count', 0) > 0]
-        
-    except Exception as e:
-        logger.error(f"System: Error during memory cleanup: {e}")
-
-def cleanup_game_trackers(current_time):
-    """Clean up all game tracker lists of stale entries"""
-    try:
-        # List of game tracker global variable names
-        tracker_names = [
-            'dwPlayerTracker', 'lemonadeTracker', 'jackTracker', 
-            'vpTracker', 'mindTracker', 'golfTracker', 
-            'hangmanTracker', 'hamtestTracker', 'tictactoeTracker, surveyTracker'
-        ]
-        
-        for tracker_name in tracker_names:
-            if tracker_name in globals():
-                tracker = globals()[tracker_name]
-                if isinstance(tracker, list):
-                    initial_count = len(tracker)
-                    # Remove entries older than GAMEDELAY
-                    globals()[tracker_name] = [
-                        entry for entry in tracker 
-                        if current_time - entry.get('last_played', entry.get('time', 0)) < GAMEDELAY
-                    ]
-                    cleaned_count = initial_count - len(globals()[tracker_name])
-                    if cleaned_count > 0:
-                        logger.debug(f"System: Cleaned up {cleaned_count} stale entries from {tracker_name}")
-                        
-    except Exception as e:
-        logger.error(f"System: Error cleaning up game trackers: {e}")
-
 # Ping Configuration
 if ping_enabled:
     # ping, pinging, ack, testing, test, pong
@@ -418,6 +350,74 @@ for i in range(1, 10):
         globals()[f'myNodeNum{i}'] = 777
 
 #### FUN-ctions ####
+
+def cleanup_memory():
+    """Clean up memory by limiting list sizes and removing stale entries"""
+    global cmdHistory, seenNodes, multiPingList, waitingXroom
+    current_time = time.time()
+    
+    try:
+        # Limit cmdHistory size
+        if 'cmdHistory' in globals() and len(cmdHistory) > MAX_CMD_HISTORY:
+            cmdHistory = cmdHistory[-(MAX_CMD_HISTORY - 50):] # keep the most recent 50 entries
+            logger.debug(f"System: Trimmed cmdHistory to {len(cmdHistory)} entries")
+        
+        # limit waitingXroom size by time
+        if 'waitingXroom' in globals():
+            initial_count = len(waitingXroom)
+            to_delete = [key for key, (_, _, ts) in waitingXroom.items() if current_time - ts.timestamp() > xCmd2factor_timeout]
+            for key in to_delete:
+                del waitingXroom[key]
+            cleaned_count = initial_count - len(waitingXroom)
+            if cleaned_count > 0:
+                logger.debug(f"System: Cleaned up {cleaned_count} stale entries from waitingXroom")
+
+        # Clean up old seenNodes entries
+        if 'seenNodes' in globals():
+            initial_count = len(seenNodes)
+            if len(seenNodes) > MAX_SEEN_NODES:
+                # cut the list in half if it exceeds max size
+                seenNodes = seenNodes[-(MAX_SEEN_NODES // 2):]
+                logger.warning(f"System: Trimmed seenNodes to {len(seenNodes)} entries due to size limit of {MAX_SEEN_NODES}")
+        
+        # Clean up stale game tracker entries
+        cleanup_game_trackers(current_time)
+        
+        # Clean up multiPingList of completed or stale entries
+        if 'multiPingList' in globals():
+            multiPingList[:] = [ping for ping in multiPingList 
+                              if ping.get('message_from_id', 0) != 0 and 
+                              ping.get('count', 0) > 0]
+        
+    except Exception as e:
+        logger.error(f"System: Error during memory cleanup: {e}")
+
+def cleanup_game_trackers(current_time):
+    """Clean up all game tracker lists of stale entries"""
+    try:
+        # List of game tracker global variable names
+        tracker_names = [
+            'dwPlayerTracker', 'lemonadeTracker', 'jackTracker', 
+            'vpTracker', 'mindTracker', 'golfTracker', 
+            'hangmanTracker', 'hamtestTracker', 'tictactoeTracker, surveyTracker'
+        ]
+        
+        for tracker_name in tracker_names:
+            if tracker_name in globals():
+                tracker = globals()[tracker_name]
+                if isinstance(tracker, list):
+                    initial_count = len(tracker)
+                    # Remove entries older than GAMEDELAY
+                    globals()[tracker_name] = [
+                        entry for entry in tracker 
+                        if current_time - entry.get('last_played', entry.get('time', 0)) < GAMEDELAY
+                    ]
+                    cleaned_count = initial_count - len(globals()[tracker_name])
+                    if cleaned_count > 0:
+                        logger.debug(f"System: Cleaned up {cleaned_count} stale entries from {tracker_name}")
+                        
+    except Exception as e:
+        logger.error(f"System: Error cleaning up game trackers: {e}")
 
 def decimal_to_hex(decimal_number):
     return f"!{decimal_number:08x}"
@@ -1000,21 +1000,35 @@ def getNodeFirmware(nodeID=0, nodeInt=1):
         return fwVer
     return -1
 
-def compileFavoriteList():
+def compileFavoriteList(getInterfaceIDs=True):
     # build a list of favorite nodes to add to the device
     fav_list = []
-    if (bbs_admin_list != [0] or favoriteNodeList != ['']) or bbs_link_whitelist != [0]:
-        logger.debug(f"System: Collecting Favorite Nodes to add to device(s)")
-         # loop through each interface and add the favorite nodes
+
+    if getInterfaceIDs:
+        logger.debug(f"System:compileFavoriteList Collecting Nodes for use on roof client_base only")
+        # get the node IDs for each interface
         for i in range(1, 10):
             if globals().get(f'interface{i}') and globals().get(f'interface{i}_enabled'):
-                for fav in bbs_admin_list + favoriteNodeList + bbs_link_whitelist:
-                    if fav != 0 and fav != '' and fav is not None:
-                        object = {'nodeID': fav, 'deviceID': i}
-                        # check object not already in the list
-                        if object not in fav_list:
-                            fav_list.append(object)
-                            logger.debug(f"System: Adding Favorite Node {fav} to Device {i}")
+                myNodeNum = globals().get(f'myNodeNum{i}', 0)
+                if myNodeNum != 0:
+                    object = {'nodeID': myNodeNum, 'deviceID': i}
+                    fav_list.append(object)
+                    logger.debug(f"System:compileFavoriteList Added NodeID {myNodeNum} favorite list")
+
+    if not getInterfaceIDs:
+        logger.debug(f"System:compileFavoriteList Compiling Favorite Node List for use on bot to save DM keys only")
+        if (bbs_admin_list != [0] or favoriteNodeList != ['']) or bbs_link_whitelist != [0]:
+            logger.debug(f"System: Collecting Favorite Nodes to add to device(s)")
+            # loop through each interface and add the favorite nodes
+            for i in range(1, 10):
+                if globals().get(f'interface{i}') and globals().get(f'interface{i}_enabled'):
+                    for fav in bbs_admin_list + favoriteNodeList + bbs_link_whitelist:
+                        if fav != 0 and fav != '' and fav is not None:
+                            object = {'nodeID': fav, 'deviceID': i}
+                            # check object not already in the list
+                            if object not in fav_list:
+                                fav_list.append(object)
+                                logger.debug(f"System:compileFavoriteList Favorite Node {fav}")
     return fav_list
 
 def displayNodeTelemetry(nodeID=0, rxNode=0, userRequested=False):
