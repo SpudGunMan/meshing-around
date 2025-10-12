@@ -7,8 +7,8 @@ import time
 import pickle
 
 jack_starting_cash = 100  # Replace 100 with your desired starting cash value
-jackTracker= [{'nodeID': 0, 'cmd': 'new', 'time': time.time(), 'cash': jack_starting_cash,\
-                'bet': 0, 'gameStats': {'p_win': 0, 'd_win': 0, 'draw': 0}, 'p_cards':[], 'd_cards':[], 'p_hand':[], 'd_hand':[], 'next_card':[]}]
+jackTracker= [{'nodeID': 0, 'cmd': 'new', 'cash': jack_starting_cash,\
+                'bet': 0, 'gameStats': {'p_win': 0, 'd_win': 0, 'draw': 0}, 'p_cards':[], 'd_cards':[], 'p_hand':[], 'd_hand':[], 'next_card':[],'last_played': time.time()}]
 
 SUITS = ("♥️", "♦️", "♠️", "♣️")
 RANKS = (
@@ -268,7 +268,7 @@ def playBlackJack(nodeID, message):
     if last_cmd is None:
         # create new player if not in tracker
         logger.debug(f"System: BlackJack: New Player {nodeID}")
-        jackTracker.append({'nodeID': nodeID, 'cmd': 'new', 'time': time.time(), 'cash': jack_starting_cash,\
+        jackTracker.append({'nodeID': nodeID, 'cmd': 'new', 'last_played': time.time(), 'cash': jack_starting_cash,\
             'bet': 0, 'gameStats': {'p_win': p_win, 'd_win': d_win, 'draw': draw}, 'p_cards':p_cards, 'd_cards':d_cards, 'p_hand':p_hand.cards, 'd_hand':d_hand.cards, 'next_card':next_card})
         return f"Welcome to ♠️♥️BlackJack♣️♦️ you have {p_chips.total} chips.   Whats your bet?"
 
@@ -468,6 +468,6 @@ def playBlackJack(nodeID, message):
         jackTracker[i]['d_cards'] = []
         jackTracker[i]['p_hand'] = []
         jackTracker[i]['d_hand'] = []
-        jackTracker[i]['time'] = time.time()
+        jackTracker[i]['last_played'] = time.time()
 
     return msg

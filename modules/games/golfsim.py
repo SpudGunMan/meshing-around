@@ -133,6 +133,7 @@ def playGolf(nodeID, message, finishedHole=False):
     total_strokes = 0
     total_to_par = 0
     par = 0
+    hole = 1
 
     # get player's last command from tracker if not new player
     last_cmd = ""

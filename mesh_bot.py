@@ -549,23 +549,30 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
 
 def handleDopeWars(message, nodeID, rxNode):
     global dwPlayerTracker, dwHighScore
-    
-    # get player's last command
-    last_cmd = None
-    for i in range(0, len(dwPlayerTracker)):
-        if dwPlayerTracker[i].get('userID') == nodeID:
-            last_cmd = dwPlayerTracker[i].get('cmd')
-    
-    # welcome new player
-    if not last_cmd and nodeID != 0:
+
+    # Find player in tracker
+    player = next((p for p in dwPlayerTracker if p.get('userID') == nodeID), None)
+
+    # If not found, add new player
+    if not player and nodeID != 0:
+        player = {
+            'userID': nodeID,
+            'last_played': time.time(),
+            'cmd': 'new',
+            # ... add other fields as needed ...
+        }
+        dwPlayerTracker.append(player)
         msg = 'Welcome to 💊Dope Wars💉 You have ' + str(total_days) + ' days to make as much 💰 as possible! '
         high_score = getHighScoreDw()
-        msg += 'The High Score is $' + "{:,}".format(high_score.get('cash')) + ' by user ' + get_name_from_number(high_score.get('userID') , 'short', rxNode) +'\n'
+        msg += 'The High Score is $' + "{:,}".format(high_score.get('cash')) + ' by user ' + get_name_from_number(high_score.get('userID'), 'short', rxNode) + '\n'
         msg += playDopeWars(nodeID, message)
     else:
-        logger.debug(f"System: {nodeID} PlayingGame dopewars last_cmd: {last_cmd}")
+        # Update last_played
+        for p in dwPlayerTracker:
+            if p.get('userID') == nodeID:
+                p['last_played'] = time.time()
         msg = playDopeWars(nodeID, message)
-    # wait a second to keep from message collision
+
     time.sleep(responseDelay + 1)
     return msg
 
@@ -594,26 +601,27 @@ def handleLemonade(message, nodeID, deviceID):
     msg = ""
     def create_player(nodeID):
         # create new player
-        logger.debug("System: Lemonade: New Player: " + str(nodeID))
-        lemonadeTracker.append({'nodeID': nodeID, 'cups': 0, 'lemons': 0, 'sugar': 0, 'cash': lemon_starting_cash, 'start': lemon_starting_cash, 'cmd': 'new', 'time': time.time()})
+        lemonadeTracker.append({'nodeID': nodeID, 'cups': 0, 'lemons': 0, 'sugar': 0, 'cash': lemon_starting_cash, 'start': lemon_starting_cash, 'cmd': 'new', 'last_played': time.time()})
         lemonadeCups.append({'nodeID': nodeID, 'cost': 2.50, 'count': 25, 'min': 0.99, 'unit': 0.00})
         lemonadeLemons.append({'nodeID': nodeID, 'cost': 4.00, 'count': 8, 'min': 2.00, 'unit': 0.00})
         lemonadeSugar.append({'nodeID': nodeID, 'cost': 3.00, 'count': 15, 'min': 1.50, 'unit': 0.00})
         lemonadeScore.append({'nodeID': nodeID, 'value': 0.00, 'total': 0.00})
         lemonadeWeeks.append({'nodeID': nodeID, 'current': 1, 'total': lemon_total_weeks, 'sales': 99, 'potential': 0, 'unit': 0.00, 'price': 0.00, 'total_sales': 0})
-    
+    #initalize player variables
+    if lemonadeTracker == []:
+        lemonadeTracker = []
     # get player's last command from tracker if not new player
     last_cmd = ""
     for i in range(len(lemonadeTracker)):
         if lemonadeTracker[i]['nodeID'] == nodeID:
             last_cmd = lemonadeTracker[i]['cmd']
-
+            
     logger.debug(f"System: {nodeID} PlayingGame lemonstand last_cmd: {last_cmd}")
     # create new player if not in tracker
-    if last_cmd == "" and nodeID != 0:
+    if last_cmd == "" and nodeID != 0 and "lemonstand" in message.lower():
         create_player(nodeID)
         msg += "Welcome🍋🥤"
-
+        last_cmd = "new"
         # high score
         highScore = {"userID": 0, "cash": 0, "success": 0}
         highScore = getHighScoreLemon()
@@ -624,87 +632,79 @@ def handleLemonade(message, nodeID, deviceID):
                     logger.debug(f"System: TODO is multiple interface fix mention this please nodeName: {nodeName}")
                     #nodeName = get_name_from_number(highScore['userID'], 'long', 2)
                 msg += f" HighScore🥇{nodeName} 💰{round(highScore['cash'], 2)}k "
-    
-    msg += start_lemonade(nodeID=nodeID, message=message, celsius=False)
-    # wait a second to keep from message collision
-    time.sleep(responseDelay + 1)
+    if last_cmd != "":
+        msg += playLemonstand(nodeID=nodeID, message=message, celsius=False)
+
     return msg
 
 def handleBlackJack(message, nodeID, deviceID):
     global jackTracker
     msg = ""
 
-    # get player's last command from tracker
-    last_cmd = ""
-    for i in range(len(jackTracker)):
-        if jackTracker[i]['nodeID'] == nodeID:
-            last_cmd = jackTracker[i]['cmd']
+    # Find player in tracker
+    player = next((p for p in jackTracker if p['nodeID'] == nodeID), None)
 
-    # if player sends a L for leave table
+    # Handle leave command
     if message.lower().startswith("l"):
         logger.debug(f"System: BlackJack: {nodeID} is leaving the table")
         msg = "You have left the table."
-        for i in range(len(jackTracker)):
-            if jackTracker[i]['nodeID'] == nodeID:
-                jackTracker.pop(i)
+        jackTracker[:] = [p for p in jackTracker if p['nodeID'] != nodeID]
         return msg
 
-    else:  
-        # Play BlackJack
-        msg = playBlackJack(nodeID=nodeID, message=message)
-    
-        if last_cmd != "" and nodeID != 0:
-            logger.debug(f"System: {nodeID} PlayingGame blackjack last_cmd: {last_cmd}")
-        else:
-            highScore = {'nodeID': 0, 'highScore': 0}
-            highScore = loadHSJack()
-            if highScore != 0:
-                if highScore['nodeID'] != 0:
-                    nodeName = get_name_from_number(highScore['nodeID'])
-                    if nodeName.isnumeric() and multiple_interface:
-                        logger.debug(f"System: TODO is multiple interface fix mention this please nodeName: {nodeName}")
-                        #nodeName = get_name_from_number(highScore['nodeID'], 'long', 2)
-                    msg += f" HighScore🥇{nodeName} with {highScore['highScore']} chips. "
-    time.sleep(responseDelay + 1) # short answers with long replies can cause message collision added wait
+    # Create new player if not found
+    if not player and nodeID != 0:
+        jackTracker.append({'nodeID': nodeID, 'cmd': 'new', 'last_played': time.time()})
+        msg += "Welcome to 🃏BlackJack!🃏\n"
+        # Show high score if available
+        highScore = loadHSJack()
+        if highScore and highScore.get('nodeID', 0) != 0:
+            nodeName = get_name_from_number(highScore['nodeID'])
+            if nodeName.isnumeric() and multiple_interface:
+                logger.debug(f"System: TODO is multiple interface fix mention this please nodeName: {nodeName}")
+            msg += f" HighScore🥇{nodeName} with {highScore['highScore']} chips. "
+        player = next((p for p in jackTracker if p['nodeID'] == nodeID), None)
+
+    # Always update last_played for existing player
+    if player:
+        player['last_played'] = time.time()
+
+    # Play BlackJack
+    msg += playBlackJack(nodeID=nodeID, message=message)
     return msg
 
 def handleVideoPoker(message, nodeID, deviceID):
     global vpTracker
     msg = ""
 
-    # if player sends a L for leave table
+    # Find player in tracker
+    player = next((p for p in vpTracker if p['nodeID'] == nodeID), None)
+
+    # Handle leave command
     if message.lower().startswith("l"):
         logger.debug(f"System: VideoPoker: {nodeID} is leaving the table")
         msg = "You have left the table."
-        for i in range(len(vpTracker)):
-            if vpTracker[i]['nodeID'] == nodeID:
-                vpTracker.pop(i)
+        vpTracker[:] = [p for p in vpTracker if p['nodeID'] != nodeID]
         return msg
-    else:
-        # Play Video Poker
-        msg = playVideoPoker(nodeID=nodeID, message=message)
 
-        # get player's last command from tracker
-        last_cmd = ""
-        for i in range(len(vpTracker)):
-            if vpTracker[i]['nodeID'] == nodeID:
-                last_cmd = vpTracker[i]['cmd']
+    # Create new player if not found
+    if not player and nodeID != 0:
+        vpTracker.append({'nodeID': nodeID, 'cmd': 'new', 'last_played': time.time()})
+        msg += "Welcome to 🎰Video Poker!🎰\n"
+        # Show high score if available
+        highScore = loadHSVp()
+        if highScore and highScore.get('nodeID', 0) != 0:
+            nodeName = get_name_from_number(highScore['nodeID'])
+            if nodeName.isnumeric() and multiple_interface:
+                logger.debug(f"System: TODO is multiple interface fix mention this please nodeName: {nodeName}")
+            msg += f" HighScore🥇{nodeName} with {highScore['highScore']} coins. "
+        player = next((p for p in vpTracker if p['nodeID'] == nodeID), None)
 
-        # find higest dollar amount in tracker for high score
-        if last_cmd == "new":
-            highScore = {'nodeID': 0, 'highScore': 0}
-            highScore = loadHSVp()
-            if highScore != 0:
-                if highScore['nodeID'] != 0:
-                    nodeName = get_name_from_number(highScore['nodeID'])
-                    if nodeName.isnumeric() and multiple_interface:
-                        logger.debug(f"System: TODO is multiple interface fix mention this please nodeName: {nodeName}")
-                        #nodeName = get_name_from_number(highScore['nodeID'], 'long', 2)
-                    msg += f" HighScore🥇{nodeName} with {highScore['highScore']} coins. "
-    
-        if last_cmd != "" and nodeID != 0:
-            logger.debug(f"System: {nodeID} PlayingGame videopoker last_cmd: {last_cmd}")
-    time.sleep(responseDelay + 1) # short answers with long replies can cause message collision added wait
+    # Always update last_played for existing player
+    if player:
+        player['last_played'] = time.time()
+
+    # Play Video Poker
+    msg += playVideoPoker(nodeID=nodeID, message=message)
     return msg
 
 def handleMmind(message, nodeID, deviceID):
@@ -717,10 +717,18 @@ def handleMmind(message, nodeID, deviceID):
         for i in range(len(mindTracker)):
             if mindTracker[i]['nodeID'] == nodeID:
                 mindTracker.pop(i)
-        highscore = getHighScoreMMind(0, 0, 'n')
-        if highscore != 0:
-            nodeName = get_name_from_number(highscore[0]['nodeID'],'long',deviceID)
-            msg += f"🧠HighScore🥇{nodeName} with {highscore[0]['turns']} turns difficulty {highscore[0]['diff'].upper()}"
+        hscore = getHighScoreMMind(0, 0, 'n')
+        if hscore and isinstance(hscore[0], dict):
+            highNode = hscore[0].get('nodeID', 0)
+            highTurns = hscore[0].get('turns', 0)
+            highDiff = hscore[0].get('diff', 'n')
+        else:
+            highNode = 0
+            highTurns = 0
+            highDiff = 'n'
+        nodeName = get_name_from_number(int(highNode),'long',deviceID)
+        if highNode != 0 and highTurns > 1:
+            msg += f"🧠HighScore🥇{nodeName} with {highTurns} turns difficulty {highDiff}"
         return msg
 
     # get player's last command from tracker if not new player
@@ -1317,17 +1325,18 @@ def check_and_play_game(tracker, message_from_id, message_string, rxNode, channe
     global llm_enabled
 
     for i in range(len(tracker)):
-        if tracker[i].get('nodeID') == message_from_id or tracker[i].get('userID') == message_from_id:
+        # Use 'userID'
+        id_key = 'userID' if game_name == "DopeWars" else 'nodeID' # DopeWars uses 'userID'
+        id_key = 'id' if game_name == "Survey" else id_key  # Survey uses 'id'
+        
+        if tracker[i].get(id_key) == message_from_id:
             last_played_key = 'last_played' if 'last_played' in tracker[i] else 'time'
             if tracker[i].get(last_played_key) > (time.time() - GAMEDELAY):
                 if llm_enabled:
                     logger.debug(f"System: LLM Disabled for {message_from_id} for duration of {game_name}")
-
-                # play the game
                 send_message(handle_game_func(message_string, message_from_id, rxNode), channel_number, message_from_id, rxNode)
                 return True, game_name
             else:
-                # pop if the time exceeds 8 hours
                 tracker.pop(i)
                 return False, game_name
     return False, "None"

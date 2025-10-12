@@ -680,6 +680,7 @@ def playDopeWars(nodeID, cmd):
         for i in range(0, len(dwPlayerTracker)):
             if dwPlayerTracker[i].get('userID') == nodeID:
                 dwPlayerTracker[i]['cmd'] = 'ask_bsf'
+                dwPlayerTracker[i]['last_played'] = time.time()
     
     # Game end
     if game_day == total_days + 1:
