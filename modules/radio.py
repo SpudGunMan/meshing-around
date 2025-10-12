@@ -5,7 +5,6 @@
 # requires vosk and sounddevice python modules
 # 2024 Kelly Keeton K7MHI
 
-voxHoldTime = signalHoldTime
 previousVoxState = False
 from modules.log import *
 
@@ -14,6 +13,7 @@ if radio_detection_enabled:
     import asyncio
 
 if voxDetectionEnabled:
+    voxHoldTime = signalHoldTime
     try:
         import sounddevice as sd # pip install sounddevice    sudo apt install portaudio19-dev
         from vosk import Model, KaldiRecognizer # pip install vosk
