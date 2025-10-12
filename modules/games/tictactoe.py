@@ -156,7 +156,7 @@ class TicTacToe:
         if winner == X:
             g["won"] += 1
             return "🎉You won! (n)ew (e)nd"
-        elif winner == X:
+        elif winner == O:
             return "🤖Bot wins! (n)ew (e)nd"
         else:
             return "🤝Tie, The only winning move! (n)ew (e)nd"
