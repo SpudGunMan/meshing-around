@@ -110,7 +110,7 @@ if favList:
     # for each node,interface tuple add the favorite node
     for fav in favList:
         try:
-            handleFavoritNode(fav['deviceID'], fav['nodeID'], True)
+            handleFavoriteNode(fav['deviceID'], fav['nodeID'], True)
             time.sleep(1)
         except Exception as e:
             logger.error(f"addFav: Error adding favorite node {fav['nodeID']} to device {fav['deviceID']}: {e}")
