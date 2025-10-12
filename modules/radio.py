@@ -1,14 +1,17 @@
 # meshing around with hamlib as a source for info to send to mesh network
 # detect signal strength and frequency of active channel if appears to be in use send to mesh network
 # depends on rigctld running externally as a network service
+# also can use VOX detection with a microphone and vosk speech to text to send voice messages to mesh network
+# requires vosk and sounddevice python modules
 # 2024 Kelly Keeton K7MHI
-
-import socket
-import asyncio
-from modules.log import *
 
 voxHoldTime = signalHoldTime
 previousVoxState = False
+
+if radio_detection_enabled:
+    import socket
+    import asyncio
+    from modules.log import *
 
 if voxDetectionEnabled:
     try:
