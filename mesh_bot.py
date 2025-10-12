@@ -1895,6 +1895,9 @@ async def main():
         
         if radio_detection_enabled:
             tasks.append(asyncio.create_task(handleSignalWatcher(), name="hamlib"))
+
+        if voxDetectionEnabled:
+            tasks.append(asyncio.create_task(voxMonitor(), name="vox_detection"))
         
         logger.debug(f"System: Starting {len(tasks)} async tasks")
         

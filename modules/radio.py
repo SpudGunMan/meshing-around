@@ -7,6 +7,16 @@ import socket
 import asyncio
 from modules.log import *
 
+voxHoldTime = signalHoldTime
+previousVoxState = False
+
+if voxDetectionEnabled:
+    import sounddevice as sd # pip install sounddevice    sudo apt install portaudio19-dev
+    from vosk import Model, KaldiRecognizer # pip install vosk
+    import json
+    q = asyncio.Queue()
+
+    
 def get_hamlib(msg="f"):
     try:
         rigControlSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -133,6 +143,11 @@ def get_sig_strength():
     strength = get_hamlib('l STRENGTH')
     return strength
 
+def vox_callback(indata, frames, time, status):
+    if status:
+        logger.warning(f"RadioMon: VOX input status: {status}")
+    q.put(bytes(indata))
+
 async def signalWatcher():
     global previousStrength
     global signalCycle
@@ -156,5 +171,39 @@ async def signalWatcher():
         signalStrength = -40
         signalCycle = 0
         previousStrength = -40
+
+
+def make_vox_callback(loop, q):
+    def vox_callback(indata, frames, time, status):
+        if status:
+            logger.warning(f"RadioMon: VOX input status: {status}")
+        try:
+            loop.call_soon_threadsafe(q.put_nowait, bytes(indata))
+        except RuntimeError:
+            pass
+    return vox_callback
+
+async def voxMonitor():
+    global previousVoxState, voxMsgQueue
+    try:
+        model = Model(lang="en-us")
+        device_info = sd.query_devices(None, 'input')
+        samplerate = 16000
+        logger.debug(f"RadioMon: VOX monitor started on device {device_info['name']} with samplerate {samplerate}")
+        rec = KaldiRecognizer(model, samplerate)
+        loop = asyncio.get_running_loop()
+        callback = make_vox_callback(loop, q)
+        with sd.RawInputStream(samplerate=samplerate, blocksize=8000, dtype='int16', channels=1, callback=callback):
+            while True:
+                data = await q.get()
+                if rec.AcceptWaveform(data):
+                    result = rec.Result()
+                    text = json.loads(result).get("text", "")
+                    if text and text != "huh":
+                        logger.info(f"🎙️Detected {voxDescription}: {text}")
+                        voxMsgQueue.append(f"🎙️Detected {voxDescription}: {text}")
+                await asyncio.sleep(0.5)
+    except Exception as e:
+        logger.error(f"RadioMon: Error in VOX monitor: {e}")
 
 # end of file

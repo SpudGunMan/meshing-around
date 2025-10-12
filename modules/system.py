@@ -285,6 +285,9 @@ if checklist_enabled:
 if radio_detection_enabled:
     from modules.radio import * # from the spudgunman/meshing-around repo
 
+if voxDetectionEnabled:
+    from modules.radio import * # from the spudgunman/meshing-around repo
+
 # File Monitor Configuration
 if file_monitor_enabled or read_news_enabled or bee_enabled:
     from modules.filemon import * # from the spudgunman/meshing-around repo
@@ -1640,24 +1643,14 @@ async def handleSignalWatcher():
                 if type(sigWatchBroadcastCh) is list:
                     for ch in sigWatchBroadcastCh:
                         if antiSpam and ch != publicChannel:
-                            send_message(msg, int(ch), 0, 1)
+                            send_message(msg, int(ch), 0, sigWatchBroadcastInterface)
                             time.sleep(responseDelay)
-                            if multiple_interface:
-                                for i in range(2, 10):
-                                    if globals().get(f'interface{i}_enabled'):
-                                        send_message(msg, int(ch), 0, i)
-                                        time.sleep(responseDelay)
                         else:
                             logger.warning(f"System: antiSpam prevented Alert from Hamlib {msg}")
                 else:
                     if antiSpam and sigWatchBroadcastCh != publicChannel:
-                        send_message(msg, int(sigWatchBroadcastCh), 0, 1)
+                        send_message(msg, int(sigWatchBroadcastCh), 0, sigWatchBroadcastInterface)
                         time.sleep(responseDelay)
-                        if multiple_interface:
-                            for i in range(2, 10):
-                                if globals().get(f'interface{i}_enabled'):
-                                    send_message(msg, int(sigWatchBroadcastCh), 0, i)
-                                    time.sleep(responseDelay)
                     else:
                         logger.warning(f"System: antiSpam prevented Alert from Hamlib {msg}")
 
@@ -1795,10 +1788,29 @@ async def handleSentinel(deviceID):
     else:
         handleSentinel_loop += 1
 
+async def process_vox_queue():
+        # process the voxMsgQueue
+        global voxMsgQueue
+        items_to_process = voxMsgQueue[:]
+        voxMsgQueue.clear()
+        if len(items_to_process) > 0:
+            logger.debug(f"System: Processing {len(items_to_process)} items in voxMsgQueue")
+            for item in items_to_process:
+                message = item
+                for channel in sigWatchBroadcastCh:
+                    if antiSpam and int(channel) != publicChannel:
+                        send_message(message, int(channel), 0, sigWatchBroadcastInterface)
+                        time.sleep(responseDelay)
+
 async def watchdog():
     global telemetryData, retry_int1, retry_int2, retry_int3, retry_int4, retry_int5, retry_int6, retry_int7, retry_int8, retry_int9
+    logger.debug("System: Watchdog started")
     while True:
         await asyncio.sleep(20)
+
+        # perform memory cleanup every 10 minutes
+        if datetime.now().minute % 10 == 0:
+            cleanup_memory()
 
         # check all interfaces
         for i in range(1, 10):
@@ -1834,15 +1846,15 @@ async def watchdog():
         # check for noisy telemetry
         if noisyNodeLogging:
             noisyTelemetryCheck()
+
+        # vox queue processing
+        if voxDetectionEnabled:
+            await process_vox_queue()
         
         # check the load_bbsdm flag to reload the BBS messages from disk
         if bbs_enabled and bbsAPI_enabled:
             load_bbsdm()
             load_bbsdb()
-
-        # perform memory cleanup every 10 minutes
-        if datetime.now().minute % 10 == 0:
-            cleanup_memory()
 
 def exit_handler():
     # Close the interface and save the BBS messages

@@ -32,6 +32,7 @@ surveyTracker, tictactoeTracker, hamtestTracker, hangmanTracker, golfTracker, ma
 cmdHistory = [] # list to hold the command history for lheard and history commands
 msg_history = [] # list to hold the message history for the messages command
 max_bytes = 200 # Meshtastic has ~237 byte limit, use conservative 200 bytes for message content
+voxMsgQueue = [] # queue for VOX detected messages
 
 # Read the config file, if it does not exist, create basic config file
 config = configparser.ConfigParser() 
@@ -360,10 +361,13 @@ try:
     radio_detection_enabled = config['radioMon'].getboolean('enabled', False)
     rigControlServerAddress = config['radioMon'].get('rigControlServerAddress', 'localhost:4532') # default localhost:4532
     sigWatchBroadcastCh = config['radioMon'].get('sigWatchBroadcastCh', '2').split(',') # default Channel 2
+    sigWatchBroadcastInterface = config['radioMon'].getint('sigWatchBroadcastInterface', 1) # default interface 1
     signalDetectionThreshold = config['radioMon'].getint('signalDetectionThreshold', -10) # default -10 dBm
     signalHoldTime = config['radioMon'].getint('signalHoldTime', 10) # default 10 seconds
     signalCooldown = config['radioMon'].getint('signalCooldown', 5) # default 1 second
     signalCycleLimit = config['radioMon'].getint('signalCycleLimit', 5) # default 5 cycles, used with SIGNAL_COOLDOWN
+    voxDetectionEnabled = config['radioMon'].getboolean('voxDetectionEnabled', False) # default VOX detection disabled
+    voxDescription = config['radioMon'].get('voxDescription', 'VOX') # default VOX detected audio message
 
     # file monitor
     file_monitor_enabled = config['fileMon'].getboolean('filemon_enabled', False)
