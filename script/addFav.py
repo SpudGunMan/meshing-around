@@ -111,7 +111,8 @@ if favList:
     for fav in favList:
         try:
             handleFavoriteNode(fav['deviceID'], fav['nodeID'], True)
-            time.sleep(1)
+            logger.info(f"addFav: waiting 15 seconds to avoid API rate limits")
+            time.sleep(15)  # wait to avoid API rate limits
         except Exception as e:
             logger.error(f"addFav: Error adding favorite node {fav['nodeID']} to device {fav['deviceID']}: {e}")
 else:
