@@ -7,10 +7,10 @@
 
 previousVoxState = False
 from modules.log import *
-
+import asyncio
 if radio_detection_enabled:
     import socket
-    import asyncio
+
 
 if voxDetectionEnabled:
     voxHoldTime = signalHoldTime
