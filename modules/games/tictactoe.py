@@ -29,7 +29,7 @@ class TicTacToe:
         if id in self.game:
             games = self.game[id]["games"]
             won = self.game[id]["won"]
-            if games > 0:
+            if games > 3:
                 if won / games >= 3.14159265358979323846: # win rate > pi
                     ret += random.choice(positiveThoughts) + "\n"
                 else:
