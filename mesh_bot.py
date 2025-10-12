@@ -273,8 +273,6 @@ def handle_emergency(message_from_id, deviceID, message):
         if enableSMTP:
             for user in sysopEmails:
                 send_email(user, f"Emergency Assistance Requested by {nodeInfo} in {message}", message_from_id)
-        # respond to the user
-        time.sleep(responseDelay + 2)
         return EMERGENCY_RESPONSE
 
 def handle_motd(message, message_from_id, isDM):
@@ -572,8 +570,6 @@ def handleDopeWars(message, nodeID, rxNode):
             if p.get('userID') == nodeID:
                 p['last_played'] = time.time()
         msg = playDopeWars(nodeID, message)
-
-    time.sleep(responseDelay + 1)
     return msg
 
 def handle_gTnW(chess = False):
@@ -749,8 +745,6 @@ def handleMmind(message, nodeID, deviceID):
         return msg
 
     msg += start_mMind(nodeID=nodeID, message=message)
-    # wait a second to keep from message collision
-    time.sleep(responseDelay + 1)
     return msg
 
 def handleGolf(message, nodeID, deviceID):
@@ -781,8 +775,6 @@ def handleGolf(message, nodeID, deviceID):
         msg += f"Clubs: (D)river, (L)ow Iron, (M)id Iron, (H)igh Iron, (G)ap Wedge, Lob (W)edge\n"
     
     msg += playGolf(nodeID=nodeID, message=message)
-    # wait a second to keep from message collision
-    time.sleep(responseDelay + 1)
     return msg
 
 def handleHangman(message, nodeID, deviceID):
@@ -809,8 +801,6 @@ def handleHangman(message, nodeID, deviceID):
         )
         msg = "🧩Hangman🤖 'end' to cut rope🪢\n"
     msg += hangman.play(nodeID, message)
-
-    time.sleep(responseDelay + 1)
     return msg
 
 def handleHamtest(message, nodeID, deviceID):
@@ -844,8 +834,6 @@ def handleHamtest(message, nodeID, deviceID):
     # if the message is an answer A B C or D upper or lower case
     if response[0].upper() in ['A', 'B', 'C', 'D']:
         msg = hamtest.answer(nodeID, response[0])
-
-    time.sleep(responseDelay + 1)
     return msg
 
 def handleTicTacToe(message, nodeID, deviceID):
@@ -874,8 +862,6 @@ def handleTicTacToe(message, nodeID, deviceID):
         msg = "🎯Tic-Tac-Toe🤖 '(e)nd'\n"
     
     msg += tictactoe.play(nodeID, message)
-    
-    time.sleep(responseDelay + 1)
     return msg
 
 def quizHandler(message, nodeID, deviceID):
