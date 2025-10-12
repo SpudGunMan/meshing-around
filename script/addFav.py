@@ -94,7 +94,7 @@ try:
         count_devices = set([fav['deviceID'] for fav in favList])
         count_nodes = set([fav['nodeID'] for fav in favList])
         for fav in favList:
-            print(f"Device: {fav.get('deviceID', 'N/A')}  Node: {fav.get('nodeID', 'N/A')}  Interface: {fav.get('interface', 'N/A')}")
+            print(f"addFav: adding nodeID {fav['nodeID']} meshtastic --set-favorite-node {fav['nodeID']}")
         confirm = input(f"Are you sure you want to add these {len(count_nodes)} favorite nodes to {len(count_devices)} device(s)? (y/n): ").strip().lower()
         if confirm != 'y':
             print("Operation cancelled by user.")
