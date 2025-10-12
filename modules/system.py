@@ -718,7 +718,7 @@ def send_message(message, ch, nodeid=0, nodeInt=1, bypassChuncking=False):
     try:
         # Force chunking and log if message exceeds maxBuffer
         if len(message.encode('utf-8')) > maxBuffer:
-            logger.warning(f"System: Message length {len(message.encode('utf-8'))} exceeds maxBuffer{maxBuffer}, forcing chunking.")
+            logger.debug(f"System: Message length {len(message.encode('utf-8'))} exceeds maxBuffer{maxBuffer}, forcing chunking.")
             message_list = messageChunker(message)
         elif not bypassChuncking:
             # Split the message into chunks if it exceeds the MESSAGE_CHUNK_SIZE
