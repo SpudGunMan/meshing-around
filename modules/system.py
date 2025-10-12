@@ -595,16 +595,21 @@ def get_closest_nodes(nodeInt=1,returnCount=3):
         logger.warning(f"System: No nodes found in closest_nodes on interface {nodeInt}")
         return ERROR_FETCHING_DATA
     
-def handleFavoritNode(nodeInt=1, nodeID=0, aor=False):
-    #aor is add or remove if True add, if False remove
+def handleFavoriteNode(nodeInt=1, nodeID=0, aor=False):
+    # Add or remove a favorite node for the given interface. aor: True to add, False to remove.
     interface = globals()[f'interface{nodeInt}']
     myNodeNumber = globals().get(f'myNodeNum{nodeInt}')
-    if aor:
-        interface.getNode(myNodeNumber).setFavorite(nodeID)
-        logger.info(f"System: Added {nodeID} to favorites for device {nodeInt}")
-    else:
-        interface.getNode(myNodeNumber).removeFavorite(nodeID)
-        logger.info(f"System: Removed {nodeID} from favorites for device {nodeInt}")
+    try:
+        if aor:
+            result = interface.getNode(myNodeNumber).setFavorite(nodeID)
+            logger.info(f"System: Added {nodeID} to favorites for device {nodeInt}")
+        else:
+            result = interface.getNode(myNodeNumber).removeFavorite(nodeID)
+            logger.info(f"System: Removed {nodeID} from favorites for device {nodeInt}")
+        return result
+    except Exception as e:
+        logger.error(f"System: Error handling favorite node {nodeID} on device {nodeInt}: {e}")
+        return None
     
 def getFavoritNodes(nodeInt=1):
     interface = globals()[f'interface{nodeInt}']
