@@ -28,6 +28,7 @@ if __name__ == "__main__":
 
 # welcome header
 print("meshing-around: addFav - Auto-Add favorite nodes to all interfaces from config.ini data")
+print("This script may need API improvments still in progress")
 print("---------------------------------------------------------------")
 
 try:
