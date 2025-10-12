@@ -22,11 +22,11 @@ multiPingList = [{'message_from_id': 0, 'count': 0, 'type': '', 'deviceID': 0, '
 interface_retry_count = 3
 
 # Memory Management Constants
-MAX_MSG_HISTORY = 100
-MAX_CMD_HISTORY = 200
-MAX_SEEN_NODES = 500
+MAX_MSG_HISTORY = 250
+MAX_CMD_HISTORY = 250
+MAX_SEEN_NODES = 1000
 CLEANUP_INTERVAL = 86400 # 24 hours in seconds
-GAMEDELAY = CLEANUP_INTERVAL # the age of game entries in seconds before they are cleaned up
+GAMEDELAY = 3 * CLEANUP_INTERVAL # 3 days in seconds
 
 # Ping Configuration
 if ping_enabled:
