@@ -156,6 +156,7 @@ def vox_callback(indata, frames, time, status):
         logger.warning(f"RadioMon: VOX input status: {status}")
     q.put(bytes(indata))
 
+
 async def signalWatcher():
     global previousStrength
     global signalCycle
@@ -180,7 +181,6 @@ async def signalWatcher():
         signalCycle = 0
         previousStrength = -40
 
-
 def make_vox_callback(loop, q):
     def vox_callback(indata, frames, time, status):
         if status:
@@ -191,17 +191,25 @@ def make_vox_callback(loop, q):
             pass
     return vox_callback
 
+voxInputDevice = None 
 async def voxMonitor():
     global previousVoxState, voxMsgQueue
     try:
         model = Model(lang="en-us")
-        device_info = sd.query_devices(None, 'input')
+        device_info = sd.query_devices(voxInputDevice, 'input')
         samplerate = 16000
         logger.debug(f"RadioMon: VOX monitor started on device {device_info['name']} with samplerate {samplerate}")
         rec = KaldiRecognizer(model, samplerate)
         loop = asyncio.get_running_loop()
         callback = make_vox_callback(loop, q)
-        with sd.RawInputStream(samplerate=samplerate, blocksize=8000, dtype='int16', channels=1, callback=callback):
+        with sd.RawInputStream(
+            device=voxInputDevice,
+            samplerate=samplerate,
+            blocksize=8000,
+            dtype='int16',
+            channels=1,
+            callback=callback
+        ):
             while True:
                 data = await q.get()
                 if rec.AcceptWaveform(data):
