@@ -1498,7 +1498,7 @@ def loadLeaderboard():
 def get_mesh_leaderboard(msg, fromID, deviceID):
     """Get formatted leaderboard of extreme mesh metrics"""
     global meshLeaderboard
-    result = "📊 Leaderboard 📊\n"
+    result = "📊Leaderboard📊\n"
 
     if "reset" in msg.lower() and str(fromID) in bbs_admin_list:
         initializeMeshLeaderboard()
@@ -1606,7 +1606,7 @@ def get_mesh_leaderboard(msg, fromID, deviceID):
 
     result = result.strip()
     
-    if result == "📊 Leaderboard 📊\n":
+    if result == "📊Leaderboard📊\n":
         result += "No records yet! Keep meshing! 📡"
     
     return result
