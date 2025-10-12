@@ -285,7 +285,9 @@ time =
 # using Hamlib rig control will monitor and alert on channel use
 enabled = False
 rigControlServerAddress = localhost:4532
-# broadcast to all nodes on the channel can also be  = 2,3
+# device interface to send the message to
+sigWatchBroadcastInterface = 1
+# broadcast channel can also be a comma separated list of channels
 sigWatchBroadcastCh = 2
 # minimum SNR as reported by radio via hamlib
 signalDetectionThreshold = -10

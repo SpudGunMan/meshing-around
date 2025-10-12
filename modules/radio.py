@@ -11,10 +11,18 @@ voxHoldTime = signalHoldTime
 previousVoxState = False
 
 if voxDetectionEnabled:
-    import sounddevice as sd # pip install sounddevice    sudo apt install portaudio19-dev
-    from vosk import Model, KaldiRecognizer # pip install vosk
-    import json
-    q = asyncio.Queue()
+    try:
+        import sounddevice as sd # pip install sounddevice    sudo apt install portaudio19-dev
+        from vosk import Model, KaldiRecognizer # pip install vosk
+        import json
+        q = asyncio.Queue()
+    except Exception as e:
+        print(f"RadioMon: Error importing VOX dependencies: {e}")
+        print(f"To use VOX detection please install the vosk and sounddevice python modules")
+        print(f"pip install vosk sounddevice")
+        print(f"sounddevice needs pulseaudio,  apt-get install portaudio19-dev")
+        voxDetectionEnabled = False
+        logger.error(f"RadioMon: VOX detection disabled due to import error")
 
     
 def get_hamlib(msg="f"):
