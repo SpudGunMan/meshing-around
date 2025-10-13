@@ -259,6 +259,7 @@ lon = -123.0
 fuzzConfigLocation = True
 # Fuzz all values in all data
 fuzzItAll = False
+
 UseMeteoWxAPI = True
 
 coastalEnabled = False # NOAA Coastal Data Enable NOAA Coastal Waters Forecasts and Tide

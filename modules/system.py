@@ -557,7 +557,7 @@ def get_node_location(nodeID, nodeInt=1, channel=0, round_digits=2):
     else:
         return config_position
     
-def get_closest_nodes(nodeInt=1,returnCount=3):
+def get_closest_nodes(nodeInt=1,returnCount=3, channel=publicChannel):
     interface = globals()[f'interface{nodeInt}']
     node_list = []
 
@@ -584,14 +584,22 @@ def get_closest_nodes(nodeInt=1,returnCount=3):
                             
                 except Exception as e:
                     pass
-            # else:
-            #     # request location data
-            #     try:
-            #         logger.debug(f"System: Requesting location data for {node['id']}")
-            #         interface.sendPosition(destinationId=node['id'], wantResponse=False, channelIndex=publicChannel)
-            #     except Exception as e:
-            #         logger.error(f"System: Error requesting location data for {node['id']}. Error: {e}")
-
+            else:
+                # request location data
+                reqLocationEnabled = False
+                if reqLocationEnabled:
+                    try:
+                        logger.debug(f"System: Requesting location data for {node['id']}, lastHeard: {node.get('lastHeard', 'N/A')}")
+                        # one idea is to send a ping to the node to request location data for if or when, ask again later
+                        interface.sendPosition(destinationId=node['id'], wantResponse=False, channelIndex=channel)
+                        # wait a bit
+                        time.sleep(1)
+                        # send a traceroute request
+                        interface.sendTraceRoute(destinationId=node['id'], channelIndex=channel, wantResponse=False)
+                        # wait a bit
+                        time.sleep(1)
+                    except Exception as e:
+                        logger.error(f"System: Error requesting location data for {node['id']}. Error: {e}")
         # sort by distance closest
         #node_list.sort(key=lambda x: (x['latitude']-latitudeValue)**2 + (x['longitude']-longitudeValue)**2)
         node_list.sort(key=lambda x: x['distance'])
