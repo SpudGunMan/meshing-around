@@ -16,6 +16,7 @@ trap_list_location = ("whereami", "wx", "wxa", "wxalert", "rlist", "ea", "ealert
 def where_am_i(lat=0, lon=0, short=False, zip=False):
     whereIam = ""
     grid = mh.to_maiden(float(lat), float(lon))
+    location = lat, lon
     
     if int(float(lat)) == 0 and int(float(lon)) == 0:
         logger.error("Location: No GPS data, try sending location")
@@ -171,6 +172,7 @@ def getArtSciRepeaters(lat=0, lon=0):
 
 def get_NOAAtide(lat=0, lon=0):
     station_id = ""
+    location = lat,lon
     if float(lat) == 0 and float(lon) == 0:
         logger.error("Location:No GPS data, try sending location for tide")
         return NO_DATA_NOGPS
@@ -235,6 +237,7 @@ def get_NOAAtide(lat=0, lon=0):
 def get_NOAAweather(lat=0, lon=0, unit=0):
     # get weather report from NOAA for forecast detailed
     weather = ""
+    location = lat,lon
     if float(lat) == 0 and float(lon) == 0:
         return NO_DATA_NOGPS
     
@@ -346,6 +349,7 @@ def abbreviate_noaa(row):
 def getWeatherAlertsNOAA(lat=0, lon=0, useDefaultLatLon=False):
     # get weather alerts from NOAA limited to ALERT_COUNT with the total number of alerts found
     alerts = ""
+    location = lat,lon
     if float(lat) == 0 and float(lon) == 0 and not useDefaultLatLon:
         return NO_DATA_NOGPS
     else:
@@ -422,6 +426,7 @@ def alertBrodcastNOAA():
 def getActiveWeatherAlertsDetailNOAA(lat=0, lon=0):
     # get the latest details of weather alerts from NOAA
     alerts = ""
+    location = lat,lon
     if float(lat) == 0 and float(lon) == 0:
         logger.warning("Location:No GPS data, try sending location for weather alerts")
         return NO_DATA_NOGPS
@@ -813,6 +818,7 @@ def distance(lat=0,lon=0,nodeID=0, reset=False):
     # part of the howfar function, calculates the distance between two lat/lon points
     msg = ""
     dupe = False
+    location = lat,lon
     r = 6371 # Radius of earth in kilometers # haversine formula
     
     if lat == 0 and lon == 0:
