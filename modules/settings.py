@@ -371,7 +371,7 @@ try:
     useLocalVoxModel = config['radioMon'].getboolean('useLocalVoxModel', False) # default False
     localVoxModelPath = config['radioMon'].get('localVoxModelPath', 'no') # default models/vox.tflite
     voxLanguage = config['radioMon'].get('voxLanguage', 'en-US') # default en-US
-    voxInputDevice = config['radioMon'].getint('voxInputDevice', -1) # default -1 use system default input device
+    voxInputDevice = config['radioMon'].getint('voxInputDevice', 0) # default -1 use system default input device
     
     # file monitor
     file_monitor_enabled = config['fileMon'].getboolean('filemon_enabled', False)
