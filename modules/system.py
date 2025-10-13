@@ -1222,22 +1222,22 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
             except Exception as e:
                 logger.debug(f"System: TELEMETRY_APP iaq error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
 
-        # Track localStats
-        # if telemetry_packet.get('localStats'):
-        #     localStats = telemetry_packet['localStats']
-        #     try:
-        #         # Check if 'numPacketsTx' and 'numPacketsRx' exist and are not zero
-        #         if localStats.get('numPacketsTx') is not None and localStats.get('numPacketsRx') is not None and localStats['numPacketsTx'] != 0:
-        #             # Assign the values to the telemetry dictionary
-        #             keys = [
-        #                 'numPacketsTx', 'numPacketsRx', 'numOnlineNodes', 
-        #                 'numOfflineNodes', 'numPacketsTxErr', 'numPacketsRxErr', 'numTotalNodes']
-        #             for key in keys:
-        #                 if localStats.get(key) is not None:
-        #                     telemetryData[rxNode][key] = localStats.get(key)
-        #     except Exception as e:
-        #         logger.debug(f"System: TELEMETRY_APP localStats error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
-    # POSITION_APP packets
+        # Collect localStats for telemetryData
+        if telemetry_packet.get('localStats'):
+            localStats = telemetry_packet['localStats']
+            try:
+                # Check if 'numPacketsTx' and 'numPacketsRx' exist and are not zero
+                if localStats.get('numPacketsTx') is not None and localStats.get('numPacketsRx') is not None and localStats['numPacketsTx'] != 0:
+                    # Assign the values to the telemetry dictionary
+                    keys = [
+                        'numPacketsTx', 'numPacketsRx', 'numOnlineNodes', 
+                        'numOfflineNodes', 'numPacketsTxErr', 'numPacketsRxErr', 'numTotalNodes']
+                    for key in keys:
+                        if localStats.get(key) is not None:
+                            telemetryData[rxNode][key] = localStats.get(key)
+            except Exception as e:
+                logger.debug(f"System: TELEMETRY_APP localStats error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
+    #POSITION_APP packets
     if packet_type == 'POSITION_APP':
         try:
             if debugMetadata and 'POSITION_APP' not in metadataFilter:
