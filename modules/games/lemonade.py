@@ -300,7 +300,7 @@ def playLemonstand(nodeID, message, celsius=False):
             sugar.unit = round(sugar.cost / sugar.count, 2)
 
             # Calculate the unit cost and display the estimated sales from the forecast potential
-            unit = cups.unit + lemons.unit + sugar.unit
+            unit = max(0.01, min(cups.unit + lemons.unit + sugar.unit, 4.0))  # limit the unit cost between $0.01 and $4.00
             buffer += " SupplyCost" + locale.currency(unit, grouping=True) + " a cup."
             buffer += " Sales Potential:" + str(potential) + " cups."
 
