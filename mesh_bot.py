@@ -402,7 +402,7 @@ def handle_howtall(message, message_from_id, deviceID, isDM):
         shadow_length = float(message.lower().split("howtall ")[1].split(" ")[0])
     except:
         return f"Please provide a shadow length in {measure} example: howtall 5.5"
-    
+
     # get data
     msg = measureHeight(lat, lon, shadow_length)
 
