@@ -5,21 +5,28 @@
 # requires vosk and sounddevice python modules. download from https://alphacephei.com/vosk/models and unpack
 # 2024 Kelly Keeton K7MHI
 
-previousVoxState = False
 from modules.log import *
 import asyncio
+
+# verbose debug logging for trap words function
+debugVoxTmsg = False
+
+
 if radio_detection_enabled:
+    # used by hamlib detection
     import socket
 
 if voxDetectionEnabled:
+    # module global variables
+    previousVoxState = False
     voxHoldTime = signalHoldTime
 
     try:
         import sounddevice as sd # pip install sounddevice    sudo apt install portaudio19-dev
         from vosk import Model, KaldiRecognizer # pip install vosk
         import json
-        q = asyncio.Queue()
-
+        q = asyncio.Queue(maxsize=10)  # what is a reasonable limit?
+        
         if useLocalVoxModel:
             voxModel = Model(lang=localVoxModelPath) # use built in model for specified language
         else:
@@ -32,8 +39,57 @@ if voxDetectionEnabled:
         print(f"sounddevice needs pulseaudio,  apt-get install portaudio19-dev")
         voxDetectionEnabled = False
         logger.error(f"RadioMon: VOX detection disabled due to import error")
-    
+
+FREQ_NAME_MAP = {
+    462562500: "GRMS CH1",
+    462587500: "GRMS CH2",
+    462612500: "GRMS CH3",
+    462637500: "GRMS CH4",
+    462662500: "GRMS CH5",
+    462687500: "GRMS CH6",
+    462712500: "GRMS CH7",
+    467562500: "GRMS CH8",
+    467587500: "GRMS CH9",
+    467612500: "GRMS CH10",
+    467637500: "GRMS CH11",
+    467662500: "GRMS CH12",
+    467687500: "GRMS CH13",
+    467712500: "GRMS CH14",
+    467737500: "GRMS CH15",
+    462550000: "GRMS CH16",
+    462575000: "GMRS CH17",
+    462600000: "GMRS CH18",
+    462625000: "GMRS CH19",
+    462675000: "GMRS CH20",
+    462670000: "GMRS CH21",
+    462725000: "GMRS CH22",
+    462725500: "GMRS CH23",
+    467575000: "GMRS CH24",
+    467600000: "GMRS CH25",
+    467625000: "GMRS CH26",
+    467650000: "GMRS CH27",
+    467675000: "GMRS CH28",
+    467700000: "FRS CH1",
+    462650000: "FRS CH5",
+    462700000: "FRS CH7",
+    462737500: "FRS CH16",
+    146520000: "2M Simplex Calling",
+    446000000: "70cm Simplex Calling",
+    156800000: "Marine CH16",
+    # Add more as needed
+}
+
+def get_freq_common_name(freq):
+    freq = int(freq)
+    name = FREQ_NAME_MAP.get(freq)
+    if name:
+        return name
+    else:
+        # Return MHz if not found
+        return f"{freq/1000000} Mhz"
+
 def get_hamlib(msg="f"):
+    # get data from rigctld server
     try:
         rigControlSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         rigControlSocket.settimeout(2)
@@ -55,105 +111,6 @@ def get_hamlib(msg="f"):
     except Exception as e:
         logger.error(f"RadioMon: Error fetching data from rigctld: {e}")
         return ERROR_FETCHING_DATA
-
-def get_freq_common_name(freq):
-    freq = int(freq)
-    if freq == 462562500:
-        return "GRMS CH1"
-    elif freq == 462587500:
-        return "GRMS CH2"
-    elif freq == 462612500:
-        return "GRMS CH3"
-    elif freq == 462637500:
-        return "GRMS CH4"
-    elif freq == 462662500:
-        return "GRMS CH5"
-    elif freq == 462687500:
-        return "GRMS CH6"
-    elif freq == 462712500:
-        return "GRMS CH7"
-    elif freq == 467562500:
-        return "GRMS CH8"
-    elif freq == 467587500:
-        return "GRMS CH9"
-    elif freq == 467612500:
-        return "GRMS CH10"
-    elif freq == 467637500:
-        return "GRMS CH11"
-    elif freq == 467662500:
-        return "GRMS CH12"
-    elif freq == 467687500:
-        return "GRMS CH13"
-    elif freq == 467712500:
-        return "GRMS CH14"
-    elif freq == 467737500:
-        return "GRMS CH15"
-    elif freq == 462550000:
-        return "GRMS CH16"
-    elif freq == 462575000:
-        return "GMRS CH17"
-    elif freq == 462600000:
-        return "GMRS CH18"
-    elif freq == 462625000:
-        return "GMRS CH19"
-    elif freq == 462675000:
-        return "GMRS CH20"
-    elif freq == 462670000:
-        return "GMRS CH21"
-    elif freq == 462725000:
-        return "GMRS CH22"
-    elif freq == 462725500:
-        return "GMRS CH23"
-    elif freq == 467575000:
-        return "GMRS CH24"
-    elif freq == 467600000:
-        return "GMRS CH25"
-    elif freq == 467625000:
-        return "GMRS CH26"
-    elif freq == 467650000:
-        return "GMRS CH27"
-    elif freq == 467675000:
-        return "GMRS CH28"
-    elif freq == 467700000:
-        return "FRS CH1"
-    elif freq == 462575000:
-        return "FRS CH2"
-    elif freq == 462600000:
-        return "FRS CH3"
-    elif freq == 462650000:
-        return "FRS CH5"
-    elif freq == 462675000:
-        return "FRS CH6"
-    elif freq == 462700000:
-        return "FRS CH7"
-    elif freq == 462725000:
-        return "FRS CH8"
-    elif freq == 462562500:
-        return "FRS CH9"
-    elif freq == 462587500:
-        return "FRS CH10"
-    elif freq == 462612500:
-        return "FRS CH11"
-    elif freq == 462637500:
-        return "FRS CH12"
-    elif freq == 462662500:
-        return "FRS CH13"
-    elif freq == 462687500:
-        return "FRS CH14"
-    elif freq == 462712500:
-        return "FRS CH15"
-    elif freq == 462737500:
-        return "FRS CH16"
-    elif freq == 146520000:
-        return "2M Simplex Calling"
-    elif freq == 446000000:
-        return "70cm Simplex Calling"
-    elif freq == 156800000:
-        return "Marine CH16"
-    else:
-        #return Mhz
-        freq = freq/1000000
-        return f"{freq} Mhz"
     
 def get_sig_strength():
     strength = get_hamlib('l STRENGTH')
@@ -195,7 +152,11 @@ def make_vox_callback(loop, q):
             logger.warning(f"RadioMon: VOX input status: {status}")
         try:
             loop.call_soon_threadsafe(q.put_nowait, bytes(indata))
+        except asyncio.QueueFull:
+            # Optionally log or just drop the oldest
+            logger.debug("RadioMon: VOX queue full, dropping audio frame")
         except RuntimeError:
+            # Loop may be closed
             pass
     return vox_callback
  
@@ -235,10 +196,11 @@ async def voxMonitor():
                                     text = text.replace(trap, '')
                                 text = text.strip()
                                 if text:
-                                    logger.debug(f"RadioMon: VOX detected {voxTrapList} in: {text}")
-                                    voxMsgQueue.append(f"🎙️Detected {voxDescription}: {text}")
+                                    logger.debug(f"RadioMon: VOX 🎙️Trapped {voxTrapList} in: {text}")
+                                    voxMsgQueue.append(f"🎙️Trapped {voxDescription}: {text}")
                             else:
-                                logger.debug(f"RadioMon: VOX detected")
+                                if debugVoxTmsg:
+                                    logger.debug(f"RadioMon: VOX ignored text not on trap list: {text}")
                         else:
                             voxMsgQueue.append(f"🎙️Detected {voxDescription}: {text}")
                 await asyncio.sleep(0.5)
