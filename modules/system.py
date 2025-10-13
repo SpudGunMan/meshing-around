@@ -527,6 +527,7 @@ def get_node_location(nodeID, nodeInt=1, channel=0, round_digits=2):
     interface = globals()[f'interface{nodeInt}']
 
     fuzzed_position = [round(latitudeValue, round_digits), round(longitudeValue, round_digits)]
+    config_position = [latitudeValue, longitudeValue]
 
     # Try to find an exact location for the requested node
     if interface.nodes:
@@ -554,7 +555,7 @@ def get_node_location(nodeID, nodeInt=1, channel=0, round_digits=2):
         # Return fuzzed config location if no valid position found
         return fuzzed_position
     else:
-        return [latitudeValue, longitudeValue]
+        return config_position
     
 def get_closest_nodes(nodeInt=1,returnCount=3):
     interface = globals()[f'interface{nodeInt}']
