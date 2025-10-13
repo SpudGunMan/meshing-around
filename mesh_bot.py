@@ -611,14 +611,9 @@ def handleLemonade(message, nodeID, deviceID):
         lemonadeSugar.append({'nodeID': nodeID, 'cost': 3.00, 'count': 15, 'min': 1.50, 'unit': 0.00})
         lemonadeScore.append({'nodeID': nodeID, 'value': 0.00, 'total': 0.00})
         lemonadeWeeks.append({'nodeID': nodeID, 'current': 1, 'total': lemon_total_weeks, 'sales': 99, 'potential': 0, 'unit': 0.00, 'price': 0.00, 'total_sales': 0})
-
-    # get player's last command from tracker if not new player
+    #initalize player variables
     last_cmd = ''
-    for i in range(len(lemonadeTracker)):
-        if lemonadeTracker[i]['nodeID'] == nodeID:
-            last_cmd = lemonadeTracker[i]['cmd']
 
-    logger.debug(f"System: {nodeID} PlayingGame lemonstand last_cmd: {last_cmd}")
     # create new player if not in tracker
     if last_cmd == '' and nodeID != 0 and "lemonstand" in message.lower():
         create_player(nodeID)
@@ -643,8 +638,14 @@ def handleLemonade(message, nodeID, deviceID):
         lemonadeSugar[:] = [p for p in lemonadeSugar if p['nodeID'] != nodeID]
         lemonadeWeeks[:] = [p for p in lemonadeWeeks if p['nodeID'] != nodeID]
         lemonadeScore[:] = [p for p in lemonadeScore if p['nodeID'] != nodeID] 
+        return msg
 
-    if last_cmd != "":
+    # get last command for player
+    for i in range(len(lemonadeTracker)):
+        if lemonadeTracker[i]['nodeID'] == nodeID:
+            last_cmd = lemonadeTracker[i]['cmd']
+    logger.debug(f"System: {nodeID} PlayingGame lemonstand last_cmd: {last_cmd}")
+    if last_cmd != "" or last_cmd == "end":
         # update last_played and cmd
         for i in range(len(lemonadeTracker)):
             if lemonadeTracker[i]['nodeID'] == nodeID:
