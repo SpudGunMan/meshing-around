@@ -85,6 +85,10 @@ def llm_query(input, nodeID=0, location_name=None):
     if input == " " and rawLLMQuery:
         logger.warning("System: These LLM models lack a traditional system prompt, they can be verbose and not very helpful be advised.")
         input = meshbotAIinit
+    else:
+        input = input.strip()
+        # classic model for gemma2, deepseek-r1, etc
+        logger.debug(f"System: Using classic LLM model framework, ideally for gemma2, deepseek-r1, etc")
 
     if not location_name:
         location_name = "no location provided "
