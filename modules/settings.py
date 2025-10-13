@@ -368,7 +368,11 @@ try:
     signalCycleLimit = config['radioMon'].getint('signalCycleLimit', 5) # default 5 cycles, used with SIGNAL_COOLDOWN
     voxDetectionEnabled = config['radioMon'].getboolean('voxDetectionEnabled', False) # default VOX detection disabled
     voxDescription = config['radioMon'].get('voxDescription', 'VOX') # default VOX detected audio message
-
+    useLocalVoxModel = config['radioMon'].getboolean('useLocalVoxModel', False) # default False
+    localVoxModelPath = config['radioMon'].get('localVoxModelPath', 'no') # default models/vox.tflite
+    voxLanguage = config['radioMon'].get('voxLanguage', 'en-US') # default en-US
+    voxInputDevice = config['radioMon'].getint('voxInputDevice', -1) # default -1 use system default input device
+    
     # file monitor
     file_monitor_enabled = config['fileMon'].getboolean('filemon_enabled', False)
     file_monitor_file_path = config['fileMon'].get('file_path', 'alert.txt') # default alert.txt

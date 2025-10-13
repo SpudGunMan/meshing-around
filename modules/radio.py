@@ -2,7 +2,7 @@
 # detect signal strength and frequency of active channel if appears to be in use send to mesh network
 # depends on rigctld running externally as a network service
 # also can use VOX detection with a microphone and vosk speech to text to send voice messages to mesh network
-# requires vosk and sounddevice python modules
+# requires vosk and sounddevice python modules. download from https://alphacephei.com/vosk/models and unpack
 # 2024 Kelly Keeton K7MHI
 
 previousVoxState = False
@@ -11,9 +11,14 @@ import asyncio
 if radio_detection_enabled:
     import socket
 
-
 if voxDetectionEnabled:
     voxHoldTime = signalHoldTime
+
+    if useLocalVoxModel:
+        voxModel = Model(lang=localVoxModelPath) # use built in model for specified language
+    else:
+        voxModel = Model(lang=voxLanguage) # use auto downloaded model for specified language
+
     try:
         import sounddevice as sd # pip install sounddevice    sudo apt install portaudio19-dev
         from vosk import Model, KaldiRecognizer # pip install vosk
@@ -193,12 +198,11 @@ def make_vox_callback(loop, q):
         except RuntimeError:
             pass
     return vox_callback
-
-voxInputDevice = None 
+ 
 async def voxMonitor():
     global previousVoxState, voxMsgQueue
     try:
-        model = Model(lang="en-us")
+        model = voxModel
         device_info = sd.query_devices(voxInputDevice, 'input')
         samplerate = 16000
         logger.debug(f"RadioMon: VOX monitor started on device {device_info['name']} with samplerate {samplerate}")

@@ -300,6 +300,10 @@ signalCycleLimit = 5
 voxDetectionEnabled = False
 # description to use in the alert message
 voxDescription = VOX
+useLocalVoxModel = False
+voxLanguage = en-us
+voxInputDevice = -1
+
 
 [fileMon]
 filemon_enabled = False
