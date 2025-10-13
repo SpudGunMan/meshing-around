@@ -171,6 +171,8 @@ bbsAPI_enabled = False
 enabled = True
 lat = 48.50
 lon = -123.0
+fuzzConfigLocation = True
+fuzzItAll = False
 
 # Default to metric units rather than imperial
 useMetric = False

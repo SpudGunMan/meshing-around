@@ -273,6 +273,8 @@ try:
     location_enabled = config['location'].getboolean('enabled', True)
     latitudeValue = config['location'].getfloat('lat', 48.50)
     longitudeValue = config['location'].getfloat('lon', -123.0)
+    fuzz_config_location = config['location'].getboolean('fuzzConfigLocation', True) # default True
+    fuzzItAll = config['location'].getboolean('fuzzAllLocations', False) # default False, only fuzz config location
     use_meteo_wxApi = config['location'].getboolean('UseMeteoWxAPI', False) # default False use NOAA
     use_metric = config['location'].getboolean('useMetric', False) # default Imperial units
     repeater_lookup = config['location'].get('repeaterLookup', 'rbook') # default repeater lookup source

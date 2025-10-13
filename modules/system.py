@@ -518,39 +518,44 @@ def get_node_list(nodeInt=1):
     
     return node_list
 
-def get_node_location(nodeID, nodeInt=1, channel=0):
+def get_node_location(nodeID, nodeInt=1, channel=0, round_digits=2):
+    """
+    Returns [latitude, longitude] for a node.
+    - Always returns a fuzzed (rounded) config location as fallback.
+    - returns their actual position if available, else fuzzed config location.
+    """
     interface = globals()[f'interface{nodeInt}']
-    # Get the location of a node by its number from nodeDB on device
-    # if no location data, return default location
-    latitude = latitudeValue
-    longitude = longitudeValue
-    position = [latitudeValue,longitudeValue]
+
+    fuzzed_position = [round(latitudeValue, round_digits), round(longitudeValue, round_digits)]
+
+    # Try to find an exact location for the requested node
     if interface.nodes:
         for node in interface.nodes.values():
             if nodeID == node['num']:
-                if 'position' in node and node['position'] is not {}:
+                pos = node.get('position')
+                if (
+                    pos and isinstance(pos, dict)
+                    and pos.get('latitude') is not None
+                    and pos.get('longitude') is not None
+                ):
                     try:
-                        latitude = node['position']['latitude']
-                        longitude = node['position']['longitude']
-                        logger.debug(f"System: location data for {nodeID} is {latitude},{longitude}")
-                        position = [latitude,longitude]
+                        # Got a valid position
+                        latitude = pos['latitude']
+                        longitude = pos['longitude']
+                        if fuzzItAll:
+                            latitude = round(latitude, round_digits)
+                            longitude = round(longitude, round_digits)
+                            logger.debug(f"System: Fuzzed location data for {nodeID}")
+                        return [latitude, longitude]
                     except Exception as e:
-                        logger.debug(f"System: No location data for {nodeID} use default location")
-                    return position
-                else:
-                    logger.debug(f"System: No location data for {nodeID} using default location")
-                    # request location data
-                    # try:
-                    #     logger.debug(f"System: Requesting location data for {number}")
-                    #     interface.sendPosition(destinationId=number, wantResponse=False, channelIndex=channel)
-                    # except Exception as e:
-                    #     logger.error(f"System: Error requesting location data for {number}. Error: {e}")
-                    return position
-        else:
-            logger.warning(f"System: Location for NodeID {nodeID} not found in nodeDb")
-            return position
+                        logger.warning(f"System: Error processing position for node {nodeID}: {e}")
 
-
+    if fuzz_config_location:
+        # Return fuzzed config location if no valid position found
+        return fuzzed_position
+    else:
+        return [latitudeValue, longitudeValue]
+    
 def get_closest_nodes(nodeInt=1,returnCount=3):
     interface = globals()[f'interface{nodeInt}']
     node_list = []

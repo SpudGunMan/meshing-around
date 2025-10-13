@@ -338,9 +338,9 @@ def abbreviate_noaa(row):
 
     line = row
     for key, value in replacements.items():
-        # case insensitive replace
-        line = line.replace(key, value).replace(key.capitalize(), value).replace(key.upper(), value)
-                    
+        for variant in (key, key.capitalize(), key.upper()):
+            if variant != value:
+                line = line.replace(variant, value)
     return line
 
 def getWeatherAlertsNOAA(lat=0, lon=0, useDefaultLatLon=False):
