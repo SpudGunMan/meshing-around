@@ -255,6 +255,10 @@ The weather forecasting defaults to NOAA, for locations outside the USA, you can
 enabled = True
 lat = 48.50
 lon = -123.0
+# To fuzz the location of the above
+fuzzConfigLocation = True
+# Fuzz all values in all data
+fuzzItAll = False
 UseMeteoWxAPI = True
 
 coastalEnabled = False # NOAA Coastal Data Enable NOAA Coastal Waters Forecasts and Tide
