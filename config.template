@@ -302,7 +302,7 @@ voxDetectionEnabled = False
 voxDescription = VOX
 useLocalVoxModel = False
 voxLanguage = en-us
-voxInputDevice = -1
+voxInputDevice = default
 
 
 [fileMon]
