@@ -141,20 +141,24 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     if len(cmds) > 0:
         # sort the commands by index value
         cmds = sorted(cmds, key=lambda k: k['index'])
-        logger.debug(f"System: Bot detected Commands:{cmds} From: {get_name_from_number(message_from_id)}")
-        # check the command isnt a isDM only command
-        if cmds[0]['cmd'] in restrictedCommands and not isDM:
-            bot_response = restrictedResponse
+    
+        # Check if user is already playing a game
+        playing, game = isPlayingGame(message_from_id)
+    
+        # Block restricted commands if not DM, or if already playing a game
+        if (cmds[0]['cmd'] in restrictedCommands and not isDM) or (cmds[0]['cmd'] in restrictedCommands and playing):
+            if playing:
+                bot_response = f"🤖You are already playing {game}, finish that first."
+            else:
+                bot_response = restrictedResponse
         else:
+            logger.debug(f"System: Bot detected Commands:{cmds} From: {get_name_from_number(message_from_id)}")
             # run the first command after sorting
             bot_response = command_handler[cmds[0]['cmd']]()
             # append the command to the cmdHistory list for lheard and history
             if len(cmdHistory) > 50:
                 cmdHistory.pop(0)
             cmdHistory.append({'nodeID': message_from_id, 'cmd':  cmds[0]['cmd'], 'time': time.time()})
-
-    # wait a responseDelay to avoid message collision from lora-ack
-    time.sleep(responseDelay)
     return bot_response
 
 def handle_cmd(message, message_from_id, deviceID):
@@ -1327,23 +1331,49 @@ def check_and_play_game(tracker, message_from_id, message_string, rxNode, channe
                 return False, game_name
     return False, "None"
 
-def checkPlayingGame(message_from_id, message_string, rxNode, channel_number):
+gameTrackers = [
+    (dwPlayerTracker, "DopeWars", handleDopeWars) if 'dwPlayerTracker' in globals() else None,
+    (lemonadeTracker, "LemonadeStand", handleLemonade) if 'lemonadeTracker' in globals() else None,
+    (vpTracker, "VideoPoker", handleVideoPoker) if 'vpTracker' in globals() else None,
+    (jackTracker, "BlackJack", handleBlackJack) if 'jackTracker' in globals() else None,
+    (mindTracker, "MasterMind", handleMmind) if 'mindTracker' in globals() else None,
+    (golfTracker, "GolfSim", handleGolf) if 'golfTracker' in globals() else None,
+    (hangmanTracker, "Hangman", handleHangman) if 'hangmanTracker' in globals() else None,
+    (hamtestTracker, "HamTest", handleHamtest) if 'hamtestTracker' in globals() else None,
+    (tictactoeTracker, "TicTacToe", handleTicTacToe) if 'tictactoeTracker' in globals() else None,
+    (surveyTracker, "Survey", surveyHandler) if 'surveyTracker' in globals() else None,
+    #quiz does not use a tracker (quizGamePlayer) always active
+]
+
+def isPlayingGame(message_from_id):
+    global gameTrackers
+    trackers = gameTrackers.copy()
     playingGame = False
     game = "None"
 
-    trackers = [
-        (dwPlayerTracker, "DopeWars", handleDopeWars) if 'dwPlayerTracker' in globals() else None,
-        (lemonadeTracker, "LemonadeStand", handleLemonade) if 'lemonadeTracker' in globals() else None,
-        (vpTracker, "VideoPoker", handleVideoPoker) if 'vpTracker' in globals() else None,
-        (jackTracker, "BlackJack", handleBlackJack) if 'jackTracker' in globals() else None,
-        (mindTracker, "MasterMind", handleMmind) if 'mindTracker' in globals() else None,
-        (golfTracker, "GolfSim", handleGolf) if 'golfTracker' in globals() else None,
-        (hangmanTracker, "Hangman", handleHangman) if 'hangmanTracker' in globals() else None,
-        (hamtestTracker, "HamTest", handleHamtest) if 'hamtestTracker' in globals() else None,
-        (tictactoeTracker, "TicTacToe", handleTicTacToe) if 'tictactoeTracker' in globals() else None,
-        (surveyTracker, "Survey", surveyHandler) if 'surveyTracker' in globals() else None,
-        #quiz does not use a tracker (quizGamePlayer) always active
-    ]
+    trackers = [tracker for tracker in trackers if tracker is not None]
+
+    for tracker, game_name, handle_game_func in trackers:
+        for i in range(len(tracker)):
+            # Use 'userID'
+            id_key = 'userID' if game_name == "DopeWars" else 'nodeID' # DopeWars uses 'userID'
+            id_key = 'id' if game_name == "Survey" else id_key  # Survey uses 'id'
+            
+            if tracker[i].get(id_key) == message_from_id:
+                playingGame = True
+                game = game_name
+                break
+        if playingGame:
+            break
+
+    return playingGame, game
+
+def checkPlayingGame(message_from_id, message_string, rxNode, channel_number):
+    global gameTrackers
+    trackers = gameTrackers.copy()
+    playingGame = False
+    game = "None"
+
     trackers = [tracker for tracker in trackers if tracker is not None]
 
     for tracker, game_name, handle_game_func in trackers:
@@ -1521,13 +1551,15 @@ def onReceive(packet, interface):
                     # DM is useful for games or LLM
                     if games_enabled and (hop == "Direct" or hop_count < game_hop_limit):
                         playingGame = checkPlayingGame(message_from_id, message_string, rxNode, channel_number)
-                    else:
+                    elif hop_count >= game_hop_limit:
                         if games_enabled:
                             logger.warning(f"Device:{rxNode} Ignoring Request to Play Game: {message_string} From: {get_name_from_number(message_from_id, 'long', rxNode)} with hop count: {hop}")
                             send_message(f"Your hop count exceeds safe playable distance at {hop_count} hops", channel_number, message_from_id, rxNode)
                             time.sleep(responseDelay)
                         else:
                             playingGame = False
+                    else:
+                        playingGame = False
 
                     if not playingGame:
                         if llm_enabled and llmReplyToNonCommands:
