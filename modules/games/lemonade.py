@@ -301,7 +301,7 @@ def playLemonstand(nodeID, message, celsius=False):
 
             # Calculate the unit cost and display the estimated sales from the forecast potential
             unit = max(0.01, min(cups.unit + lemons.unit + sugar.unit, 4.0))  # limit the unit cost between $0.01 and $4.00
-            buffer += " SupplyCost" + locale.currency(unit, grouping=True) + " a cup."
+            buffer += " SupplyCost" + locale.currency(round(unit, 2), grouping=True) + " a cup."
             buffer += " Sales Potential:" + str(potential) + " cups."
 
             # Display the current inventory
@@ -312,21 +312,16 @@ def playLemonstand(nodeID, message, celsius=False):
 
             # Display the updated item prices
             buffer += f"\nPrices: "
-            buffer += "🥤:" + \
-                        locale.currency(cups.cost, grouping=True) + " 📦 of " + str(cups.count) + "."
-            buffer += " 🍋:" + \
-                        locale.currency(lemons.cost, grouping=True) + " 🧺 of " + str(lemons.count) + "."
-            buffer += " 🍚:" + \
-                        locale.currency(sugar.cost, grouping=True) + " bag for " + str(sugar.count) + "🥤."
-
+            buffer += "🥤:" + locale.currency(round(cups.cost, 2), grouping=True) + " 📦 of " + str(cups.count) + "."
+            buffer += " 🍋:" + locale.currency(round(lemons.cost, 2), grouping=True) + " 🧺 of " + str(lemons.count) + "."
+            buffer += " 🍚:" + locale.currency(round(sugar.cost, 2), grouping=True) + " bag for " + str(sugar.count) + "🥤."
             # Display the current cash
             gainloss   = inventory.cash - inventory.start
-            buffer += " 💵:" + \
-                        locale.currency(inventory.cash, grouping=True)
+            buffer += " 💵:" + locale.currency(round(inventory.cash, 2), grouping=True)
             
             
             # if the player is in the red
-            pnl = locale.currency(gainloss, grouping=True)
+            pnl = locale.currency(round(gainloss, 2), grouping=True)
             if "0.00" not in pnl:
                 if pnl.startswith("-"):
                     buffer += "📊P&L📉" + pnl
@@ -351,7 +346,7 @@ def playLemonstand(nodeID, message, celsius=False):
                     inventory.cups += (newcups * cups.count)
                     inventory.cash -= cost
                     msg = "Purchased " + str(newcups) + " 📦 "
-                    msg += str(inventory.cups) + " 🥤  in inventory. "  + locale.currency(inventory.cash, grouping=True) + f" remaining"
+                    msg += str(inventory.cups) + " 🥤  in inventory. "  + locale.currency(round(inventory.cash, 2), grouping=True) + f" remaining"
                 else:
                     msg =  "No 🥤 were purchased"
             except Exception as e:
@@ -415,8 +410,8 @@ def playLemonstand(nodeID, message, celsius=False):
             except Exception as e:
                 return "⛔️invalid input, enter the number of 🍚 bags to purchase"
 
-            msg += f"Cost of goods is {locale.currency(unit, grouping=True)}"
-            msg += f"per 🥤 {locale.currency(inventory.cash, grouping=True)} 💵 remaining."
+            msg += f"Cost of goods is {locale.currency(round(unit, 2), grouping=True)}"
+            msg += f"per 🥤 {locale.currency(round(inventory.cash, 2), grouping=True)} 💵 remaining."
             msg += f"\nPrice to Sell? or (G)rocery to buy more 🥤🍋🍚"
 
             # set the last command to price in the inventory db
