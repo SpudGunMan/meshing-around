@@ -23,7 +23,7 @@ if voxDetectionEnabled:
         if useLocalVoxModel:
             voxModel = Model(lang=localVoxModelPath) # use built in model for specified language
         else:
-            voxModel = Model(lang=voxModelLanguage) # use built in model for specified language
+            voxModel = Model(lang=voxLanguage) # use built in model for specified language
 
     except Exception as e:
         print(f"RadioMon: Error importing VOX dependencies: {e}")
