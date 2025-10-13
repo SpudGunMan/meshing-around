@@ -88,7 +88,11 @@ def bbs_delete_message(messageID = 0, fromNode = 0):
     else:
         return "Please specify a message number to delete."
 
-def bbs_post_message(subject, message, fromNode):
+def bbs_post_message(subject, message, fromNode, threadID=0, replytoID=0):
+    # post a message to the bbsdb
+    now = today.strftime('%Y-%m-%d %H:%M:%S')
+    thread = threadID
+    replyto = replytoID
     # post a message to the bbsdb and assign a messageID
     messageID = len(bbs_messages) + 1
 
@@ -106,7 +110,7 @@ def bbs_post_message(subject, message, fromNode):
             return "Message posted. ID is: " + str(messageID)
     # validate its not overlength by keeping in chunker limit
     # append the message to the list
-    bbs_messages.append([messageID, subject, message, fromNode])
+    bbs_messages.append([messageID, subject, message, fromNode, now, thread, replyto])
     logger.info(f"System: NEW Message Posted, subject: {subject}, message: {message} from {fromNode}")
 
     # save the bbsdb
