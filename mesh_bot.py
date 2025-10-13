@@ -633,6 +633,11 @@ def handleLemonade(message, nodeID, deviceID):
                     #nodeName = get_name_from_number(highScore['userID'], 'long', 2)
                 msg += f" HighScore🥇{nodeName} 💰{round(highScore['cash'], 2)}k "
     if last_cmd != "":
+        #update last_played
+        for i in range(len(lemonadeTracker)):
+            if lemonadeTracker[i]['nodeID'] == nodeID:
+                lemonadeTracker[i]['last_played'] = time.time()
+        # play lemonstand
         msg += playLemonstand(nodeID=nodeID, message=message, celsius=False)
 
     return msg
