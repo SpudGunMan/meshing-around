@@ -366,7 +366,8 @@ def get_location_table(nodeID, choice=0):
     return loc_table_string
 
 def endGameDw(nodeID):
-    global dwCashDb, dwInventoryDb, dwLocationDb, dwGameDayDb, dwHighScore
+    global dwCashDb, dwInventoryDb, dwLocationDb, dwGameDayDb, dwHighScore, dwPlayerTracker
+    cash = 0
     msg = ''
     dwHighScore = getHighScoreDw()
     # Confirm the cash for the user
