@@ -41,6 +41,7 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 ### Proximity Alerts
 - **Location-Based Alerts**: Get notified when members arrive back at a configured lat/long, perfect for remote locations like campsites.
 - **High Flying Alerts**: Get notified when nodes with high altitude are seen on mesh
+- **Hey Chirpy**: Voice activate send messages with "hey chirpy"
 
 ### CheckList / Check In Out
 - **Asset Tracking**: Maintain a list of node/asset checkin and checkout. Useful foraccountability of people, assets. Radio-Net, FEMA, Trailhead.
@@ -63,6 +64,7 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 ### Radio Frequency Monitoring
 - **SNR RF Activity Alerts**: Monitor a radio frequency and get alerts when high SNR RF activity is detected.
 - **Hamlib Integration**: Use Hamlib (rigctld) to watch the S meter on a connected radio.
+- **Speech to Text Brodcasting to Mesh** Using [vosk](https://alphacephei.com/vosk/models) to translate to text. 
 
 ### EAS Alerts
 - **FEMA iPAWS/EAS Alerts via API**: Use an internet-connected node to message Emergency Alerts from FEMA
@@ -579,7 +581,7 @@ I used ideas and snippets from other responder bots and want to call them out!
 - **mikecarper**: ideas, and testing. hamtest
 - **c.merphy360**: high altitude alerts
 - **Iris**: testing and finding 🐞
-- **Cisien, bitflip, Woof, propstg, snydermesh, trs2982, FJRPilot, Josh, mesb1, and Hailo1999**: For testing and feature ideas on Discord and GitHub.
+- **Cisien, bitflip, Woof, propstg, snydermesh, trs2982, FJRPilot, F0X, mesb1, and Hailo1999**: For testing and feature ideas on Discord and GitHub.
 - **Meshtastic Discord Community**: For tossing out ideas and testing code.
 
 ### Tools
