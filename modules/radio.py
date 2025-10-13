@@ -32,7 +32,6 @@ if voxDetectionEnabled:
         print(f"sounddevice needs pulseaudio,  apt-get install portaudio19-dev")
         voxDetectionEnabled = False
         logger.error(f"RadioMon: VOX detection disabled due to import error")
-
     
 def get_hamlib(msg="f"):
     try:
@@ -206,7 +205,7 @@ async def voxMonitor():
         model = voxModel
         device_info = sd.query_devices(voxInputDevice, 'input')
         samplerate = 16000
-        logger.debug(f"RadioMon: VOX monitor started on device {device_info['name']} with samplerate {samplerate}")
+        logger.debug(f"RadioMon: VOX monitor started on device {device_info['name']} with samplerate {samplerate} using trap words: {voxTrapList if voxOnTrapList else 'none'}")
         rec = KaldiRecognizer(model, samplerate)
         loop = asyncio.get_running_loop()
         callback = make_vox_callback(loop, q)
@@ -223,9 +222,25 @@ async def voxMonitor():
                 if rec.AcceptWaveform(data):
                     result = rec.Result()
                     text = json.loads(result).get("text", "")
-                    if text and text != "huh":
-                        logger.info(f"🎙️Detected {voxDescription}: {text}")
-                        voxMsgQueue.append(f"🎙️Detected {voxDescription}: {text}")
+                    # check for trap words
+                    if text and text != 'huh':
+                        if voxOnTrapList:
+                            if isinstance(voxTrapList, str):
+                                traps = [voxTrapList]
+                            else:
+                                traps = voxTrapList
+                            if any(trap.lower() in text.lower() for trap in traps):
+                                #remove the trap words from the text
+                                for trap in traps:
+                                    text = text.replace(trap, '')
+                                text = text.strip()
+                                if text:
+                                    logger.debug(f"RadioMon: VOX detected {voxTrapList} in: {text}")
+                                    voxMsgQueue.append(f"🎙️Detected {voxDescription}: {text}")
+                            else:
+                                logger.debug(f"RadioMon: VOX detected")
+                        else:
+                            voxMsgQueue.append(f"🎙️Detected {voxDescription}: {text}")
                 await asyncio.sleep(0.5)
     except Exception as e:
         logger.error(f"RadioMon: Error in VOX monitor: {e}")

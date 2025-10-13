@@ -303,6 +303,8 @@ voxDescription = VOX
 useLocalVoxModel = False
 voxLanguage = en-us
 voxInputDevice = default
+voxOnTrapList = True
+voxTrapList = chirpy
 
 
 [fileMon]
