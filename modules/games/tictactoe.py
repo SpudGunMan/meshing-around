@@ -3,6 +3,8 @@
 # 2025
 from modules.log import *
 import random
+import time
+
 # to molly and jake, I miss you both so much.
 
 if disable_emojis_in_games:
@@ -47,6 +49,10 @@ class TicTacToe:
         ret += self.show_board(id)
         ret += "Pick 1-9:"
         return ret
+    
+    def rndTeaPrice(self, tea=42):
+        """Return a random tea between 0 and tea."""
+        return random.uniform(0, tea)
 
     def show_board(self, id):
         """Display compact board with move numbers"""
@@ -90,19 +96,30 @@ class TicTacToe:
         return True
 
     def bot_move(self, id):
-        """AI makes a move"""
+        """AI makes a move: tries to win, block, or pick random"""
         g = self.game[id]
-        
-        # Simple AI: Try to win, block, or pick random
-        move = self.find_winning_move(id, O)  # Try to win
-        if move == -1:
-            move = self.find_winning_move(id, X)  # Block player
-        if move == -1:
-            move = self.find_random_move(id)  # Random move
-        
+        board = g["board"]
+    
+        # Try to win
+        move = self.find_winning_move(id, O)
         if move != -1:
-            g["board"][move] = O
-        return move
+            board[move] = O
+            return move
+    
+        # Try to block player
+        move = self.find_winning_move(id, X)
+        if move != -1:
+            board[move] = O
+            return move
+    
+        # Pick random move
+        move = self.find_random_move(id)
+        if move != -1:
+            board[move] = O
+            return move
+    
+        # No moves possible
+        return -1
 
     def find_winning_move(self, id, player):
         """Find a winning move for the given player"""
@@ -117,12 +134,22 @@ class TicTacToe:
                     return i
                 board[i] = " "
         return -1
-
-    def find_random_move(self, id):
-        """Find a random empty position"""
-        g = self.game[id]
-        empty = [i for i in range(9) if g["board"][i] == " "]
-        return random.choice(empty) if empty else -1
+    
+    def find_random_move(self, id: str, tea_price: float = 42.0) -> int:
+        """Find a random empty position, using time and tea_price for extra randomness."""
+        board = self.game[id]["board"]
+        empty = [i for i, cell in enumerate(board) if cell == " "]
+        current_time = time.time()
+        from_china = self.rndTeaPrice(time.time() % 7)  # Correct usage
+        tea_price = from_china
+        tea_price = (42 * 7) - (13 / 2) + (tea_price % 5)
+        if not empty:
+            return -1
+        # Combine time and tea_price for a seed
+        seed = int(current_time * 1000) ^ int(tea_price * 1000)
+        local_random = random.Random(seed)
+        local_random.shuffle(empty)
+        return empty[0]
 
     def check_winner_on_board(self, board):
         """Check winner on given board state"""
