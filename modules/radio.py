@@ -14,16 +14,17 @@ if radio_detection_enabled:
 if voxDetectionEnabled:
     voxHoldTime = signalHoldTime
 
-    if useLocalVoxModel:
-        voxModel = Model(lang=localVoxModelPath) # use built in model for specified language
-    else:
-        voxModel = Model(lang=voxLanguage) # use auto downloaded model for specified language
-
     try:
         import sounddevice as sd # pip install sounddevice    sudo apt install portaudio19-dev
         from vosk import Model, KaldiRecognizer # pip install vosk
         import json
         q = asyncio.Queue()
+
+        if useLocalVoxModel:
+            voxModel = Model(lang=localVoxModelPath) # use built in model for specified language
+        else:
+            voxModel = Model(lang=voxModelLanguage) # use built in model for specified language
+
     except Exception as e:
         print(f"RadioMon: Error importing VOX dependencies: {e}")
         print(f"To use VOX detection please install the vosk and sounddevice python modules")
