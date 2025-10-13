@@ -603,6 +603,7 @@ def handle_gTnW(chess = False):
 def handleLemonade(message, nodeID, deviceID):
     global lemonadeTracker, lemonadeCups, lemonadeLemons, lemonadeSugar, lemonadeWeeks, lemonadeScore, lemon_starting_cash, lemon_total_weeks
     msg = ""
+
     def create_player(nodeID):
         # create new player
         lemonadeTracker.append({'nodeID': nodeID, 'cups': 0, 'lemons': 0, 'sugar': 0, 'cash': lemon_starting_cash, 'start': lemon_starting_cash, 'cmd': 'new', 'last_played': time.time()})
@@ -611,26 +612,25 @@ def handleLemonade(message, nodeID, deviceID):
         lemonadeSugar.append({'nodeID': nodeID, 'cost': 3.00, 'count': 15, 'min': 1.50, 'unit': 0.00})
         lemonadeScore.append({'nodeID': nodeID, 'value': 0.00, 'total': 0.00})
         lemonadeWeeks.append({'nodeID': nodeID, 'current': 1, 'total': lemon_total_weeks, 'sales': 99, 'potential': 0, 'unit': 0.00, 'price': 0.00, 'total_sales': 0})
-    #initalize player variables
-    last_cmd = ''
 
-    # create new player if not in tracker
-    if last_cmd == '' and nodeID != 0 and "lemonstand" in message.lower():
+    # If player not found, create if message is for lemonstand
+    if nodeID != 0 and "lemonstand" in message.lower():
         create_player(nodeID)
         msg += "Welcome🍋🥤"
-        last_cmd = "new"
+        # Play lemonstand with newgame=True
+        fruit = playLemonstand(nodeID=nodeID, message=message, celsius=False, newgame=True)
+        if fruit:
+            msg += fruit
+        return msg
 
     # if message starts wth 'e'xit remove player from tracker
     if message.lower().startswith("e"):
         logger.debug(f"System: Lemonade: {nodeID} is leaving the stand")
         msg = "You have left the Lemonade Stand."
-        last_cmd = "end"
-        highScore = {"userID": 0, "cash": 0, "success": 0}
         highScore = getHighScoreLemon()
-        if highScore != 0:
-            if highScore['userID'] != 0:
-                nodeName = get_name_from_number(highScore['userID'])
-                msg += f" HighScore🥇{nodeName} 💰{round(highScore['cash'], 2)}k "
+        if highScore != 0 and highScore['userID'] != 0:
+            nodeName = get_name_from_number(highScore['userID'])
+            msg += f" HighScore🥇{nodeName} 💰{round(highScore['cash'], 2)}k "
         # remove player from player tracker and inventory trackers
         lemonadeTracker[:] = [p for p in lemonadeTracker if p['nodeID'] != nodeID]
         lemonadeCups[:] = [p for p in lemonadeCups if p['nodeID'] != nodeID]
@@ -640,19 +640,11 @@ def handleLemonade(message, nodeID, deviceID):
         lemonadeScore[:] = [p for p in lemonadeScore if p['nodeID'] != nodeID] 
         return msg
 
-    # get last command for player
-    for i in range(len(lemonadeTracker)):
-        if lemonadeTracker[i]['nodeID'] == nodeID:
-            last_cmd = lemonadeTracker[i]['cmd']
-    logger.debug(f"System: {nodeID} PlayingGame lemonstand last_cmd: {last_cmd}")
-    if last_cmd != "" or last_cmd == "end":
-        # update last_played and cmd
-        for i in range(len(lemonadeTracker)):
-            if lemonadeTracker[i]['nodeID'] == nodeID:
-                lemonadeTracker[i]['last_played'] = time.time()
-                lemonadeTracker[i]['cmd'] = last_cmd
-        # play lemonstand
-        msg += playLemonstand(nodeID=nodeID, message=message, celsius=False)
+    # play lemonstand (not newgame)
+    if ("lemonstand" not in message.lower() and message != ""):
+        fruit = playLemonstand(nodeID=nodeID, message=message, celsius=False, newgame=False)
+        if fruit:
+            msg += fruit
     return msg
 
 def handleBlackJack(message, nodeID, deviceID):
@@ -1344,9 +1336,6 @@ def check_and_play_game(tracker, message_from_id, message_string, rxNode, channe
                     logger.debug(f"System: LLM Disabled for {message_from_id} for duration of {game_name}")
                 send_message(handle_game_func(message_string, message_from_id, rxNode), channel_number, message_from_id, rxNode)
                 return True, game_name
-            else:
-                tracker.pop(i)
-                return False, game_name
     return False, "None"
 
 gameTrackers = [
@@ -1398,7 +1387,6 @@ def checkPlayingGame(message_from_id, message_string, rxNode, channel_number):
         playingGame, game = check_and_play_game(tracker, message_from_id, message_string, rxNode, channel_number, game_name, handle_game_func)
         if playingGame:
             break
-
     return playingGame
 
 def onReceive(packet, interface):
