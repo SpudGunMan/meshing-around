@@ -548,7 +548,6 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
     llmTotalRuntime.append(end - start)
     
     return response
-
 def handleDopeWars(message, nodeID, rxNode):
     global dwPlayerTracker, dwHighScore
 
@@ -556,7 +555,7 @@ def handleDopeWars(message, nodeID, rxNode):
     player = next((p for p in dwPlayerTracker if p.get('userID') == nodeID), None)
 
     # If not found, add new player
-    if not player and nodeID != 0:
+    if not player and nodeID != 0 and not isPlayingGame(nodeID)[0]:
         player = {
             'userID': nodeID,
             'last_played': time.time(),
@@ -568,12 +567,17 @@ def handleDopeWars(message, nodeID, rxNode):
         high_score = getHighScoreDw()
         msg += 'The High Score is $' + "{:,}".format(high_score.get('cash')) + ' by user ' + get_name_from_number(high_score.get('userID'), 'short', rxNode) + '\n'
         msg += playDopeWars(nodeID, message)
-    else:
-        # Update last_played
+    elif player:
+        # Update last_played and cmd for the player
         for p in dwPlayerTracker:
             if p.get('userID') == nodeID:
                 p['last_played'] = time.time()
         msg = playDopeWars(nodeID, message)
+
+    # if message starts wth 'e'xit remove player from tracker
+    if message.lower().startswith('e'):
+        dwPlayerTracker[:] = [p for p in dwPlayerTracker if p.get('userID') != nodeID]
+        msg = 'You have exited Dope Wars.'
     return msg
 
 def handle_gTnW(chess = False):
@@ -607,39 +611,47 @@ def handleLemonade(message, nodeID, deviceID):
         lemonadeSugar.append({'nodeID': nodeID, 'cost': 3.00, 'count': 15, 'min': 1.50, 'unit': 0.00})
         lemonadeScore.append({'nodeID': nodeID, 'value': 0.00, 'total': 0.00})
         lemonadeWeeks.append({'nodeID': nodeID, 'current': 1, 'total': lemon_total_weeks, 'sales': 99, 'potential': 0, 'unit': 0.00, 'price': 0.00, 'total_sales': 0})
-    #initalize player variables
-    if lemonadeTracker == []:
-        lemonadeTracker = []
+
     # get player's last command from tracker if not new player
-    last_cmd = ""
+    last_cmd = ''
     for i in range(len(lemonadeTracker)):
         if lemonadeTracker[i]['nodeID'] == nodeID:
             last_cmd = lemonadeTracker[i]['cmd']
-            
+
     logger.debug(f"System: {nodeID} PlayingGame lemonstand last_cmd: {last_cmd}")
     # create new player if not in tracker
-    if last_cmd == "" and nodeID != 0 and "lemonstand" in message.lower():
+    if last_cmd == '' and nodeID != 0 and "lemonstand" in message.lower():
         create_player(nodeID)
         msg += "Welcome🍋🥤"
         last_cmd = "new"
-        # high score
+
+    # if message starts wth 'e'xit remove player from tracker
+    if message.lower().startswith("e"):
+        logger.debug(f"System: Lemonade: {nodeID} is leaving the stand")
+        msg = "You have left the Lemonade Stand."
+        last_cmd = "end"
         highScore = {"userID": 0, "cash": 0, "success": 0}
         highScore = getHighScoreLemon()
         if highScore != 0:
             if highScore['userID'] != 0:
                 nodeName = get_name_from_number(highScore['userID'])
-                if nodeName.isnumeric() and multiple_interface:
-                    logger.debug(f"System: TODO is multiple interface fix mention this please nodeName: {nodeName}")
-                    #nodeName = get_name_from_number(highScore['userID'], 'long', 2)
                 msg += f" HighScore🥇{nodeName} 💰{round(highScore['cash'], 2)}k "
+        # remove player from player tracker and inventory trackers
+        lemonadeTracker[:] = [p for p in lemonadeTracker if p['nodeID'] != nodeID]
+        lemonadeCups[:] = [p for p in lemonadeCups if p['nodeID'] != nodeID]
+        lemonadeLemons[:] = [p for p in lemonadeLemons if p['nodeID'] != nodeID]
+        lemonadeSugar[:] = [p for p in lemonadeSugar if p['nodeID'] != nodeID]
+        lemonadeWeeks[:] = [p for p in lemonadeWeeks if p['nodeID'] != nodeID]
+        lemonadeScore[:] = [p for p in lemonadeScore if p['nodeID'] != nodeID] 
+
     if last_cmd != "":
-        #update last_played
+        # update last_played and cmd
         for i in range(len(lemonadeTracker)):
             if lemonadeTracker[i]['nodeID'] == nodeID:
                 lemonadeTracker[i]['last_played'] = time.time()
+                lemonadeTracker[i]['cmd'] = last_cmd
         # play lemonstand
         msg += playLemonstand(nodeID=nodeID, message=message, celsius=False)
-
     return msg
 
 def handleBlackJack(message, nodeID, deviceID):
@@ -1359,15 +1371,15 @@ def isPlayingGame(message_from_id):
     trackers = [tracker for tracker in trackers if tracker is not None]
 
     for tracker, game_name, handle_game_func in trackers:
-        for i in range(len(tracker)):
-            # Use 'userID'
-            id_key = 'userID' if game_name == "DopeWars" else 'nodeID' # DopeWars uses 'userID'
-            id_key = 'id' if game_name == "Survey" else id_key  # Survey uses 'id'
-            
+        for i in range(len(tracker)-1, -1, -1):  # iterate backwards for safe removal
+            id_key = 'userID' if game_name == "DopeWars" else 'nodeID'
+            id_key = 'id' if game_name == "Survey" else id_key
             if tracker[i].get(id_key) == message_from_id:
-                playingGame = True
-                game = game_name
-                break
+                last_played_key = 'last_played' if 'last_played' in tracker[i] else 'time'
+                if tracker[i].get(last_played_key, 0) > (time.time() - GAMEDELAY):
+                    playingGame = True
+                    game = game_name
+                    break
         if playingGame:
             break
 

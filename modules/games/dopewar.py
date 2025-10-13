@@ -376,23 +376,6 @@ def endGameDw(nodeID):
             cash = dwCashDb[i].get('cash')
     logger.debug("System: DopeWars: Game Over for user: " + str(nodeID) + " with cash: " + str(cash))
 
-    # remove the player from the game databases
-    for i in range(0, len(dwCashDb)):
-        if dwCashDb[i].get('userID') == nodeID:
-            dwCashDb.pop(i)
-    for i in range(0, len(dwInventoryDb)):
-        if dwInventoryDb[i].get('userID') == nodeID:
-            dwInventoryDb.pop(i)
-    for i in range(0, len(dwLocationDb)):
-        if dwLocationDb[i].get('userID') == nodeID:
-            dwLocationDb.pop(i)
-    for i in range(0, len(dwGameDayDb)):
-        if dwGameDayDb[i].get('userID') == nodeID:
-            dwGameDayDb.pop(i)
-    for i in range(0, len(dwPlayerTracker)):
-        if dwPlayerTracker[i].get('userID') == nodeID:
-            dwPlayerTracker.pop(i)
-
     # checks if the player's score is higher than the high score and writes a new high score if it is
     if cash > dwHighScore.get('cash'):
         dwHighScore = ({'userID': nodeID, 'cash': round(cash, 2)})

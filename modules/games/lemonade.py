@@ -95,33 +95,6 @@ def playLemonstand(nodeID, message, celsius=False):
                 lemonadeScore[i]['value'] = score.value
                 lemonadeScore[i]['total'] = score.total
 
-    def endGame(nodeID):
-        # remove the player from the tracker
-        for i in range(len(lemonadeTracker)):
-            if lemonadeTracker[i]['nodeID'] == nodeID:
-                lemonadeTracker.pop(i)
-        for i in range(len(lemonadeCups)):
-            if lemonadeCups[i]['nodeID'] == nodeID:
-                lemonadeCups.pop(i)
-        for i in range(len(lemonadeLemons)):
-            if lemonadeLemons[i]['nodeID'] == nodeID:
-                lemonadeLemons.pop(i)
-        for i in range(len(lemonadeSugar)):
-            if lemonadeSugar[i]['nodeID'] == nodeID:
-                lemonadeSugar.pop(i)
-        for i in range(len(lemonadeWeeks)):
-            if lemonadeWeeks[i]['nodeID'] == nodeID:
-                lemonadeWeeks.pop(i)
-        for i in range(len(lemonadeScore)):
-            if lemonadeScore[i]['nodeID'] == nodeID:
-                lemonadeScore.pop(i)
-        logger.debug("System: Lemonade: Game Over for " + str(nodeID))
-
-    # Check for end of game
-    if message.lower().startswith("e"):
-        endGame(nodeID)
-        return "Goodbye!👋"
-
     title="LemonStand🍋"
     # Define the temperature unit symbols
     fahrenheit_unit = "ºF"
