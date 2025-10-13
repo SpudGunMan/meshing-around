@@ -593,7 +593,7 @@ def get_closest_nodes(nodeInt=1,returnCount=3, channel=publicChannel):
                         # one idea is to send a ping to the node to request location data for if or when, ask again later
                         interface.sendPosition(destinationId=node['id'], wantResponse=False, channelIndex=channel)
                         # wait a bit
-                        time.sleep(1)
+                        time.sleep(3)
                         # send a traceroute request
                         interface.sendTraceRoute(destinationId=node['id'], channelIndex=channel, wantResponse=False)
                         # wait a bit
