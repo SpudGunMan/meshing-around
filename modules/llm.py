@@ -76,6 +76,34 @@ if llmEnableHistory:
 
     """
 
+def get_google_context(input, num_results):
+    # Get context from Google search results
+    googleResults = []
+    try:
+        googleSearch = search(input, advanced=True, num_results=num_results)
+        if googleSearch:
+            for result in googleSearch:
+                googleResults.append(f"{result.title} {result.description}")
+        else:
+            googleResults = ['no other context provided']
+    except Exception as e:
+        logger.debug(f"System: LLM Query: context gathering failed, likely due to network issues")
+        googleResults = ['no other context provided']
+    return googleResults
+
+def send_ollama_query(llmQuery):
+    # Send the query to the Ollama API and return the response
+    result = requests.post(ollamaAPI, data=json.dumps(llmQuery))
+    if result.status_code == 200:
+        result_json = result.json()
+        result = result_json.get("response", "")
+        # deepseek has added <think> </think> tags to the response
+        if "<think>" in result:
+            result = result.split("</think>")[1]
+    else:
+        raise Exception(f"HTTP Error: {result.status_code}")
+    return result
+
 def llm_query(input, nodeID=0, location_name=None):
     global antiFloodLLM, llmChat_history
     googleResults = []
@@ -109,23 +137,7 @@ def llm_query(input, nodeID=0, location_name=None):
         antiFloodLLM.append(nodeID)
 
     if llmContext_fromGoogle and not rawLLMQuery:
-        # grab some context from the internet using google search hits (if available)
-        # localization details at https://pypi.org/project/googlesearch-python/
-
-        # remove common words from the search query
-        # commonWordsList = ["is", "for", "the", "of", "and", "in", "on", "at", "to", "with", "by", "from", "as", "a", "an", "that", "this", "these", "those", "there", "here", "where", "when", "why", "how", "what", "which", "who", "whom", "whose", "whom"]
-        # sanitizedSearch = ' '.join([word for word in input.split() if word.lower() not in commonWordsList])
-        try:
-            googleSearch = search(input, advanced=True, num_results=googleSearchResults)
-            if googleSearch:
-                for result in googleSearch:
-                    # SearchResult object has url= title= description= just grab title and description
-                    googleResults.append(f"{result.title} {result.description}")
-            else:
-                googleResults = ['no other context provided']
-        except Exception as e:
-            logger.debug(f"System: LLM Query: context gathering failed, likely due to network issues")
-            googleResults = ['no other context provided']
+        googleResults = get_google_context(input, googleSearchResults)
 
     history = llmChat_history.get(nodeID, ["", ""])
 
@@ -151,17 +163,7 @@ def llm_query(input, nodeID=0, location_name=None):
             
         llmQuery = {"model": llmModel, "prompt": modelPrompt, "stream": False, "max_tokens": tokens}
         # Query the model via Ollama web API
-        result = requests.post(ollamaAPI, data=json.dumps(llmQuery))
-        # Condense the result to just needed
-        if result.status_code == 200:
-            result_json = result.json()
-            result = result_json.get("response", "")
-
-            # deepseek-r1 has added <think> </think> tags to the response
-            if "<think>" in result:
-                result = result.split("</think>")[1]
-        else:
-            raise Exception(f"HTTP Error: {result.status_code}")
+        result = send_ollama_query(llmQuery)
 
         #logger.debug(f"System: LLM Response: " + result.strip().replace('\n', ' '))
     except Exception as e:
@@ -175,15 +177,8 @@ def llm_query(input, nodeID=0, location_name=None):
         #retryy loop to truncate the response
         logger.warning(f"System: LLM Query: Response exceeded {tokens} characters, requesting truncation")
         truncateQuery = {"model": llmModel, "prompt": truncatePrompt + response, "stream": False, "max_tokens": tokens}
-        truncateResult = requests.post(ollamaAPI, data=json.dumps(truncateQuery))
-        if truncateResult.status_code == 200:
-            truncate_json = truncateResult.json()
-            result = truncate_json.get("response", "")
+        truncateResult = send_ollama_query(truncateQuery)
 
-        else:
-            #use the original result if truncation fails
-            logger.warning("System: LLM Query: Truncation failed, using original response")
-        
         # cleanup for message output
         response = result.strip().replace('\n', ' ')
 
