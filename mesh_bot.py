@@ -1750,7 +1750,7 @@ async def start_rx():
     
     if wikipedia_enabled:
         if use_kiwix_server:
-            logger.debug(f"System: Wikipedia search Enabled using Kiwix server at {kiwix_server_address}")
+            logger.debug(f"System: Wikipedia search Enabled using Kiwix server at {kiwix_url}")
         else:
             logger.debug("System: Wikipedia search Enabled")
     
