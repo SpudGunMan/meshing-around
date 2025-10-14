@@ -1419,8 +1419,18 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
                     # check get_openskynetwork to see if the node is an aircraft
                     if 'latitude' in position_data and 'longitude' in position_data:
                         flight_info = get_openskynetwork(position_data.get('latitude', 0), position_data.get('longitude', 0))
-                    if flight_info and NO_ALERTS not in flight_info and ERROR_FETCHING_DATA not in flight_info:
-                        msg += f"\n✈️Detected near:\n{flight_info}"
+                    # Only show plane if within altitude
+                    if (
+                        flight_info
+                        and NO_ALERTS not in flight_info
+                        and ERROR_FETCHING_DATA not in flight_info
+                        and isinstance(flight_info, dict)
+                        and 'altitude' in flight_info
+                    ):
+                        plane_alt = flight_info['altitude']
+                        node_alt = position_data.get('altitude', 0)
+                        if abs(node_alt - plane_alt) <= 600:  # within 600m
+                            msg += f"\n✈️Detected near:\n{flight_info}"
                 send_message(msg, highfly_channel, 0, highfly_interface)
             # Keep the positionMetadata dictionary at a maximum size
             if len(positionMetadata) > MAX_SEEN_NODES:
