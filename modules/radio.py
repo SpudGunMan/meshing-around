@@ -138,26 +138,23 @@ def checkVoxTrapWords(text):
             return text
         if text:
             traps = [voxTrapList] if isinstance(voxTrapList, str) else voxTrapList
-            text_lower = text.lower()
+            in_text = text.lower()
+            clean_text = text[idx + len(in_text):].strip()
+            idx = in_text.find(trap.lower().strip())
+            words = clean_text.lower().split()
             logger.debug(f"VOX trap list: {traps}, botMethods keys: {list(botMethods.keys())}")
             for trap in traps:
-                trap_clean = trap.strip()
-                trap_lower = trap_clean.lower()
-                idx = text_lower.find(trap_lower)
+                # Remove everything before and including the trap word
                 if idx != -1:
                     if voxEnableCmd:
-                        # Remove everything before and including the trap word
-                        new_text = text[idx + len(trap_clean):].strip()
-                        words = new_text.lower().split()
                         for word in words:
                             if word in botMethods:
-                                logger.debug(f"RadioMon: VOX found bot method '{word}' in new_text '{new_text}', calling with '{new_text}'")
+                                logger.debug(f"RadioMon: VOX found bot method '{word}' in '{clean_text}'")
                                 return botMethods[word]()
                     else:
                         # we go voxTrapList only, just return the text after the trap word
-                        new_text = text[idx + len(trap_clean):].strip()
-                        logger.debug(f"RadioMon: VOX detected trap word '{trap_lower}' in: '{text}'")
-                        return new_text
+                        logger.debug(f"RadioMon: VOX detected trap word '{trap}' in: '{clean_text}'")
+                        return clean_text
         return None
     except Exception as e:
         logger.debug(f"RadioMon: Error in checkVoxTrapWords: {e}")
