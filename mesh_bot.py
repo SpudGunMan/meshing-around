@@ -153,7 +153,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
             else:
                 bot_response = restrictedResponse
         else:
-            logger.debug(f"System: Bot detected Commands:{cmds} From: {get_name_from_number(message_from_id)}")
+            logger.debug(f"System: Bot detected Commands:{cmds} From: {get_name_from_number(message_from_id)} isDM:{isDM}")
             # run the first command after sorting
             bot_response = command_handler[cmds[0]['cmd']]()
             # append the command to the cmdHistory list for lheard and history
