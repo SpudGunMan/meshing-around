@@ -585,8 +585,7 @@ def get_closest_nodes(nodeInt=1,returnCount=3, channel=publicChannel):
                 except Exception as e:
                     pass
             else:
-                # request location data
-                reqLocationEnabled = False
+                # request location data moved to .ini hidden under [sentry]
                 if reqLocationEnabled:
                     try:
                         logger.debug(f"System: Requesting location data for {node['id']}, lastHeard: {node.get('lastHeard', 'N/A')}")
