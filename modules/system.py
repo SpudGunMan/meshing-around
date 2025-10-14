@@ -1111,11 +1111,13 @@ def onDisconnect(interface):
     interface.close()
 
 # Telemetry Functions
+localTelemetryData = {}
 def initialize_telemetryData():
-    telemetryData[0] = {f'interface{i}': 0 for i in range(1, 10)}
-    telemetryData[0].update({f'lastAlert{i}': '' for i in range(1, 10)})
+    global localTelemetryData
+    localTelemetryData[0] = {f'interface{i}': 0 for i in range(1, 10)}
+    localTelemetryData[0].update({f'lastAlert{i}': '' for i in range(1, 10)})
     for i in range(1, 10):
-        telemetryData[i] = {'numPacketsTx': 0, 'numPacketsRx': 0, 'numOnlineNodes': 0, 'numPacketsTxErr': 0, 'numPacketsRxErr': 0, 'numTotalNodes': 0}
+        localTelemetryData[i] = {'numPacketsTx': 0, 'numPacketsRx': 0, 'numOnlineNodes': 0, 'numPacketsTxErr': 0, 'numPacketsRxErr': 0, 'numTotalNodes': 0}
 
 # indented to be called from the main loop
 initialize_telemetryData()
@@ -1168,23 +1170,22 @@ def compileFavoriteList(getInterfaceIDs=True):
 def displayNodeTelemetry(nodeID=0, rxNode=0, userRequested=False):
     interface = globals()[f'interface{rxNode}']
     myNodeNum = globals().get(f'myNodeNum{rxNode}')
-    global telemetryData
-
+    global localTelemetryData
+  
     # throttle the telemetry requests to prevent spamming the device
     if 1 <= rxNode <= 9:
-        if time.time() - telemetryData[0][f'interface{rxNode}'] < 600 and not userRequested:
+        if time.time() - localTelemetryData[0][f'interface{rxNode}'] < 600 and not userRequested:
             return -1
-        telemetryData[0][f'interface{rxNode}'] = time.time()
+        localTelemetryData[0][f'interface{rxNode}'] = time.time()
 
     # some telemetry data is not available in python-meshtastic?
     # bring in values from the last telemetry dump for the node
-    numPacketsTx = telemetryData[rxNode]['numPacketsTx']
-    numPacketsRx = telemetryData[rxNode]['numPacketsRx']
-    numPacketsTxErr = telemetryData[rxNode]['numPacketsTxErr']
-    numPacketsRxErr = telemetryData[rxNode]['numPacketsRxErr']
-    numTotalNodes = telemetryData[rxNode]['numTotalNodes']
-    totalOnlineNodes = telemetryData[rxNode]['numOnlineNodes']
-
+    numPacketsTx = localTelemetryData[rxNode].get('numPacketsTx', 0)
+    numPacketsRx = localTelemetryData[rxNode].get('numPacketsRx', 0)
+    numPacketsTxErr = localTelemetryData[rxNode].get('numPacketsTxErr', 0)
+    numPacketsRxErr = localTelemetryData[rxNode].get('numPacketsRxErr', 0)
+    numTotalNodes = localTelemetryData[rxNode].get('numTotalNodes', 0)
+    totalOnlineNodes = localTelemetryData[rxNode].get('numOnlineNodes', 0)
     # get the telemetry data for a node
     chutil = round(interface.nodes.get(decimal_to_hex(myNodeNum), {}).get("deviceMetrics", {}).get("channelUtilization", 0), 1)
     airUtilTx = round(interface.nodes.get(decimal_to_hex(myNodeNum), {}).get("deviceMetrics", {}).get("airUtilTx", 0), 1)
@@ -1254,7 +1255,7 @@ def initializeMeshLeaderboard():
 
 initializeMeshLeaderboard()
 def consumeMetadata(packet, rxNode=0, channel=-1):
-    global positionMetadata, telemetryData, meshLeaderboard
+    global positionMetadata, localTelemetryData, meshLeaderboard
     uptime = battery = temp = iaq = nodeID = 0
     deviceMetrics, envMetrics, localStats = {}, {}, {}
 
@@ -1348,31 +1349,26 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
             except Exception as e:
                 logger.debug(f"System: TELEMETRY_APP iaq error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
 
-        # Collect localStats for telemetryData
+        # Update localStats in telemetryData
         if telemetry_packet.get('localStats'):
             localStats = telemetry_packet['localStats']
             try:
-                # Check if 'numPacketsTx' and 'numPacketsRx' exist and are not zero
-                if localStats.get('numPacketsTx') is not None and localStats.get('numPacketsRx') is not None and localStats['numPacketsTx'] != 0:
-                    # Assign the values to the telemetry dictionary
-                    keys = [
-                        'numPacketsTx', 'numPacketsRx', 'numOnlineNodes', 
-                        'numOfflineNodes', 'numPacketsTxErr', 'numPacketsRxErr', 'numTotalNodes']
-                    for key in keys:
-                        if localStats.get(key) is not None:
-                            telemetryData[rxNode][key] = localStats.get(key)
+                # Only store keys where value is not 0
+                filtered_stats = {k: v for k, v in localStats.items() if v != 0}
+                localTelemetryData[rxNode].update(filtered_stats)
             except Exception as e:
                 logger.debug(f"System: TELEMETRY_APP localStats error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
+
     #POSITION_APP packets
     if packet_type == 'POSITION_APP':
         try:
             if debugMetadata and 'POSITION_APP' not in metadataFilter:
                 print(f"DEBUG POSITION_APP: {packet}\n\n")
-            keys = ['altitude', 'groundSpeed', 'precisionBits']
+            position_stats_keys = ['altitude', 'groundSpeed', 'precisionBits']
             position_data = packet['decoded']['position']
             if nodeID not in positionMetadata:
                 positionMetadata[nodeID] = {}
-            for key in keys:
+            for key in position_stats_keys:
                 positionMetadata[nodeID][key] = position_data.get(key, 0)
             # Track fastest speed 🚓
             if position_data.get('groundSpeed') is not None:
@@ -1746,7 +1742,7 @@ def get_sysinfo(nodeID=0, deviceID=1):
     # Get the system telemetry data for return on the sysinfo command
     sysinfo = ''
     stats = str(displayNodeTelemetry(nodeID, deviceID, userRequested=True)) + " 🤖👀" + str(len(seenNodes))
-    if "numPacketsRx:0" in stats or stats == -1:
+    if "numPacketsTx:0" in stats or stats == -1:
         return "Gathering Telemetry try again later⏳"
     # replace Telemetry with Int in string
     stats = stats.replace("Telemetry", "Int")
@@ -1934,7 +1930,7 @@ async def process_vox_queue():
                         time.sleep(responseDelay)
 
 async def watchdog():
-    global telemetryData, retry_int1, retry_int2, retry_int3, retry_int4, retry_int5, retry_int6, retry_int7, retry_int8, retry_int9
+    global localTelemetryData, retry_int1, retry_int2, retry_int3, retry_int4, retry_int5, retry_int6, retry_int7, retry_int8, retry_int9
     logger.debug("System: Watchdog started")
     while True:
         await asyncio.sleep(20)
@@ -1964,9 +1960,9 @@ async def watchdog():
                         handleAlertBroadcast(i)
 
                     intData = displayNodeTelemetry(0, i)
-                    if intData != -1 and telemetryData[0][f'lastAlert{i}'] != intData:
+                    if intData != -1 and localTelemetryData[0][f'lastAlert{i}'] != intData:
                         logger.debug(intData + f" Firmware:{firmware}")
-                        telemetryData[0][f'lastAlert{i}'] = intData
+                        localTelemetryData[0][f'lastAlert{i}'] = intData
 
             if globals()[f'retry_int{i}'] and globals()[f'interface{i}_enabled']:
                 try:
