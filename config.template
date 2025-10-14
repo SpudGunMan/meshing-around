@@ -308,6 +308,7 @@ voxLanguage = en-us
 voxInputDevice = default
 voxOnTrapList = True
 voxTrapList = chirpy
+voxEnableCmd = True
 
 
 [fileMon]

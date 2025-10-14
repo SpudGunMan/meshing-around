@@ -377,6 +377,7 @@ try:
     voxInputDevice = config['radioMon'].get('voxInputDevice', 'default') # default default
     voxOnTrapList = config['radioMon'].getboolean('voxOnTrapList', False) # default False
     voxTrapList = config['radioMon'].get('voxTrapList', 'chirpy').split(',') # default chirpy
+    voxEnableCmd = config['radioMon'].getboolean('voxEnableCmd', True) # default True
 
     # file monitor
     file_monitor_enabled = config['fileMon'].getboolean('filemon_enabled', False)
