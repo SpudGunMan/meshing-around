@@ -546,7 +546,8 @@ def get_node_location(nodeID, nodeInt=1, channel=0, round_digits=2):
                         if fuzzItAll:
                             latitude = round(latitude, round_digits)
                             longitude = round(longitude, round_digits)
-                            logger.debug(f"System: Fuzzed location data for {nodeID}")
+                            logger.debug(f"System: Fuzzed location data for {nodeID} is {latitude}, {longitude}")
+                        logger.debug(f"System: Location data for {nodeID} is {latitude}, {longitude}")
                         return [latitude, longitude]
                     except Exception as e:
                         logger.warning(f"System: Error processing position for node {nodeID}: {e}")
