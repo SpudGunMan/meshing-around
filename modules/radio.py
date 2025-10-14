@@ -25,7 +25,7 @@ if voxDetectionEnabled:
         import sounddevice as sd # pip install sounddevice    sudo apt install portaudio19-dev
         from vosk import Model, KaldiRecognizer # pip install vosk
         import json
-        q = asyncio.Queue(maxsize=50)  # queue for audio data
+        q = asyncio.Queue(maxsize=16)  # queue for audio data
         
         if useLocalVoxModel:
             voxModel = Model(lang=localVoxModelPath) # use built in model for specified language
