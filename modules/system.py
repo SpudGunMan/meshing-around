@@ -802,6 +802,8 @@ def send_message(message, ch, nodeid=0, nodeInt=1, bypassChuncking=False):
                     logger.info(f"Device:{nodeInt} " + CustomFormatter.red + "Sending DM: " + CustomFormatter.white + message.replace('\n', ' ') + CustomFormatter.purple +\
                                 " To: " + CustomFormatter.white + f"{get_name_from_number(nodeid, 'long', nodeInt)}")
                     interface.sendText(text=message, channelIndex=ch, destinationId=nodeid)
+            # Throttle the message sending to prevent spamming the device
+            time.sleep(responseDelay)
         return True
     except Exception as e:
         logger.error(f"System: Exception during send_message: {e} (message length: {len(message)})")
@@ -1420,7 +1422,6 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
                     if flight_info and NO_ALERTS not in flight_info and ERROR_FETCHING_DATA not in flight_info:
                         msg += f"\n✈️Detected near:\n{flight_info}"
                 send_message(msg, highfly_channel, 0, highfly_interface)
-                time.sleep(responseDelay)
             # Keep the positionMetadata dictionary at a maximum size of 20
             if len(positionMetadata) > 20:
                 # Remove the oldest entry
@@ -1491,7 +1492,6 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
                     logger.info(f"System: Detection Sensor Data from Device: {rxNode} Channel: {channel} NodeID:{nodeID} Text:{detction_text}")
                 if detctionSensorAlert:
                     send_message(f"🚨Detection Sensor from Device: {rxNode} Channel: {channel} NodeID:{get_name_from_number(nodeID,'long',rxNode)} Alert:{detction_text}", secure_channel, 0, secure_interface)
-                    time.sleep(responseDelay)
         except Exception as e:
             logger.debug(f"System: DETECTION_SENSOR_APP decode error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
 
@@ -1792,13 +1792,11 @@ async def handleSignalWatcher():
                     for ch in sigWatchBroadcastCh:
                         if antiSpam and ch != publicChannel:
                             send_message(msg, int(ch), 0, sigWatchBroadcastInterface)
-                            time.sleep(responseDelay)
                         else:
                             logger.warning(f"System: antiSpam prevented Alert from Hamlib {msg}")
                 else:
                     if antiSpam and sigWatchBroadcastCh != publicChannel:
                         send_message(msg, int(sigWatchBroadcastCh), 0, sigWatchBroadcastInterface)
-                        time.sleep(responseDelay)
                     else:
                         logger.warning(f"System: antiSpam prevented Alert from Hamlib {msg}")
 
@@ -1821,23 +1819,19 @@ async def handleFileWatcher():
                     for ch in file_monitor_broadcastCh:
                         if antiSpam and int(ch) != publicChannel:
                             send_message(msg, int(ch), 0, 1)
-                            time.sleep(responseDelay)
                             if multiple_interface:
                                 for i in range(2, 10):
                                     if globals().get(f'interface{i}_enabled'):
                                         send_message(msg, int(ch), 0, i)
-                                        time.sleep(responseDelay)
                         else:
                             logger.warning(f"System: antiSpam prevented Alert from FileWatcher")
                 else:
                     if antiSpam and file_monitor_broadcastCh != publicChannel:
                         send_message(msg, int(file_monitor_broadcastCh), 0, 1)
-                        time.sleep(responseDelay)
                         if multiple_interface:
                             for i in range(2, 10):
                                 if globals().get(f'interface{i}_enabled'):
                                     send_message(msg, int(file_monitor_broadcastCh), 0, i)
-                                    time.sleep(responseDelay)
                     else:
                         logger.warning(f"System: antiSpam prevented Alert from FileWatcher")
 
@@ -1948,7 +1942,6 @@ async def process_vox_queue():
                 for channel in sigWatchBroadcastCh:
                     if antiSpam and int(channel) != publicChannel:
                         send_message(message, int(channel), 0, sigWatchBroadcastInterface)
-                        time.sleep(responseDelay)
 
 async def watchdog():
     global localTelemetryData, retry_int1, retry_int2, retry_int3, retry_int4, retry_int5, retry_int6, retry_int7, retry_int8, retry_int9

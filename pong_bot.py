@@ -353,7 +353,6 @@ def onReceive(packet, interface):
                 else:
                     logger.warning(f"Device:{rxNode} Ignoring DM: {message_string} From: {get_name_from_number(message_from_id, 'long', rxNode)}")
                     send_message(welcome_message, channel_number, message_from_id, rxNode)
-                    time.sleep(responseDelay)
                     
                     # log the message to the message log
                     if log_messages_to_file:

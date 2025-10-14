@@ -271,7 +271,6 @@ def handle_emergency(message_from_id, deviceID, message):
         nodeInfo = f"{get_name_from_number(message_from_id, 'short', deviceID)} detected by {get_name_from_number(myNodeNum, 'short', deviceID)} lastGPS {nodeLocation[0]}, {nodeLocation[1]}"
         msg = f"🔔🚨Intercepted Possible Emergency Assistance needed for: {nodeInfo}"
         # alert the emergency_responder_alert_channel
-        time.sleep(responseDelay)
         send_message(msg, emergency_responder_alert_channel, 0, emergency_responder_alert_interface)
         logger.warning(f"System: {message_from_id} Emergency Assistance Requested in {message}")
         # send the message out via email/sms
@@ -483,11 +482,9 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
             if (channel_number == publicChannel and antiSpam) or useDMForResponse:
                 # send via DM
                 send_message(welcome_message, channel_number, message_from_id, deviceID)
-                time.sleep(responseDelay)
             else:
                 # send via channel
                 send_message(welcome_message, channel_number, 0, deviceID)
-                time.sleep(responseDelay)
             # mark the node as welcomed
             for node in seenNodes:
                 if node['nodeID'] == message_from_id:
@@ -521,7 +518,6 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
         else:
             # send via channel
             send_message(msg, channel_number, 0, deviceID)
-        time.sleep(responseDelay)
     
     start = time.time()
 
@@ -918,7 +914,6 @@ def quizHandler(message, nodeID, deviceID):
         if isinstance(msg, dict) and str(nodeID) in bbs_admin_list and 'message' in msg:
             for player_id in quizGamePlayer.players:
                 send_message(msg['message'], 0, player_id, deviceID)
-                time.sleep(responseDelay)
             msg = f"Message sent to {len(quizGamePlayer.players)} players"
 
         return msg
@@ -1449,8 +1444,6 @@ def onReceive(packet, interface):
         
         msg = bbs_check_dm(message_from_id)
         if msg:
-            # wait a responseDelay to avoid message collision from lora-ack.
-            time.sleep(responseDelay)
             logger.info(f"System: BBS DM Delivery: {msg[1]} For: {get_name_from_number(message_from_id, 'long', rxNode)}")
             message = "Mail: " + msg[1] + "  From: " + get_name_from_number(msg[2], 'long', rxNode)
             bbs_delete_dm(msg[0], msg[1])
@@ -1551,7 +1544,6 @@ def onReceive(packet, interface):
                         if games_enabled:
                             logger.warning(f"Device:{rxNode} Ignoring Request to Play Game: {message_string} From: {get_name_from_number(message_from_id, 'long', rxNode)} with hop count: {hop}")
                             send_message(f"Your hop count exceeds safe playable distance at {hop_count} hops", channel_number, message_from_id, rxNode)
-                            time.sleep(responseDelay)
                         else:
                             playingGame = False
                     else:
@@ -1562,7 +1554,6 @@ def onReceive(packet, interface):
                             # respond with LLM
                             llm = handle_llm(message_from_id, channel_number, rxNode, message_string, publicChannel)
                             send_message(llm, channel_number, message_from_id, rxNode)
-                            time.sleep(responseDelay)
                         else:
                             # respond with welcome message on DM
                             logger.warning(f"Device:{rxNode} Ignoring DM: {message_string} From: {get_name_from_number(message_from_id, 'long', rxNode)}")
@@ -1571,7 +1562,6 @@ def onReceive(packet, interface):
                             if not any(node['nodeID'] == message_from_id and node['welcome'] == True for node in seenNodes):
                                 # send welcome message
                                 send_message(welcome_message, channel_number, message_from_id, rxNode)
-                                time.sleep(responseDelay)
                                 # mark the node as welcomed
                                 for node in seenNodes:
                                     if node['nodeID'] == message_from_id:
@@ -1583,9 +1573,7 @@ def onReceive(packet, interface):
                                 else:
                                     # respond with help message on DM
                                     send_message(help_message, channel_number, message_from_id, rxNode)
-
-                            time.sleep(responseDelay)
-                            
+    
                     # log the message to the message log
                     if log_messages_to_file:
                         msgLogger.info(f"Device:{rxNode} Channel:{channel_number} | {get_name_from_number(message_from_id, 'long', rxNode)} | DM | " + message_string.replace('\n', '-nl-'))
@@ -1670,9 +1658,7 @@ def onReceive(packet, interface):
                                 hello(message_from_id, name)
                                 # send a hello message as a DM
                                 if not train_qrz:
-                                    time.sleep(responseDelay)
                                     send_message(f"Hello {name} {qrz_hello_string}", channel_number, message_from_id, rxNode)
-                                    time.sleep(responseDelay)
         else:
             # Evaluate non TEXT_MESSAGE_APP packets
             consumeMetadata(packet, rxNode, channel_number)
