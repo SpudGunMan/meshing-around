@@ -2,6 +2,9 @@
 import schedule
 from modules.log import logger
 from modules.system import send_message, BroadcastScheduler
+from modules.system import send_message
+# methods available for custom scheduler messages
+from mesh_bot import tell_joke, welcome_message, MOTD, handle_wxc, handle_moon, handle_sun, handle_riverFlow, handle_tide, handle_satpass
 
 async def setup_scheduler(
     schedulerMotd, MOTD, schedulerMessage, schedulerChannel, schedulerInterface,
@@ -14,7 +17,8 @@ async def setup_scheduler(
         else:
             scheduler_message = schedulerMessage
 
-        if schedulerValue != '':
+        if 'custom' not in schedulerValue.lower() or schedulerValue != '':
+            # Basic scheduler job to run the schedule see examples below for custom schedules
             if schedulerValue.lower() == 'day':
                 if schedulerTime != '':
                     schedule.every().day.at(schedulerTime).do(lambda: send_message(scheduler_message, schedulerChannel, 0, schedulerInterface))
@@ -38,12 +42,16 @@ async def setup_scheduler(
                 schedule.every(int(schedulerInterval)).hours.do(lambda: send_message(scheduler_message, schedulerChannel, 0, schedulerInterface))
             elif 'min' in schedulerValue.lower():
                 schedule.every(int(schedulerInterval)).minutes.do(lambda: send_message(scheduler_message, schedulerChannel, 0, schedulerInterface))
-            logger.debug(f"System: Starting the scheduler to send '{scheduler_message}' on schedule '{schedulerValue}' every {schedulerInterval} interval at time '{schedulerTime}' on Device:{schedulerInterface} Channel:{schedulerChannel}")
+            logger.debug(f"System: Starting the basic scheduler to send '{scheduler_message}' on schedule '{schedulerValue}' every {schedulerInterval} interval at time '{schedulerTime}' on Device:{schedulerInterface} Channel:{schedulerChannel}")
         else:
             # Default schedule if no valid configuration is provided
+
             # custom scheduler job to run the schedule see examples below
-            logger.debug(f"System: Starting the scheduler to send '{scheduler_message}' every Monday at noon on Device:{schedulerInterface} Channel:{schedulerChannel}")
+            logger.debug(f"System: Starting the scheduler to send reminder every Monday at noon on Device:{schedulerInterface} Channel:{schedulerChannel}")
             schedule.every().monday.at("12:00").do(lambda: logger.info("System: Scheduled Broadcast Enabled Reminder"))
+            
+            # send a joke every 15 minutes
+            #schedule.every(15).minutes.do(lambda: send_message(tell_joke(), schedulerChannel, 0, schedulerInterface))
 
         # Start the Broadcast Scheduler
         await BroadcastScheduler()
@@ -71,17 +79,20 @@ async def setup_scheduler(
 # Send a Welcome Notice for group on the 15th and 25th of the month at 12:00 using send_message function to channel 2 on device 1
 #schedule.every().day.at("12:00").do(lambda: send_message("Welcome to the group", 2, 0, 1)).day(15, 25)
 
-# Send a joke every 6 hours using tell_joke function to channel 2 on device 1
-#schedule.every(6).hours.do(lambda: send_message(tell_joke(), 2, 0, 1))
+# Send a Welcome Notice for group on the 15th and 25th of the month at 12:00
+#schedule.every().day.at("12:00").do(lambda: send_message("Welcome to the group", schedulerChannel, 0, schedulerInterface)).day(15, 25)
 
-# Send a joke every 2 minutes using tell_joke function to channel 2 on device 1
-#schedule.every(2).minutes.do(lambda: send_message(tell_joke(), 2, 0, 1))
+# Send a joke every 6 hours
+#schedule.every(6).hours.do(lambda: send_message(tell_joke(), schedulerChannel, 0, schedulerInterface))
 
-# Send the Welcome Message every other day at 08:00 using send_message function to channel 2 on device 1
-#schedule.every(2).days.at("08:00").do(lambda: send_message(welcome_message, 2, 0, 1))
+# Send a joke every 2 minutes
+#schedule.every(2).minutes.do(lambda: send_message(tell_joke(), schedulerChannel, 0, schedulerInterface))
 
-# Send the MOTD every day at 13:00 using send_message function to channel 2 on device 1
-#schedule.every().day.at("13:00").do(lambda: send_message(MOTD, 2, 0, 1))
+# Send the Welcome Message every other day at 08:00
+#schedule.every(2).days.at("08:00").do(lambda: send_message(welcome_message, schedulerChannel, 0, schedulerInterface))
 
-# Send bbslink looking for peers every other day at 10:00 using send_message function to channel 3 on device 1
-#schedule.every(2).days.at("10:00").do(lambda: send_message("bbslink MeshBot looking for peers", 3, 0, 1))
+# Send the MOTD every day at 13:00
+#schedule.every().day.at("13:00").do(lambda: send_message(MOTD, schedulerChannel, 0, schedulerInterface))
+
+# Send bbslink looking for peers every other day at 10:00
+#schedule.every(2).days.at("10:00").do(lambda: send_message("bbslink MeshBot looking for peers", schedulerChannel, 0, schedulerInterface))
