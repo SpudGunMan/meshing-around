@@ -1236,14 +1236,14 @@ def displayNodeTelemetry(nodeID=0, rxNode=0, userRequested=False):
         logger.critical(f"System: Critical Battery Level: {batteryLevel}{emji} on Device: {rxNode}")
 
     # if numRXDupes,numTxRelays,heapFreeBytes,heapTotalBytes are available loge them
-    if numRXDupes != 0:
-        dataResponse += f" RXDupes:{numRXDupes}"
-        logger.debug(f"System: Device {rxNode} RX Dupes:{numRXDupes}")
-    if numTxRelays != 0:
-        dataResponse += f" TxRelays:{numTxRelays}"
-        logger.debug(f"System: Device {rxNode} TX Relays:{numTxRelays}")
-    if heapFreeBytes != 0 and heapTotalBytes != 0:
-        logger.debug(f"System: Device {rxNode} Heap Memory Free:{heapFreeBytes} Total:{heapTotalBytes}")
+    # if numRXDupes != 0:
+    #     dataResponse += f" RXDupes:{numRXDupes}"
+    #     logger.debug(f"System: Device {rxNode} RX Dupes:{numRXDupes}")
+    # if numTxRelays != 0:
+    #     dataResponse += f" TxRelays:{numTxRelays}"
+    #     logger.debug(f"System: Device {rxNode} TX Relays:{numTxRelays}")
+    # if heapFreeBytes != 0 and heapTotalBytes != 0:
+    #     logger.debug(f"System: Device {rxNode} Heap Memory Free:{heapFreeBytes} Total:{heapTotalBytes}")
         #dataResponse += f" Heap:{heapFreeBytes}/{heapTotalBytes}"
 
     return dataResponse
