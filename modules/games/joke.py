@@ -168,10 +168,10 @@ def sendWithEmoji(message):
         i += 1
     return ' '.join(words)
 
-def tell_joke(nodeID=0):
+def tell_joke(nodeID=0, vox=False):
     dadjoke = Dadjoke()
     try:
-        if dad_jokes_emojiJokes:
+        if dad_jokes_emojiJokes or vox:
             renderedLaugh = sendWithEmoji(dadjoke.joke)
         else:
             renderedLaugh = dadjoke.joke
