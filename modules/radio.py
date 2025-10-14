@@ -191,9 +191,11 @@ async def voxMonitor():
                             else:
                                 traps = voxTrapList
                             if any(trap.lower() in text.lower() for trap in traps):
-                                #remove the trap words from the text
                                 for trap in traps:
-                                    text = text.replace(trap, '')
+                                    idx = text.lower().find(trap.lower())
+                                    if idx != -1:
+                                        # Remove everything before and including the trap word
+                                        text = text[idx + len(trap):]
                                 text = text.strip()
                                 if text:
                                     logger.debug(f"RadioMon: VOX 🎙️Trapped {voxTrapList} in: {text}")
