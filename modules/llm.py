@@ -13,6 +13,27 @@ if not rawLLMQuery:
     # this may be removed in the future
     from googlesearch import search # pip install googlesearch-python
 
+# Tooling Functions Defined Here
+# Example: current_time function
+def llmTool_current_time():
+    """
+    Example tool function to get the current time.
+    :return: Current time string.
+    """
+    return datetime.now().strftime('%Y-%m-%d %H:%M:%S %Z')
+
+llmFunctions = [
+
+    {
+        "name": "llmTool_current_time",
+        "description": "Get the current time.",
+        "parameters": {
+            "type": "object",
+            "properties": {}
+    }
+    }
+]
+
 # LLM System Variables
 ollamaAPI = ollamaHostName + "/api/generate"
 tokens = 450 # max charcters for the LLM response, this is the max length of the response also in prompts
@@ -103,6 +124,30 @@ def send_ollama_query(llmQuery):
     else:
         raise Exception(f"HTTP Error: {result.status_code}")
     return result
+
+def send_ollama_tooling_query(prompt, functions, model=None, max_tokens=450):
+    """
+    Send a prompt and function/tool definitions to Ollama API for function calling.
+    :param prompt: The user prompt string.
+    :param functions: List of function/tool definitions (see Ollama API docs).
+    :param model: Model name (optional, defaults to llmModel).
+    :param max_tokens: Max tokens for response.
+    :return: Ollama API response JSON.
+    """
+    if model is None:
+        model = llmModel
+    payload = {
+        "model": model,
+        "prompt": prompt,
+        "functions": functions,
+        "stream": False,
+        "max_tokens": max_tokens
+    }
+    result = requests.post(ollamaAPI, data=json.dumps(payload))
+    if result.status_code == 200:
+        return result.json()
+    else:
+        raise Exception(f"HTTP Error: {result.status_code} - {result.text}")
 
 def llm_query(input, nodeID=0, location_name=None):
     global antiFloodLLM, llmChat_history
