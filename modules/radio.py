@@ -140,11 +140,11 @@ def checkVoxTrapWords(text):
             traps = [voxTrapList] if isinstance(voxTrapList, str) else voxTrapList
             in_text = text.lower()
             clean_text = text[idx + len(in_text):].strip()
-            idx = in_text.find(trap.lower().strip())
             words = clean_text.lower().split()
             logger.debug(f"VOX trap list: {traps}, botMethods keys: {list(botMethods.keys())}")
             for trap in traps:
                 # Remove everything before and including the trap word
+                idx = in_text.find(clean_text)
                 if idx != -1:
                     if voxEnableCmd:
                         for word in words:
