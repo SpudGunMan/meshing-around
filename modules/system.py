@@ -1111,7 +1111,6 @@ def onDisconnect(interface):
     interface.close()
 
 # Telemetry Functions
-telemetryData = {}
 def initialize_telemetryData():
     telemetryData[0] = {f'interface{i}': 0 for i in range(1, 10)}
     telemetryData[0].update({f'lastAlert{i}': '' for i in range(1, 10)})
