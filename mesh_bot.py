@@ -1117,14 +1117,16 @@ def handle_messages(message, deviceID, channel_number, msg_history, publicChanne
                         # Try to add truncated version of the message
                         msg_text = msgH[1]
                         truncated = False
-                        while len(msg_text) > 0 and len((response + f"\n{msgH[0]}: {msg_text}").encode('utf-8')) > available_bytes:
+                        trunc_marker = "..."
+                        while len(msg_text) > 0 and len((response + f"\n{msgH[0]}: {msg_text}{trunc_marker}").encode('utf-8')) > available_bytes:
                             msg_text = msg_text[:-1]
                             truncated = True
                         if len(msg_text) > 10:
-                            response += f"\n{msgH[0]}: {msg_text}" + ("..." if truncated else "")
-                            # After adding a truncated message, stop (since nothing else will fit)
+                            if truncated:
+                                response += f"\n{msgH[0]}: {msg_text}{trunc_marker}"
+                            else:
+                                response += f"\n{msgH[0]}: {msg_text}"
                             break
-                        # If even a truncated message can't fit, skip this message and try earlier ones
                         continue
                     else:
                         response += new_line
