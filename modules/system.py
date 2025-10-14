@@ -862,17 +862,23 @@ def save_bbsBanList():
 
 def load_bbsBanList():
     global bbs_ban_list
-    # load the bbs_ban_list from file
+    loaded_list = []
     try:
         with open('data/bbs_ban_list.txt', 'r') as f:
-            bbs_ban_list = [line.strip() for line in f.readlines() if line.strip()]
-        logger.debug("System: BBS ban list loaded")
+            loaded_list = [line.strip() for line in f if line.strip()]
+        logger.debug("System: BBS ban list loaded from file")
     except FileNotFoundError:
-        bbs_ban_list = config['bbs'].get('bbs_ban_list', '').split(',')
-        logger.debug("System: No BBS ban list found, starting with default")
+        config_val = config['bbs'].get('bbs_ban_list', '')
+        if config_val:
+            loaded_list = [x.strip() for x in config_val.split(',') if x.strip()]
+        logger.debug("System: No BBS ban list file found, loaded from config or started empty")
     except Exception as e:
         logger.error(f"System: Error loading BBS ban list: {e}")
-        bbs_ban_list = []
+
+    # Merge loaded_list into bbs_ban_list, only adding new entries
+    for node in loaded_list:
+        if node not in bbs_ban_list:
+            bbs_ban_list.append(node)
 
 def isNodeAdmin(nodeID):
     # check if the nodeID is in the bbs_admin_list
@@ -907,6 +913,7 @@ def handle_bbsban(message, message_from_id, isDM):
     action = parts[1]
 
     if action == "list":
+        load_bbsBanList()  # Always reload from file for latest list
         if bbs_ban_list:
             return "BBS Ban List:\n" + "\n".join(bbs_ban_list)
         else:
