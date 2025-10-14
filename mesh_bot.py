@@ -1102,12 +1102,14 @@ def handle_messages(message, deviceID, channel_number, msg_history, publicChanne
                         msg_text = msgH[1]
                         truncated = False
                         while len(msg_text) > 0 and len((response + f"\n{msgH[0]}: {msg_text}").encode('utf-8')) > available_bytes:
-                            # Remove one character at a time from the end
                             msg_text = msg_text[:-1]
                             truncated = True
-                        if len(msg_text) > 10:  # Only add if we have at least 10 chars left
+                        if len(msg_text) > 10:
                             response += f"\n{msgH[0]}: {msg_text}" + ("..." if truncated else "")
-                        break  # Stop adding more messages
+                            # After adding a truncated message, stop (since nothing else will fit)
+                            break
+                        # If even a truncated message can't fit, skip this message and try earlier ones
+                        continue
                     else:
                         response += new_line
 
