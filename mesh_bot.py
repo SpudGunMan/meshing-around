@@ -373,8 +373,8 @@ def handle_howtall(message, message_from_id, deviceID, isDM):
     lat = location[0]
     lon = location[1]
     if lat == latitudeValue and lon == longitudeValue:
-        logger.debug(f"System: HowTall: No GPS location for {message_from_id}")
-        return "No GPS location available"
+        # add guessing tot he msg
+        msg += "Guessing:"
     if use_metric:
             measure = "meters" 
     else:
@@ -389,7 +389,7 @@ def handle_howtall(message, message_from_id, deviceID, isDM):
         return f"Please provide a shadow length in {measure} example: howtall 5.5"
 
     # get data
-    msg = measureHeight(lat, lon, shadow_length)
+    msg += measureHeight(lat, lon, shadow_length)
 
     # if data has NO_ALERTS return help
     if NO_ALERTS in msg:
