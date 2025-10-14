@@ -72,7 +72,6 @@ async def watch_file():
 def call_external_script(message, script="script/runShell.sh"):
     # Call an external script with the message as an argument this is a example only
     try:
-        # Debugging: Print the current working directory and resolved script path
         current_working_directory = os.getcwd()
         script_path = os.path.join(current_working_directory, script)
 
@@ -82,8 +81,15 @@ def call_external_script(message, script="script/runShell.sh"):
             if not os.path.exists(script_path):
                 logger.warning(f"FileMon: Script not found: {script_path}")
                 return "sorry I can't do that"
-            
-        output = os.popen(f"bash {script_path} {message}").read().encode('utf-8').decode('utf-8')
+
+        # Use subprocess.run for better resource management
+        result = subprocess.run(
+            ["bash", script_path, message],
+            capture_output=True,
+            text=True,
+            timeout=10
+        )
+        output = result.stdout.strip()
         return output
     except Exception as e:
         logger.warning(f"FileMon: Error calling external script: {e}")
