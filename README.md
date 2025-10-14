@@ -41,7 +41,7 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 ### Proximity Alerts
 - **Location-Based Alerts**: Get notified when members arrive back at a configured lat/long, perfect for remote locations like campsites.
 - **High Flying Alerts**: Get notified when nodes with high altitude are seen on mesh
-- **Voice/Command Triggers**: The following keywords can be used in messages or via voice (VOX) to trigger bot functions:  
+- **Voice/Command Triggers**: The following keywords can be used via voice (VOX) to trigger bot functions "Hey Chirpy!"
   - `joke`: Tells a joke
   - `weather`: Returns local weather forecast
   - `moon`: Returns moonrise/set and phase info
