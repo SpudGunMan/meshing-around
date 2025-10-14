@@ -315,8 +315,7 @@ def handle_echo(message, message_from_id, deviceID, isDM, channel_number):
         parts = message.lower().split("echo ", 1)
         if len(parts) > 1 and parts[1].strip() != "":
             echo_msg = parts[1]
-            if channel_number != echoChannel:
-                logger.debug(f"System: Echo: adding @ echoChannel {echoChannel} saw {channel_number}")
+            if channel_number != echoChannel and not isDM:
                 echo_msg = "@" + get_name_from_number(message_from_id, 'short', deviceID) + " " + echo_msg
             return echo_msg
         else:
