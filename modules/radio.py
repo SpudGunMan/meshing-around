@@ -132,7 +132,11 @@ def get_sig_strength():
 #     q.put(bytes(indata))
 
 def checkVoxTrapWords(text):
+    # Check if trap words are in text, if so return text wanting to be sent
+    # If trap word matches a bot method, call it and return its result
+    # If no trap words found return None
     if not voxOnTrapList:
+        logger.debug(f"RadioMon: VOX trap words not enabled, passing text: {text}")
         return text
     if text:
         traps = [voxTrapList] if isinstance(voxTrapList, str) else voxTrapList
@@ -141,13 +145,16 @@ def checkVoxTrapWords(text):
             trap_lower = trap.lower()
             idx = text_lower.find(trap_lower)
             if idx != -1:
+                logger.info(f"RadioMon: VOX detected trap word '{trap}' in: '{text}'")
                 # If trap word matches a bot method, call it and return its result
                 if trap_lower in botMethods:
-                    # If your botMethods expect arguments, pass them here (e.g., text or new_text)
+                    logger.info(f"RadioMon: VOX calling bot method for trap word '{trap}'")
                     return botMethods[trap_lower]()
                 # Otherwise, just strip the trap word and everything before it
                 new_text = text[idx + len(trap):].strip()
+                logger.info(f"RadioMon: VOX Detection text after trap word '{trap}': '{new_text}'")
                 return new_text
+        logger.debug(f"RadioMon: VOX Detection: '{text}'")
     return None
 
 async def signalWatcher():
@@ -219,7 +226,7 @@ async def voxMonitor():
                 if rec.AcceptWaveform(data):
                     result = rec.Result()
                     text = json.loads(result).get("text", "")
-                    # check for trap words
+                    # process text
                     if text and text != 'huh':
                         result = checkVoxTrapWords(text)
                         if result:
