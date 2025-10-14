@@ -48,7 +48,7 @@ meshBotAI = """
     PROMPT
     {input}
 
-"""
+    """
 
 if llmContext_fromGoogle:
     meshBotAI = meshBotAI + """
@@ -167,6 +167,7 @@ def llm_query(input, nodeID=0, location_name=None):
 
         #logger.debug(f"System: LLM Response: " + result.strip().replace('\n', ' '))
     except Exception as e:
+        antiFloodLLM.remove(nodeID)  # Ensure removal on error
         logger.warning(f"System: LLM failure: {e}")
         return "⛔️I am having trouble processing your request, please try again later."
     
