@@ -41,7 +41,14 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 ### Proximity Alerts
 - **Location-Based Alerts**: Get notified when members arrive back at a configured lat/long, perfect for remote locations like campsites.
 - **High Flying Alerts**: Get notified when nodes with high altitude are seen on mesh
-- **Hey Chirpy**: Voice activate send messages with "hey chirpy"
+- **Voice/Command Triggers**: The following keywords can be used in messages or via voice (VOX) to trigger bot functions:  
+  - `joke`: Tells a joke
+  - `weather`: Returns local weather forecast
+  - `moon`: Returns moonrise/set and phase info
+  - `daylight`: Returns sunrise/sunset times
+  - `river`: Returns NOAA river flow info
+  - `tide`: Returns NOAA tide information
+  - `satellite`: Returns satellite pass info
 
 ### CheckList / Check In Out
 - **Asset Tracking**: Maintain a list of node/asset checkin and checkout. Useful foraccountability of people, assets. Radio-Net, FEMA, Trailhead.
