@@ -147,7 +147,6 @@ def checkVoxTrapWords(text):
                 if idx != -1:
                     # Remove everything before and including the trap word
                     new_text = text[idx + len(trap_clean):].strip()
-                    logger.debug(f"RadioMon: VOX detected trap word '{trap_lower}' in: '{text}' (remaining: '{new_text}')")
                     words = new_text.lower().split()
                     for word in words:
                         if word in botMethods:
