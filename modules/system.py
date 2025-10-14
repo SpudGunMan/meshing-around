@@ -558,56 +558,60 @@ def get_node_location(nodeID, nodeInt=1, channel=0, round_digits=2):
     else:
         return config_position
     
-def get_closest_nodes(nodeInt=1,returnCount=3, channel=publicChannel):
-    interface = globals()[f'interface{nodeInt}']
-    node_list = []
+async def get_closest_nodes(nodeInt=1,returnCount=3, channel=publicChannel):
+        interface = globals()[f'interface{nodeInt}']
+        node_list = []
 
-    if interface.nodes:
-        for node in interface.nodes.values():
-            if 'position' in node:
-                try:
-                    nodeID = node['num']
-                    latitude = node['position']['latitude']
-                    longitude = node['position']['longitude']
-
-                    #lastheard time in unix time
-                    lastheard = node.get('lastHeard', 0)
-                    #if last heard is over 24 hours ago, ignore the node
-                    if lastheard < (time.time() - 86400):
-                        continue
-
-                    # Calculate distance to node from config.ini location
-                    distance = round(geopy.distance.geodesic((latitudeValue, longitudeValue), (latitude, longitude)).m, 2)
-                    
-                    if (distance < sentry_radius):
-                        if (nodeID not in [globals().get(f'myNodeNum{i}') for i in range(1, 10)]) and str(nodeID) not in sentryIgnoreList:
-                            node_list.append({'id': nodeID, 'latitude': latitude, 'longitude': longitude, 'distance': distance})
-                            
-                except Exception as e:
-                    pass
-            else:
-                # request location data moved to .ini hidden under [sentry]
-                if reqLocationEnabled:
+        if interface.nodes:
+            for node in interface.nodes.values():
+                if 'position' in node:
                     try:
-                        logger.debug(f"System: Requesting location data for {node['id']}, lastHeard: {node.get('lastHeard', 'N/A')}")
-                        # one idea is to send a ping to the node to request location data for if or when, ask again later
-                        interface.sendPosition(destinationId=node['id'], wantResponse=False, channelIndex=channel)
-                        # wait a bit
-                        time.sleep(3)
-                        # send a traceroute request
-                        interface.sendTraceRoute(destinationId=node['id'], channelIndex=channel, wantResponse=False)
-                        # wait a bit
-                        time.sleep(1)
+                        nodeID = node['num']
+                        latitude = node['position']['latitude']
+                        longitude = node['position']['longitude']
+
+                        #lastheard time in unix time
+                        lastheard = node.get('lastHeard', 0)
+                        #if last heard is over 24 hours ago, ignore the node
+                        if lastheard < (time.time() - 86400):
+                            continue
+
+                        # Calculate distance to node from config.ini location
+                        distance = round(geopy.distance.geodesic((latitudeValue, longitudeValue), (latitude, longitude)).m, 2)
+                        
+                        if (distance < sentry_radius):
+                            if (nodeID not in [globals().get(f'myNodeNum{i}') for i in range(1, 10)]) and str(nodeID) not in sentryIgnoreList:
+                                node_list.append({'id': nodeID, 'latitude': latitude, 'longitude': longitude, 'distance': distance})
+                                
                     except Exception as e:
-                        logger.error(f"System: Error requesting location data for {node['id']}. Error: {e}")
-        # sort by distance closest
-        #node_list.sort(key=lambda x: (x['latitude']-latitudeValue)**2 + (x['longitude']-longitudeValue)**2)
-        node_list.sort(key=lambda x: x['distance'])
-        # return the first 3 closest nodes by default
-        return node_list[:returnCount]
-    else:
-        logger.warning(f"System: No nodes found in closest_nodes on interface {nodeInt}")
-        return ERROR_FETCHING_DATA
+                        pass
+                else:
+                    # request location data currently blocking needs to be async
+                    if reqLocationEnabled:
+                        try:
+                            logger.debug(f"System: Requesting location data for {node['id']}, lastHeard: {node.get('lastHeard', 'N/A')}")
+                            # if not a interface node
+                            if node['num'] in [globals().get(f'myNodeNum{i}') for i in range(1, 10)]:
+                                ignore = True
+                            else:
+                                # one idea is to send a ping to the node to request location data for if or when, ask again later
+                                interface.sendPosition(destinationId=node['id'], wantResponse=False, channelIndex=channel)
+                                # wait a bit
+                                time.sleep(3)
+                                # send a traceroute request
+                                interface.sendTraceRoute(destinationId=node['id'], channelIndex=channel, wantResponse=False)
+                                # wait a bit
+                                time.sleep(1)
+                        except Exception as e:
+                            logger.error(f"System: Error requesting location data for {node['id']}. Error: {e}")
+            # sort by distance closest
+            #node_list.sort(key=lambda x: (x['latitude']-latitudeValue)**2 + (x['longitude']-longitudeValue)**2)
+            node_list.sort(key=lambda x: x['distance'])
+            # return the first 3 closest nodes by default
+            return node_list[:returnCount]
+        else:
+            logger.warning(f"System: No nodes found in closest_nodes on interface {nodeInt}")
+            return ERROR_FETCHING_DATA
     
 def handleFavoriteNode(nodeInt=1, nodeID=0, aor=False):
     # Add or remove a favorite node for the given interface. aor: True to add, False to remove.
@@ -1186,6 +1190,10 @@ def displayNodeTelemetry(nodeID=0, rxNode=0, userRequested=False):
     numPacketsRxErr = localTelemetryData[rxNode].get('numPacketsRxErr', 0)
     numTotalNodes = localTelemetryData[rxNode].get('numTotalNodes', 0)
     totalOnlineNodes = localTelemetryData[rxNode].get('numOnlineNodes', 0)
+    numRXDupes = localTelemetryData[rxNode].get('numRXDupes', 0)
+    numTxRelays = localTelemetryData[rxNode].get('numTxRelays', 0)
+    heapFreeBytes = localTelemetryData[rxNode].get('heapFreeBytes', 0)
+    heapTotalBytes = localTelemetryData[rxNode].get('heapTotalBytes', 0)
     # get the telemetry data for a node
     chutil = round(interface.nodes.get(decimal_to_hex(myNodeNum), {}).get("deviceMetrics", {}).get("channelUtilization", 0), 1)
     airUtilTx = round(interface.nodes.get(decimal_to_hex(myNodeNum), {}).get("deviceMetrics", {}).get("airUtilTx", 0), 1)
@@ -1226,6 +1234,16 @@ def displayNodeTelemetry(nodeID=0, rxNode=0, userRequested=False):
         send_message(f"Low Battery Level: {batteryLevel}{emji} on Device: {rxNode}", {secure_channel}, 0, {secure_interface})
     elif batteryLevel < 10:
         logger.critical(f"System: Critical Battery Level: {batteryLevel}{emji} on Device: {rxNode}")
+
+    # if numRXDupes,numTxRelays,heapFreeBytes,heapTotalBytes are available loge them
+    if numRXDupes != 0:
+        dataResponse += f" RXDupes:{numRXDupes}"
+    if numTxRelays != 0:
+        dataResponse += f" TxRelays:{numTxRelays}"
+    if heapFreeBytes != 0 and heapTotalBytes != 0:
+        logger.debug(f"System: Device {rxNode} Heap Memory Free:{heapFreeBytes} Total:{heapTotalBytes}")
+        #dataResponse += f" Heap:{heapFreeBytes}/{heapTotalBytes}"
+
     return dataResponse
 
 positionMetadata = {}
@@ -1876,7 +1894,7 @@ async def handleSentinel(deviceID):
     global handleSentinel_spotted, handleSentinel_loop
     detectedNearby = ""
     resolution = "unknown"
-    closest_nodes = get_closest_nodes(deviceID)
+    closest_nodes = await get_closest_nodes(deviceID)
     closest_node = closest_nodes[0]['id'] if closest_nodes != ERROR_FETCHING_DATA and closest_nodes else None
     closest_distance = closest_nodes[0]['distance'] if closest_nodes != ERROR_FETCHING_DATA and closest_nodes else None
 
@@ -1943,14 +1961,15 @@ async def watchdog():
         for i in range(1, 10):
             interface = globals().get(f'interface{i}')
             retry_int = globals().get(f'retry_int{i}')
-            if interface is not None and not retry_int and globals().get(f'interface{i}_enabled'):
+            int_enabled = globals().get(f'interface{i}_enabled')
+            if interface is not None and not retry_int and int_enabled:
                 try:
                     firmware = getNodeFirmware(0, i)
                 except Exception as e:
                     logger.error(f"System: communicating with interface{i}, trying to reconnect: {e}")
                     globals()[f'retry_int{i}'] = True
 
-                if not globals()[f'retry_int{i}']:
+                if not retry_int and int_enabled:
                     if sentry_enabled:
                         await handleSentinel(i)
 
@@ -1964,7 +1983,7 @@ async def watchdog():
                         logger.debug(intData + f" Firmware:{firmware}")
                         localTelemetryData[0][f'lastAlert{i}'] = intData
 
-            if globals()[f'retry_int{i}'] and globals()[f'interface{i}_enabled']:
+            if retry_int and int_enabled:
                 try:
                     await retry_interface(i)
                 except Exception as e:
