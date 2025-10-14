@@ -1429,7 +1429,7 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
                     ):
                         plane_alt = flight_info['altitude']
                         node_alt = position_data.get('altitude', 0)
-                        if abs(node_alt - plane_alt) <= 600:  # within 600m
+                        if abs(node_alt - plane_alt) <= 900:  # within 900m
                             msg += f"\n✈️Detected near:\n{flight_info}"
                 send_message(msg, highfly_channel, 0, highfly_interface)
             # Keep the positionMetadata dictionary at a maximum size
