@@ -420,7 +420,7 @@ llmRunCounter = 0
 llmTotalRuntime = []
 llmLocationTable = [{'nodeID': 1234567890, 'location': 'No Location'},]
 
-def handle_satpass(message_from_id, deviceID, message, vox=False):
+def handle_satpass(message_from_id, deviceID, message='', vox=False):
     if vox:
         location = (latitudeValue, longitudeValue)
     else:
