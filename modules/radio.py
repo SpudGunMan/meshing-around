@@ -17,6 +17,16 @@ if radio_detection_enabled:
     import socket
 
 if voxDetectionEnabled:
+    # methods available for trap word processing, these can be called by VOX detection when trap words are detected
+    from mesh_bot import tell_joke, handle_wxc, handle_moon, handle_sun, handle_riverFlow, handle_tide, handle_satpass
+    botMethods = {
+        "joke": tell_joke,
+        "weather": handle_wxc,
+        "moon": handle_moon,
+        "sun": handle_sun,
+        "river": handle_riverFlow,
+        "tide": handle_tide,
+        "satellite": handle_satpass}
     # module global variables
     previousVoxState = False
     voxHoldTime = signalHoldTime
@@ -116,11 +126,29 @@ def get_sig_strength():
     strength = get_hamlib('l STRENGTH')
     return strength
 
-def vox_callback(indata, frames, time, status):
-    if status:
-        logger.warning(f"RadioMon: VOX input status: {status}")
-    q.put(bytes(indata))
+# def vox_callback(indata, frames, time, status):
+#     if status:
+#         logger.warning(f"RadioMon: VOX input status: {status}")
+#     q.put(bytes(indata))
 
+def checkVoxTrapWords(text):
+    if not voxOnTrapList:
+        return text
+    if text:
+        traps = [voxTrapList] if isinstance(voxTrapList, str) else voxTrapList
+        text_lower = text.lower()
+        for trap in traps:
+            trap_lower = trap.lower()
+            idx = text_lower.find(trap_lower)
+            if idx != -1:
+                # If trap word matches a bot method, call it and return its result
+                if trap_lower in botMethods:
+                    # If your botMethods expect arguments, pass them here (e.g., text or new_text)
+                    return botMethods[trap_lower]()
+                # Otherwise, just strip the trap word and everything before it
+                new_text = text[idx + len(trap):].strip()
+                return new_text
+    return None
 
 async def signalWatcher():
     global previousStrength
@@ -193,26 +221,12 @@ async def voxMonitor():
                     text = json.loads(result).get("text", "")
                     # check for trap words
                     if text and text != 'huh':
-                        if voxOnTrapList:
-                            if isinstance(voxTrapList, str):
-                                traps = [voxTrapList]
-                            else:
-                                traps = voxTrapList
-                            if any(trap.lower() in text.lower() for trap in traps):
-                                for trap in traps:
-                                    idx = text.lower().find(trap.lower())
-                                    if idx != -1:
-                                        # Remove everything before and including the trap word
-                                        text = text[idx + len(trap):]
-                                text = text.strip()
-                                if text:
-                                    logger.debug(f"RadioMon: VOX 🎙️Trapped {voxTrapList} in: {text}")
-                                    voxMsgQueue.append(f"🎙️Trapped {voxDescription}: {text}")
-                            else:
-                                if debugVoxTmsg:
-                                    logger.debug(f"RadioMon: VOX ignored text not on trap list: {text}")
-                        else:
-                            voxMsgQueue.append(f"🎙️Detected {voxDescription}: {text}")
+                        result = checkVoxTrapWords(text)
+                        if result:
+                            # If result is a function return, handle it (send to mesh, log, etc.)
+                            # If it's just text, handle as a normal message
+                            voxMsgQueue.append(result)
+
                 await asyncio.sleep(0.1)
     except Exception as e:
         logger.error(f"RadioMon: Error in VOX monitor: {e}")
