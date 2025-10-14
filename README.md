@@ -16,6 +16,7 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 ### Network Tools
 - **Build, Test Local Mesh**: Ping allow for message delivery testing with more realistic packets vs. telemetry
 - **Test Node Hardware**: `test` will send incremental sized data into the radio buffer for overall length of message testing
+- **Network Monitoring**: Alert on noisy nodes, node locations, and best placment for relay nodes.
 
 ### Multi Radio/Node Support
 - **Simultaneous Monitoring**: Monitor up to nine networks at the same time.
@@ -40,6 +41,7 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 ### Proximity Alerts
 - **Location-Based Alerts**: Get notified when members arrive back at a configured lat/long, perfect for remote locations like campsites.
 - **High Flying Alerts**: Get notified when nodes with high altitude are seen on mesh
+- **Hey Chirpy**: Voice activate send messages with "hey chirpy"
 
 ### CheckList / Check In Out
 - **Asset Tracking**: Maintain a list of node/asset checkin and checkout. Useful foraccountability of people, assets. Radio-Net, FEMA, Trailhead.
@@ -48,10 +50,21 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 - **Built-in Games**: Enjoy games like DopeWars, Lemonade Stand, BlackJack, and VideoPoker.
 - **FCC ARRL QuizBot**: The exam question pool quiz-bot.
 - **Command-Based Gameplay**: Issue `games` to display help and start playing.
+- **Telemetry Leaderboard**: Fun stats like lowest 🪫 battery or coldest temp 🥶
+
+#### QuizMaster
+- **Interactive Group Quizzes**: The QuizMaster module allows admins to start and stop quiz games for groups. Players can join, leave, and answer questions directly via DM or channel.
+- **Scoring and Leaderboards**: Players can check their scores and see the top performers with `q: score` and `q: top`.
+- **Easy Participation**: Players answer questions by prefixing their answer with `q:`, e.g., `q: 42`.
+
+#### Survey Module
+- **Custom Surveys**: Easily create and deploy custom surveys by editing JSON files in `data/survey`. Multiple surveys can be managed (e.g., `survey snow`).
+- **User Feedback Collection**: Users can participate in surveys via DM, and responses are logged for later review.
 
 ### Radio Frequency Monitoring
 - **SNR RF Activity Alerts**: Monitor a radio frequency and get alerts when high SNR RF activity is detected.
 - **Hamlib Integration**: Use Hamlib (rigctld) to watch the S meter on a connected radio.
+- **Speech to Text Brodcasting to Mesh** Using [vosk](https://alphacephei.com/vosk/models) to translate to text. 
 
 ### EAS Alerts
 - **FEMA iPAWS/EAS Alerts via API**: Use an internet-connected node to message Emergency Alerts from FEMA
@@ -62,16 +75,18 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 
 ### File Monitor Alerts
 - **File Monitor**: Monitor a flat/text file for changes, broadcast the contents of the message to the mesh channel.
-- **News File**: On request of news, the contents of the file are returned.
+- **News File**: On request of news, the contents of the file are returned. Can also call multiple news sources or files.
+- **Shell Command Access**: Pass commands via DM directly to the host OS with replay protection.
 
 ### Data Reporting
 - **HTML Generator**: Visualize bot traffic and data flows with a built-in HTML generator for [data reporting](logs/README.md).
+- **RSS and news feeds**: Get data in mesh from many sources!
 
 ### Robust Message Handling
 - **Message Chunking**: Automatically chunk messages over 160 characters to ensure higher delivery success across hops.
 
 ## Getting Started
-This project is developed on Linux (specifically a Raspberry Pi) but should work on any platform where the [Meshtastic protobuf API](https://meshtastic.org/docs/software/python/cli/) modules are supported, and with any compatible [Meshtastic](https://meshtastic.org/docs/getting-started/) hardware. For pico or low-powered devices, see projects for embedding, [buildroot](https://github.com/buildroot-meshtastic/buildroot-meshtastic), also see [femtofox](https://github.com/noon92/femtofox). 🥔 Please use responsibly and follow local rulings for such equipment. This project captures packets, logs them, and handles over the air communications which can include PII such as GPS locations.
+This project is developed on Linux (specifically a Raspberry Pi) but should work on any platform where the [Meshtastic protobuf API](https://meshtastic.org/docs/software/python/cli/) modules are supported, and with any compatible [Meshtastic](https://meshtastic.org/docs/getting-started/) hardware. For pico or low-powered devices, see projects for embedding, [buildroot](https://github.com/buildroot-meshtastic/buildroot-meshtastic), also see [femtofox](https://github.com/noon92/femtofox) for running on luckfox hardware. If you need a local console consider the [firefly](https://github.com/pdxlocations/firefly) project. 🥔 Please use responsibly and follow local rulings for such equipment. This project captures packets, logs them, and handles over the air communications which can include PII such as GPS locations.
 
 ### Quick Setup 
 #### Clone the Repository
@@ -90,13 +105,16 @@ git clone https://github.com/spudgunman/meshing-around
 | `ping`, `ack` | Return data for signal. Example: `ping 15 #DrivingI5` (activates auto-ping every 20 seconds for count 15 via DM only) | ✅ |
 | `cmd` | Returns the list of commands (the help message) | ✅ |
 | `history` | Returns the last commands run by user(s) | ✅ |
+| `leaderboard` | Shows extreme mesh metrics like lowest battery 🪫 `leaderboard reset` allows admin reset | ✅ |
 | `lheard` | Returns the last 5 heard nodes with SNR. Can also use `sitrep` | ✅ |
 | `motd` | Displays the message of the day or sets it. Example: `motd $New Message Of the day` | ✅ |
 | `sysinfo` | Returns the bot node telemetry info | ✅ |
-| `test` | used to test the limits of data transfer `test 4` sends data to the maxBuffer limit (default 220) via DM only | ✅ |
+| `test` | used to test the limits of data transfer (`test 4` sends data to the maxBuffer limit default 200 charcters) via DM only | ✅ |
 | `whereami` | Returns the address of the sender's location if known |
 | `whoami` | Returns details of the node asking, also returned when position exchanged 📍 | ✅ |
 | `whois` | Returns details known about node, more data with bbsadmin node | ✅ |
+| `echo` | Echo string back, disabled by default | ✅ |
+| `bannode` | Admin option to prevent a node from using bot. `bannode list` will load and use the data/bbs_ban_list.txt db | ✅ |
 
 ### Radio Propagation & Weather Forecasting
 | Command | Description | |
@@ -105,7 +123,7 @@ git clone https://github.com/spudgunman/meshing-around
 | `earthquake` | Returns the largest and number of USGS events for the location | |
 | `hfcond` | Returns a table of HF solar conditions | |
 | `rlist` | Returns a table of nearby repeaters from RepeaterBook | |
-| `riverflow` | Return information from NOAA for river flow info. Example: `riverflow modules/settings.py`| |
+| `riverflow` | Return information from NOAA for river flow info. | |
 | `solar` | Gives an idea of the x-ray flux | |
 | `sun` and `moon` | Return info on rise and set local time | ✅ |
 | `tide` | Returns the local tides (NOAA data source) | |
@@ -134,11 +152,13 @@ git clone https://github.com/spudgunman/meshing-around
 | Command | Description | |
 |---------|-------------|-
 | `askai` and `ask:` | Ask Ollama LLM AI for a response. Example: `askai what temp do I cook chicken` | ✅ |
-| `messages` | Replays the last messages heard, like Store and Forward | ✅ |
-| `readnews` | returns the contents of a file (news.txt, by default) via the chunker on air | ✅ |
+| `messages` | Replays the last messages heard on device, like Store and Forward, returns the PublicChannel and Current | ✅ |
+| `readnews` | returns the contents of a file (data/news.txt, by default) can also `news mesh` via the chunker on air | ✅ |
+| `readrss` | returns a set RSS feed on air | |
 | `satpass` | returns the pass info from API for defined NORAD ID in config or Example: `satpass 25544,33591`| |
-| `wiki:` | Searches Wikipedia and returns the first few sentences of the first result if a match. Example: `wiki: lora radio` |
+| `wiki:` | Searches Wikipedia (or local Kiwix server) and returns the first few sentences of the first result if a match. Example: `wiki: lora radio` |
 | `howfar` | returns the distance you have traveled since your last HowFar. `howfar reset` to start over | ✅ |
+| `howtall` | returns height of something you give a shadow by using sun angle | ✅ |
 
 ### CheckList
 | Command | Description | |
@@ -155,10 +175,21 @@ git clone https://github.com/spudgunman/meshing-around
 | `golfsim` | Plays a 9-hole Golf Simulator | ✅ |
 | `hamtest` | FCC/ARRL Quiz `hamtest general` or `hamtest extra` and `score` | ✅ |
 | `hangman` | Plays the classic word guess game | ✅ |
-| `joke` | Tells a joke | ✅ |
+| `joke` | Tells a joke | |
 | `lemonstand` | Plays the classic Lemonade Stand finance game | ✅ |
 | `mastermind` | Plays the classic code-breaking game | ✅ |
+| `survey` | Issues out a survey to the user | ✅ |
+| `quiz` | QuizMaster Bot `q: ?` for more | ✅ |
+| `tic-tac-toe`| Plays the game classic game | ✅ |
 | `videopoker` | Plays basic 5-card hold Video Poker | ✅ |
+
+#### QuizMaster
+To use QuizMaster the bbs_admin_list is the QuizMaster, who can `q: start` and `q: stop` to start and stop the game,  `q: broadcast <message>` to send a message to all players.
+Players can `q: join` to join the game, `q: leave` to leave the game, `q: score` to see their score, and `q: top` to see the top 3 players.
+To Answer a question, just type the answer prefixed with `q: <answer>`
+
+#### Survey
+To use the Survey feature edit the json files in data/survey multiple surveys are possible such as `survey snow`
 
 ## Other Install Options
 
@@ -225,6 +256,11 @@ The weather forecasting defaults to NOAA, for locations outside the USA, you can
 enabled = True
 lat = 48.50
 lon = -123.0
+# To fuzz the location of the above
+fuzzConfigLocation = True
+# Fuzz all values in all data
+fuzzItAll = False
+
 UseMeteoWxAPI = True
 
 coastalEnabled = False # NOAA Coastal Data Enable NOAA Coastal Waters Forecasts and Tide
@@ -320,10 +356,9 @@ myRegionalKeysDE = 110000000000,120510000000
  This uses the defined lat-long of the bot for collecting of data from the API. see [File-Monitoring](#File-Monitoring) for ideas to collect EAS alerts from a RTL-SDR.
 
 ```ini
-# EAS Alert Broadcast 
-wxAlertBroadcastEnabled = True
-# EAS Alert Broadcast Channels
-wxAlertBroadcastCh = 2,4
+
+wxAlertBroadcastEnabled = True # EAS Alert Broadcast 
+wxAlertBroadcastCh = 2,4 # EAS Alert Broadcast Channels
 ignoreEASenable = True # Ignore any headline that includes followig word list
 ignoreEASwords = test,advisory
 ```
@@ -374,6 +409,33 @@ googleSearchResults = 3 # number of google search results to include in the cont
 ```
 Note for LLM in docker with [NVIDIA](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/docker-specialized.html). Needed for the container with ollama running. 
 
+### Wikipedia Search Settings
+The Wikipedia search module can use either the online Wikipedia API or a local Kiwix server for offline wiki access. Kiwix is especially useful for mesh networks operating in remote or offline environments.
+
+```ini
+# Enable or disable the wikipedia search module
+wikipedia = True
+
+# Use local Kiwix server instead of online Wikipedia
+# Set to False to use online Wikipedia (default)
+useKiwixServer = False
+
+# Kiwix server URL (only used if useKiwixServer is True)
+kiwixURL = http://127.0.0.1:8080
+
+# Kiwix library name (e.g., wikipedia_en_100_nopic_2024-06)
+# Find available libraries at https://library.kiwix.org/
+kiwixLibraryName = wikipedia_en_100_nopic_2024-06
+```
+
+To set up a local Kiwix server:
+1. Install Kiwix tools: https://kiwix.org/en/ `sudo apt install kiwix-tools -y`
+2. Download a Wikipedia ZIM file to `data/`: https://library.kiwix.org/ `wget https://download.kiwix.org/zim/wikipedia/wikipedia_en_100_nopic_2025-09.zim`
+3. Run the server: `kiwix-serve --port 8080 wikipedia_en_100_nopic_2025-09.zim`
+4. Set `useKiwixServer = True` in your config.ini
+
+The bot will automatically extract and truncate content to fit Meshtastic's message size limits (~500 characters).
+
 ### Radio Monitoring
 A module allowing a Hamlib compatible radio to connect to the bot. When functioning, it will message the configured channel with a message of in use. **Requires hamlib/rigctld to be running as a service.**
 
@@ -394,12 +456,15 @@ Some dev notes for ideas of use
 ```ini
 [fileMon]
 filemon_enabled = True
-file_path = alert.txt
-broadcastCh = 2,4
-enable_read_news = False
+file_path = alert.txt # text file to monitor for changes
+broadcastCh = 2 # channel to send the message to can be 2,3 multiple channels comma separated
+enable_read_news = False # news  command will return the contents of a text file
 news_file_path = news.txt
 news_random_line = False # only return a single random line from the news file
-enable_runShellCmd = False # enables running of bash commands runShell.sh demo for sysinfo
+enable_runShellCmd = False # enable the use of exernal shell commands, this enables some data in `sysinfo`
+# if runShellCmd and you think it is safe to allow the x: command to run
+# direct shell command handler the x: command in DMs user must be in bbs_admin_list
+allowXcmd = True
 ```
 
 #### Offline EAS
@@ -425,7 +490,12 @@ rtl_fm -f 162425000 -s 22050 | multimon-ng -t raw -a EAS /dev/stdin | python eas
 ```
 
 #### Newspaper on mesh
-a newspaper could be built by external scripts. could use Ollama to compile text via news web pages and write news.txt
+Maintain multiple news sources. Each source should be a file named `{source}_news.txt` in the `data/` directory (for example, `data/mesh_news.txt`).
+- To read the default news, use the `readnews` command (reads from `data/news.txt`.
+- To read a specific source, use `readnews abc` to read from `data/abc_news.txt`.
+
+This allows you to organize and access different news feeds or categories easily.  
+External scripts can update these files as needed, and the bot will serve the latest content on request.
 
 ### Greet new nodes QRZ module
 This isnt QRZ.com this is Q code for who is calling me, this will track new nodes and say hello
@@ -440,19 +510,13 @@ training = True # Training mode will not send the hello message to new nodes, us
 In the config.ini enable the module
 ```ini
 [scheduler]
-# enable or disable the scheduler module
-enabled = False
-# interface to send the message to
-interface = 1
-# channel to send the message to
+enabled = False # enable or disable the scheduler module
+interface = 1 # channel to send the message to
 channel = 2
 message = "MeshBot says Hello! DM for more info."
-# value can be min,hour,day,mon,tue,wed,thu,fri,sat,sun
-value =
-# interval to use when time is not set (e.g. every 2 days)
-interval = 
-# time of day in 24:00 hour format when value is 'day' and interval is not set
-time =
+value = # value can be min,hour,day,mon,tue,wed,thu,fri,sat,sun
+interval =  # interval to use when time is not set (e.g. every 2 days)
+time = # time of day in 24:00 hour format when value is 'day' and interval is not set
 ```
  The basic brodcast message can be setup in condig.ini. For advanced, See mesh_bot.py around the bottom of file, line [1491](https://github.com/SpudGunMan/meshing-around/blob/e94581936530c76ea43500eebb43f32ba7ed5e19/mesh_bot.py#L1491) to edit the schedule. See [schedule documentation](https://schedule.readthedocs.io/en/stable/) for more. Recomend to backup changes so they dont get lost.
 
@@ -475,8 +539,20 @@ bbslink_enabled = True
 bbslink_whitelist = # list of whitelisted nodes numbers ex: 2813308004,4258675309 empty list allows all
 ```
 
+### Firmware 2.6 DM Key, and 2.7 CLIENT_BASE Favorite Nodes
+Firmware 2.6 introduced [PKC](https://meshtastic.org/blog/introducing-new-public-key-cryptography-in-v2_5/), enabling secure private messaging by adding necessary keys to each node. To fully utilize this feature, you should add favorite nodes—such as BBS admins—to your node’s favorites list to ensure their keys are retained. A helper script is provided to simplify this process:
+- Run the helper script from the main program directory: `python3 script/addFav.py`
+- By default, this script adds nodes from `bbs_admin_list` and `bbslink_whitelist`
+- If using a virtual environment, run: `launch.sh addfav`
+
+To configure favorite nodes, add their numbers to your config file:
+```conf
+[general]
+favoriteNodeList = # list of favorite nodes numbers ex: 2813308004,4258675309 used by script/addFav.py
+```
+
 ### MQTT Notes
-There is no direct support for MQTT in the code, however, reports from Discord are that using [meshtasticd](https://meshtastic.org/docs/hardware/devices/linux-native-hardware/) with no radio and attaching the bot to the software node, which is MQTT-linked, allows routing. Tested working fully Firmware:2.5.15.79da236 with [mosquitto](https://meshtastic.org/docs/software/integrations/mqtt/mosquitto/).
+There is no direct support for MQTT in the code, however, reports from Discord are that using [meshtasticd](https://meshtastic.org/docs/hardware/devices/linux-native-hardware/) with no radio and attaching the bot to the software node, which is MQTT-linked, allows routing. Tested working fully Firmware:2.6.11 with [mosquitto](https://meshtastic.org/docs/software/integrations/mqtt/mosquitto/).
 
 ~~There also seems to be a quicker way to enable MQTT by having your bot node with the enabled [serial](https://meshtastic.org/docs/configuration/module/serial/) module with echo enabled and MQTT uplink and downlink. These two~~ 
 
@@ -510,7 +586,8 @@ I used ideas and snippets from other responder bots and want to call them out!
 - **dj505**: trying it on windows!
 - **mikecarper**: ideas, and testing. hamtest
 - **c.merphy360**: high altitude alerts
-- **Cisien, bitflip, **Woof**, **propstg**, **trs2982**, **Josh** and Hailo1999**: For testing and feature ideas on Discord and GitHub.
+- **Iris**: testing and finding 🐞
+- **Cisien, bitflip, Woof, propstg, snydermesh, trs2982, FJRPilot, F0X, mesb1, and Hailo1999**: For testing and feature ideas on Discord and GitHub.
 - **Meshtastic Discord Community**: For tossing out ideas and testing code.
 
 ### Tools

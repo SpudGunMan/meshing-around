@@ -29,6 +29,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
         "cq": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
         "cqcq": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
         "cqcqcq": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
+        "echo": lambda: handle_echo(message, message_from_id, deviceID, isDM, channel_number),
         "lheard": lambda: handle_lheard(message, message_from_id, deviceID, isDM),
         "motd": lambda: handle_motd(message, MOTD),
         "ping": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
@@ -146,14 +147,48 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, chann
             
     return msg
 
-def handle_motd(message):
+def handle_motd(message, message_from_id, isDM):
     global MOTD
-    if "$" in message:
+    isAdmin = False
+    msg = ""
+    # check if the message_from_id is in the bbs_admin_list
+    if bbs_admin_list != ['']:
+        for admin in bbs_admin_list:
+            if str(message_from_id) == admin:
+                isAdmin = True
+                break
+    else:
+        isAdmin = True
+
+    # admin help via DM
+    if  "?" in message and isDM and isAdmin:
+        msg = "Message of the day, set with 'motd $ HelloWorld!'"
+    elif  "?" in message and isDM and not isAdmin:
+        # non-admin help via DM
+        msg = "Message of the day"
+    elif "$" in message and isAdmin:
         motd = message.split("$")[1]
         MOTD = motd.rstrip()
-        return "MOTD Set to: " + MOTD
+        logger.debug(f"System: {message_from_id} changed MOTD: {MOTD}")
+        msg = "MOTD changed to: " + MOTD
     else:
-        return MOTD
+        msg = "MOTD: " + MOTD
+    return msg
+
+def handle_echo(message, message_from_id, deviceID, isDM, channel_number):
+    if "?" in message.lower():
+        return "echo command returns your message back to you. Example:echo Hello World"
+    elif "echo " in message.lower():
+        parts = message.lower().split("echo ", 1)
+        if len(parts) > 1 and parts[1].strip() != "":
+            echo_msg = parts[1]
+            if channel_number != echoChannel:
+                echo_msg = "@" + get_name_from_number(message_from_id, 'short', deviceID) + " " + echo_msg
+            return echo_msg
+        else:
+            return "Please provide a message to echo back to you. Example:echo Hello World"
+    else:
+        return "Please provide a message to echo back to you. Example:echo Hello World"
     
 def sysinfo(message, message_from_id, deviceID):
     if "?" in message:
@@ -168,14 +203,6 @@ def handle_lheard(message, nodeid, deviceID, isDM):
     # display last heard nodes add to response
     bot_response = "Last Heard\n"
     bot_response += str(get_node_list(1))
-
-    # show last users of the bot with the cmdHistory list
-    history = handle_history(message, nodeid, deviceID, isDM, lheard=True)
-    if history:
-        bot_response += f'LastSeen\n{history}'
-    else:
-        # trim the last \n
-        bot_response = bot_response[:-1]
 
     # bot_response += getNodeTelemetry(deviceID)
     return bot_response
@@ -389,7 +416,7 @@ def onReceive(packet, interface):
                                     time.sleep(responseDelay)
         else:
             # Evaluate non TEXT_MESSAGE_APP packets
-            consumeMetadata(packet, rxNode)
+            consumeMetadata(packet, rxNode, channel_number)
     except KeyError as e:
         logger.critical(f"System: Error processing packet: {e} Device:{rxNode}")
         logger.debug(f"System: Error Packet = {packet}")
@@ -405,26 +432,29 @@ async def start_rx():
             logger.info(f"System: Autoresponder Started for Device{i} {get_name_from_number(myNodeNum, 'long', i)},"
                         f"{get_name_from_number(myNodeNum, 'short', i)}. NodeID: {myNodeNum}, {decimal_to_hex(myNodeNum)}")
     
+    if useDMForResponse:
+        logger.debug(f"System: Respond by DM only")
     if log_messages_to_file:
         logger.debug("System: Logging Messages to disk")
     if syslog_to_file:
         logger.debug("System: Logging System Logs to disk")
-    if solar_conditions_enabled:
-        logger.debug("System: Celestial Telemetry Enabled")
     if motd_enabled:
         logger.debug(f"System: MOTD Enabled using {MOTD}")
+    if enableEcho:
+        logger.debug(f"System: Echo command Enabled")
     if sentry_enabled:
         logger.debug(f"System: Sentry Mode Enabled {sentry_radius}m radius reporting to channel:{secure_channel}")
-    if store_forward_enabled:
-        logger.debug(f"System: Store and Forward Enabled using limit: {storeFlimit}")
-    if useDMForResponse:
-        logger.debug(f"System: Respond by DM only")
+    if highfly_enabled:
+        logger.debug(f"System: HighFly Enabled using {highfly_altitude}m limit reporting to channel:{highfly_channel}")
     if repeater_enabled and multiple_interface:
         logger.debug(f"System: Repeater Enabled for Channels: {repeater_channels}")
-    if file_monitor_enabled:
-        logger.debug(f"System: File Monitor Enabled for {file_monitor_file_path}, broadcasting to channels: {file_monitor_broadcastCh}")
-    if read_news_enabled:
-        logger.debug(f"System: File Monitor News Reader Enabled for {news_file_path}")
+    if bbs_enabled:
+        logger.debug(f"System: BBS Enabled, {bbsdb} has {len(bbs_messages)} messages. Direct Mail Messages waiting: {(len(bbs_dm) - 1)}")
+        if bbs_link_enabled:
+            if len(bbs_link_whitelist) > 0:
+                logger.debug(f"System: BBS Link Enabled with {len(bbs_link_whitelist)} peers")
+            else:
+                logger.debug(f"System: BBS Link Enabled allowing all")
     if scheduler_enabled:
         # Examples of using the scheduler, Times here are in 24hr format
         # https://schedule.readthedocs.io/en/stable/
@@ -441,14 +471,41 @@ async def start_rx():
 
 # Hello World 
 async def main():
-    meshRxTask = asyncio.create_task(start_rx())
-    watchdogTask = asyncio.create_task(watchdog())
-    if file_monitor_enabled:
-        fileMonTask: asyncio.Task = asyncio.create_task(handleFileWatcher())
-
-    await asyncio.gather(meshRxTask, watchdogTask)
-    if file_monitor_enabled:
-        await asyncio.gather(fileMonTask)
+    tasks = []
+    
+    try:
+        # Create core tasks
+        tasks.append(asyncio.create_task(start_rx(), name="pong_rx"))
+        tasks.append(asyncio.create_task(watchdog(), name="watchdog"))
+        
+        # Add optional tasks
+        if file_monitor_enabled:
+            tasks.append(asyncio.create_task(handleFileWatcher(), name="file_monitor"))
+        
+        logger.debug(f"System: Starting {len(tasks)} async tasks")
+        
+        # Wait for all tasks with proper exception handling
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+        
+        # Check for exceptions in results
+        for i, result in enumerate(results):
+            if isinstance(result, Exception):
+                logger.error(f"Task {tasks[i].get_name()} failed with: {result}")
+        
+    except Exception as e:
+        logger.error(f"Main loop error: {e}")
+    finally:
+        # Cleanup tasks
+        logger.debug("System: Cleaning up async tasks")
+        for task in tasks:
+            if not task.done():
+                task.cancel()
+                try:
+                    await task
+                except asyncio.CancelledError:
+                    logger.debug(f"Task {task.get_name()} cancelled successfully")
+                except Exception as e:
+                    logger.warning(f"Error cancelling task {task.get_name()}: {e}")
 
     await asyncio.sleep(0.01)
 

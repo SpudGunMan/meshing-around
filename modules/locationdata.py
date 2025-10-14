@@ -16,6 +16,7 @@ trap_list_location = ("whereami", "wx", "wxa", "wxalert", "rlist", "ea", "ealert
 def where_am_i(lat=0, lon=0, short=False, zip=False):
     whereIam = ""
     grid = mh.to_maiden(float(lat), float(lon))
+    location = lat, lon
     
     if int(float(lat)) == 0 and int(float(lon)) == 0:
         logger.error("Location: No GPS data, try sending location")
@@ -171,6 +172,7 @@ def getArtSciRepeaters(lat=0, lon=0):
 
 def get_NOAAtide(lat=0, lon=0):
     station_id = ""
+    location = lat,lon
     if float(lat) == 0 and float(lon) == 0:
         logger.error("Location:No GPS data, try sending location for tide")
         return NO_DATA_NOGPS
@@ -235,6 +237,7 @@ def get_NOAAtide(lat=0, lon=0):
 def get_NOAAweather(lat=0, lon=0, unit=0):
     # get weather report from NOAA for forecast detailed
     weather = ""
+    location = lat,lon
     if float(lat) == 0 and float(lon) == 0:
         return NO_DATA_NOGPS
     
@@ -338,14 +341,15 @@ def abbreviate_noaa(row):
 
     line = row
     for key, value in replacements.items():
-        # case insensitive replace
-        line = line.replace(key, value).replace(key.capitalize(), value).replace(key.upper(), value)
-                    
+        for variant in (key, key.capitalize(), key.upper()):
+            if variant != value:
+                line = line.replace(variant, value)
     return line
 
 def getWeatherAlertsNOAA(lat=0, lon=0, useDefaultLatLon=False):
     # get weather alerts from NOAA limited to ALERT_COUNT with the total number of alerts found
     alerts = ""
+    location = lat,lon
     if float(lat) == 0 and float(lon) == 0 and not useDefaultLatLon:
         return NO_DATA_NOGPS
     else:
@@ -422,6 +426,7 @@ def alertBrodcastNOAA():
 def getActiveWeatherAlertsDetailNOAA(lat=0, lon=0):
     # get the latest details of weather alerts from NOAA
     alerts = ""
+    location = lat,lon
     if float(lat) == 0 and float(lon) == 0:
         logger.warning("Location:No GPS data, try sending location for weather alerts")
         return NO_DATA_NOGPS
@@ -609,54 +614,47 @@ def getIpawsAlert(lat=0, lon=0, shortAlerts = False):
 
     return alert
 
-def get_flood_noaa(lat=0, lon=0, uid=0):
-    # get the latest flood alert from NOAA
+def get_flood_noaa(lat=0, lon=0, uid=None):
+    """
+    Fetch the latest flood alert from NOAA for a given gauge UID.
+    Returns a formatted string or an error message.
+    """
     api_url = "https://api.water.noaa.gov/nwps/v1/gauges/"
     headers = {'accept': 'application/json'}
-    if uid == 0:
-        return "No flood gauge data found"
+    if not uid:
+        logger.warning(f"Location:No flood gauge data found for UID {uid}")
+        return ERROR_FETCHING_DATA
     try:
         response = requests.get(api_url + str(uid), headers=headers, timeout=urlTimeoutSeconds)
         if not response.ok:
-            logger.warning("Location:Error fetching flood gauge data from NOAA for " + str(uid))
+            logger.warning(f"Location:Error fetching flood gauge data from NOAA for {uid} (HTTP {response.status_code})")
             return ERROR_FETCHING_DATA
-    except (requests.exceptions.RequestException):
-        logger.warning("Location:Error fetching flood gauge data from NOAA for " + str(uid))
+        data = response.json()
+        if not data or 'status' not in data:
+            logger.warning(f"Location:No flood gauge data found for UID {uid}")
+            return "No flood gauge data found"
+    except requests.exceptions.RequestException as e:
+        logger.warning(f"Location:Error fetching flood gauge data from: {api_url}{uid} ({e})")
         return ERROR_FETCHING_DATA
-    
-    data = response.json()
-    if not data:
-        return "No flood gauge data found"
-    
-    # extract values from JSON
-    try:
-        name = data['name']
-        status_observed_primary = data['status']['observed']['primary']
-        status_observed_primary_unit = data['status']['observed']['primaryUnit']
-        status_observed_secondary = data['status']['observed']['secondary']
-        status_observed_secondary_unit = data['status']['observed']['secondaryUnit']
-        status_observed_floodCategory = data['status']['observed']['floodCategory']
-        status_forecast_primary = data['status']['forecast']['primary']
-        status_forecast_primary_unit = data['status']['forecast']['primaryUnit']
-        status_forecast_secondary = data['status']['forecast']['secondary']
-        status_forecast_secondary_unit = data['status']['forecast']['secondaryUnit']
-        status_forecast_floodCategory = data['status']['forecast']['floodCategory']
-
-        # except KeyError as e:
-        #     print(f"Missing key in data: {e}")
-        # except TypeError as e:
-        #     print(f"Type error in data: {e}")
     except Exception as e:
-        logger.debug("Location:Error extracting flood gauge data from NOAA for " + str(uid))
+        logger.warning(f"Location:Unexpected error: {e}")
         return ERROR_FETCHING_DATA
-    
-    # format the flood data
-    logger.debug(f"System: NOAA Flood data for {str(uid)}")
-    flood_data = f"Flood Data {name}:\n"
-    flood_data += f"Observed: {status_observed_primary}{status_observed_primary_unit}({status_observed_secondary}{status_observed_secondary_unit}) risk: {status_observed_floodCategory}"
-    flood_data += f"\nForecast: {status_forecast_primary}{status_forecast_primary_unit}({status_forecast_secondary}{status_forecast_secondary_unit}) risk: {status_forecast_floodCategory}"
 
-    return flood_data
+    # extract values from JSON safely
+    try:
+        name = data.get('name', 'Unknown')
+        observed = data['status'].get('observed', {})
+        forecast = data['status'].get('forecast', {})
+        flood_data = f"Flood Data {name}:\n"
+        flood_data += f"Observed: {observed.get('primary', '?')}{observed.get('primaryUnit', '')} ({observed.get('secondary', '?')}{observed.get('secondaryUnit', '')}) risk: {observed.get('floodCategory', '?')}"
+        flood_data += f"\nForecast: {forecast.get('primary', '?')}{forecast.get('primaryUnit', '')} ({forecast.get('secondary', '?')}{forecast.get('secondaryUnit', '')}) risk: {forecast.get('floodCategory', '?')}"
+        #flood_data += f"\nStage: {data.get('stage', '?')} {data.get('stageUnit', '')}, Flow: {data.get('flow', '?')} {data.get('flowUnit', '')}"
+        #flood_data += f"\nLast Updated: {data.get('status', {}).get('lastUpdated', '?')}"
+        flood_data += f"\n"
+        return flood_data
+    except Exception as e:
+        logger.debug(f"Location:Error extracting flood gauge data from NOAA for {uid}: {e}")
+        return ERROR_FETCHING_DATA
 
 def get_volcano_usgs(lat=0, lon=0):
     alerts = ''
@@ -820,6 +818,7 @@ def distance(lat=0,lon=0,nodeID=0, reset=False):
     # part of the howfar function, calculates the distance between two lat/lon points
     msg = ""
     dupe = False
+    location = lat,lon
     r = 6371 # Radius of earth in kilometers # haversine formula
     
     if lat == 0 and lon == 0:
@@ -903,6 +902,10 @@ def distance(lat=0,lon=0,nodeID=0, reset=False):
             total_distance_miles = total_distance_km * 0.621371
             msg += f", Total: {total_distance_miles:.2f} miles"
         
+        # update the last point in howfarDB
+        if not dupe:
+            howfarDB[nodeID].append({'lat': lat, 'lon': lon, 'time': datetime.now()})
+        
         # if points 3+ are within 30 meters of the first point add the area of the polygon
         if len(howfarDB[nodeID]) >= 3:
             points = []
@@ -952,11 +955,6 @@ def distance(lat=0,lon=0,nodeID=0, reset=False):
             lat_centroid = math.degrees(lat_centroid)
             lon_centroid = math.degrees(lon_centroid)
             msg += f", Centroid: {lat_centroid:.5f}, {lon_centroid:.5f}"
-
-
-        # update the last point in howfarDB
-        if not dupe:
-            howfarDB[nodeID].append({'lat': lat, 'lon': lon, 'time': datetime.now()})
 
         return msg
 
@@ -1013,5 +1011,3 @@ def get_openskynetwork(lat=0, lon=0):
         aircraft_report = aircraft_report[:-1]
     aircraft_report = abbreviate_noaa(aircraft_report)
     return aircraft_report if aircraft_report else NO_ALERTS
-
-

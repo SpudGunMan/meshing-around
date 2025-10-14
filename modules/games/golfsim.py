@@ -133,6 +133,7 @@ def playGolf(nodeID, message, finishedHole=False):
     total_strokes = 0
     total_to_par = 0
     par = 0
+    hole = 1
 
     # get player's last command from tracker if not new player
     last_cmd = ""
@@ -145,6 +146,10 @@ def playGolf(nodeID, message, finishedHole=False):
             par = golfTracker[i]['par']
             total_strokes = golfTracker[i]['total_strokes']
             total_to_par = golfTracker[i]['total_to_par']
+    #update last played time
+    for i in range(len(golfTracker)):
+        if golfTracker[i]['nodeID'] == nodeID:
+            golfTracker[i]['last_played'] = time.time()
 
     if last_cmd == "" or last_cmd == "new":
         # Start a new hole

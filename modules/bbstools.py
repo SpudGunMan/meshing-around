@@ -16,19 +16,37 @@ def load_bbsdb():
     # load the bbs messages from the database file
     try:
         with open('data/bbsdb.pkl', 'rb') as f:
-            bbs_messages = pickle.load(f)
-    except Exception as e:
+            new_bbs_messages = pickle.load(f)
+            if isinstance(new_bbs_messages, list):
+                for msg in new_bbs_messages:
+                    #example [1, 'Welcome to meshBBS', 'Welcome to the BBS, please post a message!', 0]
+                    msgHash = hash(tuple(msg[1:3]))  # Create a hash of the message content (subject and body)
+                    # Check if the message already exists in bbs_messages
+                    if all(hash(tuple(existing_msg[1:3])) != msgHash for existing_msg in bbs_messages):
+                        # if the message is not a duplicate, add it to bbs_messages Maintain the message ID sequence
+                        new_id = len(bbs_messages) + 1
+                        bbs_messages.append([new_id, msg[1], msg[2], msg[3]])
+    except FileNotFoundError:
+        logger.debug("System: bbsdb.pkl not found, creating new one")
         bbs_messages = [[1, "Welcome to meshBBS", "Welcome to the BBS, please post a message!",0]]
-        logger.debug("System: Creating new data/bbsdb.pkl")
-        with open('data/bbsdb.pkl', 'wb') as f:
-            pickle.dump(bbs_messages, f)
+        try:
+            with open('data/bbsdb.pkl', 'wb') as f:
+                pickle.dump(bbs_messages, f)
+        except Exception as e:
+            logger.error(f"System: Error creating bbsdb.pkl: {e}")
+    except Exception as e:
+        logger.error(f"System: Error loading bbsdb.pkl: {e}")
+        bbs_messages = [[1, "Welcome to meshBBS", "Welcome to the BBS, please post a message!",0]]
 
 def save_bbsdb():
     global bbs_messages
     # save the bbs messages to the database file
-    logger.debug("System: Saving data/bbsdb.pkl")
-    with open('data/bbsdb.pkl', 'wb') as f:
-        pickle.dump(bbs_messages, f)
+    try:
+        logger.debug("System: Saving data/bbsdb.pkl")
+        with open('data/bbsdb.pkl', 'wb') as f:
+            pickle.dump(bbs_messages, f)
+    except Exception as e:
+        logger.error(f"System: Error saving bbsdb: {e}")
 
 def bbs_help():
     # help message
@@ -40,7 +58,7 @@ def bbs_list_messages():
     message_list = ""
     for message in bbs_messages:
         # message[0] is the messageID, message[1] is the subject
-        message_list += "Msg #" + str(message[0]) + " " + message[1] + "\n"
+        message_list += "[#" + str(message[0]) + "] " + message[1] + "\n"
 
     # last newline removed
     message_list = message_list[:-1]
@@ -70,7 +88,11 @@ def bbs_delete_message(messageID = 0, fromNode = 0):
     else:
         return "Please specify a message number to delete."
 
-def bbs_post_message(subject, message, fromNode):
+def bbs_post_message(subject, message, fromNode, threadID=0, replytoID=0):
+    # post a message to the bbsdb
+    now = today.strftime('%Y-%m-%d %H:%M:%S')
+    thread = threadID
+    replyto = replytoID
     # post a message to the bbsdb and assign a messageID
     messageID = len(bbs_messages) + 1
 
@@ -78,15 +100,17 @@ def bbs_post_message(subject, message, fromNode):
     if str(fromNode) in bbs_ban_list:
         logger.warning(f"System: Naughty node {fromNode}, tried to post a message: {subject}, {message} and was dropped.")
         return "Message posted. ID is: " + str(messageID)
-    
+    # validate message length isnt three times the MESSAGE_CHUNK_SIZE
+    if len(message) > (3 * MESSAGE_CHUNK_SIZE):
+        return "Message too long, max length is " + str(3 * MESSAGE_CHUNK_SIZE) + " characters."
     # validate not a duplicate message
     for msg in bbs_messages:
         if msg[1].strip().lower() == subject.strip().lower() and msg[2].strip().lower() == message.strip().lower():
             messageID = msg[0]
             return "Message posted. ID is: " + str(messageID)
-
+    # validate its not overlength by keeping in chunker limit
     # append the message to the list
-    bbs_messages.append([messageID, subject, message, fromNode])
+    bbs_messages.append([messageID, subject, message, fromNode, now, thread, replyto])
     logger.info(f"System: NEW Message Posted, subject: {subject}, message: {message} from {fromNode}")
 
     # save the bbsdb
@@ -118,7 +142,11 @@ def load_bbsdm():
     # load the bbs messages from the database file
     try:
         with open('data/bbsdm.pkl', 'rb') as f:
-            bbs_dm = pickle.load(f)
+            new_bbs_dm = pickle.load(f)
+            if isinstance(new_bbs_dm, list):
+                for msg in new_bbs_dm:
+                    if msg not in bbs_dm:
+                        bbs_dm.append(msg)
     except:
         bbs_dm = [[1234567890, "Message", 1234567890]]
         logger.debug("System: Creating new data/bbsdm.pkl")
@@ -131,6 +159,14 @@ def bbs_post_dm(toNode, message, fromNode):
     if str(fromNode) in bbs_ban_list:
         logger.warning(f"System: Naughty node {fromNode}, tried to post a message: {message} and was dropped.")
         return "DM Posted for node " + str(toNode)
+    
+    # validate message length isnt three times the MESSAGE_CHUNK_SIZE
+    if len(message) > (3 * MESSAGE_CHUNK_SIZE):
+        return "Message too long, max length is " + str(3 * MESSAGE_CHUNK_SIZE) + " characters."
+    # validate not a duplicate message
+    for msg in bbs_dm:
+        if msg[0] == int(toNode) and msg[1].strip().lower() == message.strip().lower():
+            return "DM Posted for node " + str(toNode)
 
     # append the message to the list
     bbs_dm.append([int(toNode), message, int(fromNode)])
@@ -182,7 +218,12 @@ def bbs_sync_posts(input, peerNode, RxNode):
             #store the message
             subject = input.split("$")[1].split("#")[0]
             body = input.split("#")[1]
-            bbs_post_message(subject, body, peerNode)
+            fromNodeHex = input.split("@")[1]
+            try:
+                bbs_post_message(subject, body, int(fromNodeHex, 16))
+            except:
+                logger.error(f"System: Error parsing bbslink from node {peerNode}: {input}")
+                fromNodeHex = hex(peerNode)
             messageID = input.split(" ")[1]
             return f"bbsack {messageID}"
     elif "bbsack" in input.lower():
@@ -197,12 +238,14 @@ def bbs_sync_posts(input, peerNode, RxNode):
 
     # send message with delay to keep chutil happy
     if messageID < len(bbs_messages):
-        logger.debug(f"System: Sending bbslink message {messageID} to peer " + str(peerNode))
+        logger.debug(f"System: wait to bbslink with peer " + str(peerNode))
+        fromNodeHex = hex(bbs_messages[messageID][3])
         time.sleep(5 + responseDelay)
         # every 5 messages add extra delay
         if messageID % 5 == 0:
             time.sleep(10 + responseDelay)
-        return f"bbslink {messageID} ${bbs_messages[messageID][1]} #{bbs_messages[messageID][2]}"
+        logger.debug(f"System: Sending bbslink message {messageID} of {len(bbs_messages)} to peer " + str(peerNode))
+        return f"bbslink {messageID} ${bbs_messages[messageID][1]} #{bbs_messages[messageID][2]} @{fromNodeHex}"
     else:
         logger.debug("System: bbslink sync complete with peer " + str(peerNode))
 

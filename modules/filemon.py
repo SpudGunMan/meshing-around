@@ -5,14 +5,16 @@ from modules.log import *
 import asyncio
 import random
 import os
+import subprocess
 
 trap_list_filemon = ("readnews",)
 
-def read_file(file_monitor_file_path, random_line_only=False):
+NEWS_DATA_DIR = os.path.join(os.path.dirname(__file__), '..', 'data')
+newsSourcesList = []
 
+def read_file(file_monitor_file_path, random_line_only=False):
     try:
         if not os.path.exists(file_monitor_file_path):
-            logger.warning(f"FileMon: File not found: {file_monitor_file_path}")
             if file_monitor_file_path == "bee.txt":
                 return "🐝buzz 💐buzz buzz🍯"
         if random_line_only:
@@ -28,25 +30,29 @@ def read_file(file_monitor_file_path, random_line_only=False):
     except Exception as e:
         logger.warning(f"FileMon: Error reading file: {file_monitor_file_path}")
         return None
-    
-def read_news():
-    # read the news file on demand
-    return read_file(news_file_path, news_random_line_only)
 
+def read_news(source=None):
+    # Reads the news file. If a source is provided, reads {source}_news.txt.
+    if source:
+        file_path = os.path.join(NEWS_DATA_DIR, f"{source}_news.txt")
+    else:
+        file_path = os.path.join(NEWS_DATA_DIR, news_file_path)
+    return read_file(file_path, news_random_line_only)
 
 def write_news(content, append=False):
     # write the news file on demand
     try:
-        with open(news_file_path, 'a' if append else 'w', encoding='utf-8') as f:
-            f.write(content)
-            logger.info(f"FileMon: Updated {news_file_path}")
+        file_path = os.path.join(NEWS_DATA_DIR, news_file_path)
+        with open(file_path, 'a' if append else 'w', encoding='utf-8') as f:
+            #f.write(content)
+            logger.info(f"FileMon: Updated {file_path}")
         return True
     except Exception as e:
-        logger.warning(f"FileMon: Error writing file: {news_file_path}")
+        logger.warning(f"FileMon: Error writing file: {file_path}")
         return False
 
 async def watch_file():
-    
+    # Watch the file for changes and return the new content when it changes
     if not os.path.exists(file_monitor_file_path):
         return None
     else:
@@ -64,6 +70,7 @@ async def watch_file():
             await asyncio.sleep(1)  # Check every
 
 def call_external_script(message, script="script/runShell.sh"):
+    # Call an external script with the message as an argument this is a example only
     try:
         # Debugging: Print the current working directory and resolved script path
         current_working_directory = os.getcwd()
@@ -81,4 +88,84 @@ def call_external_script(message, script="script/runShell.sh"):
     except Exception as e:
         logger.warning(f"FileMon: Error calling external script: {e}")
         return None
-    
+
+
+waitingXroom = {}   # {message_from_id: (expected_answer, original_command, timestamp)}
+def handleShellCmd(message, message_from_id, channel_number, isDM, deviceID):
+    if not allowXcmd:
+        return "x: command is disabled"
+    if str(message_from_id) not in bbs_admin_list:
+        logger.warning(f"FileMon: Unauthorized x: command attempt from {message_from_id}")
+        return "x: command not authorized"
+    if not isDM:
+        return "x: command not authorized in group chat"
+
+    # 2FA logic
+    if xCmd2factorEnabled:
+        timeNOW = datetime.utcnow()
+        # If user is waiting for 2FA, treat message as answer
+        if message_from_id in waitingXroom:
+            answer = message[2:].strip() if message.lower().startswith("x:") else message.strip()
+            expected, orig_command, ts = waitingXroom[message_from_id]
+            if timeNOW - ts > timedelta(seconds=xCmd2factor_timeout):
+                del waitingXroom[message_from_id]
+                return "x2FA timed out, please try again"
+            if answer == str(expected):
+                del waitingXroom[message_from_id]
+                # Run the original command
+                try:
+                    logger.info(f"FileMon: Running shell command from {message_from_id}: {orig_command}")
+                    result = subprocess.run(orig_command, shell=True, capture_output=True, text=True, timeout=10, start_new_session=True)
+                    output = result.stdout.strip()
+                    return output if output else "✅ x: processed finished, no output"
+                except Exception as e:
+                    logger.warning(f"FileMon: Error running shell command: {e}")
+                    logger.debug(f"FileMon: This command is not good for use over the mesh network")
+                    return "x: error running command"
+            else:
+                logger.warning(f"FileMon: 🚨Incorrect 2FA answer from {message_from_id}")
+                return "x2FA incorrect, try again"
+        # If not waiting, treat as new command and issue challenge
+        if message.lower().startswith("x:"):
+            command = message[2:].strip()
+            # Generate two random numbers, seed with message_from_id and time of day
+            seed = timeNOW.second + timeNOW.minute * 60 + timeNOW.hour * 3600 + int(message_from_id)
+            rnd = random.Random(seed)
+            a = rnd.randint(10, 99)
+            b = rnd.randint(10, 99)
+            expected = a + b
+            waitingXroom[message_from_id] = (expected, command, timeNOW)
+            return f"x2FA required.\nReply `x: answer`\nWhat is {a} + {b}? "
+        else:
+            return "invalid command format"
+
+    # If we reach here, 2FA is disabled or passed
+    if enable_runShellCmd:
+        if message.lower().startswith("x:"):
+            command = message[2:].strip()
+        else:
+            return "invalid command format"
+        try:
+            logger.info(f"FileMon: Running shell command from {message_from_id}: {command}")
+            result = subprocess.run(command, shell=True, capture_output=True, text=True, timeout=10, start_new_session=True)
+            output = result.stdout.strip()
+            return output if output else "x: command executed with no output"
+        except Exception as e:
+            logger.warning(f"FileMon: Error running shell command: {e}")
+            logger.debug(f"FileMon: This command is not good for use over the mesh network")
+            return "error running command"
+    else:
+        logger.debug("FileMon: x: command is disabled by no enable_runShellCmd")
+        return "command is disabled"
+
+def initNewsSources():
+    #check for the files _news.txt and add to the newsHeadlines list
+    global newsSourcesList
+    newsSourcesList = []
+    for file in os.listdir(NEWS_DATA_DIR):
+        if file.endswith('_news.txt'):
+            source = file[:-9]  # remove _news.txt
+            newsSourcesList.append(source)
+
+#initialize the headlines on startup
+initNewsSources()
