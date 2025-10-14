@@ -1869,14 +1869,16 @@ async def start_rx():
                 schedule.every(int(schedulerInterval)).minutes.do(lambda: send_message(schedulerMessage, schedulerChannel, 0, schedulerInterface))
             logger.debug(f"System: Starting the scheduler to send '{schedulerMessage}' every {schedulerValue} at {schedulerTime} on Device:{schedulerInterface} Channel:{schedulerChannel}")
         else:
-            logger.warning("System: No schedule.Value set edit the .py file to do more. See examples in the code.")
             # Reminder Scheduler is enabled every Monday at noon send a log message
             schedule.every().monday.at("12:00").do(lambda: logger.info("System: Scheduled Broadcast Enabled Reminder"))
             # example scheduler message
             logger.debug(f"System: Starting the scheduler to send '{schedulerMessage}' every Monday at noon on Device:{schedulerInterface} Channel:{schedulerChannel}")
-
         # Enhanced Examples of using the scheduler, Times here are in 24hr format
         # https://schedule.readthedocs.io/en/stable/
+        # If you want to use any of these examples uncomment the line and edit to your needs
+        # Be sure to change the channel number, device number and message to your needs
+        # Backup your .py file or the changes which will be lost on git pull, best I got for the moment.
+        logger.warning("System: No schedule.Value set edit the .py file to do more. See examples in the code.")    
 
         # Good Morning Every day at 09:00 using send_message function to channel 2 on device 1
         #schedule.every().day.at("09:00").do(lambda: send_message("Good Morning", 2, 0, 1))
