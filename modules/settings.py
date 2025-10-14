@@ -268,7 +268,7 @@ try:
     highfly_ignoreList = config['sentry'].get('highFlyingIgnoreList', '').split(',') # default empty
     highfly_check_openskynetwork = config['sentry'].getboolean('highflyOpenskynetwork', True) # default True check with OpenSkyNetwork if highfly detected
     detctionSensorAlert = config['sentry'].getboolean('detectionSensorAlert', False) # default False
-    reqLocationEnabled = config['sentry'].getboolean('requestLocationData', False) # default False
+    reqLocationEnabled = config['sentry'].getboolean('reqLocationEnabled', False) # default False
 
     # location
     location_enabled = config['location'].getboolean('enabled', True)
