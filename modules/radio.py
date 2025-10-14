@@ -25,7 +25,7 @@ if voxDetectionEnabled:
         import sounddevice as sd # pip install sounddevice    sudo apt install portaudio19-dev
         from vosk import Model, KaldiRecognizer # pip install vosk
         import json
-        q = asyncio.Queue(maxsize=10)  # what is a reasonable limit?
+        q = asyncio.Queue(maxsize=50)  # queue for audio data
         
         if useLocalVoxModel:
             voxModel = Model(lang=localVoxModelPath) # use built in model for specified language
@@ -153,8 +153,16 @@ def make_vox_callback(loop, q):
         try:
             loop.call_soon_threadsafe(q.put_nowait, bytes(indata))
         except asyncio.QueueFull:
-            # Optionally log or just drop the oldest
-            logger.debug("RadioMon: VOX queue full, dropping audio frame")
+            # Drop the oldest item and add the new one
+            try:
+                q.get_nowait()  # Remove oldest
+            except asyncio.QueueEmpty:
+                pass
+            try:
+                loop.call_soon_threadsafe(q.put_nowait, bytes(indata))
+            except asyncio.QueueFull:
+                # If still full, just drop this frame
+                logger.debug("RadioMon: VOX queue full, dropping audio frame")
         except RuntimeError:
             # Loop may be closed
             pass
