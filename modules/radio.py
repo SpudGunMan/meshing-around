@@ -142,9 +142,12 @@ def checkVoxTrapWords(text):
                 trap_clean = trap.strip()
                 trap_lower = trap_clean.lower()
                 idx = text_lower.find(trap_lower)
+                if debugVoxTmsg:
+                    logger.debug(f"RadioMon: VOX checking for trap word '{trap_lower}' in: '{text}' (index: {idx})")
                 if idx != -1:
                     new_text = text[idx + len(trap_clean):].strip()
-                    logger.debug(f"RadioMon: VOX detected trap word '{trap_lower}' in: '{text}' (remaining: '{new_text}')")
+                    if debugVoxTmsg:
+                        logger.debug(f"RadioMon: VOX detected trap word '{trap_lower}' in: '{text}' (remaining: '{new_text}')")
                     new_words = new_text.split()
                     if voxEnableCmd:
                         for word in new_words:
@@ -156,7 +159,8 @@ def checkVoxTrapWords(text):
                                     return botMethods[word](None, None, None, vox=True)
                     logger.debug(f"RadioMon: VOX returning text after trap word '{trap_lower}': '{new_text}'")
                     return new_text
-            logger.debug(f"RadioMon: VOX no trap word found in: '{text}'")
+            if debugVoxTmsg:
+                logger.debug(f"RadioMon: VOX no trap word found in: '{text}'")
         return None
     except Exception as e:
         logger.debug(f"RadioMon: Error in checkVoxTrapWords: {e}")
