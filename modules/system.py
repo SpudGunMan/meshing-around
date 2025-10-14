@@ -1422,8 +1422,8 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
                     if flight_info and NO_ALERTS not in flight_info and ERROR_FETCHING_DATA not in flight_info:
                         msg += f"\n✈️Detected near:\n{flight_info}"
                 send_message(msg, highfly_channel, 0, highfly_interface)
-            # Keep the positionMetadata dictionary at a maximum size of 20
-            if len(positionMetadata) > 20:
+            # Keep the positionMetadata dictionary at a maximum size
+            if len(positionMetadata) > MAX_SEEN_NODES:
                 # Remove the oldest entry
                 oldest_nodeID = next(iter(positionMetadata))
                 del positionMetadata[oldest_nodeID]
