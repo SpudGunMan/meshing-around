@@ -420,8 +420,11 @@ llmRunCounter = 0
 llmTotalRuntime = []
 llmLocationTable = [{'nodeID': 1234567890, 'location': 'No Location'},]
 
-def handle_satpass(message_from_id, deviceID, channel_number, message):
-    location = get_node_location(message_from_id, deviceID)
+def handle_satpass(message_from_id, deviceID, channel_number, message, vox=False):
+    if vox:
+        location = (latitudeValue, longitudeValue)
+    else:
+        location = get_node_location(message_from_id, deviceID)
     passes = ''
     satList = satListConfig
     message = message.lower()
@@ -963,8 +966,12 @@ def surveyHandler(message, nodeID, deviceID):
 
     return msg
 
-def handle_riverFlow(message, message_from_id, deviceID):
-    location = get_node_location(message_from_id, deviceID)
+def handle_riverFlow(message, message_from_id, deviceID, vox=False):
+    # River Flow from NOAA or Open-Meteo
+    if vox:
+        location = (latitudeValue, longitudeValue)
+    else:
+        location = get_node_location(message_from_id, deviceID)
     msg_lower = message.lower()
     if "riverflow " in msg_lower:
         user_input = msg_lower.split("riverflow ", 1)[1].strip()
@@ -990,7 +997,14 @@ def handle_mwx(message_from_id, deviceID, cmd):
         return NO_ALERTS
     return get_nws_marine(zone=myCoastalZone, days=coastalForecastDays)
 
-def handle_wxc(message_from_id, deviceID, cmd):
+def handle_wxc(message_from_id, deviceID, cmd, vox=False):
+    # Weather from NOAA or Open-Meteo
+    if vox:
+        # return a default message if vox is enabled
+        if use_meteo_wxApi:
+            return get_wx_meteo(latitudeValue, longitudeValue)
+        else:
+            return get_NOAAweather(latitudeValue, longitudeValue)
     location = get_node_location(message_from_id, deviceID)
     if use_meteo_wxApi and not "wxc" in cmd and not use_metric:
         #logger.debug("System: Bot Returning Open-Meteo API for weather imperial")
@@ -1124,7 +1138,10 @@ def handle_messages(message, deviceID, channel_number, msg_history, publicChanne
         else:
             return "No 📭messages in history"
 
-def handle_sun(message_from_id, deviceID, channel_number):
+def handle_sun(message_from_id, deviceID, channel_number, vox=False):
+    if vox:
+        # return a default message if vox is enabled
+        return get_sun(str(latitudeValue), str(longitudeValue))
     location = get_node_location(message_from_id, deviceID, channel_number)
     return get_sun(str(location[0]), str(location[1]))
 
@@ -1232,11 +1249,15 @@ def handle_repeaterQuery(message_from_id, deviceID, channel_number):
     else:
         return "Repeater lookup not enabled"
 
-def handle_tide(message_from_id, deviceID, channel_number):
+def handle_tide(message_from_id, deviceID, channel_number, vox=False):
+    if vox:
+        return get_NOAAtide(str(latitudeValue), str(longitudeValue))
     location = get_node_location(message_from_id, deviceID, channel_number)
     return get_NOAAtide(str(location[0]), str(location[1]))
 
-def handle_moon(message_from_id, deviceID, channel_number):
+def handle_moon(message_from_id, deviceID, channel_number, vox=False):
+    if vox:
+        return get_moon(str(latitudeValue), str(longitudeValue))
     location = get_node_location(message_from_id, deviceID, channel_number)
     return get_moon(str(location[0]), str(location[1]))
 
