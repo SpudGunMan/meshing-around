@@ -114,6 +114,7 @@ git clone https://github.com/spudgunman/meshing-around
 | `whoami` | Returns details of the node asking, also returned when position exchanged 📍 | ✅ |
 | `whois` | Returns details known about node, more data with bbsadmin node | ✅ |
 | `echo` | Echo string back, disabled by default | ✅ |
+| `bannode` | Admin option to prevent a node from using bot. `bannode list` will load and use the data/bbs_ban_list.txt db | ✅ |
 
 ### Radio Propagation & Weather Forecasting
 | Command | Description | |
