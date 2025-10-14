@@ -282,30 +282,15 @@ def handle_emergency(message_from_id, deviceID, message):
 
 def handle_motd(message, message_from_id, isDM):
     global MOTD
-    isAdmin = False
-    msg = ""
-    # check if the message_from_id is in the bbs_admin_list
-    if bbs_admin_list != ['']:
-        for admin in bbs_admin_list:
-            if str(message_from_id) == admin:
-                isAdmin = True
-                break
-    else:
-        isAdmin = True
-
-    # admin help via DM
-    if  "?" in message and isDM and isAdmin:
+    msg = ''
+    isAdmin = isNodeAdmin(message_from_id)
+    if  "?" in message:
         msg = "Message of the day, set with 'motd $ HelloWorld!'"
-    elif  "?" in message and isDM and not isAdmin:
-        # non-admin help via DM
-        msg = "Message of the day"
     elif "$" in message and isAdmin:
         motd = message.split("$")[1]
         MOTD = motd.rstrip()
-        logger.debug(f"System: {message_from_id} changed MOTD: {MOTD}")
+        logger.debug(f"System: {message_from_id} temporarly changed MOTD: {MOTD}")
         msg = "MOTD changed to: " + MOTD
-    else:
-        msg = "MOTD: " + MOTD
     return msg
 
 def handle_echo(message, message_from_id, deviceID, isDM, channel_number):
