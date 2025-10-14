@@ -587,6 +587,7 @@ async def get_closest_nodes(nodeInt=1,returnCount=3, channel=publicChannel):
                         pass
                 else:
                     # request location data currently blocking needs to be async
+                    reqLocationEnabled = False
                     if reqLocationEnabled:
                         try:
                             logger.debug(f"System: Requesting location data for {node['id']}, lastHeard: {node.get('lastHeard', 'N/A')}")
