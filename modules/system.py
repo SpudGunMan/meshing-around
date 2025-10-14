@@ -14,7 +14,7 @@ import io # for suppressing output on watchdog
 from modules.log import *
 
 # Global Variables
-trap_list = ("cmd","cmd?") # default trap list
+trap_list = ("cmd","cmd?","bannode",) # base commands
 help_message = "Bot CMD?:"
 asyncLoop = asyncio.new_event_loop()
 games_enabled = False
@@ -586,7 +586,7 @@ def get_closest_nodes(nodeInt=1,returnCount=3, channel=publicChannel):
                     pass
             else:
                 # request location data
-                reqLocationEnabled = False
+                reqLocationEnabled = True
                 if reqLocationEnabled:
                     try:
                         logger.debug(f"System: Requesting location data for {node['id']}, lastHeard: {node.get('lastHeard', 'N/A')}")
@@ -833,6 +833,112 @@ def messageTrap(msg):
             if m.endswith('?') and m[:-1].lower() == trap_list[t]:
                 return True
     return False
+
+def stringSafeCheck(s):
+    # Check if a string is safe to use, no control characters or non-printable characters
+    soFarSoGood = True
+    if not all(c.isprintable() or c.isspace() for c in s):
+        return False
+    if any(ord(c) < 32 and c not in '\n\r\t' for c in s):
+        return False
+    if any(c in s for c in ['\x0b', '\x0c', '\x1b']):
+        return False
+    if len(s) > 1000:
+        return False
+    injection_chars = [';', '|', '../']
+    if any(char in s for char in injection_chars):
+        return False
+    return soFarSoGood
+
+def save_bbsBanList():
+    # save the bbs_ban_list to file
+    try:
+        with open('data/bbs_ban_list.txt', 'w') as f:
+            for node in bbs_ban_list:
+                f.write(f"{node}\n")
+        logger.debug("System: BBS ban list saved")
+    except Exception as e:
+        logger.error(f"System: Error saving BBS ban list: {e}")
+
+def load_bbsBanList():
+    global bbs_ban_list
+    # load the bbs_ban_list from file
+    try:
+        with open('data/bbs_ban_list.txt', 'r') as f:
+            bbs_ban_list = [line.strip() for line in f.readlines() if line.strip()]
+        logger.debug("System: BBS ban list loaded")
+    except FileNotFoundError:
+        bbs_ban_list = config['bbs'].get('bbs_ban_list', '').split(',')
+        logger.debug("System: No BBS ban list found, starting with default")
+    except Exception as e:
+        logger.error(f"System: Error loading BBS ban list: {e}")
+        bbs_ban_list = []
+
+def isNodeAdmin(nodeID):
+    # check if the nodeID is in the bbs_admin_list
+    if bbs_admin_list != ['']:
+        for admin in bbs_admin_list:
+            if str(nodeID) == admin:
+                return True
+    else:
+        return True
+    return False
+
+def isNodeBanned(nodeID):
+    # check if the nodeID is in the bbs_ban_list
+    for banned in bbs_ban_list:
+        if str(nodeID) == banned:
+            return True
+    return False
+
+def handle_bbsban(message, message_from_id, isDM):
+    msg = ""
+    if not isDM:
+        return "🤖only available in a Direct Message📵"
+    if not isNodeAdmin(message_from_id):
+        return NO_ALERTS
+    if "?" in message:
+        return "Ban or unban a node from posting to the BBS. Example: bannode add 1234567890 or bannode remove 1234567890"
+
+    parts = message.lower().split()
+    if len(parts) < 2 or parts[0] != "bannode":
+        return "Please specify add, remove, or list. Example: bannode add 1234567890"
+
+    action = parts[1]
+
+    if action == "list":
+        if bbs_ban_list:
+            return "BBS Ban List:\n" + "\n".join(bbs_ban_list)
+        else:
+            return "The BBS ban list is currently empty."
+
+    if len(parts) < 3:
+        return "Please specify add or remove and a node number. Example: bannode add 1234567890"
+
+    node_id = parts[2].strip()
+    if not node_id.isdigit():
+        return "Invalid node number. Please provide a numeric node ID."
+
+    if action == "add":
+        if node_id not in bbs_ban_list:
+            bbs_ban_list.append(node_id)
+            save_bbsBanList()
+            logger.warning(f"System: {message_from_id} added {node_id} to the BBS ban list")
+            msg = f"Node {node_id} added to the BBS ban list"
+        else:
+            msg = f"Node {node_id} is already in the BBS ban list"
+    elif action == "remove":
+        if node_id in bbs_ban_list:
+            bbs_ban_list.remove(node_id)
+            save_bbsBanList()
+            logger.warning(f"System: {message_from_id} removed {node_id} from the BBS ban list")
+            msg = f"Node {node_id} removed from the BBS ban list"
+        else:
+            msg = f"Node {node_id} is not in the BBS ban list"
+    else:
+        msg = "Invalid action. Please use 'add', 'remove', or 'list'."
+
+    return msg
 
 def handleMultiPing(nodeID=0, deviceID=1):
     global multiPingList

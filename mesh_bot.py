@@ -29,6 +29,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "ack": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
     "ask:": lambda: handle_llm(message_from_id, channel_number, deviceID, message, publicChannel),
     "askai": lambda: handle_llm(message_from_id, channel_number, deviceID, message, publicChannel),
+    "bannode": lambda: handle_bbsban(message, message_from_id, isDM),
     "bbsack": lambda: bbs_sync_posts(message, message_from_id, deviceID),
     "bbsdelete": lambda: handle_bbsdelete(message, message_from_id),
     "bbshelp": bbs_help,
@@ -1536,7 +1537,11 @@ def onReceive(packet, interface):
                     #print (f"calculated hop count: {hop_start} - {hop_limit} = {hop_count}")
 
                 hop = f"{hop_count} hops"
-            
+
+            # check with stringSafeChecker if the message is safe
+            if stringSafeCheck(message_string) is False:
+                logger.warning(f"System: Possibly Unsafe Message from {get_name_from_number(message_from_id, 'long', rxNode)}")
+
             if help_message in message_string or welcome_message in message_string or "CMD?:" in message_string:
                 # ignore help and welcome messages
                 logger.warning(f"Got Own Welcome/Help header. From: {get_name_from_number(message_from_id, 'long', rxNode)}")
