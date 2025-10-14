@@ -10,6 +10,11 @@ async def setup_scheduler(
     schedulerMotd, MOTD, schedulerMessage, schedulerChannel, schedulerInterface,
     schedulerValue, schedulerTime, schedulerInterval, logger, BroadcastScheduler
 ):
+    schedulerValue = schedulerValue.lower().strip()
+    schedulerTime = schedulerTime.strip()
+    schedulerInterval = schedulerInterval.strip()
+    schedulerChannel = int(schedulerChannel)
+    schedulerInterface = int(schedulerInterface)
     # Setup the scheduler based on configuration
     try:
         if schedulerMotd:
@@ -17,7 +22,8 @@ async def setup_scheduler(
         else:
             scheduler_message = schedulerMessage
 
-        if 'custom' not in schedulerValue.lower() or schedulerValue != '':
+        # Basic Scheduler Options
+        if 'custom' not in schedulerValue.lower():
             # Basic scheduler job to run the schedule see examples below for custom schedules
             if schedulerValue.lower() == 'day':
                 if schedulerTime != '':
