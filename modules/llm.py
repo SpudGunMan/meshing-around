@@ -13,27 +13,6 @@ if not rawLLMQuery:
     # this may be removed in the future
     from googlesearch import search # pip install googlesearch-python
 
-# Tooling Functions Defined Here
-# Example: current_time function
-def llmTool_current_time():
-    """
-    Example tool function to get the current time.
-    :return: Current time string.
-    """
-    return datetime.now().strftime('%Y-%m-%d %H:%M:%S %Z')
-
-llmFunctions = [
-
-    {
-        "name": "llmTool_current_time",
-        "description": "Get the current time.",
-        "parameters": {
-            "type": "object",
-            "properties": {}
-    }
-    }
-]
-
 # LLM System Variables
 ollamaAPI = ollamaHostName + "/api/generate"
 tokens = 450 # max charcters for the LLM response, this is the max length of the response also in prompts
@@ -96,6 +75,90 @@ if llmEnableHistory:
     {history}
 
     """
+
+# Tooling Functions Defined Here
+# Example: current_time function
+def llmTool_current_time():
+    """
+    Example tool function to get the current time.
+    :return: Current time string.
+    """
+    return datetime.now().strftime('%Y-%m-%d %H:%M:%S %Z')
+
+def llmTool_math_calculator(expression):
+    """
+    Example tool function to perform basic math calculations.
+    :param expression: A string containing a math expression (e.g., "2 + 2").
+    :return: The result of the calculation as a string.
+    """
+    try:
+        # WARNING: Using eval can be dangerous if not controlled properly.
+        # This is a simple example; in production, consider using a safe math parser.
+        result = eval(expression, {"__builtins__": None}, {})
+        return str(result)
+    except Exception as e:
+        return f"Error in calculation: {e}"
+
+def llmTool_get_google(query, num_results=3):
+    """
+    Example tool function to perform a Google search and return results.
+    :param query: The search query string.
+    :param num_results: Number of search results to return.
+    :return: A list of search result titles and descriptions.
+    """
+    results = []
+    try:
+        googleSearch = search(query, advanced=True, num_results=num_results)
+        for result in googleSearch:
+            results.append(f"{result.title}: {result.description}")
+        return results
+    except Exception as e:
+        return [f"Error in Google search: {e}"]
+
+llmFunctions = [
+
+    {
+        "name": "llmTool_current_time",
+        "description": "Get the current time.",
+        "parameters": {
+            "type": "object",
+            "properties": {}
+    }
+    },
+    {
+        "name": "llmTool_math_calculator",
+        "description": "Perform basic math calculations.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "expression": {
+                    "type": "string",
+                    "description": "A math expression to evaluate, e.g., '2 + 2'."
+                }
+            },
+            "required": ["expression"]
+        }
+    },
+    {
+        "name": "llmTool_get_google",
+        "description": "Perform a Google search and return results.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "query": {
+                    "type": "string",
+                    "description": "The search query string."
+                },
+                "num_results": {
+                    "type": "integer",
+                    "description": "Number of search results to return.",
+                    "default": 3
+                }
+            },
+            "required": ["query"]
+        }
+    }  
+]
 
 def get_google_context(input, num_results):
     # Get context from Google search results
