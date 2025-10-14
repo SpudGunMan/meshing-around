@@ -81,7 +81,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "readrss": lambda: get_rss_feed(message),
     "riverflow": lambda: handle_riverFlow(message, message_from_id, deviceID),
     "rlist": lambda: handle_repeaterQuery(message_from_id, deviceID, channel_number),
-    "satpass": lambda: handle_satpass(message_from_id, deviceID, channel_number, message),
+    "satpass": lambda: handle_satpass(message_from_id, deviceID, message),
     "setemail": lambda: handle_email(message_from_id, message),
     "setsms": lambda: handle_sms( message_from_id, message),
     "sitrep": lambda: handle_lheard(message, message_from_id, deviceID, isDM),
@@ -420,7 +420,7 @@ llmRunCounter = 0
 llmTotalRuntime = []
 llmLocationTable = [{'nodeID': 1234567890, 'location': 'No Location'},]
 
-def handle_satpass(message_from_id, deviceID, channel_number, message, vox=False):
+def handle_satpass(message_from_id, deviceID, message, vox=False):
     if vox:
         location = (latitudeValue, longitudeValue)
     else:
@@ -970,6 +970,7 @@ def handle_riverFlow(message, message_from_id, deviceID, vox=False):
     # River Flow from NOAA or Open-Meteo
     if vox:
         location = (latitudeValue, longitudeValue)
+        message = "riverflow"
     else:
         location = get_node_location(message_from_id, deviceID)
     msg_lower = message.lower()

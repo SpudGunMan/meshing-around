@@ -23,7 +23,7 @@ if voxDetectionEnabled:
         "joke": tell_joke,
         "weather": handle_wxc,
         "moon": handle_moon,
-        "sun": handle_sun,
+        "daylight": handle_sun,
         "river": handle_riverFlow,
         "tide": handle_tide,
         "satellite": handle_satpass}
