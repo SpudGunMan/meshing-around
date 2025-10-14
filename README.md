@@ -518,7 +518,7 @@ value = # value can be min,hour,day,mon,tue,wed,thu,fri,sat,sun
 interval =  # interval to use when time is not set (e.g. every 2 days)
 time = # time of day in 24:00 hour format when value is 'day' and interval is not set
 ```
- The basic brodcast message can be setup in condig.ini. For advanced, See mesh_bot.py around the bottom of file, line [1491](https://github.com/SpudGunMan/meshing-around/blob/e94581936530c76ea43500eebb43f32ba7ed5e19/mesh_bot.py#L1491) to edit the schedule. See [schedule documentation](https://schedule.readthedocs.io/en/stable/) for more. Recomend to backup changes so they dont get lost.
+ The basic brodcast message can be setup in condig.ini. For advanced, See the [modules/scheduler.py](modules/scheduler.py) to edit the schedule. See [schedule documentation](https://schedule.readthedocs.io/en/stable/) for more. Recomend to backup changes so they dont get lost.
 
 ```python
 #Send WX every Morning at 08:00 using handle_wxc function to channel 2 on device 1
@@ -529,7 +529,7 @@ schedule.every().wednesday.at("19:00").do(lambda: send_message("Net Starting Now
 ```
 
 #### BBS Link
-The scheduler also handles the BBS Link Broadcast message, this would be an example of a mesh-admin channel on 8 being used to pass BBS post traffic between two bots as the initiator, one direction pull.
+The scheduler also handles the BBS Link Broadcast message, this would be an example of a mesh-admin channel on 8 being used to pass BBS post traffic between two bots as the initiator, one direction pull. The message just needs to have bbslink
 ```python
 # Send bbslink looking for peers every other day at 10:00 using send_message function to channel 8 on device 1
 schedule.every(2).days.at("10:00").do(lambda: send_message("bbslink MeshBot looking for peers", 8, 0, 1))
@@ -587,7 +587,8 @@ I used ideas and snippets from other responder bots and want to call them out!
 - **mikecarper**: ideas, and testing. hamtest
 - **c.merphy360**: high altitude alerts
 - **Iris**: testing and finding 🐞
-- **Cisien, bitflip, Woof, propstg, snydermesh, trs2982, FJRPilot, F0X, mesb1, and Hailo1999**: For testing and feature ideas on Discord and GitHub.
+- **FJRPiolt**: testing bugs out!!
+- **Cisien, bitflip, Woof, propstg, snydermesh, trs2982, F0X, mesb1, and Hailo1999**: For testing and feature ideas on Discord and GitHub.
 - **Meshtastic Discord Community**: For tossing out ideas and testing code.
 
 ### Tools
