@@ -25,7 +25,7 @@ if voxDetectionEnabled:
         import sounddevice as sd # pip install sounddevice    sudo apt install portaudio19-dev
         from vosk import Model, KaldiRecognizer # pip install vosk
         import json
-        q = asyncio.Queue(maxsize=16)  # queue for audio data
+        q = asyncio.Queue(maxsize=32)  # queue for audio data
         
         if useLocalVoxModel:
             voxModel = Model(lang=localVoxModelPath) # use built in model for specified language
@@ -213,7 +213,7 @@ async def voxMonitor():
                                     logger.debug(f"RadioMon: VOX ignored text not on trap list: {text}")
                         else:
                             voxMsgQueue.append(f"🎙️Detected {voxDescription}: {text}")
-                await asyncio.sleep(0.5)
+                await asyncio.sleep(0.1)
     except Exception as e:
         logger.error(f"RadioMon: Error in VOX monitor: {e}")
 
