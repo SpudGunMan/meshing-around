@@ -132,30 +132,31 @@ def get_sig_strength():
 #     q.put(bytes(indata))
 
 def checkVoxTrapWords(text):
-    # Check if trap words are in text, if so return text wanting to be sent
-    # If trap word matches a bot method, call it and return its result
-    # If no trap words found return None
-    if not voxOnTrapList:
-        logger.debug(f"RadioMon: VOX trap words not enabled, passing text: {text}")
-        return text
-    if text:
-        traps = [voxTrapList] if isinstance(voxTrapList, str) else voxTrapList
-        text_lower = text.lower()
-        for trap in traps:
-            trap_lower = trap.lower()
-            idx = text_lower.find(trap_lower)
-            if idx != -1:
-                logger.info(f"RadioMon: VOX detected trap word '{trap}' in: '{text}'")
-                # If trap word matches a bot method, call it and return its result
-                if trap_lower in botMethods:
-                    logger.info(f"RadioMon: VOX calling bot method for trap word '{trap}'")
-                    return botMethods[trap_lower]()
-                # Otherwise, just strip the trap word and everything before it
-                new_text = text[idx + len(trap):].strip()
-                logger.info(f"RadioMon: VOX Detection text after trap word '{trap}': '{new_text}'")
-                return new_text
-        logger.debug(f"RadioMon: VOX Detection: '{text}'")
-    return None
+    try:
+        if not voxOnTrapList:
+            logger.debug(f"RadioMon: VOX detected: {text}")
+            return text
+        if text:
+            traps = [voxTrapList] if isinstance(voxTrapList, str) else voxTrapList
+            text_lower = text.lower()
+            logger.debug(f"VOX trap list: {traps}, botMethods keys: {list(botMethods.keys())}")
+            for trap in traps:
+                trap_clean = trap.strip()
+                trap_lower = trap_clean.lower()
+                idx = text_lower.find(trap_lower)
+                if idx != -1:
+                    # Remove everything before and including the trap word
+                    new_text = text[idx + len(trap_clean):].strip()
+                    logger.debug(f"RadioMon: VOX detected trap word '{trap_lower}' in: '{text}' (remaining: '{new_text}')")
+                    words = new_text.lower().split()
+                    for word in words:
+                        if word in botMethods:
+                            logger.debug(f"RadioMon: VOX found bot method '{word}' in new_text '{new_text}', calling with '{new_text}'")
+                            return botMethods[word](0,0,0)
+        return None
+    except Exception as e:
+        logger.debug(f"RadioMon: Error in checkVoxTrapWords: {e}")
+        return None
 
 async def signalWatcher():
     global previousStrength
