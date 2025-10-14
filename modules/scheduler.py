@@ -23,7 +23,7 @@ async def setup_scheduler(
             scheduler_message = schedulerMessage
 
         # Basic Scheduler Options
-        if 'custom' not in schedulerValue.lower():
+        if 'custom' not in schedulerValue:
             # Basic scheduler job to run the schedule see examples below for custom schedules
             if schedulerValue.lower() == 'day':
                 if schedulerTime != '':
