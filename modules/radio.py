@@ -130,31 +130,30 @@ def get_sig_strength():
 #     if status:
 #         logger.warning(f"RadioMon: VOX input status: {status}")
 #     q.put(bytes(indata))
-
-def checkVoxTrapWords(text):
+def checkVoxTrapWords(text, deviceID=None, cmd=None):
     try:
         if not voxOnTrapList:
             logger.debug(f"RadioMon: VOX detected: {text}")
             return text
         if text:
             traps = [voxTrapList] if isinstance(voxTrapList, str) else voxTrapList
-            in_text = text.lower()
-            clean_text = text[idx + len(in_text):].strip()
-            words = clean_text.lower().split()
+            text_lower = text.lower()
             logger.debug(f"VOX trap list: {traps}, botMethods keys: {list(botMethods.keys())}")
             for trap in traps:
-                # Remove everything before and including the trap word
-                idx = in_text.find(clean_text)
+                trap_clean = trap.strip()
+                trap_lower = trap_clean.lower()
+                idx = text_lower.find(trap_lower)
                 if idx != -1:
-                    if voxEnableCmd:
-                        for word in words:
-                            if word in botMethods:
-                                logger.debug(f"RadioMon: VOX found bot method '{word}' in '{clean_text}'")
-                                return botMethods[word]()
+                    # Remove everything before and including the trap word
+                    new_text = text[idx + len(trap_clean):].strip()
+                    logger.debug(f"RadioMon: VOX detected trap word '{trap_lower}' in: '{text}' (remaining: '{new_text}')")
+                    if voxEnableCmd and trap_lower in botMethods:
+                        logger.debug(f"RadioMon: VOX calling bot method '{trap_lower}' with '{new_text}', deviceID={deviceID}, cmd={cmd}")
+                        return botMethods[trap_lower](new_text, deviceID, cmd)
                     else:
-                        # we go voxTrapList only, just return the text after the trap word
-                        logger.debug(f"RadioMon: VOX detected trap word '{trap}' in: '{clean_text}'")
-                        return clean_text
+                        logger.debug(f"RadioMon: VOX returning text after trap word '{trap_lower}': '{new_text}'")
+                        return new_text
+            logger.debug(f"RadioMon: VOX no trap word found in: '{text}'")
         return None
     except Exception as e:
         logger.debug(f"RadioMon: Error in checkVoxTrapWords: {e}")
