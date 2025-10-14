@@ -152,7 +152,7 @@ def checkVoxTrapWords(text):
                     for word in words:
                         if word in botMethods:
                             logger.debug(f"RadioMon: VOX found bot method '{word}' in new_text '{new_text}', calling with '{new_text}'")
-                            return botMethods[word](0,0,0)
+                            return botMethods[word]()
         return None
     except Exception as e:
         logger.debug(f"RadioMon: Error in checkVoxTrapWords: {e}")
