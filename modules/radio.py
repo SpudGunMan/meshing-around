@@ -126,10 +126,6 @@ def get_sig_strength():
     strength = get_hamlib('l STRENGTH')
     return strength
 
-# def vox_callback(indata, frames, time, status):
-#     if status:
-#         logger.warning(f"RadioMon: VOX input status: {status}")
-#     q.put(bytes(indata))
 def checkVoxTrapWords(text):
     try:
         if not voxOnTrapList:
@@ -225,7 +221,7 @@ async def voxMonitor():
         with sd.RawInputStream(
             device=voxInputDevice,
             samplerate=samplerate,
-            blocksize=8000,
+            blocksize=4000,
             dtype='int16',
             channels=1,
             callback=callback
