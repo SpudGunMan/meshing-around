@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 # UDP Interface Listener
 # credit to pdxlocations for all of this core work https://github.com/pdxlocations/
+# depends on: pip install meshtastic protobuf zeroconf pubsub
+# 2025 Kelly Keeton K7MHI
 from pubsub import pub
 from meshtastic.protobuf import mesh_pb2, portnums_pb2
 from mudp import UDPPacketStream, node, conn, send_text_message, send_nodeinfo, send_device_telemetry, send_position, send_environment_metrics, send_power_metrics, send_waypoint
