@@ -53,8 +53,8 @@ async def setup_scheduler(
             # Default schedule if no valid configuration is provided
 
             # custom scheduler job to run the schedule see examples below
-            #logger.debug(f"System: Starting the scheduler to send reminder every Monday at noon on Device:{schedulerInterface} Channel:{schedulerChannel}")
-            #schedule.every().monday.at("12:00").do(lambda: logger.info("System: Scheduled Broadcast Enabled Reminder"))
+            logger.debug(f"System: Starting the scheduler to send reminder every Monday at noon on Device:{schedulerInterface} Channel:{schedulerChannel}")
+            schedule.every().monday.at("12:00").do(lambda: logger.info("System: Scheduled Broadcast Enabled Reminder"))
             
             # send a joke every 15 minutes
             #schedule.every(15).minutes.do(lambda: send_message(tell_joke(), schedulerChannel, 0, schedulerInterface))
