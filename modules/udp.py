@@ -6,10 +6,18 @@ from pubsub import pub
 from meshtastic.protobuf import mesh_pb2, portnums_pb2
 from mudp import UDPPacketStream, node, conn, send_text_message, send_nodeinfo, send_device_telemetry, send_position, send_environment_metrics, send_power_metrics, send_waypoint
 import time
+from zeroconf import Zeroconf, ServiceBrowser
 
 MCAST_GRP, MCAST_PORT, KEY = "224.0.0.69", 4403, "1PG7OiApB1nwvP+rz05pAQ=="
 mudpEnabled, mudpInterface = True, None
 messages = []
+
+class ZeroconfListner:
+    def add_service(self, zeroconf, type, name):
+        info = zeroconf.get_service_info(type, name)
+        if info:
+            txt = info.properties
+            print(f"Found Meshtastic node: id={txt.get(b'id', b'').decode()} shortname={txt.get(b'shortname', b'').decode()} longname={txt.get(b'longname', b'').decode()}")
 
 def initalize_mudp():
     global mudpInterface
@@ -53,6 +61,10 @@ def on_recieve(packet: mesh_pb2.MeshPacket, addr=None):
 pub.subscribe(on_recieve, "mesh.rx.packet")
 # pub.subscribe(on_text_message, "mesh.rx.port.1")
 # pub.subscribe(on_nodeinfo, "mesh.rx.port.4") # NODEINFO_APP
+
+zeroconf = Zeroconf()
+listener = ZeroconfListner()
+browser = ServiceBrowser(zeroconf, "_meshtastic._tcp.local.", listener)
 
 def main():
     initalize_mudp()
