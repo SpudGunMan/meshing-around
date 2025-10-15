@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# UDP Interface 
+# UDP Interface Listener
 # credit to pdxlocations for all of this core work https://github.com/pdxlocations/
 from pubsub import pub
 from meshtastic.protobuf import mesh_pb2, portnums_pb2
