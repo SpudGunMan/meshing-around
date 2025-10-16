@@ -15,6 +15,9 @@
 const char* ssid = "YOUR_WIFI_SSID";
 const char* password = "YOUR_WIFI_PASSWORD";
 
+const char* default_key = "1PG7OiApB1nwvP+rz05pAQ=="; // Your network key here
+uint8_t aes_key[16]; // Buffer for decoded key
+
 const char* MCAST_GRP = "224.0.0.69";
 const uint16_t MCAST_PORT = 4403;
 
