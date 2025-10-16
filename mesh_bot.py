@@ -1096,47 +1096,42 @@ def handle_messages(message, deviceID, channel_number, msg_history, publicChanne
     if  "?" in message and isDM:
         return message.split("?")[0].title() + " command returns the last " + str(storeFlimit) + " messages sent on a channel."
     else:
+        # Filter messages for this device/channel
+        filtered_msgs = [
+            msgH for msgH in msg_history
+            if msgH[4] == deviceID and (msgH[2] == channel_number or msgH[2] == publicChannel)
+        ]
+        
+        # Choose order and slice
+        # Oldest first, take first N
+        filtered_msgs = filtered_msgs[-storeFlimit:][::-1]
+        if reverseSF:
+            # reverse that 
+            filtered_msgs = filtered_msgs[::-1]
+
         response = ""
         header = f"📨Msgs:\n"
-        # Calculate safe byte limit (account for header and some overhead)
-        header_bytes = len(header.encode('utf-8'))
-        available_bytes = max_bytes - header_bytes
-        
-        # Reverse the message history to show most recent first
-        for msgH in reversed(msg_history):
-            # number of messages to return +1 for the header line
-            if len(response.split("\n")) >= storeFlimit + 1:
-                break
-            # if the message is for this deviceID and channel or publicChannel
-            if msgH[4] == deviceID:
-                if msgH[2] == channel_number or msgH[2] == publicChannel:
-                    new_line = f"\n{msgH[0]}: {msgH[1]}"
-                    # Check if adding this line would exceed byte limit
-                    test_response = response + new_line
-                    if len(test_response.encode('utf-8')) > available_bytes:
-                        # Try to add truncated version of the message
-                        msg_text = msgH[1]
-                        truncated = False
-                        trunc_marker = "..."
-                        while len(msg_text) > 0 and len((response + f"\n{msgH[0]}: {msg_text}{trunc_marker}").encode('utf-8')) > available_bytes:
-                            msg_text = msg_text[:-1]
-                            truncated = True
-                        if len(msg_text) > 10:
-                            if truncated:
-                                response += f"\n{msgH[0]}: {msg_text}{trunc_marker}"
-                            else:
-                                response += f"\n{msgH[0]}: {msg_text}"
-                            break
-                        continue
+        for msgH in filtered_msgs:
+            new_line = f"\n{msgH[0]}: {msgH[1]}"
+            test_response = response + new_line
+            if len(test_response.encode('utf-8')) > maxBuffer:
+                # Truncate message if needed
+                msg_text = msgH[1]
+                truncated = False
+                trunc_marker = "..."
+                while len(msg_text) > 0 and len((response + f"\n{msgH[0]}: {msg_text}{trunc_marker}").encode('utf-8')) > maxBuffer:
+                    msg_text = msg_text[:-1]
+                    truncated = True
+                if len(msg_text) > 10:
+                    if truncated:
+                        response += f"\n{msgH[0]}: {msg_text}{trunc_marker}"
                     else:
-                        response += new_line
+                        response += f"\n{msgH[0]}: {msg_text}"
+                    break
+                continue
+            else:
+                response += new_line
 
-        if reverseSF:
-            # segassem reverse the order of the messages
-            response_lines = response.split("\n")
-            response_lines.reverse()
-            response = "\n".join(response_lines)
-        
         if len(response) > 0:
             return header + response
         else:
@@ -1765,7 +1760,7 @@ async def start_rx():
         logger.debug(f"System: HighFly Enabled using {highfly_altitude}m limit reporting to channel:{highfly_channel}")
     
     if store_forward_enabled:
-        logger.debug(f"System: S&F(messages command) Enabled using limit: {storeFlimit}")
+        logger.debug(f"System: S&F(messages command) Enabled using limit: {storeFlimit} and reverse queue:{reverseSF}")
     
     if enableEcho:
         logger.debug("System: Echo command Enabled")

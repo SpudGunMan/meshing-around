@@ -413,7 +413,7 @@ try:
     splitDelay = config['messagingSettings'].getfloat('splitDelay', 0) # default 0
     MESSAGE_CHUNK_SIZE = config['messagingSettings'].getint('MESSAGE_CHUNK_SIZE', 160) # default 160 chars
     wantAck = config['messagingSettings'].getboolean('wantAck', False) # default False
-    maxBuffer = config['messagingSettings'].getint('maxBuffer', 200) # default 200
+    maxBuffer = config['messagingSettings'].getint('maxBuffer', 200) # default 200 bytes
     enableHopLogs = config['messagingSettings'].getboolean('enableHopLogs', False) # default False
     debugMetadata = config['messagingSettings'].getboolean('debugMetadata', False) # default False
     metadataFilter = config['messagingSettings'].get('metadataFilter', '').split(',') # default empty
