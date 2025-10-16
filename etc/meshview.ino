@@ -3,19 +3,21 @@
 // https://github.com/meshtastic/protobufs/tree/master/meshtastic
 // https://github.com/meshtastic/Meshtastic-arduino/tree/master/src
 
+// Example to receive and decode Meshtastic UDP packets
+
 #include <WiFi.h>
 #include <WiFiUdp.h>
 #include "mesh.pb.h"
+#include "portnums.pb.h"
+#include "user.pb.h"
+#include "position.pb.h"
 #include "pb_decode.h"
-#include <ctype.h>
-#include <string.h>
 
 const char* ssid = "YOUR_WIFI_SSID";
 const char* password = "YOUR_WIFI_PASSWORD";
 
 const char* MCAST_GRP = "224.0.0.69";
 const uint16_t MCAST_PORT = 4403;
-const char* PUBKEY = "1PG7OiApB1nwvP+rz05pAQ==";
 
 unsigned long udpPacketCount = 0;
 
@@ -44,12 +46,13 @@ void setup() {
       delay(10);
     }
   }
+
   Serial.println("Connecting to WiFi...");
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
 
   unsigned long startAttemptTime = millis();
-  const unsigned long wifiTimeout = 20000; // 20 seconds
+  const unsigned long wifiTimeout = 20000;
 
   while (WiFi.status() != WL_CONNECTED && millis() - startAttemptTime < wifiTimeout) {
     delay(500);
@@ -67,139 +70,137 @@ void setup() {
     } else {
       Serial.println("Failed to start UDP multicast listener.");
     }
-
   } else {
     Serial.print("\nFailed to connect to WiFi. SSID: ");
     Serial.println(ssid);
-    Serial.println("Check if the SSID is correct and in range, and verify your password.");
+    Serial.println("Check SSID, range, and password.");
   }
 }
 
-// Base64 decode helper (returns number of output bytes)
-static size_t b64_decode(const char *in, uint8_t *out) {
-  size_t len = strlen(in);
-  int val = 0, valb = -8;
-  size_t o = 0;
-  for (size_t i = 0; i < len; ++i) {
-    unsigned char c = in[i];
-    int d;
-    if (c >= 'A' && c <= 'Z') d = c - 'A';
-    else if (c >= 'a' && c <= 'z') d = c - 'a' + 26;
-    else if (c >= '0' && c <= '9') d = c - '0' + 52;
-    else if (c == '+') d = 62;
-    else if (c == '/') d = 63;
-    else if (c == '=') break;
-    else continue;
-    val = (val << 6) + d;
-    valb += 6;
-    if (valb >= 0) {
-      out[o++] = (uint8_t)((val >> valb) & 0xFF);
-      valb -= 8;
-    }
-  }
-  return o;
-}
-
-// Buisness happens here
+// Business happens here
 void loop() {
   int packetSize = udp.parsePacket();
-  if (packetSize) {
-    udpPacketCount++; // Increment counter
-    Serial.print("UDP packets seen: ");
-    Serial.println(udpPacketCount);
-
-    uint8_t buffer[512];
-    int len = udp.read(buffer, sizeof(buffer));
-    if (len <= 0) {
-      //Serial.println("Failed to read UDP packet.");
-      delay(100);
-      return;
-    }
-
-    meshtastic_MeshPacket packet = meshtastic_MeshPacket_init_zero;
-    pb_istream_t stream = pb_istream_from_buffer(buffer, len);
-
-    if (!pb_decode(&stream, meshtastic_MeshPacket_fields, &packet)) {
-      Serial.print("Failed to decode Meshtastic_MeshPacket: ");
-      Serial.println(PB_GET_ERROR(&stream));
-      // print raw packet ASCII
-      Serial.println("Raw packet as ASCII:");
-      for (int i = 0; i < len; i++) {
-        char c = buffer[i];
-        if (isprint((unsigned char)c)) Serial.print(c);
-        else Serial.print('.');
-      }
-      Serial.println();
-      delay(100);
-      return;
-    }
-
-    // Print header/meta
-    Serial.print("id: "); Serial.println(packet.id);
-    Serial.print("rx_time: "); Serial.println(packet.rx_time);
-    Serial.print("rx_snr: "); Serial.println(packet.rx_snr, 2);
-    Serial.print("hop_limit: "); Serial.println(packet.hop_limit);
-    Serial.print("priority: "); Serial.println(packet.priority);
-    Serial.print("rx_rssi: "); Serial.println(packet.rx_rssi);
-    Serial.print("hop_start: "); Serial.println(packet.hop_start);
-    Serial.print("delayed: "); Serial.println(packet.delayed);
-    Serial.print("via_mqtt: "); Serial.println(packet.via_mqtt);
-    Serial.print("from: "); Serial.println(packet.from);
-    Serial.print("to: "); Serial.println(packet.to);
-    Serial.print("channel: "); Serial.println(packet.channel);
-
-    // Decode PUBKEY base64 and provide to packet.key
-    uint8_t keybin[64];
-    size_t keylen = b64_decode(PUBKEY, keybin);
-    if (keylen == 0) {
-      Serial.println("Warning: PUBKEY base64 decode produced 0 bytes; using raw string bytes");
-      static uint8_t saved_key_raw[64];
-      size_t rawlen = strlen(PUBKEY);
-      if (rawlen > sizeof(saved_key_raw)) rawlen = sizeof(saved_key_raw);
-      memcpy(saved_key_raw, PUBKEY, rawlen);
-      packet.key.bytes = saved_key_raw;
-      packet.key.size = rawlen;
-    } else {
-      static uint8_t saved_key[64];
-      if (keylen > sizeof(saved_key)) keylen = sizeof(saved_key);
-      memcpy(saved_key, keybin, keylen);
-      packet.key.bytes = saved_key;
-      packet.key.size = keylen;
-    }
-
-    // Always attempt to process decoded payload
-    Serial.println("Attempting to process decoded payload...");
-    meshtastic_Data data = packet.decoded; // try to read decoded variant
-
-    Serial.print("Data portnum: "); Serial.println(data.portnum);
-    Serial.print("Data payload size: "); Serial.println(data.payload.size);
-
-    if (data.payload.size > 0 && data.payload.bytes != NULL) {
-      // Print payload as hex
-      Serial.print("Data payload (hex): ");
-      for (size_t i = 0; i < data.payload.size; i++) {
-        Serial.printf("%02X ", data.payload.bytes[i]);
-      }
-      Serial.println();
-
-      // Print payload as ASCII with non-printables as '.'
-      Serial.print("Data payload (string): ");
-      for (size_t i = 0; i < data.payload.size; i++) {
-        char c = data.payload.bytes[i];
-        if (isprint((unsigned char)c)) Serial.print(c);
-        else Serial.print('.');
-      }
-      Serial.println();
-    } else {
-      Serial.println("No decoded payload. Raw packet as ASCII:");
-      for (int i = 0; i < len; i++) {
-        char c = buffer[i];
-        if (isprint((unsigned char)c)) Serial.print(c);
-        else Serial.print('.');
-      }
-      Serial.println();
-    }
+  if (!packetSize) {
+    delay(50);
+    return;
   }
 
-  delay(100); // Small delay to avoid overwhelming the serial output
+  udpPacketCount++;
+  Serial.print("UDP packets seen: ");
+  Serial.println(udpPacketCount);
+
+  uint8_t buffer[512];
+  int len = udp.read(buffer, sizeof(buffer));
+  if (len <= 0) {
+    Serial.println("Failed to read UDP packet.");
+    delay(50);
+    return;
+  }
+
+  // Always print raw payload first
+  Serial.print("Raw UDP payload (hex): ");
+  for (int i = 0; i < len; i++) Serial.printf("%02X ", buffer[i]);
+  Serial.println();
+
+  Serial.print("Raw UDP payload (ASCII): ");
+  for (int i = 0; i < len; i++) {
+    char c = buffer[i];
+    Serial.print(isprint(c) ? c : '.');
+  }
+  Serial.println();
+
+  // Decode outer MeshPacket
+  meshtastic_MeshPacket packet = meshtastic_MeshPacket_init_zero;
+  pb_istream_t stream = pb_istream_from_buffer(buffer, len);
+
+  if (!pb_decode(&stream, meshtastic_MeshPacket_fields, &packet)) {
+    Serial.println("Failed to decode meshtastic_MeshPacket.");
+    delay(50);
+    return;
+  }
+
+  // Basic MeshPacket fields
+  Serial.print("id: "); Serial.println(packet.id);
+  Serial.print("rx_time: "); Serial.println(packet.rx_time);
+  Serial.print("rx_snr: "); Serial.println(packet.rx_snr, 2);
+  Serial.print("hop_limit: "); Serial.println(packet.hop_limit);
+  Serial.print("priority: "); Serial.println(packet.priority);
+  Serial.print("rx_rssi: "); Serial.println(packet.rx_rssi);
+  Serial.print("hop_start: "); Serial.println(packet.hop_start);
+  Serial.print("delayed: "); Serial.println(packet.delayed);
+  Serial.print("via_mqtt: "); Serial.println(packet.via_mqtt);
+  Serial.print("from: "); Serial.println(packet.from);
+  Serial.print("to: "); Serial.println(packet.to);
+  Serial.print("channel: "); Serial.println(packet.channel);
+
+  // Only proceed if the oneof contains the decoded Data message
+  if (packet.which_payload_variant == meshtastic_MeshPacket_decoded_tag) {
+    const meshtastic_Data& data = packet.decoded;
+
+    Serial.print("Data portnum: ");
+    Serial.println(data.portnum);
+    Serial.print("Data payload size: ");
+    Serial.println(data.payload.size);
+
+    if (data.payload.size == 0) {
+      Serial.println("No decoded payload bytes present.");
+      delay(50);
+      return;
+    }
+
+    // Decode the embedded payload by portnum
+    pb_istream_t payload_stream = pb_istream_from_buffer(data.payload.bytes, data.payload.size);
+
+    switch (data.portnum) {
+      case meshtastic_PortNum_TEXT_MESSAGE_APP: {
+         // Some generated protobuf headers use a different type/name than expected.
+         // Safely print the payload as a UTF-8 string instead of relying on the
+         // generated meshtastic_UserMessage type/name.
+         size_t n = data.payload.size;
+         const size_t BUF_SZ = 256;
+         char msgbuf[BUF_SZ];
+         if (n >= BUF_SZ) n = BUF_SZ - 1;
+         memcpy(msgbuf, data.payload.bytes, n);
+         msgbuf[n] = '\0';
+         Serial.print("Text payload: ");
+         Serial.println(msgbuf);
+        break;
+      }
+
+      case meshtastic_PortNum_POSITION_APP: {
+        meshtastic_Position pos = meshtastic_Position_init_zero;
+        if (pb_decode(&payload_stream, meshtastic_Position_fields, &pos)) {
+          // Positions are typically scaled integers
+          Serial.print("Decoded position: lat=");
+          Serial.print(pos.latitude_i / 1e7, 7);
+          Serial.print(" lon=");
+          Serial.print(pos.longitude_i / 1e7, 7);
+          Serial.print(" alt=");
+          Serial.println(pos.altitude);
+        } else {
+          Serial.println("Failed to decode Position payload.");
+        }
+        break;
+      }
+
+      // Add other portnums as needed, for example:
+      // case meshtastic_PortNum_TELEMETRY_APP: { ... } break;
+
+      default: {
+        Serial.print("Unhandled portnum ");
+        Serial.print((int)data.portnum);
+        Serial.println(", showing payload as hex:");
+        for (size_t i = 0; i < data.payload.size; i++) {
+          Serial.printf("%02X ", data.payload.bytes[i]);
+        }
+        Serial.println();
+        break;
+      }
+    }
+
+  } else {
+    Serial.println("MeshPacket does not contain decoded Data. It may be encrypted or a different variant.");
+  }
+
+  delay(50);
 }
