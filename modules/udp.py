@@ -27,7 +27,7 @@ def initalize_mudp():
         mudpInterface = UDPPacketStream(MCAST_GRP, MCAST_PORT, key=KEY)
         print(f"MUDP Interface initialized with multicast group", MCAST_GRP, "port", MCAST_PORT)
     node.node_id, node.long_name, node.short_name = "!deadbeef", "UDP Test", "UDP"
-    node.channel, node.key = "LongFast", "AQ=="
+    node.channel, node.key = "LongFast", KEY
     conn.setup_multicast(MCAST_GRP, MCAST_PORT)
 
 def on_recieve(packet: mesh_pb2.MeshPacket, addr=None):
