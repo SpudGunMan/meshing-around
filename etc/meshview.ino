@@ -6,6 +6,7 @@
 
 #include <WiFi.h>
 #include <WiFiUdp.h>
+#include <AESLib.h> // or another AES library
 
 #include "pb_decode.h"
 #include "meshtastic/mesh.pb.h"      // MeshPacket, Position, etc.
@@ -92,6 +93,17 @@ void printAscii(const uint8_t* buf, size_t len) {
     Serial.print(isprint(c) ? c : '.');
   }
   Serial.println();
+}
+
+void decodeKey() {
+  // Convert base64 key to raw bytes
+  // You may need to add a base64 decoding function/library
+  // Example: decode_base64(default_key, aes_key, sizeof(aes_key));
+}
+
+void decryptPayload(const uint8_t* encrypted, size_t len, uint8_t* decrypted) {
+  // Use AESLib or similar to decrypt
+  // Example: aes128_dec_single(decrypted, encrypted, aes_key);
 }
 
 void loop() {
