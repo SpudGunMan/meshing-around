@@ -6,7 +6,7 @@
 
 #include <WiFi.h>
 #include <WiFiUdp.h>
-#include <AESLib.h> // or another AES library
+// #include <AESLib.h> // or another AES library
 
 #include "pb_decode.h"
 #include "meshtastic/mesh.pb.h"      // MeshPacket, Position, etc.
