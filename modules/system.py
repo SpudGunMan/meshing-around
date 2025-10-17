@@ -1578,6 +1578,22 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
 
     # COMPRESSED_TEXT_APP
 
+    # ATTAK_APP
+
+    # SERIAL_APP
+
+    # NODE_DB_APP
+
+    # RTTTL_APP
+
+    # STORE_AND_FORWARD_APP
+
+    # DEBUG_APP
+
+    # RANGEREPORT_APP
+
+    # CENSUS_APP
+
     # AUDIO_APP - Track audio/voice packets ☎️
     if packet_type == 'AUDIO_APP':
         try:
