@@ -57,7 +57,7 @@ def parse_log_file(file_path):
     if multiLogReader:
         # set file_path to the cwd of the default project ../log
         log_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'logs')
-        log_files = glob.glob(os.path.join(log_dir, 'meshbot.log.*'))
+        log_files = [file_path] + glob.glob(os.path.join(log_dir, 'meshbot.log.*'))
         print(f"Checking log files: {log_files}")
 
         if log_files:
@@ -192,7 +192,7 @@ def parse_log_file(file_path):
         
         # get telemetry data
         if '| Telemetry:' in line:
-            telemetry_match = re.search(r'Telemetry:(\d+) numPacketsRx:(\d+) numPacketsRxErr:(\d+) numPacketsTx:(\d+) numPacketsTxErr:(\d+) ChUtil%:(\d+\.\d+) AirTx%:(\d+\.\d+) totalNodes:(\d+) Online:(\d+) Uptime:(\d+d) Volt:(\d+\.\d+) Firmware:(\d+\.\d+\.\d+\.\w+)', line)
+            telemetry_match = re.search(r'Telemetry:(\d+) numPacketsRx:(\d+) numPacketsRxErr:(\d+) numPacketsTx:(\d+) numPacketsTxErr:(\d+) ChUtil%:(\d+\.\d+) AirTx%:(\d+\.\d+) totalNodes:(\d+) Online:(\d+) Uptime:(\d+[smhdy]) Volt:(\d+\.\d+) Firmware:(\d+\.\d+\.\d+\.\w+)', line)
             if telemetry_match:
                 interface_number, numPacketsRx, numPacketsRxErr, numPacketsTx, numPacketsTxErr, ChUtil, AirTx, totalNodes, online, uptime, volt, firmware_version = telemetry_match.groups()
                 data = f"Tx: {numPacketsTx} Rx: {numPacketsRx} Uptime: {uptime} Volt: {volt} numPacketsRxErr: {numPacketsRxErr} numPacketsTxErr: {numPacketsTxErr} ChUtil: {ChUtil} AirTx: {AirTx} totalNodes: {totalNodes} Online: {online}"
