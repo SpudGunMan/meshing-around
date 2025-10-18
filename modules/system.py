@@ -809,6 +809,23 @@ def send_message(message, ch, nodeid=0, nodeInt=1, bypassChuncking=False):
         logger.error(f"System: Exception during send_message: {e} (message length: {len(message)})")
         return False
 
+def send_raw_bytes(nodeid, raw_bytes, nodeInt=1, channel=0, portnum=256,  want_ack=True):
+    # Send raw bytes to a node using the Meshtastic interface.
+    interface = globals()[f'interface{nodeInt}']
+    try:
+        interface.sendData(
+            raw_bytes,
+            destinationId=nodeid,
+            portNum=portnum,
+            channelIndex=channel,
+            wantAck=want_ack
+        )
+        logger.debug(f"Sent raw bytes to {nodeid} on portnum {portnum} via Device{nodeInt}")
+        return True
+    except Exception as e:
+        logger.error(f"System: Error sending raw bytes to {nodeid} via Device{nodeInt}: {e} bytes: {raw_bytes}")
+        return False
+
 def messageTrap(msg):
     # Check if the message contains a trap word, this is the first filter for listning to messages
     # after this the message is passed to the command_handler in the bot.py which is switch case filter for applying word to function
