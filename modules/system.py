@@ -821,7 +821,7 @@ def send_raw_bytes(nodeid, raw_bytes, nodeInt=1, channel=0, portnum=256,  want_a
             wantAck=want_ack
         )
         # Throttle the message sending to prevent spamming the device
-        logger.debug(f"Sent raw bytes to {nodeid} on portnum {portnum} via Device{nodeInt}")
+        logger.debug(f"System: Sent raw bytes to {nodeid} on portnum {portnum} via Device{nodeInt}")
         time.sleep(responseDelay)
         return True
     except Exception as e:
