@@ -301,6 +301,15 @@ def handle_echo(message, message_from_id, deviceID, isDM, channel_number):
             echo_msg = parts[1]
             if channel_number != echoChannel and not isDM:
                 echo_msg = "@" + get_name_from_number(message_from_id, 'short', deviceID) + " " + echo_msg
+                testing = False
+                if testing:
+                    try:
+                        #testing send_raw_bytes echo the data to the channel
+                        raw_bytes = b"echo:" + echo_msg.encode('utf-8')
+                        send_raw_bytes(message_from_id, raw_bytes, nodeInt=deviceID, channel=channel_number)
+                        time.sleep(2) # give it a second to send
+                    except Exception as e:
+                        logger.error(f"System: Echo Exception {e}")
             return echo_msg
         else:
             return "Please provide a message to echo back to you. Example:echo Hello World"
