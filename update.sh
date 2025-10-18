@@ -55,6 +55,15 @@ else
     echo "Dependencies installed or updated."
 fi
 
+# Build a config_new.ini file merging user config with new defaults
+echo "Merging configuration files..."
+python3 script/configMerge.py > ini_merge_log.txt 2>&1
+if grep -q "Error during configuration merge" merge_log.txt; then
+    echo "Configuration merge encountered errors. Please check merge_log.txt for details."
+else
+    echo "Configuration merge completed. Please review config_new.ini and ini_merge_log.txt."
+fi
+
 # if service was stopped earlier, restart it
 if [ "$service_stopped" = true ]; then
     echo "Restarting services..."
