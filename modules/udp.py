@@ -94,3 +94,25 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# Meshtastic Port Numbers Reference:
+# | Port Number | Name                   | Purpose                        |
+# |-------------|------------------------|--------------------------------|
+# | 1           | TEXT_MESSAGE_APP       | Text messages                  |
+# | 2           | POSITION_APP           | Position updates (GPS)         |
+# | 3           | ROUTING_APP            | Routing info                   |
+# | 4           | NODEINFO_APP           | Node info (name, id, etc)      |
+# | 5           | TELEMETRY_APP          | Telemetry (battery, sensors)   |
+# | 6           | SERIAL_APP             | Serial data                    |
+# | 7           | ENVIRONMENTAL_APP      | Environmental sensors          |
+# | 8           | REMOTE_HARDWARE_APP    | Remote hardware control        |
+# | 9           | STORE_FORWARD_APP      | Store and forward              |
+# | 10          | RANGE_TEST_APP         | Range test                     |
+# | 11          | ADMIN_APP              | Admin/config                   |
+# | 12          | WAYPOINT_APP           | Waypoints                      |
+# | 13          | CHANNEL_NODEINFO_APP   | Channel node info              |
+# | 256         | PRIVATE_APP            | Private app (custom use)       |
+# See: https://github.com/meshtastic/protobufs/blob/main/meshtastic/protobuf/portnums.proto
+
+
