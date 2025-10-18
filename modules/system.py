@@ -830,6 +830,7 @@ def decode_raw_bytes(raw_bytes):
     # Decode raw bytes received from a Meshtastic device.
     try:
         decoded_message = raw_bytes.decode('utf-8', errors='ignore')
+        # reminder for a synch word check or crc check if needed later
         logger.debug(f"Decoded raw bytes: {decoded_message}")
         return decoded_message
     except Exception as e:
