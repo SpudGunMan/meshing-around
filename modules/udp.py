@@ -7,10 +7,12 @@
 from pubsub import pub
 from meshtastic.protobuf import mesh_pb2, portnums_pb2
 from mudp import UDPPacketStream, node, conn, send_text_message, send_nodeinfo, send_device_telemetry, send_position, send_environment_metrics, send_power_metrics, send_waypoint, send_data
+from mudp.encryption import generate_hash
 import time
 from zeroconf import Zeroconf, ServiceBrowser
 
-MCAST_GRP, MCAST_PORT, KEY = "224.0.0.69", 4403, "1PG7OiApB1nwvP+rz05pAQ=="
+MCAST_GRP, MCAST_PORT, CHANNEL_ID, KEY = "224.0.0.69", 4403, "LongFast", "1PG7OiApB1nwvP+rz05pAQ=="
+PUBLIC_CHANNEL_IDS = ["LongFast", "ShortSlow", "Medium", "LongSlow", "ShortFast", "ShortTurbo"]
 mudpEnabled, mudpInterface = True, None
 messages = []
 
@@ -34,7 +36,23 @@ def on_recieve(packet: mesh_pb2.MeshPacket, addr=None):
     print(f"\n[RECV] Packet received from {addr}")
     print("from:", getattr(packet, "from", None))
     print("to:", packet.to)
-    print("channel:", packet.channel or None)
+
+    # Check against all public channels
+    matched_channel = None
+    for channel_name in PUBLIC_CHANNEL_IDS:
+        channel_hash = generate_hash(channel_name, KEY)
+        if packet.channel == channel_hash:
+            matched_channel = channel_name
+            break
+
+    if matched_channel:
+        channel_status = f"Match ({matched_channel})"
+    else:
+        channel_status = f"Hash: {packet.channel}"
+
+    print("channel:", channel_status)
+    print("packet_id:", packet.packet_id or None)
+
 
     if packet.HasField("decoded"):
         port_name = portnums_pb2.PortNum.Name(packet.decoded.portnum) if packet.decoded.portnum else "N/A"
