@@ -346,6 +346,8 @@ def abbreviate_noaa(data=""):
         "showers": "shwrs",
         "thunderstorms": "t-storms",
         "thunderstorm": "t-storm",
+        "quarters": "qtrs",
+        "quarter": "qtr",
         "january": "Jan",
         "february": "Feb",
         "march": "Mar",
