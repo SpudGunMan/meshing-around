@@ -352,7 +352,9 @@ def abbreviate_noaa(row):
     }
 
     line = row
-    for key, value in replacements.items():
+    # Sort keys by length, longest first
+    for key in sorted(replacements, key=len, reverse=True):
+        value = replacements[key]
         for variant in (key, key.capitalize(), key.upper()):
             if variant != value:
                 line = line.replace(variant, value)
