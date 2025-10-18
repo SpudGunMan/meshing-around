@@ -49,20 +49,24 @@ class SurveyModule:
             logger.error(f"Survey: Error loading surveys: {e}")
 
     def start_survey(self, user_id, survey_name='example', location=None):
-        """Begin a new survey session for a user."""
-        if not survey_name:
-            survey_name = 'example'
-        if survey_name not in allowedSurveys:
-            return f"error: survey '{survey_name}' is not allowed."
-        self.responses[user_id] = {
-            'survey_name': survey_name,
-            'current_question': 0,
-            'answers': [],
-            'location': location if surveyRecordLocation and location is not None else 'N/A'
-        }
-        msg = f"'{survey_name}'📝survey\nSend answer' or 'end'\n"
-        msg += self.show_question(user_id)
-        return msg
+        try:
+            """Begin a new survey session for a user."""
+            if not survey_name:
+                survey_name = 'example'
+            if survey_name not in allowedSurveys:
+                return f"error: survey '{survey_name}' is not allowed."
+            self.responses[user_id] = {
+                'survey_name': survey_name,
+                'current_question': 0,
+                'answers': [],
+                'location': location if surveyRecordLocation and location is not None else 'N/A'
+            }
+            msg = f"'{survey_name}'📝survey\nSend answer' or 'end'\n"
+            msg += self.show_question(user_id)
+            return msg
+        except Exception as e:
+            logger.error(f"Error starting survey for user {user_id}: {e}")
+            return "An error occurred while starting the survey. Please try again later."
 
     def show_question(self, user_id):
         """Show the current question for the user, or end the survey."""
