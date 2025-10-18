@@ -296,8 +296,8 @@ def get_NOAAweather(lat=0, lon=0, unit=0):
     return weather
 
 def abbreviate_noaa(row):
-    # replace long strings with shorter ones for display
-    replacements = {
+    # Long phrases (with spaces)
+    phrase_replacements = {
         "less than a tenth of an inch possible": "< 0.1in",
         "between a tenth and quarter of an inch possible": "0.1-0.25in",
         "between a quarter and half an inch possible": "0.25-0.5in",
@@ -308,6 +308,9 @@ def abbreviate_noaa(row):
         "between four and five inches possible.": "4-5in",
         "between five and six inches possible.": "5-6in",
         "between six and eight inches possible.": "6-8in",
+    }
+    # Single words (no spaces)
+    word_replacements = {
         "monday": "Mon",
         "tuesday": "Tue",
         "wednesday": "Wed",
@@ -323,6 +326,9 @@ def abbreviate_noaa(row):
         "south": "S",
         "east": "E",
         "west": "W",
+        "moderate": "mod.",
+        "accumulation": "accum",
+        "visibility": "vis",
         "precipitation": "precip",
         "showers": "shwrs",
         "thunderstorms": "t-storms",
@@ -352,12 +358,20 @@ def abbreviate_noaa(row):
     }
 
     line = row
-    # Sort keys by length, longest first
-    for key in sorted(replacements, key=len, reverse=True):
-        value = replacements[key]
+    # Replace long phrases first
+    for key in sorted(phrase_replacements, key=len, reverse=True):
+        value = phrase_replacements[key]
         for variant in (key, key.capitalize(), key.upper()):
             if variant != value:
                 line = line.replace(variant, value)
+    # Replace single words (exact matches only)
+    words = line.split()
+    for i, word in enumerate(words):
+        for key in word_replacements:
+            for variant in (key, key.capitalize(), key.upper()):
+                if word == variant:
+                    words[i] = word_replacements[key]
+    line = " ".join(words)
     return line
 
 def getWeatherAlertsNOAA(lat=0, lon=0, useDefaultLatLon=False):
