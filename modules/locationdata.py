@@ -326,7 +326,6 @@ def abbreviate_noaa(data=""):
         "south": "S",
         "east": "E",
         "west": "W",
-        "moderate": "mod.",
         "accumulation": "accum",
         "visibility": "vis",
         "precipitation": "precip",
@@ -350,11 +349,11 @@ def abbreviate_noaa(data=""):
         "degrees": "°",
         "percent": "%",
         "department": "Dept.",
-        "temperatures": "temps.",
-        "temperature": "temp.",
-        "amounts": "amts.",
-        "afternoon": "Aftn.",
-        "evening": "Eve.",
+        "temperatures": "temps:",
+        "temperature": "temp:",
+        "amounts": "amts:",
+        "afternoon": "Aftn",
+        "evening": "Eve",
     }
 
     text = data
