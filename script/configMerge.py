@@ -67,13 +67,38 @@ if __name__ == "__main__":
     user_config_path = 'config.ini'
     output_config = 'config_new.ini'
     backup_config_path = 'config.bak'
+
+    # Step 1: Check master config
+    try:
+        if not os.path.exists(master_config_path) or os.path.getsize(master_config_path) == 0:
+            raise FileNotFoundError(f"Master configuration file {master_config_path} is missing or empty.")
+    except Exception as e:
+        print(f"Error: {e}")
+        print("Run the tool from the meshing-around/script/ directory where the config.template is located.")
+        print("  python3 script/configMerge.py")
+        exit(1)
+
+    # Step 2: Backup user config
     try:
         backup_config(user_config_path, backup_config_path)
         print(f"Backup of user config created at {backup_config_path}")
+    except Exception as e:
+        print(f"Error backing up user config: {e}")
+        exit(1)
+
+    # Step 3: Merge configs
+    try:
         merge_configs(master_config_path, user_config_path, output_config)
         print(f"Merged configuration saved to {output_config}")
+    except Exception as e:
+        print(f"Error merging configuration: {e}")
+        exit(1)
+
+    # Step 4: Show changes
+    try:
         show_config_changes(user_config_path, output_config)
         print("Please review the new configuration and replace your existing config.ini if needed.")
         print(" cp config_new.ini config.ini")
     except Exception as e:
-        print(f"Error during configuration merge: {e}")
+        print(f"Error showing configuration changes: {e}")
+        exit(1)
