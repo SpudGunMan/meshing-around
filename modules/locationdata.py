@@ -295,7 +295,7 @@ def get_NOAAweather(lat=0, lon=0, unit=0):
 
     return weather
 
-def abbreviate_noaa(row):
+def abbreviate_noaa(data=""):
     # Long phrases (with spaces)
     phrase_replacements = {
         "less than a tenth of an inch possible": "< 0.1in",
@@ -357,22 +357,35 @@ def abbreviate_noaa(row):
         "evening": "Eve.",
     }
 
-    line = row
-    # Replace long phrases first
+    text = data
+
+    # Replace long phrases (case-insensitive)
     for key in sorted(phrase_replacements, key=len, reverse=True):
         value = phrase_replacements[key]
         for variant in (key, key.capitalize(), key.upper()):
             if variant != value:
-                line = line.replace(variant, value)
-    # Replace single words (exact matches only)
-    words = line.split()
-    for i, word in enumerate(words):
-        for key in word_replacements:
-            for variant in (key, key.capitalize(), key.upper()):
-                if word == variant:
-                    words[i] = word_replacements[key]
-    line = " ".join(words)
-    return line
+                text = text.replace(variant, value)
+
+    # Replace single words (case-insensitive, whole word only, handles punctuation)
+    for key in word_replacements:
+        value = word_replacements[key]
+        for variant in (key, key.capitalize(), key.upper()):
+            if variant != value:
+                # Scan for the word surrounded by non-letters or string boundaries
+                idx = 0
+                while idx < len(text):
+                    found = text.find(variant, idx)
+                    if found == -1:
+                        break
+                    before = text[found - 1] if found > 0 else ''
+                    after = text[found + len(variant)] if found + len(variant) < len(text) else ''
+                    if (not before.isalpha()) and (not after.isalpha()):
+                        text = text[:found] + value + text[found + len(variant):]
+                        idx = found + len(value)
+                    else:
+                        idx = found + 1
+
+    return text
 
 def getWeatherAlertsNOAA(lat=0, lon=0, useDefaultLatLon=False):
     # get weather alerts from NOAA limited to ALERT_COUNT with the total number of alerts found
