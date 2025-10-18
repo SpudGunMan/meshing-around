@@ -295,6 +295,20 @@ def get_NOAAweather(lat=0, lon=0, unit=0):
 
     return weather
 
+def case_insensitive_replace(text, old, new):
+    """Replace all occurrences of old (any case) in text with new."""
+    idx = 0
+    old_lower = old.lower()
+    text_lower = text.lower()
+    while True:
+        idx = text_lower.find(old_lower, idx)
+        if idx == -1:
+            break
+        text = text[:idx] + new + text[idx+len(old):]
+        text_lower = text.lower()
+        idx += len(new)
+    return text
+
 def abbreviate_noaa(data=""):
     # Long phrases (with spaces)
     phrase_replacements = {
@@ -361,28 +375,13 @@ def abbreviate_noaa(data=""):
     # Replace long phrases (case-insensitive)
     for key in sorted(phrase_replacements, key=len, reverse=True):
         value = phrase_replacements[key]
-        for variant in (key, key.capitalize(), key.upper()):
-            if variant != value:
-                text = text.replace(variant, value)
+        text = case_insensitive_replace(text, key, value)
 
-    # Replace single words (case-insensitive, whole word only, handles punctuation)
+    # Replace single words (case-insensitive)
     for key in word_replacements:
         value = word_replacements[key]
-        for variant in (key, key.capitalize(), key.upper()):
-            if variant != value:
-                # Scan for the word surrounded by non-letters or string boundaries
-                idx = 0
-                while idx < len(text):
-                    found = text.find(variant, idx)
-                    if found == -1:
-                        break
-                    before = text[found - 1] if found > 0 else ''
-                    after = text[found + len(variant)] if found + len(variant) < len(text) else ''
-                    if (not before.isalpha()) and (not after.isalpha()):
-                        text = text[:found] + value + text[found + len(variant):]
-                        idx = found + len(value)
-                    else:
-                        idx = found + 1
+        text = case_insensitive_replace(text, key, value)
+
 
     return text
 
