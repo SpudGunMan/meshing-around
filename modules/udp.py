@@ -51,8 +51,6 @@ def on_recieve(packet: mesh_pb2.MeshPacket, addr=None):
         channel_status = f"Hash: {packet.channel}"
 
     print("channel:", channel_status)
-    print("packet_id:", packet.packet_id or None)
-
 
     if packet.HasField("decoded"):
         port_name = portnums_pb2.PortNum.Name(packet.decoded.portnum) if packet.decoded.portnum else "N/A"
