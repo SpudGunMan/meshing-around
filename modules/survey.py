@@ -52,7 +52,7 @@ class SurveyModule:
         try:
             """Begin a new survey session for a user."""
             if not survey_name:
-                survey_name = 'example'
+                survey_name = default_survey
             if survey_name not in allowedSurveys:
                 return f"error: survey '{survey_name}' is not allowed."
             self.responses[user_id] = {

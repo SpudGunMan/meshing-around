@@ -405,6 +405,7 @@ try:
     tictactoe_enabled = config['games'].getboolean('tictactoe', True)
     quiz_enabled = config['games'].getboolean('quiz', False)
     survey_enabled = config['games'].getboolean('survey', False)
+    default_survey = config['games'].get('defaultSurvey', 'example') # default example
     surveyRecordID = config['games'].getboolean('surveyRecordID', True)
     surveyRecordLocation = config['games'].getboolean('surveyRecordLocation', True)
 

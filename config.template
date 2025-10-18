@@ -378,8 +378,10 @@ tictactoe = True
 # enable or disable the quiz game module questions are in data/quiz.json
 quiz = False
 
-# enable or disable the survey game module questions are in data/survey/survey.json
+# enable or disable the survey game module questions are in data/survey/*_survey.json
 survey = False
+# this is the default survey to use when command givcen, from data/survey/example_survey.json
+defaultSurvey = example
 # Whether to record user ID in responses
 surveyRecordID=True
 # Whether to record location on start of survey
