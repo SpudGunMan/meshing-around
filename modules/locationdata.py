@@ -346,8 +346,6 @@ def abbreviate_noaa(data=""):
         "showers": "shwrs",
         "thunderstorms": "t-storms",
         "thunderstorm": "t-storm",
-        "quarters": "qtrs",
-        "quarter": "qtr",
         "january": "Jan",
         "february": "Feb",
         "march": "Mar",
@@ -381,7 +379,6 @@ def abbreviate_noaa(data=""):
     for key in word_replacements:
         value = word_replacements[key]
         text = case_insensitive_replace(text, key, value)
-
 
     return text
 
