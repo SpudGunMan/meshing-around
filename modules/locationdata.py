@@ -298,6 +298,16 @@ def get_NOAAweather(lat=0, lon=0, unit=0):
 def abbreviate_noaa(row):
     # replace long strings with shorter ones for display
     replacements = {
+        "amounts less than a tenth of an inch possible.": "< 0.1in",
+        "ammounts between a tenth and quarter of an inch possible.": "0.1-0.25in",
+        "amounts between a quarter and half an inch possible.": "0.25-0.5in",
+        "amounts between a half and three quarters of an inch possible.": "0.5-0.75in",
+        "amounts between one and two inches possible.": "1-2in",
+        "amounts between two and three inches possible.": "2-3in",
+        "amounts between three and four inches possible.": "3-4in",
+        "amounts between four and five inches possible.": "4-5in",
+        "amounts between five and six inches possible.": "5-6in",
+        "amounts between six and eight inches possible.": "6-8in",
         "monday": "Mon",
         "tuesday": "Tue",
         "wednesday": "Wed",
@@ -334,9 +344,11 @@ def abbreviate_noaa(row):
         "degrees": "°",
         "percent": "%",
         "department": "Dept.",
-        "amounts less than a tenth of an inch possible.": "< 0.1in",
         "temperatures": "temps.",
         "temperature": "temp.",
+        "amounts": "amts.",
+        "afternoon": "Aftn.",
+        "evening": "Eve.",
     }
 
     line = row
