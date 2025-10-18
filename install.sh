@@ -287,7 +287,7 @@ if [[ $(echo "${embedded}" | grep -i "^n") ]]; then
 
     # document the service install
     printf "To install the %s service and keep notes, reference following commands:\n\n" "$service" > install_notes.txt
-    printf "sudo cp %s/etc/%s.service /etc/systemd/system/etc/%s.service\n" "$program_path" "$service" "$service" >> install_notes.txt
+    printf "sudo cp %s/etc/%s.service /etc/systemd/system/%s.service\n" "$program_path" "$service" "$service" >> install_notes.txt
     printf "sudo systemctl daemon-reload\n" >> install_notes.txt
     printf "sudo systemctl enable %s.service\n" "$service" >> install_notes.txt
     printf "sudo systemctl start %s.service\n" "$service" >> install_notes.txt
