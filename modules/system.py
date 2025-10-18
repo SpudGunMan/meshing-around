@@ -826,6 +826,16 @@ def send_raw_bytes(nodeid, raw_bytes, nodeInt=1, channel=0, portnum=256,  want_a
         logger.error(f"System: Error sending raw bytes to {nodeid} via Device{nodeInt}: {e} bytes: {raw_bytes}")
         return False
 
+def decode_raw_bytes(raw_bytes):
+    # Decode raw bytes received from a Meshtastic device.
+    try:
+        decoded_message = raw_bytes.decode('utf-8', errors='ignore')
+        logger.debug(f"Decoded raw bytes: {decoded_message}")
+        return decoded_message
+    except Exception as e:
+        logger.debug(f"System: Error decoding raw bytes: {e} bytes: {raw_bytes}")
+        return ""
+
 def messageTrap(msg):
     # Check if the message contains a trap word, this is the first filter for listning to messages
     # after this the message is passed to the command_handler in the bot.py which is switch case filter for applying word to function
