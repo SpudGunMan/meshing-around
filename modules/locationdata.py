@@ -302,12 +302,12 @@ def abbreviate_noaa(data=""):
         "between a tenth and quarter of an inch possible": "0.1-0.25in",
         "between a quarter and half an inch possible": "0.25-0.5in",
         "between a half and three quarters of an inch possible": "0.5-0.75in",
-        "between one and two inches possible.": "1-2in",
-        "between two and three inches possible.": "2-3in",
-        "between three and four inches possible.": "3-4in",
-        "between four and five inches possible.": "4-5in",
-        "between five and six inches possible.": "5-6in",
-        "between six and eight inches possible.": "6-8in",
+        "between one and two inches possible": "1-2in",
+        "between two and three inches possible": "2-3in",
+        "between three and four inches possible": "3-4in",
+        "between four and five inches possible": "4-5in",
+        "between five and six inches possible": "5-6in",
+        "between six and eight inches possible": "6-8in",
     }
     # Single words (no spaces)
     word_replacements = {
