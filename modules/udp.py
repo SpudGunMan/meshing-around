@@ -23,6 +23,10 @@ class ZeroconfListner:
             txt = info.properties
             print(f"Found Meshtastic node: id={txt.get(b'id', b'').decode()} shortname={txt.get(b'shortname', b'').decode()} longname={txt.get(b'longname', b'').decode()}")
 
+    def update_service(self, zeroconf, type, name):
+        # This method is required by zeroconf, but you can leave it empty if you don't need updates.
+        pass
+
 def initalize_mudp():
     global mudpInterface
     if mudpEnabled and mudpInterface is None:
