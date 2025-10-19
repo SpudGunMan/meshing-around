@@ -147,14 +147,14 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
         playing, game = isPlayingGame(message_from_id)[0], isPlayingGame(message_from_id)[1]
     
         # Block restricted commands if not DM
-        if (cmds[0]['cmd'] in restrictedCommands and not isDM) or (cmds[0]['cmd'] in restrictedCommands and playing):
+        if (cmds[0]['cmd'] in restrictedCommands and not isDM) or (cmds[0]['cmd'] in restrictedCommands and playing) or playing:
             logger.debug(f"System: Bot restricted Command:{cmds[0]['cmd']} From: {get_name_from_number(message_from_id)} isDM:{isDM} playing:{playing}")
             if playing:
                 bot_response = f"🤖You are already playing {game}, finish that first."
             else:
                 bot_response = restrictedResponse
         else:
-            logger.debug(f"System: Bot detected Commands:{cmds} From: {get_name_from_number(message_from_id)} isDM:{isDM}")
+            logger.debug(f"System: Bot detected Commands:{cmds} From: {get_name_from_number(message_from_id)} isDM:{isDM} playing:{playing}")
             # run the first command after sorting
             bot_response = command_handler[cmds[0]['cmd']]()
             # append the command to the cmdHistory list for lheard and history
