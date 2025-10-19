@@ -718,8 +718,9 @@ def handleBlackJack(message, nodeID, deviceID):
 
     # Create new player if not found
     if not player and nodeID != 0:
+        logger.debug(f"System: BlackJack: New Player {nodeID}")
         jackTracker.append({'nodeID': nodeID, 'cmd': 'new', 'last_played': time.time()})
-        msg += "Welcome to 🃏BlackJack!🃏\n"
+        msg += "Welcome to 🃏BlackJack!♣️♦️\n"
         # Show high score if available
         highScore = loadHSJack()
         if highScore and highScore.get('nodeID', 0) != 0:

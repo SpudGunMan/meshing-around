@@ -266,11 +266,15 @@ def playBlackJack(nodeID, message):
                 next_card = jackTracker[i]['next_card']
 
     if last_cmd is None:
+        if p_chips.total < 1:
+            p_chips.total = jack_starting_cash
+        else:
+            pass
         # create new player if not in tracker
-        logger.debug(f"System: BlackJack: New Player {nodeID}")
-        jackTracker.append({'nodeID': nodeID, 'cmd': 'new', 'last_played': time.time(), 'cash': jack_starting_cash,\
-            'bet': 0, 'gameStats': {'p_win': p_win, 'd_win': d_win, 'draw': draw}, 'p_cards':p_cards, 'd_cards':d_cards, 'p_hand':p_hand.cards, 'd_hand':d_hand.cards, 'next_card':next_card})
-        return f"Welcome to ♠️♥️BlackJack♣️♦️ you have {p_chips.total} chips.   Whats your bet?"
+        #logger.debug(f"System: BlackJack: New Player {nodeID}")
+        #jackTracker.append({'nodeID': nodeID, 'cmd': 'new', 'last_played': time.time(), 'cash': jack_starting_cash,\
+        ##    'bet': 0, 'gameStats': {'p_win': p_win, 'd_win': d_win, 'draw': draw}, 'p_cards':p_cards, 'd_cards':d_cards, 'p_hand':p_hand.cards, 'd_hand':d_hand.cards, 'next_card':next_card})
+        return f"You have {p_chips.total} chips.   Whats your bet?"
 
     if getLastCmdJack(nodeID) == "new":
         # Place Bet
