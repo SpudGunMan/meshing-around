@@ -114,22 +114,31 @@ class jackChips:
         self.total -= self.bet
         self.winnings -= 1
 
-def success_rate(card, obj_h):
-    """ Calculate Success rate of 'HIT' new cards """
-    msg = ""
-    rate = 0
-    diff = 21 - obj_h.value
-    if diff != 0:
-        rate = (VALUES[card[0][1]] / diff) * 100
+def success_rate(next_card, player_hand):
+    # Estimate the chance of a successful 'HIT' (not busting) in blackjack.
 
-    if rate < 100:
-        msg += f"If Hit, chance {int(rate)}% failure, {100-int(rate)}% success."
-    else:
-        l_rate = int(rate - (rate - 99))  # Round to 99
-        if card[0][1] == "A":
-            l_rate -= 99
-        msg += f"If Hit, chance {100-l_rate}% failure, and {l_rate}% success"
-    return msg
+    # Calculate how much more the player can add without busting
+    max_safe = 21 - player_hand.value
+
+    safe_cards = 0
+    total_cards = 0
+    for rank in VALUES:
+        # 4 cards of each rank in a standard deck
+        count = 4
+        card_value = VALUES[rank]
+        # Ace can be 1 or 11, but here we treat it as 1 if 11 would bust
+        if rank == "A":
+            card_value = 1 if player_hand.value + 11 > 21 else 11
+        # Count as safe if it won't bust the player
+        if card_value <= max_safe:
+            safe_cards += count
+        total_cards += count
+
+    # Calculate probability
+    success_chance = int((safe_cards / total_cards) * 100)
+    fail_chance = 100 - success_chance
+
+    return f"🧠if hit~ {fail_chance}% failure, {success_chance}% success."
 
 def hits(obj_de):
     new_card = [obj_de.deal_cards()[0][0]]
