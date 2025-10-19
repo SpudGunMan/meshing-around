@@ -160,12 +160,12 @@ def display_hand(hand):
 
 def show_some(player_cards, dealer_cards, obj_h):
     msg = f"Player[{obj_h.value}] {display_hand(player_cards)}  "
-    msg += f"Dealer[{VALUES[dealer_cards[1][1]]}] {dealer_cards[1][1]}{dealer_cards[1][0]} "
+    msg += f"\nDealer[{VALUES[dealer_cards[1][1]]}] {dealer_cards[1][1]}{dealer_cards[1][0]} "
     return msg
 
 def show_all(player_cards, dealer_cards, obj_h, obj_d):
     msg = f"Player[{obj_h.value}] {display_hand(player_cards)}  "
-    msg += f"Dealer[{obj_d.value}] {display_hand(dealer_cards)}"
+    msg += f"\nDealer[{obj_d.value}] {display_hand(dealer_cards)}"
     return msg
 
 def player_bust(obj_h, obj_c):
