@@ -332,7 +332,7 @@ def playBlackJack(nodeID, message):
 
     if getLastCmdJack(nodeID) == "betPlaced":
         setLastCmdJack(nodeID, "playing")
-        msg += "(H)it,(S)tand,(F)orfit,(D)ouble,(R)esend,(L)eave table"
+        msg += f"\n(H)it,(S)tand,(F)orfit,(D)ouble,(R)esend,(L)eave table"
 
         # save the game state
         for i in range(len(jackTracker)):
