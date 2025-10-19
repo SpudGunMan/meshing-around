@@ -78,10 +78,15 @@ fi
 # Build a config_new.ini file merging user config with new defaults
 echo "Merging configuration files..."
 python3 script/configMerge.py > ini_merge_log.txt 2>&1
-if grep -q "Error during configuration merge" merge_log.txt; then
-    echo "Configuration merge encountered errors. Please check merge_log.txt for details."
+
+if [ -f ini_merge_log.txt ]; then
+    if grep -q "Error during configuration merge" ini_merge_log.txt; then
+        echo "Configuration merge encountered errors. Please check ini_merge_log.txt for details."
+    else
+        echo "Configuration merge completed. Please review config_new.ini and ini_merge_log.txt."
+    fi
 else
-    echo "Configuration merge completed. Please review config_new.ini and ini_merge_log.txt."
+    echo "Configuration merge log (ini_merge_log.txt) not found. check out the script/configMerge.py tool!"
 fi
 
 # if service was stopped earlier, restart it
