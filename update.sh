@@ -24,6 +24,13 @@ if systemctl is-active --quiet mesh_bot_w3.service; then
     service_stopped=true
 fi
 
+# Fetch latest changes from GitHub
+echo "Fetching latest changes from GitHub..."
+if ! git fetch origin; then
+    echo "Error: Failed to fetch from GitHub, check your network connection."
+    exit 1
+fi
+
 # git pull with rebase to avoid unnecessary merge commits
 echo "Pulling latest changes from GitHub..."
 if ! git pull origin main --rebase; then
@@ -54,6 +61,19 @@ if pip install -r requirements.txt --upgrade 2>&1 | grep -q "externally-managed-
 else
     echo "Dependencies installed or updated."
 fi
+
+# Backup the data/ directory
+echo "Backing up data/ directory..."
+#backup_file="backup_$(date +%Y%m%d_%H%M%S).tar.gz"
+backup_file="data_backup.tar.gz"
+path2backup="data/"
+tar -czf "$backup_file" "$path2backup"
+if [ $? -ne 0 ]; then
+    echo "Error: Backup failed."
+else
+    echo "Backup of ${path2backup} completed: ${backup_file}"
+fi
+
 
 # Build a config_new.ini file merging user config with new defaults
 echo "Merging configuration files..."
