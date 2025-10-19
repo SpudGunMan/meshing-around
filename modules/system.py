@@ -597,12 +597,10 @@ async def get_closest_nodes(nodeInt=1,returnCount=3, channel=publicChannel):
                             else:
                                 # one idea is to send a ping to the node to request location data for if or when, ask again later
                                 interface.sendPosition(destinationId=node['id'], wantResponse=False, channelIndex=channel)
-                                # wait a bit
-                                time.sleep(3)
+                                # wayyy too fast async wait
+                                
                                 # send a traceroute request
                                 interface.sendTraceRoute(destinationId=node['id'], channelIndex=channel, wantResponse=False)
-                                # wait a bit
-                                time.sleep(1)
                         except Exception as e:
                             logger.error(f"System: Error requesting location data for {node['id']}. Error: {e}")
             # sort by distance closest
@@ -1108,9 +1106,6 @@ def handleAlertBroadcast(deviceID=1):
             else:
                 send_message(deAlert, emergencyAlertBroadcastCh, 0, deviceID)
             return True
-        
-    # pause for traffic
-    time.sleep(5)
 
     if wxAlertBroadcastEnabled:
         if wxAlert:
@@ -1124,9 +1119,6 @@ def handleAlertBroadcast(deviceID=1):
             else:
                 send_message(wxAlert, wxAlertBroadcastChannel, 0, deviceID)
             return True
-    
-    # pause for traffic
-    time.sleep(5)
 
     if volcanoAlertBroadcastEnabled:
         volcanoAlert = get_volcano_usgs(latitudeValue, longitudeValue)
@@ -1976,7 +1968,6 @@ async def handleSentinel(deviceID):
 
         logger.warning(f"System: {detectedNearby} is close to your location on Interface{deviceID} Accuracy is {resolution}bits")
         send_message(f"Sentry{deviceID}: {detectedNearby}", secure_channel, 0, secure_interface)
-        time.sleep(responseDelay + 1)
         if enableSMTP and email_sentry_alerts:
             for email in sysopEmails:
                 send_email(email, f"Sentry{deviceID}: {detectedNearby}")
