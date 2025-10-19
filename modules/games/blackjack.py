@@ -142,7 +142,7 @@ def success_rate(next_card, player_hand):
     success_chance = int((safe_cards / total_cards) * 100)
     fail_chance = 100 - success_chance
 
-    return f"\n🧠if hit~ {fail_chance}% failure, {success_chance}% success."
+    return f"\n🧠Hit: {fail_chance}% ⛓️‍💥, {success_chance}% 💰."
 
 def hits(obj_de):
     new_card = [obj_de.deal_cards()[0][0]]
@@ -382,7 +382,7 @@ def playBlackJack(nodeID, message):
         # Check if player bust
         if player_bust(p_hand, p_chips):
             d_win += 1
-            msg += "💥PlayerBUST💥"
+            msg += f"\n💥PlayerBUST💥"
             setLastCmdJack(nodeID, "dealerTurn")
         
         if getLastCmdJack(nodeID) == "playing":
