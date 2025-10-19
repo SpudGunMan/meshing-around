@@ -44,24 +44,6 @@ if ! git pull origin main --rebase; then
     fi
 fi
 
-# Install or update dependencies
-echo "Installing or updating dependencies..."
-if pip install -r requirements.txt --upgrade 2>&1 | grep -q "externally-managed-environment"; then
-    # if venv is found ask to run with launch.sh
-    if [ -d "venv" ]; then
-        echo "A virtual environment (venv) was found. run from inside venv"
-    else
-        read -p "Warning: You are in an externally managed environment. Do you want to continue with --break-system-packages? (y/n): " choice
-        if [[ "$choice" == "y" || "$choice" == "Y" ]]; then
-            pip install --break-system-packages -r requirements.txt --upgrade
-        else
-            echo "Update aborted due to dependency installation issue."
-        fi
-    fi
-else
-    echo "Dependencies installed or updated."
-fi
-
 # Backup the data/ directory
 echo "Backing up data/ directory..."
 #backup_file="backup_$(date +%Y%m%d_%H%M%S).tar.gz"
