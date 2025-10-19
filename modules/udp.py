@@ -10,9 +10,10 @@ from mudp import UDPPacketStream, node, conn, send_text_message, send_nodeinfo, 
 from mudp.encryption import generate_hash
 import time
 from zeroconf import Zeroconf, ServiceBrowser
+import socket
 
 MCAST_GRP, MCAST_PORT, CHANNEL_ID, KEY = "224.0.0.69", 4403, "LongFast", "1PG7OiApB1nwvP+rz05pAQ=="
-PUBLIC_CHANNEL_IDS = ["LongFast", "ShortSlow", "Medium", "LongSlow", "ShortFast", "ShortTurbo"]
+PUBLIC_CHANNEL_IDS = ["LongFast", "ShortSlow", "MediumFast", "MediumSlow", "ShortFast", "ShortTurbo"]
 mudpEnabled, mudpInterface = True, None
 messages = []
 
@@ -21,7 +22,10 @@ class ZeroconfListner:
         info = zeroconf.get_service_info(type, name)
         if info:
             txt = info.properties
-            print(f"Found Meshtastic node: id={txt.get(b'id', b'').decode()} shortname={txt.get(b'shortname', b'').decode()} longname={txt.get(b'longname', b'').decode()}")
+            ip = None
+            if info.addresses:
+                ip = socket.inet_ntoa(info.addresses[0])
+            print(f"Found Meshtastic node: id={txt.get(b'id', b'').decode()} shortname={txt.get(b'shortname', b'').decode()} longname={txt.get(b'longname', b'').decode()} ip={ip}")
 
     def update_service(self, zeroconf, type, name):
         # This method is required by zeroconf, but you can leave it empty if you don't need updates.
