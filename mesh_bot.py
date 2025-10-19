@@ -169,6 +169,59 @@ def handle_cmd(message, message_from_id, deviceID):
     if " " in message and message.split(" ")[1] in trap_list:
         return "🤖 just use the commands directly in chat"
     return help_message
+
+def isPlayingGame(message_from_id):
+    global gameTrackers
+    trackers = gameTrackers.copy()
+    playingGame = False
+    game = "None"
+
+    trackers = [tracker for tracker in trackers if tracker is not None]
+
+    for tracker, game_name, handle_game_func in trackers:
+        for i in range(len(tracker)-1, -1, -1):  # iterate backwards for safe removal
+            id_key = 'userID' if game_name == "DopeWars" else 'nodeID'
+            id_key = 'id' if game_name == "Survey" else id_key
+            if tracker[i].get(id_key) == message_from_id:
+                last_played_key = 'last_played' if 'last_played' in tracker[i] else 'time'
+                if tracker[i].get(last_played_key, 0) > (time.time() - GAMEDELAY):
+                    playingGame = True
+                    game = game_name
+                    break
+        if playingGame:
+            break
+
+    return playingGame, game
+
+def checkPlayingGame(message_from_id, message_string, rxNode, channel_number):
+    global gameTrackers
+    trackers = gameTrackers.copy()
+    playingGame = False
+    game = "None"
+
+    trackers = [tracker for tracker in trackers if tracker is not None]
+
+    for tracker, game_name, handle_game_func in trackers:
+        playingGame, game = check_and_play_game(tracker, message_from_id, message_string, rxNode, channel_number, game_name, handle_game_func)
+        if playingGame:
+            break
+    return playingGame
+
+def check_and_play_game(tracker, message_from_id, message_string, rxNode, channel_number, game_name, handle_game_func):
+    global llm_enabled
+
+    for i in range(len(tracker)):
+        # Use 'userID' for DopeWars, 'nodeID' for others (including Survey)
+        id_key = 'userID' if game_name == "DopeWars" else 'nodeID'
+        
+        if tracker[i].get(id_key) == message_from_id:
+            last_played_key = 'last_played' if 'last_played' in tracker[i] else 'time'
+            if tracker[i].get(last_played_key) > (time.time() - GAMEDELAY):
+                if llm_enabled:
+                    logger.debug(f"System: LLM Disabled for {message_from_id} for duration of {game_name}")
+                send_message(handle_game_func(message_string, message_from_id, rxNode), channel_number, message_from_id, rxNode)
+                return True, game_name
+    return False, "None"
     
 def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, channel_number):
     global multiPing
@@ -1340,20 +1393,6 @@ def handle_whois(message, deviceID, channel_number, message_from_id):
                     msg += f"Loc: {where_am_i(str(location[0]), str(location[1]))}"
         return msg
 
-gameTrackers = [
-    (dwPlayerTracker, "DopeWars", handleDopeWars) if 'dwPlayerTracker' in globals() else None,
-    (lemonadeTracker, "LemonadeStand", handleLemonade) if 'lemonadeTracker' in globals() else None,
-    (vpTracker, "VideoPoker", handleVideoPoker) if 'vpTracker' in globals() else None,
-    (jackTracker, "BlackJack", handleBlackJack) if 'jackTracker' in globals() else None,
-    (mindTracker, "MasterMind", handleMmind) if 'mindTracker' in globals() else None,
-    (golfTracker, "GolfSim", handleGolf) if 'golfTracker' in globals() else None,
-    (hangmanTracker, "Hangman", handleHangman) if 'hangmanTracker' in globals() else None,
-    (hamtestTracker, "HamTest", handleHamtest) if 'hamtestTracker' in globals() else None,
-    (tictactoeTracker, "TicTacToe", handleTicTacToe) if 'tictactoeTracker' in globals() else None,
-    (surveyTracker, "Survey", surveyHandler) if 'surveyTracker' in globals() else None,
-    #quiz does not use a tracker (quizGamePlayer) always active
-]
-
 def onReceive(packet, interface):
     global seenNodes, msg_history, cmdHistory
     # Priocess the incoming packet, handles the responses to the packet with auto_response()
@@ -1795,6 +1834,22 @@ async def start_rx():
     while True:
         await asyncio.sleep(0.5)
         pass
+
+
+# Initialize game trackers
+gameTrackers = [
+    (dwPlayerTracker, "DopeWars", handleDopeWars) if 'dwPlayerTracker' in globals() else None,
+    (lemonadeTracker, "LemonadeStand", handleLemonade) if 'lemonadeTracker' in globals() else None,
+    (vpTracker, "VideoPoker", handleVideoPoker) if 'vpTracker' in globals() else None,
+    (jackTracker, "BlackJack", handleBlackJack) if 'jackTracker' in globals() else None,
+    (mindTracker, "MasterMind", handleMmind) if 'mindTracker' in globals() else None,
+    (golfTracker, "GolfSim", handleGolf) if 'golfTracker' in globals() else None,
+    (hangmanTracker, "Hangman", handleHangman) if 'hangmanTracker' in globals() else None,
+    (hamtestTracker, "HamTest", handleHamtest) if 'hamtestTracker' in globals() else None,
+    (tictactoeTracker, "TicTacToe", handleTicTacToe) if 'tictactoeTracker' in globals() else None,
+    (surveyTracker, "Survey", surveyHandler) if 'surveyTracker' in globals() else None,
+    #quiz does not use a tracker (quizGamePlayer) always active
+]
 
 # Hello World 
 async def main():
