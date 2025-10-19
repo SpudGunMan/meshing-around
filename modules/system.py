@@ -1826,6 +1826,59 @@ def get_sysinfo(nodeID=0, deviceID=1):
     sysinfo += f"📊{stats}"
     return sysinfo
 
+def isPlayingGame(message_from_id):
+    global gameTrackers
+    trackers = gameTrackers.copy()
+    playingGame = False
+    game = "None"
+
+    trackers = [tracker for tracker in trackers if tracker is not None]
+
+    for tracker, game_name, handle_game_func in trackers:
+        for i in range(len(tracker)-1, -1, -1):  # iterate backwards for safe removal
+            id_key = 'userID' if game_name == "DopeWars" else 'nodeID'
+            id_key = 'id' if game_name == "Survey" else id_key
+            if tracker[i].get(id_key) == message_from_id:
+                last_played_key = 'last_played' if 'last_played' in tracker[i] else 'time'
+                if tracker[i].get(last_played_key, 0) > (time.time() - GAMEDELAY):
+                    playingGame = True
+                    game = game_name
+                    break
+        if playingGame:
+            break
+
+    return playingGame, game
+
+def checkPlayingGame(message_from_id, message_string, rxNode, channel_number):
+    global gameTrackers
+    trackers = gameTrackers.copy()
+    playingGame = False
+    game = "None"
+
+    trackers = [tracker for tracker in trackers if tracker is not None]
+
+    for tracker, game_name, handle_game_func in trackers:
+        playingGame, game = check_and_play_game(tracker, message_from_id, message_string, rxNode, channel_number, game_name, handle_game_func)
+        if playingGame:
+            break
+    return playingGame
+
+def check_and_play_game(tracker, message_from_id, message_string, rxNode, channel_number, game_name, handle_game_func):
+    global llm_enabled
+
+    for i in range(len(tracker)):
+        # Use 'userID' for DopeWars, 'nodeID' for others (including Survey)
+        id_key = 'userID' if game_name == "DopeWars" else 'nodeID'
+        
+        if tracker[i].get(id_key) == message_from_id:
+            last_played_key = 'last_played' if 'last_played' in tracker[i] else 'time'
+            if tracker[i].get(last_played_key) > (time.time() - GAMEDELAY):
+                if llm_enabled:
+                    logger.debug(f"System: LLM Disabled for {message_from_id} for duration of {game_name}")
+                send_message(handle_game_func(message_string, message_from_id, rxNode), channel_number, message_from_id, rxNode)
+                return True, game_name
+    return False, "None"
+
 async def BroadcastScheduler():
     # handle schedule checks for the broadcast of messages
     while True:
