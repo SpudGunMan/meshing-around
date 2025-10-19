@@ -300,6 +300,7 @@ def handle_echo(message, message_from_id, deviceID, isDM, channel_number):
             #send_raw_bytes echo the data to the channel with synch word:
             port_num = 256
             synch_word = b"echo:"
+            message = message.split("echo ")[1]
             raw_bytes = synch_word + message.encode('utf-8')
             send_raw_bytes(message_from_id, raw_bytes, nodeInt=deviceID, channel=channel_number, portnum=port_num)
         except Exception as e:
@@ -1341,9 +1342,8 @@ def check_and_play_game(tracker, message_from_id, message_string, rxNode, channe
     global llm_enabled
 
     for i in range(len(tracker)):
-        # Use 'userID'
-        id_key = 'userID' if game_name == "DopeWars" else 'nodeID' # DopeWars uses 'userID'
-        id_key = 'id' if game_name == "Survey" else id_key  # Survey uses 'id'
+        # Use 'userID' for DopeWars, 'nodeID' for others (including Survey)
+        id_key = 'userID' if game_name == "DopeWars" else 'nodeID'
         
         if tracker[i].get(id_key) == message_from_id:
             last_played_key = 'last_played' if 'last_played' in tracker[i] else 'time'
