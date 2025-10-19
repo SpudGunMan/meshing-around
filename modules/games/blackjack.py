@@ -117,6 +117,10 @@ class jackChips:
 def success_rate(next_card, player_hand):
     # Estimate the chance of a successful 'HIT' (not busting) in blackjack.
 
+    # If player already has 21 or more, hitting will always bust
+    if player_hand.value >= 21:
+        return "\n🧠 What do you think?"
+
     # Calculate how much more the player can add without busting
     max_safe = 21 - player_hand.value
 
@@ -138,7 +142,7 @@ def success_rate(next_card, player_hand):
     success_chance = int((safe_cards / total_cards) * 100)
     fail_chance = 100 - success_chance
 
-    return f"🧠if hit~ {fail_chance}% failure, {success_chance}% success."
+    return f"\n🧠if hit~ {fail_chance}% failure, {success_chance}% success."
 
 def hits(obj_de):
     new_card = [obj_de.deal_cards()[0][0]]
@@ -311,7 +315,7 @@ def playBlackJack(nodeID, message):
         msg += show_some(p_cards, d_cards, p_hand)
         # check for blackjack 21 and only two cards
         if p_hand.value == 21 and len(p_hand.cards) == 2:
-            msg += "Player 🎰 BLAAAACKJACKKKK 💰"
+            msg += f"\n🎰 BLAAAACKJACKKKK 💰"
             p_chips.total += round(p_chips.bet * 1.5)
             setLastCmdJack(nodeID, "dealerTurn")
             blackJack = True
@@ -430,7 +434,7 @@ def playBlackJack(nodeID, message):
                 d_hand.add_cards(d_card)
                 if dealer_bust(d_hand, p_hand, p_chips):
                     p_win += 1
-                    msg += "💰DealerBUST💥"
+                    msg += f"\n💰DealerBUST💥"
                     break
             # Show all cards
             msg += show_all(p_hand.cards, d_hand.cards, p_hand, d_hand)
@@ -438,15 +442,15 @@ def playBlackJack(nodeID, message):
             # Check who wins
             if push(p_hand, d_hand):
                 draw += 1
-                msg += "👌PUSH"
+                msg += f"\n👌PUSH"
             elif player_wins(p_hand, d_hand, p_chips):
                 p_win += 1
-                msg += "🎉PLAYER WINS🎰"
+                msg += f"\n🎉PLAYER WINS🎰"
             elif dealer_wins(p_hand, d_hand, p_chips):
                 d_win += 1
-                msg += "👎DEALER WINS"
+                msg += f"\n👎DEALER WINS"
         else:
-            msg += "👎DEALER WINS"
+            msg += f"\n👎DEALER WINS"
 
         # Display the Game Stats
         msg += gameStats(str(p_win), str(d_win), str(draw))
@@ -454,20 +458,20 @@ def playBlackJack(nodeID, message):
         # Display the chips left
         if p_chips.total < 1:
             if p_chips.total > 0:
-                msg += "🪙Keep the change you filthy animal!"
+                msg += f"\n🪙Keep the change you filthy animal!"
             else:
-                msg += "💸NO MORE CHIPS!🏧💳"
+                msg += f"\n💸NO MORE CHIPS!🏧💳"
                 p_chips.total = jack_starting_cash
         else:
             # check high score
             highScore = loadHSJack()
             if highScore != 0 and p_chips.total > highScore['highScore']:
-                msg += f"💰HighScore💰{p_chips.total} "
+                msg += f"\n💰HighScore💰{p_chips.total} "
                 saveHSJack(nodeID, p_chips.total)
             else:
-                msg += f"💰You have {p_chips.total} chips "
+                msg += f"\n💰You have {p_chips.total} chips "
 
-        msg += " Bet or Leave?"
+        msg += f"\nBet or Leave?"
 
         # Reset the game
         setLastCmdJack(nodeID, "new")
