@@ -144,7 +144,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
         cmds = sorted(cmds, key=lambda k: k['index'])
     
         # Check if user is already playing a game
-        playing, game = isPlayingGame(message_from_id)
+        playing, game = isPlayingGame(message_from_id)[0], isPlayingGame(message_from_id)[1]
     
         # Block restricted commands if not DM, or if already playing a game
         if (cmds[0]['cmd'] in restrictedCommands and not isDM) or (cmds[0]['cmd'] in restrictedCommands and playing):
