@@ -386,11 +386,11 @@ def cleanup_memory():
         # Clean up stale game tracker entries
         cleanup_game_trackers(current_time)
         
-        # Clean up multiPingList of completed or stale entries
-        if 'multiPingList' in globals():
-            multiPingList[:] = [ping for ping in multiPingList 
-                              if ping.get('message_from_id', 0) != 0 and 
-                              ping.get('count', 0) > 0]
+        # # Clean up multiPingList of completed or stale entries
+        # if 'multiPingList' in globals():
+        #     multiPingList[:] = [ping for ping in multiPingList 
+        #                       if ping.get('message_from_id', 0) != 0 and 
+        #                       ping.get('count', 0) > 0]
         
     except Exception as e:
         logger.error(f"System: Error during memory cleanup: {e}")
