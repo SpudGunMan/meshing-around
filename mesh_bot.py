@@ -1515,7 +1515,7 @@ def onReceive(packet, interface):
                 break
 
     # check if the packet has a simulator flag
-    simulator_flag = packet['decoded'].get('simulator', False)
+    simulator_flag = packet.get('decoded', {}).get('simulator', False)
     if isinstance(simulator_flag, dict):
         # assume Software Simulator
         simulator_flag = True

@@ -267,7 +267,23 @@ def onReceive(packet, interface):
     
     # check if the packet has a channel flag use it
     if packet.get('channel'):
-        channel_number = packet.get('channel', 0)
+        channel_number = packet.get('channel')
+        channel_name = "unknown"
+    # get channel hashes for the interface
+    device = next((d for d in channel_list if d["interface_id"] == rxNode), None)
+    if device:
+        # Find the channel name whose hash matches channel_number
+        for chan_name, info in device['channels'].items():
+            if info['hash'] == channel_number:
+                print(f"Matched channel hash {info['hash']} to channel name {chan_name}")
+                channel_name = chan_name
+                break
+
+    # check if the packet has a simulator flag
+    simulator_flag = packet.get('decoded', {}).get('simulator', False)
+    if isinstance(simulator_flag, dict):
+        # assume Software Simulator
+        simulator_flag = True
 
     # set the message_from_id
     message_from_id = packet['from']
