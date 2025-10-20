@@ -297,7 +297,7 @@ def playBlackJack(nodeID, message, last_cmd=None):
                 #resend the hand
                 msg += show_some(p_cards, d_cards, p_hand)
                 return msg
-            elif message.lower() == "blackjack":
+            elif "blackjack" in message.lower():
                 return f"\nTo place a bet, enter the amount you wish to wager."
             else:
                 try:
