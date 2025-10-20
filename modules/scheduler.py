@@ -1,15 +1,16 @@
 # modules/scheduler.py 2025 meshing-around
+# Scheduler setup for Mesh Bot
+import asyncio
 import schedule
 from modules.log import logger
-from modules.system import send_message, BroadcastScheduler
 from modules.system import send_message
-# methods available for custom scheduler messages
-from mesh_bot import tell_joke, welcome_message, MOTD, handle_wxc, handle_moon, handle_sun, handle_riverFlow, handle_tide, handle_satpass
 
 async def setup_scheduler(
     schedulerMotd, MOTD, schedulerMessage, schedulerChannel, schedulerInterface,
-    schedulerValue, schedulerTime, schedulerInterval, logger, BroadcastScheduler
-):
+    schedulerValue, schedulerTime, schedulerInterval, logger, BroadcastScheduler):
+    
+    # methods available for custom scheduler messages
+    from mesh_bot import tell_joke, welcome_message, handle_wxc, handle_moon, handle_sun, handle_riverFlow, handle_tide, handle_satpass
     schedulerValue = schedulerValue.lower().strip()
     schedulerTime = schedulerTime.strip()
     schedulerInterval = schedulerInterval.strip()
@@ -53,11 +54,15 @@ async def setup_scheduler(
             # Default schedule if no valid configuration is provided
 
             # custom scheduler job to run the schedule see examples below
-            logger.debug(f"System: Starting the scheduler to send reminder every Monday at noon on Device:{schedulerInterface} Channel:{schedulerChannel}")
+            logger.debug(f"System: Starting the custom scheduler default to send reminder every Monday at noon on Device:{schedulerInterface} Channel:{schedulerChannel}")
             schedule.every().monday.at("12:00").do(lambda: logger.info("System: Scheduled Broadcast Enabled Reminder"))
             
             # send a joke every 15 minutes
             #schedule.every(15).minutes.do(lambda: send_message(tell_joke(), schedulerChannel, 0, schedulerInterface))
+
+            # Place your custom schedule code below this line, helps with merges
+
+            # Place your custom schedule code above this line
 
         # Start the Broadcast Scheduler
         await BroadcastScheduler()
