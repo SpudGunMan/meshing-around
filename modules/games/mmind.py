@@ -61,23 +61,14 @@ def makeCodeMMind(diff):
 
 #get guess from user
 def getGuessMMind(diff, guess):
-    msg = ''
-    if diff == "n":
-        valid_colorsMMind = "RYGB"
-    elif diff == "h":
-        valid_colorsMMind = "RYGBOP"
-    elif diff == "x":
-        valid_colorsMMind = "RYGBOPWK"
-        
-    user_guess = guess.upper()
-    valid_guess = True
-    if len(user_guess) != 4:
-        valid_guess = False
-    for i in range(len(user_guess)):
-        if user_guess[i] not in valid_colorsMMind:
-            valid_guess = False
-    if valid_guess == False:
-        user_guess = "XXXX"
+    valid_colors = {
+        "n": "RYGB",
+        "h": "RYGBOP",
+        "x": "RYGBOPWK"
+    }
+    user_guess = guess.strip().upper()
+    if len(user_guess) != 4 or any(c not in valid_colors.get(diff, "RYGB") for c in user_guess):
+        return "XXXX"
     return user_guess
 
 def getHighScoreMMind(nodeID, turns, diff):
