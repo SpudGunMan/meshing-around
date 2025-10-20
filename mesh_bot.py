@@ -883,7 +883,7 @@ def handleGolf(message, nodeID, deviceID):
         # create new player
 
         msg = f"Welcome to 🏌️GolfSim⛳️\n"
-        msg += f"Clubs: (D)river, (L)ow Iron, (M)id Iron, (H)igh Iron, (G)ap Wedge, Lob (W)edge\n"
+        msg += f"Clubs: (D)river, (L)ow Iron, (M)id Iron, (H)igh Iron, (G)ap Wedge, Lob (W)edge\n Or ask a (C)addie for help\n"
     
     msg += playGolf(nodeID=nodeID, message=message, last_cmd=last_cmd)
     return msg
