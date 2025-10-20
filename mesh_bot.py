@@ -1444,17 +1444,13 @@ def onReceive(packet, interface):
     # extract interface details from inbound packet
     rxType = type(interface).__name__
 
-    # Valies assinged to the packet
-    rxNode, message_from_id, snr, rssi, hop, hop_away, channel_number = 0, 0, 0, 0, 0, 0, 0
+    # Values assinged to the packet
+    rxNode = message_from_id = snr = rssi = hop = hop_away = channel_number = hop_start = hop_count = hop_limit = 0
     pkiStatus = (False, 'ABC')
     replyIDset = False
     emojiSeen = False
     simulator_flag = False
     isDM = False
-    channel_number = 0
-    hop_away = 0
-    hop_start = 0
-    hop_count = 0
     channel_name = "unknown"
     playingGame = False
 
@@ -1500,10 +1496,18 @@ def onReceive(packet, interface):
         elif multiple_interface and interface8_type == 'ble': rxNode = 8
         elif multiple_interface and interface9_type == 'ble': rxNode = 9
     
-    # check if the packet has a channel flag use it
+    # check if the packet has a channel flag use it ## FIXME needs to be channel hash lookup
     if packet.get('channel'):
         channel_number = packet.get('channel')
-        channel_name = "unknown"
+        # get channel name from channel number from connected devices
+        for device in channel_list:
+            if device["interface_id"] == rxNode:
+                device_channels = device['channels']
+                for chan_name, info in device_channels.items():
+                    if info['number'] == channel_number:
+                        channel_name = chan_name
+                        break
+        
     # get channel hashes for the interface
     device = next((d for d in channel_list if d["interface_id"] == rxNode), None)
     if device:
