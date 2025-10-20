@@ -315,7 +315,7 @@ def playLemonstand(nodeID, message, celsius=False, newgame=False):
                 else:
                     buffer += "📊P&L📈" + pnl
 
-            buffer += f"\n🥤 to buy? Have {inventory.cups} Cost {locale.currency(cups.cost, grouping=True)} a 📦 of {str(cups.count)}"
+            buffer += f"\n🥤 to buy?\nHave {inventory.cups} Cost {locale.currency(cups.cost, grouping=True)} a 📦 of {str(cups.count)}"
             saveValues(nodeID, inventory, cups, lemons, sugar, weeks, score)
             return buffer
         
@@ -339,7 +339,7 @@ def playLemonstand(nodeID, message, celsius=False, newgame=False):
             except Exception as e:
                 return "invalid input, enter the number of 🥤 to purchase or (N)one"
                 
-            msg += f"\n 🍋 to buy? Have {inventory.lemons}🥤 of 🍋 Cost {locale.currency(lemons.cost, grouping=True)} a 🧺 for {str(lemons.count)}🥤"
+            msg += f"\n 🍋 to buy?\nHave {inventory.lemons}🥤 of 🍋 Cost {locale.currency(lemons.cost, grouping=True)} a 🧺 for {str(lemons.count)}🥤"
             # set the last command to lemons in the inventory db
             for i in range(len(lemonadeTracker)):
                 if lemonadeTracker[i]['nodeID'] == nodeID:
@@ -369,7 +369,7 @@ def playLemonstand(nodeID, message, celsius=False, newgame=False):
                 newlemons = -1
                 return "⛔️invalid input, enter the number of 🍋 to purchase"
                 
-            msg += f"\n 🍚 to buy? You have {inventory.sugar}🥤 of 🍚, Cost {locale.currency(sugar.cost, grouping=True)} a bag for {str(sugar.count)}🥤"
+            msg += f"\n 🍚 to buy?\nYou have {inventory.sugar}🥤 of 🍚, Cost {locale.currency(sugar.cost, grouping=True)} a bag for {str(sugar.count)}🥤"
             # set the last command to sugar in the inventory db
             for i in range(len(lemonadeTracker)):
                 if lemonadeTracker[i]['nodeID'] == nodeID:
@@ -415,7 +415,7 @@ def playLemonstand(nodeID, message, celsius=False, newgame=False):
                     lemonadeTracker[i]['cmd'] = "sales"
                     if "g" in message.lower():
                         lemonadeTracker[i]['cmd'] = "cups"
-                        msg = f"#of🥤 to buy? Have {inventory.cups} Cost {locale.currency(cups.cost, grouping=True)} a 📦 of {str(cups.count)}"
+                        msg = f"#of🥤\nto buy? Have {inventory.cups} Cost {locale.currency(cups.cost, grouping=True)} a 📦 of {str(cups.count)}"
                         return msg
                     else:
                         lemonsLastCmd = "sales"
