@@ -7,6 +7,7 @@ import meshtastic.ble_interface
 import time
 import asyncio
 import random
+import base64
 # not ideal but needed?
 import contextlib # for suppressing output on watchdog
 import io # for suppressing output on watchdog
@@ -315,6 +316,24 @@ if ble_count > 1:
     logger.critical(f"System: Multiple BLE interfaces detected. Only one BLE interface is allowed. Exiting")
     exit()
 
+def xor_hash(data: bytes) -> int:
+    """Compute an XOR hash from bytes."""
+    result = 0
+    for char in data:
+        result ^= char
+    return result
+
+def generate_hash(name: str, key: str) -> int:
+    """generate the channel number by hashing the channel name and psk"""
+    if key == "AQ==":
+        key = "1PG7OiApB1nwvP+rz05pAQ=="
+    replaced_key = key.replace("-", "+").replace("_", "/")
+    key_bytes = base64.b64decode(replaced_key.encode("utf-8"))
+    h_name = xor_hash(bytes(name, "utf-8"))
+    h_key = xor_hash(key_bytes)
+    result: int = h_name ^ h_key
+    return result
+
 # Initialize interfaces
 logger.debug(f"System: Initializing Interfaces")
 interface1 = interface2 = interface3 = interface4 = interface5 = interface6 = interface7 = interface8 = interface9 = None
@@ -364,6 +383,43 @@ for i in range(1, 10):
             logger.critical(f"System: critical error initializing interface{i} {e}")
     else:
         globals()[f'myNodeNum{i}'] = 777
+
+# Fetch channel list from each device
+channel_list = []
+for i in range(1, 10):
+    if globals().get(f'interface{i}') and globals().get(f'interface{i}_enabled'):
+        try:
+            node = globals()[f'interface{i}'].getNode('^local')
+            channels = node.channels
+            channel_dict = {}
+            for channel in channels:
+                if hasattr(channel, 'role') and channel.role:
+                    channel_name = getattr(channel.settings, 'name', '').strip()
+                    channel_number = getattr(channel, 'index', 0)
+                    # Only add channels with a non-empty name
+                    if channel_name:
+                        channel_dict[channel_name] = channel_number
+            channel_list.append({
+                "interface_id": i,
+                "channels": channel_dict
+            })
+            logger.debug(f"System: Fetched Channel List from Device{i}")
+        except Exception as e:
+            logger.error(f"System: Error fetching channel list from Device{i}: {e}")
+
+# add channel hash to channel_list
+for device in channel_list:
+    interface_id = device["interface_id"]
+    for channel_name, channel_number in device["channels"].items():
+        psk_base64 = base64.b64encode(channel.settings.psk).decode('utf-8')
+        channel_hash = generate_hash(channel_name, psk_base64)
+        # add hash to the channel entry in channel_list under key 'hash'
+        for entry in channel_list:
+            if entry["interface_id"] == interface_id:
+                entry["channels"][channel_name] = {
+                    "number": channel_number,
+                    "hash": channel_hash
+                }
 
 #### FUN-ctions ####
 

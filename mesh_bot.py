@@ -1449,7 +1449,13 @@ def onReceive(packet, interface):
     pkiStatus = (False, 'ABC')
     replyIDset = False
     emojiSeen = False
+    simulator_flag = False
     isDM = False
+    channel_number = 0
+    hop_away = 0
+    hop_start = 0
+    hop_count = 0
+    channel_name = "unknown"
     playingGame = False
 
     if DEBUGpacket:
@@ -1496,7 +1502,23 @@ def onReceive(packet, interface):
     
     # check if the packet has a channel flag use it
     if packet.get('channel'):
-        channel_number = packet.get('channel', 0)
+        channel_number = packet.get('channel')
+        channel_name = "unknown"
+    # get channel hashes for the interface
+    device = next((d for d in channel_list if d["interface_id"] == rxNode), None)
+    if device:
+        # Find the channel name whose hash matches channel_number
+        for chan_name, info in device['channels'].items():
+            if info['hash'] == channel_number:
+                print(f"Matched channel hash {info['hash']} to channel name {chan_name}")
+                channel_name = chan_name
+                break
+
+    # check if the packet has a simulator flag
+    simulator_flag = packet['decoded'].get('simulator', False)
+    if isinstance(simulator_flag, dict):
+        # assume Software Simulator
+        simulator_flag = True
 
     # set the message_from_id
     message_from_id = packet['from']
@@ -1521,7 +1543,13 @@ def onReceive(packet, interface):
             message_bytes = packet['decoded']['payload']
             message_string = message_bytes.decode('utf-8')
             via_mqtt = packet['decoded'].get('viaMqtt', False)
-            transport_mechanism = packet['decoded'].get('transport_mechanism', 'unknown')
+            transport_mechanism = (
+                packet.get('transport_mechanism')
+                or packet.get('transportMechanism')
+                or (packet.get('decoded', {}).get('transport_mechanism'))
+                or (packet.get('decoded', {}).get('transportMechanism'))
+                or 'unknown'
+            )
             rx_time = packet['decoded'].get('rxTime', time.time())
 
             # check if the packet is from us
@@ -1548,40 +1576,33 @@ def onReceive(packet, interface):
             # check if the packet has a hop count flag use it
             if packet.get('hopsAway'):
                 hop_away = packet.get('hopsAway', 0)
+
+            if packet.get('hopStart'):
+                hop_start = packet.get('hopStart', 0)
+
+            if packet.get('hopLimit'):
+                hop_limit = packet.get('hopLimit', 0)
+            
+            # calculate hop count
+            hop = ""
+            if hop_limit > 0 and hop_start >= hop_limit:
+                hop_count = hop_away + (hop_start - hop_limit)
+            elif hop_limit > 0 and hop_start < hop_limit:
+                hop_count = hop_away + (hop_limit - hop_start)
             else:
-                # if the packet does not have a hop count try other methods
-                if packet.get('hopLimit'):
-                    hop_limit = packet.get('hopLimit', 0)
-                else:
-                    hop_limit = 0
-                
-                if packet.get('hopStart'):
-                    hop_start = packet.get('hopStart', 0)
-                else:
-                    hop_start = 0
-            
-            if enableHopLogs:
-                logger.debug(f"System: Packet HopDebugger: hop_away:{hop_away} hop_limit:{hop_limit} hop_start:{hop_start}")
-            
+                hop_count = hop_away
+
             if hop_away == 0 and hop_limit == 0 and hop_start == 0:
                 hop = "Last Hop"
-                hop_count = 0
-            
+
             if hop_start == hop_limit:
                 hop = "Direct"
-                hop_count = 0
-            elif hop_start == 0 and hop_limit > 0 or via_mqtt or transport_mechanism == "TRANSPORT_MQTT":
-                hop = "MQTT"
-                hop_count = 0
-            else:
-                # set hop to Direct if the message was sent directly otherwise set the hop count
-                if hop_away > 0:
-                    hop_count = hop_away
-                else:
-                    hop_count = hop_start - hop_limit
-                    #print (f"calculated hop count: {hop_start} - {hop_limit} = {hop_count}")
 
-                hop = f"{hop_count} hops"
+            if ((hop_start == 0 and hop_limit >= 0) or via_mqtt or ("mqtt" in str(transport_mechanism).lower())):
+                hop = "MQTT"
+
+            if enableHopLogs:
+                logger.debug(f"System: Packet HopDebugger: hop_away:{hop_away} hop_limit:{hop_limit} hop_start:{hop_start} calculated_hop_count:{hop_count} final_hop_value:{hop} via_mqtt:{via_mqtt} transport_mechanism:{transport_mechanism}")
 
             # check with stringSafeChecker if the message is safe
             if stringSafeCheck(message_string) is False:

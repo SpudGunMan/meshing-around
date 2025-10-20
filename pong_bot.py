@@ -282,6 +282,7 @@ def onReceive(packet, interface):
             message_bytes = packet['decoded']['payload']
             message_string = message_bytes.decode('utf-8')
             via_mqtt = packet['decoded'].get('viaMqtt', False)
+            transport_mechanism = packet['decoded'].get('transport_mechanism', 'unknown')
 
             # check if the packet is from us
             if message_from_id == myNodeNum1 or message_from_id == myNodeNum2:
@@ -294,46 +295,51 @@ def onReceive(packet, interface):
 
             # check if the packet has a publicKey flag use it
             if packet.get('publicKey'):
-                pkiStatus = (packet.get('pkiEncrypted', False), packet.get('publicKey', 'ABC'))
+                pkiStatus = packet.get('pkiEncrypted', False), packet.get('publicKey', 'ABC')
+            
+            # check if the packet has replyId flag // currently unused in the code
+            if packet.get('replyId'):
+                replyIDset = packet.get('replyId', False)
+            
+            # check if the packet has emoji flag set it // currently unused in the code
+            if packet.get('emoji'):
+                emojiSeen = packet.get('emoji', False)
 
             # check if the packet has a hop count flag use it
             if packet.get('hopsAway'):
                 hop_away = packet.get('hopsAway', 0)
-            else:
-                # if the packet does not have a hop count try other methods
-                if packet.get('hopLimit'):
-                    hop_limit = packet.get('hopLimit', 0)
-                else:
-                    hop_limit = 0
-                
-                if packet.get('hopStart'):
-                    hop_start = packet.get('hopStart', 0)
-                else:
-                    hop_start = 0
 
-            if enableHopLogs:
-                logger.debug(f"System: Packet HopDebugger: hop_away:{hop_away} hop_limit:{hop_limit} hop_start:{hop_start}")
+            if packet.get('hopStart'):
+                hop_start = packet.get('hopStart', 0)
+
+            if packet.get('hopLimit'):
+                hop_limit = packet.get('hopLimit', 0)
             
+            # calculate hop count
+            hop = ""
+            if hop_limit > 0 and hop_start >= hop_limit:
+                hop_count = hop_away + (hop_start - hop_limit)
+            elif hop_limit > 0 and hop_start < hop_limit:
+                hop_count = hop_away + (hop_limit - hop_start)
+            else:
+                hop_count = hop_away
+
             if hop_away == 0 and hop_limit == 0 and hop_start == 0:
                 hop = "Last Hop"
-                hop_count = 0
-            
+
             if hop_start == hop_limit:
                 hop = "Direct"
-                hop_count = 0
-            elif hop_start == 0 and hop_limit > 0 or via_mqtt:
-                hop = "MQTT"
-                hop_count = 0
-            else:
-                # set hop to Direct if the message was sent directly otherwise set the hop count
-                if hop_away > 0:
-                    hop_count = hop_away
-                else:
-                    hop_count = hop_start - hop_limit
-                    #print (f"calculated hop count: {hop_start} - {hop_limit} = {hop_count}")
 
-                hop = f"{hop_count} hops"
-            
+            if ((hop_start == 0 and hop_limit >= 0) or via_mqtt or ("mqtt" in str(transport_mechanism).lower())):
+                hop = "MQTT"
+
+            if enableHopLogs:
+                logger.debug(f"System: Packet HopDebugger: hop_away:{hop_away} hop_limit:{hop_limit} hop_start:{hop_start} calculated_hop_count:{hop_count} final_hop_value:{hop} via_mqtt:{via_mqtt} transport_mechanism:{transport_mechanism}")
+
+            # check with stringSafeChecker if the message is safe
+            if stringSafeCheck(message_string) is False:
+                logger.warning(f"System: Possibly Unsafe Message from {get_name_from_number(message_from_id, 'long', rxNode)}")
+
             if help_message in message_string or welcome_message in message_string or "CMD?:" in message_string:
                 # ignore help and welcome messages
                 logger.warning(f"Got Own Welcome/Help header. From: {get_name_from_number(message_from_id, 'long', rxNode)}")
