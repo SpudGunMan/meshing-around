@@ -8,6 +8,7 @@ from modules.log import *
 # https://github.com/ollama/ollama/blob/main/docs/faq.md#how-do-i-configure-ollama-server
 import requests
 import json
+from datetime import datetime
 
 if not rawLLMQuery:
     # this may be removed in the future

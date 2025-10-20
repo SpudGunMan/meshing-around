@@ -4,6 +4,7 @@
 import pickle # pip install pickle
 from modules.log import *
 import time
+from datetime import datetime
 
 useSynchCompression = False
 
