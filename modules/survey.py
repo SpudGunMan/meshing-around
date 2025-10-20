@@ -97,12 +97,12 @@ class SurveyModule:
         filename = os.path.join(self.response_dir, f'{survey_name}_responses.csv')
         try:
             with open(filename, 'a', encoding='utf-8') as f:
-                row = list(map(str, self.responses[user_id]['answers']))
-                if surveyRecordID:
-                    row.insert(0, str(user_id))
-                if surveyRecordLocation:
-                    location = self.responses[user_id].get('location')
-                    row.insert(1 if surveyRecordID else 0, str(location) if location is not None else "N/A")
+                # Always write: timestamp, userID, position, answers...
+                timestamp = datetime.datetime.now().strftime('%d%m%Y%H%M%S')
+                user_id_str = str(user_id)
+                location = self.responses[user_id].get('location', "N/A")
+                answers = list(map(str, self.responses[user_id]['answers']))
+                row = [timestamp, user_id_str, str(location)] + answers
                 f.write(','.join(row) + '\n')
             logger.info(f"Survey: Responses for user {user_id} saved for survey '{survey_name}' to {filename}.")
         except Exception as e:
@@ -126,7 +126,8 @@ class SurveyModule:
                     return "Please answer with a letter (A, B, C, ...)."
                 option_index = ord(answer_char) - 65
                 if 0 <= option_index < len(question['options']):
-                    self.responses[user_id]['answers'].append(str(option_index))
+                    # Valid answer record letter, not index
+                    self.responses[user_id]['answers'].append(answer_char)
                     self.responses[user_id]['current_question'] += 1
                     return f"Recorded..\n" + self.show_question(user_id)
                 else:
