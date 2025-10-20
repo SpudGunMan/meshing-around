@@ -229,7 +229,7 @@ meshtastic --ble-scan
 # config.ini
 # type can be serial, tcp, or ble.
 # port is the serial port to use; commented out will try to auto-detect
-# hostname is the IP address of the device to connect to for TCP type
+# hostname is the IP/DNS and port for tcp type default is host:4403
 # mac is the MAC address of the device to connect to for BLE type
 
 [interface]
