@@ -298,13 +298,13 @@ def playLemonstand(nodeID, message, celsius=False, newgame=False):
             buffer += "🍚:" + str(inventory.sugar)
 
             # Display the updated item prices
-            buffer += f"\nPrices: "
-            buffer += "🥤:" + locale.currency(round(cups.cost, 2), grouping=True) + " 📦 of " + str(cups.count) + "."
-            buffer += " 🍋:" + locale.currency(round(lemons.cost, 2), grouping=True) + " 🧺 of " + str(lemons.count) + "."
-            buffer += " 🍚:" + locale.currency(round(sugar.cost, 2), grouping=True) + " bag for " + str(sugar.count) + "🥤."
+            buffer += f"\nPrices:\n"
+            buffer += f"\n🥤:" + locale.currency(round(cups.cost, 2), grouping=True) + " 📦 of " + str(cups.count) + "."
+            buffer += f"\n🍋:" + locale.currency(round(lemons.cost, 2), grouping=True) + " 🧺 of " + str(lemons.count) + "."
+            buffer += f"\n🍚:" + locale.currency(round(sugar.cost, 2), grouping=True) + " bag for " + str(sugar.count) + "🥤."
             # Display the current cash
             gainloss   = inventory.cash - inventory.start
-            buffer += " 💵:" + locale.currency(round(inventory.cash, 2), grouping=True)
+            buffer += f"\n💵:" + locale.currency(round(inventory.cash, 2), grouping=True)
             
             
             # if the player is in the red
