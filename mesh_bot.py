@@ -91,7 +91,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "sun": lambda: handle_sun(message_from_id, deviceID, channel_number),
     "survey": lambda: surveyHandler(message, message_from_id, deviceID),
     "s:": lambda: surveyHandler(message, message_from_id, deviceID),
-    "sysinfo": lambda: sysinfo(message, message_from_id, deviceID),
+    "sysinfo": lambda: sysinfo(message, message_from_id, deviceID, isDM),
     "test": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
     "testing": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
     "tictactoe": lambda: handleTicTacToe(message, message_from_id, deviceID),
@@ -1259,7 +1259,7 @@ def handle_sun(message_from_id, deviceID, channel_number, vox=False):
     location = get_node_location(message_from_id, deviceID, channel_number)
     return get_sun(str(location[0]), str(location[1]))
 
-def sysinfo(message, message_from_id, deviceID):
+def sysinfo(message, message_from_id, deviceID, isDM):
     if "?" in message:
         return "sysinfo command returns system information."
     else:
@@ -1271,6 +1271,11 @@ def sysinfo(message, message_from_id, deviceID):
             if shellData == "" or shellData == None:
                 # no data returned from the script
                 shellData = "shell script data missing"
+            # if not an admin remove any line in the shellData that had 'IP:' in it
+            if (str(message_from_id) not in bbs_admin_list) or (not isDM):
+                shell_lines = shellData.splitlines()
+                filtered_lines = [line for line in shell_lines if 'IP:' not in line]
+                shellData = "\n".join(filtered_lines)
             return get_sysinfo(message_from_id, deviceID) + "\n" + shellData.rstrip()
         else:
             return get_sysinfo(message_from_id, deviceID)

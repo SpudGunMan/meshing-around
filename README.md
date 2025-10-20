@@ -469,7 +469,7 @@ broadcastCh = 2 # channel to send the message to can be 2,3 multiple channels co
 enable_read_news = False # news  command will return the contents of a text file
 news_file_path = news.txt
 news_random_line = False # only return a single random line from the news file
-enable_runShellCmd = False # enable the use of exernal shell commands, this enables some data in `sysinfo`
+enable_runShellCmd = False # enable the use of exernal shell commands, this enables more data in `sysinfo` DM
 # if runShellCmd and you think it is safe to allow the x: command to run
 # direct shell command handler the x: command in DMs user must be in bbs_admin_list
 allowXcmd = True

@@ -42,3 +42,15 @@ then
         fi
     fi
 fi
+
+# Get public and local IP addresses
+public_ip=$(curl -s https://ifconfig.me 2>/dev/null)
+public_ip=${public_ip:-""}
+local_ip=$(hostname -I 2>/dev/null | awk '{print $1}')
+local_ip=${local_ip:-""}
+if [ -n "$public_ip" ]; then
+    echo "Public IP: $public_ip"
+fi
+if [ -n "$local_ip" ]; then
+    echo "Local IP: $local_ip"
+fi
