@@ -756,7 +756,7 @@ def get_nws_marine(zone, days=3):
     
     marine_pz_data = marine_pz_data.text
     #validate data
-    todayDate = today.strftime("%Y%m%d")
+    todayDate = datetime.now().strftime("%Y%m%d")
     if marine_pz_data.startswith("Expires:"):
         expires = marine_pz_data.split(";;")[0].split(":")[1]
         expires_date = expires[:8]

@@ -97,7 +97,7 @@ def bbs_delete_message(messageID = 0, fromNode = 0):
 
 def bbs_post_message(subject, message, fromNode, threadID=0, replytoID=0):
     # post a message to the bbsdb
-    now = today.strftime('%Y-%m-%d %H:%M:%S')
+    now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     thread = threadID
     replyto = replytoID
     # post a message to the bbsdb and assign a messageID
