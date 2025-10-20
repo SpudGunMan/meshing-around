@@ -151,7 +151,7 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, chann
 def handle_motd(message, message_from_id, isDM):
     global MOTD
     isAdmin = False
-    msg = ""
+    msg = MOTD
     # check if the message_from_id is in the bbs_admin_list
     if bbs_admin_list != ['']:
         for admin in bbs_admin_list:
