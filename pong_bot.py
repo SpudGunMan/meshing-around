@@ -343,7 +343,7 @@ def onReceive(packet, interface):
             if hop_away == 0 and hop_limit == 0 and hop_start == 0:
                 hop = "Last Hop"
 
-            if hop_start == hop_limit and "lora" in str(transport_mechanism).upper():
+            if hop_start == hop_limit and "lora" in str(transport_mechanism).lower():
                 hop = "Direct"
 
             if ((hop_start == 0 and hop_limit >= 0) or via_mqtt or ("mqtt" in str(transport_mechanism).lower())):
