@@ -200,6 +200,16 @@ def compareCodeMMind(secret_code, user_guess, nodeID):
     # display feedback
     if game_won:
         msg += f"\n🏆Correct{getEmojiMMind(user_guess)}\nYou are the master mind!🤯"
+        turns = 0
+        # get turn count from tracker
+        for i in range(len(mindTracker)):
+            if mindTracker[i]['nodeID'] == nodeID:
+                turns = mindTracker[i]['turns']
+                diff = mindTracker[i]['diff']
+        # get high score
+        high_score = getHighScoreMMind(nodeID, turns, diff)
+        if high_score != 0:
+            msg += f"\n🏆 High Score:{high_score[0]['turns']} turns, Difficulty:{high_score[0]['diff'].upper()}"
         # reset turn count in tracker
         msg += f"\nWould you like to play again? (N)ormal, (H)ard, or e(X)pert?"
         # reset turn count in tracker
@@ -247,7 +257,7 @@ def playGameMMind(diff, secret_code, turn_count, nodeID, message):
             if high_score != 0:
                 msg += f"\n🏆 High Score:{high_score[0]['turns']} turns, Difficulty:{high_score[0]['diff'].upper()}"
             
-            msg += "\nWould you like to play again?\n(N)ormal, (H)ard, e(X)pert (E)nd?"
+            msg += f"\nWould you like to play again?\n(N)ormal, (H)ard, e(X)pert (E)nd?"
             # reset turn count in tracker
             for i in range(len(mindTracker)):
                 if mindTracker[i]['nodeID'] == nodeID:
