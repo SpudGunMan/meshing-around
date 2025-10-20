@@ -24,7 +24,8 @@ async def setup_scheduler(
             scheduler_message = schedulerMessage
 
         # Basic Scheduler Options
-        if 'custom' not in schedulerValue:
+        basicOptions = ['day', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun', 'hour', 'min']
+        if any(option.lower() in schedulerValue.lower() for option in basicOptions):
             # Basic scheduler job to run the schedule see examples below for custom schedules
             if schedulerValue.lower() == 'day':
                 if schedulerTime != '':
@@ -50,8 +51,16 @@ async def setup_scheduler(
             elif 'min' in schedulerValue.lower():
                 schedule.every(int(schedulerInterval)).minutes.do(lambda: send_message(scheduler_message, schedulerChannel, 0, schedulerInterface))
             logger.debug(f"System: Starting the basic scheduler to send '{scheduler_message}' on schedule '{schedulerValue}' every {schedulerInterval} interval at time '{schedulerTime}' on Device:{schedulerInterface} Channel:{schedulerChannel}")
-        else:
-            # Default schedule if no valid configuration is provided
+        elif 'joke' in schedulerValue.lower():
+            # Schedule to send a joke every specified interval
+            schedule.every(int(schedulerInterval)).minutes.do(lambda: send_message(tell_joke(), schedulerChannel, 0, schedulerInterface))
+            logger.debug(f"System: Starting the joke scheduler to send a joke every {schedulerInterval} minutes on Device:{schedulerInterface} Channel:{schedulerChannel}")
+        elif 'weather' in schedulerValue.lower():
+            # Schedule to send weather updates every specified interval
+            schedule.every(int(schedulerInterval)).hours.do(lambda: send_message(handle_wxc(0, schedulerInterface, 'wx'), schedulerChannel, 0, schedulerInterface))
+            logger.debug(f"System: Starting the weather scheduler to send weather updates every {schedulerInterval} hours on Device:{schedulerInterface} Channel:{schedulerChannel}")
+        elif 'custom' in schedulerValue.lower():
+            # Custom scheduler job to run the schedule see examples below
 
             # custom scheduler job to run the schedule see examples below
             logger.debug(f"System: Starting the custom scheduler default to send reminder every Monday at noon on Device:{schedulerInterface} Channel:{schedulerChannel}")

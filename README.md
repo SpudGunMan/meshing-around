@@ -522,7 +522,9 @@ enabled = False # enable or disable the scheduler module
 interface = 1 # channel to send the message to
 channel = 2
 message = "MeshBot says Hello! DM for more info."
-value = # value can be min,hour,day,mon,tue,wed,thu,fri,sat,sun
+value = # value can be min,hour,day,mon,tue,wed,thu,fri,sat,sun.
+# value can also be joke (everyXmin) or weather (hour) for special scheduled messages
+# custom for module/scheduler.py custom schedule examples
 interval =  # interval to use when time is not set (e.g. every 2 days)
 time = # time of day in 24:00 hour format when value is 'day' and interval is not set
 ```
