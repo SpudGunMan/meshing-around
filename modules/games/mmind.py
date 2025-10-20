@@ -171,7 +171,7 @@ def getEmojiMMind(secret_code):
     return secret_code_emoji
 
 #compare userGuess with secret code and provide feedback
-def compareCodeMMind(secret_code, user_guess):
+def compareCodeMMind(secret_code, user_guess, nodeID):
     game_won = False
     perfect_pins = 0
     wrong_position = 0
@@ -199,7 +199,15 @@ def compareCodeMMind(secret_code, user_guess):
                 temp_code.remove(guess)  # Remove the first occurrence of the matched color
     # display feedback
     if game_won:
-        msg += f"\nCorrect{getEmojiMMind(user_guess)}\n"
+        msg += f"\n🏆Correct{getEmojiMMind(user_guess)}\nYou are the master mind!🤯"
+        # reset turn count in tracker
+        msg += f"\nWould you like to play again? (N)ormal, (H)ard, or e(X)pert?"
+        # reset turn count in tracker
+        for i in range(len(mindTracker)):
+            if mindTracker[i]['nodeID'] == nodeID:
+                mindTracker[i]['turns'] = 1
+                mindTracker[i]['secret_code'] = ''
+                mindTracker[i]['cmd'] = 'new'
     else:
         msg += f"\nGuess{getEmojiMMind(user_guess)}\n"
 
@@ -224,7 +232,7 @@ def playGameMMind(diff, secret_code, turn_count, nodeID, message):
         if user_guess == "XXXX":
             msg += f"⛔️Invalid guess. Please enter 4 valid colors letters.\n🔴🟢🔵🔴 is RGBR"
             return msg
-        check_guess = compareCodeMMind(secret_code, user_guess)
+        check_guess = compareCodeMMind(secret_code, user_guess, nodeID)
 
         # display turn count and feedback
         msg += "Turn {}:".format(turn_count)
