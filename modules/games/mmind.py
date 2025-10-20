@@ -6,8 +6,6 @@ import time
 import pickle
 from modules.log import *
 
-mindTracker = [{'nodeID': 0, 'last_played': time.time(), 'cmd': '', 'secret_code': '', 'diff': 'n', 'turns': 1}]
-
 def chooseDifficultyMMind(message):
     usrInput = message.lower()
     msg = ''

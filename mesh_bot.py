@@ -823,6 +823,25 @@ def handleGolf(message, nodeID, deviceID):
 
     # get player's last command from tracker if not new player
     last_cmd = ""
+
+    # Ensure player exists in tracker
+    if not any(entry['nodeID'] == nodeID for entry in golfTracker):
+        logger.debug("System: GolfSim: New Player: " + str(nodeID))
+        golfTracker.append({
+            'nodeID': nodeID,
+            'last_played': time.time(),
+            'cmd': 'new',
+            'hole': 1,
+            'distance_remaining': 0,
+            'hole_shots': 0,
+            'hole_strokes': 0,
+            'hole_to_par': 0,
+            'total_strokes': 0,
+            'total_to_par': 0,
+            'par': 0,
+            'hazard': ''
+        })
+    # get player's last command from tracker
     for i in range(len(golfTracker)):
         if golfTracker[i]['nodeID'] == nodeID:
             last_cmd = golfTracker[i]['cmd']
@@ -837,14 +856,13 @@ def handleGolf(message, nodeID, deviceID):
 
     logger.debug(f"System: {nodeID} PlayingGame golfsim last_cmd: {last_cmd}")
 
-    if last_cmd == "" and nodeID != 0:
+    if last_cmd == "new" and nodeID != 0:
         # create new player
-        logger.debug("System: GolfSim: New Player: " + str(nodeID))
-        golfTracker.append({'nodeID': nodeID, 'last_played': time.time(), 'cmd': 'new', 'hole': 1, 'distance_remaining': 0, 'hole_shots': 0, 'hole_strokes': 0, 'hole_to_par': 0, 'total_strokes': 0, 'total_to_par': 0, 'par': 0, 'hazard': ''})
+
         msg = f"Welcome to 🏌️GolfSim⛳️\n"
         msg += f"Clubs: (D)river, (L)ow Iron, (M)id Iron, (H)igh Iron, (G)ap Wedge, Lob (W)edge\n"
     
-    msg += playGolf(nodeID=nodeID, message=message)
+    msg += playGolf(nodeID=nodeID, message=message, last_cmd=last_cmd)
     return msg
 
 def handleHangman(message, nodeID, deviceID):

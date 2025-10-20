@@ -26,7 +26,6 @@ par4_5_range = par4_range + par5_range
 
 # Player setup
 playingHole = False
-golfTracker = [{'nodeID': 0, 'last_played': time.time(), 'cmd': '', 'hole': 0, 'distance_remaining': 0, 'hole_shots': 0, 'hole_strokes': 0, 'hole_to_par': 0, 'total_strokes': 0, 'total_to_par': 0, 'par': 0, 'hazard': ''}]
 
 # Club functions
 def hit_driver():
@@ -122,7 +121,7 @@ def getHighScoreGolf(nodeID, strokes, par):
     return 0
 
 # Main game loop
-def playGolf(nodeID, message, finishedHole=False):
+def playGolf(nodeID, message, finishedHole=False, last_cmd=''):
     msg = ''
     global golfTracker
     # Course setup
@@ -150,8 +149,8 @@ def playGolf(nodeID, message, finishedHole=False):
     for i in range(len(golfTracker)):
         if golfTracker[i]['nodeID'] == nodeID:
             golfTracker[i]['last_played'] = time.time()
-
-    if last_cmd == "" or last_cmd == "new":
+    
+    if last_cmd == "new":
         # Start a new hole
         if hole <= 9:
             # Set up hole count restrictions on par
@@ -198,17 +197,19 @@ def playGolf(nodeID, message, finishedHole=False):
             # Set initial parameters before starting a hole
             distance_remaining = hole_length
             hole_shots = 0
+            last_cmd = 'stroking'
 
             # save player's current game state
             for i in range(len(golfTracker)):
                 if golfTracker[i]['nodeID'] == nodeID:
+                    golfTracker[i]['cmd'] = last_cmd
+                    golfTracker[i]['hole'] = hole
                     golfTracker[i]['distance_remaining'] = distance_remaining
                     golfTracker[i]['cmd'] = 'stroking'
                     golfTracker[i]['par'] = par
                     golfTracker[i]['total_strokes'] = total_strokes
                     golfTracker[i]['total_to_par'] = total_to_par
                     golfTracker[i]['hazard'] = hazard
-                    golfTracker[i]['hole'] = hole
                     golfTracker[i]['last_played'] = time.time()
                     golfTracker[i]['hole_shots'] = hole_shots
 
@@ -408,7 +409,7 @@ def playGolf(nodeID, message, finishedHole=False):
             logger.debug("System: GolfSim: Player " + str(nodeID) + " has finished their round.")
         else:
             # Show player the next hole
-            msg += playGolf(nodeID, 'new', True)
+            msg += playGolf(nodeID, '', True, last_cmd='new')
             msg += "\n🏌️[D, L, M, H, G, W, End]🏌️"
             
     return msg

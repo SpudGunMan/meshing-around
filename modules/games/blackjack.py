@@ -7,8 +7,6 @@ import time
 import pickle
 
 jack_starting_cash = 100  # Replace 100 with your desired starting cash value
-jackTracker= [{'nodeID': 0, 'cmd': 'new', 'cash': jack_starting_cash,\
-                'bet': 0, 'gameStats': {'p_win': 0, 'd_win': 0, 'draw': 0}, 'p_cards':[], 'd_cards':[], 'p_hand':[], 'd_hand':[], 'next_card':[],'last_played': time.time()}]
 
 SUITS = ("♥️", "♦️", "♠️", "♣️")
 RANKS = (

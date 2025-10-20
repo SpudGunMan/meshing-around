@@ -6,7 +6,6 @@ import pickle
 from modules.log import *
 
 vpStartingCash = 20
-vpTracker= [{'nodeID': 0, 'cmd': 'new', 'time': time.time(), 'cash': vpStartingCash, 'player': None, 'deck': None, 'highScore': 0, 'drawCount': 0}]
 
 # Define the Card class
 class CardVP:
