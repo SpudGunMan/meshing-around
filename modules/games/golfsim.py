@@ -326,8 +326,8 @@ def playGolf(nodeID, message, finishedHole=False, last_cmd=''):
                 else:
                     last_cmd = 'stroking'
             else:
-                msg += "\nYou have " + str(distance_remaining) + "yd. ⛳️"
-                msg += "\nClub?[D, L, M, H, G, W]🏌️"
+                msg += f"\nYou have " + str(distance_remaining) + "yd. ⛳️"
+                msg += f"\nClub?[D, L, M, H, G, W]🏌️"
 
 
                 # save player's current game state, keep stroking
@@ -371,7 +371,7 @@ def playGolf(nodeID, message, finishedHole=False, last_cmd=''):
 
                 if hole not in [1, 10]:
                     # Show player total scoring info for the round, except hole 1 and 10
-                    msg += "\nYou've hit a total of " + str(total_strokes) + " strokes today, for"
+                    msg += f"\nYou've hit a total of " + str(total_strokes) + " strokes today, for"
                     msg += getScorecardGolf(total_to_par)
 
                 # Move to next hole
@@ -410,6 +410,6 @@ def playGolf(nodeID, message, finishedHole=False, last_cmd=''):
         else:
             # Show player the next hole
             msg += playGolf(nodeID, '', True, last_cmd='new')
-            msg += "\n🏌️[D, L, M, H, G, W, End]🏌️"
+            msg += f"\n🏌️[D, L, M, H, G, W, End]🏌️"
             
     return msg

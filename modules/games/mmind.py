@@ -234,8 +234,8 @@ def playGameMMind(diff, secret_code, turn_count, nodeID, message):
                     mindTracker[i]['turns'] = turn_count
     elif won == False:
         msg += f"🙉Game Over🙈\nThe code was: {getEmojiMMind(secret_code)}"
-        msg += "\nYou have run out of turns.😿"
-        msg += "\nWould you like to play again? (N)ormal, (H)ard, or e(X)pert?"
+        msg += f"\nYou have run out of turns.😿"
+        msg += f"\nWould you like to play again? (N)ormal, (H)ard, or e(X)pert?"
         # reset turn count in tracker
         for i in range(len(mindTracker)):
             if mindTracker[i]['nodeID'] == nodeID:

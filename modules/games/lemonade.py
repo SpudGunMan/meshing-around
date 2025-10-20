@@ -468,7 +468,7 @@ def playLemonstand(nodeID, message, celsius=False, newgame=False):
             msg += " N.Profit:" + locale.currency(net, grouping=True)
 
             # Display the updated inventory levels
-            msg += "\nRemaining"
+            msg += f"\nRemaining"
             msg += " 🥤:" + str(inventory.cups)
             msg += " 🍋:" + str(inventory.lemons)
             msg += " 🍚:" + str(inventory.sugar)
@@ -485,7 +485,7 @@ def playLemonstand(nodeID, message, celsius=False, newgame=False):
             pad_week = len(str(weeks.total))
             pad_sale = len(str(weeks.sales))
             total = 0
-            msg += "\nWeekly📊"
+            msg += f"\nWeekly📊"
             for i in range(len(weeks.summary)):
                 msg += "#" + str(weeks.current).rjust(pad_week) + ".  " + str(weeks.summary[i]['sales']).rjust(pad_sale) + \
                     " sold x " + locale.currency(weeks.summary[i]['price'], grouping=True) + "ea. "
@@ -525,7 +525,7 @@ def playLemonstand(nodeID, message, celsius=False, newgame=False):
                 if (inventory.sugar <= 0):
                     msg += " You ran out of sugar.🍚"
             else:
-                msg += "\nCongratulations 🍋🍋 your sales were perfect!🎉"
+                msg += f"\nCongratulations 🍋🍋 your sales were perfect!🎉"
             
             # Increment the score counters
             score.value = score.value + minnet
@@ -536,27 +536,26 @@ def playLemonstand(nodeID, message, celsius=False, newgame=False):
             if (weeks.current == weeks.total):
                 # end of the game
                 success = round((score.value / score.total) * 100)
-                msg += "\nYou've made " + locale.currency(score.value, grouping=True) + " out of a possible " + \
+                msg += f"\nYou've made " + locale.currency(score.value, grouping=True) + " out of a possible " + \
                     locale.currency(score.total, grouping=True) + " for a score of " + str(success) + "% "
-                msg += "You've sold " + str(weeks.total_sales) + " total 🥤🍋"
+                msg += f"\nYou've sold " + str(weeks.total_sales) + " total 🥤🍋"
 
                 # check for high score
                 high_score = getHighScoreLemon()
                 if (inventory.cash > int(high_score['cash'])):
-                    msg += "\nCongratulations! You've set a new high score!🎉💰🍋"
+                    msg += f"\nCongratulations! You've set a new high score!🎉💰🍋"
                     high_score['cash'] = inventory.cash
                     high_score['success'] = success
                     high_score['userID'] = nodeID
                     with open('data/lemonstand.pkl', 'wb') as file:
                         pickle.dump(high_score, file)
-                endGame(nodeID)
 
             else:
                 # keep playing
                 
                 weeks.current = weeks.current + 1
 
-                msg += f"Play another week🥤? or (E)nd Game"
+                msg += f"\nPlay another week🥤? or (E)nd Game"
                 # set the last command to new in the inventory db
                 for i in range(len(lemonadeTracker)):
                     if lemonadeTracker[i]['nodeID'] == nodeID:

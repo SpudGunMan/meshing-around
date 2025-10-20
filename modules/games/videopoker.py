@@ -425,7 +425,7 @@ def playVideoPoker(nodeID, message):
 
         if player.bankroll < 1:
             player.bankroll = vpStartingCash
-            msg += "\nLooks 💸 like you're out of money. 💳 resetting ballance 🏧"
+            msg += f"\nLooks 💸 like you're out of money. 💳 resetting ballance 🏧"
         elif player.bankroll > vpTracker[i]['highScore']:
             vpTracker[i]['highScore'] = player.bankroll
             msg += " 🎉HighScore!"
