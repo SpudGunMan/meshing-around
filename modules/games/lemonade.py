@@ -259,7 +259,7 @@ def playLemonstand(nodeID, message, celsius=False, newgame=False):
             buffer += ". " + \
                         formatted + temperature.units + " " + \
                         forecastd[list(forecastd)[temperature.forecast]][2] + \
-                        " " + glyph
+                        " " + glyph + f"\n"
 
             # Calculate the potential sales as a percentage of the maximum value
             # (lower temperature = fewer sales, severe weather = fewer sales)
@@ -288,11 +288,11 @@ def playLemonstand(nodeID, message, celsius=False, newgame=False):
 
             # Calculate the unit cost and display the estimated sales from the forecast potential
             unit = max(0.01, min(cups.unit + lemons.unit + sugar.unit, 4.0))  # limit the unit cost between $0.01 and $4.00
-            buffer += " SupplyCost" + locale.currency(round(unit, 2), grouping=True) + " a cup."
-            buffer += " Sales Potential:" + str(potential) + " cups."
+            buffer += f"\nSupplyCost" + locale.currency(round(unit, 2), grouping=True) + " a cup."
+            buffer += f"\nSales Potential:" + str(potential) + " cups."
 
             # Display the current inventory
-            buffer += " Inventory:"
+            buffer += f"\nInventory:"
             buffer += "🥤:" + str(inventory.cups)
             buffer += "🍋:" + str(inventory.lemons)
             buffer += "🍚:" + str(inventory.sugar)
