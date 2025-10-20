@@ -61,8 +61,9 @@ class SurveyModule:
                 'answers': [],
                 'location': location if surveyRecordLocation and location is not None else 'N/A'
             }
-            msg = f"'{survey_name}'📝survey\nSend answer' or 'end'\n"
+            msg = f"'{survey_name}'📝survey\n"
             msg += self.show_question(user_id)
+            msg += f"\nSend answer' or 'end'"
             return msg
         except Exception as e:
             logger.error(f"Error starting survey for user {user_id}: {e}")
