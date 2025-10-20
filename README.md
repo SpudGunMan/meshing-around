@@ -197,7 +197,7 @@ Players can `q: join` to join the game, `q: leave` to leave the game, `q: score`
 To Answer a question, just type the answer prefixed with `q: <answer>`
 
 #### Survey
-To use the Survey feature edit the json files in data/survey multiple surveys are possible such as `survey snow`
+To use the Survey feature edit the json files in data/survey multiple surveys are possible such as `survey snow` you can pull data back with `survey report` or `survey report snow`
 
 ## Other Install Options
 

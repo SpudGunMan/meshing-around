@@ -10,6 +10,8 @@
 
 import json
 import os # For file operations
+import csv
+from datetime import datetime
 from collections import Counter
 from modules.log import *
 
@@ -98,7 +100,7 @@ class SurveyModule:
         try:
             with open(filename, 'a', encoding='utf-8') as f:
                 # Always write: timestamp, userID, position, answers...
-                timestamp = datetime.datetime.now().strftime('%d%m%Y%H%M%S')
+                timestamp = datetime.now().strftime('%d%m%Y%H%M%S')
                 user_id_str = str(user_id)
                 location = self.responses[user_id].get('location', "N/A")
                 answers = list(map(str, self.responses[user_id]['answers']))
@@ -107,6 +109,81 @@ class SurveyModule:
             logger.info(f"Survey: Responses for user {user_id} saved for survey '{survey_name}' to {filename}.")
         except Exception as e:
             logger.error(f"Error saving responses to {filename}: {e}")
+
+    def format_survey_results(self, results):
+        if isinstance(results, dict) and "error" in results:
+            return results["error"]
+        if not results:
+            return "No results found."
+        msg = "📊 Survey Results:\n"
+        for idx, q in enumerate(results):
+            msg += f"\nQ{idx+1}: {q['question']}\n"
+            if q['type'] == 'multiple_choice':
+                for opt, count in q['summary'].items():
+                    msg += f"  {opt}: {count}\n"
+            elif q['type'] == 'integer':
+                s = q['summary']
+                msg += f"  Count: {s['count']}, Avg: {s['average']:.2f}, Min: {s['min']}, Max: {s['max']}\n"
+            elif q['type'] == 'text':
+                msg += f"  Responses: {q['summary']['responses_count']}\n"
+        return msg
+
+    def get_survey_results(self, survey_name='example'):
+        if survey_name not in self.surveys:
+            return {"error": f"Survey '{survey_name}' not found."}
+        filename = os.path.join(self.response_dir, f'{survey_name}_responses.csv')
+        questions = self.surveys[survey_name]
+        results = []
+        try:
+            with open(filename, encoding='utf-8') as f:
+                reader = csv.reader(f)
+                lines = []
+                for row in reader:
+                    if not row or len(row) < 4:
+                        continue
+                    # If location field is split due to comma, join columns 2 and 3
+                    if row[2].startswith('[') and not row[2].endswith(']') and len(row) > 4:
+                        location = row[2] + ',' + row[3]
+                        answers = row[4:]
+                    else:
+                        location = row[2]
+                        answers = row[3:]
+                    lines.append(answers)
+
+            for q_idx, question in enumerate(questions):
+                qtype = question.get('type', 'multiple_choice')
+                answers = [row[q_idx] for row in lines if len(row) > q_idx]
+
+                summary = {}
+                if qtype == 'multiple_choice':
+                    counts = Counter(answers)
+                    summary = {chr(65+i): counts.get(chr(65+i), 0) for i in range(len(question.get('options', [])))}
+
+                elif qtype == 'integer':
+                    ints = [int(a) for a in answers if a.isdigit()]
+                    summary = {
+                        "count": len(ints),
+                        "average": sum(ints)/len(ints) if ints else 0,
+                        "min": min(ints) if ints else None,
+                        "max": max(ints) if ints else None
+                    }
+
+                elif qtype == 'text':
+                    summary = {"responses_count": len([a for a in answers if a.strip()])}
+
+
+                results.append({
+                    "question": question['question'],
+                    "type": qtype,
+                    "summary": summary
+                })
+
+            return results
+        except FileNotFoundError:
+            return {"error": f"No responses recorded yet for '{survey_name}'."}
+        except Exception as e:
+            logger.error(f"Error summarizing survey results: {e}")
+            return NO_ALERTS
 
     def answer(self, user_id, answer, location=None):
         try:

@@ -1037,7 +1037,6 @@ def quizHandler(message, nodeID, deviceID):
         return "🧠Please provide an answer or command, or send q: ?"
 
 def surveyHandler(message, nodeID, deviceID):
-    from modules.settings import surveyTracker
     user_id = nodeID
     location = get_node_location(nodeID, deviceID)
     msg = ''
@@ -1056,10 +1055,13 @@ def surveyHandler(message, nodeID, deviceID):
         return survey_module.end_survey(user_id=nodeID)
 
     # Handle report command
-    if surveySays == "report":
-        #return survey_module.quiz_report()
-        # reminder to fix int and open question reporting
-        return "Report not implemented yet"
+    if 'report' in surveySays:
+        if str(nodeID) not in bbs_admin_list:
+            return "You do not have permission to view survey reports."
+        # remove the words 'survey' and 'report' from the message
+        report = msg_lower.replace("survey", "").replace("report", "").strip()
+        results = survey_module.get_survey_results(survey_name=report if report else None)
+        return survey_module.format_survey_results(results)
 
     # Update last played or add new tracker entry
     found = False
