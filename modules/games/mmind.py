@@ -199,9 +199,9 @@ def compareCodeMMind(secret_code, user_guess):
                 temp_code.remove(guess)  # Remove the first occurrence of the matched color
     # display feedback
     if game_won:
-        msg += f"Correct{getEmojiMMind(user_guess)}\n"
+        msg += f"\nCorrect{getEmojiMMind(user_guess)}\n"
     else:
-        msg += f"Guess{getEmojiMMind(user_guess)}\n"
+        msg += f"\nGuess{getEmojiMMind(user_guess)}\n"
 
     if perfect_pins > 0 and game_won == False:
         msg += "✅ color ✅ position: {}".format(perfect_pins)
