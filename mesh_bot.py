@@ -603,8 +603,10 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
     llmTotalRuntime.append(end - start)
     
     return response
+
 def handleDopeWars(message, nodeID, rxNode):
-    global dwPlayerTracker, dwHighScore
+    from modules.settings import dwPlayerTracker
+    global dwHighScore
 
     # Find player in tracker
     player = next((p for p in dwPlayerTracker if p.get('userID') == nodeID), None)
@@ -656,7 +658,8 @@ def handle_gTnW(chess = False):
     return response[selected_index]
 
 def handleLemonade(message, nodeID, deviceID):
-    global lemonadeTracker, lemonadeCups, lemonadeLemons, lemonadeSugar, lemonadeWeeks, lemonadeScore, lemon_starting_cash, lemon_total_weeks
+    from modules.settings import lemonadeTracker
+    global lemonadeCups, lemonadeLemons, lemonadeSugar, lemonadeWeeks, lemonadeScore, lemon_starting_cash, lemon_total_weeks
     msg = ""
 
     def create_player(nodeID):
@@ -703,7 +706,7 @@ def handleLemonade(message, nodeID, deviceID):
     return msg
 
 def handleBlackJack(message, nodeID, deviceID):
-    global jackTracker
+    from modules.settings import jackTracker
     msg = ""
 
     # Find player in tracker
@@ -719,9 +722,23 @@ def handleBlackJack(message, nodeID, deviceID):
     # Create new player if not found
     if not player and nodeID != 0:
         logger.debug(f"System: BlackJack: New Player {nodeID}")
-        jackTracker.append({'nodeID': nodeID, 'cmd': 'new', 'last_played': time.time()})
-        msg += "Welcome to 🃏BlackJack🃏!\n"
+        # create new player
+        jackTracker.append({
+            'nodeID': nodeID,
+            'bet': 0,
+            'cash': 100, # starting cash
+            'gameStats': {'p_win': 0, 'd_win': 0, 'draw': 0},
+            'p_cards': [],
+            'd_cards': [],
+            'p_hand': [],
+            'd_hand': [],
+            'next_card': [],
+            'last_played': time.time(),
+            'cmd': 'new'
+        })
+        msg += f"Welcome to 🃏BlackJack🃏!\n (H)it,(S)tand,(F)orfit,(D)ouble,(R)esend,(L)eave table"
         # Show high score if available
+        highScore = 0
         highScore = loadHSJack()
         if highScore and highScore.get('nodeID', 0) != 0:
             nodeName = get_name_from_number(highScore['nodeID'])
@@ -734,12 +751,18 @@ def handleBlackJack(message, nodeID, deviceID):
     if player:
         player['last_played'] = time.time()
 
+    # get player's last command from tracker if not new player
+    last_cmd = ""
+    for i in range(len(jackTracker)):
+        if jackTracker[i]['nodeID'] == nodeID:
+            last_cmd = jackTracker[i]['cmd']
+
     # Play BlackJack
-    msg += playBlackJack(nodeID=nodeID, message=message)
+    msg += playBlackJack(nodeID=nodeID, message=message, last_cmd=last_cmd)
     return msg
 
 def handleVideoPoker(message, nodeID, deviceID):
-    global vpTracker
+    from modules.settings import vpTracker
     msg = ""
 
     # Find player in tracker
@@ -774,7 +797,7 @@ def handleVideoPoker(message, nodeID, deviceID):
     return msg
 
 def handleMmind(message, nodeID, deviceID):
-    global mindTracker
+    from modules.settings import mindTracker
     msg = ''
 
     if "end" in message.lower() or message.lower().startswith("e"):
@@ -818,7 +841,7 @@ def handleMmind(message, nodeID, deviceID):
     return msg
 
 def handleGolf(message, nodeID, deviceID):
-    global golfTracker
+    from modules.settings import golfTracker
     msg = ''
 
     # get player's last command from tracker if not new player
@@ -866,7 +889,7 @@ def handleGolf(message, nodeID, deviceID):
     return msg
 
 def handleHangman(message, nodeID, deviceID):
-    global hangmanTracker
+    from modules.settings import hangmanTracker
     index = 0
     msg = ''
     for i in range(len(hangmanTracker)):
@@ -892,7 +915,7 @@ def handleHangman(message, nodeID, deviceID):
     return msg
 
 def handleHamtest(message, nodeID, deviceID):
-    global hamtestTracker
+    from modules.settings import hamtestTracker
     index = 0
     msg = ''
     response = message.split(' ')
@@ -925,7 +948,7 @@ def handleHamtest(message, nodeID, deviceID):
     return msg
 
 def handleTicTacToe(message, nodeID, deviceID):
-    global tictactoeTracker
+    from modules.settings import tictactoeTracker
     index = 0
     msg = ''
     
@@ -1013,7 +1036,8 @@ def quizHandler(message, nodeID, deviceID):
         return "🧠Please provide an answer or command, or send q: ?"
 
 def surveyHandler(message, nodeID, deviceID):
-    global surveyTracker
+    from modules.settings import surveyTracker
+    user_id = nodeID
     location = get_node_location(nodeID, deviceID)
     msg = ''
     # Normalize and parse the command
@@ -1497,6 +1521,7 @@ def onReceive(packet, interface):
             message_bytes = packet['decoded']['payload']
             message_string = message_bytes.decode('utf-8')
             via_mqtt = packet['decoded'].get('viaMqtt', False)
+            transport_mechanism = packet['decoded'].get('transport_mechanism', 'unknown')
             rx_time = packet['decoded'].get('rxTime', time.time())
 
             # check if the packet is from us
@@ -1545,7 +1570,7 @@ def onReceive(packet, interface):
             if hop_start == hop_limit:
                 hop = "Direct"
                 hop_count = 0
-            elif hop_start == 0 and hop_limit > 0 or via_mqtt:
+            elif hop_start == 0 and hop_limit > 0 or via_mqtt or transport_mechanism == "TRANSPORT_MQTT":
                 hop = "MQTT"
                 hop_count = 0
             else:

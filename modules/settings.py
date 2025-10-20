@@ -28,11 +28,23 @@ wiki_return_limit = 3 # limit the number of sentences returned off the first par
 GAMEDELAY = 28800 # 8 hours in seconds for game mode holdoff
 cmdHistory = [] # list to hold the last commands
 seenNodes = [] # list to hold the last seen nodes
-surveyTracker, tictactoeTracker, hamtestTracker, hangmanTracker, golfTracker, mastermindTracker, vpTracker, blackjackTracker, lemonadeTracker, dwPlayerTracker, jackTracker = [], [], [], [], [], [], [], [], [], [], [] # game trackers
 cmdHistory = [] # list to hold the command history for lheard and history commands
 msg_history = [] # list to hold the message history for the messages command
 max_bytes = 200 # Meshtastic has ~237 byte limit, use conservative 200 bytes for message content
 voxMsgQueue = [] # queue for VOX detected messages
+# Game trackers
+surveyTracker = []           # Survey game tracker
+tictactoeTracker = []        # TicTacToe game tracker
+hamtestTracker = []          # Ham radio test tracker
+hangmanTracker = []          # Hangman game tracker
+golfTracker = []             # GolfSim game tracker
+mastermindTracker = []       # Mastermind game tracker
+vpTracker = []               # Video Poker game tracker
+jackTracker = []             # Blackjack game tracker
+lemonadeTracker = []         # Lemonade Stand game tracker
+dwPlayerTracker = []         # DopeWars player tracker
+jackTracker = []             # Jack game tracker
+mindTracker = []             # Mastermind (mmind) game tracker
 
 # Read the config file, if it does not exist, create basic config file
 config = configparser.ConfigParser() 

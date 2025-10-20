@@ -7,6 +7,7 @@ import time
 import pickle
 
 jack_starting_cash = 100  # Replace 100 with your desired starting cash value
+from modules.settings import jackTracker
 
 SUITS = ("♥️", "♦️", "♠️", "♣️")
 RANKS = (
@@ -240,7 +241,7 @@ def loadHSJack():
             pickle.dump(highScore, file)
         return 0
 
-def playBlackJack(nodeID, message):
+def playBlackJack(nodeID, message, last_cmd=None):
     # Initalize the Game
     msg, last_cmd = '', None
     blackJack = False
@@ -283,7 +284,7 @@ def playBlackJack(nodeID, message):
             jackTracker.append({'nodeID': nodeID, 'cmd': 'new', 'last_played': time.time(), 'cash': jack_starting_cash,\
                 'bet': 0, 'gameStats': {'p_win': p_win, 'd_win': d_win, 'draw': draw}, 'p_cards':p_cards, 'd_cards':d_cards, 'p_hand':p_hand.cards, 'd_hand':d_hand.cards, 'next_card':next_card})
             return f"You have {p_chips.total} chips.   Whats your bet?"
-        return ''
+        return "Error: Player not found."
 
     if getLastCmdJack(nodeID) == "new":
         # Place Bet
@@ -296,18 +297,20 @@ def playBlackJack(nodeID, message):
                 #resend the hand
                 msg += show_some(p_cards, d_cards, p_hand)
                 return msg
+            elif message.lower() == "blackjack":
+                return f"\nTo place a bet, enter the amount you wish to wager."
             else:
                 try:
                     bet_money = int(message)
                 except ValueError:
-                    return "Invalid Bet, please enter a valid number."
+                    return f"\nInvalid Bet, please enter a valid number."
 
             if bet_money <= p_chips.total and bet_money >= 1:
                 p_chips.bet = bet_money
             else:
-                return f"Invalid Bet, the maximum bet you can place is {p_chips.total} and the minimum bet is 1."
+                return f"\nInvalid Bet, the maximum bet you can place is {p_chips.total} and the minimum bet is 1."
         except ValueError:
-            return f"Invalid Bet, the maximum bet, {p_chips.total}"
+            return f"\nInvalid Bet, the maximum bet, {p_chips.total}"
 
         # Show the cards
         msg += show_some(p_cards, d_cards, p_hand)

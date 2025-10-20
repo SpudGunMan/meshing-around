@@ -26,6 +26,7 @@ par4_5_range = par4_range + par5_range
 
 # Player setup
 playingHole = False
+from modules.settings import golfTracker
 
 # Club functions
 def hit_driver():
@@ -123,7 +124,6 @@ def getHighScoreGolf(nodeID, strokes, par):
 # Main game loop
 def playGolf(nodeID, message, finishedHole=False, last_cmd=''):
     msg = ''
-    global golfTracker
     # Course setup
     par3_count = 0
     par4_count = 0

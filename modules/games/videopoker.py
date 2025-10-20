@@ -6,7 +6,7 @@ import pickle
 from modules.log import *
 
 vpStartingCash = 20
-
+from modules.settings import vpTracker
 # Define the Card class
 class CardVP:
 
