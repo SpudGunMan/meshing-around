@@ -115,7 +115,7 @@ class SurveyModule:
             return results["error"]
         if not results:
             return "No results found."
-        msg = "📊 Survey Results:\n"
+        msg = "📊Survey Results:\n"
         for idx, q in enumerate(results):
             msg += f"\nQ{idx+1}: {q['question']}\n"
             if q['type'] == 'multiple_choice':
