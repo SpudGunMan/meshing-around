@@ -337,7 +337,7 @@ def handle_emergency(message_from_id, deviceID, message):
 
 def handle_motd(message, message_from_id, isDM):
     global MOTD
-    msg = ''
+    msg = MOTD
     isAdmin = isNodeAdmin(message_from_id)
     if  "?" in message:
         msg = "Message of the day, set with 'motd $ HelloWorld!'"
