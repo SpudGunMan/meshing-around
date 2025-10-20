@@ -413,7 +413,6 @@ for device in channel_list:
     interface = globals().get(f'interface{interface_id}')
     for channel_name, channel_number in device["channels"].items():
         psk_base64 = "AQ=="  # default PSK
-        print( f"Channel Name: {channel_name}, Channel Number: {channel_number}, PSK: {psk_base64}")
         channel_hash = generate_hash(channel_name, psk_base64)
         # add hash to the channel entry in channel_list under key 'hash'
         for entry in channel_list:
