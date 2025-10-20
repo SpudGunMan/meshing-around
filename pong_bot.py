@@ -327,11 +327,14 @@ def onReceive(packet, interface):
             if hop_away == 0 and hop_limit == 0 and hop_start == 0:
                 hop = "Last Hop"
 
-            if hop_start == hop_limit:
+            if hop_start == hop_limit and "lora" in str(transport_mechanism).upper():
                 hop = "Direct"
 
             if ((hop_start == 0 and hop_limit >= 0) or via_mqtt or ("mqtt" in str(transport_mechanism).lower())):
                 hop = "MQTT"
+
+            if "unknown" in str(transport_mechanism).lower() and (snr == 0 and rssi == 0):
+                hop = "IP-based"
 
             if enableHopLogs:
                 logger.debug(f"System: Packet HopDebugger: hop_away:{hop_away} hop_limit:{hop_limit} hop_start:{hop_start} calculated_hop_count:{hop_count} final_hop_value:{hop} via_mqtt:{via_mqtt} transport_mechanism:{transport_mechanism}")
