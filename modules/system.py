@@ -1505,6 +1505,14 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
                 logger.info(f"System: High Altitude {position_data['altitude']}m on Device: {rxNode} Channel: {channel} NodeID:{nodeID} Lat:{position_data.get('latitude', 0)} Lon:{position_data.get('longitude', 0)}")
                 altFeet = round(position_data['altitude'] * 3.28084, 2)
                 msg = f"🚀 High Altitude Detected! NodeID:{nodeID} Alt:{altFeet:,.0f}ft/{position_data['altitude']:,.0f}m"
+                
+                # throttle sending alerts for the same node more than once every 30 minutes
+                last_alert_time = positionMetadata[nodeID].get('lastHighFlyAlert', 0)
+                current_time = time.time()
+                if current_time - last_alert_time < 1800:
+                    return False # less than 30 minutes since last alert
+                positionMetadata[nodeID]['lastHighFlyAlert'] = current_time
+                
                 if highfly_check_openskynetwork:
                     # check get_openskynetwork to see if the node is an aircraft
                     if 'latitude' in position_data and 'longitude' in position_data:
@@ -1522,6 +1530,7 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
                         if abs(node_alt - plane_alt) <= 900:  # within 900m
                             msg += f"\n✈️Detected near:\n{flight_info}"
                 send_message(msg, highfly_channel, 0, highfly_interface)
+
             # Keep the positionMetadata dictionary at a maximum size
             if len(positionMetadata) > MAX_SEEN_NODES:
                 # Remove the oldest entry
