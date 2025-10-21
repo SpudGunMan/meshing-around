@@ -55,9 +55,6 @@ lameJokes = [
     "Chuck Norris can do a wheelie on a unicycle.",
     "Chuck Norris can kill two stones with one bird."]
 
-# pylint: disable=C0103, W0612
-imtellingyourightnowiAmTellingYouRightNowThatMotherfErBackThereIsNotReal = ["🐦", "🦅", "🦆", "🦉", "🦜", "🐤", "🐥", "🐣", "🐔", "🐧", "🦚", "🦢", "🦩", "🦤", "🦃", "🐓"]
-
 def tableOfContents():
     wordToEmojiMap = {
         'love': '❤️', 'heart': '❤️', 'happy': '😊', 'smile': '😊', 'sad': '😢', 'angry': '😠', 'mad': '😠', 'cry': '😢', 'laugh': '😂', 'funny': '😂', 'cool': '😎',
