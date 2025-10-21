@@ -93,10 +93,13 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, chann
     else:
         msg = "🔊 Can you hear me now?"
 
-    if hop == "Direct":
-        msg = msg + f"SNR:{snr} RSSI:{rssi}"
-    else:
-        msg = msg + hop
+    # append SNR/RSSI or hop info
+    if hop.startswith("Direct?") and (snr != 0 or rssi != 0):
+        msg += f"? SNR:{snr} RSSI:{rssi}"
+    elif hop.startswith("Direct"):
+        msg += f"SNR:{snr} RSSI:{rssi}"
+    elif hop:
+        msg += f"{hop}"
 
     if "@" in message:
         msg = msg + " @" + message.split("@")[1]
@@ -353,6 +356,10 @@ def onReceive(packet, interface):
 
             if ((hop_start == 0 and hop_limit >= 0) or via_mqtt or ("mqtt" in str(transport_mechanism).lower())):
                 hop = "MQTT"
+
+            ## FIXME should this be here?
+            if hop == "" and hop_count ==0 and (snr != 0 or rssi != 0):
+                hop = "Direct?"
 
             if "unknown" in str(transport_mechanism).lower() and (snr == 0 and rssi == 0):
                 hop = "IP-Network"

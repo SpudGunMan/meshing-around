@@ -251,10 +251,13 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, chann
     else:
         msg = "🔊 Can you hear me now?"
 
-    if hop == "Direct":
-        msg = msg + f"SNR:{snr} RSSI:{rssi}"
-    else:
-        msg = msg + hop
+    # append SNR/RSSI or hop info
+    if hop.startswith("Direct?") and (snr != 0 or rssi != 0):
+        msg += f"? SNR:{snr} RSSI:{rssi}"
+    elif hop.startswith("Direct"):
+        msg += f"SNR:{snr} RSSI:{rssi}"
+    elif hop:
+        msg += f"{hop}"
 
     if "@" in message:
         msg = msg + " @" + message.split("@")[1]
@@ -1607,8 +1610,9 @@ def onReceive(packet, interface):
             if ((hop_start == 0 and hop_limit >= 0) or via_mqtt or ("mqtt" in str(transport_mechanism).lower())):
                 hop = "MQTT"
 
+            ## FIXME should this be here?
             if hop == "" and hop_count ==0 and (snr != 0 or rssi != 0):
-                hop = "Direct"
+                hop = "Direct?"
 
             if "unknown" in str(transport_mechanism).lower() and (snr == 0 and rssi == 0):
                 hop = "IP-Network"
@@ -1638,7 +1642,7 @@ def onReceive(packet, interface):
                     send_message(auto_response(message_string, snr, rssi, hop, pkiStatus, message_from_id, channel_number, rxNode, isDM), channel_number, message_from_id, rxNode)
                 else:
                     # DM is useful for games or LLM
-                    if games_enabled and (hop == "Direct" or hop_count < game_hop_limit):
+                    if games_enabled and ("Direct" in hop or hop_count < game_hop_limit):
                         playingGame = checkPlayingGame(message_from_id, message_string, rxNode, channel_number)
                     elif hop_count >= game_hop_limit:
                         if games_enabled:
