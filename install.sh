@@ -207,6 +207,12 @@ sudo chown -R $whoami:$whoami $program_path/logs
 sudo chown -R $whoami:$whoami $program_path/data
 echo "Permissions set for meshbot on logs and data directories"
 
+# check and see if some sort of NTP is running
+if ! systemctl is-active --quiet ntp.service && \
+   ! systemctl is-active --quiet systemd-timesyncd.service && \
+   ! systemctl is-active --quiet chronyd.service; then
+    printf "\nNo NTP service detected, it is recommended to have NTP running for proper bot operation.\n"
+
 # set the correct user in the service file
 replace="s|User=pi|User=$whoami|g"
 sed -i $replace etc/pong_bot.service
