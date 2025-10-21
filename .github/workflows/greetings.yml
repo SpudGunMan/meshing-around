@@ -14,6 +14,5 @@ jobs:
     steps:
       - uses: actions/first-interaction@v3
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
           issue_message: "Dependabot's first issue"
-          pr_message: "Dependabot's first PR"
