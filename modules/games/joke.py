@@ -53,7 +53,8 @@ lameJokes = [
     "Chuck Norris can make a snowman out of rain.",
     "Chuck Norris can strangle you with a cordless phone.",
     "Chuck Norris can do a wheelie on a unicycle.",
-    "Chuck Norris can kill two stones with one bird."]
+    "Chuck Norris can kill two stones with one bird.",
+    "This is a test. A test of the Joke Module. Had this been an actual joke, you would be laughing right now.",
 
 # pylint: disable=C0103, W0612
 imtellingyourightnowiAmTellingYouRightNowThatMotherfErBackThereIsNotReal = ["🐦", "🦅", "🦆", "🦉", "🦜", "🐤", "🐥", "🐣", "🐔", "🐧", "🦚", "🦢", "🦩", "🦤", "🦃", "🐓"]
