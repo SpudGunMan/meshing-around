@@ -345,6 +345,9 @@ def onReceive(packet, interface):
             else:
                 hop_count = hop_away
 
+            if hop == "" and hop_count > 0:
+                hop = f"{hop_count} Hop" if hop_count == 1 else f"{hop_count} Hops"
+
             if hop_away == 0 and hop_limit == 0 and hop_start == 0:
                 hop = "Last Hop"
 
