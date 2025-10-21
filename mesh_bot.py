@@ -1461,6 +1461,7 @@ def onReceive(packet, interface):
     simulator_flag = False
     isDM = False
     channel_name = "unknown"
+    session_passkey = None
     playingGame = False
 
     if DEBUGpacket:
@@ -1492,9 +1493,11 @@ def onReceive(packet, interface):
              if globals().get(f'interface{i}_type', '') == 'ble'),0)
         
     if rxNode is None:
-        logger.warning(f"System: Received packet on unknown interface packet, dropped. Packet: {packet}")
-        return
-    
+        # default to interface 1 ## FIXME needs better like a default interface setting or hash lookup
+        if 'decoded' in packet and packet['decoded']['portnum'] in ['ADMIN_APP', 'SIMULATOR_APP']:
+            session_passkey = packet.get('decoded', {}).get('admin', {}).get('sessionPasskey', None)
+        rxNode = 1
+
     # check if the packet has a channel flag use it ## FIXME needs to be channel hash lookup
     if packet.get('channel'):
         channel_number = packet.get('channel')
