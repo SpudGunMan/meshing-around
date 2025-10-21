@@ -248,7 +248,7 @@ enableDEalerts = False
 myRegionalKeysDE = 110000000000,120510000000
 
 # Satalite Pass Prediction
-# Register for free API https://www.n2yo.com/login/
+# Register for free API https://www.n2yo.com/login/ personal data page at bottom 'Are you developer?'
 n2yoAPIKey = 
 # NORAD list https://www.n2yo.com/satellites/
 satList = 25544,7530
