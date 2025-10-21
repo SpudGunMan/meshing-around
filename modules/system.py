@@ -290,7 +290,7 @@ if voxDetectionEnabled:
     from modules.radio import * # from the spudgunman/meshing-around repo
 
 # File Monitor Configuration
-if file_monitor_enabled or read_news_enabled or bee_enabled or enable_runShellCmd:
+if file_monitor_enabled or read_news_enabled or bee_enabled or enable_runShellCmd or cmdShellSentryAlerts:
     from modules.filemon import * # from the spudgunman/meshing-around repo
     if read_news_enabled:
         trap_list = trap_list + trap_list_filemon # items readnews
@@ -2021,14 +2021,14 @@ async def handleSentinel(deviceID):
 
         if str(node_id) in sentryIgnoreList:
             return
-
+        # Message conditions
         if distance >= sentry_radius and str(node_id) and str(node_id) in sentryWatchList:
             # Outside zone
             detectedNearby = f"{get_name_from_number(node_id, 'long', deviceID)}, {get_name_from_number(node_id, 'short', deviceID)}, {node_id}, {decimal_to_hex(node_id)} at {distance}m (OUTSIDE ZONE)"
         elif distance <= sentry_radius and str(node_id) not in sentryWatchList:
             # Inside the zone
             detectedNearby = f"{get_name_from_number(node_id, 'long', deviceID)}, {get_name_from_number(node_id, 'short', deviceID)}, {node_id}, {decimal_to_hex(node_id)} at {distance}m (INSIDE ZONE)"
-    
+
     #logger.debug(f"handleSentinel: loop={handleSentinel_loop}/{sentry_holdoff}, detectedNearby={detectedNearby} closest_nodes={closest_nodes}")
     if detectedNearby:
         handleSentinel_loop += 1
@@ -2039,12 +2039,26 @@ async def handleSentinel(deviceID):
                 metadata = positionMetadata[node_id]
                 if metadata.get('precisionBits') is not None:
                     resolution = metadata.get('precisionBits')
+            # Send message alert
             logger.warning(f"System: {detectedNearby} on Interface{deviceID} Accuracy is {resolution}bits")
             send_message(f"Sentry{deviceID}: {detectedNearby}", secure_channel, 0, secure_interface)
+            
+            # Send email alerts
             if enableSMTP and email_sentry_alerts:
                 for email in sysopEmails:
                     send_email(email, f"Sentry{deviceID}: {detectedNearby}")
-            handleSentinel_loop = 0
+
+            # Execute external script alerts
+            if cmdShellSentryAlerts and distance <= sentry_radius:
+                # inside zone
+                call_external_script('', script=sentryAlertNear)
+                logger.info(f"System: Sentry Script Alert {sentryAlertNear} for NodeID:{node_id} on Interface{deviceID}")
+            elif cmdShellSentryAlerts and distance >= sentry_radius:
+                # outside zone
+                call_external_script('', script=sentryAlertFar)
+                logger.info(f"System: Sentry Script Alert {sentryAlertFar} for NodeID:{node_id} on Interface{deviceID}")
+
+            handleSentinel_loop = 0 # Loop reset
     else:
         handleSentinel_loop = 0  # Reset if nothing detected
 

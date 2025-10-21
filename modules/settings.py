@@ -282,6 +282,9 @@ try:
     highfly_check_openskynetwork = config['sentry'].getboolean('highflyOpenskynetwork', True) # default True check with OpenSkyNetwork if highfly detected
     detctionSensorAlert = config['sentry'].getboolean('detectionSensorAlert', False) # default False
     reqLocationEnabled = config['sentry'].getboolean('reqLocationEnabled', False) # default False
+    cmdShellSentryAlerts = config['sentry'].getboolean('cmdShellSentryAlerts', False) # default False
+    sentryAlertNear = config['sentry'].get('sentryAlertNear', 'sentry_alert_near.sh') # default sentry_alert_near.sh
+    sentryAlertFar = config['sentry'].get('sentryAlertFar', 'sentry_alert_far.sh') # default sentry_alert_far.sh
 
     # location
     location_enabled = config['location'].getboolean('enabled', True)

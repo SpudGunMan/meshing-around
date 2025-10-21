@@ -127,21 +127,28 @@ alert_interface = 1
 [sentry]
 # detect anyone close to the bot
 SentryEnabled = True
-reqLocationEnabled = False
-emailSentryAlerts = False
-# radius in meters to detect someone close to the bot
-SentryRadius = 100
 # device interface and channel to send the alert message to
 SentryInterface = 1
 SentryChannel = 2
-# holdoff time multiplied by seconds(20) of the watchdog
-SentryHoldoff = 9
+emailSentryAlerts = False
+# Enable detection sensor alert, requires external GPIO sensor connected to node
+detectionSensorAlert = False
+
 # list of ignored nodes numbers ex: 2813308004,4258675309
 sentryIgnoreList =
 # list of watched nodes numbers ex: 2813308004,4258675309
 sentryWatchList =
-# Enable detection sensor alert, requires external sensor connected to node
-detectionSensorAlert = False
+
+# radius in meters to detect someone close to the bot
+SentryRadius = 100
+# holdoff time multiplied by seconds(20) of the watchdog
+SentryHoldoff = 9
+
+# Enable running external shell command when sentry alert is triggered
+cmdShellSentryAlerts = False
+# External shell command to run when sentry alert is triggered
+sentryAlertNear = sentry_alert_near.sh
+sentryAlertAway = sentry_alert_away.sh
 
 # HighFlying Node alert
 highFlyingAlert = True

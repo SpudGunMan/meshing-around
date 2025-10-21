@@ -38,7 +38,7 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 - **GeoMeasuring**: HowFar from point to point using collected GPS packets on the bot to plot a course or space. Find Center of points for Fox&Hound direction finding.
 
 ### Proximity Alerts
-- **Location-Based Alerts**: Get notified when members arrive back at a configured lat/long, perfect for remote locations like campsites, or put a geo-fence up for another.
+- **Location-Based Alerts**: Get notified when members arrive back at a configured lat/long, perfect for remote locations like campsites, or put a geo-fence. You can also run a script or send a email.
 - **High Flying Alerts**: Get notified when nodes with high altitude are seen on mesh
 - **Voice/Command Triggers**: The following keywords can be used via voice (VOX) to trigger bot functions "Hey Chirpy!"
   - Say "Hey Chirpy.."
