@@ -2018,14 +2018,17 @@ async def handleSentinel(deviceID):
     for node in closest_nodes:
         node_id = node['id']
         distance = node['distance']
-        if str(node_id) in sentryWatchList and str(node_id) not in sentryIgnoreList:
-            if distance >= sentry_radius and str(node_id) in sentryWatchList:
+
+        if str(node_id) in sentryIgnoreList:
+            continue
+
+        if distance >= sentry_radius and str(node_id) and str(node_id) in sentryWatchList:
                 # Outside zone
                 detectedNearby = f"{get_name_from_number(node_id, 'long', deviceID)}, {get_name_from_number(node_id, 'short', deviceID)}, {node_id}, {decimal_to_hex(node_id)} at {distance}m (OUTSIDE ZONE)"
-            elif distance <= sentry_radius and str(node_id) not in sentryWatchList:
-                # Inside the zone
-                detectedNearby = f"{get_name_from_number(node_id, 'long', deviceID)}, {get_name_from_number(node_id, 'short', deviceID)}, {node_id}, {decimal_to_hex(node_id)} at {distance}m (INSIDE ZONE)"
-            break  # Only alert on the first found
+        elif distance <= sentry_radius and str(node_id) not in sentryWatchList:
+            # Inside the zone
+            detectedNearby = f"{get_name_from_number(node_id, 'long', deviceID)}, {get_name_from_number(node_id, 'short', deviceID)}, {node_id}, {decimal_to_hex(node_id)} at {distance}m (INSIDE ZONE)"
+    
     #logger.debug(f"handleSentinel: loop={handleSentinel_loop}/{sentry_holdoff}, detectedNearby={detectedNearby} closest_nodes={closest_nodes}")
     if detectedNearby:
         handleSentinel_loop += 1
