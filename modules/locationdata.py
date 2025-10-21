@@ -7,6 +7,7 @@ import maidenhead as mh # pip install maidenhead
 import requests # pip install requests
 import bs4 as bs # pip install beautifulsoup4
 import xml.dom.minidom 
+from datetime import datetime
 from modules.log import *
 import math
 
@@ -744,7 +745,7 @@ def get_volcano_usgs(lat=0, lon=0):
     return alerts
 
 def get_nws_marine(zone, days=3):
-    # forcast from NWS coastal products
+    # forecast from NWS coastal products
     try:
         marine_pz_data = requests.get(zone, timeout=urlTimeoutSeconds)
         if not marine_pz_data.ok:
@@ -753,18 +754,21 @@ def get_nws_marine(zone, days=3):
     except (requests.exceptions.RequestException):
         logger.warning("Location:Error fetching NWS Marine PZ data")
         return ERROR_FETCHING_DATA
-    
+
     marine_pz_data = marine_pz_data.text
-    #validate data
     todayDate = datetime.now().strftime("%Y%m%d")
-    if marine_pz_data.startswith("Expires:"):
-        expires = marine_pz_data.split(";;")[0].split(":")[1]
-        expires_date = expires[:8]
-        if expires_date < todayDate:
-            logger.debug("Location: NWS Marine PZ data expired")
+    if marine_pz_data and marine_pz_data.startswith("Expires:"):
+        try:
+            expires = marine_pz_data.split(";;")[0].split(":")[1]
+            expires_date = expires[:8]
+            if expires_date < todayDate:
+                logger.debug("Location: NWS Marine PZ data expired")
+                return ERROR_FETCHING_DATA
+        except Exception as e:
+            logger.debug(f"Location: NWS Marine PZ data parse error: {e}")
             return ERROR_FETCHING_DATA
     else:
-        logger.debug("Location: NWS Marine PZ data not valid")
+        logger.debug("Location: NWS Marine PZ data not valid or empty")
         return ERROR_FETCHING_DATA
     
     # process the marine forecast data
