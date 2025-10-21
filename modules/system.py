@@ -2003,9 +2003,6 @@ async def retry_interface(nodeID):
 
 handleSentinel_spotted = []
 handleSentinel_loop = 0
-
-handleSentinel_spotted = []
-handleSentinel_loop = 0
 async def handleSentinel(deviceID):
     global handleSentinel_spotted, handleSentinel_loop
     detectedNearby = None
@@ -2022,6 +2019,7 @@ async def handleSentinel(deviceID):
         node_id = node['id']
         distance = node['distance']
         if str(node_id) in sentryWatchList and str(node_id) not in sentryIgnoreList:
+                
             if distance > sentry_radius and str(node_id) in sentryWatchList:
                 # Outside zone
                 detectedNearby = f"{get_name_from_number(node_id, 'long', deviceID)}, {get_name_from_number(node_id, 'short', deviceID)}, {node_id}, {decimal_to_hex(node_id)} at {distance}m (OUTSIDE ZONE)"
