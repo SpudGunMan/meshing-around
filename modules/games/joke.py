@@ -55,6 +55,7 @@ lameJokes = [
     "Chuck Norris can do a wheelie on a unicycle.",
     "Chuck Norris can kill two stones with one bird."]
 
+# pylint: disable=C0103, W0612
 imtellingyourightnowiAmTellingYouRightNowThatMotherfErBackThereIsNotReal = ["🐦", "🦅", "🦆", "🦉", "🦜", "🐤", "🐥", "🐣", "🐔", "🐧", "🦚", "🦢", "🦩", "🦤", "🦃", "🐓"]
 
 def tableOfContents():
