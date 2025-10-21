@@ -55,6 +55,7 @@ lameJokes = [
     "Chuck Norris can do a wheelie on a unicycle.",
     "Chuck Norris can kill two stones with one bird.",
     "This is a test. A test of the Joke Brodcast System. If this had been an actual joke, you would have been amused.",
+]
 
 # pylint: disable=C0103, W0612
 imtellingyourightnowiAmTellingYouRightNowThatMotherfErBackThereIsNotReal = ["🐦", "🦅", "🦆", "🦉", "🦜", "🐤", "🐥", "🐣", "🐔", "🐧", "🦚", "🦢", "🦩", "🦤", "🦃", "🐓"]
