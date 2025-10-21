@@ -1836,6 +1836,10 @@ async def start_rx():
     
     if sentry_enabled:
         logger.debug(f"System: Sentry Mode Enabled {sentry_radius}m radius reporting to channel:{secure_channel} requestLOC:{reqLocationEnabled}")
+        if sentryIgnoreList:
+            logger.debug(f"System: Sentry BlockList Enabled for nodes: {sentryIgnoreList}")
+        if sentryWatchList:
+            logger.debug(f"System: Sentry WatchList Enabled for nodes: {sentryWatchList}")
     
     if highfly_enabled:
         logger.debug(f"System: HighFly Enabled using {highfly_altitude}m limit reporting to channel:{highfly_channel}")

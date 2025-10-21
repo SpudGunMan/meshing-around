@@ -271,6 +271,7 @@ try:
     secure_interface = config['sentry'].getint('SentryInterface', 1) # default 1
     sentry_holdoff = config['sentry'].getint('SentryHoldoff', 9) # default 9
     sentryIgnoreList = config['sentry'].get('sentryIgnoreList', '').split(',')
+    sentryWatchList = config['sentry'].get('sentryWatchList', '').split(',')
     sentry_radius = config['sentry'].getint('SentryRadius', 100) # default 100 meters
     email_sentry_alerts = config['sentry'].getboolean('emailSentryAlerts', False) # default False
     highfly_enabled = config['sentry'].getboolean('highFlyingAlert', True) # default True

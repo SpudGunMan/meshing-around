@@ -2003,47 +2003,48 @@ async def retry_interface(nodeID):
 
 handleSentinel_spotted = []
 handleSentinel_loop = 0
+
+handleSentinel_spotted = []
+handleSentinel_loop = 0
 async def handleSentinel(deviceID):
     global handleSentinel_spotted, handleSentinel_loop
-    detectedNearby = ""
+    detectedNearby = None
     resolution = "unknown"
-    closest_nodes = await get_closest_nodes(deviceID)
-    closest_node = closest_nodes[0]['id'] if closest_nodes != ERROR_FETCHING_DATA and closest_nodes else None
-    closest_distance = closest_nodes[0]['distance'] if closest_nodes != ERROR_FETCHING_DATA and closest_nodes else None
 
-    # check if the handleSentinel_spotted list contains the closest node already
-    if closest_node in [i['id'] for i in handleSentinel_spotted]:
-        # check if the distance is closer than the last time, if not just return
-        for i in range(len(handleSentinel_spotted)):
-            if handleSentinel_spotted[i]['id'] == closest_node and closest_distance is not None and closest_distance < handleSentinel_spotted[i]['distance']:
-                handleSentinel_spotted[i]['distance'] = closest_distance
-                break
+    closest_nodes = await get_closest_nodes(deviceID, returnCount=10)
+    #logger.debug(f"handleSentinel: closest_nodes={closest_nodes}")
+
+    if not closest_nodes or closest_nodes == ERROR_FETCHING_DATA:
+        return
+
+    # Find any watched node inside or outside the zone
+    for node in closest_nodes:
+        node_id = node['id']
+        distance = node['distance']
+        if str(node_id) in sentryWatchList and str(node_id) not in sentryIgnoreList:
+            if distance > sentry_radius:
+                detectedNearby = f"{get_name_from_number(node_id, 'long', deviceID)}, {get_name_from_number(node_id, 'short', deviceID)}, {node_id}, {decimal_to_hex(node_id)} at {distance}m (OUTSIDE ZONE)"
             else:
-                return
-    
-    if closest_nodes != ERROR_FETCHING_DATA and closest_nodes:
-        if closest_nodes[0]['id'] is not None:
-            detectedNearby = get_name_from_number(closest_node, 'long', deviceID)
-            detectedNearby += ", " + get_name_from_number(closest_nodes[0]['id'], 'short', deviceID)
-            detectedNearby += ", " + str(closest_nodes[0]['id'])
-            detectedNearby += ", " + decimal_to_hex(closest_nodes[0]['id'])
-            detectedNearby += f" at {closest_distance}m"
-
-    if handleSentinel_loop >= sentry_holdoff and detectedNearby not in ["", None]:
-        if closest_nodes and positionMetadata and closest_nodes[0]['id'] in positionMetadata:
-            metadata = positionMetadata[closest_nodes[0]['id']]
-            if metadata.get('precisionBits') is not None:
-                resolution = metadata.get('precisionBits')
-
-        logger.warning(f"System: {detectedNearby} is close to your location on Interface{deviceID} Accuracy is {resolution}bits")
-        send_message(f"Sentry{deviceID}: {detectedNearby}", secure_channel, 0, secure_interface)
-        if enableSMTP and email_sentry_alerts:
-            for email in sysopEmails:
-                send_email(email, f"Sentry{deviceID}: {detectedNearby}")
-        handleSentinel_loop = 0
-        handleSentinel_spotted.append({'id': closest_node, 'distance': closest_distance})
-    else:
+                detectedNearby = f"{get_name_from_number(node_id, 'long', deviceID)}, {get_name_from_number(node_id, 'short', deviceID)}, {node_id}, {decimal_to_hex(node_id)} at {distance}m (INSIDE ZONE)"
+            break  # Only alert on the first found
+    #logger.debug(f"handleSentinel: loop={handleSentinel_loop}/{sentry_holdoff}, detectedNearby={detectedNearby} closest_nodes={closest_nodes}")
+    if detectedNearby:
         handleSentinel_loop += 1
+        #logger.debug(f"handleSentinel: detectedNearby={detectedNearby}, loop={handleSentinel_loop}/{sentry_holdoff}")
+        if handleSentinel_loop >= sentry_holdoff:
+            # Get resolution if available
+            if positionMetadata and node_id in positionMetadata:
+                metadata = positionMetadata[node_id]
+                if metadata.get('precisionBits') is not None:
+                    resolution = metadata.get('precisionBits')
+            logger.warning(f"System: {detectedNearby} on Interface{deviceID} Accuracy is {resolution}bits")
+            send_message(f"Sentry{deviceID}: {detectedNearby}", secure_channel, 0, secure_interface)
+            if enableSMTP and email_sentry_alerts:
+                for email in sysopEmails:
+                    send_email(email, f"Sentry{deviceID}: {detectedNearby}")
+            handleSentinel_loop = 0
+    else:
+        handleSentinel_loop = 0  # Reset if nothing detected
 
 async def process_vox_queue():
         # process the voxMsgQueue

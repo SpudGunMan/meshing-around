@@ -138,6 +138,8 @@ SentryChannel = 2
 SentryHoldoff = 9
 # list of ignored nodes numbers ex: 2813308004,4258675309
 sentryIgnoreList =
+# list of watched nodes numbers ex: 2813308004,4258675309
+sentryWatchList =
 # Enable detection sensor alert, requires external sensor connected to node
 detectionSensorAlert = False
 
