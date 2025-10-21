@@ -2020,7 +2020,7 @@ async def handleSentinel(deviceID):
         distance = node['distance']
 
         if str(node_id) in sentryIgnoreList:
-            continue
+            return
 
         if distance >= sentry_radius and str(node_id) and str(node_id) in sentryWatchList:
             # Outside zone
