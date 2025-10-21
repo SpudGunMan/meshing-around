@@ -348,9 +348,6 @@ def onReceive(packet, interface):
             if hop == "" and hop_count > 0:
                 hop = f"{hop_count} Hop" if hop_count == 1 else f"{hop_count} Hops"
 
-            if hop_away == 0 and hop_limit == 0 and hop_start == 0:
-                hop = "Last Hop"
-
             if hop_start == hop_limit and "lora" in str(transport_mechanism).lower():
                 hop = "Direct"
 
