@@ -235,27 +235,29 @@ def onReceive(packet, interface):
         logger.debug(f"Packet Received\n {packet} \n END of packet \n")
 
     # determine the rxNode based on the interface type
+    if rxType == 'TCPInterface':
+        rxHost = interface.__dict__.get('hostname', 'unknown')
+        rxNodeHostName = interface.__dict__.get('ip', None)
+        rxNode = next(
+            (i for i in range(1, 10)
+             if multiple_interface and rxHost and
+             globals().get(f'hostname{i}', '').split(':', 1)[0] in rxHost and
+             globals().get(f'interface{i}_type', '') == 'tcp'),None)
+
     if rxType == 'SerialInterface':
         rxInterface = interface.__dict__.get('devPath', 'unknown')
         rxNode = next(
             (i for i in range(1, 10)
-             if globals().get(f'port{i}', '') in rxInterface),
-            0)
-
-    # if TCPInterface check rxNodeHostName as well
-    if rxType == 'TCPInterface':
-        rxHost = interface.__dict__.get('hostname', 'unknown')
-        rxNodeHostName = interface.__dict__.get('ip', None)
-        rxNode = next((i for i in range(1, 10)
-                       if multiple_interface and rxHost and
-                       globals().get(f'hostname{i}', '').split(':', 1)[0] in rxHost and
-                       globals().get(f'interface{i}_type', '') == 'tcp'), 0)
-
+             if globals().get(f'port{i}', '') in rxInterface),None)
+    
     if rxType == 'BLEInterface':
         rxNode = next(
             (i for i in range(1, 10)
-             if globals().get(f'interface{i}_type', '') == 'ble'),
-            0)
+             if globals().get(f'interface{i}_type', '') == 'ble'),0)
+        
+    if rxNode is None:
+        logger.warning(f"System: Received packet on unknown interface packet, dropped. Packet: {packet}")
+        return
     
     # check if the packet has a channel flag use it ## FIXME needs to be channel hash lookup
     if packet.get('channel'):
