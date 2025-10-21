@@ -1432,15 +1432,33 @@ def onReceive(packet, interface):
 
     if rxType == 'TCPInterface':
         rxHost = interface.__dict__.get('hostname', 'unknown')
-        if rxHost and hostname1 in rxHost and interface1_type == 'tcp': rxNode = 1
-        elif multiple_interface and rxHost and hostname2 in rxHost and interface2_type == 'tcp': rxNode = 2
-        elif multiple_interface and rxHost and hostname3 in rxHost and interface3_type == 'tcp': rxNode = 3
-        elif multiple_interface and rxHost and hostname4 in rxHost and interface4_type == 'tcp': rxNode = 4
-        elif multiple_interface and rxHost and hostname5 in rxHost and interface5_type == 'tcp': rxNode = 5
-        elif multiple_interface and rxHost and hostname6 in rxHost and interface6_type == 'tcp': rxNode = 6
-        elif multiple_interface and rxHost and hostname7 in rxHost and interface7_type == 'tcp': rxNode = 7
-        elif multiple_interface and rxHost and hostname8 in rxHost and interface8_type == 'tcp': rxNode = 8
-        elif multiple_interface and rxHost and hostname9 in rxHost and interface9_type == 'tcp': rxNode = 9
+        host_only1 = hostname1.split(':', 1)[0]
+        if rxHost and rxHost == host_only1 and interface1_type == 'tcp': rxNode = 1
+        elif multiple_interface:
+            host_only2 = hostname2.split(':', 1)[0]
+            if rxHost and rxHost == host_only2 and interface2_type == 'tcp': rxNode = 2
+        elif multiple_interface:
+            host_only3 = hostname3.split(':', 1)[0]
+            if rxHost and rxHost == host_only3 and interface3_type == 'tcp': rxNode = 3
+        elif multiple_interface:
+            host_only4 = hostname4.split(':', 1)[0]
+            if rxHost and rxHost == host_only4 and interface4_type == 'tcp': rxNode = 4
+        elif multiple_interface:
+            host_only5 = hostname5.split(':', 1)[0]
+            if rxHost and rxHost == host_only5 and interface5_type == 'tcp': rxNode = 5
+        elif multiple_interface:
+            host_only6 = hostname6.split(':', 1)[0]
+            if rxHost and rxHost == host_only6 and interface6_type == 'tcp': rxNode = 6
+        elif multiple_interface:
+            host_only7 = hostname7.split(':', 1)[0]
+            if rxHost and rxHost == host_only7 and interface7_type == 'tcp': rxNode = 7
+        elif multiple_interface:
+            host_only8 = hostname8.split(':', 1)[0]
+            if rxHost and rxHost == host_only8 and interface8_type == 'tcp': rxNode = 8
+        elif multiple_interface:
+            host_only9 = hostname9.split(':', 1)[0]
+            if rxHost and rxHost == host_only9 and interface9_type == 'tcp': rxNode = 9
+            
     if rxType == 'BLEInterface':
         if interface1_type == 'ble': rxNode = 1
         elif multiple_interface and interface2_type == 'ble': rxNode = 2
