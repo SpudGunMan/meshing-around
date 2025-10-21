@@ -4,6 +4,9 @@ on:
   issues:
     types:
       - opened
+  pull_request:
+    types:
+      - opened
 
 permissions:
   issues: write
@@ -12,8 +15,8 @@ jobs:
   greeting:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/first-interaction@v3
-      with:
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
-        issue_message: 'DependaBot'' first issue'
-        pr_message: 'DependaBot'' first pr'
+      - uses: actions/first-interaction@v3
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          issue_message: "Dependabot's first issue"
+          pr_message: "Dependabot's first PR"
