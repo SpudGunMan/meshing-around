@@ -23,10 +23,9 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 - **Flexible Messaging**: send mail and messages, between networks.
 
 ### Advanced Messaging Capabilities
-- **Mail Messaging**: Leave messages for other devices, which are sent as DMs when the device is seen.
+- **Mail Messaging**: Leave messages for other devices, which are sent as DMs when the device is seen. Send mail to nodes using `bbspost @nodeNumber #message` or `bbspost @nodeShortName #message`.
 - **Scheduler**: Schedule messages like weather updates or reminders for weekly VHF nets.
-- **Store and Forward**: Replay messages with the `messages` command, and log messages locally to disk.
-- **Send Mail**: Send mail to nodes using `bbspost @nodeNumber #message` or `bbspost @nodeShortName #message`.
+- **Store and Forward**: Like voicemail, see messages missed with the `messages` command. Can also log messages locally to disk.
 - **BBS Linking**: Combine multiple bots to expand BBS reach.
 - **E-Mail/SMS**: Send mesh-messages to E-Mail or SMS(Email) expanding visibility.
 - **New Node Hello**: Send a hello to any new node seen in text message.
@@ -39,7 +38,7 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 - **GeoMeasuring**: HowFar from point to point using collected GPS packets on the bot to plot a course or space. Find Center of points for Fox&Hound direction finding.
 
 ### Proximity Alerts
-- **Location-Based Alerts**: Get notified when members arrive back at a configured lat/long, perfect for remote locations like campsites.
+- **Location-Based Alerts**: Get notified when members arrive back at a configured lat/long, perfect for remote locations like campsites, or put a geo-fence up for another.
 - **High Flying Alerts**: Get notified when nodes with high altitude are seen on mesh
 - **Voice/Command Triggers**: The following keywords can be used via voice (VOX) to trigger bot functions "Hey Chirpy!"
   - Say "Hey Chirpy.."
