@@ -1613,6 +1613,9 @@ def onReceive(packet, interface):
             if ((hop_start == 0 and hop_limit >= 0) or via_mqtt or ("mqtt" in str(transport_mechanism).lower())):
                 hop = "MQTT"
 
+            if hop == "" and hop_count ==0 and (snr != 0 or rssi != 0):
+                hop = "Direct"
+
             if "unknown" in str(transport_mechanism).lower() and (snr == 0 and rssi == 0):
                 hop = "IP-Network"
 
