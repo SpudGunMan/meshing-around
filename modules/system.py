@@ -2019,11 +2019,10 @@ async def handleSentinel(deviceID):
         node_id = node['id']
         distance = node['distance']
         if str(node_id) in sentryWatchList and str(node_id) not in sentryIgnoreList:
-                
-            if distance > sentry_radius and str(node_id) in sentryWatchList:
+            if distance >= sentry_radius and str(node_id) in sentryWatchList:
                 # Outside zone
                 detectedNearby = f"{get_name_from_number(node_id, 'long', deviceID)}, {get_name_from_number(node_id, 'short', deviceID)}, {node_id}, {decimal_to_hex(node_id)} at {distance}m (OUTSIDE ZONE)"
-            else:
+            elif distance <= sentry_radius:
                 # Inside the zone
                 detectedNearby = f"{get_name_from_number(node_id, 'long', deviceID)}, {get_name_from_number(node_id, 'short', deviceID)}, {node_id}, {decimal_to_hex(node_id)} at {distance}m (INSIDE ZONE)"
             break  # Only alert on the first found
