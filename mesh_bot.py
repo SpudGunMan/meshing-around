@@ -1405,6 +1405,7 @@ def onReceive(packet, interface):
     # Valies assinged to the packet
     rxNode, message_from_id, snr, rssi, hop, hop_away, channel_number = 0, 0, 0, 0, 0, 0, 0
     pkiStatus = (False, 'ABC')
+    rxNodeHostName = None
     replyIDset = False
     emojiSeen = False
     isDM = False
@@ -1417,41 +1418,28 @@ def onReceive(packet, interface):
         # Debug print the packet for debugging
         logger.debug(f"Packet Received\n {packet} \n END of packet \n")
 
-    # set the value for the incomming interface
+    # determine the rxNode based on the interface type
     if rxType == 'SerialInterface':
         rxInterface = interface.__dict__.get('devPath', 'unknown')
-        if port1 in rxInterface: rxNode = 1
-        elif multiple_interface and port2 in rxInterface: rxNode = 2
-        elif multiple_interface and port3 in rxInterface: rxNode = 3
-        elif multiple_interface and port4 in rxInterface: rxNode = 4
-        elif multiple_interface and port5 in rxInterface: rxNode = 5
-        elif multiple_interface and port6 in rxInterface: rxNode = 6
-        elif multiple_interface and port7 in rxInterface: rxNode = 7
-        elif multiple_interface and port8 in rxInterface: rxNode = 8
-        elif multiple_interface and port9 in rxInterface: rxNode = 9
+        rxNode = next(
+            (i for i in range(1, 10)
+             if globals().get(f'port{i}', '') in rxInterface),
+            0)
 
+    # if TCPInterface check rxNodeHostName as well
     if rxType == 'TCPInterface':
         rxHost = interface.__dict__.get('hostname', 'unknown')
-        if rxHost and hostname1.split(':', 1)[0] in rxHost and interface1_type == 'tcp': rxNode = 1
-        elif multiple_interface and rxHost and hostname2.split(':', 1)[0] in rxHost and interface2_type == 'tcp': rxNode = 2
-        elif multiple_interface and rxHost and hostname3.split(':', 1)[0] in rxHost and interface3_type == 'tcp': rxNode = 3
-        elif multiple_interface and rxHost and hostname4.split(':', 1)[0] in rxHost and interface4_type == 'tcp': rxNode = 4
-        elif multiple_interface and rxHost and hostname5.split(':', 1)[0] in rxHost and interface5_type == 'tcp': rxNode = 5
-        elif multiple_interface and rxHost and hostname6.split(':', 1)[0] in rxHost and interface6_type == 'tcp': rxNode = 6
-        elif multiple_interface and rxHost and hostname7.split(':', 1)[0] in rxHost and interface7_type == 'tcp': rxNode = 7
-        elif multiple_interface and rxHost and hostname8.split(':', 1)[0] in rxHost and interface8_type == 'tcp': rxNode = 8
-        elif multiple_interface and rxHost and hostname9.split(':', 1)[0] in rxHost and interface9_type == 'tcp': rxNode = 9
+        rxNodeHostName = interface.__dict__.get('ip', None)
+        rxNode = next((i for i in range(1, 10)
+                       if multiple_interface and rxHost and
+                       globals().get(f'hostname{i}', '').split(':', 1)[0] in rxHost and
+                       globals().get(f'interface{i}_type', '') == 'tcp'), 0)
 
     if rxType == 'BLEInterface':
-        if interface1_type == 'ble': rxNode = 1
-        elif multiple_interface and interface2_type == 'ble': rxNode = 2
-        elif multiple_interface and interface3_type == 'ble': rxNode = 3
-        elif multiple_interface and interface4_type == 'ble': rxNode = 4
-        elif multiple_interface and interface5_type == 'ble': rxNode = 5
-        elif multiple_interface and interface6_type == 'ble': rxNode = 6
-        elif multiple_interface and interface7_type == 'ble': rxNode = 7
-        elif multiple_interface and interface8_type == 'ble': rxNode = 8
-        elif multiple_interface and interface9_type == 'ble': rxNode = 9
+        rxNode = next(
+            (i for i in range(1, 10)
+             if globals().get(f'interface{i}_type', '') == 'ble'),
+            0)
     
     # check if the packet has a channel flag use it
     if packet.get('channel'):
