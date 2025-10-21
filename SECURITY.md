@@ -7,8 +7,8 @@ currently being supported with security updates.
 
 | Version | Supported          |
 | ------- | ------------------ |
-| git pull   | :white_check_mark: |
+| git pull| :white_check_mark: |
 
 ## Reporting a Vulnerability
 
-if its serious, its likley big. otherwise post issues, reachout on discord.
+If its serious, its likley big. otherwise post issues, reachout on discord.
