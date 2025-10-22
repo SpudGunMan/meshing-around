@@ -175,8 +175,8 @@ def get_NOAAtide(lat=0, lon=0):
     station_id = ""
     location = lat,lon
     if float(lat) == 0 and float(lon) == 0:
-        logger.error("Location:No GPS data, try sending location for tide")
-        return NO_DATA_NOGPS
+        lat = latitudeValue
+        lon = longitudeValue
     station_lookup_url = "https://api.tidesandcurrents.noaa.gov/mdapi/prod/webapi/tidepredstations.json?lat=" + str(lat) + "&lon=" + str(lon) + "&radius=50"
     try:
         station_data = requests.get(station_lookup_url, timeout=urlTimeoutSeconds)
@@ -240,7 +240,8 @@ def get_NOAAweather(lat=0, lon=0, unit=0):
     weather = ""
     location = lat,lon
     if float(lat) == 0 and float(lon) == 0:
-        return NO_DATA_NOGPS
+        lat = latitudeValue
+        lon = longitudeValue
     
     # get weather data from NOAA units for metric unit = 1 is metric
     if use_metric:
@@ -389,12 +390,11 @@ def getWeatherAlertsNOAA(lat=0, lon=0, useDefaultLatLon=False):
     # get weather alerts from NOAA limited to ALERT_COUNT with the total number of alerts found
     alerts = ""
     location = lat,lon
+    if useDefaultLatLon:
+        lat = latitudeValue
+        lon = longitudeValue
     if float(lat) == 0 and float(lon) == 0 and not useDefaultLatLon:
         return NO_DATA_NOGPS
-    else:
-        if useDefaultLatLon:
-            lat = latitudeValue
-            lon = longitudeValue
 
     alert_url = "https://api.weather.gov/alerts/active.atom?point=" + str(lat) + "," + str(lon)
     #alert_url = "https://api.weather.gov/alerts/active.atom?area=WA"
