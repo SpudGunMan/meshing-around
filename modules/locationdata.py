@@ -324,6 +324,7 @@ def abbreviate_noaa(data=""):
         "between four and five inches possible": "4-5in",
         "between five and six inches possible": "5-6in",
         "between six and eight inches possible": "6-8in",
+        "gusts as high as": "gusts to",
     }
     # Single words (no spaces)
     word_replacements = {
@@ -369,6 +370,7 @@ def abbreviate_noaa(data=""):
         "temperature": "temp:",
         "amounts": "amts:",
         "afternoon": "Aftn",
+        "around": "~",
         "evening": "Eve",
     }
 
