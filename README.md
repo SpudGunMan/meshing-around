@@ -2,6 +2,8 @@
 
 Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance your [Meshtastic](https://meshtastic.org/docs/introduction/) network experience with a variety of powerful tools and fun features, connectivity and utility through text-based message delivery. Whether you're looking to perform network tests, send messages, or even play games, [mesh_bot.py](mesh_bot.py) has you covered. 
 
+TLDR: [Getting Started](#getting-started)
+
 ![Example Use](etc/pong-bot.jpg "Example Use")
 
 ## Key Features
