@@ -13,6 +13,12 @@ printf "Installer works best in raspian/debian/ubuntu or foxbuntu embedded syste
 printf "If there is a problem, try running the installer again.\n"
 printf "\nChecking for dependencies...\n"
 
+# fuse
+fi [[ -f config.ini ]]; then
+    printf "\nDetected existing installation, please backup and remove existing installation before proceeding\n"
+    exit 1
+fi
+
 # check if we are in /opt/meshing-around
 if [ $program_path != "/opt/meshing-around" ]; then
     printf "\nIt is suggested to project path to /opt/meshing-around\n"
@@ -305,6 +311,7 @@ if [[ $(echo "${embedded}" | grep -i "^n") ]]; then
     printf "sudo systemctl disable %s.service\n" "$service" >> install_notes.txt
     printf "Reporting chron job added to run report_generator5.py\n" >> install_notes.txt
     printf "chronjob: %s\n" "$chronjob" >> install_notes.txt
+    printf "*** Stay Up to date using 'bash update.sh' ***\n" >> install_notes.txt
     
     if [[ $(echo "${venv}" | grep -i "^y") ]]; then
         printf "\nFor running on venv, virtual launch bot with './launch.sh mesh' in path $program_path\n" >> install_notes.txt
@@ -350,6 +357,7 @@ else
     printf "sudo journalctl -u %s.service\n" "$service" >> install_notes.txt
     printf "sudo systemctl stop %s.service\n" "$service" >> install_notes.txt
     printf "sudo systemctl disable %s.service\n" "$service" >> install_notes.txt
+    printf "*** Stay Up to date using 'bash update.sh' ***\n" >> install_notes.txt
 fi
 
 printf "\nInstallation complete!\n"
