@@ -44,11 +44,22 @@ if ! git pull origin main --rebase; then
     fi
 fi
 
+# copy modules/custom_scheduler.py template if it does not exist
+if [[ ! -f modules/custom_scheduler.py ]]; then
+    cp etc/custom_scheduler.template modules/custom_scheduler.py
+    printf "\nCustom scheduler template copied to modules/custom_scheduler.py\n"
+fi
+
 # Backup the data/ directory
 echo "Backing up data/ directory..."
 #backup_file="backup_$(date +%Y%m%d_%H%M%S).tar.gz"
 backup_file="data_backup.tar.gz"
 path2backup="data/"
+#copy custom_scheduler.py if it exists
+if [ -f "modules/custom_scheduler.py" ]; then
+    echo "Including custom_scheduler.py in backup..."
+    cp modules/custom_scheduler.py data/
+fi
 tar -czf "$backup_file" "$path2backup"
 if [ $? -ne 0 ]; then
     echo "Error: Backup failed."

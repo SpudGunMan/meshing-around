@@ -89,6 +89,12 @@ cp etc/mesh_bot.tmp etc/mesh_bot.service
 cp etc/mesh_bot_reporting.tmp etc/mesh_bot_reporting.service
 cp etc/mesh_bot_w3.tmp etc/mesh_bot_w3.service
 
+# copy modules/custom_scheduler.py template if it does not exist
+if [[ ! -f modules/custom_scheduler.py ]]; then
+    cp etc/custom_scheduler.template modules/custom_scheduler.py
+    printf "\nCustom scheduler template copied to modules/custom_scheduler.py\n"
+fi
+
 # generate config file, check if it exists
 if [[ -f config.ini ]]; then
     printf "\nConfig file already exists, moving to backup config.old\n"

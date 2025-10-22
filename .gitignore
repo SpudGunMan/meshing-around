@@ -28,3 +28,6 @@ bee.txt
 
 # .csv files
 *.csv
+
+# modules/custom_scheduler.py
+modules/custom_scheduler.py
