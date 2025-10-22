@@ -424,6 +424,7 @@ try:
     default_survey = config['games'].get('defaultSurvey', 'example') # default example
     surveyRecordID = config['games'].getboolean('surveyRecordID', True)
     surveyRecordLocation = config['games'].getboolean('surveyRecordLocation', True)
+    wordOfTheDay = config['games'].getboolean('wordOfTheDay', True)
 
     # messaging settings
     responseDelay = config['messagingSettings'].getfloat('responseDelay', 0.7) # default 0.7
