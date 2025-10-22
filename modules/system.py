@@ -512,24 +512,31 @@ def get_name_from_number(number, type='long', nodeInt=1):
     return name
 
 def get_num_from_short_name(short_name, nodeInt=1):
+    # First, search the specified interface
     interface = globals()[f'interface{nodeInt}']
-    # Get the node number from the short name, converting all to lowercase for comparison (good practice?)
-    logger.debug(f"System: Getting Node Number from Short Name: {short_name} on Device: {nodeInt}")
+    logger.debug(f"System: Checking Node Number from Short Name: {short_name} on Device: {nodeInt}")
     for node in interface.nodes.values():
-        #logger.debug(f"System: Checking Node: {node['user']['shortName']} against {short_name} for number {node['num']}")
-        if short_name == node['user']['shortName']:
+        if short_name == node['user']['shortName'] or str(short_name).lower() == node['user']['shortName'].lower():
             return node['num']
-        elif str(short_name.lower()) == node['user']['shortName'].lower():
-            return node['num']
-        else:
-            for int in range(1, 10):
-                if globals().get(f'interface{int}_enabled') and int != nodeInt:
-                    other_interface = globals().get(f'interface{int}')
-                    for node in other_interface.nodes.values():
-                        if short_name == node['user']['shortName']:
-                            return node['num']
-                        elif str(short_name.lower()) == node['user']['shortName'].lower():
-                            return node['num']
+
+    # If not found, search all other enabled interfaces
+    for iface_num in range(1, 10):
+        if iface_num == nodeInt:
+            continue
+        if globals().get(f'interface{iface_num}_enabled'):
+            other_interface = globals().get(f'interface{iface_num}')
+            for node in other_interface.nodes.values():
+                if short_name == node['user']['shortName'] or str(short_name).lower() == node['user']['shortName'].lower():
+                    logger.debug(f"System: Found Device:{iface_num} Node:{node['user']['shortName']}")
+                    return node['num']
+
+    # !hex node IDs
+    if str(short_name).startswith("!"):
+        try:
+            return int(short_name[1:], 16)
+        except Exception:
+            pass
+
     return 0
     
 def get_node_list(nodeInt=1):

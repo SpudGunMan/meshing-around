@@ -268,10 +268,21 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, chann
     if "@" in message:
         msg = msg + " @" + message.split("@")[1]
         type = type + " @" + message.split("@")[1]
+
+        # check for ping to @nodeID and allow BBS DM
+        toNode = message.split("@")[1].strip().split(" ")[0]
+        toNode = get_num_from_short_name(toNode, deviceID)
+        if toNode and isinstance(toNode, int) and toNode != 0:
+            if bbs_enabled:
+                msg_result = None
+                logger.debug(f"System: Sending ping as BBS DM to @{toNode} from {get_name_from_number(message_from_id, 'short', deviceID)}")
+                msg_result = bbs_post_dm(toNode, f"Joke for you! {tell_joke()}", message_from_id)
+                # exit the function
+                return msg_result if msg_result else logger.warning(f"System: ping @nodeID detected but no BBS to send with, enable BBS in settings.ini")
+
     elif "#" in message:
         msg = msg + " #" + message.split("#")[1]
         type = type + " #" + message.split("#")[1]
-
 
     # check for multi ping request
     if " " in message:
@@ -281,7 +292,6 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, chann
                 if multiPingList[i].get('message_from_id') == message_from_id:
                     multiPingList.pop(i)
                     msg = "🛑 auto-ping"
-
 
         # if 3 or more entries (2 or more active), throttle the multi-ping for congestion
         if len(multiPingList) > 2:
