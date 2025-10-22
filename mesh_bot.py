@@ -234,13 +234,13 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, chann
     type = ''
 
     if "ping" in message.lower():
-        msg = "🏓PONG\n"
+        msg = "🏓PONG"
         type = "🏓PING"
     elif "test" in message.lower() or "testing" in message.lower():
-        msg = random.choice(["🎙Testing 1,2,3\n", "🎙Testing\n",\
-                             "🎙Testing, testing\n",\
-                             "🎙Ah-wun, ah-two...\n", "🎙Is this thing on?\n",\
-                             "🎙Roger that!\n",])
+        msg = random.choice(["🎙Testing 1,2,3", "🎙Testing",\
+                             "🎙Testing, testing",\
+                             "🎙Ah-wun, ah-two...", "🎙Is this thing on?",\
+                             "🎙Roger that!",])
         type = "🎙TEST"
     elif "ack" in message.lower():
         msg = random.choice(["✋ACK-ACK!\n", "✋Ack to you!\n"])
@@ -252,12 +252,18 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, chann
         msg = "🔊 Can you hear me now?"
 
     # append SNR/RSSI or hop info
-    if hop.startswith("Direct?") and (snr != 0 or rssi != 0):
-        msg += f"? SNR:{snr} RSSI:{rssi}"
+    if hop.startswith("Gateway") or hop.startswith("MQTT"):
+        msg += f" [GW]"
     elif hop.startswith("Direct"):
-        msg += f"SNR:{snr} RSSI:{rssi}"
-    elif hop:
-        msg += f"{hop}"
+        msg += f" [RF]"
+    else:
+        #flood
+        msg += f" [F]"
+    
+    if (float(snr) != 0 or float(rssi) != 0) and "Hops" not in hop:
+        msg += f"\nSNR:{snr} RSSI:{rssi}"
+    elif "Hops" in hop:
+        msg += f"\n{hop}🐇 "
 
     if "@" in message:
         msg = msg + " @" + message.split("@")[1]
@@ -1602,20 +1608,24 @@ def onReceive(packet, interface):
                 hop_count = hop_away
 
             if hop == "" and hop_count > 0:
+                # set hop string from calculated hop count
                 hop = f"{hop_count} Hop" if hop_count == 1 else f"{hop_count} Hops"
 
-            if hop_start == hop_limit and "lora" in str(transport_mechanism).lower():
+            if hop_start == hop_limit and "lora" in str(transport_mechanism).lower() and (snr != 0 or rssi != 0):
+                # 2.7+ firmware direct hop over LoRa
                 hop = "Direct"
 
             if ((hop_start == 0 and hop_limit >= 0) or via_mqtt or ("mqtt" in str(transport_mechanism).lower())):
                 hop = "MQTT"
-
-            ## FIXME should this be here?
-            if hop == "" and hop_count ==0 and (snr != 0 or rssi != 0):
-                hop = "Direct?"
-
-            if "unknown" in str(transport_mechanism).lower() and (snr == 0 and rssi == 0):
-                hop = "IP-Network"
+            elif hop == "" and hop_count == 0 and (snr != 0 or rssi != 0):
+                # this came from a UDP but we had signal info so gateway is used
+                hop = "Gateway"
+            elif "unknown" in str(transport_mechanism).lower() and (snr == 0 and rssi == 0):
+                # we for sure detected this sourced from a UDP like host
+                hop = "Gateway"
+            
+            if hop in ("MQTT", "Gateway") and hop_count > 0:
+                hop = f"{hop_count} Hops"
 
             if enableHopLogs:
                 logger.debug(f"System: Packet HopDebugger: hop_away:{hop_away} hop_limit:{hop_limit} hop_start:{hop_start} calculated_hop_count:{hop_count} final_hop_value:{hop} via_mqtt:{via_mqtt} transport_mechanism:{transport_mechanism} Hostname:{rxNodeHostName}")
