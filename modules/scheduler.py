@@ -67,7 +67,8 @@ async def setup_scheduler(
                     send_message, tell_joke, welcome_message, handle_wxc, MOTD,
                     schedulerChannel, schedulerInterface)
                 logger.debug("System: Custom scheduler file imported and custom schedules set up.")
-            except ImportError:
+            except Exception as e:
+                logger.debug(f"System: Failed to import custom scheduler. {e}")
                 logger.warning("Custom scheduler file not found or failed to import. cp ecp etc/custom_scheduler.py modules/custom_scheduler.py")
 
         # Start the Broadcast Scheduler
