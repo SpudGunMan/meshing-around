@@ -467,8 +467,8 @@ def getActiveWeatherAlertsDetailNOAA(lat=0, lon=0):
     alerts = ""
     location = lat,lon
     if float(lat) == 0 and float(lon) == 0:
-        logger.warning("Location:No GPS data, try sending location for weather alerts")
-        return NO_DATA_NOGPS
+        lat = latitudeValue
+        lon = longitudeValue
 
     alert_url = "https://api.weather.gov/alerts/active.atom?point=" + str(lat) + "," + str(lon)
     #alert_url = "https://api.weather.gov/alerts/active.atom?area=WA"
