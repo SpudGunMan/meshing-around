@@ -122,8 +122,16 @@ def list_checkin():
     timeCheckedIn = ""
     checkin_list = ""
     for row in rows:
-        #calculate length of time checked in
-        timeCheckedIn = time.strftime("%H:%M:%S", time.gmtime(time.time() - time.mktime(time.strptime(row[2] + " " + row[3], "%Y-%m-%d %H:%M:%S"))))
+        # Calculate length of time checked in, including days
+        total_seconds = time.time() - time.mktime(time.strptime(row[2] + " " + row[3], "%Y-%m-%d %H:%M:%S"))
+        days = int(total_seconds // 86400)
+        hours = int((total_seconds % 86400) // 3600)
+        minutes = int((total_seconds % 3600) // 60)
+        seconds = int(total_seconds % 60)
+        if days > 0:
+            timeCheckedIn = f"{days}d {hours:02}:{minutes:02}:{seconds:02}"
+        else:
+            timeCheckedIn = f"{hours:02}:{minutes:02}:{seconds:02}"
         checkin_list += "ID: " + row[1] + " checked-In for " + timeCheckedIn
         if row[5] != "":
             checkin_list += "📝" + row[5]
@@ -154,6 +162,17 @@ def process_checklist_command(nodeID, message, name="none", location="none"):
         return delete_checkin(nodeID)
     elif "purgeout" in message.lower():
         return delete_checkout(nodeID)
+    elif "?" in message.lower():
+        if not reverse_in_out:
+            return ("Command: checklist followed by\n"
+                    "checkout to check out\n"
+                    "purgeout to delete your checkout record\n"
+                    "Example: checkin Arrived at park")
+        else:
+            return ("Command: checklist followed by\n"
+                    "checkin to check out\n"
+                    "purgeout to delete your checkin record\n"
+                    "Example: checkout Leaving park")
     elif "checklist" in message.lower():
         return list_checkin()
     else:

@@ -22,3 +22,9 @@ data/rag/*
 
 # qrz db
 data/qrz.db
+
+# fileMonitor test file
+bee.txt
+
+# .csv files
+*.csv

@@ -152,6 +152,12 @@ def store_sms(nodeID, sms):
     global sms_db
     try:
         logger.debug("System: Setting SMS for " + str(nodeID))
+        # if the nodeID has over 5 sms addresses warn and return
+        for item in sms_db:
+            if item['nodeID'] == nodeID:
+                if len(item['sms']) >= 5:
+                    logger.warning("System: 📵SMS limit reached for " + str(nodeID))
+                    return False
         # if not in db, add it
         if nodeID not in sms_db:
             sms_db.append({'nodeID': nodeID, 'sms': sms})

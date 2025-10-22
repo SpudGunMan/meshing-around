@@ -13,6 +13,12 @@ printf "Installer works best in raspian/debian/ubuntu or foxbuntu embedded syste
 printf "If there is a problem, try running the installer again.\n"
 printf "\nChecking for dependencies...\n"
 
+# fuse
+fi [[ -f config.ini ]]; then
+    printf "\nDetected existing installation, please backup and remove existing installation before proceeding\n"
+    exit 1
+fi
+
 # check if we are in /opt/meshing-around
 if [ $program_path != "/opt/meshing-around" ]; then
     printf "\nIt is suggested to project path to /opt/meshing-around\n"
@@ -207,6 +213,12 @@ sudo chown -R $whoami:$whoami $program_path/logs
 sudo chown -R $whoami:$whoami $program_path/data
 echo "Permissions set for meshbot on logs and data directories"
 
+# check and see if some sort of NTP is running
+if ! systemctl is-active --quiet ntp.service && \
+   ! systemctl is-active --quiet systemd-timesyncd.service && \
+   ! systemctl is-active --quiet chronyd.service; then
+    printf "\nNo NTP service detected, it is recommended to have NTP running for proper bot operation.\n"
+
 # set the correct user in the service file
 replace="s|User=pi|User=$whoami|g"
 sed -i $replace etc/pong_bot.service
@@ -248,28 +260,46 @@ if [[ $(echo "${embedded}" | grep -i "^n") ]]; then
         echo "Emoji font installed!, reboot to load the font"
     fi
 
-    printf "\nOptionally if you want to install the multi gig LLM Ollama compnents we will execute the following commands\n"
+    printf "\nOptionally if you want to install the LLM Ollama compnents we will execute the following commands\n"
     printf "\ncurl -fsSL https://ollama.com/install.sh | sh\n"
-    printf "ollama pull gemma2:2b\n"
-    printf "Total download is multi GB, recomend pi5/8GB or better for this\n"
+    printf "ollama pull gemma3:270m\n"
     # ask if the user wants to install the LLM Ollama components
     printf "\nDo you want to install the LLM Ollama components? (y/n)"
     read ollama
     if [[ $(echo "${ollama}" | grep -i "^y") ]]; then
         curl -fsSL https://ollama.com/install.sh | sh
 
-        # ask if want to install gemma2:2b
-        printf "\n Ollama install done now we can install the Gemma2:2b components\n"
-        echo "Do you want to install the Gemma2:2b components? (y/n)"
+        # ask if want to install gemma3:latest
+        printf "\n Ollama install done now we can install the gemma3:270m components\n"
+        echo "Do you want to install the gemma3:270m components? (y/n)"
         read gemma
         if [[ $(echo "${gemma}" | grep -i "^y") ]]; then
-            ollama pull gemma2:2b
+            ollama pull gemma3:270m
+        fi
+    fi
+
+    # ask if the user wants to edit the ollama service for API access
+    if [[ -f /etc/systemd/system/ollama.service ]]; then
+        printf "\nEdit /etc/systemd/system/ollama.service and add Environment=OLLAMA_HOST=0.0.0.0 for API? (y/n)"
+        read editollama
+        if [[ $(echo "${editollama}" | grep -i "^y") ]]; then
+            replace="s|\[Service\]|\[Service\]\nEnvironment=\"OLLAMA_HOST=0.0.0.0\"|g"
+            sudo sed -i "$replace" /etc/systemd/system/ollama.service
+            sudo systemctl daemon-reload
+            sudo systemctl restart ollama.service
+            printf "\nOllama service updated and restarted\n"
+        fi
+        # assume we want to enable ollama in config.ini
+        if [[ -f config.ini ]]; then
+            replace="s|ollama = False|ollama = True|g"
+            sed -i "$replace" config.ini
+            printf "\nOllama enabled in config.ini\n"
         fi
     fi
 
     # document the service install
     printf "To install the %s service and keep notes, reference following commands:\n\n" "$service" > install_notes.txt
-    printf "sudo cp %s/etc/%s.service /etc/systemd/system/etc/%s.service\n" "$program_path" "$service" "$service" >> install_notes.txt
+    printf "sudo cp %s/etc/%s.service /etc/systemd/system/%s.service\n" "$program_path" "$service" "$service" >> install_notes.txt
     printf "sudo systemctl daemon-reload\n" >> install_notes.txt
     printf "sudo systemctl enable %s.service\n" "$service" >> install_notes.txt
     printf "sudo systemctl start %s.service\n" "$service" >> install_notes.txt
@@ -281,6 +311,7 @@ if [[ $(echo "${embedded}" | grep -i "^n") ]]; then
     printf "sudo systemctl disable %s.service\n" "$service" >> install_notes.txt
     printf "Reporting chron job added to run report_generator5.py\n" >> install_notes.txt
     printf "chronjob: %s\n" "$chronjob" >> install_notes.txt
+    printf "*** Stay Up to date using 'bash update.sh' ***\n" >> install_notes.txt
     
     if [[ $(echo "${venv}" | grep -i "^y") ]]; then
         printf "\nFor running on venv, virtual launch bot with './launch.sh mesh' in path $program_path\n" >> install_notes.txt
@@ -326,6 +357,7 @@ else
     printf "sudo journalctl -u %s.service\n" "$service" >> install_notes.txt
     printf "sudo systemctl stop %s.service\n" "$service" >> install_notes.txt
     printf "sudo systemctl disable %s.service\n" "$service" >> install_notes.txt
+    printf "*** Stay Up to date using 'bash update.sh' ***\n" >> install_notes.txt
 fi
 
 printf "\nInstallation complete!\n"

@@ -14,7 +14,7 @@ dwInventoryDb = [{'userID': 1234567890, 'inventory': 0, 'priceList': [], 'amount
 dwCashDb = [{'userID': 1234567890, 'cash': starting_cash},]
 dwGameDayDb = [{'userID': 1234567890, 'day': 0},]
 dwLocationDb = [{'userID': 1234567890, 'location': 'USA', 'loc_choice': 0},]
-dwPlayerTracker = [{'userID': 1234567890, 'last_played': time.time(), 'cmd': 'start'},]
+from modules.settings import dwPlayerTracker
 # high score is saved in a pickle file
 dwHighScore = {}
 
@@ -366,7 +366,8 @@ def get_location_table(nodeID, choice=0):
     return loc_table_string
 
 def endGameDw(nodeID):
-    global dwCashDb, dwInventoryDb, dwLocationDb, dwGameDayDb, dwHighScore
+    global dwCashDb, dwInventoryDb, dwLocationDb, dwGameDayDb, dwHighScore, dwPlayerTracker
+    cash = 0
     msg = ''
     dwHighScore = getHighScoreDw()
     # Confirm the cash for the user
@@ -374,23 +375,6 @@ def endGameDw(nodeID):
         if dwCashDb[i].get('userID') == nodeID:
             cash = dwCashDb[i].get('cash')
     logger.debug("System: DopeWars: Game Over for user: " + str(nodeID) + " with cash: " + str(cash))
-
-    # remove the player from the game databases
-    for i in range(0, len(dwCashDb)):
-        if dwCashDb[i].get('userID') == nodeID:
-            dwCashDb.pop(i)
-    for i in range(0, len(dwInventoryDb)):
-        if dwInventoryDb[i].get('userID') == nodeID:
-            dwInventoryDb.pop(i)
-    for i in range(0, len(dwLocationDb)):
-        if dwLocationDb[i].get('userID') == nodeID:
-            dwLocationDb.pop(i)
-    for i in range(0, len(dwGameDayDb)):
-        if dwGameDayDb[i].get('userID') == nodeID:
-            dwGameDayDb.pop(i)
-    for i in range(0, len(dwPlayerTracker)):
-        if dwPlayerTracker[i].get('userID') == nodeID:
-            dwPlayerTracker.pop(i)
 
     # checks if the player's score is higher than the high score and writes a new high score if it is
     if cash > dwHighScore.get('cash'):
@@ -680,6 +664,7 @@ def playDopeWars(nodeID, cmd):
         for i in range(0, len(dwPlayerTracker)):
             if dwPlayerTracker[i].get('userID') == nodeID:
                 dwPlayerTracker[i]['cmd'] = 'ask_bsf'
+                dwPlayerTracker[i]['last_played'] = time.time()
     
     # Game end
     if game_day == total_days + 1:

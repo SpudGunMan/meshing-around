@@ -1,7 +1,5 @@
 import logging
 from logging.handlers import TimedRotatingFileHandler
-import re
-from datetime import datetime
 from modules.settings import *
 # if LOGGING_LEVEL is not set in settings.py, default to DEBUG
 if not LOGGING_LEVEL:
@@ -38,11 +36,17 @@ class CustomFormatter(logging.Formatter):
         return formatter.format(record)
     
 class plainFormatter(logging.Formatter):
-    ansi_escape = re.compile(r'\x1b\[([0-9]+)(;[0-9]+)*m')
+    ansi_codes = [
+        '\x1b[38;21m', '\x1b[38;5;231m', '\x1b[38;5;39m', '\x1b[38;5;226m',
+        '\x1b[38;5;196m', '\x1b[38;5;46m', '\x1b[38;5;129m', '\x1b[31;1m',
+        '\x1b[37;1m', '\x1b[0m'
+    ]
 
     def format(self, record):
         message = super().format(record)
-        return self.ansi_escape.sub('', message)
+        for code in self.ansi_codes:
+            message = message.replace(code, '')
+        return message
 
 # Create logger
 logger = logging.getLogger("MeshBot System Logger")
@@ -56,7 +60,6 @@ msgLogger.propagate = False
 # Define format for logs
 logFormat = '%(asctime)s | %(levelname)8s | %(message)s'
 msgLogFormat = '%(asctime)s | %(message)s'
-today = datetime.now()
 
 # Create stdout handler for logging to the console
 stdout_handler = logging.StreamHandler()

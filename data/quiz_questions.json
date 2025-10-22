@@ -1,0 +1,16 @@
+[
+  {
+    "question": "Which RFband is commonly used by Meshtastic devices in US regions?",
+    "answers": ["2.4 GHz", "433 MHz", "900 MHz", "5.8 GHz"],
+    "correct": 2
+  },
+  {
+    "question": "Yogi the bear 🐻 likes what food?",
+    "answers": ["Picnic baskets", "Fish", "Burgers", "Hot dogs"],
+    "correct": 0
+  },
+  {
+    "question": "What is the password for the Meshtastic MQTT broker?",
+    "answer": "large4cats"
+  }
+]

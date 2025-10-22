@@ -7,8 +7,7 @@ import time
 import pickle
 
 jack_starting_cash = 100  # Replace 100 with your desired starting cash value
-jackTracker= [{'nodeID': 0, 'cmd': 'new', 'time': time.time(), 'cash': jack_starting_cash,\
-                'bet': 0, 'gameStats': {'p_win': 0, 'd_win': 0, 'draw': 0}, 'p_cards':[], 'd_cards':[], 'p_hand':[], 'd_hand':[], 'next_card':[]}]
+from modules.settings import jackTracker
 
 SUITS = ("♥️", "♦️", "♠️", "♣️")
 RANKS = (
@@ -114,22 +113,35 @@ class jackChips:
         self.total -= self.bet
         self.winnings -= 1
 
-def success_rate(card, obj_h):
-    """ Calculate Success rate of 'HIT' new cards """
-    msg = ""
-    rate = 0
-    diff = 21 - obj_h.value
-    if diff != 0:
-        rate = (VALUES[card[0][1]] / diff) * 100
+def success_rate(next_card, player_hand):
+    # Estimate the chance of a successful 'HIT' (not busting) in blackjack.
 
-    if rate < 100:
-        msg += f"If Hit, chance {int(rate)}% failure, {100-int(rate)}% success."
-    else:
-        l_rate = int(rate - (rate - 99))  # Round to 99
-        if card[0][1] == "A":
-            l_rate -= 99
-        msg += f"If Hit, chance {100-l_rate}% failure, and {l_rate}% success"
-    return msg
+    # If player already has 21 or more, hitting will always bust
+    if player_hand.value >= 21:
+        return "\n🧠 What do you think?"
+
+    # Calculate how much more the player can add without busting
+    max_safe = 21 - player_hand.value
+
+    safe_cards = 0
+    total_cards = 0
+    for rank in VALUES:
+        # 4 cards of each rank in a standard deck
+        count = 4
+        card_value = VALUES[rank]
+        # Ace can be 1 or 11, but here we treat it as 1 if 11 would bust
+        if rank == "A":
+            card_value = 1 if player_hand.value + 11 > 21 else 11
+        # Count as safe if it won't bust the player
+        if card_value <= max_safe:
+            safe_cards += count
+        total_cards += count
+
+    # Calculate probability
+    success_chance = int((safe_cards / total_cards) * 100)
+    fail_chance = 100 - success_chance
+
+    return f"\n🧠Hit: {fail_chance}% 👎, {success_chance}% 👍"
 
 def hits(obj_de):
     new_card = [obj_de.deal_cards()[0][0]]
@@ -147,12 +159,12 @@ def display_hand(hand):
 
 def show_some(player_cards, dealer_cards, obj_h):
     msg = f"Player[{obj_h.value}] {display_hand(player_cards)}  "
-    msg += f"Dealer[{VALUES[dealer_cards[1][1]]}] {dealer_cards[1][1]}{dealer_cards[1][0]} "
+    msg += f"\nDealer[{VALUES[dealer_cards[1][1]]}] {dealer_cards[1][1]}{dealer_cards[1][0]} "
     return msg
 
 def show_all(player_cards, dealer_cards, obj_h, obj_d):
     msg = f"Player[{obj_h.value}] {display_hand(player_cards)}  "
-    msg += f"Dealer[{obj_d.value}] {display_hand(dealer_cards)}"
+    msg += f"\nDealer[{obj_d.value}] {display_hand(dealer_cards)}"
     return msg
 
 def player_bust(obj_h, obj_c):
@@ -229,7 +241,7 @@ def loadHSJack():
             pickle.dump(highScore, file)
         return 0
 
-def playBlackJack(nodeID, message):
+def playBlackJack(nodeID, message, last_cmd=None):
     # Initalize the Game
     msg, last_cmd = '', None
     blackJack = False
@@ -267,10 +279,12 @@ def playBlackJack(nodeID, message):
 
     if last_cmd is None:
         # create new player if not in tracker
-        logger.debug(f"System: BlackJack: New Player {nodeID}")
-        jackTracker.append({'nodeID': nodeID, 'cmd': 'new', 'time': time.time(), 'cash': jack_starting_cash,\
-            'bet': 0, 'gameStats': {'p_win': p_win, 'd_win': d_win, 'draw': draw}, 'p_cards':p_cards, 'd_cards':d_cards, 'p_hand':p_hand.cards, 'd_hand':d_hand.cards, 'next_card':next_card})
-        return f"Welcome to ♠️♥️BlackJack♣️♦️ you have {p_chips.total} chips.   Whats your bet?"
+        if nodeID != 0:
+            #logger.debug(f"System: BlackJack: New Player {nodeID}")
+            jackTracker.append({'nodeID': nodeID, 'cmd': 'new', 'last_played': time.time(), 'cash': jack_starting_cash,\
+                'bet': 0, 'gameStats': {'p_win': p_win, 'd_win': d_win, 'draw': draw}, 'p_cards':p_cards, 'd_cards':d_cards, 'p_hand':p_hand.cards, 'd_hand':d_hand.cards, 'next_card':next_card})
+            return f"You have {p_chips.total} chips.   Whats your bet?"
+        return "Error: Player not found."
 
     if getLastCmdJack(nodeID) == "new":
         # Place Bet
@@ -283,24 +297,26 @@ def playBlackJack(nodeID, message):
                 #resend the hand
                 msg += show_some(p_cards, d_cards, p_hand)
                 return msg
+            elif "blackjack" in message.lower():
+                return f"\nTo place a bet, enter the amount you wish to wager."
             else:
                 try:
                     bet_money = int(message)
                 except ValueError:
-                    return "Invalid Bet, please enter a valid number."
+                    return f"\nInvalid Bet, please enter a valid number."
 
             if bet_money <= p_chips.total and bet_money >= 1:
                 p_chips.bet = bet_money
             else:
-                return f"Invalid Bet, the maximum bet you can place is {p_chips.total} and the minimum bet is 1."
+                return f"\nInvalid Bet, the maximum bet you can place is {p_chips.total} and the minimum bet is 1."
         except ValueError:
-            return f"Invalid Bet, the maximum bet, {p_chips.total}"
+            return f"\nInvalid Bet, the maximum bet, {p_chips.total}"
 
         # Show the cards
         msg += show_some(p_cards, d_cards, p_hand)
         # check for blackjack 21 and only two cards
         if p_hand.value == 21 and len(p_hand.cards) == 2:
-            msg += "Player 🎰 BLAAAACKJACKKKK 💰"
+            msg += f"\n🎰 BLAAAACKJACKKKK 💰"
             p_chips.total += round(p_chips.bet * 1.5)
             setLastCmdJack(nodeID, "dealerTurn")
             blackJack = True
@@ -317,7 +333,7 @@ def playBlackJack(nodeID, message):
 
     if getLastCmdJack(nodeID) == "betPlaced":
         setLastCmdJack(nodeID, "playing")
-        msg += "(H)it,(S)tand,(F)orfit,(D)ouble,(R)esend,(L)eave table"
+        msg += f"\n(H)it,(S)tand,(F)orfit,(D)ouble,(R)esend,(L)eave table"
 
         # save the game state
         for i in range(len(jackTracker)):
@@ -367,7 +383,7 @@ def playBlackJack(nodeID, message):
         # Check if player bust
         if player_bust(p_hand, p_chips):
             d_win += 1
-            msg += "💥PlayerBUST💥"
+            msg += f"\n💥PlayerBUST💥"
             setLastCmdJack(nodeID, "dealerTurn")
         
         if getLastCmdJack(nodeID) == "playing":
@@ -419,7 +435,7 @@ def playBlackJack(nodeID, message):
                 d_hand.add_cards(d_card)
                 if dealer_bust(d_hand, p_hand, p_chips):
                     p_win += 1
-                    msg += "💰DealerBUST💥"
+                    msg += f"\n💰DealerBUST💥"
                     break
             # Show all cards
             msg += show_all(p_hand.cards, d_hand.cards, p_hand, d_hand)
@@ -427,15 +443,15 @@ def playBlackJack(nodeID, message):
             # Check who wins
             if push(p_hand, d_hand):
                 draw += 1
-                msg += "👌PUSH"
+                msg += f"\n👌PUSH"
             elif player_wins(p_hand, d_hand, p_chips):
                 p_win += 1
-                msg += "🎉PLAYER WINS🎰"
+                msg += f"\n🎉PLAYER WINS🎰"
             elif dealer_wins(p_hand, d_hand, p_chips):
                 d_win += 1
-                msg += "👎DEALER WINS"
+                msg += f"\n👎DEALER WINS"
         else:
-            msg += "👎DEALER WINS"
+            msg += f"\n👎DEALER WINS"
 
         # Display the Game Stats
         msg += gameStats(str(p_win), str(d_win), str(draw))
@@ -443,20 +459,20 @@ def playBlackJack(nodeID, message):
         # Display the chips left
         if p_chips.total < 1:
             if p_chips.total > 0:
-                msg += "🪙Keep the change you filthy animal!"
+                msg += f"\n🪙Keep the change you filthy animal!"
             else:
-                msg += "💸NO MORE CHIPS!🏧💳"
+                msg += f"\n💸NO MORE CHIPS!🏧💳"
                 p_chips.total = jack_starting_cash
         else:
             # check high score
             highScore = loadHSJack()
             if highScore != 0 and p_chips.total > highScore['highScore']:
-                msg += f"💰HighScore💰{p_chips.total} "
+                msg += f"\n💰HighScore💰{p_chips.total} "
                 saveHSJack(nodeID, p_chips.total)
             else:
-                msg += f"💰You have {p_chips.total} chips "
+                msg += f"\n💰You have {p_chips.total} chips "
 
-        msg += " Bet or Leave?"
+        msg += f"\nBet or Leave?"
 
         # Reset the game
         setLastCmdJack(nodeID, "new")
@@ -468,6 +484,6 @@ def playBlackJack(nodeID, message):
         jackTracker[i]['d_cards'] = []
         jackTracker[i]['p_hand'] = []
         jackTracker[i]['d_hand'] = []
-        jackTracker[i]['time'] = time.time()
+        jackTracker[i]['last_played'] = time.time()
 
     return msg

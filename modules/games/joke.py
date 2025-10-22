@@ -2,7 +2,72 @@
 # The emoji table of contents is used to replace words in the joke with emojis
 # As a Ham, is this obsecuring the meaning of the joke? Or is it enhancing it?
 from dadjokes import Dadjoke # pip install dadjokes
+import random
 from modules.log import *
+
+lameJokes = [
+    "Why don't scientists trust atoms? Because they make up everything!",
+    "Why did the scarecrow win an award? Because he was outstanding in his field!",
+    "Why don't skeletons fight each other? They don't have the guts.",
+    "What do you call fake spaghetti? An impasta!",
+    "Why did the bicycle fall over? Because it was two-tired!",
+    "Why did the math book look sad? Because it had too many problems.",
+    "Why did the golfer bring two pairs of pants? In case he got a hole in one.",
+    "Why did the coffee file a police report? It got mugged.",
+    "Why did the tomato turn red? Because it saw the salad dressing!",
+    "Why did the cookie go to the doctor? Because it felt crummy.",
+    "Why did the computer go to the doctor? Because it had a virus!",
+    "Why did the chicken join a band? Because it had the drumsticks!",
+    "Why did the banana go to the doctor? Because it wasn't peeling well.",
+    "Why did the cow go to space? To see the moooon!",
+    "Why did the fish blush? Because it saw the ocean's bottom!",
+    "Why did the elephant bring a suitcase to the zoo? Because it wanted to pack its trunk!",
+    "Why did the meshtastic node go to therapy? It had too many connections to handle!",
+    "Why did the meshtastic user bring a ladder to the meeting? To reach new heights in communication!",
+    "Why did the meshtastic device break up with Wi-Fi? It found a better connection!",
+    "Why did the meshtastic network throw a party? Because it wanted to mesh well with everyone!",
+    "Why did the meshtastic node get promoted? Because it was outstanding in its field!",
+    "Why did the meshtastic user bring a map? To navigate the mesh of possibilities!",
+    "Why did the meshtastic device go to school? To improve its signal strength!",
+    "How did the meshtastic node become a comedian? It uses mesh-bots to deliver punchlines!",
+    "Chuck Norris doesn't read books. He stares them down until he gets the information he wants.",
+    "When Chuck Norris enters a room, he doesn't turn the lights on. He turns the dark off.",
+    "Chuck Norris can divide by zero.",
+    "Chuck Norris counted to infinity. Twice.",
+    "Chuck Norris can slam a revolving door.",
+    "When Chuck Norris does a push-up, he isn't lifting himself up; he's pushing the Earth down.",
+    "Chuck Norris can hear sign language.",
+    "Death once had a near-Chuck Norris experience.",
+    "Chuck Norris can unscramble an egg.",
+    "Chuck Norris can win a game of Connect Four in only three moves.",
+    "Chuck Norris can make a snowman out of rain.",
+    "Chuck Norris can strangle you with a cordless phone.",
+    "Chuck Norris can do a wheelie on a unicycle.",
+    "Chuck Norris can kill two stones with one bird.",
+    "Chuck Norris can speak braille.",
+    "Chuck Norris can build a snowman out of rain.",
+    "This is a test. A test of the Joke Brodcast System. If this had been an actual joke, you would have been amused.",
+    "Chuck Norris doesn't join mesh networks. Mesh networks join Chuck's topology.",
+    "Every time Chuck Norris sends a packet, it arrives before he hits 'send'",
+    "Chuck Norris doesn't need LoRa. His roundhouse kick has a 15km range with zero latency.",
+    "When Chuck Norris uses a node, the bandwidth doubles out of fear.",
+    "Chuck Norris once pinged a device. It replied with an apology and a firmware update.",
+    "Chuck Norris doesn't use AES encryption. His packets are so secure, they punch hackers in the bits.",
+    "The Meshtastic protocol has a hidden mode: “Chuck Norris mode.” It only activates when he blinks.",
+    "Chuck Norris doesn't need a GPS fix. Satellites triangulate themselves around him.",
+    "Chuck Norris's mesh node doesn't sleep. It meditates while transmitting at full power.",
+    "Chuck Norris doesn't broadcast. He declares.",
+    "Chuck Norris once bridged two mesh networks using a shoelace.",
+    "Chuck Norris's packets don't hop. They teleport out of respect.",
+    "Chuck Norris doesn't need a repeater. Client_Mute is set to 'Always'.",
+    "Chuck Norris's mesh messages are entangled. When he sends one, it's already received.",
+    "Chuck Norris doesn't mesh with others. Others mesh with Chuck.",
+    "Chuck Norris's node doesn't need a case. The PCB is armored with his beard hair.",
+    "Chuck Norris once typed “Hello World” and the world replied 'Hello Chuck.'",
+]
+
+# pylint: disable=C0103, W0612
+imtellingyourightnowiAmTellingYouRightNowThatMotherfErBackThereIsNotReal = ["🐦", "🦅", "🦆", "🦉", "🦜", "🐤", "🐥", "🐣", "🐔", "🐧", "🦚", "🦢", "🦩", "🦤", "🦃", "🐓"]
 
 def tableOfContents():
     wordToEmojiMap = {
@@ -115,12 +180,14 @@ def sendWithEmoji(message):
         i += 1
     return ' '.join(words)
 
-def tell_joke(nodeID=0):
+def tell_joke(nodeID=0, vox=False):
     dadjoke = Dadjoke()
-
-    if dad_jokes_emojiJokes:
-        renderedLaugh = sendWithEmoji(dadjoke.joke)
-    else:
-        renderedLaugh = dadjoke.joke
-    return renderedLaugh
+    try:
+        if dad_jokes_emojiJokes or vox:
+            renderedLaugh = sendWithEmoji(dadjoke.joke)
+        else:
+            renderedLaugh = dadjoke.joke
+        return renderedLaugh
+    except Exception as e:
+        return random.choice(lameJokes)
 

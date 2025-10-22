@@ -28,6 +28,23 @@ wiki_return_limit = 3 # limit the number of sentences returned off the first par
 GAMEDELAY = 28800 # 8 hours in seconds for game mode holdoff
 cmdHistory = [] # list to hold the last commands
 seenNodes = [] # list to hold the last seen nodes
+cmdHistory = [] # list to hold the command history for lheard and history commands
+msg_history = [] # list to hold the message history for the messages command
+max_bytes = 200 # Meshtastic has ~237 byte limit, use conservative 200 bytes for message content
+voxMsgQueue = [] # queue for VOX detected messages
+# Game trackers
+surveyTracker = []           # Survey game tracker
+tictactoeTracker = []        # TicTacToe game tracker
+hamtestTracker = []          # Ham radio test tracker
+hangmanTracker = []          # Hangman game tracker
+golfTracker = []             # GolfSim game tracker
+mastermindTracker = []       # Mastermind game tracker
+vpTracker = []               # Video Poker game tracker
+jackTracker = []             # Blackjack game tracker
+lemonadeTracker = []         # Lemonade Stand game tracker
+dwPlayerTracker = []         # DopeWars player tracker
+jackTracker = []             # Jack game tracker
+mindTracker = []             # Mastermind (mmind) game tracker
 
 # Read the config file, if it does not exist, create basic config file
 config = configparser.ConfigParser() 
@@ -37,6 +54,10 @@ try:
     config.read(config_file, encoding='utf-8')
 except Exception as e:
     print(f"System: Error reading config file: {e}")
+    # exit if we can't read the config file
+    print(f"System: Check the config.ini against config.template file for missing sections or values.")
+    print(f"System: Exiting...")
+    exit(1)
 
 if config.sections() == []:
     print(f"System: Error reading config file: {config_file} is empty or does not exist.")
@@ -197,14 +218,16 @@ try:
     ignoreChannels = config['general'].get('ignoreChannels', '').split(',') # ignore these channels
     ignoreDefaultChannel = config['general'].getboolean('ignoreDefaultChannel', False)
     cmdBang = config['general'].getboolean('cmdBang', False) # default off
+    explicitCmd = config['general'].getboolean('explicitCmd', True) # default on
     zuluTime = config['general'].getboolean('zuluTime', False) # aka 24 hour time
     log_messages_to_file = config['general'].getboolean('LogMessagesToFile', False) # default off
     log_backup_count = config['general'].getint('LogBackupCount', 32) # default 32 days
     syslog_to_file = config['general'].getboolean('SyslogToFile', True) # default on
     LOGGING_LEVEL = config['general'].get('sysloglevel', 'DEBUG') # default DEBUG
-    urlTimeoutSeconds = config['general'].getint('urlTimeout', 10) # default 10 seconds
+    urlTimeoutSeconds = config['general'].getint('urlTimeout', 15) # default 15 seconds for URL fetch timeout
     store_forward_enabled = config['general'].getboolean('StoreForward', True)
     storeFlimit = config['general'].getint('StoreLimit', 3) # default 3 messages for S&F
+    reverseSF = config['general'].getboolean('reverseSF', False) # default False, send oldest first
     welcome_message = config['general'].get('welcome_message', WELCOME_MSG)
     welcome_message = (f"{welcome_message}").replace('\\n', '\n') # allow for newlines in the welcome message
     motd_enabled = config['general'].getboolean('motdEnabled', True)
@@ -218,11 +241,24 @@ try:
     bee_enabled = config['general'].getboolean('bee', False) # 🐝 off by default undocumented
     solar_conditions_enabled = config['general'].getboolean('spaceWeather', True)
     wikipedia_enabled = config['general'].getboolean('wikipedia', False)
+    use_kiwix_server = config['general'].getboolean('useKiwixServer', False)
+    kiwix_url = config['general'].get('kiwixURL', 'http://127.0.0.1:8080')
+    kiwix_library_name = config['general'].get('kiwixLibraryName', 'wikipedia_en_100_nopic_2024-06')
     llm_enabled = config['general'].getboolean('ollama', False) # https://ollama.com
-    llmModel = config['general'].get('ollamaModel', 'gemma2:2b') # default gemma2:2b
     ollamaHostName = config['general'].get('ollamaHostName', 'http://localhost:11434') # default localhost
-    llmReplyToNonCommands = config['general'].getboolean('llmReplyToNonCommands', True)
+    llmModel = config['general'].get('ollamaModel', 'gemma3:270m') # default gemma3:270m
+    rawLLMQuery = config['general'].getboolean('rawLLMQuery', True) #default True
+    llmReplyToNonCommands = config['general'].getboolean('llmReplyToNonCommands', True) # default True
     dont_retry_disconnect = config['general'].getboolean('dont_retry_disconnect', False) # default False, retry on disconnect
+    favoriteNodeList = config['general'].get('favoriteNodeList', '').split(',')
+    enableEcho = config['general'].getboolean('enableEcho', False) # default False
+    echoChannel = config['general'].getint('echoChannel', '9') # default 9, empty string to ignore
+    rssEnable = config['general'].getboolean('rssEnable', True) # default True
+    rssFeedURL = config['general'].get('rssFeedURL', 'http://www.hackaday.com/rss.xml,https://www.arrl.org/rss/arrl.rss').split(',')
+    rssMaxItems = config['general'].getint('rssMaxItems', 3) # default 3 items
+    rssTruncate = config['general'].getint('rssTruncate', 100) # default 100 characters
+    rssFeedNames = config['general'].get('rssFeedNames', 'default,arrl').split(',')
+
     # emergency response
     emergency_responder_enabled = config['emergencyHandler'].getboolean('enabled', False)
     emergency_responder_alert_channel = config['emergencyHandler'].getint('alert_channel', 2) # default 2
@@ -232,28 +268,39 @@ try:
     # sentry
     sentry_enabled = config['sentry'].getboolean('SentryEnabled', False) # default False
     secure_channel = config['sentry'].getint('SentryChannel', 2) # default 2
+    secure_interface = config['sentry'].getint('SentryInterface', 1) # default 1
     sentry_holdoff = config['sentry'].getint('SentryHoldoff', 9) # default 9
     sentryIgnoreList = config['sentry'].get('sentryIgnoreList', '').split(',')
+    sentryWatchList = config['sentry'].get('sentryWatchList', '').split(',')
     sentry_radius = config['sentry'].getint('SentryRadius', 100) # default 100 meters
     email_sentry_alerts = config['sentry'].getboolean('emailSentryAlerts', False) # default False
     highfly_enabled = config['sentry'].getboolean('highFlyingAlert', True) # default True
     highfly_altitude = config['sentry'].getint('highFlyingAlertAltitude', 2000) # default 2000 meters
     highfly_channel = config['sentry'].getint('highFlyingAlertChannel', 2) # default 2
+    highfly_interface = config['sentry'].getint('highFlyingAlertInterface', 1) # default 1
     highfly_ignoreList = config['sentry'].get('highFlyingIgnoreList', '').split(',') # default empty
+    highfly_check_openskynetwork = config['sentry'].getboolean('highflyOpenskynetwork', True) # default True check with OpenSkyNetwork if highfly detected
+    detctionSensorAlert = config['sentry'].getboolean('detectionSensorAlert', False) # default False
+    reqLocationEnabled = config['sentry'].getboolean('reqLocationEnabled', False) # default False
+    cmdShellSentryAlerts = config['sentry'].getboolean('cmdShellSentryAlerts', False) # default False
+    sentryAlertNear = config['sentry'].get('sentryAlertNear', 'sentry_alert_near.sh') # default sentry_alert_near.sh
+    sentryAlertFar = config['sentry'].get('sentryAlertFar', 'sentry_alert_far.sh') # default sentry_alert_far.sh
 
     # location
     location_enabled = config['location'].getboolean('enabled', True)
     latitudeValue = config['location'].getfloat('lat', 48.50)
     longitudeValue = config['location'].getfloat('lon', -123.0)
+    fuzz_config_location = config['location'].getboolean('fuzzConfigLocation', True) # default True
+    fuzzItAll = config['location'].getboolean('fuzzAllLocations', False) # default False, only fuzz config location
     use_meteo_wxApi = config['location'].getboolean('UseMeteoWxAPI', False) # default False use NOAA
     use_metric = config['location'].getboolean('useMetric', False) # default Imperial units
     repeater_lookup = config['location'].get('repeaterLookup', 'rbook') # default repeater lookup source
     n2yoAPIKey = config['location'].get('n2yoAPIKey', '') # default empty
     satListConfig = config['location'].get('satList', '25544').split(',') # default 25544 ISS
-    riverListDefault = config['location'].get('riverList', '').split(',') # default 12061500 Skagit River
-    pzzEnabled = config['location'].getboolean('pzzEnabled', False) # default False
-    pzzZoneID = config['location'].getint('pzzZoneID', 100) # default 100, PZZ132 for Seattle area
-    pzzForecastDays = config['location'].getint('pzzForecastDays', 3) # default 3 days
+    riverListDefault = config['location'].get('riverList', '').split(',') # default None
+    coastalEnabled = config['location'].getboolean('coastalEnabled', False) # default False
+    myCoastalZone = config['location'].get('myCoastalZone', None) # default None
+    coastalForecastDays = config['location'].getint('coastalForecastDays', 3) # default 3 days
 
     # location alerts
     emergencyAlertBrodcastEnabled = config['location'].getboolean('eAlertBroadcastEnabled', False) # default False
@@ -285,6 +332,7 @@ try:
     bbs_admin_list = config['bbs'].get('bbs_admin_list', '').split(',')
     bbs_link_enabled = config['bbs'].getboolean('bbslink_enabled', False)
     bbs_link_whitelist = config['bbs'].get('bbslink_whitelist', '').split(',')
+    bbsAPI_enabled = config['bbs'].getboolean('bbsAPI_enabled', False)
     
     # checklist
     checklist_enabled = config['checklist'].getboolean('enabled', False)
@@ -326,27 +374,42 @@ try:
     schedulerInterval = config['scheduler'].get('interval', '') # default empty
     schedulerTime = config['scheduler'].get('time', '') # default empty
     schedulerValue = config['scheduler'].get('value', '') # default empty
+    schedulerMotd = config['scheduler'].getboolean('schedulerMotd', False) # default False
 
     # radio monitoring
     radio_detection_enabled = config['radioMon'].getboolean('enabled', False)
     rigControlServerAddress = config['radioMon'].get('rigControlServerAddress', 'localhost:4532') # default localhost:4532
     sigWatchBroadcastCh = config['radioMon'].get('sigWatchBroadcastCh', '2').split(',') # default Channel 2
+    sigWatchBroadcastInterface = config['radioMon'].getint('sigWatchBroadcastInterface', 1) # default interface 1
     signalDetectionThreshold = config['radioMon'].getint('signalDetectionThreshold', -10) # default -10 dBm
     signalHoldTime = config['radioMon'].getint('signalHoldTime', 10) # default 10 seconds
     signalCooldown = config['radioMon'].getint('signalCooldown', 5) # default 1 second
     signalCycleLimit = config['radioMon'].getint('signalCycleLimit', 5) # default 5 cycles, used with SIGNAL_COOLDOWN
+    voxDetectionEnabled = config['radioMon'].getboolean('voxDetectionEnabled', False) # default VOX detection disabled
+    voxDescription = config['radioMon'].get('voxDescription', 'VOX') # default VOX detected audio message
+    useLocalVoxModel = config['radioMon'].getboolean('useLocalVoxModel', False) # default False
+    localVoxModelPath = config['radioMon'].get('localVoxModelPath', 'no') # default models/vox.tflite
+    voxLanguage = config['radioMon'].get('voxLanguage', 'en-US') # default en-US
+    voxInputDevice = config['radioMon'].get('voxInputDevice', 'default') # default default
+    voxOnTrapList = config['radioMon'].getboolean('voxOnTrapList', False) # default False
+    voxTrapList = config['radioMon'].get('voxTrapList', 'chirpy').split(',') # default chirpy
+    voxEnableCmd = config['radioMon'].getboolean('voxEnableCmd', True) # default True
 
     # file monitor
     file_monitor_enabled = config['fileMon'].getboolean('filemon_enabled', False)
     file_monitor_file_path = config['fileMon'].get('file_path', 'alert.txt') # default alert.txt
     file_monitor_broadcastCh = config['fileMon'].get('broadcastCh', '2').split(',') # default Channel 2
     read_news_enabled = config['fileMon'].getboolean('enable_read_news', False) # default disabled
-    news_file_path = config['fileMon'].get('news_file_path', 'news.txt') # default news.txt
+    news_file_path = config['fileMon'].get('news_file_path', '../data/news.txt') # default ../data/news.txt
     news_random_line_only = config['fileMon'].getboolean('news_random_line', False) # default False
     enable_runShellCmd = config['fileMon'].getboolean('enable_runShellCmd', False) # default False
+    allowXcmd = config['fileMon'].getboolean('allowXcmd', False) # default False
+    xCmd2factorEnabled = config['fileMon'].getboolean('2factor_enabled', True) # default True
+    xCmd2factor_timeout = config['fileMon'].getint('2factor_timeout', 100) # default 100 seconds
 
     # games
-    game_hop_limit = config['messagingSettings'].getint('game_hop_limit', 5) # default 3 hops
+    game_hop_limit = config['games'].getint('game_hop_limit', 5) # default 5 hops
+    disable_emojis_in_games = config['games'].getboolean('disable_emojis', False) # default False
     dopewars_enabled = config['games'].getboolean('dopeWars', True)
     lemonade_enabled = config['games'].getboolean('lemonade', True)
     blackjack_enabled = config['games'].getboolean('blackjack', True)
@@ -355,16 +418,27 @@ try:
     golfSim_enabled = config['games'].getboolean('golfSim', True)
     hangman_enabled = config['games'].getboolean('hangman', True)
     hamtest_enabled = config['games'].getboolean('hamtest', True)
+    tictactoe_enabled = config['games'].getboolean('tictactoe', True)
+    quiz_enabled = config['games'].getboolean('quiz', False)
+    survey_enabled = config['games'].getboolean('survey', False)
+    default_survey = config['games'].get('defaultSurvey', 'example') # default example
+    surveyRecordID = config['games'].getboolean('surveyRecordID', True)
+    surveyRecordLocation = config['games'].getboolean('surveyRecordLocation', True)
 
     # messaging settings
     responseDelay = config['messagingSettings'].getfloat('responseDelay', 0.7) # default 0.7
     splitDelay = config['messagingSettings'].getfloat('splitDelay', 0) # default 0
-    MESSAGE_CHUNK_SIZE = config['messagingSettings'].getint('MESSAGE_CHUNK_SIZE', 160) # default 160
+    MESSAGE_CHUNK_SIZE = config['messagingSettings'].getint('MESSAGE_CHUNK_SIZE', 160) # default 160 chars
     wantAck = config['messagingSettings'].getboolean('wantAck', False) # default False
-    maxBuffer = config['messagingSettings'].getint('maxBuffer', 220) # default 220
+    maxBuffer = config['messagingSettings'].getint('maxBuffer', 200) # default 200 bytes
     enableHopLogs = config['messagingSettings'].getboolean('enableHopLogs', False) # default False
-
-except KeyError as e:
+    debugMetadata = config['messagingSettings'].getboolean('debugMetadata', False) # default False
+    metadataFilter = config['messagingSettings'].get('metadataFilter', '').split(',') # default empty
+    DEBUGpacket = config['messagingSettings'].getboolean('DEBUGpacket', False) # default False
+    noisyNodeLogging = config['messagingSettings'].getboolean('noisyNodeLogging', False) # default False
+    logMetaStats = config['messagingSettings'].getboolean('logMetaStats', True) # default True
+    noisyTelemetryLimit = config['messagingSettings'].getint('noisyTelemetryLimit', 5) # default 5 packets
+except Exception as e:
     print(f"System: Error reading config file: {e}")
     print(f"System: Check the config.ini against config.template file for missing sections or values.")
     print(f"System: Exiting...")

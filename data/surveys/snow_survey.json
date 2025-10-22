@@ -1,0 +1,15 @@
+[
+  {
+    "type": "multiple_choice",
+    "question": "How often do you experience snowfall in your area?",
+    "options": ["Never", "Rarely", "Sometimes", "Often", "Every winter"]
+  },
+  {
+    "type": "integer",
+    "question": "What was the deepest snowfall (in inches) you've measured at your location?"
+  },
+  {
+    "type": "text",
+    "question": "Describe any challenges you face during heavy snowfall."
+  }
+]
