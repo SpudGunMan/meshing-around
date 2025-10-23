@@ -11,6 +11,7 @@ from datetime import datetime
 from modules.log import *
 import math
 import csv
+import os
 
 
 trap_list_location = ("whereami", "wx", "wxa", "wxalert", "rlist", "ea", "ealert", "riverflow", "valert", "earthquake", "howfar", "map",)
@@ -1120,6 +1121,10 @@ def mapHandler(userID, deviceID, channel_number, message):
     description = command.strip()
     if not description:
         return "Please provide a description. Type 'map help' for usage."
+
+    # Sanitize description for CSV injection
+    if description and description[0] in ('=', '+', '-', '@'):
+        description = "'" + description
 
     # location should be a tuple: (lat, lon)
     if not location or len(location) != 2:
