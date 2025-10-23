@@ -385,6 +385,7 @@ golfsim = True
 hangman = True
 hamtest = True
 tictactoe = True
+wordOfTheDay = True
 
 # enable or disable the quiz game module questions are in data/quiz.json
 quiz = False

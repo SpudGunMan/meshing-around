@@ -217,13 +217,18 @@ if quiz_enabled:
     from modules.games.quiz import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + trap_list_quiz # items quiz, q:
     help_message = help_message + ", quiz"
-    games_enabled = True
+    # games not enabled for quiz
 
 if survey_enabled:
     from modules.survey import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + trap_list_survey # items survey, s:
     help_message = help_message + ", survey"
     games_enabled = True
+
+if wordOfTheDay:
+    from modules.games.wodt import WordOfTheDayGame # from the spudgunman/meshing-around repo
+    theWordOfTheDay = WordOfTheDayGame()
+    # this runs in background and wont enable other games
 
 # Games Configuration
 if games_enabled is True:
@@ -512,24 +517,31 @@ def get_name_from_number(number, type='long', nodeInt=1):
     return name
 
 def get_num_from_short_name(short_name, nodeInt=1):
+    # First, search the specified interface
     interface = globals()[f'interface{nodeInt}']
-    # Get the node number from the short name, converting all to lowercase for comparison (good practice?)
-    logger.debug(f"System: Getting Node Number from Short Name: {short_name} on Device: {nodeInt}")
+    logger.debug(f"System: Checking Node Number from Short Name: {short_name} on Device: {nodeInt}")
     for node in interface.nodes.values():
-        #logger.debug(f"System: Checking Node: {node['user']['shortName']} against {short_name} for number {node['num']}")
-        if short_name == node['user']['shortName']:
+        if short_name == node['user']['shortName'] or str(short_name).lower() == node['user']['shortName'].lower():
             return node['num']
-        elif str(short_name.lower()) == node['user']['shortName'].lower():
-            return node['num']
-        else:
-            for int in range(1, 10):
-                if globals().get(f'interface{int}_enabled') and int != nodeInt:
-                    other_interface = globals().get(f'interface{int}')
-                    for node in other_interface.nodes.values():
-                        if short_name == node['user']['shortName']:
-                            return node['num']
-                        elif str(short_name.lower()) == node['user']['shortName'].lower():
-                            return node['num']
+
+    # If not found, search all other enabled interfaces
+    for iface_num in range(1, 10):
+        if iface_num == nodeInt:
+            continue
+        if globals().get(f'interface{iface_num}_enabled'):
+            other_interface = globals().get(f'interface{iface_num}')
+            for node in other_interface.nodes.values():
+                if short_name == node['user']['shortName'] or str(short_name).lower() == node['user']['shortName'].lower():
+                    logger.debug(f"System: Found Device:{iface_num} Node:{node['user']['shortName']}")
+                    return node['num']
+
+    # !hex node IDs
+    if str(short_name).startswith("!"):
+        try:
+            return int(short_name[1:], 16)
+        except Exception:
+            pass
+
     return 0
     
 def get_node_list(nodeInt=1):
@@ -1354,6 +1366,7 @@ def initializeMeshLeaderboard():
         'coldestTemp': {'nodeID': None, 'value': 999, 'timestamp': 0},    # 🥶
         'hottestTemp': {'nodeID': None, 'value': -999, 'timestamp': 0},   # 🥵
         'worstAirQuality': {'nodeID': None, 'value': 0, 'timestamp': 0},  # 💨
+        'mostTMessages': {'nodeID': None, 'value': 0, 'timestamp': 0},    # 💬
         'mostMessages': {'nodeID': None, 'value': 0, 'timestamp': 0},     # 💬
         'highestDBm': {'nodeID': None, 'value': -999, 'timestamp': 0},    # 📶
         'weakestDBm': {'nodeID': None, 'value': 999, 'timestamp': 0},     # 📶
@@ -1363,7 +1376,11 @@ def initializeMeshLeaderboard():
         'adminPackets': [],      # 🚨
         'tunnelPackets': [],     # 🚨
         'audioPackets': [],      # ☎️
-        'simulatorPackets': []   # 🤖
+        'simulatorPackets': [],  # 🤖
+        'emojiCounts': {},       # Track emoji counts per node
+        'emojiTypeCounts': {},   # Track emoji type counts
+        'nodeMessageCounts': {},  # Track total message counts per node
+        'nodeTMessageCounts': {}  # Track total Tmessage counts per node
     }
 
 initializeMeshLeaderboard()
@@ -1384,12 +1401,12 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
             # consider Meta for most messages leaderboard
             node_message_count = meshLeaderboard.get('nodeMessageCounts', {})
             node_message_count[nodeID] = node_message_count.get(nodeID, 0) + 1
-            meshLeaderboard['nodeMessageCounts'] = node_message_count    
+            meshLeaderboard['nodeTMessageCounts'] = node_message_count 
             
-            if node_message_count[nodeID] > meshLeaderboard['mostMessages']['value']:
-                meshLeaderboard['mostMessages']['value'] = node_message_count[nodeID]
-                meshLeaderboard['mostMessages']['nodeID'] = nodeID
-                meshLeaderboard['mostMessages']['timestamp'] = time.time()
+            if node_message_count[nodeID] > meshLeaderboard['mostTMessages']['value']:
+                meshLeaderboard['mostTMessages']['value'] = node_message_count[nodeID]
+                meshLeaderboard['mostTMessages']['nodeID'] = nodeID
+                meshLeaderboard['mostTMessages']['timestamp'] = time.time()
 
             # consider Meta for highest and weakest DBm
             if packet.get('rxSnr') is not None:
@@ -1752,11 +1769,11 @@ def saveLeaderboard():
 def loadLeaderboard():
     global meshLeaderboard
     try:
-        defaults = {}
         initializeMeshLeaderboard()
+        defaults = meshLeaderboard.copy()
         with open('data/leaderboard.pkl', 'rb') as f:
-            meshLeaderboard = pickle.load(f)
-        defaults.update(meshLeaderboard)  # loaded values overwrite defaults
+            loaded = pickle.load(f)
+        defaults.update(loaded)  # loaded values overwrite defaults
         meshLeaderboard = defaults
         if logMetaStats:
             logger.debug("System: Mesh Leaderboard loaded from leaderboard.pkl")
@@ -1848,16 +1865,29 @@ def get_mesh_leaderboard(msg, fromID, deviceID):
         result += f"📶 Best RF: {value} dBm {get_name_from_number(nodeID, 'short', 1)}\n"
 
     # Most Telemetry Messages
+    if 'nodeTMessageCounts' in meshLeaderboard and meshLeaderboard['mostTMessages']['nodeID'] is not None:
+        nodeID = meshLeaderboard['mostTMessages']['nodeID']
+        value = meshLeaderboard['mostTMessages']['value']
+        result += f"📊 Most Telemetry: {value} {get_name_from_number(nodeID, 'short', 1)}\n"
+
+    # Most Emojis
+    if meshLeaderboard.get('mostEmojis', {}).get('nodeID') is not None:
+        nodeID = meshLeaderboard['mostEmojis']['nodeID']
+        value = meshLeaderboard['mostEmojis']['value']
+        result += f"🤪 Most Emojis: {value} {get_name_from_number(nodeID, 'short', 1)}\n"
+    
+    # Most Messages
     if 'nodeMessageCounts' in meshLeaderboard and meshLeaderboard['mostMessages']['nodeID'] is not None:
         nodeID = meshLeaderboard['mostMessages']['nodeID']
         value = meshLeaderboard['mostMessages']['value']
-        result += f"💬 Most Telemetry: {value} {get_name_from_number(nodeID, 'short', 1)}\n"
+        result += f"💬 Most Messages: {value} {get_name_from_number(nodeID, 'short', 1)}\n"
 
     # Most WiFi devices seen
     if meshLeaderboard.get('mostPaxWiFi', {}).get('nodeID'):
         nodeID = meshLeaderboard['mostPaxWiFi']['nodeID']
         value = meshLeaderboard['mostPaxWiFi']['value']
         result += f"📶 PAX Wifi: {value} {get_name_from_number(nodeID, 'short', 1)}\n"
+
     # Most BLE devices seen
     if meshLeaderboard.get('mostPaxBLE', {}).get('nodeID'):
         nodeID = meshLeaderboard['mostPaxBLE']['nodeID']

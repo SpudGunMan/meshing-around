@@ -60,59 +60,20 @@ async def setup_scheduler(
             schedule.every(int(schedulerInterval)).hours.do(lambda: send_message(handle_wxc(0, schedulerInterface, 'wx'), schedulerChannel, 0, schedulerInterface))
             logger.debug(f"System: Starting the weather scheduler to send weather updates every {schedulerInterval} hours on Device:{schedulerInterface} Channel:{schedulerChannel}")
         elif 'custom' in schedulerValue.lower():
-            # Custom scheduler job to run the schedule see examples below
-
-            # custom scheduler job to run the schedule see examples below
-            logger.debug(f"System: Starting the custom scheduler default to send reminder every Monday at noon on Device:{schedulerInterface} Channel:{schedulerChannel}")
-            schedule.every().monday.at("12:00").do(lambda: logger.info("System: Scheduled Broadcast Enabled Reminder"))
-            
-            # send a joke every 15 minutes
-            #schedule.every(15).minutes.do(lambda: send_message(tell_joke(), schedulerChannel, 0, schedulerInterface))
-
-            # Place your custom schedule code below this line, helps with merges
-
-            # Place your custom schedule code above this line
+           # Import and setup custom schedules from custom_scheduler.py
+            try:
+                # This file is located in etc/custom_scheduler.py and copied to modules/custom_scheduler.py at install
+                from modules.custom_scheduler import setup_custom_schedules # type: ignore  # pylance
+                setup_custom_schedules(
+                    send_message, tell_joke, welcome_message, handle_wxc, MOTD,
+                    schedulerChannel, schedulerInterface)
+                logger.debug("System: Custom scheduler file imported and custom schedules set up.")
+            except Exception as e:
+                logger.debug(f"System: Failed to import custom scheduler. {e}")
+                logger.warning("Custom scheduler file not found or failed to import. cp etc/custom_scheduler.py modules/custom_scheduler.py")
 
         # Start the Broadcast Scheduler
         await BroadcastScheduler()
     except Exception as e:
         logger.error(f"System: Scheduler Error {e}")
 
-# Enhanced Examples of using the scheduler, Times here are in 24hr format
-# https://schedule.readthedocs.io/en/stable/
-
-# Good Morning Every day at 09:00 using send_message function to channel 2 on device 1
-#schedule.every().day.at("09:00").do(lambda: send_message("Good Morning", 2, 0, 1))
-
-# Send WX every Morning at 08:00 using handle_wxc function to channel 2 on device 1
-#schedule.every().day.at("08:00").do(lambda: send_message(handle_wxc(0, 1, 'wx'), 2, 0, 1))
-
-# Send Weather Channel Notice Wed. Noon on channel 2, device 1
-#schedule.every().wednesday.at("12:00").do(lambda: send_message("Weather alerts available on 'Alerts' channel with default 'AQ==' key.", 2, 0, 1))
-
-# Send config URL for Medium Fast Network Use every other day at 10:00 to default channel 2 on device 1
-#schedule.every(2).days.at("10:00").do(lambda: send_message("Join us on Medium Fast https://meshtastic.org/e/#CgcSAQE6AggNEg4IARAEOAFAA0gBUB5oAQ", 2, 0, 1))
-
-# Send a Net Starting Now Message Every Wednesday at 19:00 using send_message function to channel 2 on device 1
-#schedule.every().wednesday.at("19:00").do(lambda: send_message("Net Starting Now", 2, 0, 1))
-
-# Send a Welcome Notice for group on the 15th and 25th of the month at 12:00 using send_message function to channel 2 on device 1
-#schedule.every().day.at("12:00").do(lambda: send_message("Welcome to the group", 2, 0, 1)).day(15, 25)
-
-# Send a Welcome Notice for group on the 15th and 25th of the month at 12:00
-#schedule.every().day.at("12:00").do(lambda: send_message("Welcome to the group", schedulerChannel, 0, schedulerInterface)).day(15, 25)
-
-# Send a joke every 6 hours
-#schedule.every(6).hours.do(lambda: send_message(tell_joke(), schedulerChannel, 0, schedulerInterface))
-
-# Send a joke every 2 minutes
-#schedule.every(2).minutes.do(lambda: send_message(tell_joke(), schedulerChannel, 0, schedulerInterface))
-
-# Send the Welcome Message every other day at 08:00
-#schedule.every(2).days.at("08:00").do(lambda: send_message(welcome_message, schedulerChannel, 0, schedulerInterface))
-
-# Send the MOTD every day at 13:00
-#schedule.every().day.at("13:00").do(lambda: send_message(MOTD, schedulerChannel, 0, schedulerInterface))
-
-# Send bbslink looking for peers every other day at 10:00
-#schedule.every(2).days.at("10:00").do(lambda: send_message("bbslink MeshBot looking for peers", schedulerChannel, 0, schedulerInterface))

@@ -234,13 +234,13 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, chann
     type = ''
 
     if "ping" in message.lower():
-        msg = "🏓PONG\n"
+        msg = "🏓PONG"
         type = "🏓PING"
     elif "test" in message.lower() or "testing" in message.lower():
-        msg = random.choice(["🎙Testing 1,2,3\n", "🎙Testing\n",\
-                             "🎙Testing, testing\n",\
-                             "🎙Ah-wun, ah-two...\n", "🎙Is this thing on?\n",\
-                             "🎙Roger that!\n",])
+        msg = random.choice(["🎙Testing 1,2,3", "🎙Testing",\
+                             "🎙Testing, testing",\
+                             "🎙Ah-wun, ah-two...", "🎙Is this thing on?",\
+                             "🎙Roger that!",])
         type = "🎙TEST"
     elif "ack" in message.lower():
         msg = random.choice(["✋ACK-ACK!\n", "✋Ack to you!\n"])
@@ -252,20 +252,39 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, chann
         msg = "🔊 Can you hear me now?"
 
     # append SNR/RSSI or hop info
-    if hop.startswith("Direct?") and (snr != 0 or rssi != 0):
-        msg += f"? SNR:{snr} RSSI:{rssi}"
+    if hop.startswith("Gateway") or hop.startswith("MQTT"):
+        msg += f" [GW]"
     elif hop.startswith("Direct"):
-        msg += f"SNR:{snr} RSSI:{rssi}"
-    elif hop:
-        msg += f"{hop}"
+        msg += f" [RF]"
+    else:
+        #flood
+        msg += f" [F]"
+    
+    if (float(snr) != 0 or float(rssi) != 0) and "Hops" not in hop:
+        msg += f"\nSNR:{snr} RSSI:{rssi}"
+    elif "Hops" in hop:
+        msg += f"\n{hop}🐇 "
 
     if "@" in message:
         msg = msg + " @" + message.split("@")[1]
         type = type + " @" + message.split("@")[1]
+
+        # check for ping to @nodeID and allow BBS DM
+        toNode = message.split("@")[1].strip().split(" ")[0]
+        # validate toNode is shortname
+        if len(toNode) <= 4:
+            toNode = get_num_from_short_name(toNode, deviceID)
+            if toNode and isinstance(toNode, int) and toNode != 0:
+                if bbs_enabled:
+                    msg_result = None
+                    logger.debug(f"System: Sending ping as BBS DM to @{toNode} from {get_name_from_number(message_from_id, 'short', deviceID)}")
+                    msg_result = bbs_post_dm(toNode, f"Joke for you! {tell_joke()}", message_from_id)
+                    # exit the function
+                    return msg_result if msg_result else logger.warning(f"System: ping @nodeID detected but no BBS to send with, enable BBS in settings.ini")
+
     elif "#" in message:
         msg = msg + " #" + message.split("#")[1]
         type = type + " #" + message.split("#")[1]
-
 
     # check for multi ping request
     if " " in message:
@@ -275,7 +294,6 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, chann
                 if multiPingList[i].get('message_from_id') == message_from_id:
                     multiPingList.pop(i)
                     msg = "🛑 auto-ping"
-
 
         # if 3 or more entries (2 or more active), throttle the multi-ping for congestion
         if len(multiPingList) > 2:
@@ -1602,20 +1620,24 @@ def onReceive(packet, interface):
                 hop_count = hop_away
 
             if hop == "" and hop_count > 0:
+                # set hop string from calculated hop count
                 hop = f"{hop_count} Hop" if hop_count == 1 else f"{hop_count} Hops"
 
-            if hop_start == hop_limit and "lora" in str(transport_mechanism).lower():
+            if hop_start == hop_limit and "lora" in str(transport_mechanism).lower() and (snr != 0 or rssi != 0):
+                # 2.7+ firmware direct hop over LoRa
                 hop = "Direct"
 
             if ((hop_start == 0 and hop_limit >= 0) or via_mqtt or ("mqtt" in str(transport_mechanism).lower())):
                 hop = "MQTT"
-
-            ## FIXME should this be here?
-            if hop == "" and hop_count ==0 and (snr != 0 or rssi != 0):
-                hop = "Direct?"
-
-            if "unknown" in str(transport_mechanism).lower() and (snr == 0 and rssi == 0):
-                hop = "IP-Network"
+            elif hop == "" and hop_count == 0 and (snr != 0 or rssi != 0):
+                # this came from a UDP but we had signal info so gateway is used
+                hop = "Gateway"
+            elif "unknown" in str(transport_mechanism).lower() and (snr == 0 and rssi == 0):
+                # we for sure detected this sourced from a UDP like host
+                hop = "Gateway"
+            
+            if hop in ("MQTT", "Gateway") and hop_count > 0:
+                hop = f"{hop_count} Hops"
 
             if enableHopLogs:
                 logger.debug(f"System: Packet HopDebugger: hop_away:{hop_away} hop_limit:{hop_limit} hop_start:{hop_start} calculated_hop_count:{hop_count} final_hop_value:{hop} via_mqtt:{via_mqtt} transport_mechanism:{transport_mechanism} Hostname:{rxNodeHostName}")
@@ -1763,6 +1785,24 @@ def onReceive(packet, interface):
                                 # send a hello message as a DM
                                 if not train_qrz:
                                     send_message(f"Hello {name} {qrz_hello_string}", channel_number, message_from_id, rxNode)
+
+                    # handle mini games 
+                    if wordOfTheDay:
+                        #word of the day game play on non bot messages
+                        happened, old_entry, new_entry, bingo_win, bingo_message = theWordOfTheDay.did_it_happen(message_string)
+                        if happened:
+                            wordWas = old_entry['word']
+                            metaWas = old_entry['meta']
+                            msg = f"🎉 {get_name_from_number(message_from_id, 'long', rxNode)} found the Word of the Day🎊:\n {wordWas}, {metaWas}"
+                            send_message(msg, channel_number, 0, rxNode)
+                        if bingo_win:
+                            msg = f"🎉 {get_name_from_number(message_from_id, 'long', rxNode)} scored BINGO!🥳 {bingo_message}"
+                            send_message(msg, channel_number, 0, rxNode)
+
+                        slotMachine = theWordOfTheDay.emojiMiniGame(message_string, emojiSeen=emojiSeen, nodeID=message_from_id, nodeInt=rxNode)
+                        if slotMachine:
+                            msg = f"🎉 {get_name_from_number(message_from_id, 'long', rxNode)} played the Slot Machine and got: {slotMachine} 🥳"
+                            send_message(msg, channel_number, 0, rxNode)
         else:
             # Evaluate non TEXT_MESSAGE_APP packets
             consumeMetadata(packet, rxNode, channel_number)

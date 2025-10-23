@@ -1,4 +1,5 @@
-FROM python:3.13-slim
+FROM python:3.14-slim
+ENV PYTHONUNBUFFERED=1
 
 ENV PYTHONUNBUFFERED=1 \
     LANG=en_US.UTF-8 \
