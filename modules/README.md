@@ -177,7 +177,7 @@ Configure in `[wikipedia]` section of `config.ini`.
 Automate messages and tasks using the scheduler module.
 
 Configure in `[scheduler]` section of `config.ini`.  
-See [modules/scheduler.py](modules/scheduler.py) for advanced scheduling.
+See [modules/scheduler.py](modules/custom_scheduler.py) for advanced scheduling.
 
 ---
 
