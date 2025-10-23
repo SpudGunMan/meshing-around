@@ -1872,9 +1872,12 @@ def get_mesh_leaderboard(msg, fromID, deviceID):
 
     # Most Emojis
     if 'emojiCounts' in meshLeaderboard and meshLeaderboard['emojiCounts']:
-        # Find the nodeID with the highest emoji count
-        nodeID, value = max(meshLeaderboard['emojiCounts'].items(), key=lambda x: x[1])
-        result += f"🤪 Most Emojis: {value} {get_name_from_number(nodeID, 'short', 1)}\n"
+        # Only consider items where the value is an int
+        emoji_counts = {k: v for k, v in meshLeaderboard['emojiCounts'].items() if isinstance(v, int)}
+        if emoji_counts:
+            nodeID, value = max(emoji_counts.items(), key=lambda x: x[1])
+            result += f"🤪 Most Emojis: {value} {get_name_from_number(nodeID, 'short', 1)}\n"
+    
     # Most Messages
     if 'nodeMessageCounts' in meshLeaderboard and meshLeaderboard['mostMessages']['nodeID'] is not None:
         nodeID = meshLeaderboard['mostMessages']['nodeID']
