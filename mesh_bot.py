@@ -68,7 +68,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "leaderboard": lambda: get_mesh_leaderboard(message, message_from_id, deviceID),
     "lemonstand": lambda: handleLemonade(message, message_from_id, deviceID),
     "lheard": lambda: handle_lheard(message, message_from_id, deviceID, isDM),
-    "map": lambda: mapHandler(message_from_id, deviceID, channel_number),
+    "map": lambda: mapHandler(message_from_id, deviceID, channel_number, message),
     "mastermind": lambda: handleMmind(message, message_from_id, deviceID),
     "messages": lambda: handle_messages(message, deviceID, channel_number, msg_history, publicChannel, isDM),
     "moon": lambda: handle_moon(message_from_id, deviceID, channel_number),
