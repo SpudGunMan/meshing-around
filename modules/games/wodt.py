@@ -239,9 +239,11 @@ class WordOfTheDayGame:
         emoji_totals = {nid: sum(emojicounts.values()) for nid, emojicounts in meshLeaderboard['emojiCounts'].items() if isinstance(emojicounts, dict)}
         if emoji_totals:
             max_node = max(emoji_totals, key=emoji_totals.get)
-            meshLeaderboard['emojiCounts']['nodeID'] = max_node
-            meshLeaderboard['emojiCounts']['value'] = emoji_totals[max_node]
-            meshLeaderboard['emojiCounts']['timestamp'] = time.time()
+            meshLeaderboard['mostEmojis'] = {
+                'nodeID': max_node,
+                'value': emoji_totals[max_node],
+                'timestamp': time.time()
+            }
         
         # --- 2. Track most used of a type (e.g., smileys, animals, etc.) ---
         emoji_type = self.get_emoji_type(emoji)
