@@ -135,7 +135,7 @@ def getArtSciRepeaters(lat=0, lon=0):
     if zipCode.isnumeric():
         try:
             artsci_url = f"http://www.artscipub.com/mobile/showstate.asp?zip={zipCode}"
-            response = requests.get(artsci_url)
+            response = requests.get(artsci_url, timeout=urlTimeoutSeconds)
             if response.status_code!=200:
                 logger.error(f"Location:Error fetching data from {artsci_url} with status code {response.status_code}")
             soup = bs.BeautifulSoup(response.text, 'html.parser')

@@ -16,7 +16,7 @@ def get_govUK_alerts(lat, lon):
     try:
         # get UK.gov alerts
         url = 'https://www.gov.uk/alerts'
-        response = requests.get(url)
+        response = requests.get(url, timeout=urlTimeoutSeconds)
         soup = bs.BeautifulSoup(response.text, 'html.parser')
         # the alerts are in <h2 class="govuk-heading-m" id="alert-status">
         alert = soup.find('h2', class_='govuk-heading-m', id='alert-status')
@@ -35,7 +35,7 @@ def get_nina_alerts():
         alerts = []
         for regionalKey in myRegionalKeysDE:
             url = ("https://nina.api.proxy.bund.dev/api31/dashboard/" + regionalKey + ".json")
-            response = requests.get(url)
+            response = requests.get(url, timeout=urlTimeoutSeconds)
             data = response.json()
 
             for item in data:
@@ -53,7 +53,7 @@ def get_wxUKgov():
     try:
         # get UK weather warnings
         url = 'https://www.metoffice.gov.uk/weather/guides/rss'
-        response = requests.get(url)
+        response = requests.get(url, timeout=urlTimeoutSeconds)
         soup = bs.BeautifulSoup(response.content, 'xml')
         
         items = soup.find_all('item')

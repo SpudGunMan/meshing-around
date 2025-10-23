@@ -441,6 +441,6 @@ try:
     noisyTelemetryLimit = config['messagingSettings'].getint('noisyTelemetryLimit', 5) # default 5 packets
 except Exception as e:
     print(f"System: Error reading config file: {e}")
-    print(f"System: Check the config.ini against config.template file for missing sections or values.")
-    print(f"System: Exiting...")
+    print("System: Check the config.ini against config.template file for missing sections or values.")
+    print("System: Exiting...")
     exit(1)
