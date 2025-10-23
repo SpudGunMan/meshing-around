@@ -1871,12 +1871,10 @@ def get_mesh_leaderboard(msg, fromID, deviceID):
         result += f"💬 Most Telemetry: {value} {get_name_from_number(nodeID, 'short', 1)}\n"
 
     # Most Emojis
-    if 'emojiCounts' in meshLeaderboard and meshLeaderboard['emojiCounts']:
-        # Only consider items where the value is an int
-        emoji_counts = {k: v for k, v in meshLeaderboard['emojiCounts'].items() if isinstance(v, int)}
-        if emoji_counts:
-            nodeID, value = max(emoji_counts.items(), key=lambda x: x[1])
-            result += f"🤪 Most Emojis: {value} {get_name_from_number(nodeID, 'short', 1)}\n"
+    if meshLeaderboard.get('mostEmojis', {}).get('nodeID') is not None:
+        nodeID = meshLeaderboard['mostEmojis']['nodeID']
+        value = meshLeaderboard['mostEmojis']['value']
+        result += f"🤪 Most Emojis: {value} {get_name_from_number(nodeID, 'short', 1)}\n"
     
     # Most Messages
     if 'nodeMessageCounts' in meshLeaderboard and meshLeaderboard['mostMessages']['nodeID'] is not None:
