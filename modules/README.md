@@ -19,7 +19,7 @@ Updated Oct-2025 "ver 1.9.8.4"
 - [Voice Commands (VOX)](#voice-commands-vox)
 - [Ollama LLM/AI](#ollama-llmai)
 - [Wikipedia Search](#wikipedia-search)
-- [Scheduler](#scheduler)
+- [Scheduler](#-mesh-bot-scheduler-user-guide)
 - [Other Utilities](#other-utilities)
 - [Configuration](#configuration)
 - [Troubleshooting](#troubleshooting)
@@ -268,7 +268,7 @@ Configure in `[wikipedia]` section of `config.ini`.
 
 ---
 
-## Scheduler
+## 📅 Mesh Bot Scheduler User Guide
 
 Automate messages and tasks using the scheduler module.
 
@@ -305,6 +305,76 @@ To send a daily message at 09:00:
 - The scheduler uses the [schedule](https://schedule.readthedocs.io/en/stable/) Python library.
 - All scheduled jobs run asynchronously as long as the bot is running.
 - For troubleshooting, check the logs for scheduler activity and errors.
+
+
+### Basic Scheduler Options
+
+You can schedule messages or actions using the following options in your configuration:
+
+- **day**: Run every day at a specific time or every N days.
+- **mon, tue, wed, thu, fri, sat, sun**: Run on a specific day of the week at a specific time.
+- **hour**: Run every N hours.
+- **min**: Run every N minutes.
+
+#### **Examples:**
+
+| Option      | Time/Interval | What it does                                      |
+|-------------|--------------|---------------------------------------------------|
+| `day`       | `08:00`      | Runs every day at 8:00 AM                         |
+| `day`       | `2`          | Runs every 2 days                                 |
+| `mon`       | `09:30`      | Runs every Monday at 9:30 AM                      |
+| `hour`      | `1`          | Runs every hour                                   |
+| `min`       | `30`         | Runs every 30 minutes                             |
+
+- If you specify a day (e.g., `mon`) and a time (e.g., `09:30`), the message will be sent at that time on that day.
+- If you specify `hour` or `min`, set the interval (e.g., every 2 hours or every 15 minutes).
+
+---
+
+### Special Scheduler Options
+
+#### **joke**
+- Schedules the bot to send a random joke at the specified interval.
+- **Example:**  
+  - Option: `joke`  
+  - Interval: `60`  
+  - → Sends a joke every 60 minutes.
+
+#### **link**
+- Schedules the bot to send a satellite link message at the specified interval (in hours).
+- **Example:**  
+  - Option: `link`  
+  - Interval: `2`  
+  - → Sends a bbslink message every 2 hours.
+
+#### **weather**
+- Schedules the bot to send a weather update at the specified interval (in hours).
+- **Example:**  
+  - Option: `weather`  
+  - Interval: `3`  
+  - → Sends a weather update every 3 hours.
+
+---
+
+### Days of the Week
+
+You can use any of these options to schedule messages on specific days:
+- `mon`, `tue`, `wed`, `thu`, `fri`, `sat`, `sun`
+
+**Example:**  
+- Option: `fri`  
+- Time: `17:00`  
+- → Sends the message every Friday at 5:00 PM.
+
+---
+
+### Configuration Fields
+
+- **schedulerValue**: The schedule type (e.g., `day`, `joke`, `weather`, `mon`, etc.)
+- **schedulerTime**: The time to run (e.g., `08:00`). Leave blank for interval-based schedules.
+- **schedulerInterval**: The interval (e.g., `2` for every 2 hours/days/minutes).
+- **schedulerChannel**: The channel number to send to.
+- **schedulerInterface**: The device/interface number.
 
 ---
 
