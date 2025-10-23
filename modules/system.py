@@ -1868,7 +1868,7 @@ def get_mesh_leaderboard(msg, fromID, deviceID):
     if 'nodeTMessageCounts' in meshLeaderboard and meshLeaderboard['mostTMessages']['nodeID'] is not None:
         nodeID = meshLeaderboard['mostTMessages']['nodeID']
         value = meshLeaderboard['mostTMessages']['value']
-        result += f"💬 Most Telemetry: {value} {get_name_from_number(nodeID, 'short', 1)}\n"
+        result += f"📊 Most Telemetry: {value} {get_name_from_number(nodeID, 'short', 1)}\n"
 
     # Most Emojis
     if meshLeaderboard.get('mostEmojis', {}).get('nodeID') is not None:
