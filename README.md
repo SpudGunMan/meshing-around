@@ -25,6 +25,8 @@ Mesh Bot is a feature-rich Python bot designed to enhance your [Meshtastic](http
 - **Hardware Testing**: The `test` command sends incrementally sized data to test radio buffer limits.
 - **Network Monitoring**: Alerts for noisy nodes, tracks node locations, and suggests optimal relay placement.
 
+- **Site Survey & Location Logging**: Use the `map` command to log your current GPS location with a custom description—ideal for site surveys, asset tracking, or mapping mesh nodes. Entries are saved to a CSV file for later analysis or visualization.
+
 ### Multi-Radio/Node Support
 - **Simultaneous Monitoring**: Observe up to nine networks at once.
 - **Flexible Messaging**: Send mail and messages between networks.
@@ -45,7 +47,7 @@ Mesh Bot is a feature-rich Python bot designed to enhance your [Meshtastic](http
 - **GeoMeasuring Tools**: Calculate distances and midpoints using collected GPS data; supports Fox & Hound direction finding.
 
 ### Proximity Alerts
-- **Location-Based Alerts**: Get notified when members arrive at a configured latitude/longitude—ideal for campsites, geo-fences, or remote locations. Optionally, trigger scripts, send emails, or automate actions (e.g., change node config, turn on lights, or drop an `alert.txt` file to start a survey or game). `map` feature to help with site-survey or other logging.
+- **Location-Based Alerts**: Get notified when members arrive at a configured latitude/longitude—ideal for campsites, geo-fences, or remote locations. Optionally, trigger scripts, send emails, or automate actions (e.g., change node config, turn on lights, or drop an `alert.txt` file to start a survey or game).
 - **Customizable Triggers**: Use proximity events for creative applications like "king of the hill" or 🧭 geocache games by adjusting the alert cycle.
 - **High Flying Alerts**: Receive notifications when nodes with high altitude are detected on the mesh.
 - **Voice/Command Triggers**: Activate bot functions using keywords or voice commands (see [Voice Commands](#voice-commands-vox) for "Hey Chirpy!" support).
