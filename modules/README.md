@@ -92,6 +92,8 @@ Enable/disable games in `[games]` section of `config.ini`.
 
 Enable in `[bbs]` section of `config.ini`.
 
+more at [meshBBS: How-To & API Documentation](bbstools.md)
+
 ---
 
 ## Checklist
