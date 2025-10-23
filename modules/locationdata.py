@@ -1119,9 +1119,6 @@ def mapHandler(userID, deviceID, channel_number, message):
         )
 
     description = command.strip()
-    if not description:
-        return "Please provide a description. Type 'map help' for usage."
-
     # Sanitize description for CSV injection
     if description and description[0] in ('=', '+', '-', '@'):
         description = "'" + description
