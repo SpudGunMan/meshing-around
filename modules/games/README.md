@@ -359,7 +359,7 @@ Your turn! Pick 1-9:
 
 ## Credits
 
-- Written for Meshtastic mesh-bot by K7MHI Kelly Keeton 2025
+- Written for Meshtastic mesh-bot by Martin
 
 # MasterMind Game Module
 
