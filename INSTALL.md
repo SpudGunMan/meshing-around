@@ -36,7 +36,38 @@ cp config.template config.ini
 
 ### Docker Installation - handy for windows
 See further info on the [docker.md](script/docker/README.md)
+### Requirements
+Python 3.8? or later is needed (docker on 3.13). The following can be installed with `pip install -r requirements.txt` or using the [install.sh](install.sh) script for venv and automation:
 
+```sh
+pip install meshtastic
+pip install pubsub
+```
+
+Mesh-bot enhancements:
+
+```sh
+pip install pyephem
+pip install requests
+pip install geopy
+pip install maidenhead
+pip install beautifulsoup4
+pip install dadjokes
+pip install schedule
+pip install wikipedia
+```
+
+For the Ollama LLM:
+
+```sh
+pip install googlesearch-python
+```
+
+To enable emoji in the Debian console, install the fonts:
+
+```sh
+sudo apt-get install fonts-noto-color-emoji
+```
 
 ## install.sh
 
