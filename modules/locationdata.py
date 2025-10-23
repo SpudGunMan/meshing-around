@@ -1128,11 +1128,11 @@ def mapHandler(userID, deviceID, channel_number, message, snr, rssi, hop):
 
     # if there is SNR and RSSI info, append to description
     if snr is not None and rssi is not None:
-        description += f" (SNR:{snr}dB RSSI:{rssi}dBm"
+        description += f" SNR:{snr}dB RSSI:{rssi}dBm"
     
     # if there is hop info, append to description
     if hop is not None:
-        description += f" Meta:{hop})"
+        description += f" Meta:{hop}"
 
     # location should be a tuple: (lat, lon)
     if not location or len(location) != 2:
