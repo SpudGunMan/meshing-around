@@ -111,7 +111,7 @@ git clone https://github.com/spudgunman/meshing-around
 ### Networking
 | Command | Description | ✅ Works Off-Grid |
 |---------|-------------|-
-| `ping`, `ack` | Return data for signal. Example: `ping 15 #DrivingI5` (activates auto-ping every 20 seconds for count 15 via DM only) | ✅ |
+| `ping`, `ack` | Return data for signal. Example: `ping 15 #DrivingI5` (activates auto-ping every 20 seconds for count 15 via DM only) you can also ping @NODE short name and if BBS DM enabled it will send them a joke  | ✅ |
 | `cmd` | Returns the list of commands (the help message) | ✅ |
 | `history` | Returns the last commands run by user(s) | ✅ |
 | `leaderboard` | Shows extreme mesh metrics like lowest battery 🪫 `leaderboard reset` allows admin reset | ✅ |
