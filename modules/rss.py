@@ -4,6 +4,7 @@ import urllib.request
 import xml.etree.ElementTree as ET
 import html
 from html.parser import HTMLParser
+from bs4 import BeautifulSoup  # Add this import
 
 class MLStripper(HTMLParser):
     def __init__(self):
@@ -16,9 +17,12 @@ class MLStripper(HTMLParser):
         return ''.join(self.fed)
 
 def strip_tags(html_text):
-    s = MLStripper()
-    s.feed(html_text)
-    return s.get_data()
+    # use BeautifulSoup to strip HTML tags
+    if not html_text:
+        return ""
+    soup = BeautifulSoup(html_text, "html.parser")
+    text = soup.get_text(separator=" ", strip=True)
+    return ' '.join(text.split())
 
 RSS_FEED_URLS = rssFeedURL
 RSS_FEED_NAMES = rssFeedNames

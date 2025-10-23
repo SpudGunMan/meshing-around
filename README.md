@@ -4,8 +4,8 @@ Mesh Bot is a feature-rich Python bot designed to enhance your [Meshtastic](http
 
 * [Getting Started](#getting-started)
 
-
 ![Example Use](etc/pong-bot.jpg "Example Use")
+
 #### TLDR
 * [install.sh](INSTALL.md)
 * [Configuration Guide](modules/README.md)
