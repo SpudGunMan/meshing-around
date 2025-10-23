@@ -223,6 +223,7 @@ if ! systemctl is-active --quiet ntp.service && \
    ! systemctl is-active --quiet systemd-timesyncd.service && \
    ! systemctl is-active --quiet chronyd.service; then
     printf "\nNo NTP service detected, it is recommended to have NTP running for proper bot operation.\n"
+fi
 
 # set the correct user in the service file
 replace="s|User=pi|User=$whoami|g"
