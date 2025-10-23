@@ -6,7 +6,7 @@ updates:
     schedule:
       interval: "weekly"
     assignees:
-      - "spudgunman"
+      - "SpudGunMan"
     labels:
       - "dependencies"
   - package-ecosystem: "pip"
@@ -14,7 +14,7 @@ updates:
     schedule:
       interval: "weekly"
     assignees:
-      - "spudgunman"
+      - "SpudGunMan"
     labels:
       - "dependencies"
   - package-ecosystem: "docker"
@@ -22,7 +22,7 @@ updates:
     schedule:
       interval: "weekly"
     assignees:
-      - "spudgunman"
+      - "SpudGunMan"
     labels:
       - "dependencies"
 
