@@ -24,7 +24,7 @@ This document covers the Bulliten Board System or BBS componment of the meshing-
 ### **How DMs Work**
 - Direct Messages (DMs) are private messages sent from one node to another.
 - DMs are stored separately from public posts in `data/bbsdm.pkl`.
-- Each DM entry typically includes: `[id, toNode, message, fromNode, timestamp, threadID, replytoID]`.
+- Each DM entry in the pickle, typically includes: `[id, toNode, message, fromNode, timestamp, threadID, replytoID]`.
 
 ### **DM Delivery**
 - When a DM is posted using `bbs_post_dm(toNode, message, fromNode)`, it is added to the recipient's DM database.
@@ -33,8 +33,8 @@ This document covers the Bulliten Board System or BBS componment of the meshing-
      - The `bbsdm.pkl` file is copied between nodes using SCP, rsync, or other file transfer methods.
      - After syncing, the recipient node can check for new DMs using `bbs_check_dm(toNode)`.
   2. **Over-the-Air (OTA) Sync:**  
-     - DMs can be exchanged between nodes using the same OTA sync mechanism as public posts.
-     - The `bbslink` command can include DMs, and the recipient node processes and stores them in `bbsdm.pkl`.
+     - DMs can be exchanged between nodes using the same OTA sync mechanism as other posts.
+     - The bot will receive (onRX) or detect any packet and deliver the DM/mail to the recipient.
 - DMs are only visible to the intended recipient node and are not listed in the public message list.
 
 ### **DM Commands**
