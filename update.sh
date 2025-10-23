@@ -46,7 +46,7 @@ fi
 
 # copy modules/custom_scheduler.py template if it does not exist
 if [[ ! -f modules/custom_scheduler.py ]]; then
-    cp etc/custom_scheduler.py modules/custom_scheduler.py
+    cp -n etc/custom_scheduler.py modules/
     printf "\nCustom scheduler template copied to modules/custom_scheduler.py\n"
 fi
 
