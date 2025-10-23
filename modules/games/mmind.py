@@ -5,9 +5,7 @@ import random
 import time
 import pickle
 from modules.log import *
-
-mindTracker = [{'nodeID': 0, 'last_played': time.time(), 'cmd': '', 'secret_code': '', 'diff': 'n', 'turns': 1}]
-
+from modules.settings import mindTracker
 def chooseDifficultyMMind(message):
     usrInput = message.lower()
     msg = ''
@@ -62,98 +60,63 @@ def makeCodeMMind(diff):
     return secret_code
 
 #get guess from user
-def getGuessMMind(diff, guess):
-    msg = ''
-    if diff == "n":
-        valid_colorsMMind = "RYGB"
-    elif diff == "h":
-        valid_colorsMMind = "RYGBOP"
-    elif diff == "x":
-        valid_colorsMMind = "RYGBOPWK"
-        
-    user_guess = guess.upper()
-    valid_guess = True
-    if len(user_guess) != 4:
-        valid_guess = False
-    for i in range(len(user_guess)):
-        if user_guess[i] not in valid_colorsMMind:
-            valid_guess = False
-    if valid_guess == False:
-        user_guess = "XXXX"
+def getGuessMMind(diff, guess, nodeID):
+    valid_colors = {
+        "n": "RYGB",
+        "h": "RYGBOP",
+        "x": "RYGBOPWK"
+    }
+    user_guess = guess.strip().upper()
+    if len(user_guess) != 4 or any(c not in valid_colors.get(diff, "RYGB") for c in user_guess):
+        return "XXXX"
+    
+    #increase the turn count and store in tracker
+    for i in range(len(mindTracker)):
+        if mindTracker[i]['nodeID'] == nodeID:
+            mindTracker[i]['turns'] += 1
+            mindTracker[i]['last_played'] = time.time()
+            mindTracker[i]['diff'] = diff
     return user_guess
 
 def getHighScoreMMind(nodeID, turns, diff):
-    # check if player is in high score list and pick the lowest score
-    try:
-        with open('mmind_hs.pkl', 'rb') as f:
-            mindHighScore = pickle.load(f)
-    except:
-        logger.debug("System: MasterMind: High Score file not found.")
-        mindHighScore = [{'nodeID': nodeID, 'turns': turns, 'diff': diff}]
-        with open('mmind_hs.pkl', 'wb') as f:
-            pickle.dump(mindHighScore, f)
+    import os
+    hs_file = 'data/mmind_hs.pkl'
+    # Try to load existing high scores
+    if os.path.exists(hs_file):
+        try:
+            with open(hs_file, 'rb') as f:
+                mindHighScore = pickle.load(f)
+        except Exception as e:
+            logger.debug(f"System: MasterMind: Error loading high score file: {e}")
+            mindHighScore = []
+    else:
+        mindHighScore = []
 
+    # If nodeID==0, just return 0
     if nodeID == 0:
-        # just return the high score
+        mindHighScore = [{'nodeID': 0, 'turns': 0, 'diff': 'n'}]
         return mindHighScore
 
-    # calculate lowest score
-    lowest_score = mindHighScore[0]['turns']
+    # If no high score, add this one
+    if not mindHighScore:
+        mindHighScore = [{'nodeID': nodeID, 'turns': turns, 'diff': diff}]
+        with open(hs_file, 'wb') as f:
+            pickle.dump(mindHighScore, f)
+        return mindHighScore
 
-    if mindHighScore[0]['diff'] == "n" and diff == "n":
-        if lowest_score > turns:
-            # update the high score for normal if new score is lower
-            mindHighScore[0]['nodeID'] = nodeID
-            mindHighScore[0]['turns'] = turns
-            mindHighScore[0]['diff'] = diff
-            
-            # write new high score to file
-            with open('mmind_hs.pkl', 'wb') as f:
+    # If the diff matches, compare and update if better
+    if mindHighScore[0]['diff'] == diff:
+        if turns < mindHighScore[0]['turns']:
+            mindHighScore[0] = {'nodeID': nodeID, 'turns': turns, 'diff': diff}
+            with open(hs_file, 'wb') as f:
                 pickle.dump(mindHighScore, f)
-            return mindHighScore
-    elif mindHighScore[0]['diff'] == "n" and diff == "h":
-        # update the high score for hard if normal is the only high score
-        mindHighScore[0]['nodeID'] = nodeID
-        mindHighScore[0]['turns'] = turns
-        mindHighScore[0]['diff'] = diff
-        
-        # write new high score to file
-        with open('mmind_hs.pkl', 'wb') as f:
-            pickle.dump(mindHighScore, f)
         return mindHighScore
-    elif mindHighScore[0]['diff'] == "h" and diff == "h":
-        if lowest_score > turns:
-            # update the high score for hard if new score is lower
-            mindHighScore[0]['nodeID'] = nodeID
-            mindHighScore[0]['turns'] = turns
-            mindHighScore[0]['diff'] = diff
-            
-            # write new high score to file
-            with open('mmind_hs.pkl', 'wb') as f:
-                pickle.dump(mindHighScore, f)
-            return mindHighScore
-    elif mindHighScore[0]['diff'] == "n" or mindHighScore[0]['diff'] == "h" and diff == "x":
-        # update the high score for expert if normal or high is the only high score
-        mindHighScore[0]['nodeID'] = nodeID
-        mindHighScore[0]['turns'] = turns
-        mindHighScore[0]['diff'] = diff
-        
-        # write new high score to file
-        with open('mmind_hs.pkl', 'wb') as f:
-            pickle.dump(mindHighScore, f)
-        return mindHighScore
-    elif mindHighScore[0]['diff'] == "x" and diff == "x":
-        if lowest_score > turns:
-            # update the high score for expert if new score is lower
-            mindHighScore[0]['nodeID'] = nodeID
-            mindHighScore[0]['turns'] = turns
-            mindHighScore[0]['diff'] = diff
-            
-            # write new high score to file
-            with open('mmind_hs.pkl', 'wb') as f:
-                pickle.dump(mindHighScore, f)
-            return mindHighScore
-    return 0
+
+    # If the diff is different, replace with new high score for new diff
+    mindHighScore[0] = {'nodeID': nodeID, 'turns': turns, 'diff': diff}
+    with open(hs_file, 'wb') as f:
+        pickle.dump(mindHighScore, f)
+    return mindHighScore
 
 
 def getEmojiMMind(secret_code):
@@ -182,7 +145,7 @@ def getEmojiMMind(secret_code):
     return secret_code_emoji
 
 #compare userGuess with secret code and provide feedback
-def compareCodeMMind(secret_code, user_guess):
+def compareCodeMMind(secret_code, user_guess, nodeID):
     game_won = False
     perfect_pins = 0
     wrong_position = 0
@@ -210,9 +173,26 @@ def compareCodeMMind(secret_code, user_guess):
                 temp_code.remove(guess)  # Remove the first occurrence of the matched color
     # display feedback
     if game_won:
-        msg += f"Correct{getEmojiMMind(user_guess)}\n"
+        msg += f"\n🏆Correct{getEmojiMMind(user_guess)}\nYou are the master mind!🤯"
+        # get turn count from tracker
+        for i in range(len(mindTracker)):
+            if mindTracker[i]['nodeID'] == nodeID:
+                turns = mindTracker[i]['turns'] - 2  # subtract 2 to account for increment after last guess and starting at 1
+                diff = mindTracker[i]['diff']
+        # get high score
+        high_score = getHighScoreMMind(nodeID, turns, diff)
+        if high_score[0]['turns'] != 0:
+            msg += f"\n🏆 High Score:{turns} turns, Difficulty:{diff}"
+        # reset turn count in tracker
+        msg += f"\nWould you like to play again? (N)ormal, (H)ard, or e(X)pert?"
+        # reset turn count in tracker
+        for i in range(len(mindTracker)):
+            if mindTracker[i]['nodeID'] == nodeID:
+                mindTracker[i]['turns'] = 0
+                mindTracker[i]['secret_code'] = ''
+                mindTracker[i]['cmd'] = 'new'
     else:
-        msg += f"Guess{getEmojiMMind(user_guess)}\n"
+        msg += f"\nGuess{getEmojiMMind(user_guess)}\n"
 
     if perfect_pins > 0 and game_won == False:
         msg += "✅ color ✅ position: {}".format(perfect_pins)
@@ -231,11 +211,11 @@ def playGameMMind(diff, secret_code, turn_count, nodeID, message):
     msg = ''
     won = False
     if turn_count <= 10:
-        user_guess = getGuessMMind(diff, message)
+        user_guess = getGuessMMind(diff, message, nodeID)
         if user_guess == "XXXX":
             msg += f"⛔️Invalid guess. Please enter 4 valid colors letters.\n🔴🟢🔵🔴 is RGBR"
             return msg
-        check_guess = compareCodeMMind(secret_code, user_guess)
+        check_guess = compareCodeMMind(secret_code, user_guess, nodeID)
 
         # display turn count and feedback
         msg += "Turn {}:".format(turn_count)
@@ -245,18 +225,6 @@ def playGameMMind(diff, secret_code, turn_count, nodeID, message):
     
         if won == True:
             msg += f"\n🎉🧠 you win 🥷🤯"
-            # get high score
-            high_score = getHighScoreMMind(nodeID, turn_count, diff)
-            if high_score != 0:
-                msg += f"\n🏆 High Score:{high_score[0]['turns']} turns, Difficulty:{high_score[0]['diff'].upper()}"
-            
-            msg += "\nWould you like to play again?\n(N)ormal, (H)ard, e(X)pert (E)nd?"
-            # reset turn count in tracker
-            for i in range(len(mindTracker)):
-                if mindTracker[i]['nodeID'] == nodeID:
-                    mindTracker[i]['turns'] = 1
-                    mindTracker[i]['secret_code'] = ''
-                    mindTracker[i]['cmd'] = 'new'
         else:
             # increment turn count and keep playing
             turn_count += 1
@@ -266,12 +234,12 @@ def playGameMMind(diff, secret_code, turn_count, nodeID, message):
                     mindTracker[i]['turns'] = turn_count
     elif won == False:
         msg += f"🙉Game Over🙈\nThe code was: {getEmojiMMind(secret_code)}"
-        msg += "\nYou have run out of turns.😿"
-        msg += "\nWould you like to play again? (N)ormal, (H)ard, or e(X)pert?"
+        msg += f"\nYou have run out of turns.😿"
+        msg += f"\nWould you like to play again? (N)ormal, (H)ard, or e(X)pert?"
         # reset turn count in tracker
         for i in range(len(mindTracker)):
             if mindTracker[i]['nodeID'] == nodeID:
-                mindTracker[i]['turns'] = 1
+                mindTracker[i]['turns'] = 0
                 mindTracker[i]['secret_code'] = ''
                 mindTracker[i]['cmd'] = 'new'
 

@@ -7,6 +7,7 @@ import maidenhead as mh # pip install maidenhead
 import requests # pip install requests
 import bs4 as bs # pip install beautifulsoup4
 import xml.dom.minidom 
+from datetime import datetime
 from modules.log import *
 import math
 
@@ -174,8 +175,8 @@ def get_NOAAtide(lat=0, lon=0):
     station_id = ""
     location = lat,lon
     if float(lat) == 0 and float(lon) == 0:
-        logger.error("Location:No GPS data, try sending location for tide")
-        return NO_DATA_NOGPS
+        lat = latitudeValue
+        lon = longitudeValue
     station_lookup_url = "https://api.tidesandcurrents.noaa.gov/mdapi/prod/webapi/tidepredstations.json?lat=" + str(lat) + "&lon=" + str(lon) + "&radius=50"
     try:
         station_data = requests.get(station_lookup_url, timeout=urlTimeoutSeconds)
@@ -239,7 +240,8 @@ def get_NOAAweather(lat=0, lon=0, unit=0):
     weather = ""
     location = lat,lon
     if float(lat) == 0 and float(lon) == 0:
-        return NO_DATA_NOGPS
+        lat = latitudeValue
+        lon = longitudeValue
     
     # get weather data from NOAA units for metric unit = 1 is metric
     if use_metric:
@@ -295,9 +297,37 @@ def get_NOAAweather(lat=0, lon=0, unit=0):
 
     return weather
 
-def abbreviate_noaa(row):
-    # replace long strings with shorter ones for display
-    replacements = {
+def case_insensitive_replace(text, old, new):
+    """Replace all occurrences of old (any case) in text with new."""
+    idx = 0
+    old_lower = old.lower()
+    text_lower = text.lower()
+    while True:
+        idx = text_lower.find(old_lower, idx)
+        if idx == -1:
+            break
+        text = text[:idx] + new + text[idx+len(old):]
+        text_lower = text.lower()
+        idx += len(new)
+    return text
+
+def abbreviate_noaa(data=""):
+    # Long phrases (with spaces)
+    phrase_replacements = {
+        "less than a tenth of an inch possible": "< 0.1in",
+        "between a tenth and quarter of an inch possible": "0.1-0.25in",
+        "between a quarter and half an inch possible": "0.25-0.5in",
+        "between a half and three quarters of an inch possible": "0.5-0.75in",
+        "between one and two inches possible": "1-2in",
+        "between two and three inches possible": "2-3in",
+        "between three and four inches possible": "3-4in",
+        "between four and five inches possible": "4-5in",
+        "between five and six inches possible": "5-6in",
+        "between six and eight inches possible": "6-8in",
+        "gusts as high as": "gusts to",
+    }
+    # Single words (no spaces)
+    word_replacements = {
         "monday": "Mon",
         "tuesday": "Tue",
         "wednesday": "Wed",
@@ -313,6 +343,8 @@ def abbreviate_noaa(row):
         "south": "S",
         "east": "E",
         "west": "W",
+        "accumulation": "accum",
+        "visibility": "vis",
         "precipitation": "precip",
         "showers": "shwrs",
         "thunderstorms": "t-storms",
@@ -334,28 +366,37 @@ def abbreviate_noaa(row):
         "degrees": "°",
         "percent": "%",
         "department": "Dept.",
-        "amounts less than a tenth of an inch possible.": "< 0.1in",
-        "temperatures": "temps.",
-        "temperature": "temp.",
+        "temperatures": "temps:",
+        "temperature": "temp:",
+        "amounts": "amts:",
+        "afternoon": "Aftn",
+        "around": "~",
+        "evening": "Eve",
     }
 
-    line = row
-    for key, value in replacements.items():
-        for variant in (key, key.capitalize(), key.upper()):
-            if variant != value:
-                line = line.replace(variant, value)
-    return line
+    text = data
+
+    # Replace long phrases (case-insensitive)
+    for key in sorted(phrase_replacements, key=len, reverse=True):
+        value = phrase_replacements[key]
+        text = case_insensitive_replace(text, key, value)
+
+    # Replace single words (case-insensitive)
+    for key in word_replacements:
+        value = word_replacements[key]
+        text = case_insensitive_replace(text, key, value)
+
+    return text
 
 def getWeatherAlertsNOAA(lat=0, lon=0, useDefaultLatLon=False):
     # get weather alerts from NOAA limited to ALERT_COUNT with the total number of alerts found
     alerts = ""
     location = lat,lon
+    if useDefaultLatLon:
+        lat = latitudeValue
+        lon = longitudeValue
     if float(lat) == 0 and float(lon) == 0 and not useDefaultLatLon:
         return NO_DATA_NOGPS
-    else:
-        if useDefaultLatLon:
-            lat = latitudeValue
-            lon = longitudeValue
 
     alert_url = "https://api.weather.gov/alerts/active.atom?point=" + str(lat) + "," + str(lon)
     #alert_url = "https://api.weather.gov/alerts/active.atom?area=WA"
@@ -428,8 +469,8 @@ def getActiveWeatherAlertsDetailNOAA(lat=0, lon=0):
     alerts = ""
     location = lat,lon
     if float(lat) == 0 and float(lon) == 0:
-        logger.warning("Location:No GPS data, try sending location for weather alerts")
-        return NO_DATA_NOGPS
+        lat = latitudeValue
+        lon = longitudeValue
 
     alert_url = "https://api.weather.gov/alerts/active.atom?point=" + str(lat) + "," + str(lon)
     #alert_url = "https://api.weather.gov/alerts/active.atom?area=WA"
@@ -489,10 +530,10 @@ def getIpawsAlert(lat=0, lon=0, shortAlerts = False):
     try:
         alert_data = requests.get(alert_url, timeout=urlTimeoutSeconds)
         if not alert_data.ok:
-            logger.warning("System: iPAWS fetching IPAWS alerts from FEMA")
+            logger.warning(f"System: iPAWS fetching IPAWS alerts from FEMA (HTTP {alert_data.status_code})")
             return ERROR_FETCHING_DATA
-    except (requests.exceptions.RequestException):
-        logger.warning("System: iPAWS fetching IPAWS alerts from FEMA")
+    except Exception as e:
+        logger.warning(f"System: iPAWS fetching IPAWS alerts from FEMA failed: {e}")
         return ERROR_FETCHING_DATA
     
     # main feed bulletins
@@ -574,14 +615,13 @@ def getIpawsAlert(lat=0, lon=0, shortAlerts = False):
 
              # check if the alert is for the SAME location, if wanted keep alert
             if (sameVal in mySAMEList) or (geocode_value in mySAMEList) or mySAMEList == ['']:
-                # ignore the FEMA test alerts
+                ignore_alert = False
                 if ignoreFEMAenable:
-                    ignore_alert = False
-                    for word in ignoreFEMAwords:
-                        if word.lower() in headline.lower():
-                            logger.debug(f"System: Filtering FEMA Alert by WORD: {headline} containing {word} at {areaDesc}")
-                            ignore_alert = True
-                            break
+                    ignore_alert = any(
+                        word.lower() in headline.lower()
+                        for word in ignoreFEMAwords)
+                    if ignore_alert:
+                        logger.debug(f"System: Filtering FEMA Alert by WORD: {headline} containing one of {ignoreFEMAwords} at {areaDesc}")
                 if ignore_alert:
                     continue
 
@@ -706,7 +746,7 @@ def get_volcano_usgs(lat=0, lon=0):
     return alerts
 
 def get_nws_marine(zone, days=3):
-    # forcast from NWS coastal products
+    # forecast from NWS coastal products
     try:
         marine_pz_data = requests.get(zone, timeout=urlTimeoutSeconds)
         if not marine_pz_data.ok:
@@ -715,18 +755,21 @@ def get_nws_marine(zone, days=3):
     except (requests.exceptions.RequestException):
         logger.warning("Location:Error fetching NWS Marine PZ data")
         return ERROR_FETCHING_DATA
-    
+
     marine_pz_data = marine_pz_data.text
-    #validate data
-    todayDate = today.strftime("%Y%m%d")
-    if marine_pz_data.startswith("Expires:"):
-        expires = marine_pz_data.split(";;")[0].split(":")[1]
-        expires_date = expires[:8]
-        if expires_date < todayDate:
-            logger.debug("Location: NWS Marine PZ data expired")
+    todayDate = datetime.now().strftime("%Y%m%d")
+    if marine_pz_data and marine_pz_data.startswith("Expires:"):
+        try:
+            expires = marine_pz_data.split(";;")[0].split(":")[1]
+            expires_date = expires[:8]
+            if expires_date < todayDate:
+                logger.debug("Location: NWS Marine PZ data expired")
+                return ERROR_FETCHING_DATA
+        except Exception as e:
+            logger.debug(f"Location: NWS Marine PZ data parse error: {e}")
             return ERROR_FETCHING_DATA
     else:
-        logger.debug("Location: NWS Marine PZ data not valid")
+        logger.debug("Location: NWS Marine PZ data not valid or empty")
         return ERROR_FETCHING_DATA
     
     # process the marine forecast data

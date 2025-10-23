@@ -8,6 +8,7 @@ from modules.log import *
 # https://github.com/ollama/ollama/blob/main/docs/faq.md#how-do-i-configure-ollama-server
 import requests
 import json
+from datetime import datetime
 
 if not rawLLMQuery:
     # this may be removed in the future
@@ -48,7 +49,7 @@ meshBotAI = """
     PROMPT
     {input}
 
-"""
+    """
 
 if llmContext_fromGoogle:
     meshBotAI = meshBotAI + """
@@ -75,6 +76,142 @@ if llmEnableHistory:
     {history}
 
     """
+
+# Tooling Functions Defined Here
+# Example: current_time function
+def llmTool_current_time():
+    """
+    Example tool function to get the current time.
+    :return: Current time string.
+    """
+    return datetime.now().strftime('%Y-%m-%d %H:%M:%S %Z')
+
+def llmTool_math_calculator(expression):
+    """
+    Example tool function to perform basic math calculations.
+    :param expression: A string containing a math expression (e.g., "2 + 2").
+    :return: The result of the calculation as a string.
+    """
+    try:
+        # WARNING: Using eval can be dangerous if not controlled properly.
+        # This is a simple example; in production, consider using a safe math parser.
+        result = eval(expression, {"__builtins__": None}, {})
+        return str(result)
+    except Exception as e:
+        return f"Error in calculation: {e}"
+
+def llmTool_get_google(query, num_results=3):
+    """
+    Example tool function to perform a Google search and return results.
+    :param query: The search query string.
+    :param num_results: Number of search results to return.
+    :return: A list of search result titles and descriptions.
+    """
+    results = []
+    try:
+        googleSearch = search(query, advanced=True, num_results=num_results)
+        for result in googleSearch:
+            results.append(f"{result.title}: {result.description}")
+        return results
+    except Exception as e:
+        return [f"Error in Google search: {e}"]
+
+llmFunctions = [
+
+    {
+        "name": "llmTool_current_time",
+        "description": "Get the current time.",
+        "parameters": {
+            "type": "object",
+            "properties": {}
+    }
+    },
+    {
+        "name": "llmTool_math_calculator",
+        "description": "Perform basic math calculations.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "expression": {
+                    "type": "string",
+                    "description": "A math expression to evaluate, e.g., '2 + 2'."
+                }
+            },
+            "required": ["expression"]
+        }
+    },
+    {
+        "name": "llmTool_get_google",
+        "description": "Perform a Google search and return results.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "query": {
+                    "type": "string",
+                    "description": "The search query string."
+                },
+                "num_results": {
+                    "type": "integer",
+                    "description": "Number of search results to return.",
+                    "default": 3
+                }
+            },
+            "required": ["query"]
+        }
+    }  
+]
+
+def get_google_context(input, num_results):
+    # Get context from Google search results
+    googleResults = []
+    try:
+        googleSearch = search(input, advanced=True, num_results=num_results)
+        if googleSearch:
+            for result in googleSearch:
+                googleResults.append(f"{result.title} {result.description}")
+        else:
+            googleResults = ['no other context provided']
+    except Exception as e:
+        logger.debug(f"System: LLM Query: context gathering failed, likely due to network issues")
+        googleResults = ['no other context provided']
+    return googleResults
+
+def send_ollama_query(llmQuery):
+    # Send the query to the Ollama API and return the response
+    result = requests.post(ollamaAPI, data=json.dumps(llmQuery))
+    if result.status_code == 200:
+        result_json = result.json()
+        result = result_json.get("response", "")
+        # deepseek has added <think> </think> tags to the response
+        if "<think>" in result:
+            result = result.split("</think>")[1]
+    else:
+        raise Exception(f"HTTP Error: {result.status_code}")
+    return result
+
+def send_ollama_tooling_query(prompt, functions, model=None, max_tokens=450):
+    """
+    Send a prompt and function/tool definitions to Ollama API for function calling.
+    :param prompt: The user prompt string.
+    :param functions: List of function/tool definitions (see Ollama API docs).
+    :param model: Model name (optional, defaults to llmModel).
+    :param max_tokens: Max tokens for response.
+    :return: Ollama API response JSON.
+    """
+    if model is None:
+        model = llmModel
+    payload = {
+        "model": model,
+        "prompt": prompt,
+        "functions": functions,
+        "stream": False,
+        "max_tokens": max_tokens
+    }
+    result = requests.post(ollamaAPI, data=json.dumps(payload))
+    if result.status_code == 200:
+        return result.json()
+    else:
+        raise Exception(f"HTTP Error: {result.status_code} - {result.text}")
 
 def llm_query(input, nodeID=0, location_name=None):
     global antiFloodLLM, llmChat_history
@@ -109,23 +246,7 @@ def llm_query(input, nodeID=0, location_name=None):
         antiFloodLLM.append(nodeID)
 
     if llmContext_fromGoogle and not rawLLMQuery:
-        # grab some context from the internet using google search hits (if available)
-        # localization details at https://pypi.org/project/googlesearch-python/
-
-        # remove common words from the search query
-        # commonWordsList = ["is", "for", "the", "of", "and", "in", "on", "at", "to", "with", "by", "from", "as", "a", "an", "that", "this", "these", "those", "there", "here", "where", "when", "why", "how", "what", "which", "who", "whom", "whose", "whom"]
-        # sanitizedSearch = ' '.join([word for word in input.split() if word.lower() not in commonWordsList])
-        try:
-            googleSearch = search(input, advanced=True, num_results=googleSearchResults)
-            if googleSearch:
-                for result in googleSearch:
-                    # SearchResult object has url= title= description= just grab title and description
-                    googleResults.append(f"{result.title} {result.description}")
-            else:
-                googleResults = ['no other context provided']
-        except Exception as e:
-            logger.debug(f"System: LLM Query: context gathering failed, likely due to network issues")
-            googleResults = ['no other context provided']
+        googleResults = get_google_context(input, googleSearchResults)
 
     history = llmChat_history.get(nodeID, ["", ""])
 
@@ -151,20 +272,11 @@ def llm_query(input, nodeID=0, location_name=None):
             
         llmQuery = {"model": llmModel, "prompt": modelPrompt, "stream": False, "max_tokens": tokens}
         # Query the model via Ollama web API
-        result = requests.post(ollamaAPI, data=json.dumps(llmQuery))
-        # Condense the result to just needed
-        if result.status_code == 200:
-            result_json = result.json()
-            result = result_json.get("response", "")
-
-            # deepseek-r1 has added <think> </think> tags to the response
-            if "<think>" in result:
-                result = result.split("</think>")[1]
-        else:
-            raise Exception(f"HTTP Error: {result.status_code}")
+        result = send_ollama_query(llmQuery)
 
         #logger.debug(f"System: LLM Response: " + result.strip().replace('\n', ' '))
     except Exception as e:
+        antiFloodLLM.remove(nodeID)  # Ensure removal on error
         logger.warning(f"System: LLM failure: {e}")
         return "⛔️I am having trouble processing your request, please try again later."
     
@@ -175,15 +287,8 @@ def llm_query(input, nodeID=0, location_name=None):
         #retryy loop to truncate the response
         logger.warning(f"System: LLM Query: Response exceeded {tokens} characters, requesting truncation")
         truncateQuery = {"model": llmModel, "prompt": truncatePrompt + response, "stream": False, "max_tokens": tokens}
-        truncateResult = requests.post(ollamaAPI, data=json.dumps(truncateQuery))
-        if truncateResult.status_code == 200:
-            truncate_json = truncateResult.json()
-            result = truncate_json.get("response", "")
+        truncateResult = send_ollama_query(truncateQuery)
 
-        else:
-            #use the original result if truncation fails
-            logger.warning("System: LLM Query: Truncation failed, using original response")
-        
         # cleanup for message output
         response = result.strip().replace('\n', ' ')
 

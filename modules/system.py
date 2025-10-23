@@ -7,6 +7,7 @@ import meshtastic.ble_interface
 import time
 import asyncio
 import random
+import base64
 # not ideal but needed?
 import contextlib # for suppressing output on watchdog
 import io # for suppressing output on watchdog
@@ -216,13 +217,18 @@ if quiz_enabled:
     from modules.games.quiz import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + trap_list_quiz # items quiz, q:
     help_message = help_message + ", quiz"
-    games_enabled = True
+    # games not enabled for quiz
 
 if survey_enabled:
     from modules.survey import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + trap_list_survey # items survey, s:
     help_message = help_message + ", survey"
     games_enabled = True
+
+if wordOfTheDay:
+    from modules.games.wodt import WordOfTheDayGame # from the spudgunman/meshing-around repo
+    theWordOfTheDay = WordOfTheDayGame()
+    # this runs in background and wont enable other games
 
 # Games Configuration
 if games_enabled is True:
@@ -289,7 +295,7 @@ if voxDetectionEnabled:
     from modules.radio import * # from the spudgunman/meshing-around repo
 
 # File Monitor Configuration
-if file_monitor_enabled or read_news_enabled or bee_enabled:
+if file_monitor_enabled or read_news_enabled or bee_enabled or enable_runShellCmd or cmdShellSentryAlerts:
     from modules.filemon import * # from the spudgunman/meshing-around repo
     if read_news_enabled:
         trap_list = trap_list + trap_list_filemon # items readnews
@@ -315,6 +321,24 @@ if ble_count > 1:
     logger.critical(f"System: Multiple BLE interfaces detected. Only one BLE interface is allowed. Exiting")
     exit()
 
+def xor_hash(data: bytes) -> int:
+    """Compute an XOR hash from bytes."""
+    result = 0
+    for char in data:
+        result ^= char
+    return result
+
+def generate_hash(name: str, key: str) -> int:
+    """generate the channel number by hashing the channel name and psk"""
+    if key == "AQ==":
+        key = "1PG7OiApB1nwvP+rz05pAQ=="
+    replaced_key = key.replace("-", "+").replace("_", "/")
+    key_bytes = base64.b64decode(replaced_key.encode("utf-8"))
+    h_name = xor_hash(bytes(name, "utf-8"))
+    h_key = xor_hash(key_bytes)
+    result: int = h_name ^ h_key
+    return result
+
 # Initialize interfaces
 logger.debug(f"System: Initializing Interfaces")
 interface1 = interface2 = interface3 = interface4 = interface5 = interface6 = interface7 = interface8 = interface9 = None
@@ -331,7 +355,20 @@ for i in range(1, 10):
             if interface_type == 'serial':
                 globals()[f'interface{i}'] = meshtastic.serial_interface.SerialInterface(globals().get(f'port{i}'))
             elif interface_type == 'tcp':
-                globals()[f'interface{i}'] = meshtastic.tcp_interface.TCPInterface(globals().get(f'hostname{i}'))
+                host = globals().get(f'hostname{i}', '127.0.0.1')
+                port = 4403
+
+                # Allow host:port format
+                if isinstance(host, str) and ':' in host:
+                    maybe_host, maybe_port = host.rsplit(':', 1)
+                    if maybe_port.isdigit():
+                        host = maybe_host
+                        try:
+                            port = int(maybe_port)
+                        except ValueError:
+                            port = 4403
+
+                globals()[f'interface{i}'] = meshtastic.tcp_interface.TCPInterface(hostname=host, portNumber=port)
             elif interface_type == 'ble':
                 globals()[f'interface{i}'] = meshtastic.ble_interface.BLEInterface(globals().get(f'mac{i}'))
             else:
@@ -351,6 +388,44 @@ for i in range(1, 10):
             logger.critical(f"System: critical error initializing interface{i} {e}")
     else:
         globals()[f'myNodeNum{i}'] = 777
+
+# Fetch channel list from each device
+channel_list = []
+for i in range(1, 10):
+    if globals().get(f'interface{i}') and globals().get(f'interface{i}_enabled'):
+        try:
+            node = globals()[f'interface{i}'].getNode('^local')
+            channels = node.channels
+            channel_dict = {}
+            for channel in channels:
+                if hasattr(channel, 'role') and channel.role:
+                    channel_name = getattr(channel.settings, 'name', '').strip()
+                    channel_number = getattr(channel, 'index', 0)
+                    # Only add channels with a non-empty name
+                    if channel_name:
+                        channel_dict[channel_name] = channel_number
+            channel_list.append({
+                "interface_id": i,
+                "channels": channel_dict
+            })
+            logger.debug(f"System: Fetched Channel List from Device{i}")
+        except Exception as e:
+            logger.error(f"System: Error fetching channel list from Device{i}: {e}")
+
+# add channel hash to channel_list
+for device in channel_list:
+    interface_id = device["interface_id"]
+    interface = globals().get(f'interface{interface_id}')
+    for channel_name, channel_number in device["channels"].items():
+        psk_base64 = "AQ=="  # default PSK
+        channel_hash = generate_hash(channel_name, psk_base64)
+        # add hash to the channel entry in channel_list under key 'hash'
+        for entry in channel_list:
+            if entry["interface_id"] == interface_id:
+                entry["channels"][channel_name] = {
+                    "number": channel_number,
+                    "hash": channel_hash
+                }
 
 #### FUN-ctions ####
 
@@ -386,11 +461,11 @@ def cleanup_memory():
         # Clean up stale game tracker entries
         cleanup_game_trackers(current_time)
         
-        # Clean up multiPingList of completed or stale entries
-        if 'multiPingList' in globals():
-            multiPingList[:] = [ping for ping in multiPingList 
-                              if ping.get('message_from_id', 0) != 0 and 
-                              ping.get('count', 0) > 0]
+        # # Clean up multiPingList of completed or stale entries
+        # if 'multiPingList' in globals():
+        #     multiPingList[:] = [ping for ping in multiPingList 
+        #                       if ping.get('message_from_id', 0) != 0 and 
+        #                       ping.get('count', 0) > 0]
         
     except Exception as e:
         logger.error(f"System: Error during memory cleanup: {e}")
@@ -441,26 +516,32 @@ def get_name_from_number(number, type='long', nodeInt=1):
             name =  str(decimal_to_hex(number))  # If name not found, use the ID as string
     return name
 
-
 def get_num_from_short_name(short_name, nodeInt=1):
+    # First, search the specified interface
     interface = globals()[f'interface{nodeInt}']
-    # Get the node number from the short name, converting all to lowercase for comparison (good practice?)
-    logger.debug(f"System: Getting Node Number from Short Name: {short_name} on Device: {nodeInt}")
+    logger.debug(f"System: Checking Node Number from Short Name: {short_name} on Device: {nodeInt}")
     for node in interface.nodes.values():
-        #logger.debug(f"System: Checking Node: {node['user']['shortName']} against {short_name} for number {node['num']}")
-        if short_name == node['user']['shortName']:
+        if short_name == node['user']['shortName'] or str(short_name).lower() == node['user']['shortName'].lower():
             return node['num']
-        elif str(short_name.lower()) == node['user']['shortName'].lower():
-            return node['num']
-        else:
-            for int in range(1, 10):
-                if globals().get(f'interface{int}_enabled') and int != nodeInt:
-                    other_interface = globals().get(f'interface{int}')
-                    for node in other_interface.nodes.values():
-                        if short_name == node['user']['shortName']:
-                            return node['num']
-                        elif str(short_name.lower()) == node['user']['shortName'].lower():
-                            return node['num']
+
+    # If not found, search all other enabled interfaces
+    for iface_num in range(1, 10):
+        if iface_num == nodeInt:
+            continue
+        if globals().get(f'interface{iface_num}_enabled'):
+            other_interface = globals().get(f'interface{iface_num}')
+            for node in other_interface.nodes.values():
+                if short_name == node['user']['shortName'] or str(short_name).lower() == node['user']['shortName'].lower():
+                    logger.debug(f"System: Found Device:{iface_num} Node:{node['user']['shortName']}")
+                    return node['num']
+
+    # !hex node IDs
+    if str(short_name).startswith("!"):
+        try:
+            return int(short_name[1:], 16)
+        except Exception:
+            pass
+
     return 0
     
 def get_node_list(nodeInt=1):
@@ -558,56 +639,59 @@ def get_node_location(nodeID, nodeInt=1, channel=0, round_digits=2):
     else:
         return config_position
     
-def get_closest_nodes(nodeInt=1,returnCount=3, channel=publicChannel):
-    interface = globals()[f'interface{nodeInt}']
-    node_list = []
+async def get_closest_nodes(nodeInt=1,returnCount=3, channel=publicChannel):
+        interface = globals()[f'interface{nodeInt}']
+        node_list = []
 
-    if interface.nodes:
-        for node in interface.nodes.values():
-            if 'position' in node:
-                try:
-                    nodeID = node['num']
-                    latitude = node['position']['latitude']
-                    longitude = node['position']['longitude']
-
-                    #lastheard time in unix time
-                    lastheard = node.get('lastHeard', 0)
-                    #if last heard is over 24 hours ago, ignore the node
-                    if lastheard < (time.time() - 86400):
-                        continue
-
-                    # Calculate distance to node from config.ini location
-                    distance = round(geopy.distance.geodesic((latitudeValue, longitudeValue), (latitude, longitude)).m, 2)
-                    
-                    if (distance < sentry_radius):
-                        if (nodeID not in [globals().get(f'myNodeNum{i}') for i in range(1, 10)]) and str(nodeID) not in sentryIgnoreList:
-                            node_list.append({'id': nodeID, 'latitude': latitude, 'longitude': longitude, 'distance': distance})
-                            
-                except Exception as e:
-                    pass
-            else:
-                # request location data moved to .ini hidden under [sentry]
-                if reqLocationEnabled:
+        if interface.nodes:
+            for node in interface.nodes.values():
+                if 'position' in node:
                     try:
-                        logger.debug(f"System: Requesting location data for {node['id']}, lastHeard: {node.get('lastHeard', 'N/A')}")
-                        # one idea is to send a ping to the node to request location data for if or when, ask again later
-                        interface.sendPosition(destinationId=node['id'], wantResponse=False, channelIndex=channel)
-                        # wait a bit
-                        time.sleep(3)
-                        # send a traceroute request
-                        interface.sendTraceRoute(destinationId=node['id'], channelIndex=channel, wantResponse=False)
-                        # wait a bit
-                        time.sleep(1)
+                        nodeID = node['num']
+                        latitude = node['position']['latitude']
+                        longitude = node['position']['longitude']
+
+                        #lastheard time in unix time
+                        lastheard = node.get('lastHeard', 0)
+                        #if last heard is over 24 hours ago, ignore the node
+                        if lastheard < (time.time() - 86400):
+                            continue
+
+                        # Calculate distance to node from config.ini location
+                        distance = round(geopy.distance.geodesic((latitudeValue, longitudeValue), (latitude, longitude)).m, 2)
+                        
+                        if (distance < sentry_radius):
+                            if (nodeID not in [globals().get(f'myNodeNum{i}') for i in range(1, 10)]) and str(nodeID) not in sentryIgnoreList:
+                                node_list.append({'id': nodeID, 'latitude': latitude, 'longitude': longitude, 'distance': distance})
+                                
                     except Exception as e:
-                        logger.error(f"System: Error requesting location data for {node['id']}. Error: {e}")
-        # sort by distance closest
-        #node_list.sort(key=lambda x: (x['latitude']-latitudeValue)**2 + (x['longitude']-longitudeValue)**2)
-        node_list.sort(key=lambda x: x['distance'])
-        # return the first 3 closest nodes by default
-        return node_list[:returnCount]
-    else:
-        logger.warning(f"System: No nodes found in closest_nodes on interface {nodeInt}")
-        return ERROR_FETCHING_DATA
+                        pass
+                else:
+                    # request location data currently blocking needs to be async
+                    reqLocationEnabled = False
+                    if reqLocationEnabled:
+                        try:
+                            logger.debug(f"System: Requesting location data for {node['id']}, lastHeard: {node.get('lastHeard', 'N/A')}")
+                            # if not a interface node
+                            if node['num'] in [globals().get(f'myNodeNum{i}') for i in range(1, 10)]:
+                                ignore = True
+                            else:
+                                # one idea is to send a ping to the node to request location data for if or when, ask again later
+                                interface.sendPosition(destinationId=node['id'], wantResponse=False, channelIndex=channel)
+                                # wayyy too fast async wait
+                                
+                                # send a traceroute request
+                                interface.sendTraceRoute(destinationId=node['id'], channelIndex=channel, wantResponse=False)
+                        except Exception as e:
+                            logger.error(f"System: Error requesting location data for {node['id']}. Error: {e}")
+            # sort by distance closest
+            #node_list.sort(key=lambda x: (x['latitude']-latitudeValue)**2 + (x['longitude']-longitudeValue)**2)
+            node_list.sort(key=lambda x: x['distance'])
+            # return the first 3 closest nodes by default
+            return node_list[:returnCount]
+        else:
+            logger.warning(f"System: No nodes found in closest_nodes on interface {nodeInt}")
+            return ERROR_FETCHING_DATA
     
 def handleFavoriteNode(nodeInt=1, nodeID=0, aor=False):
     # Add or remove a favorite node for the given interface. aor: True to add, False to remove.
@@ -797,10 +881,42 @@ def send_message(message, ch, nodeid=0, nodeInt=1, bypassChuncking=False):
                     logger.info(f"Device:{nodeInt} " + CustomFormatter.red + "Sending DM: " + CustomFormatter.white + message.replace('\n', ' ') + CustomFormatter.purple +\
                                 " To: " + CustomFormatter.white + f"{get_name_from_number(nodeid, 'long', nodeInt)}")
                     interface.sendText(text=message, channelIndex=ch, destinationId=nodeid)
+            # Throttle the message sending to prevent spamming the device
+            time.sleep(responseDelay)
         return True
     except Exception as e:
         logger.error(f"System: Exception during send_message: {e} (message length: {len(message)})")
         return False
+
+def send_raw_bytes(nodeid, raw_bytes, nodeInt=1, channel=0, portnum=256,  want_ack=True):
+    # Send raw bytes to a node using the Meshtastic interface.
+    interface = globals()[f'interface{nodeInt}']
+    try:
+        interface.sendData(
+            raw_bytes,
+            destinationId=nodeid,
+            portNum=portnum,
+            channelIndex=channel,
+            wantAck=want_ack
+        )
+        # Throttle the message sending to prevent spamming the device
+        logger.debug(f"System: Sent raw bytes to {nodeid} on portnum {portnum} via Device{nodeInt}")
+        time.sleep(responseDelay)
+        return True
+    except Exception as e:
+        logger.error(f"System: Error sending raw bytes to {nodeid} via Device{nodeInt}: {e} bytes: {raw_bytes}")
+        return False
+
+def decode_raw_bytes(raw_bytes):
+    # Decode raw bytes received from a Meshtastic device.
+    try:
+        decoded_message = raw_bytes.decode('utf-8', errors='ignore')
+        # reminder for a synch word check or crc check if needed later
+        logger.debug(f"Decoded raw bytes: {decoded_message}")
+        return decoded_message
+    except Exception as e:
+        logger.debug(f"System: Error decoding raw bytes: {e} bytes: {raw_bytes}")
+        return ""
 
 def messageTrap(msg):
     # Check if the message contains a trap word, this is the first filter for listning to messages
@@ -987,7 +1103,6 @@ def handleMultiPing(nodeID=0, deviceID=1):
 
                 # send the DM
                 send_message(f"🔂{count} {type}", channel_number, message_id_from, deviceID, bypassChuncking=True)
-                time.sleep(responseDelay + 1)
                 if count < 2:
                     # remove the item from the list
                     for j in range(len(multiPingList)):
@@ -1072,9 +1187,6 @@ def handleAlertBroadcast(deviceID=1):
             else:
                 send_message(deAlert, emergencyAlertBroadcastCh, 0, deviceID)
             return True
-        
-    # pause for traffic
-    time.sleep(5)
 
     if wxAlertBroadcastEnabled:
         if wxAlert:
@@ -1088,9 +1200,6 @@ def handleAlertBroadcast(deviceID=1):
             else:
                 send_message(wxAlert, wxAlertBroadcastChannel, 0, deviceID)
             return True
-    
-    # pause for traffic
-    time.sleep(5)
 
     if volcanoAlertBroadcastEnabled:
         volcanoAlert = get_volcano_usgs(latitudeValue, longitudeValue)
@@ -1111,12 +1220,13 @@ def onDisconnect(interface):
     interface.close()
 
 # Telemetry Functions
-telemetryData = {}
+localTelemetryData = {}
 def initialize_telemetryData():
-    telemetryData[0] = {f'interface{i}': 0 for i in range(1, 10)}
-    telemetryData[0].update({f'lastAlert{i}': '' for i in range(1, 10)})
+    global localTelemetryData
+    localTelemetryData[0] = {f'interface{i}': 0 for i in range(1, 10)}
+    localTelemetryData[0].update({f'lastAlert{i}': '' for i in range(1, 10)})
     for i in range(1, 10):
-        telemetryData[i] = {'numPacketsTx': 0, 'numPacketsRx': 0, 'numOnlineNodes': 0, 'numPacketsTxErr': 0, 'numPacketsRxErr': 0, 'numTotalNodes': 0}
+        localTelemetryData[i] = {'numPacketsTx': 0, 'numPacketsRx': 0, 'numOnlineNodes': 0, 'numPacketsTxErr': 0, 'numPacketsRxErr': 0, 'numTotalNodes': 0}
 
 # indented to be called from the main loop
 initialize_telemetryData()
@@ -1169,23 +1279,26 @@ def compileFavoriteList(getInterfaceIDs=True):
 def displayNodeTelemetry(nodeID=0, rxNode=0, userRequested=False):
     interface = globals()[f'interface{rxNode}']
     myNodeNum = globals().get(f'myNodeNum{rxNode}')
-    global telemetryData
-
+    global localTelemetryData
+  
     # throttle the telemetry requests to prevent spamming the device
     if 1 <= rxNode <= 9:
-        if time.time() - telemetryData[0][f'interface{rxNode}'] < 600 and not userRequested:
+        if time.time() - localTelemetryData[0][f'interface{rxNode}'] < 600 and not userRequested:
             return -1
-        telemetryData[0][f'interface{rxNode}'] = time.time()
+        localTelemetryData[0][f'interface{rxNode}'] = time.time()
 
     # some telemetry data is not available in python-meshtastic?
     # bring in values from the last telemetry dump for the node
-    numPacketsTx = telemetryData[rxNode]['numPacketsTx']
-    numPacketsRx = telemetryData[rxNode]['numPacketsRx']
-    numPacketsTxErr = telemetryData[rxNode]['numPacketsTxErr']
-    numPacketsRxErr = telemetryData[rxNode]['numPacketsRxErr']
-    numTotalNodes = telemetryData[rxNode]['numTotalNodes']
-    totalOnlineNodes = telemetryData[rxNode]['numOnlineNodes']
-
+    numPacketsTx = localTelemetryData[rxNode].get('numPacketsTx', 0)
+    numPacketsRx = localTelemetryData[rxNode].get('numPacketsRx', 0)
+    numPacketsTxErr = localTelemetryData[rxNode].get('numPacketsTxErr', 0)
+    numPacketsRxErr = localTelemetryData[rxNode].get('numPacketsRxErr', 0)
+    numTotalNodes = localTelemetryData[rxNode].get('numTotalNodes', 0)
+    totalOnlineNodes = localTelemetryData[rxNode].get('numOnlineNodes', 0)
+    numRXDupes = localTelemetryData[rxNode].get('numRXDupes', 0)
+    numTxRelays = localTelemetryData[rxNode].get('numTxRelays', 0)
+    heapFreeBytes = localTelemetryData[rxNode].get('heapFreeBytes', 0)
+    heapTotalBytes = localTelemetryData[rxNode].get('heapTotalBytes', 0)
     # get the telemetry data for a node
     chutil = round(interface.nodes.get(decimal_to_hex(myNodeNum), {}).get("deviceMetrics", {}).get("channelUtilization", 0), 1)
     airUtilTx = round(interface.nodes.get(decimal_to_hex(myNodeNum), {}).get("deviceMetrics", {}).get("airUtilTx", 0), 1)
@@ -1226,6 +1339,18 @@ def displayNodeTelemetry(nodeID=0, rxNode=0, userRequested=False):
         send_message(f"Low Battery Level: {batteryLevel}{emji} on Device: {rxNode}", {secure_channel}, 0, {secure_interface})
     elif batteryLevel < 10:
         logger.critical(f"System: Critical Battery Level: {batteryLevel}{emji} on Device: {rxNode}")
+
+    # if numRXDupes,numTxRelays,heapFreeBytes,heapTotalBytes are available loge them
+    # if numRXDupes != 0:
+    #     dataResponse += f" RXDupes:{numRXDupes}"
+    #     logger.debug(f"System: Device {rxNode} RX Dupes:{numRXDupes}")
+    # if numTxRelays != 0:
+    #     dataResponse += f" TxRelays:{numTxRelays}"
+    #     logger.debug(f"System: Device {rxNode} TX Relays:{numTxRelays}")
+    # if heapFreeBytes != 0 and heapTotalBytes != 0:
+    #     logger.debug(f"System: Device {rxNode} Heap Memory Free:{heapFreeBytes} Total:{heapTotalBytes}")
+        #dataResponse += f" Heap:{heapFreeBytes}/{heapTotalBytes}"
+
     return dataResponse
 
 positionMetadata = {}
@@ -1241,6 +1366,7 @@ def initializeMeshLeaderboard():
         'coldestTemp': {'nodeID': None, 'value': 999, 'timestamp': 0},    # 🥶
         'hottestTemp': {'nodeID': None, 'value': -999, 'timestamp': 0},   # 🥵
         'worstAirQuality': {'nodeID': None, 'value': 0, 'timestamp': 0},  # 💨
+        'mostTMessages': {'nodeID': None, 'value': 0, 'timestamp': 0},    # 💬
         'mostMessages': {'nodeID': None, 'value': 0, 'timestamp': 0},     # 💬
         'highestDBm': {'nodeID': None, 'value': -999, 'timestamp': 0},    # 📶
         'weakestDBm': {'nodeID': None, 'value': 999, 'timestamp': 0},     # 📶
@@ -1250,12 +1376,16 @@ def initializeMeshLeaderboard():
         'adminPackets': [],      # 🚨
         'tunnelPackets': [],     # 🚨
         'audioPackets': [],      # ☎️
-        'simulatorPackets': []   # 🤖
+        'simulatorPackets': [],  # 🤖
+        'emojiCounts': {},       # Track emoji counts per node
+        'emojiTypeCounts': {},   # Track emoji type counts
+        'nodeMessageCounts': {},  # Track total message counts per node
+        'nodeTMessageCounts': {}  # Track total Tmessage counts per node
     }
 
 initializeMeshLeaderboard()
 def consumeMetadata(packet, rxNode=0, channel=-1):
-    global positionMetadata, telemetryData, meshLeaderboard
+    global positionMetadata, localTelemetryData, meshLeaderboard
     uptime = battery = temp = iaq = nodeID = 0
     deviceMetrics, envMetrics, localStats = {}, {}, {}
 
@@ -1271,12 +1401,12 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
             # consider Meta for most messages leaderboard
             node_message_count = meshLeaderboard.get('nodeMessageCounts', {})
             node_message_count[nodeID] = node_message_count.get(nodeID, 0) + 1
-            meshLeaderboard['nodeMessageCounts'] = node_message_count    
+            meshLeaderboard['nodeTMessageCounts'] = node_message_count 
             
-            if node_message_count[nodeID] > meshLeaderboard['mostMessages']['value']:
-                meshLeaderboard['mostMessages']['value'] = node_message_count[nodeID]
-                meshLeaderboard['mostMessages']['nodeID'] = nodeID
-                meshLeaderboard['mostMessages']['timestamp'] = time.time()
+            if node_message_count[nodeID] > meshLeaderboard['mostTMessages']['value']:
+                meshLeaderboard['mostTMessages']['value'] = node_message_count[nodeID]
+                meshLeaderboard['mostTMessages']['nodeID'] = nodeID
+                meshLeaderboard['mostTMessages']['timestamp'] = time.time()
 
             # consider Meta for highest and weakest DBm
             if packet.get('rxSnr') is not None:
@@ -1349,31 +1479,26 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
             except Exception as e:
                 logger.debug(f"System: TELEMETRY_APP iaq error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
 
-        # Collect localStats for telemetryData
+        # Update localStats in telemetryData
         if telemetry_packet.get('localStats'):
             localStats = telemetry_packet['localStats']
             try:
-                # Check if 'numPacketsTx' and 'numPacketsRx' exist and are not zero
-                if localStats.get('numPacketsTx') is not None and localStats.get('numPacketsRx') is not None and localStats['numPacketsTx'] != 0:
-                    # Assign the values to the telemetry dictionary
-                    keys = [
-                        'numPacketsTx', 'numPacketsRx', 'numOnlineNodes', 
-                        'numOfflineNodes', 'numPacketsTxErr', 'numPacketsRxErr', 'numTotalNodes']
-                    for key in keys:
-                        if localStats.get(key) is not None:
-                            telemetryData[rxNode][key] = localStats.get(key)
+                # Only store keys where value is not 0
+                filtered_stats = {k: v for k, v in localStats.items() if v != 0}
+                localTelemetryData[rxNode].update(filtered_stats)
             except Exception as e:
                 logger.debug(f"System: TELEMETRY_APP localStats error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
+
     #POSITION_APP packets
     if packet_type == 'POSITION_APP':
         try:
             if debugMetadata and 'POSITION_APP' not in metadataFilter:
                 print(f"DEBUG POSITION_APP: {packet}\n\n")
-            keys = ['altitude', 'groundSpeed', 'precisionBits']
+            position_stats_keys = ['altitude', 'groundSpeed', 'precisionBits']
             position_data = packet['decoded']['position']
             if nodeID not in positionMetadata:
                 positionMetadata[nodeID] = {}
-            for key in keys:
+            for key in position_stats_keys:
                 positionMetadata[nodeID][key] = position_data.get(key, 0)
             # Track fastest speed 🚓
             if position_data.get('groundSpeed') is not None:
@@ -1393,20 +1518,38 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
                     if logMetaStats:
                         logger.info(f"System: 🚀 New altitude record: {altitude}m from NodeID:{nodeID} ShortName:{get_name_from_number(nodeID, 'short', rxNode)}")
             # if altitude is over highfly_altitude send a log and message for high-flying nodes and not in highfly_ignoreList
-            if position_data.get('altitude', 0) > highfly_altitude and highfly_enabled and str(nodeID) not in highfly_ignoreList:
+            if position_data.get('altitude', 0) > highfly_altitude and highfly_enabled and str(nodeID) not in highfly_ignoreList and not isNodeBanned(nodeID):
                 logger.info(f"System: High Altitude {position_data['altitude']}m on Device: {rxNode} Channel: {channel} NodeID:{nodeID} Lat:{position_data.get('latitude', 0)} Lon:{position_data.get('longitude', 0)}")
                 altFeet = round(position_data['altitude'] * 3.28084, 2)
                 msg = f"🚀 High Altitude Detected! NodeID:{nodeID} Alt:{altFeet:,.0f}ft/{position_data['altitude']:,.0f}m"
+                
+                # throttle sending alerts for the same node more than once every 30 minutes
+                last_alert_time = positionMetadata[nodeID].get('lastHighFlyAlert', 0)
+                current_time = time.time()
+                if current_time - last_alert_time < 1800:
+                    return False # less than 30 minutes since last alert
+                positionMetadata[nodeID]['lastHighFlyAlert'] = current_time
+                
                 if highfly_check_openskynetwork:
                     # check get_openskynetwork to see if the node is an aircraft
                     if 'latitude' in position_data and 'longitude' in position_data:
                         flight_info = get_openskynetwork(position_data.get('latitude', 0), position_data.get('longitude', 0))
-                    if flight_info and NO_ALERTS not in flight_info and ERROR_FETCHING_DATA not in flight_info:
-                        msg += f"\n✈️Detected near:\n{flight_info}"
+                    # Only show plane if within altitude
+                    if (
+                        flight_info
+                        and NO_ALERTS not in flight_info
+                        and ERROR_FETCHING_DATA not in flight_info
+                        and isinstance(flight_info, dict)
+                        and 'altitude' in flight_info
+                    ):
+                        plane_alt = flight_info['altitude']
+                        node_alt = position_data.get('altitude', 0)
+                        if abs(node_alt - plane_alt) <= 900:  # within 900m
+                            msg += f"\n✈️Detected near:\n{flight_info}"
                 send_message(msg, highfly_channel, 0, highfly_interface)
-                time.sleep(responseDelay)
-            # Keep the positionMetadata dictionary at a maximum size of 20
-            if len(positionMetadata) > 20:
+
+            # Keep the positionMetadata dictionary at a maximum size
+            if len(positionMetadata) > MAX_SEEN_NODES:
                 # Remove the oldest entry
                 oldest_nodeID = next(iter(positionMetadata))
                 del positionMetadata[oldest_nodeID]
@@ -1475,7 +1618,6 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
                     logger.info(f"System: Detection Sensor Data from Device: {rxNode} Channel: {channel} NodeID:{nodeID} Text:{detction_text}")
                 if detctionSensorAlert:
                     send_message(f"🚨Detection Sensor from Device: {rxNode} Channel: {channel} NodeID:{get_name_from_number(nodeID,'long',rxNode)} Alert:{detction_text}", secure_channel, 0, secure_interface)
-                    time.sleep(responseDelay)
         except Exception as e:
             logger.debug(f"System: DETECTION_SENSOR_APP decode error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
 
@@ -1552,6 +1694,22 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
 
     # COMPRESSED_TEXT_APP
 
+    # ATTAK_APP
+
+    # SERIAL_APP
+
+    # NODE_DB_APP
+
+    # RTTTL_APP
+
+    # STORE_AND_FORWARD_APP
+
+    # DEBUG_APP
+
+    # RANGEREPORT_APP
+
+    # CENSUS_APP
+
     # AUDIO_APP - Track audio/voice packets ☎️
     if packet_type == 'AUDIO_APP':
         try:
@@ -1611,11 +1769,11 @@ def saveLeaderboard():
 def loadLeaderboard():
     global meshLeaderboard
     try:
-        defaults = {}
         initializeMeshLeaderboard()
+        defaults = meshLeaderboard.copy()
         with open('data/leaderboard.pkl', 'rb') as f:
-            meshLeaderboard = pickle.load(f)
-        defaults.update(meshLeaderboard)  # loaded values overwrite defaults
+            loaded = pickle.load(f)
+        defaults.update(loaded)  # loaded values overwrite defaults
         meshLeaderboard = defaults
         if logMetaStats:
             logger.debug("System: Mesh Leaderboard loaded from leaderboard.pkl")
@@ -1707,16 +1865,29 @@ def get_mesh_leaderboard(msg, fromID, deviceID):
         result += f"📶 Best RF: {value} dBm {get_name_from_number(nodeID, 'short', 1)}\n"
 
     # Most Telemetry Messages
+    if 'nodeTMessageCounts' in meshLeaderboard and meshLeaderboard['mostTMessages']['nodeID'] is not None:
+        nodeID = meshLeaderboard['mostTMessages']['nodeID']
+        value = meshLeaderboard['mostTMessages']['value']
+        result += f"💬 Most Telemetry: {value} {get_name_from_number(nodeID, 'short', 1)}\n"
+
+    # Most Emojis
+    if meshLeaderboard.get('mostEmojis', {}).get('nodeID') is not None:
+        nodeID = meshLeaderboard['mostEmojis']['nodeID']
+        value = meshLeaderboard['mostEmojis']['value']
+        result += f"🤪 Most Emojis: {value} {get_name_from_number(nodeID, 'short', 1)}\n"
+    
+    # Most Messages
     if 'nodeMessageCounts' in meshLeaderboard and meshLeaderboard['mostMessages']['nodeID'] is not None:
         nodeID = meshLeaderboard['mostMessages']['nodeID']
         value = meshLeaderboard['mostMessages']['value']
-        result += f"💬 Most Telemetry: {value} {get_name_from_number(nodeID, 'short', 1)}\n"
+        result += f"💬 Most Messages: {value} {get_name_from_number(nodeID, 'short', 1)}\n"
 
     # Most WiFi devices seen
     if meshLeaderboard.get('mostPaxWiFi', {}).get('nodeID'):
         nodeID = meshLeaderboard['mostPaxWiFi']['nodeID']
         value = meshLeaderboard['mostPaxWiFi']['value']
         result += f"📶 PAX Wifi: {value} {get_name_from_number(nodeID, 'short', 1)}\n"
+
     # Most BLE devices seen
     if meshLeaderboard.get('mostPaxBLE', {}).get('nodeID'):
         nodeID = meshLeaderboard['mostPaxBLE']['nodeID']
@@ -1747,7 +1918,7 @@ def get_sysinfo(nodeID=0, deviceID=1):
     # Get the system telemetry data for return on the sysinfo command
     sysinfo = ''
     stats = str(displayNodeTelemetry(nodeID, deviceID, userRequested=True)) + " 🤖👀" + str(len(seenNodes))
-    if "numPacketsRx:0" in stats or stats == -1:
+    if "numPacketsTx:0" in stats or stats == -1:
         return "Gathering Telemetry try again later⏳"
     # replace Telemetry with Int in string
     stats = stats.replace("Telemetry", "Int")
@@ -1776,13 +1947,11 @@ async def handleSignalWatcher():
                     for ch in sigWatchBroadcastCh:
                         if antiSpam and ch != publicChannel:
                             send_message(msg, int(ch), 0, sigWatchBroadcastInterface)
-                            time.sleep(responseDelay)
                         else:
                             logger.warning(f"System: antiSpam prevented Alert from Hamlib {msg}")
                 else:
                     if antiSpam and sigWatchBroadcastCh != publicChannel:
                         send_message(msg, int(sigWatchBroadcastCh), 0, sigWatchBroadcastInterface)
-                        time.sleep(responseDelay)
                     else:
                         logger.warning(f"System: antiSpam prevented Alert from Hamlib {msg}")
 
@@ -1805,23 +1974,19 @@ async def handleFileWatcher():
                     for ch in file_monitor_broadcastCh:
                         if antiSpam and int(ch) != publicChannel:
                             send_message(msg, int(ch), 0, 1)
-                            time.sleep(responseDelay)
                             if multiple_interface:
                                 for i in range(2, 10):
                                     if globals().get(f'interface{i}_enabled'):
                                         send_message(msg, int(ch), 0, i)
-                                        time.sleep(responseDelay)
                         else:
                             logger.warning(f"System: antiSpam prevented Alert from FileWatcher")
                 else:
                     if antiSpam and file_monitor_broadcastCh != publicChannel:
                         send_message(msg, int(file_monitor_broadcastCh), 0, 1)
-                        time.sleep(responseDelay)
                         if multiple_interface:
                             for i in range(2, 10):
                                 if globals().get(f'interface{i}_enabled'):
                                     send_message(msg, int(file_monitor_broadcastCh), 0, i)
-                                    time.sleep(responseDelay)
                     else:
                         logger.warning(f"System: antiSpam prevented Alert from FileWatcher")
 
@@ -1879,46 +2044,62 @@ handleSentinel_spotted = []
 handleSentinel_loop = 0
 async def handleSentinel(deviceID):
     global handleSentinel_spotted, handleSentinel_loop
-    detectedNearby = ""
+    detectedNearby = None
     resolution = "unknown"
-    closest_nodes = get_closest_nodes(deviceID)
-    closest_node = closest_nodes[0]['id'] if closest_nodes != ERROR_FETCHING_DATA and closest_nodes else None
-    closest_distance = closest_nodes[0]['distance'] if closest_nodes != ERROR_FETCHING_DATA and closest_nodes else None
 
-    # check if the handleSentinel_spotted list contains the closest node already
-    if closest_node in [i['id'] for i in handleSentinel_spotted]:
-        # check if the distance is closer than the last time, if not just return
-        for i in range(len(handleSentinel_spotted)):
-            if handleSentinel_spotted[i]['id'] == closest_node and closest_distance is not None and closest_distance < handleSentinel_spotted[i]['distance']:
-                handleSentinel_spotted[i]['distance'] = closest_distance
-                break
-            else:
-                return
-    
-    if closest_nodes != ERROR_FETCHING_DATA and closest_nodes:
-        if closest_nodes[0]['id'] is not None:
-            detectedNearby = get_name_from_number(closest_node, 'long', deviceID)
-            detectedNearby += ", " + get_name_from_number(closest_nodes[0]['id'], 'short', deviceID)
-            detectedNearby += ", " + str(closest_nodes[0]['id'])
-            detectedNearby += ", " + decimal_to_hex(closest_nodes[0]['id'])
-            detectedNearby += f" at {closest_distance}m"
+    closest_nodes = await get_closest_nodes(deviceID, returnCount=10)
+    #logger.debug(f"handleSentinel: closest_nodes={closest_nodes}")
 
-    if handleSentinel_loop >= sentry_holdoff and detectedNearby not in ["", None]:
-        if closest_nodes and positionMetadata and closest_nodes[0]['id'] in positionMetadata:
-            metadata = positionMetadata[closest_nodes[0]['id']]
-            if metadata.get('precisionBits') is not None:
-                resolution = metadata.get('precisionBits')
+    if not closest_nodes or closest_nodes == ERROR_FETCHING_DATA:
+        return
 
-        logger.warning(f"System: {detectedNearby} is close to your location on Interface{deviceID} Accuracy is {resolution}bits")
-        send_message(f"Sentry{deviceID}: {detectedNearby}", secure_channel, 0, secure_interface)
-        time.sleep(responseDelay + 1)
-        if enableSMTP and email_sentry_alerts:
-            for email in sysopEmails:
-                send_email(email, f"Sentry{deviceID}: {detectedNearby}")
-        handleSentinel_loop = 0
-        handleSentinel_spotted.append({'id': closest_node, 'distance': closest_distance})
-    else:
+    # Find any watched node inside or outside the zone
+    for node in closest_nodes:
+        node_id = node['id']
+        distance = node['distance']
+
+        if str(node_id) in sentryIgnoreList:
+            return
+        # Message conditions
+        if distance >= sentry_radius and str(node_id) and str(node_id) in sentryWatchList:
+            # Outside zone
+            detectedNearby = f"{get_name_from_number(node_id, 'long', deviceID)}, {get_name_from_number(node_id, 'short', deviceID)}, {node_id}, {decimal_to_hex(node_id)} at {distance}m (OUTSIDE ZONE)"
+        elif distance <= sentry_radius and str(node_id) not in sentryWatchList:
+            # Inside the zone
+            detectedNearby = f"{get_name_from_number(node_id, 'long', deviceID)}, {get_name_from_number(node_id, 'short', deviceID)}, {node_id}, {decimal_to_hex(node_id)} at {distance}m (INSIDE ZONE)"
+
+    #logger.debug(f"handleSentinel: loop={handleSentinel_loop}/{sentry_holdoff}, detectedNearby={detectedNearby} closest_nodes={closest_nodes}")
+    if detectedNearby:
         handleSentinel_loop += 1
+        #logger.debug(f"handleSentinel: detectedNearby={detectedNearby}, loop={handleSentinel_loop}/{sentry_holdoff}")
+        if handleSentinel_loop >= sentry_holdoff:
+            # Get resolution if available
+            if positionMetadata and node_id in positionMetadata:
+                metadata = positionMetadata[node_id]
+                if metadata.get('precisionBits') is not None:
+                    resolution = metadata.get('precisionBits')
+            # Send message alert
+            logger.warning(f"System: {detectedNearby} on Interface{deviceID} Accuracy is {resolution}bits")
+            send_message(f"Sentry{deviceID}: {detectedNearby}", secure_channel, 0, secure_interface)
+            
+            # Send email alerts
+            if enableSMTP and email_sentry_alerts:
+                for email in sysopEmails:
+                    send_email(email, f"Sentry{deviceID}: {detectedNearby}")
+
+            # Execute external script alerts
+            if cmdShellSentryAlerts and distance <= sentry_radius:
+                # inside zone
+                call_external_script('', script=sentryAlertNear)
+                logger.info(f"System: Sentry Script Alert {sentryAlertNear} for NodeID:{node_id} on Interface{deviceID}")
+            elif cmdShellSentryAlerts and distance >= sentry_radius:
+                # outside zone
+                call_external_script('', script=sentryAlertFar)
+                logger.info(f"System: Sentry Script Alert {sentryAlertFar} for NodeID:{node_id} on Interface{deviceID}")
+
+            handleSentinel_loop = 0 # Loop reset
+    else:
+        handleSentinel_loop = 0  # Reset if nothing detected
 
 async def process_vox_queue():
         # process the voxMsgQueue
@@ -1932,10 +2113,9 @@ async def process_vox_queue():
                 for channel in sigWatchBroadcastCh:
                     if antiSpam and int(channel) != publicChannel:
                         send_message(message, int(channel), 0, sigWatchBroadcastInterface)
-                        time.sleep(responseDelay)
 
 async def watchdog():
-    global telemetryData, retry_int1, retry_int2, retry_int3, retry_int4, retry_int5, retry_int6, retry_int7, retry_int8, retry_int9
+    global localTelemetryData, retry_int1, retry_int2, retry_int3, retry_int4, retry_int5, retry_int6, retry_int7, retry_int8, retry_int9
     logger.debug("System: Watchdog started")
     while True:
         await asyncio.sleep(20)
@@ -1948,14 +2128,15 @@ async def watchdog():
         for i in range(1, 10):
             interface = globals().get(f'interface{i}')
             retry_int = globals().get(f'retry_int{i}')
-            if interface is not None and not retry_int and globals().get(f'interface{i}_enabled'):
+            int_enabled = globals().get(f'interface{i}_enabled')
+            if interface is not None and not retry_int and int_enabled:
                 try:
                     firmware = getNodeFirmware(0, i)
                 except Exception as e:
                     logger.error(f"System: communicating with interface{i}, trying to reconnect: {e}")
                     globals()[f'retry_int{i}'] = True
 
-                if not globals()[f'retry_int{i}']:
+                if not retry_int and int_enabled:
                     if sentry_enabled:
                         await handleSentinel(i)
 
@@ -1965,11 +2146,11 @@ async def watchdog():
                         handleAlertBroadcast(i)
 
                     intData = displayNodeTelemetry(0, i)
-                    if intData != -1 and telemetryData[0][f'lastAlert{i}'] != intData:
+                    if intData != -1 and localTelemetryData[0][f'lastAlert{i}'] != intData:
                         logger.debug(intData + f" Firmware:{firmware}")
-                        telemetryData[0][f'lastAlert{i}'] = intData
+                        localTelemetryData[0][f'lastAlert{i}'] = intData
 
-            if globals()[f'retry_int{i}'] and globals()[f'interface{i}_enabled']:
+            if retry_int and int_enabled:
                 try:
                     await retry_interface(i)
                 except Exception as e:

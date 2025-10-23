@@ -1,7 +1,7 @@
 #config.ini
 # type can be serial, tcp, or ble
 # port is the serial port to use, commented out will try to auto-detect
-# hostname is the IP address of the device to connect to for tcp type
+# hostname is the IP/DNS and port for tcp type default is host:4403
 # mac is the MAC address of the device to connect to for ble type
 
 [interface]
@@ -127,19 +127,28 @@ alert_interface = 1
 [sentry]
 # detect anyone close to the bot
 SentryEnabled = True
-reqLocationEnabled = False
-emailSentryAlerts = False
-# radius in meters to detect someone close to the bot
-SentryRadius = 100
 # device interface and channel to send the alert message to
 SentryInterface = 1
 SentryChannel = 2
-# holdoff time multiplied by seconds(20) of the watchdog
-SentryHoldoff = 9
+emailSentryAlerts = False
+# Enable detection sensor alert, requires external GPIO sensor connected to node
+detectionSensorAlert = False
+
 # list of ignored nodes numbers ex: 2813308004,4258675309
 sentryIgnoreList =
-# Enable detection sensor alert, requires external sensor connected to node
-detectionSensorAlert = False
+# list of watched nodes numbers ex: 2813308004,4258675309
+sentryWatchList =
+
+# radius in meters to detect someone close to the bot
+SentryRadius = 100
+# holdoff time multiplied by seconds(20) of the watchdog
+SentryHoldoff = 9
+
+# Enable running external shell command when sentry alert is triggered
+cmdShellSentryAlerts = False
+# External shell command to run when sentry alert is triggered
+sentryAlertNear = sentry_alert_near.sh
+sentryAlertAway = sentry_alert_away.sh
 
 # HighFlying Node alert
 highFlyingAlert = True
@@ -239,7 +248,7 @@ enableDEalerts = False
 myRegionalKeysDE = 110000000000,120510000000
 
 # Satalite Pass Prediction
-# Register for free API https://www.n2yo.com/login/
+# Register for free API https://www.n2yo.com/login/ personal data page at bottom 'Are you developer?'
 n2yoAPIKey = 
 # NORAD list https://www.n2yo.com/satellites/
 satList = 25544,7530
@@ -277,7 +286,9 @@ channel = 2
 message = "MeshBot says Hello! DM for more info."
 # enable overides the above and uses the motd as the message
 schedulerMotd = False
-# value can be min,hour,day,mon,tue,wed,thu,fri,sat,sun
+# value can be min,hour,day,mon,tue,wed,thu,fri,sat,sun.
+# value can also be joke (everyXmin) or weather (hour) for special scheduled messages
+# custom for module/scheduler.py custom schedule examples
 value =
 # interval to use when time is not set (e.g. every 2 days)
 interval = 
@@ -308,6 +319,7 @@ voxLanguage = en-us
 voxInputDevice = default
 voxOnTrapList = True
 voxTrapList = chirpy
+voxEnableCmd = True
 
 
 [fileMon]
@@ -373,12 +385,15 @@ golfsim = True
 hangman = True
 hamtest = True
 tictactoe = True
+wordOfTheDay = True
 
 # enable or disable the quiz game module questions are in data/quiz.json
 quiz = False
 
-# enable or disable the survey game module questions are in data/survey/survey.json
+# enable or disable the survey game module questions are in data/survey/*_survey.json
 survey = False
+# this is the default survey to use when command givcen, from data/survey/example_survey.json
+defaultSurvey = example
 # Whether to record user ID in responses
 surveyRecordID=True
 # Whether to record location on start of survey
@@ -393,7 +408,7 @@ splitDelay = 2.5
 MESSAGE_CHUNK_SIZE = 160
 # Request Acknowledgement of message OTA
 wantAck = False
-# Max limit buffer for radio testing
+# Max limit buffer for radio testing in bytes
 maxBuffer = 200
 #Enable Extra logging of Hop count data
 enableHopLogs = False

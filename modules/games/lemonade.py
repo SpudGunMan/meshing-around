@@ -23,6 +23,7 @@ lemonadeLemons = [{'nodeID': 0, 'cost': 4.00, 'count': 8, 'min': 2.00, 'unit': 0
 lemonadeSugar = [{'nodeID': 0, 'cost': 3.00, 'count': 15, 'min': 1.50, 'unit': 0.00}]
 lemonadeWeeks = [{'nodeID': 0, 'current': 1, 'total': lemon_total_weeks, 'sales': 99, 'potential': 0, 'unit': 0.00, 'price': 0.00, 'total_sales': 0}]
 lemonadeScore = [{'nodeID': 0, 'value': 0.00, 'total': 0.00}]
+from modules.settings import lemonadeTracker
 
 def get_sales_amount(potential, unit, price):
     """Gets the sales amount.
@@ -258,7 +259,7 @@ def playLemonstand(nodeID, message, celsius=False, newgame=False):
             buffer += ". " + \
                         formatted + temperature.units + " " + \
                         forecastd[list(forecastd)[temperature.forecast]][2] + \
-                        " " + glyph
+                        " " + glyph + f"\n"
 
             # Calculate the potential sales as a percentage of the maximum value
             # (lower temperature = fewer sales, severe weather = fewer sales)
@@ -287,23 +288,23 @@ def playLemonstand(nodeID, message, celsius=False, newgame=False):
 
             # Calculate the unit cost and display the estimated sales from the forecast potential
             unit = max(0.01, min(cups.unit + lemons.unit + sugar.unit, 4.0))  # limit the unit cost between $0.01 and $4.00
-            buffer += " SupplyCost" + locale.currency(round(unit, 2), grouping=True) + " a cup."
-            buffer += " Sales Potential:" + str(potential) + " cups."
+            buffer += f"\nSupplyCost" + locale.currency(round(unit, 2), grouping=True) + " a cup."
+            buffer += f"\nSales Potential:" + str(potential) + " cups."
 
             # Display the current inventory
-            buffer += " Inventory:"
+            buffer += f"\nInventory:"
             buffer += "🥤:" + str(inventory.cups)
             buffer += "🍋:" + str(inventory.lemons)
             buffer += "🍚:" + str(inventory.sugar)
 
             # Display the updated item prices
-            buffer += f"\nPrices: "
-            buffer += "🥤:" + locale.currency(round(cups.cost, 2), grouping=True) + " 📦 of " + str(cups.count) + "."
-            buffer += " 🍋:" + locale.currency(round(lemons.cost, 2), grouping=True) + " 🧺 of " + str(lemons.count) + "."
-            buffer += " 🍚:" + locale.currency(round(sugar.cost, 2), grouping=True) + " bag for " + str(sugar.count) + "🥤."
+            buffer += f"\nPrices:\n"
+            buffer += f"\n🥤:" + locale.currency(round(cups.cost, 2), grouping=True) + " 📦 of " + str(cups.count) + "."
+            buffer += f"\n🍋:" + locale.currency(round(lemons.cost, 2), grouping=True) + " 🧺 of " + str(lemons.count) + "."
+            buffer += f"\n🍚:" + locale.currency(round(sugar.cost, 2), grouping=True) + " bag for " + str(sugar.count) + "🥤."
             # Display the current cash
             gainloss   = inventory.cash - inventory.start
-            buffer += " 💵:" + locale.currency(round(inventory.cash, 2), grouping=True)
+            buffer += f"\n💵:" + locale.currency(round(inventory.cash, 2), grouping=True)
             
             
             # if the player is in the red
@@ -314,7 +315,7 @@ def playLemonstand(nodeID, message, celsius=False, newgame=False):
                 else:
                     buffer += "📊P&L📈" + pnl
 
-            buffer += f"\n🥤 to buy? Have {inventory.cups} Cost {locale.currency(cups.cost, grouping=True)} a 📦 of {str(cups.count)}"
+            buffer += f"\n🥤 to buy?\nHave {inventory.cups} Cost {locale.currency(cups.cost, grouping=True)} a 📦 of {str(cups.count)}"
             saveValues(nodeID, inventory, cups, lemons, sugar, weeks, score)
             return buffer
         
@@ -338,7 +339,7 @@ def playLemonstand(nodeID, message, celsius=False, newgame=False):
             except Exception as e:
                 return "invalid input, enter the number of 🥤 to purchase or (N)one"
                 
-            msg += f"\n 🍋 to buy? Have {inventory.lemons}🥤 of 🍋 Cost {locale.currency(lemons.cost, grouping=True)} a 🧺 for {str(lemons.count)}🥤"
+            msg += f"\n 🍋 to buy?\nHave {inventory.lemons}🥤 of 🍋 Cost {locale.currency(lemons.cost, grouping=True)} a 🧺 for {str(lemons.count)}🥤"
             # set the last command to lemons in the inventory db
             for i in range(len(lemonadeTracker)):
                 if lemonadeTracker[i]['nodeID'] == nodeID:
@@ -368,7 +369,7 @@ def playLemonstand(nodeID, message, celsius=False, newgame=False):
                 newlemons = -1
                 return "⛔️invalid input, enter the number of 🍋 to purchase"
                 
-            msg += f"\n 🍚 to buy? You have {inventory.sugar}🥤 of 🍚, Cost {locale.currency(sugar.cost, grouping=True)} a bag for {str(sugar.count)}🥤"
+            msg += f"\n 🍚 to buy?\nYou have {inventory.sugar}🥤 of 🍚, Cost {locale.currency(sugar.cost, grouping=True)} a bag for {str(sugar.count)}🥤"
             # set the last command to sugar in the inventory db
             for i in range(len(lemonadeTracker)):
                 if lemonadeTracker[i]['nodeID'] == nodeID:
@@ -414,7 +415,7 @@ def playLemonstand(nodeID, message, celsius=False, newgame=False):
                     lemonadeTracker[i]['cmd'] = "sales"
                     if "g" in message.lower():
                         lemonadeTracker[i]['cmd'] = "cups"
-                        msg = f"#of🥤 to buy? Have {inventory.cups} Cost {locale.currency(cups.cost, grouping=True)} a 📦 of {str(cups.count)}"
+                        msg = f"#of🥤\nto buy? Have {inventory.cups} Cost {locale.currency(cups.cost, grouping=True)} a 📦 of {str(cups.count)}"
                         return msg
                     else:
                         lemonsLastCmd = "sales"
@@ -467,7 +468,7 @@ def playLemonstand(nodeID, message, celsius=False, newgame=False):
             msg += " N.Profit:" + locale.currency(net, grouping=True)
 
             # Display the updated inventory levels
-            msg += "\nRemaining"
+            msg += f"\nRemaining"
             msg += " 🥤:" + str(inventory.cups)
             msg += " 🍋:" + str(inventory.lemons)
             msg += " 🍚:" + str(inventory.sugar)
@@ -484,7 +485,7 @@ def playLemonstand(nodeID, message, celsius=False, newgame=False):
             pad_week = len(str(weeks.total))
             pad_sale = len(str(weeks.sales))
             total = 0
-            msg += "\nWeekly📊"
+            msg += f"\nWeekly📊"
             for i in range(len(weeks.summary)):
                 msg += "#" + str(weeks.current).rjust(pad_week) + ".  " + str(weeks.summary[i]['sales']).rjust(pad_sale) + \
                     " sold x " + locale.currency(weeks.summary[i]['price'], grouping=True) + "ea. "
@@ -524,7 +525,7 @@ def playLemonstand(nodeID, message, celsius=False, newgame=False):
                 if (inventory.sugar <= 0):
                     msg += " You ran out of sugar.🍚"
             else:
-                msg += "\nCongratulations 🍋🍋 your sales were perfect!🎉"
+                msg += f"\nCongratulations 🍋🍋 your sales were perfect!🎉"
             
             # Increment the score counters
             score.value = score.value + minnet
@@ -535,27 +536,26 @@ def playLemonstand(nodeID, message, celsius=False, newgame=False):
             if (weeks.current == weeks.total):
                 # end of the game
                 success = round((score.value / score.total) * 100)
-                msg += "\nYou've made " + locale.currency(score.value, grouping=True) + " out of a possible " + \
+                msg += f"\nYou've made " + locale.currency(score.value, grouping=True) + " out of a possible " + \
                     locale.currency(score.total, grouping=True) + " for a score of " + str(success) + "% "
-                msg += "You've sold " + str(weeks.total_sales) + " total 🥤🍋"
+                msg += f"\nYou've sold " + str(weeks.total_sales) + " total 🥤🍋"
 
                 # check for high score
                 high_score = getHighScoreLemon()
                 if (inventory.cash > int(high_score['cash'])):
-                    msg += "\nCongratulations! You've set a new high score!🎉💰🍋"
+                    msg += f"\nCongratulations! You've set a new high score!🎉💰🍋"
                     high_score['cash'] = inventory.cash
                     high_score['success'] = success
                     high_score['userID'] = nodeID
                     with open('data/lemonstand.pkl', 'wb') as file:
                         pickle.dump(high_score, file)
-                endGame(nodeID)
 
             else:
                 # keep playing
                 
                 weeks.current = weeks.current + 1
 
-                msg += f"Play another week🥤? or (E)nd Game"
+                msg += f"\nPlay another week🥤? or (E)nd Game"
                 # set the last command to new in the inventory db
                 for i in range(len(lemonadeTracker)):
                     if lemonadeTracker[i]['nodeID'] == nodeID:

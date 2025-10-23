@@ -4,12 +4,20 @@
 import pickle # pip install pickle
 from modules.log import *
 import time
+from datetime import datetime
+
+useSynchCompression = False
+
+if useSynchCompression:
+    import zlib
+    from modules.system import send_raw_bytes
 
 trap_list_bbs = ("bbslist", "bbspost", "bbsread", "bbsdelete", "bbshelp", "bbsinfo", "bbslink", "bbsack")
 
 # global message list, later we will use a pickle on disk
 bbs_messages = []
 bbs_dm = []
+
 
 def load_bbsdb():
     global bbs_messages
@@ -90,7 +98,7 @@ def bbs_delete_message(messageID = 0, fromNode = 0):
 
 def bbs_post_message(subject, message, fromNode, threadID=0, replytoID=0):
     # post a message to the bbsdb
-    now = today.strftime('%Y-%m-%d %H:%M:%S')
+    now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     thread = threadID
     replyto = replytoID
     # post a message to the bbsdb and assign a messageID
@@ -201,6 +209,32 @@ def bbs_delete_dm(toNode, message):
             return "System: cleared mail for" + str(toNode)
     return "System: No DM found for node " + str(toNode)
 
+def compress_data(data_to_compress):
+    # Prepare message as bytes
+    compressed = zlib.compress(data_to_compress.encode('utf-8'))
+    return compressed
+
+def decompress_data(data_bytes):
+    try:
+        decompressed = zlib.decompress(data_bytes)
+        msg = decompressed.decode('utf-8')
+        return msg
+    except Exception as e:
+        logger.warning(f"Error decompressing data: {e}")
+        return False
+
+def bbs_receive_compressed(data_bytes, fromNode, RxNode):
+    try:
+        decompressed = zlib.decompress(data_bytes)
+        msg = decompressed.decode('utf-8')
+        
+        bbs_sync_posts(msg, fromNode, RxNode)
+
+        return msg
+    except Exception as e:
+        logger.error(f"Error decompressing BBS message: {e}")
+        return None
+
 def bbs_sync_posts(input, peerNode, RxNode):
     messageID =  0
 
@@ -245,7 +279,13 @@ def bbs_sync_posts(input, peerNode, RxNode):
         if messageID % 5 == 0:
             time.sleep(10 + responseDelay)
         logger.debug(f"System: Sending bbslink message {messageID} of {len(bbs_messages)} to peer " + str(peerNode))
-        return f"bbslink {messageID} ${bbs_messages[messageID][1]} #{bbs_messages[messageID][2]} @{fromNodeHex}"
+        msg = f"bbslink {messageID} ${bbs_messages[messageID][1]} #{bbs_messages[messageID][2]} @{fromNodeHex}"
+        if useSynchCompression:
+            compressed = compress_data(msg)
+            send_raw_bytes(peerNode, compressed)
+            logger.debug("System: Sent compressed bbslink message to peer " + str(peerNode))
+        else:
+            return msg
     else:
         logger.debug("System: bbslink sync complete with peer " + str(peerNode))
 

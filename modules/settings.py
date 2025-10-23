@@ -28,11 +28,23 @@ wiki_return_limit = 3 # limit the number of sentences returned off the first par
 GAMEDELAY = 28800 # 8 hours in seconds for game mode holdoff
 cmdHistory = [] # list to hold the last commands
 seenNodes = [] # list to hold the last seen nodes
-surveyTracker, tictactoeTracker, hamtestTracker, hangmanTracker, golfTracker, mastermindTracker, vpTracker, blackjackTracker, lemonadeTracker, dwPlayerTracker, jackTracker = [], [], [], [], [], [], [], [], [], [], [] # game trackers
 cmdHistory = [] # list to hold the command history for lheard and history commands
 msg_history = [] # list to hold the message history for the messages command
 max_bytes = 200 # Meshtastic has ~237 byte limit, use conservative 200 bytes for message content
 voxMsgQueue = [] # queue for VOX detected messages
+# Game trackers
+surveyTracker = []           # Survey game tracker
+tictactoeTracker = []        # TicTacToe game tracker
+hamtestTracker = []          # Ham radio test tracker
+hangmanTracker = []          # Hangman game tracker
+golfTracker = []             # GolfSim game tracker
+mastermindTracker = []       # Mastermind game tracker
+vpTracker = []               # Video Poker game tracker
+jackTracker = []             # Blackjack game tracker
+lemonadeTracker = []         # Lemonade Stand game tracker
+dwPlayerTracker = []         # DopeWars player tracker
+jackTracker = []             # Jack game tracker
+mindTracker = []             # Mastermind (mmind) game tracker
 
 # Read the config file, if it does not exist, create basic config file
 config = configparser.ConfigParser() 
@@ -259,6 +271,7 @@ try:
     secure_interface = config['sentry'].getint('SentryInterface', 1) # default 1
     sentry_holdoff = config['sentry'].getint('SentryHoldoff', 9) # default 9
     sentryIgnoreList = config['sentry'].get('sentryIgnoreList', '').split(',')
+    sentryWatchList = config['sentry'].get('sentryWatchList', '').split(',')
     sentry_radius = config['sentry'].getint('SentryRadius', 100) # default 100 meters
     email_sentry_alerts = config['sentry'].getboolean('emailSentryAlerts', False) # default False
     highfly_enabled = config['sentry'].getboolean('highFlyingAlert', True) # default True
@@ -269,6 +282,9 @@ try:
     highfly_check_openskynetwork = config['sentry'].getboolean('highflyOpenskynetwork', True) # default True check with OpenSkyNetwork if highfly detected
     detctionSensorAlert = config['sentry'].getboolean('detectionSensorAlert', False) # default False
     reqLocationEnabled = config['sentry'].getboolean('reqLocationEnabled', False) # default False
+    cmdShellSentryAlerts = config['sentry'].getboolean('cmdShellSentryAlerts', False) # default False
+    sentryAlertNear = config['sentry'].get('sentryAlertNear', 'sentry_alert_near.sh') # default sentry_alert_near.sh
+    sentryAlertFar = config['sentry'].get('sentryAlertFar', 'sentry_alert_far.sh') # default sentry_alert_far.sh
 
     # location
     location_enabled = config['location'].getboolean('enabled', True)
@@ -377,6 +393,7 @@ try:
     voxInputDevice = config['radioMon'].get('voxInputDevice', 'default') # default default
     voxOnTrapList = config['radioMon'].getboolean('voxOnTrapList', False) # default False
     voxTrapList = config['radioMon'].get('voxTrapList', 'chirpy').split(',') # default chirpy
+    voxEnableCmd = config['radioMon'].getboolean('voxEnableCmd', True) # default True
 
     # file monitor
     file_monitor_enabled = config['fileMon'].getboolean('filemon_enabled', False)
@@ -404,15 +421,17 @@ try:
     tictactoe_enabled = config['games'].getboolean('tictactoe', True)
     quiz_enabled = config['games'].getboolean('quiz', False)
     survey_enabled = config['games'].getboolean('survey', False)
+    default_survey = config['games'].get('defaultSurvey', 'example') # default example
     surveyRecordID = config['games'].getboolean('surveyRecordID', True)
     surveyRecordLocation = config['games'].getboolean('surveyRecordLocation', True)
+    wordOfTheDay = config['games'].getboolean('wordOfTheDay', True)
 
     # messaging settings
     responseDelay = config['messagingSettings'].getfloat('responseDelay', 0.7) # default 0.7
     splitDelay = config['messagingSettings'].getfloat('splitDelay', 0) # default 0
     MESSAGE_CHUNK_SIZE = config['messagingSettings'].getint('MESSAGE_CHUNK_SIZE', 160) # default 160 chars
     wantAck = config['messagingSettings'].getboolean('wantAck', False) # default False
-    maxBuffer = config['messagingSettings'].getint('maxBuffer', 200) # default 200
+    maxBuffer = config['messagingSettings'].getint('maxBuffer', 200) # default 200 bytes
     enableHopLogs = config['messagingSettings'].getboolean('enableHopLogs', False) # default False
     debugMetadata = config['messagingSettings'].getboolean('debugMetadata', False) # default False
     metadataFilter = config['messagingSettings'].get('metadataFilter', '').split(',') # default empty

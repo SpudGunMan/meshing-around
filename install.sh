@@ -13,6 +13,12 @@ printf "Installer works best in raspian/debian/ubuntu or foxbuntu embedded syste
 printf "If there is a problem, try running the installer again.\n"
 printf "\nChecking for dependencies...\n"
 
+# fuse
+fi [[ -f config.ini ]]; then
+    printf "\nDetected existing installation, please backup and remove existing installation before proceeding\n"
+    exit 1
+fi
+
 # check if we are in /opt/meshing-around
 if [ $program_path != "/opt/meshing-around" ]; then
     printf "\nIt is suggested to project path to /opt/meshing-around\n"
@@ -82,6 +88,12 @@ cp etc/pong_bot.tmp etc/pong_bot.service
 cp etc/mesh_bot.tmp etc/mesh_bot.service
 cp etc/mesh_bot_reporting.tmp etc/mesh_bot_reporting.service
 cp etc/mesh_bot_w3.tmp etc/mesh_bot_w3.service
+
+# copy modules/custom_scheduler.py template if it does not exist
+if [[ ! -f modules/custom_scheduler.py ]]; then
+    cp etc/custom_scheduler.template modules/custom_scheduler.py
+    printf "\nCustom scheduler template copied to modules/custom_scheduler.py\n"
+fi
 
 # generate config file, check if it exists
 if [[ -f config.ini ]]; then
@@ -207,6 +219,12 @@ sudo chown -R $whoami:$whoami $program_path/logs
 sudo chown -R $whoami:$whoami $program_path/data
 echo "Permissions set for meshbot on logs and data directories"
 
+# check and see if some sort of NTP is running
+if ! systemctl is-active --quiet ntp.service && \
+   ! systemctl is-active --quiet systemd-timesyncd.service && \
+   ! systemctl is-active --quiet chronyd.service; then
+    printf "\nNo NTP service detected, it is recommended to have NTP running for proper bot operation.\n"
+
 # set the correct user in the service file
 replace="s|User=pi|User=$whoami|g"
 sed -i $replace etc/pong_bot.service
@@ -287,7 +305,7 @@ if [[ $(echo "${embedded}" | grep -i "^n") ]]; then
 
     # document the service install
     printf "To install the %s service and keep notes, reference following commands:\n\n" "$service" > install_notes.txt
-    printf "sudo cp %s/etc/%s.service /etc/systemd/system/etc/%s.service\n" "$program_path" "$service" "$service" >> install_notes.txt
+    printf "sudo cp %s/etc/%s.service /etc/systemd/system/%s.service\n" "$program_path" "$service" "$service" >> install_notes.txt
     printf "sudo systemctl daemon-reload\n" >> install_notes.txt
     printf "sudo systemctl enable %s.service\n" "$service" >> install_notes.txt
     printf "sudo systemctl start %s.service\n" "$service" >> install_notes.txt
@@ -299,6 +317,7 @@ if [[ $(echo "${embedded}" | grep -i "^n") ]]; then
     printf "sudo systemctl disable %s.service\n" "$service" >> install_notes.txt
     printf "Reporting chron job added to run report_generator5.py\n" >> install_notes.txt
     printf "chronjob: %s\n" "$chronjob" >> install_notes.txt
+    printf "*** Stay Up to date using 'bash update.sh' ***\n" >> install_notes.txt
     
     if [[ $(echo "${venv}" | grep -i "^y") ]]; then
         printf "\nFor running on venv, virtual launch bot with './launch.sh mesh' in path $program_path\n" >> install_notes.txt
@@ -344,6 +363,7 @@ else
     printf "sudo journalctl -u %s.service\n" "$service" >> install_notes.txt
     printf "sudo systemctl stop %s.service\n" "$service" >> install_notes.txt
     printf "sudo systemctl disable %s.service\n" "$service" >> install_notes.txt
+    printf "*** Stay Up to date using 'bash update.sh' ***\n" >> install_notes.txt
 fi
 
 printf "\nInstallation complete!\n"

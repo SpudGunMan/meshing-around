@@ -17,6 +17,16 @@ if radio_detection_enabled:
     import socket
 
 if voxDetectionEnabled:
+    # methods available for trap word processing, these can be called by VOX detection when trap words are detected
+    from mesh_bot import tell_joke, handle_wxc, handle_moon, handle_sun, handle_riverFlow, handle_tide, handle_satpass
+    botMethods = {
+        "joke": tell_joke,
+        "weather": handle_wxc,
+        "moon": handle_moon,
+        "daylight": handle_sun,
+        "river": handle_riverFlow,
+        "tide": handle_tide,
+        "satellite": handle_satpass}
     # module global variables
     previousVoxState = False
     voxHoldTime = signalHoldTime
@@ -25,7 +35,7 @@ if voxDetectionEnabled:
         import sounddevice as sd # pip install sounddevice    sudo apt install portaudio19-dev
         from vosk import Model, KaldiRecognizer # pip install vosk
         import json
-        q = asyncio.Queue(maxsize=10)  # what is a reasonable limit?
+        q = asyncio.Queue(maxsize=32)  # queue for audio data
         
         if useLocalVoxModel:
             voxModel = Model(lang=localVoxModelPath) # use built in model for specified language
@@ -116,11 +126,41 @@ def get_sig_strength():
     strength = get_hamlib('l STRENGTH')
     return strength
 
-def vox_callback(indata, frames, time, status):
-    if status:
-        logger.warning(f"RadioMon: VOX input status: {status}")
-    q.put(bytes(indata))
-
+def checkVoxTrapWords(text):
+    try:
+        if not voxOnTrapList:
+            logger.debug(f"RadioMon: VOX detected: {text}")
+            return text
+        if text:
+            traps = [voxTrapList] if isinstance(voxTrapList, str) else voxTrapList
+            text_lower = text.lower()
+            for trap in traps:
+                trap_clean = trap.strip()
+                trap_lower = trap_clean.lower()
+                idx = text_lower.find(trap_lower)
+                if debugVoxTmsg:
+                    logger.debug(f"RadioMon: VOX checking for trap word '{trap_lower}' in: '{text}' (index: {idx})")
+                if idx != -1:
+                    new_text = text[idx + len(trap_clean):].strip()
+                    if debugVoxTmsg:
+                        logger.debug(f"RadioMon: VOX detected trap word '{trap_lower}' in: '{text}' (remaining: '{new_text}')")
+                    new_words = new_text.split()
+                    if voxEnableCmd:
+                        for word in new_words:
+                            if word in botMethods:
+                                logger.info(f"RadioMon: VOX action '{word}' with '{new_text}'")
+                                if word == "joke":
+                                    return botMethods[word](vox=True)
+                                else:
+                                    return botMethods[word](None, None, None, vox=True)
+                    logger.debug(f"RadioMon: VOX returning text after trap word '{trap_lower}': '{new_text}'")
+                    return new_text
+            if debugVoxTmsg:
+                logger.debug(f"RadioMon: VOX no trap word found in: '{text}'")
+        return None
+    except Exception as e:
+        logger.debug(f"RadioMon: Error in checkVoxTrapWords: {e}")
+        return None
 
 async def signalWatcher():
     global previousStrength
@@ -146,15 +186,23 @@ async def signalWatcher():
         signalCycle = 0
         previousStrength = -40
 
-def make_vox_callback(loop, q):
+async def make_vox_callback(loop, q):
     def vox_callback(indata, frames, time, status):
         if status:
             logger.warning(f"RadioMon: VOX input status: {status}")
         try:
             loop.call_soon_threadsafe(q.put_nowait, bytes(indata))
         except asyncio.QueueFull:
-            # Optionally log or just drop the oldest
-            logger.debug("RadioMon: VOX queue full, dropping audio frame")
+            # Drop the oldest item and add the new one
+            try:
+                q.get_nowait()  # Remove oldest
+            except asyncio.QueueEmpty:
+                pass
+            try:
+                loop.call_soon_threadsafe(q.put_nowait, bytes(indata))
+            except asyncio.QueueFull:
+                # If still full, just drop this frame
+                logger.debug("RadioMon: VOX queue full, dropping audio frame")
         except RuntimeError:
             # Loop may be closed
             pass
@@ -169,11 +217,11 @@ async def voxMonitor():
         logger.debug(f"RadioMon: VOX monitor started on device {device_info['name']} with samplerate {samplerate} using trap words: {voxTrapList if voxOnTrapList else 'none'}")
         rec = KaldiRecognizer(model, samplerate)
         loop = asyncio.get_running_loop()
-        callback = make_vox_callback(loop, q)
+        callback = await make_vox_callback(loop, q)
         with sd.RawInputStream(
             device=voxInputDevice,
             samplerate=samplerate,
-            blocksize=8000,
+            blocksize=4000,
             dtype='int16',
             channels=1,
             callback=callback
@@ -183,27 +231,15 @@ async def voxMonitor():
                 if rec.AcceptWaveform(data):
                     result = rec.Result()
                     text = json.loads(result).get("text", "")
-                    # check for trap words
+                    # process text
                     if text and text != 'huh':
-                        if voxOnTrapList:
-                            if isinstance(voxTrapList, str):
-                                traps = [voxTrapList]
-                            else:
-                                traps = voxTrapList
-                            if any(trap.lower() in text.lower() for trap in traps):
-                                #remove the trap words from the text
-                                for trap in traps:
-                                    text = text.replace(trap, '')
-                                text = text.strip()
-                                if text:
-                                    logger.debug(f"RadioMon: VOX 🎙️Trapped {voxTrapList} in: {text}")
-                                    voxMsgQueue.append(f"🎙️Trapped {voxDescription}: {text}")
-                            else:
-                                if debugVoxTmsg:
-                                    logger.debug(f"RadioMon: VOX ignored text not on trap list: {text}")
-                        else:
-                            voxMsgQueue.append(f"🎙️Detected {voxDescription}: {text}")
-                await asyncio.sleep(0.5)
+                        result = checkVoxTrapWords(text)
+                        if result:
+                            # If result is a function return, handle it (send to mesh, log, etc.)
+                            # If it's just text, handle as a normal message
+                            voxMsgQueue.append(result)
+
+                await asyncio.sleep(0.1)
     except Exception as e:
         logger.error(f"RadioMon: Error in VOX monitor: {e}")
 

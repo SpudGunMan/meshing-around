@@ -24,6 +24,13 @@ if systemctl is-active --quiet mesh_bot_w3.service; then
     service_stopped=true
 fi
 
+# Fetch latest changes from GitHub
+echo "Fetching latest changes from GitHub..."
+if ! git fetch origin; then
+    echo "Error: Failed to fetch from GitHub, check your network connection."
+    exit 1
+fi
+
 # git pull with rebase to avoid unnecessary merge commits
 echo "Pulling latest changes from GitHub..."
 if ! git pull origin main --rebase; then
@@ -37,22 +44,42 @@ if ! git pull origin main --rebase; then
     fi
 fi
 
-# Install or update dependencies
-echo "Installing or updating dependencies..."
-if pip install -r requirements.txt --upgrade 2>&1 | grep -q "externally-managed-environment"; then
-    # if venv is found ask to run with launch.sh
-    if [ -d "venv" ]; then
-        echo "A virtual environment (venv) was found. run from inside venv"
+# copy modules/custom_scheduler.py template if it does not exist
+if [[ ! -f modules/custom_scheduler.py ]]; then
+    cp etc/custom_scheduler.template modules/custom_scheduler.py
+    printf "\nCustom scheduler template copied to modules/custom_scheduler.py\n"
+fi
+
+# Backup the data/ directory
+echo "Backing up data/ directory..."
+#backup_file="backup_$(date +%Y%m%d_%H%M%S).tar.gz"
+backup_file="data_backup.tar.gz"
+path2backup="data/"
+#copy custom_scheduler.py if it exists
+if [ -f "modules/custom_scheduler.py" ]; then
+    echo "Including custom_scheduler.py in backup..."
+    cp modules/custom_scheduler.py data/
+fi
+tar -czf "$backup_file" "$path2backup"
+if [ $? -ne 0 ]; then
+    echo "Error: Backup failed."
+else
+    echo "Backup of ${path2backup} completed: ${backup_file}"
+fi
+
+
+# Build a config_new.ini file merging user config with new defaults
+echo "Merging configuration files..."
+python3 script/configMerge.py > ini_merge_log.txt 2>&1
+
+if [ -f ini_merge_log.txt ]; then
+    if grep -q "Error during configuration merge" ini_merge_log.txt; then
+        echo "Configuration merge encountered errors. Please check ini_merge_log.txt for details."
     else
-        read -p "Warning: You are in an externally managed environment. Do you want to continue with --break-system-packages? (y/n): " choice
-        if [[ "$choice" == "y" || "$choice" == "Y" ]]; then
-            pip install --break-system-packages -r requirements.txt --upgrade
-        else
-            echo "Update aborted due to dependency installation issue."
-        fi
+        echo "Configuration merge completed. Please review config_new.ini and ini_merge_log.txt."
     fi
 else
-    echo "Dependencies installed or updated."
+    echo "Configuration merge log (ini_merge_log.txt) not found. check out the script/configMerge.py tool!"
 fi
 
 # if service was stopped earlier, restart it

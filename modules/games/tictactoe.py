@@ -5,7 +5,7 @@ from modules.log import *
 import random
 import time
 
-# to molly and jake, I miss you both so much.
+# to (max), molly and jake, I miss you both so much.
 
 if disable_emojis_in_games:
     X = "X"

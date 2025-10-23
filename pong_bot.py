@@ -10,6 +10,7 @@ except ImportError:
 
 import asyncio
 import time # for sleep, get some when you can :)
+from datetime import datetime
 import random
 from modules.log import *
 from modules.system import *
@@ -72,13 +73,13 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, chann
     type = ''
 
     if "ping" in message.lower():
-        msg = "🏓PONG\n"
+        msg = "🏓PONG"
         type = "🏓PING"
     elif "test" in message.lower() or "testing" in message.lower():
-        msg = random.choice(["🎙Testing 1,2,3\n", "🎙Testing\n",\
-                             "🎙Testing, testing\n",\
-                             "🎙Ah-wun, ah-two...\n", "🎙Is this thing on?\n",\
-                             "🎙Roger that!\n",])
+        msg = random.choice(["🎙Testing 1,2,3", "🎙Testing",\
+                             "🎙Testing, testing",\
+                             "🎙Ah-wun, ah-two...", "🎙Is this thing on?",\
+                             "🎙Roger that!",])
         type = "🎙TEST"
     elif "ack" in message.lower():
         msg = random.choice(["✋ACK-ACK!\n", "✋Ack to you!\n"])
@@ -92,10 +93,21 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, chann
     else:
         msg = "🔊 Can you hear me now?"
 
-    if hop == "Direct":
-        msg = msg + f"SNR:{snr} RSSI:{rssi}"
+    # append SNR/RSSI or hop info
+    if hop.startswith("Gateway") or hop.startswith("MQTT"):
+        msg += f" [GW]"
+    elif hop.startswith("Direct"):
+        msg += f" [RF]"
     else:
-        msg = msg + hop
+        #flood
+        msg += f" [F]"
+    
+    if (float(snr) != 0 or float(rssi) != 0) and "Hops" not in hop:
+        msg += f"\nSNR:{snr} RSSI:{rssi}"
+    elif "Hops" in hop:
+        msg += f"\n{hop}🐇 "
+    else:
+        msg += "\nflood route"
 
     if "@" in message:
         msg = msg + " @" + message.split("@")[1]
@@ -150,7 +162,7 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, chann
 def handle_motd(message, message_from_id, isDM):
     global MOTD
     isAdmin = False
-    msg = ""
+    msg = MOTD
     # check if the message_from_id is in the bbs_admin_list
     if bbs_admin_list != ['']:
         for admin in bbs_admin_list:
@@ -216,11 +228,16 @@ def onReceive(packet, interface):
     rxType = type(interface).__name__
 
     # Valies assinged to the packet
-    rxNode, message_from_id, snr, rssi, hop, hop_away, channel_number = 0, 0, 0, 0, 0, 0, 0
+    rxNode = message_from_id = snr = rssi = hop = hop_away = channel_number = hop_start = hop_count = hop_limit = 0
     pkiStatus = (False, 'ABC')
     replyIDset = False
+    rxNodeHostName = None
     emojiSeen = False
+    simulator_flag = False
     isDM = False
+    channel_name = "unknown"
+    session_passkey = None
+    playingGame = False
 
     if DEBUGpacket:
         # Debug print the interface object
@@ -229,45 +246,60 @@ def onReceive(packet, interface):
         # Debug print the packet for debugging
         logger.debug(f"Packet Received\n {packet} \n END of packet \n")
 
-    # set the value for the incomming interface
-    if rxType == 'SerialInterface':
-        rxInterface = interface.__dict__.get('devPath', 'unknown')
-        if port1 in rxInterface: rxNode = 1
-        elif multiple_interface and port2 in rxInterface: rxNode = 2
-        elif multiple_interface and port3 in rxInterface: rxNode = 3
-        elif multiple_interface and port4 in rxInterface: rxNode = 4
-        elif multiple_interface and port5 in rxInterface: rxNode = 5
-        elif multiple_interface and port6 in rxInterface: rxNode = 6
-        elif multiple_interface and port7 in rxInterface: rxNode = 7
-        elif multiple_interface and port8 in rxInterface: rxNode = 8
-        elif multiple_interface and port9 in rxInterface: rxNode = 9
-    
+    # determine the rxNode based on the interface type
     if rxType == 'TCPInterface':
         rxHost = interface.__dict__.get('hostname', 'unknown')
-        if rxHost and hostname1 in rxHost and interface1_type == 'tcp': rxNode = 1
-        elif multiple_interface and rxHost and hostname2 in rxHost and interface2_type == 'tcp': rxNode = 2
-        elif multiple_interface and rxHost and hostname3 in rxHost and interface3_type == 'tcp': rxNode = 3
-        elif multiple_interface and rxHost and hostname4 in rxHost and interface4_type == 'tcp': rxNode = 4
-        elif multiple_interface and rxHost and hostname5 in rxHost and interface5_type == 'tcp': rxNode = 5
-        elif multiple_interface and rxHost and hostname6 in rxHost and interface6_type == 'tcp': rxNode = 6
-        elif multiple_interface and rxHost and hostname7 in rxHost and interface7_type == 'tcp': rxNode = 7
-        elif multiple_interface and rxHost and hostname8 in rxHost and interface8_type == 'tcp': rxNode = 8
-        elif multiple_interface and rxHost and hostname9 in rxHost and interface9_type == 'tcp': rxNode = 9
+        rxNodeHostName = interface.__dict__.get('ip', None)
+        rxNode = next(
+            (i for i in range(1, 10)
+             if multiple_interface and rxHost and
+             globals().get(f'hostname{i}', '').split(':', 1)[0] in rxHost and
+             globals().get(f'interface{i}_type', '') == 'tcp'),None)
 
-    if rxType == 'BLEInterface':
-        if interface1_type == 'ble': rxNode = 1
-        elif multiple_interface and interface2_type == 'ble': rxNode = 2
-        elif multiple_interface and interface3_type == 'ble': rxNode = 3
-        elif multiple_interface and interface4_type == 'ble': rxNode = 4
-        elif multiple_interface and interface5_type == 'ble': rxNode = 5
-        elif multiple_interface and interface6_type == 'ble': rxNode = 6
-        elif multiple_interface and interface7_type == 'ble': rxNode = 7
-        elif multiple_interface and interface8_type == 'ble': rxNode = 8
-        elif multiple_interface and interface9_type == 'ble': rxNode = 9
+    if rxType == 'SerialInterface':
+        rxInterface = interface.__dict__.get('devPath', 'unknown')
+        rxNode = next(
+            (i for i in range(1, 10)
+             if globals().get(f'port{i}', '') in rxInterface),None)
     
-    # check if the packet has a channel flag use it
+    if rxType == 'BLEInterface':
+        rxNode = next(
+            (i for i in range(1, 10)
+             if globals().get(f'interface{i}_type', '') == 'ble'),0)
+        
+    if rxNode is None:
+        # default to interface 1 ## FIXME needs better like a default interface setting or hash lookup
+        if 'decoded' in packet and packet['decoded']['portnum'] in ['ADMIN_APP', 'SIMULATOR_APP']:
+            session_passkey = packet.get('decoded', {}).get('admin', {}).get('sessionPasskey', None)
+        rxNode = 1
+    
+    # check if the packet has a channel flag use it ## FIXME needs to be channel hash lookup
     if packet.get('channel'):
-        channel_number = packet.get('channel', 0)
+        channel_number = packet.get('channel')
+        # get channel name from channel number from connected devices
+        for device in channel_list:
+            if device["interface_id"] == rxNode:
+                device_channels = device['channels']
+                for chan_name, info in device_channels.items():
+                    if info['number'] == channel_number:
+                        channel_name = chan_name
+                        break
+
+    # get channel hashes for the interface
+    device = next((d for d in channel_list if d["interface_id"] == rxNode), None)
+    if device:
+        # Find the channel name whose hash matches channel_number
+        for chan_name, info in device['channels'].items():
+            if info['hash'] == channel_number:
+                print(f"Matched channel hash {info['hash']} to channel name {chan_name}")
+                channel_name = chan_name
+                break
+
+    # check if the packet has a simulator flag
+    simulator_flag = packet.get('decoded', {}).get('simulator', False)
+    if isinstance(simulator_flag, dict):
+        # assume Software Simulator
+        simulator_flag = True
 
     # set the message_from_id
     message_from_id = packet['from']
@@ -282,6 +314,7 @@ def onReceive(packet, interface):
             message_bytes = packet['decoded']['payload']
             message_string = message_bytes.decode('utf-8')
             via_mqtt = packet['decoded'].get('viaMqtt', False)
+            transport_mechanism = packet['decoded'].get('transport_mechanism', 'unknown')
 
             # check if the packet is from us
             if message_from_id == myNodeNum1 or message_from_id == myNodeNum2:
@@ -294,46 +327,62 @@ def onReceive(packet, interface):
 
             # check if the packet has a publicKey flag use it
             if packet.get('publicKey'):
-                pkiStatus = (packet.get('pkiEncrypted', False), packet.get('publicKey', 'ABC'))
+                pkiStatus = packet.get('pkiEncrypted', False), packet.get('publicKey', 'ABC')
+            
+            # check if the packet has replyId flag // currently unused in the code
+            if packet.get('replyId'):
+                replyIDset = packet.get('replyId', False)
+            
+            # check if the packet has emoji flag set it // currently unused in the code
+            if packet.get('emoji'):
+                emojiSeen = packet.get('emoji', False)
 
             # check if the packet has a hop count flag use it
             if packet.get('hopsAway'):
                 hop_away = packet.get('hopsAway', 0)
+
+            if packet.get('hopStart'):
+                hop_start = packet.get('hopStart', 0)
+
+            if packet.get('hopLimit'):
+                hop_limit = packet.get('hopLimit', 0)
+            
+            # calculate hop count
+            hop = ""
+            if hop_limit > 0 and hop_start >= hop_limit:
+                hop_count = hop_away + (hop_start - hop_limit)
+            elif hop_limit > 0 and hop_start < hop_limit:
+                hop_count = hop_away + (hop_limit - hop_start)
             else:
-                # if the packet does not have a hop count try other methods
-                if packet.get('hopLimit'):
-                    hop_limit = packet.get('hopLimit', 0)
-                else:
-                    hop_limit = 0
-                
-                if packet.get('hopStart'):
-                    hop_start = packet.get('hopStart', 0)
-                else:
-                    hop_start = 0
+                hop_count = hop_away
+
+            if hop == "" and hop_count > 0:
+                # set hop string from calculated hop count
+                hop = f"{hop_count} Hop" if hop_count == 1 else f"{hop_count} Hops"
+
+            if hop_start == hop_limit and "lora" in str(transport_mechanism).lower() and (snr != 0 or rssi != 0):
+                # 2.7+ firmware direct hop over LoRa
+                hop = "Direct"
+
+            if ((hop_start == 0 and hop_limit >= 0) or via_mqtt or ("mqtt" in str(transport_mechanism).lower())):
+                hop = "MQTT"
+            elif hop == "" and hop_count == 0 and (snr != 0 or rssi != 0):
+                # this came from a UDP but we had signal info so gateway is used
+                hop = "Gateway"
+            elif "unknown" in str(transport_mechanism).lower() and (snr == 0 and rssi == 0):
+                # we for sure detected this sourced from a UDP like host
+                hop = "Gateway"
+            
+            if hop in ("MQTT", "Gateway") and hop_count > 0:
+                hop = f"{hop_count} Hops"
 
             if enableHopLogs:
-                logger.debug(f"System: Packet HopDebugger: hop_away:{hop_away} hop_limit:{hop_limit} hop_start:{hop_start}")
-            
-            if hop_away == 0 and hop_limit == 0 and hop_start == 0:
-                hop = "Last Hop"
-                hop_count = 0
-            
-            if hop_start == hop_limit:
-                hop = "Direct"
-                hop_count = 0
-            elif hop_start == 0 and hop_limit > 0 or via_mqtt:
-                hop = "MQTT"
-                hop_count = 0
-            else:
-                # set hop to Direct if the message was sent directly otherwise set the hop count
-                if hop_away > 0:
-                    hop_count = hop_away
-                else:
-                    hop_count = hop_start - hop_limit
-                    #print (f"calculated hop count: {hop_start} - {hop_limit} = {hop_count}")
+                logger.debug(f"System: Packet HopDebugger: hop_away:{hop_away} hop_limit:{hop_limit} hop_start:{hop_start} calculated_hop_count:{hop_count} final_hop_value:{hop} via_mqtt:{via_mqtt} transport_mechanism:{transport_mechanism} Hostname:{rxNodeHostName}")
 
-                hop = f"{hop_count} hops"
-            
+            # check with stringSafeChecker if the message is safe
+            if stringSafeCheck(message_string) is False:
+                logger.warning(f"System: Possibly Unsafe Message from {get_name_from_number(message_from_id, 'long', rxNode)}")
+
             if help_message in message_string or welcome_message in message_string or "CMD?:" in message_string:
                 # ignore help and welcome messages
                 logger.warning(f"Got Own Welcome/Help header. From: {get_name_from_number(message_from_id, 'long', rxNode)}")
@@ -353,7 +402,6 @@ def onReceive(packet, interface):
                 else:
                     logger.warning(f"Device:{rxNode} Ignoring DM: {message_string} From: {get_name_from_number(message_from_id, 'long', rxNode)}")
                     send_message(welcome_message, channel_number, message_from_id, rxNode)
-                    time.sleep(responseDelay)
                     
                     # log the message to the message log
                     if log_messages_to_file:

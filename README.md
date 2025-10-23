@@ -2,6 +2,8 @@
 
 Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance your [Meshtastic](https://meshtastic.org/docs/introduction/) network experience with a variety of powerful tools and fun features, connectivity and utility through text-based message delivery. Whether you're looking to perform network tests, send messages, or even play games, [mesh_bot.py](mesh_bot.py) has you covered. 
 
+TLDR: [Getting Started](#getting-started)
+
 ![Example Use](etc/pong-bot.jpg "Example Use")
 
 ## Key Features
@@ -23,10 +25,9 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 - **Flexible Messaging**: send mail and messages, between networks.
 
 ### Advanced Messaging Capabilities
-- **Mail Messaging**: Leave messages for other devices, which are sent as DMs when the device is seen.
+- **Mail Messaging**: Leave messages for other devices, which are sent as DMs when the device is seen. Send mail to nodes using `bbspost @nodeNumber #message` or `bbspost @nodeShortName #message`.
 - **Scheduler**: Schedule messages like weather updates or reminders for weekly VHF nets.
-- **Store and Forward**: Replay messages with the `messages` command, and log messages locally to disk.
-- **Send Mail**: Send mail to nodes using `bbspost @nodeNumber #message` or `bbspost @nodeShortName #message`.
+- **Store and Forward**: Like voicemail, see messages missed with the `messages` command. Can also log messages locally to disk.
 - **BBS Linking**: Combine multiple bots to expand BBS reach.
 - **E-Mail/SMS**: Send mesh-messages to E-Mail or SMS(Email) expanding visibility.
 - **New Node Hello**: Send a hello to any new node seen in text message.
@@ -39,9 +40,17 @@ Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance yo
 - **GeoMeasuring**: HowFar from point to point using collected GPS packets on the bot to plot a course or space. Find Center of points for Fox&Hound direction finding.
 
 ### Proximity Alerts
-- **Location-Based Alerts**: Get notified when members arrive back at a configured lat/long, perfect for remote locations like campsites.
+- **Location-Based Alerts**: Get notified when members arrive back at a configured lat/long, perfect for remote locations like campsites, or put a geo-fence. You can also run a script or send a email. Another idea is to lower the cycle and use the bot as a 'king of the hill' or 🧭geocache game. You can also run a script to change a node config or turn on the lights🚥, have it drop an alert.txt to send a message like "Hello Start the 📊Survey"
 - **High Flying Alerts**: Get notified when nodes with high altitude are seen on mesh
-- **Hey Chirpy**: Voice activate send messages with "hey chirpy"
+- **Voice/Command Triggers**: The following keywords can be used via voice (VOX) to trigger bot functions "Hey Chirpy!"
+  - Say "Hey Chirpy.."
+  - `joke`: Tells a joke
+  - `weather`: Returns local weather forecast
+  - `moon`: Returns moonrise/set and phase info
+  - `daylight`: Returns sunrise/sunset times
+  - `river`: Returns NOAA river flow info
+  - `tide`: Returns NOAA tide information
+  - `satellite`: Returns satellite pass info
 
 ### CheckList / Check In Out
 - **Asset Tracking**: Maintain a list of node/asset checkin and checkout. Useful foraccountability of people, assets. Radio-Net, FEMA, Trailhead.
@@ -188,8 +197,12 @@ To use QuizMaster the bbs_admin_list is the QuizMaster, who can `q: start` and `
 Players can `q: join` to join the game, `q: leave` to leave the game, `q: score` to see their score, and `q: top` to see the top 3 players.
 To Answer a question, just type the answer prefixed with `q: <answer>`
 
+#### Word of the Day Games
+Simple word fun, bingo and customizable word of the day lists via JSON files. Slot Machine for Emoji 🎰
+[modules/games/README.md](modules/games/README.md)
+
 #### Survey
-To use the Survey feature edit the json files in data/survey multiple surveys are possible such as `survey snow`
+To use the Survey feature edit the json files in data/survey multiple surveys are possible such as `survey snow` you can pull data back with `survey report` or `survey report snow`
 
 ## Other Install Options
 
@@ -221,7 +234,7 @@ meshtastic --ble-scan
 # config.ini
 # type can be serial, tcp, or ble.
 # port is the serial port to use; commented out will try to auto-detect
-# hostname is the IP address of the device to connect to for TCP type
+# hostname is the IP/DNS and port for tcp type default is host:4403
 # mac is the MAC address of the device to connect to for BLE type
 
 [interface]
@@ -461,7 +474,7 @@ broadcastCh = 2 # channel to send the message to can be 2,3 multiple channels co
 enable_read_news = False # news  command will return the contents of a text file
 news_file_path = news.txt
 news_random_line = False # only return a single random line from the news file
-enable_runShellCmd = False # enable the use of exernal shell commands, this enables some data in `sysinfo`
+enable_runShellCmd = False # enable the use of exernal shell commands, this enables more data in `sysinfo` DM
 # if runShellCmd and you think it is safe to allow the x: command to run
 # direct shell command handler the x: command in DMs user must be in bbs_admin_list
 allowXcmd = True
@@ -514,11 +527,13 @@ enabled = False # enable or disable the scheduler module
 interface = 1 # channel to send the message to
 channel = 2
 message = "MeshBot says Hello! DM for more info."
-value = # value can be min,hour,day,mon,tue,wed,thu,fri,sat,sun
+value = # value can be min,hour,day,mon,tue,wed,thu,fri,sat,sun.
+# value can also be joke (everyXmin) or weather (hour) for special scheduled messages
+# custom for module/scheduler.py custom schedule examples
 interval =  # interval to use when time is not set (e.g. every 2 days)
 time = # time of day in 24:00 hour format when value is 'day' and interval is not set
 ```
- The basic brodcast message can be setup in condig.ini. For advanced, See mesh_bot.py around the bottom of file, line [1491](https://github.com/SpudGunMan/meshing-around/blob/e94581936530c76ea43500eebb43f32ba7ed5e19/mesh_bot.py#L1491) to edit the schedule. See [schedule documentation](https://schedule.readthedocs.io/en/stable/) for more. Recomend to backup changes so they dont get lost.
+ The basic brodcast message can be setup in condig.ini. For advanced, See the [modules/scheduler.py](modules/scheduler.py) to edit the schedule. See [schedule documentation](https://schedule.readthedocs.io/en/stable/) for more. Recomend to backup changes so they dont get lost.
 
 ```python
 #Send WX every Morning at 08:00 using handle_wxc function to channel 2 on device 1
@@ -529,7 +544,7 @@ schedule.every().wednesday.at("19:00").do(lambda: send_message("Net Starting Now
 ```
 
 #### BBS Link
-The scheduler also handles the BBS Link Broadcast message, this would be an example of a mesh-admin channel on 8 being used to pass BBS post traffic between two bots as the initiator, one direction pull.
+The scheduler also handles the BBS Link Broadcast message, this would be an example of a mesh-admin channel on 8 being used to pass BBS post traffic between two bots as the initiator, one direction pull. The message just needs to have bbslink
 ```python
 # Send bbslink looking for peers every other day at 10:00 using send_message function to channel 8 on device 1
 schedule.every(2).days.at("10:00").do(lambda: send_message("bbslink MeshBot looking for peers", 8, 0, 1))
@@ -587,7 +602,8 @@ I used ideas and snippets from other responder bots and want to call them out!
 - **mikecarper**: ideas, and testing. hamtest
 - **c.merphy360**: high altitude alerts
 - **Iris**: testing and finding 🐞
-- **Cisien, bitflip, Woof, propstg, snydermesh, trs2982, FJRPilot, F0X, mesb1, and Hailo1999**: For testing and feature ideas on Discord and GitHub.
+- **FJRPiolt**: testing bugs out!!
+- **Cisien, bitflip, Woof, propstg, snydermesh, trs2982, F0X, mesb1, and Hailo1999**: For testing and feature ideas on Discord and GitHub.
 - **Meshtastic Discord Community**: For tossing out ideas and testing code.
 
 ### Tools

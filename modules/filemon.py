@@ -6,6 +6,7 @@ import asyncio
 import random
 import os
 import subprocess
+from datetime import datetime, timedelta
 
 trap_list_filemon = ("readnews",)
 
@@ -69,22 +70,33 @@ async def watch_file():
                     return content
             await asyncio.sleep(1)  # Check every
 
-def call_external_script(message, script="script/runShell.sh"):
-    # Call an external script with the message as an argument this is a example only
+def call_external_script(message, script="runShell.sh"):
+    # If no path is given, assume script/ directory
+    if "/" not in script and "\\" not in script:
+        script = os.path.join("script", script)
     try:
-        # Debugging: Print the current working directory and resolved script path
         current_working_directory = os.getcwd()
         script_path = os.path.join(current_working_directory, script)
 
         if not os.path.exists(script_path):
-            # try the raw script name
+            # Try the raw script name
             script_path = script
             if not os.path.exists(script_path):
                 logger.warning(f"FileMon: Script not found: {script_path}")
                 return "sorry I can't do that"
-            
-        output = os.popen(f"bash {script_path} {message}").read().encode('utf-8').decode('utf-8')
-        return output
+
+        result = subprocess.run(
+            ["bash", script_path, message],
+            capture_output=True,
+            text=True,
+            timeout=10
+        )
+        if result.returncode != 0:
+            logger.error(f"FileMon: Script error: {result.stderr.strip()}")
+            return None
+
+        output = result.stdout.strip()
+        return output if output else None
     except Exception as e:
         logger.warning(f"FileMon: Error calling external script: {e}")
         return None

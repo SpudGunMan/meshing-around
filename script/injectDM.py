@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # Usage: python3 script/injectDM.py -s NODEID -d NODEID -m "message"
-# meshing-around - helper script
+# meshing-around - helper script - enable the bbsAPI in config.ini first
 import sys
 import os
 import argparse

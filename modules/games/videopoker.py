@@ -6,8 +6,7 @@ import pickle
 from modules.log import *
 
 vpStartingCash = 20
-vpTracker= [{'nodeID': 0, 'cmd': 'new', 'time': time.time(), 'cash': vpStartingCash, 'player': None, 'deck': None, 'highScore': 0, 'drawCount': 0}]
-
+from modules.settings import vpTracker
 # Define the Card class
 class CardVP:
 
@@ -304,7 +303,7 @@ def playVideoPoker(nodeID, message):
         # create new player if not in tracker
         logger.debug(f"System: VideoPoker: New Player {nodeID}")
         vpTracker.append({'nodeID': nodeID, 'cmd': 'new', 'time': time.time(), 'cash': vpStartingCash, 'player': None, 'deck': None, 'highScore': 0, 'drawCount': 0})
-        return f"Welcome to 🎰VideoPoker♥️ you have {vpStartingCash} coins, Whats your bet?"
+        return f"You have {vpStartingCash} coins, \nWhats your bet?"
     
     # Gather the player's bet
     if getLastCmdVp(nodeID) == "new" or getLastCmdVp(nodeID) == "gameOver":
@@ -426,7 +425,7 @@ def playVideoPoker(nodeID, message):
 
         if player.bankroll < 1:
             player.bankroll = vpStartingCash
-            msg += "\nLooks 💸 like you're out of money. 💳 resetting ballance 🏧"
+            msg += f"\nLooks 💸 like you're out of money. 💳 resetting ballance 🏧"
         elif player.bankroll > vpTracker[i]['highScore']:
             vpTracker[i]['highScore'] = player.bankroll
             msg += " 🎉HighScore!"

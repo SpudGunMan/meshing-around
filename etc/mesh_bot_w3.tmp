@@ -14,6 +14,8 @@ Group=pi
 WorkingDirectory=/dir/
 ExecStart=python3 modules/web.py
 ExecStop=pkill -f mesh_bot_w3.py
+Environment=REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
+Environment=SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
 
 # Disable Python's buffering of STDOUT and STDERR, so that output from the
 # service shows up immediately in systemd's logs
@@ -21,3 +23,6 @@ Environment=PYTHONUNBUFFERED=1
 
 Restart=on-failure
 Type=notify #try simple if any problems
+
+[Install]
+WantedBy=default.target

@@ -14,7 +14,7 @@ dwInventoryDb = [{'userID': 1234567890, 'inventory': 0, 'priceList': [], 'amount
 dwCashDb = [{'userID': 1234567890, 'cash': starting_cash},]
 dwGameDayDb = [{'userID': 1234567890, 'day': 0},]
 dwLocationDb = [{'userID': 1234567890, 'location': 'USA', 'loc_choice': 0},]
-dwPlayerTracker = [{'userID': 1234567890, 'last_played': time.time(), 'cmd': 'start'},]
+from modules.settings import dwPlayerTracker
 # high score is saved in a pickle file
 dwHighScore = {}
 
