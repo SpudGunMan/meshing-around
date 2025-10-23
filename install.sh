@@ -366,7 +366,7 @@ else
     printf "*** Stay Up to date using 'bash update.sh' ***\n" >> install_notes.txt
 fi
 
-printf "\nInstallation complete!\n"
+printf "\nInstallation complete?\n"
 
 exit 0
 
