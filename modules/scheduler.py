@@ -62,7 +62,7 @@ async def setup_scheduler(
         elif 'custom' in schedulerValue.lower():
            # Import and setup custom schedules from custom_scheduler.py
             try:
-                #
+                # This file is located in etc/custom_scheduler.py and copied to modules/custom_scheduler.py at install
                 from modules.custom_scheduler import setup_custom_schedules # type: ignore  # pylance
                 setup_custom_schedules(
                     send_message, tell_joke, welcome_message, handle_wxc, MOTD,
