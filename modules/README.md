@@ -1,54 +1,211 @@
-# Modules and Adding stuff
+# Meshtastic Mesh-Bot Modules
 
-To help with code testing see `etc/simulator.py` to simulate a bot. I also enjoy meshtasticd(linux-native) in noradio with MQTT server and client to just emulate a mesh.
+This document provides an overview of all modules available in the Mesh-Bot project, including their features, usage, and configuration. Updated when I can. Oct-2025 "ver 1.9.8.4"
 
-## By following these steps, you can add a new bbs option to the bot.
+---
 
-1. **Define the Command Handler**:
-   Add a new function in mesh_bot.py to handle the new command. For example, if you want to add a command `newcommand`:
-   ```python
-   def handle_newcommand(message, message_from_id, deviceID):
-       return "This is a response from the new command."
-   ```
-   Additionally you can add a whole new module.py, I recommend doing this if you need to import more stuff, try and wedge it into similar spots if you can. You will need to import the file as well, look further at `modules/system.py` for more.
-2. **Add the Command to the Auto Response**:
-   Update the auto_response function in mesh_bot.py to include the new command:
-   ```python
-   def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_number, deviceID, isDM):
-       #...
-       "newcommand": lambda: handle_newcommand(message, message_from_id, deviceID),
-       #...
-   ```
-3. **Update the Trap List and Help**:
-    A quick way to do this is to edit the line 16/17 in `modules/system.py` to include the new command:
-    ```python
-    #...
-    trap_list = ("cmd", "cmd?", "newcommand")  # default trap list, with the new command added
-    help_message = "Bot CMD?:newcommand, "
-    #...
-    ```
+## Table of Contents
 
-    **If looking to merge** the prefered way would be to update `modules/system.py` Adding this block below `ping` which ends around line 28:
-    ```python
-    # newcommand Configuration
-    newcommand_enabled = True  # settings.py handles the config.ini values; this is a placeholder
-    if newcommand_enabled:
-         trap_list_newcommand = ("newcommand",)
-         trap_list = trap_list + trap_list_newcommand
-         help_message = help_message + ", newcommand"
-    ```
+- [Overview](#overview)
+- [Games](#games)
+- [BBS (Bulletin Board System)](#bbs-bulletin-board-system)
+- [Checklist](#checklist)
+- [Location & Weather](#location--weather)
+- [EAS & Emergency Alerts](#eas--emergency-alerts)
+- [File Monitoring & News](#file-monitoring--news)
+- [Radio Monitoring](#radio-monitoring)
+- [Ollama LLM/AI](#ollama-llmai)
+- [Wikipedia Search](#wikipedia-search)
+- [Scheduler](#scheduler)
+- [Other Utilities](#other-utilities)
+- [Configuration](#configuration)
+- [Troubleshooting](#troubleshooting)
+- [Adding your Own](modules/adding_more.md)
 
-5. **Test the New Command**:
-   Run MeshBot and test the new command by sending a message with the command `newcommand` to ensure it responds correctly.
+---
 
+## Overview
 
-### Running a Shell command
+Modules are Python files in the `modules/` directory that add features to the bot. Enable or disable them via `config.ini`. See [modules/README.md](modules/README.md) for developer notes.
 
-Using the above example and enabling the filemon module, you can make a command which calls a bash file to do things on the system.
+---
 
-```python
-def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_number, deviceID, isDM):
-    #...
-    "switchON": lambda: call_external_script(message)
-```
-This would call the default script located in script/runShell.sh and return its output.
+## Games
+
+All games are played via DM to the bot. See [modules/games/README.md](modules/games/README.md) for detailed rules and examples.
+
+| Command        | Description                        |
+|----------------|------------------------------------|
+| `blackjack`    | Play Blackjack (Casino 21)         |
+| `dopewars`     | Classic trading game               |
+| `golfsim`      | 9-hole Golf Simulator              |
+| `lemonstand`   | Lemonade Stand business sim        |
+| `tictactoe`    | Tic-Tac-Toe vs. the bot            |
+| `mastermind`   | Code-breaking game                 |
+| `videopoker`   | Video Poker (five-card draw)       |
+| `joke`         | Tells a dad joke                   |
+| `hamtest`      | FCC/ARRL QuizBot                   |
+| `hangman`      | Classic word guess game            |
+| `survey`       | Take a custom survey               |
+| `quiz`         | QuizMaster group quiz              |
+
+Enable/disable games in `[games]` section of `config.ini`.
+
+---
+
+## BBS (Bulletin Board System)
+
+| Command      | Description                                   |
+|--------------|-----------------------------------------------|
+| `bbshelp`    | Show BBS help                                 |
+| `bbslist`    | List messages                                 |
+| `bbsread`    | Read a message by ID                          |
+| `bbspost`    | Post a message or DM                          |
+| `bbsdelete`  | Delete a message                              |
+| `bbsinfo`    | BBS stats (sysop)                             |
+| `bbslink`    | Link messages between BBS systems             |
+
+Enable in `[bbs]` section of `config.ini`.
+
+---
+
+## Checklist
+
+| Command      | Description                                   |
+|--------------|-----------------------------------------------|
+| `checkin`    | Check in a node/asset                         |
+| `checkout`   | Check out a node/asset                        |
+| `checklist`  | Show checklist database                       |
+
+Enable in `[checklist]` section of `config.ini`.
+
+---
+
+## Location & Weather
+
+| Command      | Description                                   |
+|--------------|-----------------------------------------------|
+| `wx`         | Local weather forecast (NOAA/Open-Meteo)      |
+| `wxc`        | Weather in metric/imperial                    |
+| `wxa`        | NOAA alerts                                   |
+| `wxalert`    | NOAA alerts (expanded)                        |
+| `mwx`        | NOAA Coastal Marine Forecast                  |
+| `tide`       | NOAA tide info                                |
+| `riverflow`  | NOAA river flow info                          |
+| `earthquake` | USGS earthquake info                          |
+| `valert`     | USGS volcano alerts                           |
+| `rlist`      | Nearby repeaters from RepeaterBook            |
+| `satpass`    | Satellite pass info                           |
+| `howfar`     | Distance traveled since last check            |
+| `howtall`    | Calculate height using sun angle              |
+| `whereami`   | Show current location                         |
+
+Configure in `[location]` section of `config.ini`.
+
+---
+
+## EAS & Emergency Alerts
+
+| Command      | Description                                   |
+|--------------|-----------------------------------------------|
+| `ea`/`ealert`| FEMA iPAWS/EAS alerts (USA/DE)                |
+
+Enable in `[eas]` section of `config.ini`.
+
+---
+
+## File Monitoring & News
+
+| Command      | Description                                   |
+|--------------|-----------------------------------------------|
+| `readnews`   | Read contents of a news file                  |
+| `readrss`    | Read RSS feed                                 |
+| `x:`         | Run shell command (if enabled)                |
+
+Configure in `[fileMon]` section of `config.ini`.
+
+---
+
+## Radio Monitoring
+
+| Command      | Description                                   |
+|--------------|-----------------------------------------------|
+| `radio`      | Monitor radio SNR via Hamlib                  |
+
+Configure in `[radioMon]` section of `config.ini`.
+
+## Voice Commands (VOX)
+
+You can trigger select bot functions using voice commands with the "Hey Chirpy!" wake word. Just say "Hey Chirpy..." followed by one of the supported commands:
+
+| Voice Command | Description                                 |
+|---------------|---------------------------------------------|
+| `joke`        | Tells a joke                                |
+| `weather`     | Returns local weather forecast              |
+| `moon`        | Returns moonrise/set and phase info         |
+| `daylight`    | Returns sunrise/sunset times                |
+| `river`       | Returns NOAA river flow info                |
+| `tide`        | Returns NOAA tide information               |
+| `satellite`   | Returns satellite pass info                 |
+
+Enable and configure VOX features in the `[vox]` section of `config.ini`.
+---
+
+## Ollama LLM/AI
+
+| Command      | Description                                   |
+|--------------|-----------------------------------------------|
+| `askai`      | Ask Ollama LLM AI                             |
+| `ask:`       | Ask Ollama LLM AI (raw)                       |
+
+Configure in `[ollama]` section of `config.ini`.
+
+---
+
+## Wikipedia Search
+
+| Command      | Description                                   |
+|--------------|-----------------------------------------------|
+| `wiki:`      | Search Wikipedia or local Kiwix server        |
+
+Configure in `[wikipedia]` section of `config.ini`.
+
+---
+
+## Scheduler
+
+Automate messages and tasks using the scheduler module.
+
+Configure in `[scheduler]` section of `config.ini`.  
+See [modules/scheduler.py](modules/scheduler.py) for advanced scheduling.
+
+---
+
+## Other Utilities
+
+- `motd` — Message of the day
+- `leaderboard` — Mesh telemetry stats
+- `lheard` — Last heard nodes
+- `history` — Command history
+- `cmd`/`cmd?` — Show help message ( the bot avoids the use of saying or using help )
+
+---
+
+## Configuration
+
+- Edit `config.ini` to enable/disable modules and set options.
+- See `config.template` for all available settings.
+- Each module section in `config.ini` has an `enabled` flag.
+
+---
+
+## Troubleshooting
+
+- Use the `logger` module for debug output.
+- See [modules/README.md](modules/README.md) for developer help.
+- Use `etc/simulator.py` for local testing.
+- Check the logs in the `logs/` directory for errors.
+
+---
+
+Happy meshing!

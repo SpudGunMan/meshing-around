@@ -1,101 +1,102 @@
 # Mesh Bot for Network Testing and BBS Activities
 
-Welcome to the Mesh Bot project! This feature-rich bot is designed to enhance your [Meshtastic](https://meshtastic.org/docs/introduction/) network experience with a variety of powerful tools and fun features, connectivity and utility through text-based message delivery. Whether you're looking to perform network tests, send messages, or even play games, [mesh_bot.py](mesh_bot.py) has you covered. 
+Mesh Bot is a feature-rich Python bot designed to enhance your [Meshtastic](https://meshtastic.org/docs/introduction/) network experience. It provides powerful tools for network testing, messaging, games, and more—all via text-based message delivery. Whether you want to test your mesh, send messages, or play games, [mesh_bot.py](mesh_bot.py) has you covered.
 
-TLDR: [Getting Started](#getting-started)
+* [Getting Started](#getting-started)
+* [Configuration](#configuration-guide)
 
 ![Example Use](etc/pong-bot.jpg "Example Use")
+#### TLDR
+* [modules/README.md](modules/README.md)
+* [modules/games/README.md](modules/games/README.md)
 
 ## Key Features
 ![CodeQlBadge](https://github.com/SpudGunMan/meshing-around/actions/workflows/dynamic/github-code-scanning/codeql/badge.svg)
 
 ### Intelligent Keyword Responder
-- **Automated Responses**: The bot detects keywords like "ping" and responds with "pong" in direct messages (DMs) or group channels.
-- **Customizable Triggers**: Monitor group channels for specific keywords and set custom responses.
-- **Emergency Response**: Monitor channels for keywords indicating emergencies and alert a wider audience.
-- **New Node Hello**: Greet new nodes on the mesh with a hello message
+- **Automated Responses**: Detects keywords like "ping" and replies with "pong" in direct messages (DMs) or group channels.
+- **Customizable Triggers**: Monitors group channels for specific keywords and sends custom responses.
+- **Emergency Detection**: Watches for emergency-related keywords and alerts a wider audience.
+- **New Node Greetings**: Automatically welcomes new nodes joining the mesh.
 
 ### Network Tools
-- **Build, Test Local Mesh**: Ping allow for message delivery testing with more realistic packets vs. telemetry
-- **Test Node Hardware**: `test` will send incremental sized data into the radio buffer for overall length of message testing
-- **Network Monitoring**: Alert on noisy nodes, node locations, and best placment for relay nodes.
+- **Mesh Testing**: Use `ping` to test message delivery with realistic packets.
+- **Hardware Testing**: The `test` command sends incrementally sized data to test radio buffer limits.
+- **Network Monitoring**: Alerts for noisy nodes, tracks node locations, and suggests optimal relay placement.
 
-### Multi Radio/Node Support
-- **Simultaneous Monitoring**: Monitor up to nine networks at the same time.
-- **Flexible Messaging**: send mail and messages, between networks.
+### Multi-Radio/Node Support
+- **Simultaneous Monitoring**: Observe up to nine networks at once.
+- **Flexible Messaging**: Send mail and messages between networks.
 
 ### Advanced Messaging Capabilities
-- **Mail Messaging**: Leave messages for other devices, which are sent as DMs when the device is seen. Send mail to nodes using `bbspost @nodeNumber #message` or `bbspost @nodeShortName #message`.
-- **Scheduler**: Schedule messages like weather updates or reminders for weekly VHF nets.
-- **Store and Forward**: Like voicemail, see messages missed with the `messages` command. Can also log messages locally to disk.
-- **BBS Linking**: Combine multiple bots to expand BBS reach.
-- **E-Mail/SMS**: Send mesh-messages to E-Mail or SMS(Email) expanding visibility.
-- **New Node Hello**: Send a hello to any new node seen in text message.
+- **Mail Messaging**: Leave messages for other devices; delivered as DMs when the device is next seen. Use `bbspost @nodeNumber #message` or `bbspost @nodeShortName #message`.
+- **Message Scheduler**: Automate messages such as weather updates or net reminders.
+- **Store and Forward**: Retrieve missed messages with the `messages` command; optionally log messages to disk.
+- **BBS Linking**: Connect multiple bots to expand BBS coverage.
+- **E-Mail/SMS Integration**: Send mesh messages to email or SMS for broader reach.
+- **New Node Greetings**: Automatically greet new nodes via text.
 
 ### Interactive AI and Data Lookup
-- **NOAA/USGS location Data**: Get localized weather(alerts), Earthquake, River Flow, and Tide information. Open-Meteo is used for wx only outside NOAA coverage. 
-- **Wiki Integration**: Look up data using Wikipedia results.
-- **Ollama LLM AI**: Interact with the [Ollama](https://github.com/ollama/ollama/tree/main/docs) LLM AI for advanced queries and responses.
-- **Satellite Pass Info**: Get passes for satellite at your location.
-- **GeoMeasuring**: HowFar from point to point using collected GPS packets on the bot to plot a course or space. Find Center of points for Fox&Hound direction finding.
+- **Weather, Earthquake, River, and Tide Data**: Get local alerts and info from NOAA/USGS; uses Open-Meteo for areas outside NOAA coverage.
+- **Wikipedia Search**: Retrieve summaries from Wikipedia.
+- **Ollama LLM Integration**: Query the [Ollama](https://github.com/ollama/ollama/tree/main/docs) AI for advanced responses.
+- **Satellite Passes**: Find upcoming satellite passes for your location.
+- **GeoMeasuring Tools**: Calculate distances and midpoints using collected GPS data; supports Fox & Hound direction finding.
 
 ### Proximity Alerts
-- **Location-Based Alerts**: Get notified when members arrive back at a configured lat/long, perfect for remote locations like campsites, or put a geo-fence. You can also run a script or send a email. Another idea is to lower the cycle and use the bot as a 'king of the hill' or 🧭geocache game. You can also run a script to change a node config or turn on the lights🚥, have it drop an alert.txt to send a message like "Hello Start the 📊Survey"
-- **High Flying Alerts**: Get notified when nodes with high altitude are seen on mesh
-- **Voice/Command Triggers**: The following keywords can be used via voice (VOX) to trigger bot functions "Hey Chirpy!"
-  - Say "Hey Chirpy.."
-  - `joke`: Tells a joke
-  - `weather`: Returns local weather forecast
-  - `moon`: Returns moonrise/set and phase info
-  - `daylight`: Returns sunrise/sunset times
-  - `river`: Returns NOAA river flow info
-  - `tide`: Returns NOAA tide information
-  - `satellite`: Returns satellite pass info
+- **Location-Based Alerts**: Get notified when members arrive at a configured latitude/longitude—ideal for campsites, geo-fences, or remote locations. Optionally, trigger scripts, send emails, or automate actions (e.g., change node config, turn on lights, or drop an `alert.txt` file to start a survey or game).
+- **Customizable Triggers**: Use proximity events for creative applications like "king of the hill" or 🧭 geocache games by adjusting the alert cycle.
+- **High Flying Alerts**: Receive notifications when nodes with high altitude are detected on the mesh.
+- **Voice/Command Triggers**: Activate bot functions using keywords or voice commands (see [Voice Commands](#voice-commands-vox) for "Hey Chirpy!" support).
 
-### CheckList / Check In Out
-- **Asset Tracking**: Maintain a list of node/asset checkin and checkout. Useful foraccountability of people, assets. Radio-Net, FEMA, Trailhead.
+#### Radio Frequency Monitoring
+- **SNR RF Activity Alerts**: Monitor radio frequencies and receive alerts when high SNR (Signal-to-Noise Ratio) activity is detected.
+- **Hamlib Integration**: Use Hamlib (rigctld) to monitor the S meter on a connected radio.
+- **Speech-to-Text Broadcasting**: Convert received audio to text using [Vosk](https://alphacephei.com/vosk/models) and broadcast it to the mesh.
+
+### Check-In / Check-Out & Asset Tracking
+- **Asset Tracking**: Maintain a check-in/check-out list for nodes or assets—ideal for accountability of people and equipment (e.g., Radio-Net, FEMA, trailhead groups).
 
 ### Fun and Games
-- **Built-in Games**: Enjoy games like DopeWars, Lemonade Stand, BlackJack, and VideoPoker.
-- **FCC ARRL QuizBot**: The exam question pool quiz-bot.
-- **Command-Based Gameplay**: Issue `games` to display help and start playing.
-- **Telemetry Leaderboard**: Fun stats like lowest 🪫 battery or coldest temp 🥶
+- **Built-in Games**: Play classic games like DopeWars, Lemonade Stand, BlackJack, and Video Poker directly via DM.
+- **FCC ARRL QuizBot**: Practice for the ham radio exam with the integrated quiz bot.
+- **Command-Based Gameplay**: Use the `games` command to view available games and start playing.
+- **Telemetry Leaderboard**: Compete for fun stats like lowest battery or coldest temperature.
 
 #### QuizMaster
-- **Interactive Group Quizzes**: The QuizMaster module allows admins to start and stop quiz games for groups. Players can join, leave, and answer questions directly via DM or channel.
-- **Scoring and Leaderboards**: Players can check their scores and see the top performers with `q: score` and `q: top`.
-- **Easy Participation**: Players answer questions by prefixing their answer with `q:`, e.g., `q: 42`.
+- **Group Quizzes**: Admins can start and stop quiz games for groups.
+- **Player Participation**: Players join with `q: join`, leave with `q: leave`, and answer questions by prefixing their answer with `q:`, e.g., `q: 42`.
+- **Scoring & Leaderboards**: Check your score with `q: score` and see the top performers with `q: top`.
+- **Admin Controls**: QuizMasters (from `bbs_admin_list`) can use `q: start`, `q: stop`, and `q: broadcast <message>` to manage games.
 
 #### Survey Module
-- **Custom Surveys**: Easily create and deploy custom surveys by editing JSON files in `data/survey`. Multiple surveys can be managed (e.g., `survey snow`).
-- **User Feedback Collection**: Users can participate in surveys via DM, and responses are logged for later review.
-
-### Radio Frequency Monitoring
-- **SNR RF Activity Alerts**: Monitor a radio frequency and get alerts when high SNR RF activity is detected.
-- **Hamlib Integration**: Use Hamlib (rigctld) to watch the S meter on a connected radio.
-- **Speech to Text Brodcasting to Mesh** Using [vosk](https://alphacephei.com/vosk/models) to translate to text. 
+- **Custom Surveys**: Create and manage surveys by editing JSON files in `data/survey`. Multiple surveys are supported (e.g., `survey snow`).
+- **User Feedback**: Users participate via DM; responses are logged for review.
+- **Reporting**: Retrieve survey results with `survey report` or `survey report <surveyname>`.
 
 ### EAS Alerts
-- **FEMA iPAWS/EAS Alerts via API**: Use an internet-connected node to message Emergency Alerts from FEMA
-- **NOAA EAS Alerts via API**: Use an internet-connected node to message Emergency Alerts from NOAA.
-- **USGS Volcano Alerts via API**: Use an internet-connected node to message Emergency Alerts from USGS.
-- **EAS Alerts over the air**: Utilizing external tools to report EAS alerts offline over mesh.
-- **NINA alerts for Germany**: Emergency Alerts from xrepository.de feed
+- **FEMA iPAWS/EAS Alerts**: Receive Emergency Alerts from FEMA via API on internet-connected nodes.
+- **NOAA EAS Alerts**: Get Emergency Alerts from NOAA via API.
+- **USGS Volcano Alerts**: Receive volcano alerts from USGS via API.
+- **Offline EAS Alerts**: Report EAS alerts over the mesh using external tools, even without internet.
+- **NINA Alerts (Germany)**: Receive emergency alerts from the xrepository.de feed for Germany.
 
 ### File Monitor Alerts
-- **File Monitor**: Monitor a flat/text file for changes, broadcast the contents of the message to the mesh channel.
-- **News File**: On request of news, the contents of the file are returned. Can also call multiple news sources or files.
-- **Shell Command Access**: Pass commands via DM directly to the host OS with replay protection.
+- **File Monitoring**: Watch a text file for changes and broadcast updates to the mesh channel.
+- **News File Access**: Retrieve the contents of a news file on request; supports multiple news sources or files.
+- **Shell Command Access**: Execute shell commands via DM with replay protection (admin only).
 
 ### Data Reporting
-- **HTML Generator**: Visualize bot traffic and data flows with a built-in HTML generator for [data reporting](logs/README.md).
-- **RSS and news feeds**: Get data in mesh from many sources!
+- **HTML Reports**: Visualize bot traffic and data flows with a built-in HTML generator. See [data reporting](logs/README.md) for details.
+- **RSS & News Feeds**: Receive news and data from multiple sources directly on the mesh.
 
 ### Robust Message Handling
-- **Message Chunking**: Automatically chunk messages over 160 characters to ensure higher delivery success across hops.
+- **Automatic Message Chunking**: Messages over 160 characters are automatically split to ensure reliable delivery across multiple hops.
 
 ## Getting Started
-This project is developed on Linux (specifically a Raspberry Pi) but should work on any platform where the [Meshtastic protobuf API](https://meshtastic.org/docs/software/python/cli/) modules are supported, and with any compatible [Meshtastic](https://meshtastic.org/docs/getting-started/) hardware. For pico or low-powered devices, see projects for embedding, [buildroot](https://github.com/buildroot-meshtastic/buildroot-meshtastic), also see [femtofox](https://github.com/noon92/femtofox) for running on luckfox hardware. If you need a local console consider the [firefly](https://github.com/pdxlocations/firefly) project. 🥔 Please use responsibly and follow local rulings for such equipment. This project captures packets, logs them, and handles over the air communications which can include PII such as GPS locations.
+This project is developed on Linux (specifically a Raspberry Pi) but should work on any platform where the [Meshtastic protobuf API](https://meshtastic.org/docs/software/python/cli/) modules are supported, and with any compatible [Meshtastic](https://meshtastic.org/docs/getting-started/) hardware. For pico or low-powered devices, see projects for embedding, armbian or [buildroot](https://github.com/buildroot-meshtastic/buildroot-meshtastic), also see [femtofox](https://github.com/noon92/femtofox) for running on luckfox hardware. If you need a local console consider the [firefly](https://github.com/pdxlocations/firefly) project. 
+
+🥔 Please use responsibly and follow local rulings for such equipment. This project captures packets, logs them, and handles over the air communications which can include PII such as GPS locations.
 
 ### Quick Setup 
 #### Clone the Repository
@@ -107,91 +108,10 @@ git clone https://github.com/spudgunman/meshing-around
 - **Launch Script**: `launch.sh` only used in a venv install, to launch the bot and the report generator.
 
 ## Full list of commands for the bot
-
-### Networking
-| Command | Description | ✅ Works Off-Grid |
-|---------|-------------|-
-| `ping`, `ack` | Return data for signal. Example: `ping 15 #DrivingI5` (activates auto-ping every 20 seconds for count 15 via DM only) you can also ping @NODE short name and if BBS DM enabled it will send them a joke  | ✅ |
-| `cmd` | Returns the list of commands (the help message) | ✅ |
-| `history` | Returns the last commands run by user(s) | ✅ |
-| `leaderboard` | Shows extreme mesh metrics like lowest battery 🪫 `leaderboard reset` allows admin reset | ✅ |
-| `lheard` | Returns the last 5 heard nodes with SNR. Can also use `sitrep` | ✅ |
-| `motd` | Displays the message of the day or sets it. Example: `motd $New Message Of the day` | ✅ |
-| `sysinfo` | Returns the bot node telemetry info | ✅ |
-| `test` | used to test the limits of data transfer (`test 4` sends data to the maxBuffer limit default 200 charcters) via DM only | ✅ |
-| `whereami` | Returns the address of the sender's location if known |
-| `whoami` | Returns details of the node asking, also returned when position exchanged 📍 | ✅ |
-| `whois` | Returns details known about node, more data with bbsadmin node | ✅ |
-| `echo` | Echo string back, disabled by default | ✅ |
-| `bannode` | Admin option to prevent a node from using bot. `bannode list` will load and use the data/bbs_ban_list.txt db | ✅ |
-
-### Radio Propagation & Weather Forecasting
-| Command | Description | |
-|---------|-------------|-------------------
-| `ea` and `ealert` | Return FEMA iPAWS/EAS alerts in USA or DE Headline or expanded details for USA | |
-| `earthquake` | Returns the largest and number of USGS events for the location | |
-| `hfcond` | Returns a table of HF solar conditions | |
-| `rlist` | Returns a table of nearby repeaters from RepeaterBook | |
-| `riverflow` | Return information from NOAA for river flow info. | |
-| `solar` | Gives an idea of the x-ray flux | |
-| `sun` and `moon` | Return info on rise and set local time | ✅ |
-| `tide` | Returns the local tides (NOAA data source) | |
-| `valert` | Returns USGS Volcano Data | |
-| `wx` | Return local weather forecast, NOAA or Open Meteo (which also has `wxc` for metric and imperial) | |
-| `wxa` and `wxalert` | Return NOAA alerts. Short title or expanded details | |
-| `mwx` | Return the NOAA Coastal Marine Forecast data | |
-
-### Bulletin Board & Mail
-| Command | Description | |
-|---------|-------------|-
-| `bbshelp` | Returns the following help message | ✅ |
-| `bbslist` | Lists the messages by ID and subject | ✅ |
-| `bbsread` | Reads a message. Example: `bbsread #1` | ✅ |
-| `bbspost` | Posts a message to the public board or sends a DM(Mail) Examples: `bbspost $subject #message`, `bbspost @nodeNumber #message`, `bbspost @nodeShortName #message` | ✅ |
-| `bbsdelete` | Deletes a message. Example: `bbsdelete #4` | ✅ |
-| `bbsinfo` | Provides stats on BBS delivery and messages (sysop) | ✅ |
-| `bbslink` | Links Bulletin Messages between BBS Systems | ✅ |
-| `email:`  | Sends email to address on file for the node or `email: bob@test.net # hello from mesh` | |
-| `sms:`    | Send sms-email to multiple address on file | |
-| `setemail`| Sets the email for easy communications | |
-| `setsms` | Adds the SMS-Email for quick communications | |
-| `clearsms` | Clears all SMS-Emails on file for node | |
-
-### Data Lookup 
-| Command | Description | |
-|---------|-------------|-
-| `askai` and `ask:` | Ask Ollama LLM AI for a response. Example: `askai what temp do I cook chicken` | ✅ |
-| `messages` | Replays the last messages heard on device, like Store and Forward, returns the PublicChannel and Current | ✅ |
-| `readnews` | returns the contents of a file (data/news.txt, by default) can also `news mesh` via the chunker on air | ✅ |
-| `readrss` | returns a set RSS feed on air | |
-| `satpass` | returns the pass info from API for defined NORAD ID in config or Example: `satpass 25544,33591`| |
-| `wiki:` | Searches Wikipedia (or local Kiwix server) and returns the first few sentences of the first result if a match. Example: `wiki: lora radio` |
-| `howfar` | returns the distance you have traveled since your last HowFar. `howfar reset` to start over | ✅ |
-| `howtall` | returns height of something you give a shadow by using sun angle | ✅ |
-
-### CheckList
-| Command | Description | |
-|---------|-------------|-
-| `checkin` | Check in the node to the checklist database, you can add a note like `checkin ICO` or `checkin radio4` | ✅ |
-| `checkout` | Checkout the node in the checklist database, checkout all from node | ✅ |
-| `checklist` | Display the checklist database, with note | ✅ |
+[modules/README.md](modules/README.md)
 
 ### Games (via DM only)
 [modules/games/README.md](modules/games/README.md)
-| Command | Description | |
-|---------|-------------|-
-| `blackjack` | Plays Blackjack (Casino 21) | ✅ |
-| `dopewars` | Plays the classic drug trader game | ✅ |
-| `golfsim` | Plays a 9-hole Golf Simulator | ✅ |
-| `hamtest` | FCC/ARRL Quiz `hamtest general` or `hamtest extra` and `score` | ✅ |
-| `hangman` | Plays the classic word guess game | ✅ |
-| `joke` | Tells a joke | |
-| `lemonstand` | Plays the classic Lemonade Stand finance game | ✅ |
-| `mastermind` | Plays the classic code-breaking game | ✅ |
-| `survey` | Issues out a survey to the user | ✅ |
-| `quiz` | QuizMaster Bot `q: ?` for more | ✅ |
-| `tic-tac-toe`| Plays the game classic game | ✅ |
-| `videopoker` | Plays basic 5-card hold Video Poker | ✅ |
 
 #### QuizMaster
 To use QuizMaster the bbs_admin_list is the QuizMaster, who can `q: start` and `q: stop` to start and stop the game,  `q: broadcast <message>` to send a message to all players.
