@@ -177,7 +177,38 @@ Configure in `[wikipedia]` section of `config.ini`.
 Automate messages and tasks using the scheduler module.
 
 Configure in `[scheduler]` section of `config.ini`.  
-See [modules/scheduler.py](modules/custom_scheduler.py) for advanced scheduling.
+See modules/custom_scheduler.py for advanced scheduling using python
+
+**Purpose:**  
+`scheduler.py` provides automated scheduling for Mesh Bot, allowing you to send messages, jokes, weather updates, and custom actions at specific times or intervals.
+
+**How to Use:**  
+- The scheduler is configured via your bot’s settings or commands, specifying what to send, when, and on which channel/interface.
+- Supports daily, weekly, hourly, and minutely schedules, as well as special jobs like jokes and weather.
+- For advanced automation, you can define your own schedules in `etc/custom_scheduler.py` (copied to `modules/custom_scheduler.py` at install).
+
+**Features:**  
+- **Basic Scheduling:** Send messages on a set schedule (e.g., every day at 09:00, every Monday at noon, every hour, etc.).
+- **Joke Scheduler:** Automatically send jokes at a chosen interval.
+- **Weather Scheduler:** Send weather updates at a chosen interval.
+- **Custom Scheduler:** Import and run your own scheduled jobs by editing `custom_scheduler.py`.
+- **Logging:** All scheduling actions are logged for debugging and monitoring.
+
+**Example Configuration:**  
+To send a daily message at 09:00:
+- `schedulerValue = 'day'`
+- `schedulerTime = '09:00'`
+- `schedulerMessage = 'Good morning, mesh!'`
+
+**Custom Schedules:**  
+1. Edit `etc/custom_scheduler.py` to define your custom jobs.
+2. On install, this file is copied to `modules/custom_scheduler.py`.
+3. Set `schedulerValue = 'custom'` to activate your custom schedules.
+
+**Note:**  
+- The scheduler uses the [schedule](https://schedule.readthedocs.io/en/stable/) Python library.
+- All scheduled jobs run asynchronously as long as the bot is running.
+- For troubleshooting, check the logs for scheduler activity and errors.
 
 ---
 
@@ -205,6 +236,137 @@ See [modules/scheduler.py](modules/custom_scheduler.py) for advanced scheduling.
 - See [modules/README.md](modules/README.md) for developer help.
 - Use `etc/simulator.py` for local testing.
 - Check the logs in the `logs/` directory for errors.
+
+### .ini Settings
+
+If you encounter issues with modules or bot behavior, you can use the `.ini` configuration settings to help diagnose and resolve problems:
+
+### Enable Debug Logging
+
+Increase the logging level to capture more detailed information:
+```ini
+[general]
+sysloglevel = DEBUG
+SyslogToFile = True
+```
+This will log detailed system messages to disk, which you can review in the `logs/` directory.
+
+### Module-Specific Troubleshooting
+
+- **Games Not Working:**  
+  Ensure the relevant game is enabled in the `[games]` section:
+  ```ini
+  [games]
+  blackjack = True
+  dopeWars = True
+  # ...other games
+  ```
+- **Weather/Location Issues:**  
+  Make sure `[location]` and weather modules are enabled and configured:
+  ```ini
+  [location]
+  enabled = True
+  lat = 48.50
+  lon = -123.0
+  ```
+- **BBS Not Responding:**  
+  Check that BBS is enabled and you are not on the ban list:
+  ```ini
+  [bbs]
+  enabled = True
+  bbs_ban_list =
+  ```
+- **Scheduler Not Running:**  
+  Confirm the scheduler is enabled and properly configured:
+  ```ini
+  [scheduler]
+  enabled = True
+  value = day
+  time = 09:00
+  ```
+- **File Monitoring Not Working:**  
+  Verify file monitoring is enabled and the correct file path is set:
+  ```ini
+  [fileMon]
+  filemon_enabled = True
+  file_path = alert.txt
+  ```
+
+
+The `[messagingSettings]` section in your `config.ini` controls how messages are handled, split, acknowledged, and logged by Mesh Bot. Adjust these settings to optimize performance, reliability, and debugging for your mesh network.
+
+### Key Options
+
+- **responseDelay**  
+  *Default: 2.2*  
+  Sets the delay (in seconds) before the bot responds to a message. Increase this if you experience message collisions or throttling on busy networks.
+
+- **splitDelay**  
+  *Default: 2.5*  
+  Sets the delay (in seconds) between sending split message chunks. Useful for avoiding collisions when sending long messages that are broken into parts.
+
+- **MESSAGE_CHUNK_SIZE**  
+  *Default: 160*  
+  The maximum number of characters per message chunk. Messages longer than this are automatically split. (The chunker may allow up to 3 extra characters.)
+
+- **wantAck**  
+  *Default: False*  
+  If set to `True`, the bot will request over-the-air (OTA) acknowledgements for sent messages. Enable this for critical messages, but note it may increase network traffic.
+
+- **maxBuffer**  
+  *Default: 200*  
+  Sets the maximum buffer size (in bytes) for radio testing. Increase or decrease based on your hardware’s capabilities.
+
+- **enableHopLogs**  
+  *Default: False*  
+  If `True`, enables extra logging of hop count data for each message. Useful for analyzing mesh performance.
+
+- **noisyNodeLogging**  
+  *Default: False*  
+  Enables logging for nodes that generate excessive telemetry or noise. Helps identify problematic devices.
+
+- **noisyTelemetryLimit**  
+  *Default: 5*  
+  The threshold for how many noisy packets trigger logging for a node.
+
+- **logMetaStats**  
+  *Default: True*  
+  Enables logging of metadata statistics for analysis.
+
+- **DEBUGpacket**  
+  *Default: False*  
+  If `True`, logs all packet details for advanced debugging. Only enable if you need deep diagnostics, as this can generate large log files.
+
+- **debugMetadata**  
+  *Default: False*  
+  Enables detailed logging for metaPackets. Use the `metadataFilter` to control which packet types are logged.
+
+- **metadataFilter**  
+  *Default: TELEMETRY_APP,POSITION_APP*  
+  Comma-separated list of packet types to include in metaPacket logging. Adjust to focus on specific data types.
+
+### Troubleshooting Tips
+
+- If you see message collisions or dropped messages, try increasing `responseDelay` and `splitDelay`.
+- Enable `DEBUGpacket` and `enableHopLogs` for detailed diagnostics if you’re troubleshooting delivery or routing issues.
+- Use `noisyNodeLogging` to identify and address problematic nodes on your mesh.
+
+---
+
+**Tip:**  
+Refer to the comments in `config.template` for further guidance on each setting.
+
+### General Tips
+
+- After changing `.ini` settings, restart the bot to apply changes.
+- Check the logs in the `logs/` directory for errors or warnings.
+- Use `explicitCmd = True` in `[general]` to require explicit commands, which can help avoid accidental triggers.
+- For advanced debugging, set `DEBUGpacket = True` in `[messagingSettings]` to log all packet details.
+
+---
+
+If you continue to have issues, review the logs for error messages and consult the comments in `config.template` for further guidance.
+
 
 ---
 
