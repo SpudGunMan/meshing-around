@@ -1,5 +1,7 @@
 # config
 config.ini
+config_new.ini
+ini_merge_log.txt
 
 # Pickle files
 *.pkl
@@ -31,3 +33,4 @@ bee.txt
 
 # modules/custom_scheduler.py
 modules/custom_scheduler.py
+
