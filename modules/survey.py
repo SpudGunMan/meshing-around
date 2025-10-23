@@ -98,7 +98,13 @@ class SurveyModule:
             return
         filename = os.path.join(self.response_dir, f'{survey_name}_responses.csv')
         try:
+            # Check if file exists and if it has a header
+            write_header = not os.path.isfile(filename) or os.path.getsize(filename) == 0
             with open(filename, 'a', encoding='utf-8') as f:
+                # Write header if needed
+                if write_header:
+                    header = ['timestamp', 'user_id', 'location'] + [f'Q{i+1}' for i in range(len(self.responses[user_id]['answers']))]
+                    f.write(','.join(header) + '\n')
                 # Always write: timestamp, userID, position, answers...
                 timestamp = datetime.now().strftime('%d%m%Y%H%M%S')
                 user_id_str = str(user_id)
