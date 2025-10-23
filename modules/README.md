@@ -160,6 +160,40 @@ Enable in `[checklist]` section of `config.ini`.
 
 Configure in `[location]` section of `config.ini`.
 
+Certainly! Here’s a README help section for your `mapHandler` command, suitable for users of your meshbot:
+
+---
+
+## 📍 Map Command
+
+The `map` command allows you to log your current GPS location with a custom description. This is useful for mapping mesh nodes, events, or points of interest.
+
+### Usage
+
+- **Show Help**
+  ```
+  map help
+  ```
+  Displays usage instructions for the map command.
+
+- **Log a Location**
+  ```
+  map <description>
+  ```
+  Example:
+  ```
+  map Found a new mesh node near the park
+  ```
+  This will log your current location with the description "Found a new mesh node near the park".
+
+### How It Works
+
+- The bot records your user ID, latitude, longitude, and your description in a CSV file (`data/map_data.csv`).
+- If your location data is missing or invalid, you’ll receive an error message.
+- You can view or process the CSV file later for mapping or analysis.
+
+**Tip:** Use `map help` at any time to see these instructions in the bot.
+
 ---
 
 ## EAS & Emergency Alerts

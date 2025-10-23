@@ -10,9 +10,10 @@ import xml.dom.minidom
 from datetime import datetime
 from modules.log import *
 import math
+import csv
 
 
-trap_list_location = ("whereami", "wx", "wxa", "wxalert", "rlist", "ea", "ealert", "riverflow", "valert", "earthquake", "howfar")
+trap_list_location = ("whereami", "wx", "wxa", "wxalert", "rlist", "ea", "ealert", "riverflow", "valert", "earthquake", "howfar", "map",)
 
 def where_am_i(lat=0, lon=0, short=False, zip=False):
     whereIam = ""
@@ -1054,3 +1055,73 @@ def get_openskynetwork(lat=0, lon=0):
         aircraft_report = aircraft_report[:-1]
     aircraft_report = abbreviate_noaa(aircraft_report)
     return aircraft_report if aircraft_report else NO_ALERTS
+
+def log_locationData_toMap(userID, location, message):
+    """
+    Logs location data to a CSV file for meshing purposes.
+    Returns True if successful, False otherwise.
+    """
+    lat, lon = location
+    if lat is None or lon is None or lat == 0.0 or lon == 0.0:
+        logger.warning(f"Invalid GPS data for user {userID}: {location}")
+        return False
+
+    # Set default directory to ../data/
+    default_dir = os.path.join(os.path.dirname(__file__), "..", "data")
+    os.makedirs(default_dir, exist_ok=True)
+    map_filepath = os.path.join(default_dir, "map_data.csv")
+
+    # Check if the file exists to determine if we need to write headers
+    write_header = not os.path.isfile(map_filepath) or os.path.getsize(map_filepath) == 0
+
+    try:
+        with open(map_filepath, mode='a', newline='') as csvfile:
+            fieldnames = ['userID', 'Latitude', 'Longitude', 'Description']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+            # Write headers only if the file did not exist before or is empty
+            if write_header:
+                writer.writeheader()
+
+            writer.writerow({
+                'userID': userID,
+                'Latitude': lat,
+                'Longitude': lon,
+                'Description': message if message else ""
+            })
+
+        logger.debug(f"Logged location for {userID} to {map_filepath}")
+        return True
+    except Exception as e:
+        logger.error(f"Failed to log location for {userID}: {e}")
+        return False
+
+def mapHandler(command, userID, location):
+    """
+    Handles 'map' commands from meshbot.
+    Usage:
+      map <description text>  - Log current location with description
+    """
+    command = str(command)  # Ensure command is always a string
+
+    if command.strip().lower() == "?":
+        return (
+            "Usage:\n"
+            "  🗺️map <description text>  - Log your current location with a description\n"
+            "Example:\n"
+            "  🗺️map Found a new mesh node near the park"
+        )
+
+    description = command.strip()
+    if not description:
+        return "Please provide a description. Type 'map help' for usage."
+
+    # location should be a tuple: (lat, lon)
+    if not location or len(location) != 2:
+        return "🚫Location data is missing or invalid."
+
+    success = log_locationData_toMap(userID, location, description)
+    if success:
+        return f"📍Location logged "
+    else:
+        return "🚫Failed to log location. Please try again."
