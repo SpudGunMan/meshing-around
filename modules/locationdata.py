@@ -1097,7 +1097,7 @@ def log_locationData_toMap(userID, location, message):
         logger.error(f"Failed to log location for {userID}: {e}")
         return False
 
-def mapHandler(userID, deviceID, channel_number, message):
+def mapHandler(userID, deviceID, channel_number, message, snr, rssi, hop):
     from modules.system import get_node_location
     command = message[len("map"):].strip()
     location = get_node_location(userID, deviceID)
@@ -1122,6 +1122,14 @@ def mapHandler(userID, deviceID, channel_number, message):
     # Sanitize description for CSV injection
     if description and description[0] in ('=', '+', '-', '@'):
         description = "'" + description
+
+    # if there is SNR and RSSI info, append to description
+    if snr is not None and rssi is not None:
+        description += f" (SNR:{snr}dB RSSI:{rssi}dBm"
+    
+    # if there is hop info, append to description
+    if hop is not None:
+        description += f" Meta:{hop})"
 
     # location should be a tuple: (lat, lon)
     if not location or len(location) != 2:
