@@ -23,7 +23,7 @@
     "meta": "The realization that each passerby has a life as vivid and complex as your own."
   }
 ]
-  - `data/bingo.json`: List of animal words for bingo cards.  
+  - `data/bingo.json`: List of words for bingo cards.  
 [
   "dog",
   "cat",
