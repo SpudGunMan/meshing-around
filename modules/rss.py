@@ -4,7 +4,7 @@ import urllib.request
 import xml.etree.ElementTree as ET
 import html
 from html.parser import HTMLParser
-from bs4 import BeautifulSoup  # Add this import
+import bs4 as bs
 
 class MLStripper(HTMLParser):
     def __init__(self):
@@ -20,7 +20,7 @@ def strip_tags(html_text):
     # use BeautifulSoup to strip HTML tags
     if not html_text:
         return ""
-    soup = BeautifulSoup(html_text, "html.parser")
+    soup = bs.BeautifulSoup(html_text, "html.parser")
     text = soup.get_text(separator=" ", strip=True)
     return ' '.join(text.split())
 
