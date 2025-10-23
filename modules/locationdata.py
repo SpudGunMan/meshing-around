@@ -1119,6 +1119,9 @@ def mapHandler(userID, deviceID, channel_number, message, snr, rssi, hop):
         )
 
     description = command.strip()
+    # if no description provided, set to default
+    if not description:
+        description = "Logged:"
     # Sanitize description for CSV injection
     if description and description[0] in ('=', '+', '-', '@'):
         description = "'" + description
