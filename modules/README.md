@@ -26,13 +26,13 @@ This document provides an overview of all modules available in the Mesh-Bot proj
 
 ## Overview
 
-Modules are Python files in the `modules/` directory that add features to the bot. Enable or disable them via `config.ini`. See [modules/README.md](adding_more.md) for developer notes.
+Modules are Python files in the `modules/` directory that add features to the bot. Enable or disable them via `config.ini`. See [modules/adding_more.md](adding_more.md) for developer notes.
 
 ---
 
 ## Games
 
-All games are played via DM to the bot. See [modules/games/README.md](../games/README.md) for detailed rules and examples.
+All games are played via DM to the bot. See [modules/games/README.md](games/README.md) for detailed rules and examples.
 
 | Command        | Description                        |
 |----------------|------------------------------------|
