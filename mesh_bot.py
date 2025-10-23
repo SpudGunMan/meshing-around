@@ -1499,20 +1499,20 @@ def onReceive(packet, interface):
         rxNodeHostName = interface.__dict__.get('ip', None)
         rxNode = next(
             (i for i in range(1, 10)
-             if multiple_interface and rxHost and
-             globals().get(f'hostname{i}', '').split(':', 1)[0] in rxHost and
-             globals().get(f'interface{i}_type', '') == 'tcp'),None)
+            if multiple_interface and rxHost and
+            globals().get(f'hostname{i}', '').split(':', 1)[0] in rxHost and
+            globals().get(f'interface{i}_type', '') == 'tcp'),None)
 
     if rxType == 'SerialInterface':
         rxInterface = interface.__dict__.get('devPath', 'unknown')
         rxNode = next(
             (i for i in range(1, 10)
-             if globals().get(f'port{i}', '') in rxInterface),None)
-    
+            if globals().get(f'port{i}', '') in rxInterface),None)
+
     if rxType == 'BLEInterface':
         rxNode = next(
             (i for i in range(1, 10)
-             if globals().get(f'interface{i}_type', '') == 'ble'),0)
+            if globals().get(f'interface{i}_type', '') == 'ble'),0)
         
     if rxNode is None:
         # default to interface 1 ## FIXME needs better like a default interface setting or hash lookup
@@ -1557,7 +1557,6 @@ def onReceive(packet, interface):
 
     # BBS DM MAIL CHECKER
     if bbs_enabled and 'decoded' in packet:
-        
         msg = bbs_check_dm(message_from_id)
         if msg:
             logger.info(f"System: BBS DM Delivery: {msg[1]} For: {get_name_from_number(message_from_id, 'long', rxNode)}")
@@ -1700,7 +1699,7 @@ def onReceive(packet, interface):
                                 else:
                                     # respond with help message on DM
                                     send_message(help_message, channel_number, message_from_id, rxNode)
-    
+
                     # log the message to the message log
                     if log_messages_to_file:
                         msgLogger.info(f"Device:{rxNode} Channel:{channel_number} | {get_name_from_number(message_from_id, 'long', rxNode)} | DM | " + message_string.replace('\n', '-nl-'))
@@ -1757,7 +1756,7 @@ def onReceive(packet, interface):
                     if log_messages_to_file:
                         msgLogger.info(f"Device:{rxNode} Channel:{channel_number} | {get_name_from_number(message_from_id, 'long', rxNode)} | " + message_string.replace('\n', '-nl-'))
 
-                     # repeat the message on the other device
+                    # repeat the message on the other device
                     if repeater_enabled and multiple_interface:         
                         # wait a responseDelay to avoid message collision from lora-ack.
                         time.sleep(responseDelay)
