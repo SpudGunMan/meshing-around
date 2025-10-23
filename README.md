@@ -3,13 +3,13 @@
 Mesh Bot is a feature-rich Python bot designed to enhance your [Meshtastic](https://meshtastic.org/docs/introduction/) network experience. It provides powerful tools for network testing, messaging, games, and more—all via text-based message delivery. Whether you want to test your mesh, send messages, or play games, [mesh_bot.py](mesh_bot.py) has you covered.
 
 * [Getting Started](#getting-started)
-* [Configuration](#configuration-guide)
+
 
 ![Example Use](etc/pong-bot.jpg "Example Use")
 #### TLDR
 * [install.sh](INSTALL.md)
-* [modules/README.md](modules/README.md)
-* [modules/games/README.md](modules/games/README.md)
+* [Configuration Guide](modules/README.md)
+* [Games Help](modules/games/README.md)
 
 ## Key Features
 ![CodeQlBadge](https://github.com/SpudGunMan/meshing-around/actions/workflows/dynamic/github-code-scanning/codeql/badge.svg)
@@ -25,7 +25,7 @@ Mesh Bot is a feature-rich Python bot designed to enhance your [Meshtastic](http
 - **Hardware Testing**: The `test` command sends incrementally sized data to test radio buffer limits.
 - **Network Monitoring**: Alerts for noisy nodes, tracks node locations, and suggests optimal relay placement.
 
-- **Site Survey & Location Logging**: Use the `map` command to log your current GPS location with a custom description—ideal for site surveys, asset tracking, or mapping mesh nodes. Entries are saved to a CSV file for later analysis or visualization.
+- **Site Survey & Location Logging**: Use the `map` command to log your current GPS location with a custom description—ideal for site surveys, asset tracking, or mapping nodes locations. Entries are saved to a CSV file for later analysis or visualization.
 
 ### Multi-Radio/Node Support
 - **Simultaneous Monitoring**: Observe up to nine networks at once.
