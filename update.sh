@@ -56,7 +56,7 @@ echo "Backing up data/ directory..."
 backup_file="data_backup.tar.gz"
 path2backup="data/"
 #copy custom_scheduler.py if it exists
-if [ -f "modules/custom_scheduler.py" ]; then
+if [[ -f "modules/custom_scheduler.py" ]]; then
     echo "Including custom_scheduler.py in backup..."
     cp modules/custom_scheduler.py data/
 fi
@@ -71,8 +71,7 @@ fi
 # Build a config_new.ini file merging user config with new defaults
 echo "Merging configuration files..."
 python3 script/configMerge.py > ini_merge_log.txt 2>&1
-
-if [ -f ini_merge_log.txt ]; then
+if [[ -f ini_merge_log.txt ]]; then
     if grep -q "Error during configuration merge" ini_merge_log.txt; then
         echo "Configuration merge encountered errors. Please check ini_merge_log.txt for details."
     else
@@ -83,7 +82,7 @@ else
 fi
 
 # if service was stopped earlier, restart it
-if [ "$service_stopped" = true ]; then
+if [[ "$service_stopped" = true ]]; then
     echo "Restarting services..."
     systemctl start mesh_bot.service
     systemctl start pong_bot.service

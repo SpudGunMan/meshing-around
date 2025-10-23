@@ -78,9 +78,9 @@ fi
 
 # add user to groups for serial access
 printf "\nAdding user to dialout, bluetooth, and tty groups for serial access\n"
-sudo usermod -a -G dialout $USER
-sudo usermod -a -G tty $USER
-sudo usermod -a -G bluetooth $USER
+sudo usermod -a -G dialout "$USER"
+sudo usermod -a -G tty "$USER"
+sudo usermod -a -G bluetooth "$USER"
 
 # copy service files
 cp etc/pong_bot.tmp etc/pong_bot.service
@@ -186,10 +186,10 @@ fi
 
 # set the correct path in the service file
 replace="s|/dir/|$program_path/|g"
-sed -i $replace etc/pong_bot.service
-sed -i $replace etc/mesh_bot.service
-sed -i $replace etc/mesh_bot_reporting.service
-sed -i $replace etc/mesh_bot_w3.service
+sed -i "$replace" etc/pong_bot.service
+sed -i "$replace" etc/mesh_bot.service
+sed -i "$replace" etc/mesh_bot_reporting.service
+sed -i "$replace" etc/mesh_bot_w3.service
 # set the correct user in the service file?
 
 #ask if we should add a user for the bot
@@ -209,9 +209,9 @@ else
     whoami=$(whoami)
 fi
 # set basic permissions for the bot user
-sudo usermod -a -G dialout $whoami
-sudo usermod -a -G tty $whoami
-sudo usermod -a -G bluetooth $whoami
+sudo usermod -a -G dialout "$whoami"
+sudo usermod -a -G tty "$whoami"
+sudo usermod -a -G bluetooth "$whoami"
 echo "Added user $whoami to dialout, tty, and bluetooth groups"
 
 sudo chown -R "$whoami:$whoami" "$program_path/logs"
@@ -227,15 +227,15 @@ fi
 
 # set the correct user in the service file
 replace="s|User=pi|User=$whoami|g"
-sed -i $replace etc/pong_bot.service
-sed -i $replace etc/mesh_bot.service
-sed -i $replace etc/mesh_bot_reporting.service
-sed -i $replace etc/mesh_bot_w3.service
+sed -i "$replace" etc/pong_bot.service
+sed -i "$replace" etc/mesh_bot.service
+sed -i "$replace" etc/mesh_bot_reporting.service
+sed -i "$replace" etc/mesh_bot_w3.service
 replace="s|Group=pi|Group=$whoami|g"
-sed -i $replace etc/pong_bot.service
-sed -i $replace etc/mesh_bot.service
-sed -i $replace etc/mesh_bot_reporting.service
-sed -i $replace etc/mesh_bot_w3.service
+sed -i "$replace" etc/pong_bot.service
+sed -i "$replace" etc/mesh_bot.service
+sed -i "$replace" etc/mesh_bot_reporting.service
+sed -i "$replace" etc/mesh_bot_w3.service
 printf "\n service files updated\n"
 
 if [[ $(echo "${bot}" | grep -i "^p") ]]; then
@@ -355,7 +355,7 @@ else
     else
         printf "\nCron job already exists, skipping\n"
     fi
-    printf "Reference following commands:\n\n" "$service" > install_notes.txt
+    printf "Reference following commands:\n\n" > install_notes.txt
     printf "sudo systemctl status %s.service\n" "$service" >> install_notes.txt
     printf "sudo systemctl start %s.service\n" "$service" >> install_notes.txt
     printf "sudo systemctl restart %s.service\n\n" "$service" >> install_notes.txt

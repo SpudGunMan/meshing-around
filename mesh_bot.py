@@ -254,12 +254,12 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, chann
 
     # append SNR/RSSI or hop info
     if hop.startswith("Gateway") or hop.startswith("MQTT"):
-        msg += f" [GW]"
+        msg += " [GW]"
     elif hop.startswith("Direct"):
-        msg += f" [RF]"
+        msg += " [RF]"
     else:
         #flood
-        msg += f" [F]"
+        msg += " [F]"
     
     if (float(snr) != 0 or float(rssi) != 0) and "Hops" not in hop:
         msg += f"\nSNR:{snr} RSSI:{rssi}"
@@ -528,7 +528,8 @@ def handle_satpass(message_from_id, deviceID, message='', vox=False):
             userList = message.split("satpass ")[1].split(" ")[0]
             #split userList and make into satList overrided the config.ini satList
             satList = userList.split(",")
-        except:
+        except Exception as e:
+            logger.error(f"Exception occurred: {e}")
             return "example use:🛰️satpass 25544,33591"
 
     # Detailed satellite pass
@@ -905,8 +906,8 @@ def handleGolf(message, nodeID, deviceID):
     if last_cmd == "new" and nodeID != 0:
         # create new player
 
-        msg = f"Welcome to 🏌️GolfSim⛳️\n"
-        msg += f"Clubs: (D)river, (L)ow Iron, (M)id Iron, (H)igh Iron, (G)ap Wedge, Lob (W)edge (C)addie\n"
+        msg = "Welcome to 🏌️GolfSim⛳️\n"
+        msg += "Clubs: (D)river, (L)ow Iron, (M)id Iron, (H)igh Iron, (G)ap Wedge, Lob (W)edge (C)addie\n"
     
     msg += playGolf(nodeID=nodeID, message=message, last_cmd=last_cmd)
     return msg
