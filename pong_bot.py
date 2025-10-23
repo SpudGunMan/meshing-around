@@ -51,9 +51,6 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
         logger.debug(f"System: Bot detected Commands:{cmds}")
         # run the first command after sorting
         bot_response = command_handler[cmds[0]['cmd']]()
-
-    # wait a responseDelay to avoid message collision from lora-ack
-    time.sleep(responseDelay)
     
     return bot_response
 
@@ -86,21 +83,21 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, chann
         type = "✋ACK"
     elif "cqcq" in message.lower() or "cq" in message.lower() or "cqcqcq" in message.lower():
         if deviceID == 1:
-            myname = get_name_from_number(myNodeNum1, 'short', 1)
+            myname = get_name_from_number(deviceID, 'short', 1)
         elif deviceID == 2:
-            myname = get_name_from_number(myNodeNum2, 'short', 2)
+            myname = get_name_from_number(deviceID, 'short', 2)
         msg = f"QSP QSL OM DE  {myname}   K\n"
     else:
         msg = "🔊 Can you hear me now?"
 
     # append SNR/RSSI or hop info
     if hop.startswith("Gateway") or hop.startswith("MQTT"):
-        msg += f" [GW]"
+        msg += " [GW]"
     elif hop.startswith("Direct"):
-        msg += f" [RF]"
+        msg += " [RF]"
     else:
         #flood
-        msg += f" [F]"
+        msg += " [F]"
     
     if (float(snr) != 0 or float(rssi) != 0) and "Hops" not in hop:
         msg += f"\nSNR:{snr} RSSI:{rssi}"
@@ -317,8 +314,8 @@ def onReceive(packet, interface):
             transport_mechanism = packet['decoded'].get('transport_mechanism', 'unknown')
 
             # check if the packet is from us
-            if message_from_id == myNodeNum1 or message_from_id == myNodeNum2:
-                logger.warning(f"System: Packet from self {message_from_id} loop or traffic replay deteted")
+            if message_from_id in [myNodeNum1, myNodeNum2, myNodeNum3, myNodeNum4, myNodeNum5, myNodeNum6, myNodeNum7, myNodeNum8, myNodeNum9]:
+                logger.warning(f"System: Packet from self {message_from_id} loop or traffic replay detected")
 
             # get the signal strength and snr if available
             if packet.get('rxSnr') or packet.get('rxRssi'):
@@ -389,7 +386,7 @@ def onReceive(packet, interface):
                 return
         
             # If the packet is a DM (Direct Message) respond to it, otherwise validate its a message for us on the channel
-            if packet['to'] == myNodeNum1 or packet['to'] == myNodeNum2:
+            if packet['to'] in [myNodeNum1, myNodeNum2, myNodeNum3, myNodeNum4, myNodeNum5, myNodeNum6, myNodeNum7, myNodeNum8, myNodeNum9]:
                 # message is DM to us
                 isDM = True
                 # check if the message contains a trap word, DMs are always responded to
@@ -470,7 +467,7 @@ def onReceive(packet, interface):
         logger.debug(f"System: Error Packet = {packet}")
 
 async def start_rx():
-    print (CustomFormatter.bold_white + f"\nMeshtastic Autoresponder Bot CTL+C to exit\n" + CustomFormatter.reset)
+    print (CustomFormatter.bold_white + "\nMeshtastic Autoresponder Bot CTL+C to exit\n" + CustomFormatter.reset)
     # Start the receive subscriber using pubsub via meshtastic library
     pub.subscribe(onReceive, 'meshtastic.receive')
     pub.subscribe(onDisconnect, 'meshtastic.connection.lost')
