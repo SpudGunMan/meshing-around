@@ -1,4 +1,4 @@
-# Docker Compose configuration for Meshing Around application with optional services.
+# OLD Docker Compose configuration for Meshing Around application with optional services.
 # This setup includes the main Meshing Around service, with optional Ollama and Prometheus Node Exporter services.
 # Adjust device mappings, ports, and configurations as needed for your environment.
 
@@ -14,6 +14,9 @@ services:
     configs:
       - source: me_config
         target: /app/config.ini
+    devices: # Optional if using meshtasticd. Pass through radio device.
+      - /dev/ttyAMA10 # Replace this with your actual device!
+      #- /dev/ttyUSB0 # Example for USB device
     user: 1000:1000 # run as non-root user for better security.
     extra_hosts:
     #  - "host.docker.internal:host-gateway" # Enables access to host services from within the container.
