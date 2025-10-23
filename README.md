@@ -177,6 +177,7 @@ git clone https://github.com/spudgunman/meshing-around
 | `checklist` | Display the checklist database, with note | ✅ |
 
 ### Games (via DM only)
+[modules/games/README.md](modules/games/README.md)
 | Command | Description | |
 |---------|-------------|-
 | `blackjack` | Plays Blackjack (Casino 21) | ✅ |
@@ -196,10 +197,6 @@ git clone https://github.com/spudgunman/meshing-around
 To use QuizMaster the bbs_admin_list is the QuizMaster, who can `q: start` and `q: stop` to start and stop the game,  `q: broadcast <message>` to send a message to all players.
 Players can `q: join` to join the game, `q: leave` to leave the game, `q: score` to see their score, and `q: top` to see the top 3 players.
 To Answer a question, just type the answer prefixed with `q: <answer>`
-
-#### Word of the Day Games
-Simple word fun, bingo and customizable word of the day lists via JSON files. Slot Machine for Emoji 🎰
-[modules/games/README.md](modules/games/README.md)
 
 #### Survey
 To use the Survey feature edit the json files in data/survey multiple surveys are possible such as `survey snow` you can pull data back with `survey report` or `survey report snow`
