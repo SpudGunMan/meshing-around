@@ -8,6 +8,7 @@ This document covers the Bulliten Board System or BBS componment of the meshing-
 ## Table of Contents
 
 1. [BBS Core Functions](#1-bbs-core-functions)
+    - [Direct Messages (DMs)](#11-direct-messages-dms)
 2. [BBS Database Sync: File-Based (Out-of-Band)](#1-bbs-database-sync-file-based-out-of-band)
 3. [BBS Over-the-Air (OTA) Sync: Linking](#2-bbs-over-the-air-ota-sync-linking)
 4. [Scheduling BBS Sync](#3-scheduling-bbs-sync)
@@ -17,6 +18,34 @@ This document covers the Bulliten Board System or BBS componment of the meshing-
 8. [API Reference: BBS Sync](#7-api-reference-bbs-sync)
 
 ## 1. **BBS Core Functions**
+
+## 1.1 **Direct Messages (DMs)**
+
+### **How DMs Work**
+- Direct Messages (DMs) are private messages sent from one node to another.
+- DMs are stored separately from public posts in `data/bbsdm.pkl`.
+- Each DM entry typically includes: `[id, toNode, message, fromNode, timestamp, threadID, replytoID]`.
+
+### **DM Delivery**
+- When a DM is posted using `bbs_post_dm(toNode, message, fromNode)`, it is added to the recipient's DM database.
+- DMs can be delivered in two ways:
+  1. **File-Based Sync:**  
+     - The `bbsdm.pkl` file is copied between nodes using SCP, rsync, or other file transfer methods.
+     - After syncing, the recipient node can check for new DMs using `bbs_check_dm(toNode)`.
+  2. **Over-the-Air (OTA) Sync:**  
+     - DMs can be exchanged between nodes using the same OTA sync mechanism as public posts.
+     - The `bbslink` command can include DMs, and the recipient node processes and stores them in `bbsdm.pkl`.
+- DMs are only visible to the intended recipient node and are not listed in the public message list.
+
+### **DM Commands**
+| Command         | Description                                 |
+|-----------------|---------------------------------------------|
+| `bbs_post_dm`   | Send a direct message to another node       |
+| `bbs_check_dm`  | Check for new DMs for your node             |
+| `bbs_delete_dm` | Delete a DM after reading                   |
+
+---
+
 
 ### **Message Storage**
 The .. database is
