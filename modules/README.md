@@ -30,6 +30,42 @@ Modules are Python files in the `modules/` directory that add features to the bo
 
 ---
 
+### Networking
+| Command | Description | ✅ Works Off-Grid |
+|---------|-------------|-
+| `ping`, `ack` | Return data for signal. Example: `ping 15 #DrivingI5` (activates auto-ping every 20 seconds for count 15 via DM only) you can also ping @NODE short name and if BBS DM enabled it will send them a joke  | ✅ |
+| `cmd` | Returns the list of commands (the help message) | ✅ |
+| `history` | Returns the last commands run by user(s) | ✅ |
+| `leaderboard` | Shows extreme mesh metrics like lowest battery 🪫 `leaderboard reset` allows admin reset | ✅ |
+| `lheard` | Returns the last 5 heard nodes with SNR. Can also use `sitrep` | ✅ |
+| `motd` | Displays the message of the day or sets it. Example: `motd $New Message Of the day` | ✅ |
+| `sysinfo` | Returns the bot node telemetry info | ✅ |
+| `test` | used to test the limits of data transfer (`test 4` sends data to the maxBuffer limit default 200 charcters) via DM only | ✅ |
+| `whereami` | Returns the address of the sender's location if known |
+| `whoami` | Returns details of the node asking, also returned when position exchanged 📍 | ✅ |
+| `whois` | Returns details known about node, more data with bbsadmin node | ✅ |
+| `echo` | Echo string back, disabled by default | ✅ |
+| `bannode` | Admin option to prevent a node from using bot. `bannode list` will load and use the data/bbs_ban_list.txt db | ✅ |
+
+### Bulletin Board & Mail
+| Command | Description | |
+|---------|-------------|-
+| `bbshelp` | Returns the following help message | ✅ |
+| `bbslist` | Lists the messages by ID and subject | ✅ |
+| `bbsread` | Reads a message. Example: `bbsread #1` | ✅ |
+| `bbspost` | Posts a message to the public board or sends a DM(Mail) Examples: `bbspost $subject #message`, `bbspost @nodeNumber #message`, `bbspost @nodeShortName #message` | ✅ |
+| `bbsdelete` | Deletes a message. Example: `bbsdelete #4` | ✅ |
+| `bbsinfo` | Provides stats on BBS delivery and messages (sysop) | ✅ |
+| `bbslink` | Links Bulletin Messages between BBS Systems | ✅ |
+| `email:`  | Sends email to address on file for the node or `email: bob@test.net # hello from mesh` | |
+| `sms:`    | Send sms-email to multiple address on file | |
+| `setemail`| Sets the email for easy communications | |
+| `setsms` | Adds the SMS-Email for quick communications | |
+| `clearsms` | Clears all SMS-Emails on file for node | |
+
+
+
+
 ## Games
 
 All games are played via DM to the bot. See [modules/games/README.md](games/README.md) for detailed rules and examples.
