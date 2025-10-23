@@ -1,4 +1,5 @@
-#python word of the day game module for meshing-around bot
+# python word of the day game module for meshing-around bot
+# 2025 K7MHI Kelly Keeton
 from modules.log import *
 import random
 import json
@@ -8,6 +9,8 @@ from itertools import product
 
 class WordOfTheDayGame:
     def __init__(self):
+        self.bingo_board_size = 3 # 3x3 bingo board good for small demos
+
         default_word_list = [
             {'word': 'serendipity', 'meta': 'The occurrence of events by chance in a happy or beneficial way.'},
             {'word': 'ephemeral', 'meta': 'Lasting for a very short time.'},
@@ -68,7 +71,7 @@ class WordOfTheDayGame:
         self.word_of_the_day_entry = random.choice(self.word_list)
         logger.debug(f"System: WoTd: Initialized with word of the day '{self.word_of_the_day_entry['word']}'.")
         # Initialize bingo card
-        self.generate_bingo_card(3)
+        self.generate_bingo_card(self.bingo_board_size)
         logger.debug("System: BINGO: " + ". ".join(" | ".join(row) for row in self.bingo_card))
 
     def get_emoji_type(self, emoji, randomReturn=False):
@@ -129,11 +132,13 @@ class WordOfTheDayGame:
         bingo_win, bingo_message = self.b_i_n_g_o(string_of_text)
         return wotd_found, old_entry, new_entry, bingo_win, bingo_message
     
-    def generate_bingo_card(self, size=9):
+    def generate_bingo_card(self, size=None):
         """
         Generate a random bingo card of given size (size x size) from the bingoCardSet.
         Returns a 2D list representing the bingo card.
         """
+        if size is None:
+            size = self.bingo_board_size
         words = random.sample(list(self.bingoCardSet), size * size)
         card = [words[i*size:(i+1)*size] for i in range(size)]
         self.bingo_card = card
@@ -148,7 +153,7 @@ class WordOfTheDayGame:
         """
         if not hasattr(self, 'bingo_card'):
             logger.debug("System: WoTd: Generating new bingo card.")
-            self.generate_bingo_card(3)
+            self.generate_bingo_card(self.bingo_board_size)
 
         words_in_text = set(string_of_text.lower().split())
         size = len(self.bingo_card)
@@ -170,14 +175,20 @@ class WordOfTheDayGame:
         for j in range(size):
             if all(self.bingo_card_matches[i][j] for i in range(size)):
                 col = [self.bingo_card[i][j] for i in range(size)]
+                logger.debug("System: BINGO achieved, generating new bingo card.")
+                self.generate_bingo_card(size)  # Reset board after win
                 return True, f"BINGO! Column {j+1}: {col}"
 
         # Check diagonals
         if all(self.bingo_card_matches[i][i] for i in range(size)):
             diag = [self.bingo_card[i][i] for i in range(size)]
+            logger.debug("System: BINGO achieved, generating new bingo card.")
+            self.generate_bingo_card(size)  # Reset board after win
             return True, f"BINGO! Diagonal: {diag}"
         if all(self.bingo_card_matches[i][size-1-i] for i in range(size)):
             diag = [self.bingo_card[i][size-1-i] for i in range(size)]
+            logger.debug("System: BINGO achieved, generating new bingo card.")
+            self.generate_bingo_card(size)  # Reset board after win
             return True, f"BINGO! Diagonal: {diag}"
 
         return False, None
