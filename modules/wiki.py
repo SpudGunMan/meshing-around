@@ -6,9 +6,8 @@ import wikipedia # pip install wikipedia
 # Kiwix support for local wiki
 if use_kiwix_server:
     import requests
-    from bs4 import BeautifulSoup
+    import bs4 as bs
     from urllib.parse import quote
-    from bs4.element import Comment
 
 # Kiwix helper functions (only loaded if use_kiwix_server is True)
 if wikipedia_enabled and use_kiwix_server:
@@ -16,13 +15,13 @@ if wikipedia_enabled and use_kiwix_server:
         """Filter visible text from HTML elements for Kiwix"""
         if element.parent.name in ['style', 'script', 'head', 'title', 'meta', '[document]']:
             return False
-        if isinstance(element, Comment):
+        if isinstance(element, bs.element.Comment):
             return False
         return True
 
     def text_from_html(body):
         """Extract visible text from HTML content"""
-        soup = BeautifulSoup(body, 'html.parser')
+        soup = bs.BeautifulSoup(body, 'html.parser')
         texts = soup.find_all(string=True)
         visible_texts = filter(tag_visible, texts)
         return " ".join(t.strip() for t in visible_texts if t.strip())
