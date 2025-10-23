@@ -7,6 +7,7 @@ Mesh Bot is a feature-rich Python bot designed to enhance your [Meshtastic](http
 
 ![Example Use](etc/pong-bot.jpg "Example Use")
 #### TLDR
+* [install.sh](INSTALL.md)
 * [modules/README.md](modules/README.md)
 * [modules/games/README.md](modules/games/README.md)
 
