@@ -37,6 +37,37 @@ See [modules/adding_more.md](adding_more.md) for developer notes.
 
 ## Networking
 
+### ping / pinging / test / testing / ack
+
+- **Usage:** `ping`, `pinging`, `test`, `testing`, `ack`, `ping @user`, `ping #tag`
+- **Description:** Sends a ping to the bot. The bot responds with signal information such as SNR (Signal-to-Noise Ratio), RSSI (Received Signal Strength Indicator), and hop count. Used for making field report etc.
+- **Targeted Ping:**  
+  You can direct a ping to a specific user or group by mentioning their short name or tag:
+  - `ping @NODE` — Pings a Joke to specific node by its short name.
+- **Example:**  
+  ```
+  ping
+  ```
+  Response:  
+  ```
+  SNR: 12.5, RSSI: -80, Hops: 2
+  ```
+  ```
+  ping @Top of the hill
+  ```
+  Response:  
+  ```
+  PING @Top of the hill SNR: 10.2, RSSI: -85, Hops: 1
+  ```
+- **Help:**  
+  Send `ping?` in a Direct Message (DM) for usage instructions.
+
+---
+
+### Notes
+- You can mention users or tags in your ping/test messages (e.g., `ping @user` or `ping #group`) to target specific nodes or groups.
+- Some commands may only be available in Direct Messages, depending on configuration.
+
 | Command      | Description | ✅ Works Off-Grid |
 |--------------|-------------|------------------|
 | `ping`, `ack` | Return data for signal. Example: `ping 15 #DrivingI5` (activates auto-ping every 20 seconds for count 15 via DM only) you can also ping @NODE short name and if BBS DM enabled it will send them a joke  | ✅ |
