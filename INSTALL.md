@@ -1,4 +1,6 @@
-## INSTALL.MD
+# INSTALL.md
+
+## Table of Contents
 
 - [install.sh](#installsh)
   - [Purpose](#purpose)
@@ -12,21 +14,42 @@
   - [What it does](#what-it-does-1)
   - [When to use](#when-to-use-1)
   - [Note](#note-1)
+- [launch.sh](#launchsh)
+  - [Purpose](#purpose-2)
+  - [How to Use](#how-to-use)
+  - [What it does](#what-it-does-2)
+  - [Note](#note-2)
+
+---
+
+### Manual Install
+Install the required dependencies using pip:
+```sh
+pip install -r requirements.txt
+```
+
+Copy the configuration template to `config.ini` and edit it to suit your needs:
+```sh
+cp config.template config.ini
+```
+
+
+### Docker Installation - handy for windows
+See further info on the [docker.md](script/docker/README.md)
 
 
 ## install.sh
 
-**Purpose:**  
-`install.sh` is an installation and setup script for the Meshing Around Bot project. It automates the process of installing dependencies, configuring the environment, setting up system services, and preparing the bot for use on Linux systems (especially Debian/Ubuntu/Raspberry Pi and embedded devices).
+### Purpose
+`install.sh` is an installation and setup script for the Meshing Around Bot project. It automates installing dependencies, configuring the environment, setting up system services, and preparing the bot for use on Linux systems (especially Debian/Ubuntu/Raspberry Pi and embedded devices).
 
-**Usage:**  
-Run this script from the project root directory to install and configure the bot:
-
+### Usage
+Run this script from the project root directory:
 ```sh
 bash install.sh
 ```
 
-**What it does:**  
+### What it does
 - Checks for existing installations and required permissions.
 - Optionally moves the project to `/opt/meshing-around` for standardization.
 - Installs Python and pip if not present (unless on embedded systems).
@@ -40,33 +63,34 @@ bash install.sh
 - Provides post-installation notes and commands in `install_notes.txt`.
 - Offers to reboot the system to complete setup.
 
-**When to use:**  
+### When to use
 - For first-time installation of the Meshing Around Bot.
 - When migrating to a new device or environment.
 - After cloning or updating the repository to set up dependencies and services.
 
-**Note:**  
+### Note
 - You may be prompted for input during installation (e.g., for embedded mode, virtual environment, or optional features).
 - Review and edit the script if you have custom requirements or are running on a non-standard system.
 
+---
+
 ## update.sh
 
-**Purpose:**  
+### Purpose
 `update.sh` is an update and maintenance script for the Meshing Around Bot project. It automates the process of safely updating your codebase, backing up data, and merging configuration changes.
 
-**Usage:**  
-Run this script from the project root directory to update your bot installation:
-
+### Usage
+Run this script from the project root directory:
 ```sh
 bash update.sh
 ```
-or, after making it executable:
+Or, after making it executable:
 ```sh
 chmod +x update.sh
 ./update.sh
 ```
 
-**What it does:**  
+### What it does
 - Stops running Mesh Bot services to prevent conflicts during update.
 - Fetches and pulls the latest changes from the GitHub repository (using `git pull --rebase`).
 - Handles git conflicts, offering to reset to the latest remote version if needed.
@@ -76,10 +100,53 @@ chmod +x update.sh
 - Restarts services if they were stopped for the update.
 - Provides status messages and logs for troubleshooting.
 
-**When to use:**  
+### When to use
 - To update your Mesh Bot installation to the latest version.
 - Before making significant changes or troubleshooting, as it creates a backup of your data.
 
-**Note:**  
+### Note
 - Review `ini_merge_log.txt` and `config_new.ini` after running for any configuration changes or errors.
 - You may be prompted if git conflicts are detected.
+
+---
+
+## launch.sh
+
+### Purpose
+`launch.sh` is a convenience script for starting the Mesh Bot, Pong Bot, or generating reports within the Python virtual environment. It ensures the correct environment is activated and the appropriate script is run.
+
+### How to Use
+From your project root, run one of the following commands:
+
+- Launch Mesh Bot:  
+  ```sh
+  bash launch.sh mesh
+  ```
+- Launch Pong Bot:  
+  ```sh
+  bash launch.sh pong
+  ```
+- Generate HTML report:  
+  ```sh
+  bash launch.sh html
+  ```
+- Generate HTML5 report:  
+  ```sh
+  bash launch.sh html5
+  ```
+- Add a favorite (calls `script/addFav.py`):  
+  ```sh
+  bash launch.sh add
+  ```
+
+### What it does
+- Ensures you are in the project directory.
+- Copies `config.template` to `config.ini` if no config exists.
+- Activates the Python virtual environment (`venv`).
+- Runs the selected Python script based on your argument.
+- Deactivates the virtual environment when done.
+
+### Note
+- The script requires a Python virtual environment (`venv`) to be present in the project directory.
+- If `venv` is missing, the script will exit with an error message.
+- Always provide an argument (`mesh`, `pong`, `html`, `html5`, or `add`) to specify what you want to launch.

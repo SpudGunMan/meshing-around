@@ -105,38 +105,17 @@ If you dont have git you will need it `sudo apt-get install git`
 ```sh
 git clone https://github.com/spudgunman/meshing-around
 ```
-- **Automated Installation**: `install.sh` will automate optional venv and requirements installation.
-- **Launch Script**: `launch.sh` only used in a venv install, to launch the bot and the report generator.
+- **Automated Installation**: [install.sh](INSTALL.md) will automate optional venv and requirements installation.
+- **Launch Script**: [laynch.sh](INSTALL.md) only used in a venv install, to launch the bot and the report generator.
+
+### Docker Installation - handy for windows
+See further info on the [docker.md](script/docker/README.md)
 
 ## Full list of commands for the bot
 [modules/README.md](modules/README.md)
 
 ### Games (via DM only)
 [modules/games/README.md](modules/games/README.md)
-
-#### QuizMaster
-To use QuizMaster the bbs_admin_list is the QuizMaster, who can `q: start` and `q: stop` to start and stop the game,  `q: broadcast <message>` to send a message to all players.
-Players can `q: join` to join the game, `q: leave` to leave the game, `q: score` to see their score, and `q: top` to see the top 3 players.
-To Answer a question, just type the answer prefixed with `q: <answer>`
-
-#### Survey
-To use the Survey feature edit the json files in data/survey multiple surveys are possible such as `survey snow` you can pull data back with `survey report` or `survey report snow`
-
-## Other Install Options
-
-### Docker Installation - handy for windows
-See further info on the [docker.md](script/docker/README.md)
-
-### Manual Install
-Install the required dependencies using pip:
-```sh
-pip install -r requirements.txt
-```
-
-Copy the configuration template to `config.ini` and edit it to suit your needs:
-```sh
-cp config.template config.ini
-```
 
 ### Configuration Guide
 The following is documentation for the config.ini file
