@@ -1401,7 +1401,7 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
             # consider Meta for most messages leaderboard
             node_message_count = meshLeaderboard.get('nodeMessageCounts', {})
             node_message_count[nodeID] = node_message_count.get(nodeID, 0) + 1
-            meshLeaderboard['nodeMessageCounts'] = node_message_count    
+            meshLeaderboard['nodeTMessageCounts'] = node_message_count    
             
             if node_message_count[nodeID] > meshLeaderboard['mostTMessages']['value']:
                 meshLeaderboard['mostTMessages']['value'] = node_message_count[nodeID]
