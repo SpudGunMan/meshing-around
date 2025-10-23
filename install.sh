@@ -18,14 +18,13 @@ if [[ -f config.ini ]]; then
     printf "\nDetected existing installation, please backup and remove existing installation before proceeding\n"
     exit 1
 fi
-
 # check if we are in /opt/meshing-around
-if [ $program_path != "/opt/meshing-around" ]; then
+if [[ "$program_path" != "/opt/meshing-around" ]]; then
     printf "\nIt is suggested to project path to /opt/meshing-around\n"
     printf "Do you want to move the project to /opt/meshing-around? (y/n)"
     read move
     if [[ $(echo "$move" | grep -i "^y") ]]; then
-        sudo mv $program_path /opt/meshing-around
+        sudo mv "$program_path" /opt/meshing-around
         cd /opt/meshing-around
         printf "\nProject moved to /opt/meshing-around. re-run the installer\n"
         exit 0
@@ -215,8 +214,8 @@ sudo usermod -a -G tty $whoami
 sudo usermod -a -G bluetooth $whoami
 echo "Added user $whoami to dialout, tty, and bluetooth groups"
 
-sudo chown -R $whoami:$whoami $program_path/logs
-sudo chown -R $whoami:$whoami $program_path/data
+sudo chown -R "$whoami:$whoami" "$program_path/logs"
+sudo chown -R "$whoami:$whoami" "$program_path/data"
 echo "Permissions set for meshbot on logs and data directories"
 
 # check and see if some sort of NTP is running
