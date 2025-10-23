@@ -209,8 +209,11 @@ class WordOfTheDayGame:
         If emojiSeen is False, only update mostMessages leaderboard and skip emoji logic.
         """
 
-        # --- Always update mostMessages leaderboard ---
-        if 'nodeMessageCounts' in meshLeaderboard and meshLeaderboard['nodeMessageCounts']:
+        # Only increment for text/chat messages
+        meshLeaderboard['nodeMessageCounts'][nodeID] = meshLeaderboard['nodeMessageCounts'].get(nodeID, 0) + 1
+    
+        # Update mostMessages leaderboard
+        if meshLeaderboard['nodeMessageCounts']:
             max_node = max(meshLeaderboard['nodeMessageCounts'], key=meshLeaderboard['nodeMessageCounts'].get)
             meshLeaderboard['mostMessages'] = {
                 'nodeID': max_node,
