@@ -1096,7 +1096,12 @@ def log_locationData_toMap(userID, location, message):
         logger.error(f"Failed to log location for {userID}: {e}")
         return False
 
-def mapHandler(command, userID, location):
+def mapHandler(userID, deviceID, channel_number, message):
+    from modules.system import get_node_location
+    command = message[len("map"):].strip()
+    location = get_node_location(userID, deviceID)
+    lat = location[0]
+    lon = location[1]
     """
     Handles 'map' commands from meshbot.
     Usage:
