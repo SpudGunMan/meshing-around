@@ -13,8 +13,8 @@ printf "Installer works best in raspian/debian/ubuntu or foxbuntu embedded syste
 printf "If there is a problem, try running the installer again.\n"
 printf "\nChecking for dependencies...\n"
 
-# fuse
-fi [[ -f config.ini ]]; then
+# fuse check for existing installation
+if [[ -f config.ini ]]; then
     printf "\nDetected existing installation, please backup and remove existing installation before proceeding\n"
     exit 1
 fi
