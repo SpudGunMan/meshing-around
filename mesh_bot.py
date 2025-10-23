@@ -1317,7 +1317,7 @@ def handle_lheard(message, nodeid, deviceID, isDM):
     else:
         # trim the last \n
         bot_response = bot_response[:-1]
-    
+
     # get count of nodes heard
     bot_response += f"\n👀In Mesh: {len(seenNodes)}"
 
@@ -1328,7 +1328,7 @@ def handle_history(message, nodeid, deviceID, isDM, lheard=False):
     global cmdHistory, lheardCmdIgnoreNode, bbs_admin_list
     msg = ""
     buffer = []
-    
+
     if  "?" in message and isDM:
         return message.split("?")[0].title() + " command returns a list of commands received."
 
@@ -1368,7 +1368,7 @@ def handle_history(message, nodeid, deviceID, isDM, lheard=False):
                     for j in range(len(buffer)):
                         if buffer[j][0] == nodeName:
                             buffer[j] = (nodeName, prettyTime)
-    
+
         # create the message from the buffer list
         buffer.reverse() # reverse the list to show the latest first
         for i in range(0, len(buffer)):
@@ -1412,11 +1412,11 @@ def handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus):
         msg += f"I see the signal strength is {rssi} and the SNR is {snr} with hop count of {hop}"
         if pkiStatus[1] != 'ABC':
             msg += f"\nYour PKI bit is {pkiStatus[0]} pubKey: {pkiStatus[1]}"
-    
+
         loc = get_node_location(message_from_id, deviceID)
         if loc != [latitudeValue, longitudeValue]:
             msg += f"\nYou are at: lat:{loc[0]} lon:{loc[1]}"
-    
+
             # check the positionMetadata for nodeID and get metadata
             if positionMetadata and message_from_id in positionMetadata:
                 metadata = positionMetadata[message_from_id]
