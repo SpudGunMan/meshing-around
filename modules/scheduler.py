@@ -55,6 +55,10 @@ async def setup_scheduler(
             # Schedule to send a joke every specified interval
             schedule.every(int(schedulerInterval)).minutes.do(lambda: send_message(tell_joke(), schedulerChannel, 0, schedulerInterface))
             logger.debug(f"System: Starting the joke scheduler to send a joke every {schedulerInterval} minutes on Device:{schedulerInterface} Channel:{schedulerChannel}")
+        elif 'link' in schedulerValue.lower():
+            # Schedule to send a link message every specified interval
+            schedule.every(int(schedulerInterval)).hours.do(lambda: send_message(handle_satpass(schedulerInterface, 'link'), schedulerChannel, 0, schedulerInterface))
+            logger.debug(f"System: Starting the link scheduler to send link messages every {schedulerInterval} hours on Device:{schedulerInterface} Channel:{schedulerChannel}")
         elif 'weather' in schedulerValue.lower():
             # Schedule to send weather updates every specified interval
             schedule.every(int(schedulerInterval)).hours.do(lambda: send_message(handle_wxc(0, schedulerInterface, 'wx'), schedulerChannel, 0, schedulerInterface))
