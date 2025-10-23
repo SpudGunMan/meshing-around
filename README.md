@@ -122,6 +122,9 @@ Firmware 2.6 introduced [PKC](https://meshtastic.org/blog/introducing-new-public
 - Run the helper script from the main program directory: `python3 script/addFav.py`
 - By default, this script adds nodes from `bbs_admin_list` and `bbslink_whitelist`
 - If using a virtual environment, run: `launch.sh addfav`
+- The API will not work-fully today to set nodes this is a WIP
+
+Additionally, you can just DM a bot to "auto favorite." If your node is set to not be messageable, DMs won't work—be advised.
 
 To configure favorite nodes, add their numbers to your config file:
 ```conf
