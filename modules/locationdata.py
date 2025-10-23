@@ -1064,7 +1064,6 @@ def log_locationData_toMap(userID, location, message):
     """
     lat, lon = location
     if lat is None or lon is None or lat == 0.0 or lon == 0.0:
-        logger.warning(f"Invalid GPS data for user {userID}: {location}")
         return False
 
     # Set default directory to ../data/
