@@ -1379,7 +1379,8 @@ def initializeMeshLeaderboard():
         'simulatorPackets': [],  # 🤖
         'emojiCounts': {},       # Track emoji counts per node
         'emojiTypeCounts': {},   # Track emoji type counts
-        'nodeMessageCounts': {}  # Track total message counts per node
+        'nodeMessageCounts': {},  # Track total message counts per node
+        'nodeTMessageCounts': {}  # Track total Tmessage counts per node
     }
 
 initializeMeshLeaderboard()
@@ -1864,13 +1865,13 @@ def get_mesh_leaderboard(msg, fromID, deviceID):
         result += f"📶 Best RF: {value} dBm {get_name_from_number(nodeID, 'short', 1)}\n"
 
     # Most Telemetry Messages
-    if 'nodeMessageCounts' in meshLeaderboard and meshLeaderboard['mostTMessages']['nodeID'] is not None:
+    if 'nodeTMessageCounts' in meshLeaderboard and meshLeaderboard['mostTMessages']['nodeID'] is not None:
         nodeID = meshLeaderboard['mostTMessages']['nodeID']
         value = meshLeaderboard['mostTMessages']['value']
         result += f"💬 Most Telemetry: {value} {get_name_from_number(nodeID, 'short', 1)}\n"
 
     # Most Emojis
-    if 'nodeMessageCounts' in meshLeaderboard and meshLeaderboard['emojiCounts']['nodeID'] is not None:
+    if 'emojiCounts' in meshLeaderboard and meshLeaderboard['emojiCounts']['nodeID'] is not None:
         nodeID = meshLeaderboard['emojiCounts']['nodeID']
         value = meshLeaderboard['emojiCounts']['value']
         result += f"🤪 Most Emojis: {value} {get_name_from_number(nodeID, 'short', 1)}\n"
