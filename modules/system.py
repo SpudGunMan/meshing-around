@@ -217,13 +217,18 @@ if quiz_enabled:
     from modules.games.quiz import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + trap_list_quiz # items quiz, q:
     help_message = help_message + ", quiz"
-    games_enabled = True
+    # games not enabled for quiz
 
 if survey_enabled:
     from modules.survey import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + trap_list_survey # items survey, s:
     help_message = help_message + ", survey"
     games_enabled = True
+
+if wordOfTheDay:
+    from modules.games.wodt import WordOfTheDayGame # from the spudgunman/meshing-around repo
+    theWordOfTheDay = WordOfTheDayGame()
+    # this runs in background and wont enable other games
 
 # Games Configuration
 if games_enabled is True:
@@ -1361,6 +1366,7 @@ def initializeMeshLeaderboard():
         'coldestTemp': {'nodeID': None, 'value': 999, 'timestamp': 0},    # 🥶
         'hottestTemp': {'nodeID': None, 'value': -999, 'timestamp': 0},   # 🥵
         'worstAirQuality': {'nodeID': None, 'value': 0, 'timestamp': 0},  # 💨
+        'mostTMessages': {'nodeID': None, 'value': 0, 'timestamp': 0},    # 💬
         'mostMessages': {'nodeID': None, 'value': 0, 'timestamp': 0},     # 💬
         'highestDBm': {'nodeID': None, 'value': -999, 'timestamp': 0},    # 📶
         'weakestDBm': {'nodeID': None, 'value': 999, 'timestamp': 0},     # 📶
@@ -1370,7 +1376,10 @@ def initializeMeshLeaderboard():
         'adminPackets': [],      # 🚨
         'tunnelPackets': [],     # 🚨
         'audioPackets': [],      # ☎️
-        'simulatorPackets': []   # 🤖
+        'simulatorPackets': [],  # 🤖
+        'emojiCounts': {},       # Track emoji counts per node
+        'emojiTypeCounts': {},   # Track emoji type counts
+        'nodeMessageCounts': {}  # Track total message counts per node
     }
 
 initializeMeshLeaderboard()
@@ -1393,10 +1402,10 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
             node_message_count[nodeID] = node_message_count.get(nodeID, 0) + 1
             meshLeaderboard['nodeMessageCounts'] = node_message_count    
             
-            if node_message_count[nodeID] > meshLeaderboard['mostMessages']['value']:
-                meshLeaderboard['mostMessages']['value'] = node_message_count[nodeID]
-                meshLeaderboard['mostMessages']['nodeID'] = nodeID
-                meshLeaderboard['mostMessages']['timestamp'] = time.time()
+            if node_message_count[nodeID] > meshLeaderboard['mostTMessages']['value']:
+                meshLeaderboard['mostTMessages']['value'] = node_message_count[nodeID]
+                meshLeaderboard['mostTMessages']['nodeID'] = nodeID
+                meshLeaderboard['mostTMessages']['timestamp'] = time.time()
 
             # consider Meta for highest and weakest DBm
             if packet.get('rxSnr') is not None:
@@ -1759,11 +1768,11 @@ def saveLeaderboard():
 def loadLeaderboard():
     global meshLeaderboard
     try:
-        defaults = {}
         initializeMeshLeaderboard()
+        defaults = meshLeaderboard.copy()
         with open('data/leaderboard.pkl', 'rb') as f:
-            meshLeaderboard = pickle.load(f)
-        defaults.update(meshLeaderboard)  # loaded values overwrite defaults
+            loaded = pickle.load(f)
+        defaults.update(loaded)  # loaded values overwrite defaults
         meshLeaderboard = defaults
         if logMetaStats:
             logger.debug("System: Mesh Leaderboard loaded from leaderboard.pkl")
@@ -1855,10 +1864,22 @@ def get_mesh_leaderboard(msg, fromID, deviceID):
         result += f"📶 Best RF: {value} dBm {get_name_from_number(nodeID, 'short', 1)}\n"
 
     # Most Telemetry Messages
+    if 'nodeMessageCounts' in meshLeaderboard and meshLeaderboard['mostTMessages']['nodeID'] is not None:
+        nodeID = meshLeaderboard['mostTMessages']['nodeID']
+        value = meshLeaderboard['mostTMessages']['value']
+        result += f"💬 Most Telemetry: {value} {get_name_from_number(nodeID, 'short', 1)}\n"
+
+    # Most Emojis
+    if 'nodeMessageCounts' in meshLeaderboard and meshLeaderboard['emojiCounts']['nodeID'] is not None:
+        nodeID = meshLeaderboard['emojiCounts']['nodeID']
+        value = meshLeaderboard['emojiCounts']['value']
+        result += f"🤪 Most Emojis: {value} {get_name_from_number(nodeID, 'short', 1)}\n"
+
+    # Most Messages
     if 'nodeMessageCounts' in meshLeaderboard and meshLeaderboard['mostMessages']['nodeID'] is not None:
         nodeID = meshLeaderboard['mostMessages']['nodeID']
         value = meshLeaderboard['mostMessages']['value']
-        result += f"💬 Most Telemetry: {value} {get_name_from_number(nodeID, 'short', 1)}\n"
+        result += f"💬 Most Messages: {value} {get_name_from_number(nodeID, 'short', 1)}\n"
 
     # Most WiFi devices seen
     if meshLeaderboard.get('mostPaxWiFi', {}).get('nodeID'):

@@ -1785,6 +1785,24 @@ def onReceive(packet, interface):
                                 # send a hello message as a DM
                                 if not train_qrz:
                                     send_message(f"Hello {name} {qrz_hello_string}", channel_number, message_from_id, rxNode)
+
+                    # handle mini games 
+                    if wordOfTheDay:
+                        #word of the day game play on non bot messages
+                        happened, old_entry, new_entry, bingo_win, bingo_message = theWordOfTheDay.did_it_happen(message_string)
+                        if happened:
+                            wordWas = old_entry['word']
+                            metaWas = old_entry['meta']
+                            msg = f"🎉 {get_name_from_number(message_from_id, 'long', rxNode)} found the Word of the Day🎊:\n {wordWas}, {metaWas}"
+                            send_message(msg, channel_number, 0, rxNode)
+                        if bingo_win:
+                            msg = f"🎉 {get_name_from_number(message_from_id, 'long', rxNode)} scored BINGO!🥳 {bingo_message}"
+                            send_message(msg, channel_number, 0, rxNode)
+
+                        slotMachine = theWordOfTheDay.emojiMiniGame(message_string, emojiSeen=emojiSeen, nodeID=message_from_id, nodeInt=rxNode)
+                        if slotMachine:
+                            msg = f"🎉 {get_name_from_number(message_from_id, 'long', rxNode)} played the Slot Machine and got: {slotMachine} 🥳"
+                            send_message(msg, channel_number, 0, rxNode)
         else:
             # Evaluate non TEXT_MESSAGE_APP packets
             consumeMetadata(packet, rxNode, channel_number)
