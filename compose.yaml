@@ -1,0 +1,43 @@
+# Docker Compose configuration for Meshing Around.
+# This setup includes the main Meshing Around service, with optional Ollama and Prometheus Node Exporter services.
+# Adjust device mappings, ports, and configurations as needed for your environment.
+services:
+  meshing-around:
+    stdin_open: true
+    tty: true
+    ports:
+      - 8420:8420
+    devices: # Optional if using meshtasticd. Pass through radio device.
+      - /dev/ttyUSB0 # Replace this with your actual device!
+      #- /dev/ttyAMA0 # Example
+    volumes:
+      - /data/meshing-around/config.ini:/app/config.ini:rw
+    image: ghcr.io/SpudGunMan/meshing-around:test-all-changes
+    container_name: meshing-around
+    restart: unless-stopped
+    environment:
+      - OLLAMA_API_URL=http://ollama:11434
+    extra_hosts:
+      #- "host.docker.internal:host-gateway" # Enables access to host services from within the container.
+    user: "1000:1000" # run as non-root user for better security
+
+  meshtasticd: # Runs a virtual node. Optional, but can be used to link meshing-around directly to mqtt.
+    ports:
+      - 4403:4403
+    restart: unless-stopped
+    container_name: meshtasticd
+    image: meshtastic/meshtasticd:beta
+
+  ollama: # Used for enabling LLM interactions.
+    ports: 
+      - 11434:11434 # Ollama API port
+    volumes:
+      - /data/ollama:/root/.ollama
+    container_name: ollama
+    image: ollama/ollama:latest
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
