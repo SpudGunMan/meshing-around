@@ -33,7 +33,7 @@ services:
   meshtasticd:
     ports:
       - 4403:4403
-      - 9443:9443
+      - 443:443
     volumes:
       - ./script/docker:/etc/meshtasticd:rw
     restart: unless-stopped
