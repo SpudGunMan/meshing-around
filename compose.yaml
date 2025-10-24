@@ -17,7 +17,7 @@ services:
     #user: "1000:1000"
     #user: "10999:10999"
     networks:
-      - shared_network
+      - meshing-around-network
 
   debug-console:
     image: ghcr.io/spudgunman/meshing-around:main
@@ -28,7 +28,7 @@ services:
     volumes:
       - .:/app:rw
     networks:
-      - shared_network
+      - meshing-around-network
 
   meshtasticd:
     ports:
@@ -40,7 +40,7 @@ services:
     container_name: meshtasticd
     image: meshtastic/meshtasticd:daily-debian
     networks:
-      - shared_network
+      - meshing-around-network
 
   ollama:
     ports: 
@@ -54,9 +54,9 @@ services:
       timeout: 10s
       retries: 5
     networks:
-      - shared_network
+      - meshing-around-network
 
-# networks:
-#   shared_network:
-#     external: true
-#     name: meshing-around-network
+networks:
+  shared_network:
+    external: true
+    name: meshing-around-network
