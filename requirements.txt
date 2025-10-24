@@ -8,5 +8,4 @@ beautifulsoup4
 dadjokes
 geopy
 schedule
-wikipedia
 googlesearch-python

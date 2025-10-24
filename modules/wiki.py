@@ -1,7 +1,7 @@
 # meshbot wiki module
 
 from modules.log import *
-import wikipedia # pip install wikipedia
+#import wikipedia # pip install wikipedia
 import requests
 import bs4 as bs
 from urllib.parse import quote
@@ -80,43 +80,73 @@ def get_kiwix_summary(search_term):
         logger.warning(f"System: Kiwix connection error: {e}")
         return "Unable to connect to local wiki server"
         # Fallback to online Wikipedia
-        #return get_wikipedia_summary(search_term, force=True)
+        return get_wikipedia_summary(search_term, force=True)
     except Exception as e:
         logger.warning(f"System: Error with Kiwix for:{search_term} {e}")
         return ERROR_FETCHING_DATA
-    
 
 def get_wikipedia_summary(search_term, location=None, force=False):
-    lat, lon = location if location else (None, None)
-    # Use Kiwix if configured
     if use_kiwix_server and not force:
         return get_kiwix_summary(search_term)
-    
+
+    if not search_term or not search_term.strip():
+        return ERROR_FETCHING_DATA
+
+    api_url = f"https://en.wikipedia.org/api/rest_v1/page/summary/{requests.utils.quote(search_term)}"
+    headers = {
+        "User-Agent": "MeshBot/1.0 (https://github.com/kkeeton/meshing-around; contact: youremail@example.com)"
+    }
     try:
-        # Otherwise use online Wikipedia
-        wikipedia_search = wikipedia.search(search_term, results=3)
-        wikipedia_suggest = wikipedia.suggest(search_term)
-        #wikipedia_aroundme = wikipedia.geosearch(lat,lon, results=3)
-        #logger.debug(f"System: Wikipedia Nearby:{wikipedia_aroundme}")
+        response = requests.get(api_url, timeout=5, headers=headers)
+        if response.status_code == 404:
+            logger.warning(f"System: No Wikipedia Results for:{search_term}")
+            return ERROR_FETCHING_DATA
+        response.raise_for_status()
+        data = response.json()
+        summary = data.get("extract")
+        if not summary:
+            logger.warning(f"System: No summary found for:{search_term}")
+            return ERROR_FETCHING_DATA
+        sentences = summary.split('. ')
+        summary = '. '.join(sentences[:wiki_return_limit])
+        if summary and not summary.endswith('.'):
+            summary += '.'
+        return summary.strip()[:500]
     except Exception as e:
-        logger.debug(f"System: Wikipedia search error for:{search_term} {e}")
+        logger.warning(f"System: Wikipedia API error for:{search_term} {e}")
         return ERROR_FETCHING_DATA
+
+# def get_wikipedia_summary(search_term, location=None, force=False):
+#     lat, lon = location if location else (None, None)
+#     # Use Kiwix if configured
+#     if use_kiwix_server and not force:
+#         return get_kiwix_summary(search_term)
     
-    if len(wikipedia_search) == 0:
-        logger.warning(f"System: No Wikipedia Results for:{search_term}")
-        return ERROR_FETCHING_DATA
+#     try:
+#         # Otherwise use online Wikipedia
+#         wikipedia_search = wikipedia.search(search_term, results=3)
+#         wikipedia_suggest = wikipedia.suggest(search_term)
+#         #wikipedia_aroundme = wikipedia.geosearch(lat,lon, results=3)
+#         #logger.debug(f"System: Wikipedia Nearby:{wikipedia_aroundme}")
+#     except Exception as e:
+#         logger.debug(f"System: Wikipedia search error for:{search_term} {e}")
+#         return ERROR_FETCHING_DATA
     
-    try:
-        logger.debug(f"System: Searching Wikipedia for:{search_term}, First Result:{wikipedia_search[0]}, Suggest Word:{wikipedia_suggest}")
-        summary = wikipedia.summary(search_term, sentences=wiki_return_limit, auto_suggest=False, redirect=True)
-    except wikipedia.DisambiguationError as e:
-        logger.warning(f"System: Disambiguation Error for:{search_term} trying {wikipedia_search[0]}")
-        summary = wikipedia.summary(wikipedia_search[0], sentences=wiki_return_limit, auto_suggest=True, redirect=True)
-    except wikipedia.PageError as e:
-        logger.warning(f"System: Wikipedia Page Error for:{search_term} {e} trying {wikipedia_search[0]}")
-        summary = wikipedia.summary(wikipedia_search[0], sentences=wiki_return_limit, auto_suggest=True, redirect=True)
-    except Exception as e:
-        logger.warning(f"System: Error with Wikipedia for:{search_term} {e}")
-        return ERROR_FETCHING_DATA
+#     if len(wikipedia_search) == 0:
+#         logger.warning(f"System: No Wikipedia Results for:{search_term}")
+#         return ERROR_FETCHING_DATA
     
-    return summary
+#     try:
+#         logger.debug(f"System: Searching Wikipedia for:{search_term}, First Result:{wikipedia_search[0]}, Suggest Word:{wikipedia_suggest}")
+#         summary = wikipedia.summary(search_term, sentences=wiki_return_limit, auto_suggest=False, redirect=True)
+#     except wikipedia.DisambiguationError as e:
+#         logger.warning(f"System: Disambiguation Error for:{search_term} trying {wikipedia_search[0]}")
+#         summary = wikipedia.summary(wikipedia_search[0], sentences=wiki_return_limit, auto_suggest=True, redirect=True)
+#     except wikipedia.PageError as e:
+#         logger.warning(f"System: Wikipedia Page Error for:{search_term} {e} trying {wikipedia_search[0]}")
+#         summary = wikipedia.summary(wikipedia_search[0], sentences=wiki_return_limit, auto_suggest=True, redirect=True)
+#     except Exception as e:
+#         logger.warning(f"System: Error with Wikipedia for:{search_term} {e}")
+#         return ERROR_FETCHING_DATA
+    
+#     return summary
