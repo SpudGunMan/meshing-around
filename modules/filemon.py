@@ -178,6 +178,9 @@ def initNewsSources():
         if file.endswith('_news.txt'):
             source = file[:-9]  # remove _news.txt
             newsSourcesList.append(source)
+            return True
+    logger.info("FileMon: No news sources found")
+    return False
 
 #initialize the headlines on startup
 initNewsSources()
