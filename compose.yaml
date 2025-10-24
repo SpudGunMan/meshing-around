@@ -3,8 +3,6 @@
 # Adjust device mappings, ports, and configurations as needed for your environment.
 services:
   meshing-around:
-    stdin_open: true
-    tty: true
     ports:
       - 8420:8420
     devices: # Optional if using meshtasticd. Pass through radio device.
@@ -14,7 +12,7 @@ services:
       - .:/app:ro
       - ./logs:/app/logs:rw
       - ./data:/app/data:rw
-    image: ghcr.io/SpudGunMan/meshing-around:test-all-changes
+    image: ghcr.io/SpudGunMan/meshing-around:main
     container_name: meshing-around
     restart: unless-stopped
     environment:
@@ -22,7 +20,18 @@ services:
     extra_hosts:
       #- "host.docker.internal:host-gateway" # Enables access to host services from within the container.
     #user: "1000:1000" # non-root user for better security
-    user: "10999:10999" # for Docker Desktop compatibility
+    #user: "10999:10999" # for Docker Desktop compatibility
+
+  debug-console:
+    image: ghcr.io/SpudGunMan/meshing-around:main
+    container_name: debug-console
+    command: ["/bin/bash"]
+    stdin_open: true
+    tty: true
+    volumes:
+      - .:/app:ro
+      - ./logs:/app/logs:rw
+      - ./data:/app/data:rw
 
   meshtasticd: # Runs a virtual node. Optional, but can be used to link meshing-around directly to mqtt.
     ports:
