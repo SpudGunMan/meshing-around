@@ -50,7 +50,7 @@ def get_kiwix_summary(search_term):
         response = requests.get(search_url, timeout=urlTimeoutSeconds)
         
         if response.status_code == 200 and "No results were found" not in response.text:
-            soup = BeautifulSoup(response.text, 'html.parser')
+            soup = bs.BeautifulSoup(response.text, 'html.parser')
             links = [a['href'] for a in soup.find_all('a', href=True) if "start=" not in a['href']]
             
             for link in links[:3]:  # Check first 3 results
