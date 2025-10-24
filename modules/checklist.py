@@ -8,19 +8,21 @@ import time
 trap_list_checklist = ("checkin", "checkout", "checklist", "purgein", "purgeout")
 
 def initialize_checklist_database():
-    # create the database
-    conn = sqlite3.connect(checklist_db)
-    c = conn.cursor()
-    # Check if the checkin table exists, and create it if it doesn't
-    c.execute('''CREATE TABLE IF NOT EXISTS checkin
-                 (checkin_id INTEGER PRIMARY KEY, checkin_name TEXT, checkin_date TEXT, checkin_time TEXT, location TEXT, checkin_notes TEXT)''')
-    # Check if the checkout table exists, and create it if it doesn't
-    c.execute('''CREATE TABLE IF NOT EXISTS checkout
-                 (checkout_id INTEGER PRIMARY KEY, checkout_name TEXT, checkout_date TEXT, checkout_time TEXT, location TEXT, checkout_notes TEXT)''')
-    conn.commit()
-    conn.close()
-    logger.debug("System: Ensured data/checklist.db exists with required tables")
-    return True
+    try:
+        conn = sqlite3.connect(checklist_db)
+        c = conn.cursor()
+        # Check if the checkin table exists, and create it if it doesn't
+        c.execute('''CREATE TABLE IF NOT EXISTS checkin
+                     (checkin_id INTEGER PRIMARY KEY, checkin_name TEXT, checkin_date TEXT, checkin_time TEXT, location TEXT, checkin_notes TEXT)''')
+        # Check if the checkout table exists, and create it if it doesn't
+        c.execute('''CREATE TABLE IF NOT EXISTS checkout
+                     (checkout_id INTEGER PRIMARY KEY, checkout_name TEXT, checkout_date TEXT, checkout_time TEXT, location TEXT, checkout_notes TEXT)''')
+        conn.commit()
+        conn.close()
+        return True
+    except Exception as e:
+        logger.error(f"Checklist: Failed to initialize database: {e}")
+        return False
 
 def checkin(name, date, time, location, notes):
     location = ", ".join(map(str, location))
