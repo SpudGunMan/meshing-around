@@ -150,7 +150,7 @@ if dad_jokes_enabled:
 # Wikipedia Search Configuration
 if wikipedia_enabled:
     from modules.wiki import * # from the spudgunman/meshing-around repo
-    trap_list = trap_list + ("wiki")
+    trap_list = trap_list + ("wiki",)
     help_message = help_message + ", wiki"
 
 # RSS Feed Configuration
