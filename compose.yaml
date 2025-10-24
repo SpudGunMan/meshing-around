@@ -28,7 +28,6 @@ services:
     networks:
       - meshing-around-network
     stdin_open: true
-    tty: true
 
   debug-console:
     image: ghcr.io/spudgunman/meshing-around:main
