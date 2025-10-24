@@ -34,6 +34,7 @@ services:
   meshtasticd: # Optional service for Meshtastic device management.
     ports:
       - 4403:4403
+      - 9443:9443
     restart: unless-stopped
     container_name: meshtasticd
     image: meshtastic/meshtasticd:daily-debian
