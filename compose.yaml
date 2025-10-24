@@ -56,7 +56,7 @@ services:
     networks:
       - shared_network
 
-networks:
-  shared_network:
-    external: true
-    name: meshing-around-network
+# networks:
+#   shared_network:
+#     external: true
+#     name: meshing-around-network
