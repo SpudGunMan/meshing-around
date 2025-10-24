@@ -121,6 +121,8 @@ class Hangman:
 
     def __init__(self):
         self.game = {}
+        self.DEFAULT_WORDS = self.WORDS
+        
 
         # Try to load hangman.json if it exists
         hangman_json_path = os.path.join('data', 'hangman.json')
