@@ -9,10 +9,19 @@ import warnings
 # Suppress ResourceWarning warnings for asyncio unclosed event  here
 warnings.filterwarnings("ignore", category=ResourceWarning)
 
+
 # Add the parent directory to sys.path to allow module imports
 parent_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(parent_path)
 modules_path = os.path.join(parent_path, 'modules')
+
+# Limits API calls during testing
+CHECKALL = False
+# Check for a file named .checkall in the parent directory
+checkall_path = os.path.join(parent_path, '.checkall')
+if os.path.isfile(checkall_path):
+    CHECKALL = True
+
 
 # List of module names to exclude
 exclude = ['test_bot','udp', 'system', 'log', 'gpio', 'web',]
@@ -111,7 +120,7 @@ class TestBot(unittest.TestCase):
 
     def test_get_kiwix_summary(self):
         from wiki import get_kiwix_summary
-        summary = get_kiwix_summary("Python ")
+        summary = get_kiwix_summary("Python")
         self.assertIsInstance(summary, str)
 
     def get_openskynetwork(self):
@@ -138,78 +147,75 @@ class TestBot(unittest.TestCase):
         
 
 
+    if CHECKALL:
+        logger.info("Running extended API tests as CHECKALL is enabled.")
+        def test_getRepeaterBook(self):
+            from locationdata import getRepeaterBook
+            repeaters = getRepeaterBook(lat, lon)
+            self.assertIsInstance(repeaters, str)
 
+        def test_getArtSciRepeaters(self):
+            from locationdata import getArtSciRepeaters
+            repeaters = getArtSciRepeaters(lat, lon)
+            self.assertIsInstance(repeaters, str)
 
+        def test_get_NOAAtides(self):
+            from locationdata import get_NOAAtide
+            tides = get_NOAAtide(lat, lon)
+            self.assertIsInstance(tides, str)
 
-    def test_getRepeaterBook(self):
-        from locationdata import getRepeaterBook
-        repeaters = getRepeaterBook(lat, lon)
-        self.assertIsInstance(repeaters, str)
+        def test_get_NOAAweather(self):
+            from locationdata import get_NOAAweather
+            weather = get_NOAAweather(lat, lon)
+            self.assertIsInstance(weather, str)
 
-    def test_getArtSciRepeaters(self):
-        from locationdata import getArtSciRepeaters
-        repeaters = getArtSciRepeaters(lat, lon)
-        self.assertIsInstance(repeaters, str)
-
-    def test_get_NOAAtides(self):
-        from locationdata import get_NOAAtide
-        tides = get_NOAAtide(lat, lon)
-        self.assertIsInstance(tides, str)
-
-    def test_get_NOAAweather(self):
-        from locationdata import get_NOAAweather
-        weather = get_NOAAweather(lat, lon)
-        self.assertIsInstance(weather, str)
-
-    def test_getWeatherAlertsNOAA(self):
-        from locationdata import getWeatherAlertsNOAA
-        alerts = getWeatherAlertsNOAA(lat, lon)
-        if isinstance(alerts, tuple):
-            self.assertIsInstance(alerts[0], str)
-        else:
+        def test_getWeatherAlertsNOAA(self):
+            from locationdata import getWeatherAlertsNOAA
+            alerts = getWeatherAlertsNOAA(lat, lon)
+            if isinstance(alerts, tuple):
+                self.assertIsInstance(alerts[0], str)
+            else:
+                self.assertIsInstance(alerts, str)
+        
+        def test_getActiveWeatherAlertsDetailNOAA(self):
+            from locationdata import getActiveWeatherAlertsDetailNOAA
+            alerts_detail = getActiveWeatherAlertsDetailNOAA(lat, lon)
+            self.assertIsInstance(alerts_detail, str)
+        
+        def test_getIpawsAlerts(self):
+            from locationdata import getIpawsAlert
+            alerts = getIpawsAlert(lat, lon)
             self.assertIsInstance(alerts, str)
-    
-    def test_getActiveWeatherAlertsDetailNOAA(self):
-        from locationdata import getActiveWeatherAlertsDetailNOAA
-        alerts_detail = getActiveWeatherAlertsDetailNOAA(lat, lon)
-        self.assertIsInstance(alerts_detail, str)
-    
-    def test_getIpawsAlerts(self):
-        from locationdata import getIpawsAlert
-        alerts = getIpawsAlert(lat, lon)
-        self.assertIsInstance(alerts, str)
-    
-    def test_get_flood_noaa(self):
-        from locationdata import get_flood_noaa
-        flood_info = get_flood_noaa(lat, lon, 12484500)  # Example gauge UID
-        self.assertIsInstance(flood_info, str)
-    
-    def test_get_volcano_usgs(self):
-        from locationdata import get_volcano_usgs
-        volcano_info = get_volcano_usgs(lat, lon)
-        self.assertIsInstance(volcano_info, str)
+        
+        def test_get_flood_noaa(self):
+            from locationdata import get_flood_noaa
+            flood_info = get_flood_noaa(lat, lon, 12484500)  # Example gauge UID
+            self.assertIsInstance(flood_info, str)
+        
+        def test_get_volcano_usgs(self):
+            from locationdata import get_volcano_usgs
+            volcano_info = get_volcano_usgs(lat, lon)
+            self.assertIsInstance(volcano_info, str)
 
-    def test_get_nws_marine_alerts(self):
-        from locationdata import get_nws_marine
-        marine_alerts = get_nws_marine('https://tgftp.nws.noaa.gov/data/forecasts/marine/coastal/pz/pzz135.txt',1) # Example zone
-        self.assertIsInstance(marine_alerts, str)
+        def test_get_nws_marine_alerts(self):
+            from locationdata import get_nws_marine
+            marine_alerts = get_nws_marine('https://tgftp.nws.noaa.gov/data/forecasts/marine/coastal/pz/pzz135.txt',1) # Example zone
+            self.assertIsInstance(marine_alerts, str)
 
-    def test_checkUSGSEarthQuakes(self):
-        from locationdata import checkUSGSEarthQuake
-        earthquakes = checkUSGSEarthQuake(lat, lon)
-        self.assertIsInstance(earthquakes, str)
+        def test_checkUSGSEarthQuakes(self):
+            from locationdata import checkUSGSEarthQuake
+            earthquakes = checkUSGSEarthQuake(lat, lon)
+            self.assertIsInstance(earthquakes, str)
 
-    def test_getNextSatellitePass(self):
-        from space import getNextSatellitePass
-        pass_info = getNextSatellitePass('25544', lat, lon)
-        self.assertIsInstance(pass_info, str)
-
-
-    
-    
+        def test_getNextSatellitePass(self):
+            from space import getNextSatellitePass
+            pass_info = getNextSatellitePass('25544', lat, lon)
+            self.assertIsInstance(pass_info, str)  
 
 
 
 
-if __name__ == '__main__':    
+if __name__ == '__main__':
+    if not CHECKALL:
+        print("\nNote: Extended API tests are skipped. To enable them, create a file named '.checkall' in the parent directory.\n")
     unittest.main()
