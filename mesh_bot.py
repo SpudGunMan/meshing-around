@@ -629,7 +629,6 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
     return response
 
 def handleDopeWars(message, nodeID, rxNode):
-    from modules.settings import dwPlayerTracker
     global dwHighScore
 
     # Find player in tracker
@@ -682,7 +681,6 @@ def handle_gTnW(chess = False):
     return response[selected_index]
 
 def handleLemonade(message, nodeID, deviceID):
-    from modules.settings import lemonadeTracker
     global lemonadeCups, lemonadeLemons, lemonadeSugar, lemonadeWeeks, lemonadeScore, lemon_starting_cash, lemon_total_weeks
     msg = ""
 
@@ -730,7 +728,6 @@ def handleLemonade(message, nodeID, deviceID):
     return msg
 
 def handleBlackJack(message, nodeID, deviceID):
-    from modules.settings import jackTracker
     msg = ""
 
     # Find player in tracker
@@ -786,7 +783,6 @@ def handleBlackJack(message, nodeID, deviceID):
     return msg
 
 def handleVideoPoker(message, nodeID, deviceID):
-    from modules.settings import vpTracker
     msg = ""
 
     # Find player in tracker
@@ -821,7 +817,6 @@ def handleVideoPoker(message, nodeID, deviceID):
     return msg
 
 def handleMmind(message, nodeID, deviceID):
-    from modules.settings import mindTracker
     msg = ''
 
     if "end" in message.lower() or message.lower().startswith("e"):
@@ -865,7 +860,6 @@ def handleMmind(message, nodeID, deviceID):
     return msg
 
 def handleGolf(message, nodeID, deviceID):
-    from modules.settings import golfTracker
     msg = ''
 
     # get player's last command from tracker if not new player
@@ -913,7 +907,6 @@ def handleGolf(message, nodeID, deviceID):
     return msg
 
 def handleHangman(message, nodeID, deviceID):
-    from modules.settings import hangmanTracker
     index = 0
     msg = ''
     for i in range(len(hangmanTracker)):
@@ -939,7 +932,6 @@ def handleHangman(message, nodeID, deviceID):
     return msg
 
 def handleHamtest(message, nodeID, deviceID):
-    from modules.settings import hamtestTracker
     index = 0
     msg = ''
     response = message.split(' ')
@@ -972,7 +964,6 @@ def handleHamtest(message, nodeID, deviceID):
     return msg
 
 def handleTicTacToe(message, nodeID, deviceID):
-    from modules.settings import tictactoeTracker
     index = 0
     msg = ''
     
@@ -1963,6 +1954,11 @@ async def start_rx():
 
 
 # Initialize game trackers
+from modules.settings import (
+    dwPlayerTracker, lemonadeTracker, vpTracker, jackTracker, mindTracker,
+    golfTracker, hangmanTracker, hamtestTracker, tictactoeTracker, surveyTracker
+)
+
 gameTrackers = [
     (dwPlayerTracker, "DopeWars", handleDopeWars) if 'dwPlayerTracker' in globals() else None,
     (lemonadeTracker, "LemonadeStand", handleLemonade) if 'lemonadeTracker' in globals() else None,
@@ -1974,7 +1970,7 @@ gameTrackers = [
     (hamtestTracker, "HamTest", handleHamtest) if 'hamtestTracker' in globals() else None,
     (tictactoeTracker, "TicTacToe", handleTicTacToe) if 'tictactoeTracker' in globals() else None,
     (surveyTracker, "Survey", surveyHandler) if 'surveyTracker' in globals() else None,
-    #quiz does not use a tracker (quizGamePlayer) always active
+    #quiz does not use a tracker (quizGamePlayer) always active, same for wotd
 ]
 
 # Hello World 
