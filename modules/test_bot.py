@@ -212,6 +212,16 @@ class TestBot(unittest.TestCase):
             pass_info = getNextSatellitePass('25544', lat, lon)
             self.assertIsInstance(pass_info, str)  
 
+        def test_get_wx_meteo(self):
+            from wx_meteo import get_wx_meteo
+            weather_report = get_wx_meteo(lat, lon)
+            self.assertIsInstance(weather_report, str)
+
+        def test_get_flood_openmeteo(self):
+            from wx_meteo import get_flood_openmeteo
+            flood_report = get_flood_openmeteo(lat, lon)
+            self.assertIsInstance(flood_report, str)
+
 
 
 
