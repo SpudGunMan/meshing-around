@@ -44,11 +44,9 @@ def get_kiwix_summary(search_term):
             if summary and not summary.endswith('.'):
                 summary += '.'
             return summary.strip()[:500]  # Hard limit at 500 chars
-        elif response.status_code != 200:
-            logger.debug(f"System: Kiwix direct article not found for:{search_term} Status Code:{response.status_code}")
-            return ERROR_FETCHING_DATA
-        
+
         # If direct access fails, try search
+        logger.debug(f"System: Kiwix direct article not found for:{search_term} Status Code:{response.status_code}")
         search_url = f"{kiwix_url}/search?content={kiwix_library_name}&pattern={search_encoded}"
         response = requests.get(search_url, timeout=urlTimeoutSeconds)
         
