@@ -110,7 +110,7 @@ git clone https://github.com/spudgunman/meshing-around
 - **Automated Installation**: [install.sh](INSTALL.md) will automate optional venv and requirements installation.
 - **Launch Script**: [laynch.sh](INSTALL.md) only used in a venv install, to launch the bot and the report generator.
 
-### Docker Installation - handy for windows
+### Docker Installation - Good for Windows!
 See further info on the [docker.md](script/docker/README.md)
 
 ## Full list of commands for the bot
