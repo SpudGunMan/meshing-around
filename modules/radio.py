@@ -100,6 +100,9 @@ def get_freq_common_name(freq):
 
 def get_hamlib(msg="f"):
     # get data from rigctld server
+    if "socket" not in globals():
+        logger.warning("RadioMon: 'socket' module not imported. Hamlib disabled.")
+        return ERROR_FETCHING_DATA
     try:
         rigControlSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         rigControlSocket.settimeout(2)
