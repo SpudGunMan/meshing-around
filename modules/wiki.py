@@ -103,11 +103,18 @@ def get_wikipedia_summary(search_term, location=None, force=False):
             return ERROR_FETCHING_DATA
         response.raise_for_status()
         data = response.json()
+        # Check for error response from Wikipedia API
+        if "extract" not in data or not data.get("extract"):
+            logger.warning(f"System: Wikipedia API returned no extract for:{search_term} (data: {data})")
+            return ERROR_FETCHING_DATA
         summary = data.get("extract")
-        if not summary:
+        if not summary or not isinstance(summary, str) or not summary.strip():
             logger.warning(f"System: No summary found for:{search_term}")
             return ERROR_FETCHING_DATA
-        sentences = summary.split('. ')
+        sentences = [s for s in summary.split('. ') if s.strip()]
+        if not sentences:
+            logger.warning(f"System: Wikipedia summary split produced no sentences for:{search_term}")
+            return ERROR_FETCHING_DATA
         summary = '. '.join(sentences[:wiki_return_limit])
         if summary and not summary.endswith('.'):
             summary += '.'
