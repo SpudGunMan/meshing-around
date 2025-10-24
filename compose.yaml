@@ -19,6 +19,17 @@ services:
     networks:
       - meshing-around-network
 
+    test-bot:
+      image: ghcr.io/spudgunman/meshing-around:main
+      container_name: test-bot
+      command: ["/bin/bash", "-c", "python3 modules/test_bot.py | tee /tmp/test_tmp.txt; if grep -E 'failures=|errors=' /tmp/test_tmp.txt; then cp /tmp/test_tmp.txt /app/test_results.txt; fi"]
+      volumes:
+        - .:/app:rw
+      networks:
+        - meshing-around-network
+      stdin_open: true
+      tty: true
+
   debug-console:
     image: ghcr.io/spudgunman/meshing-around:main
     container_name: debug-console
