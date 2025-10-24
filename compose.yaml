@@ -7,7 +7,7 @@ services:
       - 8420:8420
     devices:
       #- /dev/ttyUSB0:/dev/tty #update your config.ini to /dev/tty
-      - /dev/ttyACM0:/dev/tty #if using serial select proper port
+      #- /dev/ttyACM0:/dev/tty #if using serial select proper port
     volumes:
       - .:/app:ro
       - ./logs:/app/logs:rw
