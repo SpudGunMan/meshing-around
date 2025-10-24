@@ -20,6 +20,7 @@ def initialize_checklist_database():
     conn.commit()
     conn.close()
     logger.debug("System: Ensured data/checklist.db exists with required tables")
+    return True
 
 def checkin(name, date, time, location, notes):
     location = ", ".join(map(str, location))
