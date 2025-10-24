@@ -1,0 +1,29 @@
+### Many device configs have been moved to /etc/meshtasticd/available.d
+### To activate, simply copy or link the appropriate file into /etc/meshtasticd/config.d
+
+### Define your devices here using Broadcom pin numbering
+### Uncomment the block that corresponds to your hardware
+### Including the "Module:" line!
+---
+Lora:
+GPIO:
+GPS:
+I2C:
+Display:
+Touchscreen:
+Input:
+Logging:
+  LogLevel: info # debug, info, warn, error
+#  TraceFile: /var/log/meshtasticd.json
+#  AsciiLogs: true     # default if not specified is !isatty() on stdout
+Webserver:
+  Port: 443 # Port for Webserver & Webservices
+  RootPath: /usr/share/meshtasticd/web # Root Dir of WebServer
+#  SSLKey: /etc/meshtasticd/ssl/private_key.pem # Path to SSL Key, generated if not present
+#  SSLCert: /etc/meshtasticd/ssl/certificate.pem # Path to SSL Certificate, generated if not present
+General:
+  MaxNodes: 200
+  MaxMessageQueue: 100
+  ConfigDirectory: /etc/meshtasticd/config.d/
+#  MACAddress: AA:BB:CC:DD:EE:FF
+#  MACAddressSource: eth0

@@ -35,6 +35,8 @@ services:
     ports:
       - 4403:4403
       - 9443:9443
+    volumes:
+      - ./script/docker:/etc/meshtasticd:rw
     restart: unless-stopped
     container_name: meshtasticd
     image: meshtastic/meshtasticd:daily-debian
