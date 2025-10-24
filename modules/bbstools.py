@@ -21,31 +21,33 @@ bbs_dm = []
 
 def load_bbsdb():
     global bbs_messages
-    # load the bbs messages from the database file
     try:
         with open('data/bbsdb.pkl', 'rb') as f:
             new_bbs_messages = pickle.load(f)
             if isinstance(new_bbs_messages, list):
                 for msg in new_bbs_messages:
-                    #example [1, 'Welcome to meshBBS', 'Welcome to the BBS, please post a message!', 0]
-                    msgHash = hash(tuple(msg[1:3]))  # Create a hash of the message content (subject and body)
-                    # Check if the message already exists in bbs_messages
+                    msgHash = hash(tuple(msg[1:3]))
                     if all(hash(tuple(existing_msg[1:3])) != msgHash for existing_msg in bbs_messages):
-                        # if the message is not a duplicate, add it to bbs_messages Maintain the message ID sequence
                         new_id = len(bbs_messages) + 1
                         bbs_messages.append([new_id, msg[1], msg[2], msg[3]])
-                        return True
+                        logger.info(f"System: Loaded BBS Message ID {new_id}, subject: {msg[1]} from bbsdb.pkl")
+                return True  # Loaded successfully, regardless of whether new messages were added
+            return False # File existed but did not contain a valid list of messages (possibly corrupted)
     except FileNotFoundError:
+        # create a new bbsdb.pkl with a welcome message
+        # template ([messageID, subject, message, fromNode, now, thread, replyto])
+        bbs_messages = [[1, "Welcome to meshBBS", "Welcome to the BBS, please post a message!",0,time.strftime('%Y-%m-%d %H:%M:%S'),0,0]]
         logger.debug("System: bbsdb.pkl not found, creating new one")
-        bbs_messages = [[1, "Welcome to meshBBS", "Welcome to the BBS, please post a message!",0]]
         try:
             with open('data/bbsdb.pkl', 'wb') as f:
                 pickle.dump(bbs_messages, f)
+                return True
         except Exception as e:
             logger.error(f"System: Error creating bbsdb.pkl: {e}")
+            return False
     except Exception as e:
         logger.error(f"System: Error loading bbsdb.pkl: {e}")
-        bbs_messages = [[1, "Welcome to meshBBS", "Welcome to the BBS, please post a message!",0]]
+        return False
 
 def save_bbsdb():
     global bbs_messages
