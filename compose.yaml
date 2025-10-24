@@ -5,7 +5,7 @@ services:
   meshing-around:
     ports:
       - 8420:8420
-    devices:
+    #devices:
       #- /dev/ttyUSB0:/dev/tty #update your config.ini to /dev/tty
       #- /dev/ttyACM0:/dev/tty #if using serial select proper port
     volumes:
