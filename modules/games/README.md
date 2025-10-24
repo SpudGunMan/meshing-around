@@ -9,8 +9,8 @@
 - [Tic-Tac-Toe](#tic-tac-toe-game-module)
 - [MasterMind](#mastermind-game-module)
 - [Video Poker](#video-poker-game-module)
+- [Hangman](#hangman-game-module)
 - [Word of the Day Game](#word-of-the-day-game--rules--features)
-
 ---
 
 
@@ -539,3 +539,68 @@ Place your Bet, or (L)eave Table.
   "lizard",
   "snake"
 ]
+
+# Hangman Game Module
+
+A classic word-guessing game for the Meshtastic mesh-bot. Try to guess the hidden word one letter at a time before you run out of chances!
+
+## How to Play
+
+- **Start the Game:**  
+  Send the command `hangman` via DM to the bot to begin a new game.
+
+- **Objective:**  
+  Guess the secret word by suggesting letters, one at a time. Each incorrect guess brings you closer to losing!
+
+- **Game Flow:**
+  1. **New Game:**  
+     - The bot picks a random word and shows you its masked form (e.g., `_ _ _ _ _`).
+     - You’ll see your total games played and games won.
+  2. **Guessing:**  
+     - Type a single letter to guess.
+     - Correct guesses reveal all instances of that letter in the word.
+     - Incorrect guesses are tracked; you have 6 chances before the game ends.
+     - The bot shows your progress, wrong guesses, and a hangman emoji status.
+  3. **Winning & Losing:**  
+     - Guess all letters before reaching 6 wrong guesses to win!
+     - If you lose, the bot reveals the word and starts a new game.
+
+- **Commands:**  
+  - Enter a single letter to guess.
+  - Start a new game by sending `hangman` again.
+
+## Example Session
+
+```
+_ _ _ _ _ _ _ 
+Guess a letter
+
+
+🥳
+Total Games: 1, Won: 1
+M E S H T A S T I C
+Guess a letter
+```
+
+## Notes
+
+- The word list is loaded from `data/hangman.json` if available, or uses a built-in default list. [\"apple\",\"banana\",\"cherry\"]
+- Game stats are tracked per player.
+- Only one game session per player at a time.
+- Play via DM for best experience.
+
+## Data Files
+
+- `data/hangman.json`: List of words for Hangman.  
+  Example:
+  ```
+  [
+    "apple",
+    "banana",
+    "cherry"
+  ]
+  ```
+
+## Credits
+
+- Written for Meshtastic mesh-bot by ZR1RF Johannes le Roux 2025
