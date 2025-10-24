@@ -34,6 +34,7 @@ def load_bbsdb():
                         # if the message is not a duplicate, add it to bbs_messages Maintain the message ID sequence
                         new_id = len(bbs_messages) + 1
                         bbs_messages.append([new_id, msg[1], msg[2], msg[3]])
+                        return True
     except FileNotFoundError:
         logger.debug("System: bbsdb.pkl not found, creating new one")
         bbs_messages = [[1, "Welcome to meshBBS", "Welcome to the BBS, please post a message!",0]]
