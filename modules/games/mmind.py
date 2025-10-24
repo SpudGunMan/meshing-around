@@ -5,7 +5,7 @@ import random
 import time
 import pickle
 from modules.log import *
-from modules.settings import mindTracker
+
 def chooseDifficultyMMind(message):
     usrInput = message.lower()
     msg = ''

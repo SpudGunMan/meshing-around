@@ -626,7 +626,7 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
     return response
 
 def handleDopeWars(message, nodeID, rxNode):
-    from modules.settings import dwPlayerTracker
+    global dwPlayerTracker
     global dwHighScore
 
     # Find player in tracker
@@ -679,7 +679,7 @@ def handle_gTnW(chess = False):
     return response[selected_index]
 
 def handleLemonade(message, nodeID, deviceID):
-    from modules.settings import lemonadeTracker
+    global lemonadeTracker
     global lemonadeCups, lemonadeLemons, lemonadeSugar, lemonadeWeeks, lemonadeScore, lemon_starting_cash, lemon_total_weeks
     msg = ""
 
@@ -727,9 +727,8 @@ def handleLemonade(message, nodeID, deviceID):
     return msg
 
 def handleBlackJack(message, nodeID, deviceID):
-    from modules.settings import jackTracker
+    global jackTracker
     msg = ""
-
     # Find player in tracker
     player = next((p for p in jackTracker if p['nodeID'] == nodeID), None)
 
@@ -783,7 +782,7 @@ def handleBlackJack(message, nodeID, deviceID):
     return msg
 
 def handleVideoPoker(message, nodeID, deviceID):
-    from modules.settings import vpTracker
+    global vpTracker
     msg = ""
 
     # Find player in tracker
@@ -798,7 +797,17 @@ def handleVideoPoker(message, nodeID, deviceID):
 
     # Create new player if not found
     if not player and nodeID != 0:
-        vpTracker.append({'nodeID': nodeID, 'cmd': 'new', 'last_played': time.time()})
+        vpTracker.append({
+            'nodeID': nodeID,
+            'cmd': 'new',
+            'last_played': time.time(),
+            'time': time.time(),
+            'cash': vpStartingCash,
+            'player': None,
+            'deck': None,
+            'highScore': 0,
+            'drawCount': 0
+        })
         msg += "Welcome to 🎰Video Poker!🎰\n"
         # Show high score if available
         highScore = loadHSVp()
@@ -818,7 +827,7 @@ def handleVideoPoker(message, nodeID, deviceID):
     return msg
 
 def handleMmind(message, nodeID, deviceID):
-    from modules.settings import mindTracker
+    global mindTracker
     msg = ''
 
     if "end" in message.lower() or message.lower().startswith("e"):
@@ -862,7 +871,7 @@ def handleMmind(message, nodeID, deviceID):
     return msg
 
 def handleGolf(message, nodeID, deviceID):
-    from modules.settings import golfTracker
+    global golfTracker
     msg = ''
 
     # get player's last command from tracker if not new player
@@ -910,7 +919,7 @@ def handleGolf(message, nodeID, deviceID):
     return msg
 
 def handleHangman(message, nodeID, deviceID):
-    from modules.settings import hangmanTracker
+    global hangmanTracker
     index = 0
     msg = ''
     for i in range(len(hangmanTracker)):
@@ -936,7 +945,7 @@ def handleHangman(message, nodeID, deviceID):
     return msg
 
 def handleHamtest(message, nodeID, deviceID):
-    from modules.settings import hamtestTracker
+    global hamtestTracker
     index = 0
     msg = ''
     response = message.split(' ')
@@ -969,7 +978,7 @@ def handleHamtest(message, nodeID, deviceID):
     return msg
 
 def handleTicTacToe(message, nodeID, deviceID):
-    from modules.settings import tictactoeTracker
+    global tictactoeTracker
     index = 0
     msg = ''
     

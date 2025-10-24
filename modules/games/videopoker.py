@@ -6,9 +6,9 @@ import pickle
 from modules.log import *
 
 vpStartingCash = 20
-from modules.settings import vpTracker
 # Define the Card class
 class CardVP:
+    global vpTracker
 
     card_values = {  # value of the ace is high until it needs to be low
         2: 2,
@@ -296,154 +296,159 @@ def loadHSVp():
         return 0
 
 def playVideoPoker(nodeID, message):
+    global vpTracker, vpStartingCash
     msg = ""
+    try:
+        # Initialize the player
+        if getLastCmdVp(nodeID) is None or getLastCmdVp(nodeID) == "":
+            # create new player if not in tracker
+            logger.debug(f"System: VideoPoker: New Player {nodeID}")
+            vpTracker.append({'nodeID': nodeID, 'cmd': 'new', 'time': time.time(), 'cash': vpStartingCash, 'player': None, 'deck': None, 'highScore': 0, 'drawCount': 0})
+            return f"You have {vpStartingCash} coins, \nWhats your bet?"
+        
+        # Gather the player's bet
+        if getLastCmdVp(nodeID) == "new" or getLastCmdVp(nodeID) == "gameOver":
+            # Initialize shuffled Deck and Player
+            player = PlayerVP()
+            deck = DeckVP()
+            deck.shuffle()
+            drawCount = 1
+            bet = 0
+            msg = ''
 
-    # Initialize the player
-    if getLastCmdVp(nodeID) is None or getLastCmdVp(nodeID=nodeID) == "":
-        # create new player if not in tracker
-        logger.debug(f"System: VideoPoker: New Player {nodeID}")
-        vpTracker.append({'nodeID': nodeID, 'cmd': 'new', 'time': time.time(), 'cash': vpStartingCash, 'player': None, 'deck': None, 'highScore': 0, 'drawCount': 0})
-        return f"You have {vpStartingCash} coins, \nWhats your bet?"
-    
-    # Gather the player's bet
-    if getLastCmdVp(nodeID) == "new" or getLastCmdVp(nodeID) == "gameOver":
-        # Initialize shuffled Deck and Player
-        player = PlayerVP()
-        deck = DeckVP()
-        deck.shuffle()
-        drawCount = 1
-        bet = 0
-        msg = ''
-
-        # load the player bankroll from tracker
-        for i in range(len(vpTracker)):
-            if vpTracker[i]['nodeID'] == nodeID:
-                player.bankroll = vpTracker[i]['cash']
-                vpTracker[i]['time'] = time.time()
-
-        # Detect if message is a bet
-        try:
-            bet = int(message)
-        except ValueError:
-            msg += f"Please enter a valid bet, 1 to 5 coins. you have {player.bankroll} coins."
-
-        # Check if bet is valid
-        if bet > player.bankroll:
-            msg += f"You can only bet the money you have. {player.bankroll} coins, No strip poker here..."
-        elif bet < 1:
-            msg += "You must bet at least 1 coin.🪙"
-        elif bet > 5:
-            msg += "The 🎰 coin slot only fits 5 coins max."
-
-        # if msg contains an error, return it
-        if msg is not None and msg != '':
-            return msg
-        else:
-            # Take the bet
-            player.bet(str(message))
-            # Bet placed, start the game
-            setLastCmdVp(nodeID, "playing")
-
-            # save player and deck to tracker
+            # load the player bankroll from tracker
             for i in range(len(vpTracker)):
                 if vpTracker[i]['nodeID'] == nodeID:
-                    vpTracker[i]['player'] = player
-                    vpTracker[i]['deck'] = deck
-                    vpTracker[i]['cash'] = player.bankroll
+                    player.bankroll = vpTracker[i]['cash']
+                    vpTracker[i]['time'] = time.time()
 
-    # Play the game
-    if getLastCmdVp(nodeID) == "playing":
-        msg = ''
-    
-        player.draw_cards(deck)
-        msg += player.show_hand()
-        # give hint to player
-        msg += player.score_hand(resetHand=False)
-        
-        # save player and deck to tracker
-        for i in range(len(vpTracker)):
-            if vpTracker[i]['nodeID'] == nodeID:
-                vpTracker[i]['player'] = player
-                vpTracker[i]['deck'] = deck
-                vpTracker[i]['drawCount'] = drawCount
+            # Detect if message is a bet
+            try:
+                bet = int(message)
+            except ValueError:
+                msg += f"Please enter a valid bet, 1 to 5 coins. you have {player.bankroll} coins."
 
-        msg += f"\nDeal new card? \nex: 1,3,4 or (N)o,(A)ll (H)and"
-        setLastCmdVp(nodeID, "redraw")
-        return msg
-    
-    if getLastCmdVp(nodeID) == "redraw":
-        msg = ''
-        # load the player and deck from tracker
-        for i in range(len(vpTracker)):
-            if vpTracker[i]['nodeID'] == nodeID:
-                player = vpTracker[i]['player']
-                deck = vpTracker[i]['deck']
-                drawCount  = vpTracker[i]['drawCount']
+            # Check if bet is valid
+            if bet > player.bankroll:
+                msg += f"You can only bet the money you have. {player.bankroll} coins, No strip poker here..."
+            elif bet < 1:
+                msg += "You must bet at least 1 coin.🪙"
+            elif bet > 5:
+                msg += "The 🎰 coin slot only fits 5 coins max."
 
-        # if player wants to redraw cards, and not done already
-        if message.lower().startswith("n"):
-            setLastCmdVp(nodeID, "endGame")
-        if message.lower().startswith("h"):
-            msg = player.show_hand()
-            return msg
-        else:
-            if drawCount <= 1:
-                msg = player.redraw(deck, message)
-                if msg.startswith("ex:"):
-                    # if returned error message, return it
-                    return msg
-                drawCount += 1
+            # if msg contains an error, return it
+            if msg is not None and msg != '':
+                return msg
+            else:
+                # Take the bet
+                player.bet(str(message))
+                # Bet placed, start the game
+                setLastCmdVp(nodeID, "playing")
+
                 # save player and deck to tracker
                 for i in range(len(vpTracker)):
                     if vpTracker[i]['nodeID'] == nodeID:
                         vpTracker[i]['player'] = player
                         vpTracker[i]['deck'] = deck
-                        vpTracker[i]['drawCount'] = drawCount
-                if drawCount == 2:
-                    # this is the last draw will carry on to endGame for scoring
-                    msg = player.redraw(deck, message) + f"\n"
+                        vpTracker[i]['cash'] = player.bankroll
+
+        # Play the game
+        if getLastCmdVp(nodeID) == "playing":
+            msg = ''
+        
+            player.draw_cards(deck)
+            msg += player.show_hand()
+            # give hint to player
+            msg += player.score_hand(resetHand=False)
+            
+            # save player and deck to tracker
+            for i in range(len(vpTracker)):
+                if vpTracker[i]['nodeID'] == nodeID:
+                    vpTracker[i]['player'] = player
+                    vpTracker[i]['deck'] = deck
+                    vpTracker[i]['drawCount'] = drawCount
+
+            msg += f"\nDeal new card? \nex: 1,3,4 or (N)o,(A)ll (H)and"
+            setLastCmdVp(nodeID, "redraw")
+            return msg
+        
+        if getLastCmdVp(nodeID) == "redraw":
+            msg = ''
+            # load the player and deck from tracker
+            for i in range(len(vpTracker)):
+                if vpTracker[i]['nodeID'] == nodeID:
+                    player = vpTracker[i]['player']
+                    deck = vpTracker[i]['deck']
+                    drawCount  = vpTracker[i]['drawCount']
+
+            # if player wants to redraw cards, and not done already
+            if message.lower().startswith("n"):
+                setLastCmdVp(nodeID, "endGame")
+            if message.lower().startswith("h"):
+                msg = player.show_hand()
+                return msg
+            else:
+                if drawCount <= 1:
+                    msg = player.redraw(deck, message)
                     if msg.startswith("ex:"):
                         # if returned error message, return it
                         return msg
-                    # redraw done
-                    setLastCmdVp(nodeID, "endGame")
+                    drawCount += 1
+                    # save player and deck to tracker
+                    for i in range(len(vpTracker)):
+                        if vpTracker[i]['nodeID'] == nodeID:
+                            vpTracker[i]['player'] = player
+                            vpTracker[i]['deck'] = deck
+                            vpTracker[i]['drawCount'] = drawCount
+                    if drawCount == 2:
+                        # this is the last draw will carry on to endGame for scoring
+                        msg = player.redraw(deck, message) + f"\n"
+                        if msg.startswith("ex:"):
+                            # if returned error message, return it
+                            return msg
+                        # redraw done
+                        setLastCmdVp(nodeID, "endGame")
+                    else:
+                        # show redrawn hand
+                        return msg
                 else:
-                    # show redrawn hand
-                    return msg
-            else:
-                # redraw already done
-                setLastCmdVp(nodeID, "endGame")
-                
-    if getLastCmdVp(nodeID) == "endGame":
-        # load the player and deck from tracker
-        for i in range(len(vpTracker)):
-            if vpTracker[i]['nodeID'] == nodeID:
-                player = vpTracker[i]['player']
-                deck = vpTracker[i]['deck']
+                    # redraw already done
+                    setLastCmdVp(nodeID, "endGame")
+                    
+        if getLastCmdVp(nodeID) == "endGame":
+            # load the player and deck from tracker
+            for i in range(len(vpTracker)):
+                if vpTracker[i]['nodeID'] == nodeID:
+                    player = vpTracker[i]['player']
+                    deck = vpTracker[i]['deck']
 
-        msg += player.score_hand()
+            msg += player.score_hand()
 
-        if player.bankroll < 1:
-            player.bankroll = vpStartingCash
-            msg += f"\nLooks 💸 like you're out of money. 💳 resetting ballance 🏧"
-        elif player.bankroll > vpTracker[i]['highScore']:
-            vpTracker[i]['highScore'] = player.bankroll
-            msg += " 🎉HighScore!"
-            # save high score
-            saveHSVp(nodeID, vpTracker[i]['highScore'])
+            if player.bankroll < 1:
+                player.bankroll = vpStartingCash
+                msg += f"\nLooks 💸 like you're out of money. 💳 resetting ballance 🏧"
+            elif player.bankroll > vpTracker[i]['highScore']:
+                vpTracker[i]['highScore'] = player.bankroll
+                msg += " 🎉HighScore!"
+                # save high score
+                saveHSVp(nodeID, vpTracker[i]['highScore'])
 
-        msg += f"\nPlace your Bet, or (L)eave Table."
+            msg += f"\nPlace your Bet, or (L)eave Table."
 
-        setLastCmdVp(nodeID, "gameOver")
-        # reset player and deck in tracker
-        for i in range(len(vpTracker)):
-            if vpTracker[i]['nodeID'] == nodeID:
-                vpTracker[i]['player'] = None
-                vpTracker[i]['deck'] = None
-                vpTracker[i]['drawCount'] = 0
-                # save bankroll
-                vpTracker[i]['cash'] = player.bankroll
+            setLastCmdVp(nodeID, "gameOver")
+            # reset player and deck in tracker
+            for i in range(len(vpTracker)):
+                if vpTracker[i]['nodeID'] == nodeID:
+                    vpTracker[i]['player'] = None
+                    vpTracker[i]['deck'] = None
+                    vpTracker[i]['drawCount'] = 0
+                    # save bankroll
+                    vpTracker[i]['cash'] = player.bankroll
 
-        return msg
+            return msg
+        # At the end of the try block, if nothing returned yet:
+        return msg if msg else 'No action taken.'
+    except Exception as e:
+        logger.warning(f"System: VideoPoker: Error {e}")
+        return 'No Game in progress'
 
- 

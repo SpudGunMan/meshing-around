@@ -23,7 +23,6 @@ lemonadeLemons = [{'nodeID': 0, 'cost': 4.00, 'count': 8, 'min': 2.00, 'unit': 0
 lemonadeSugar = [{'nodeID': 0, 'cost': 3.00, 'count': 15, 'min': 1.50, 'unit': 0.00}]
 lemonadeWeeks = [{'nodeID': 0, 'current': 1, 'total': lemon_total_weeks, 'sales': 99, 'potential': 0, 'unit': 0.00, 'price': 0.00, 'total_sales': 0}]
 lemonadeScore = [{'nodeID': 0, 'value': 0.00, 'total': 0.00}]
-from modules.settings import lemonadeTracker
 
 def get_sales_amount(potential, unit, price):
     """Gets the sales amount.

@@ -7,7 +7,6 @@ import time
 import pickle
 
 jack_starting_cash = 100  # Replace 100 with your desired starting cash value
-from modules.settings import jackTracker
 
 SUITS = ("♥️", "♦️", "♠️", "♣️")
 RANKS = (
