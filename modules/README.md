@@ -262,7 +262,7 @@ Configure in `[ollama]` section of `config.ini`.
 
 | Command      | Description                                   |
 |--------------|-----------------------------------------------|
-| `wiki:`      | Search Wikipedia or local Kiwix server        |
+| `wiki`      | Search Wikipedia or local Kiwix server        |
 
 Configure in `[wikipedia]` section of `config.ini`.
 

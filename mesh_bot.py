@@ -103,7 +103,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "whereami": lambda: handle_whereami(message_from_id, deviceID, channel_number),
     "whoami": lambda: handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus),
     "whois": lambda: handle_whois(message, deviceID, channel_number, message_from_id),
-    "wiki:": lambda: handle_wiki(message, isDM),
+    "wiki": lambda: handle_wiki(message, isDM),
     "wx": lambda: handle_wxc(message_from_id, deviceID, 'wx'),
     "wxa": lambda: handle_wxalert(message_from_id, deviceID, message),
     "wxalert": lambda: handle_wxalert(message_from_id, deviceID, message),
@@ -491,16 +491,16 @@ def handle_howtall(message, message_from_id, deviceID, isDM):
 
 def handle_wiki(message, isDM):
     # location = get_node_location(message_from_id, deviceID)
-    msg = "Wikipedia search function. \nUsage example:📲wiki: travelling gnome"
+    msg = "Wikipedia search function. \nUsage example:📲wiki travelling gnome"
     try:
-        if "wiki:?" in message.lower() or "wiki: ?" in message.lower() or "wiki?" in message.lower() or "wiki ?" in message.lower():
+        if "?" in message.lower():
             return msg
         if "wiki" in message.lower():
             search = message.split(":")[1]
             search = search.strip()
             if search:
                 return get_wikipedia_summary(search)
-            return "Please add a search term example:📲wiki: travelling gnome"
+            return "Please add a search term example:📲wiki travelling gnome"
     except Exception as e:
         logger.error(f"System: Wiki Exception {e}")
         msg = "Error processing your request"
