@@ -35,4 +35,11 @@ RUN chmod +x /app/script/docker/entrypoint.sh
 # RUN useradd -m appuser && usermod -a -G dialout appuser
 # USER appuser
 
+# Expose Meshtastic TCP API port from the host
+EXPOSE 4403
+# Expose Meshtastic Web UI port from the host
+EXPOSE 9443
+# Meshing Around Web Dashboard port
+EXPOSE 8420
+
 ENTRYPOINT ["/bin/bash", "/app/script/docker/entrypoint.sh"]
