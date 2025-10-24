@@ -12,6 +12,8 @@ services:
       #- /dev/ttyAMA0 # Example
     volumes:
       - /data/meshing-around/config.ini:/app/config.ini:rw
+      - /data/meshing-around/logs:/app/logs:rw
+      - /data/meshing-around/data:/app/data:rw
     image: ghcr.io/SpudGunMan/meshing-around:test-all-changes
     container_name: meshing-around
     restart: unless-stopped
@@ -26,7 +28,7 @@ services:
       - 4403:4403
     restart: unless-stopped
     container_name: meshtasticd
-    image: meshtastic/meshtasticd:beta
+    image: meshtastic/meshtasticd:daily-debian
 
   ollama: # Used for enabling LLM interactions.
     ports: 
