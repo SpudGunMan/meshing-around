@@ -46,8 +46,7 @@ class TestBot(unittest.TestCase):
         # Example test case
         self.assertEqual(1 + 1, 2)
 
-    # bbstools.py
-    def test_bbsdb_load(self):
+    def test_load_bbsdb(self):
         from bbstools import load_bbsdb
         test_load = load_bbsdb()
         self.assertTrue(test_load)
@@ -89,6 +88,58 @@ class TestBot(unittest.TestCase):
         from locationdata import where_am_i
         location = where_am_i(lat, lon)
         self.assertIsInstance(location, str)
+
+    def test_get_moon_phase(self):
+        from space import get_moon
+        phase = get_moon(lat, lon)
+        self.assertIsInstance(phase, str)
+
+    def test_get_sun_times(self):
+        from space import get_sun
+        sun_times = get_sun(lat, lon)
+        self.assertIsInstance(sun_times, str)
+    
+    def test_hf_band_conditions(self):
+        from space import hf_band_conditions
+        conditions = hf_band_conditions()
+        self.assertIsInstance(conditions, str)
+
+    def test_get_wikipedia_summary(self):
+        from wiki import get_wikipedia_summary
+        summary = get_wikipedia_summary("Python", location=(lat, lon))
+        self.assertIsInstance(summary, str)
+
+    def test_get_kiwix_summary(self):
+        from wiki import get_kiwix_summary
+        summary = get_kiwix_summary("Python ")
+        self.assertIsInstance(summary, str)
+
+    def get_openskynetwork(self):
+        from locationdata import get_openskynetwork
+        flights = get_openskynetwork(lat, lon)
+        self.assertIsInstance(flights, str)
+
+    def test_initalize_qrz_database(self):
+        from qrz import initalize_qrz_database
+        result = initalize_qrz_database()
+        self.assertTrue(result)
+
+    def test_get_hamlib(self):
+        from radio import get_hamlib
+        frequency = get_hamlib('f')
+        self.assertIsInstance(frequency, str)
+
+    def test_get_rss_feed(self):
+        from rss import get_rss_feed
+        result = get_rss_feed('')
+        self.assertIsInstance(result, str)
+
+
+        
+
+
+
+
 
     def test_getRepeaterBook(self):
         from locationdata import getRepeaterBook
@@ -148,55 +199,12 @@ class TestBot(unittest.TestCase):
         earthquakes = checkUSGSEarthQuake(lat, lon)
         self.assertIsInstance(earthquakes, str)
 
-    def get_openskynetwork(self):
-        from locationdata import get_openskynetwork
-        flights = get_openskynetwork(lat, lon)
-        self.assertIsInstance(flights, str)
-
-    def test_initalize_qrz_database(self):
-        from qrz import initalize_qrz_database
-        result = initalize_qrz_database()
-        self.assertTrue(result)
-
-    def test_get_hamlib(self):
-        from radio import get_hamlib
-        frequency = get_hamlib('f')
-        self.assertIsInstance(frequency, str)
-
-    def test_get_rss_feed(self):
-        from rss import get_rss_feed
-        result = get_rss_feed('')
-        self.assertIsInstance(result, str)
-
     def test_getNextSatellitePass(self):
         from space import getNextSatellitePass
         pass_info = getNextSatellitePass('25544', lat, lon)
         self.assertIsInstance(pass_info, str)
 
-    def test_get_moon_phase(self):
-        from space import get_moon
-        phase = get_moon(lat, lon)
-        self.assertIsInstance(phase, str)
 
-    def test_get_sun_times(self):
-        from space import get_sun
-        sun_times = get_sun(lat, lon)
-        self.assertIsInstance(sun_times, str)
-    
-    def test_hf_band_conditions(self):
-        from space import hf_band_conditions
-        conditions = hf_band_conditions()
-        self.assertIsInstance(conditions, str)
-
-    def test_get_wikipedia_summary(self):
-        from wiki import get_wikipedia_summary
-        summary = get_wikipedia_summary("Python", location=(lat, lon))
-        self.assertIsInstance(summary, str)
-
-    def test_get_kiwix_summary(self):
-        from wiki import get_kiwix_summary
-        summary = get_kiwix_summary("Python ")
-        self.assertIsInstance(summary, str)
     
     
 
