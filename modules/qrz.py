@@ -16,9 +16,10 @@ def initalize_qrz_database():
         c.execute('''CREATE TABLE IF NOT EXISTS qrz
                      (qrz_id INTEGER PRIMARY KEY, qrz_call TEXT, qrz_name TEXT, qrz_qth TEXT, qrz_notes TEXT)''')
         conn.commit()
+        return True
     except sqlite3.Error as e:
         logger.error(f"Error initializing QRZ database: {e}")
-        raise
+        return False
     finally:
         if 'conn' in locals():
             conn.close()
