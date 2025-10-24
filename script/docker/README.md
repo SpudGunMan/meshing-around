@@ -10,3 +10,8 @@ This is not a full turnkey setup for Docker yet?
 `docker compose run meshing-around`
 
 `docker compose run ollama`
+
+
+
+
+`docker compose run debug-console`
