@@ -7,7 +7,6 @@ fi
 # if using docker, set interface type to tcp and hostname to meshtasticd:4403
 if [ -f /app/config.ini ]; then
     ls -l /app/config.ini
-    dos2unix /app/config.ini 2>/dev/null || true
     sed -i.bak '/^\[interface\]/,/^[^[]/ s/type = .*/type = tcp/' -e '/^\[interface\]/,/^[^[]/ s/hostname = .*/hostname = meshtasticd:4403/' /app/config.ini
 fi
 # Run the bot as appuser (if you want to drop privileges)
