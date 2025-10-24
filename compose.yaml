@@ -6,8 +6,8 @@ services:
     ports:
       - 8420:8420
     devices:
-      #- /dev/ttyUSB0 # Replace this with your actual device!
-      - /dev/ttyACM0 # Example for Meshtastic device
+      #- /dev/ttyUSB0:/dev/ttyACM0 #this isnt a typo :map
+      - /dev/ttyACM0:/dev/ttyACM0
     volumes:
       - .:/app:ro
       - ./logs:/app/logs:rw
