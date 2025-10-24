@@ -178,16 +178,21 @@ def get_google_context(input, num_results):
 
 def send_ollama_query(llmQuery):
     # Send the query to the Ollama API and return the response
-    result = requests.post(ollamaAPI, data=json.dumps(llmQuery))
-    if result.status_code == 200:
-        result_json = result.json()
-        result = result_json.get("response", "")
-        # deepseek has added <think> </think> tags to the response
-        if "<think>" in result:
-            result = result.split("</think>")[1]
-    else:
-        raise Exception(f"HTTP Error: {result.status_code}")
-    return result
+    try:
+        result = requests.post(ollamaAPI, data=json.dumps(llmQuery), timeout=5)
+        if result.status_code == 200:
+            result_json = result.json()
+            result = result_json.get("response", "")
+            # deepseek has added <think> </think> tags to the response
+            if "<think>" in result:
+                result = result.split("</think>")[1]
+        else:
+            logger.warning(f"System: LLM Query: Ollama API returned status code {result.status_code}")
+            return f"⛔️ Request Error"
+        return result
+    except requests.exceptions.RequestException as e:
+        logger.warning(f"System: LLM Query: Ollama API request failed: {e}")
+        return f"⛔️ Request Error"
 
 def send_ollama_tooling_query(prompt, functions, model=None, max_tokens=450):
     """
