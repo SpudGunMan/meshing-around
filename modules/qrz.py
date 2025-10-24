@@ -1,18 +1,27 @@
 # Module to respomnd to new nodes we havent seen before with a hello message
 # K7MHI Kelly Keeton 2024
 
+import os
 import sqlite3
 from modules.log import *
 
 def initalize_qrz_database():
-    # create the database
-    conn = sqlite3.connect(qrz_db)
-    c = conn.cursor()
-    # Check if the qrz table exists, and create it if it doesn't
-    c.execute('''CREATE TABLE IF NOT EXISTS qrz
-                 (qrz_id INTEGER PRIMARY KEY, qrz_call TEXT, qrz_name TEXT, qrz_qth TEXT, qrz_notes TEXT)''')
-    conn.commit()
-    conn.close()
+    try:
+        # If the database file doesn't exist, it will be created by sqlite3.connect
+        if not os.path.exists(qrz_db):
+            logger.info(f"QRZ database file '{qrz_db}' not found. Creating new database.")
+        conn = sqlite3.connect(qrz_db)
+        c = conn.cursor()
+        # Create the table if it doesn't exist
+        c.execute('''CREATE TABLE IF NOT EXISTS qrz
+                     (qrz_id INTEGER PRIMARY KEY, qrz_call TEXT, qrz_name TEXT, qrz_qth TEXT, qrz_notes TEXT)''')
+        conn.commit()
+    except sqlite3.Error as e:
+        logger.error(f"Error initializing QRZ database: {e}")
+        raise
+    finally:
+        if 'conn' in locals():
+            conn.close()
 
 def never_seen_before(nodeID):
     # check if we have seen this node before and sent a hello message
