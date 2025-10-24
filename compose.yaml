@@ -29,9 +29,7 @@ services:
     stdin_open: true
     tty: true
     volumes:
-      - .:/app:ro
-      - ./logs:/app/logs:rw
-      - ./data:/app/data:rw
+      - .:/app:rw
 
   meshtasticd: # Optional service for Meshtastic device management.
     ports:
