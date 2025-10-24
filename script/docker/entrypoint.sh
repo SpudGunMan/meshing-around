@@ -10,4 +10,4 @@ if [ -w /app/data ]; then
 fi
 
 # Run the bot as appuser (if you want to drop privileges)
-exec su appuser -c "python /app/mesh_bot.py"
+exec python /app/mesh_bot.py
