@@ -36,10 +36,8 @@ RUN chmod +x /app/script/docker/entrypoint.sh
 # USER appuser
 
 # Expose Meshtastic TCP API port from the host
-EXPOSE 4403
-# Expose Meshtastic Web UI port from the host
-EXPOSE 9443
+#EXPOSE 4403
 # Meshing Around Web Dashboard port
-EXPOSE 8420
+#EXPOSE 8420
 
 ENTRYPOINT ["/bin/bash", "/app/script/docker/entrypoint.sh"]
