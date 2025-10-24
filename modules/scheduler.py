@@ -10,7 +10,20 @@ async def setup_scheduler(
     schedulerValue, schedulerTime, schedulerInterval, logger, BroadcastScheduler):
     
     # methods available for custom scheduler messages
-    from mesh_bot import tell_joke, welcome_message, handle_wxc, handle_moon, handle_sun, handle_riverFlow, handle_tide, handle_satpass
+    try:
+        from mesh_bot import (
+            tell_joke,
+            welcome_message,
+            handle_wxc,
+            handle_moon,
+            handle_sun,
+            handle_riverFlow,
+            handle_tide,
+            handle_satpass,
+        )
+    except ImportError as e:
+        logger.warning(f"Some mesh_bot schedule features are unavailable by option disable in config.ini: {e}")
+
     schedulerValue = schedulerValue.lower().strip()
     schedulerTime = schedulerTime.strip()
     schedulerInterval = schedulerInterval.strip()
