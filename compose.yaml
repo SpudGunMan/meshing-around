@@ -11,9 +11,9 @@ services:
       - /dev/ttyUSB0 # Replace this with your actual device!
       #- /dev/ttyAMA0 # Example
     volumes:
-      - /data/meshing-around/config.ini:/app/config.ini:rw
-      - /data/meshing-around/logs:/app/logs:rw
-      - /data/meshing-around/data:/app/data:rw
+      - .:/app:ro
+      - ./logs:/app/logs:rw
+      - ./data:/app/data:rw
     image: ghcr.io/SpudGunMan/meshing-around:test-all-changes
     container_name: meshing-around
     restart: unless-stopped
