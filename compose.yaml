@@ -18,7 +18,7 @@ services:
     environment:
       - OLLAMA_API_URL=http://ollama:11434
     extra_hosts:
-      #- "host.docker.internal:host-gateway" # Enables access to host services from within the container.
+      - "host.docker.internal:host-gateway" # Enables access to host services from within the container.
     #user: "1000:1000" # non-root user for better security
     #user: "10999:10999" # for Docker Desktop compatibility
 
