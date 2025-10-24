@@ -1964,17 +1964,17 @@ async def start_rx():
 
 # Initialize game trackers
 gameTrackers = [
-    (dwPlayerTracker, "DopeWars", handleDopeWars) if 'dwPlayerTracker' in globals() else None,
-    (lemonadeTracker, "LemonadeStand", handleLemonade) if 'lemonadeTracker' in globals() else None,
-    (vpTracker, "VideoPoker", handleVideoPoker) if 'vpTracker' in globals() else None,
-    (jackTracker, "BlackJack", handleBlackJack) if 'jackTracker' in globals() else None,
-    (mindTracker, "MasterMind", handleMmind) if 'mindTracker' in globals() else None,
-    (golfTracker, "GolfSim", handleGolf) if 'golfTracker' in globals() else None,
-    (hangmanTracker, "Hangman", handleHangman) if 'hangmanTracker' in globals() else None,
-    (hamtestTracker, "HamTest", handleHamtest) if 'hamtestTracker' in globals() else None,
-    (tictactoeTracker, "TicTacToe", handleTicTacToe) if 'tictactoeTracker' in globals() else None,
-    (surveyTracker, "Survey", surveyHandler) if 'surveyTracker' in globals() else None,
-    #quiz does not use a tracker (quizGamePlayer) always active
+    (dwPlayerTracker, "DopeWars", handleDopeWars),
+    (lemonadeTracker, "LemonadeStand", handleLemonade),
+    (vpTracker, "VideoPoker", handleVideoPoker),
+    (jackTracker, "BlackJack", handleBlackJack),
+    (mindTracker, "MasterMind", handleMmind),
+    (golfTracker, "GolfSim", handleGolf),
+    (hangmanTracker, "Hangman", handleHangman),
+    (hamtestTracker, "HamTest", handleHamtest),
+    (tictactoeTracker, "TicTacToe", handleTicTacToe),
+    (surveyTracker, "Survey", surveyHandler),
+    # quiz does not use a tracker (quizGamePlayer) always active
 ]
 
 # Hello World 
