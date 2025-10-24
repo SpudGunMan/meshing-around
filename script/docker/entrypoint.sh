@@ -1,6 +1,13 @@
 #!/bin/bash
-# instruction set the meshing-around docker container entrypoint
-# Substitute environment variables in the config file (what is the purpose of this?)
-# envsubst < /app/config.ini > /app/config.tmp && mv /app/config.tmp /app/config.ini
-# Run the bot
-exec python /app/mesh_bot.py
+
+# if /app/logs is not writable, change ownership
+if [ -w /app/logs ]; then
+    chown -R appuser:appuser /app/logs
+fi
+# if /app/data is not writable, change ownership
+if [ -w /app/data ]; then
+    chown -R appuser:appuser /app/data
+fi
+
+# Run the bot as appuser (if you want to drop privileges)
+exec su appuser -c "python /app/mesh_bot.py"
