@@ -492,18 +492,15 @@ def handle_howtall(message, message_from_id, deviceID, isDM):
 def handle_wiki(message, isDM):
     # location = get_node_location(message_from_id, deviceID)
     msg = "Wikipedia search function. \nUsage example:📲wiki travelling gnome"
-    try:
-        if "?" in message.lower():
-            return msg
-        if "wiki" in message.lower():
-            search = message.split(":")[1]
-            search = search.strip()
-            if search:
-                return get_wikipedia_summary(search)
+    if "?" in message.lower():
+        return msg
+    if "wiki" in message.lower():
+        parts = message.split(" ", 1)
+        if len(parts) < 2 or not parts[1].strip():
             return "Please add a search term example:📲wiki travelling gnome"
-    except Exception as e:
-        logger.error(f"System: Wiki Exception {e}")
-        msg = "Error processing your request"
+        search = parts[1].strip()
+        if search:
+            return get_wikipedia_summary(search)
         
     return msg
 
