@@ -5,8 +5,6 @@ import wikipedia # pip install wikipedia
 import requests
 import bs4 as bs
 from urllib.parse import quote
-# ...existing code...
-
 
 def tag_visible(element):
     """Filter visible text from HTML elements for Kiwix"""
@@ -25,6 +23,8 @@ def text_from_html(body):
 
 def get_kiwix_summary(search_term):
     """Query local Kiwix server for Wikipedia article"""
+    if search_term is None or search_term.strip() == "":
+        return ERROR_FETCHING_DATA
     try:
         search_encoded = quote(search_term)
         # Try direct article access first
@@ -44,6 +44,9 @@ def get_kiwix_summary(search_term):
             if summary and not summary.endswith('.'):
                 summary += '.'
             return summary.strip()[:500]  # Hard limit at 500 chars
+        elif response.status_code != 200:
+            logger.debug(f"System: Kiwix direct article not found for:{search_term} Status Code:{response.status_code}")
+            return ERROR_FETCHING_DATA
         
         # If direct access fails, try search
         search_url = f"{kiwix_url}/search?content={kiwix_library_name}&pattern={search_encoded}"
