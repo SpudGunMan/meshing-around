@@ -21,7 +21,8 @@ services:
       - OLLAMA_API_URL=http://ollama:11434
     extra_hosts:
       #- "host.docker.internal:host-gateway" # Enables access to host services from within the container.
-    user: "1000:1000" # run as non-root user for better security
+    #user: "1000:1000" # non-root user for better security
+    user: "10999:10999" # for Docker Desktop compatibility
 
   meshtasticd: # Runs a virtual node. Optional, but can be used to link meshing-around directly to mqtt.
     ports:
