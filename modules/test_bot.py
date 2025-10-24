@@ -5,6 +5,10 @@ import os
 import sys
 import importlib
 import pkgutil
+import warnings
+# Suppress ResourceWarning warnings for asyncio unclosed event  here
+warnings.filterwarnings("ignore", category=ResourceWarning)
+
 # Add the parent directory to sys.path to allow module imports
 parent_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(parent_path)
