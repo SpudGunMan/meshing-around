@@ -7,7 +7,7 @@ services:
       - 8420:8420
     devices:
       #- /dev/ttyUSB0 # Replace this with your actual device!
-      - /dev/ttyAMA0
+      - /dev/ttyACM0 # Example for Meshtastic device
     volumes:
       - .:/app:ro
       - ./logs:/app/logs:rw
