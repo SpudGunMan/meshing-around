@@ -1,4 +1,7 @@
 # Written for Meshtastic mesh-bot by ZR1RF Johannes le Roux 2025
+from modules.log import *
+import os
+import json
 import random
 
 class Hangman:
@@ -118,6 +121,23 @@ class Hangman:
 
     def __init__(self):
         self.game = {}
+
+        # Try to load hangman.json if it exists
+        hangman_json_path = os.path.join('data', 'hangman.json')
+        if os.path.exists(hangman_json_path):
+            try:
+                with open(hangman_json_path, 'r') as f:
+                    words = json.load(f)
+                # Ensure it's a list of strings
+                if isinstance(words, list) and all(isinstance(w, str) for w in words):
+                    self.WORDS = words
+                else:
+                    self.WORDS = self.DEFAULT_WORDS
+            except (FileNotFoundError, json.JSONDecodeError):
+                logger.warning("Failed to load hangman.json, using default words. example JSON: [\"apple\",\"banana\",\"cherry\"]")
+                self.WORDS = self.DEFAULT_WORDS
+        else:
+            self.WORDS = self.DEFAULT_WORDS
 
     def new_game(self, id):
         games = won = 0
