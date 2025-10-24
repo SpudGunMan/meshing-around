@@ -22,7 +22,7 @@ async def setup_scheduler(
             handle_satpass,
         )
     except ImportError as e:
-        logger.warning(f"Some mesh_bot schedule features are unavailable by option disable in config.ini: {e}")
+        logger.warning(f"Some mesh_bot schedule features are unavailable by option disable in config.ini: {e} comment out the use of these methods in your custom_scheduler.py")
 
     schedulerValue = schedulerValue.lower().strip()
     schedulerTime = schedulerTime.strip()
