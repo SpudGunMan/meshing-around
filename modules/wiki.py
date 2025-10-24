@@ -79,6 +79,8 @@ def get_kiwix_summary(search_term):
     except requests.RequestException as e:
         logger.warning(f"System: Kiwix connection error: {e}")
         return "Unable to connect to local wiki server"
+        # Fallback to online Wikipedia
+        #return get_wikipedia_summary(search_term, force=True)
     except Exception as e:
         logger.warning(f"System: Error with Kiwix for:{search_term} {e}")
         return ERROR_FETCHING_DATA
