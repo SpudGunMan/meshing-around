@@ -10,6 +10,7 @@ services:
       #- /dev/ttyACM0:/dev/tty #if using serial select proper port
     volumes:
       - .:/app:ro
+      - ./config.ini:/app/config.ini:rw
       - ./logs:/app/logs:rw
       - ./data:/app/data:rw
     image: ghcr.io/spudgunman/meshing-around:main

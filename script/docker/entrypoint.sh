@@ -2,7 +2,8 @@
 
 # if no config.ini exists, copy the default one
 if [ ! -f /app/config.ini ]; then
-    cp /app/script/docker/config.template /app/config.ini
+    cp script/docker/config.template script/docker/config.ini
+    sed -i '' -e '/^\[interface\]/,/^[^[]/ s/type = .*/type = tcp/' -e '/^\[interface\]/,/^[^[]/ s/hostname = .*/hostname = localhost:4403/' script/docker/config.ini
 fi
 
 # Run the bot as appuser (if you want to drop privileges)

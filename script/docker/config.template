@@ -1,3 +1,0 @@
-[interface]
-type = tcp
-hostname = localhost:4403
