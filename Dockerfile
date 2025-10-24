@@ -8,7 +8,13 @@ ENV PYTHONUNBUFFERED=1 \
     TZ=America/Los_Angeles
 
 RUN apt-get update && \
-    apt-get install -y gettext tzdata locales nano && \
+    apt-get install -y \
+        build-essential \
+        python3-dev \
+        gettext \
+        tzdata \
+        locales \
+        nano && \
     sed -i 's/^# *\(en_US.UTF-8 UTF-8\)/\1/' /etc/locale.gen && \
     locale-gen en_US.UTF-8 && \
     rm -rf /var/lib/apt/lists/*
