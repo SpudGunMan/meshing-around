@@ -32,7 +32,7 @@ COPY config.template /app/config.ini
 RUN chmod +x /app/script/docker/entrypoint.sh
 
 # Add a non-root user and switch to it
-RUN useradd -m appuser
+RUN useradd -m appuser && usermod -a -G dialout appuser
 USER appuser
 
 ENTRYPOINT ["/bin/bash", "/app/script/docker/entrypoint.sh"]
