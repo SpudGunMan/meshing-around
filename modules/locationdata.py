@@ -752,10 +752,10 @@ def get_nws_marine(zone, days=3):
     try:
         marine_pz_data = requests.get(zone, timeout=urlTimeoutSeconds)
         if not marine_pz_data.ok:
-            logger.warning("Location:Error fetching NWS Marine PZ data")
+            logger.warning(f"Location:Error fetching NWS Marine data (HTTP {marine_pz_data.status_code})")
             return ERROR_FETCHING_DATA
-    except (requests.exceptions.RequestException):
-        logger.warning("Location:Error fetching NWS Marine PZ data")
+    except requests.exceptions.RequestException as e:
+        logger.warning(f"Location:Error fetching NWS Marine data: {e}")
         return ERROR_FETCHING_DATA
 
     marine_pz_data = marine_pz_data.text
