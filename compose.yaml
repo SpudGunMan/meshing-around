@@ -12,7 +12,7 @@ services:
       - .:/app:ro
       - ./logs:/app/logs:rw
       - ./data:/app/data:rw
-    image: ghcr.io/SpudGunMan/meshing-around:main
+    image: ghcr.io/spudgunman/meshing-around:main
     container_name: meshing-around
     restart: unless-stopped
     environment:
@@ -23,7 +23,7 @@ services:
     #user: "10999:10999" # for Docker Desktop compatibility
 
   debug-console:
-    image: ghcr.io/SpudGunMan/meshing-around:main
+    image: ghcr.io/spudgunman/meshing-around:main
     container_name: debug-console
     command: ["/bin/bash"]
     stdin_open: true
