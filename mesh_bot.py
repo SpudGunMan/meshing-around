@@ -1675,10 +1675,10 @@ def onReceive(packet, interface):
                     send_message(auto_response(message_string, snr, rssi, hop, pkiStatus, message_from_id, channel_number, rxNode, isDM), channel_number, message_from_id, rxNode)
                 else:
                     # DM is useful for games or LLM
-                    if my_settings.games_enabled and ("Direct" in hop or hop_count < my_settings.game_hop_limit):
+                    if games_enabled and ("Direct" in hop or hop_count < my_settings.game_hop_limit):
                         playingGame = checkPlayingGame(message_from_id, message_string, rxNode, channel_number)
                     elif hop_count >= my_settings.game_hop_limit:
-                        if my_settings.games_enabled:
+                        if games_enabled:
                             logger.warning(f"Device:{rxNode} Ignoring Request to Play Game: {message_string} From: {get_name_from_number(message_from_id, 'long', rxNode)} with hop count: {hop}")
                             send_message(f"Your hop count exceeds safe playable distance at {hop_count} hops", channel_number, message_from_id, rxNode)
                         else:
