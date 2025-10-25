@@ -129,4 +129,79 @@ This will call the default script located at `script/runShell.sh` and return its
 
 ---
 
+
+## Overview Unit Tests
+
+Your test_bot.py file contains a comprehensive suite of unit tests for the various modules the project. The tests are organized using Python’s `unittest` framework and cover both core utility modules and all major game modules.
+
+---
+
+## Structure
+
+- **Imports & Setup:**  
+  The script sets up the environment, imports all necessary modules, and suppresses certain warnings for clean test output.
+
+- **TestBot Class:**  
+  All tests are methods of the `TestBot` class, which inherits from `unittest.TestCase`.
+
+---
+
+## Core Module Tests
+
+- **Database & Checklist:**  
+  - `test_load_bbsdb`, `test_bbs_list_messages`, `test_initialize_checklist_database`
+- **News & Alerts:**  
+  - `test_init_news_sources`, `test_get_nina_alerts`
+- **LLM & Wikipedia:**  
+  - `test_llmTool_get_google`, `test_send_ollama_query`, `test_get_wikipedia_summary`, `test_get_kiwix_summary`
+- **Space & Weather:**  
+  - `test_get_moon_phase`, `test_get_sun_times`, `test_hf_band_conditions`
+- **Radio & Location:**  
+  - `test_get_hamlib`, `test_get_rss_feed`, `get_openskynetwork`, `test_initalize_qrz_database`
+
+---
+
+## Game Module Tests
+
+Each game module has a dedicated test that simulates a typical user interaction:
+
+- **Tic-Tac-Toe:**  
+  Starts a game and makes one move.
+- **Video Poker:**  
+  Starts a session and places a bet.
+- **Blackjack:**  
+  Starts a game and places a bet.
+- **Hangman:**  
+  Starts a game and guesses a letter.
+- **Lemonade Stand:**  
+  Starts a game and buys a box of cups.
+- **GolfSim:**  
+  Starts a hole and takes a shot.
+- **DopeWars:**  
+  Starts a game, selects a city, and checks the list.
+- **MasterMind:**  
+  Starts a game and makes one guess.
+- **Quiz:**  
+  Starts a quiz, joins as a player, answers one question, and ends the quiz.
+- **Survey:**  
+  Starts a survey, answers one question, and ends the survey.
+- **HamTest:**  
+  Starts a ham radio test and answers one question.
+
+---
+
+## Extended API Tests
+
+If the `.checkall` file is present, additional API and data-fetching tests are run for:
+- RepeaterBook, ArtSciRepeaters, NOAA tides/weather, USGS earthquakes/volcanoes, satellite passes, and more.
+
+## Notes
+
+- Tests are designed to be **non-destructive** and **idempotent**.
+- Some tests require specific data files (e.g., for quiz, survey, hamtest).
+- The suite is intended to be run from the main program directory.
+
+
+
+
 Happy hacking!
