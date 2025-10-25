@@ -10,6 +10,8 @@
 - [MasterMind](#mastermind-game-module)
 - [Video Poker](#video-poker-game-module)
 - [Hangman](#hangman-game-module)
+- [Quiz](#quiz-game-module)
+- [Survey](#survey--module-game)
 - [Word of the Day Game](#word-of-the-day-game--rules--features)
 ---
 
@@ -604,3 +606,116 @@ Guess a letter
 ## Credits
 
 - Written for Meshtastic mesh-bot by ZR1RF Johannes le Roux 2025
+
+# Quiz Game Module
+
+This module implements a multiplayer quiz game for the Meshtastic mesh-bot.
+
+## How to Play
+
+- **Start the Game:**  
+  The quizmaster starts the quiz session (usually with `/quiz start` or similar command).
+- **Join the Game:**  
+  Players join by sending `/quiz join` or by answering a question while a quiz is active.
+- **Answer Questions:**  
+  - Use `Q: <answer>` to answer the current question.  
+    - For multiple choice, answer with `A`, `B`, `C`, etc.
+    - For free-text, type the answer after `Q: `.
+  - Use `Q: ?` to request the next question.
+- **Leave the Game:**  
+  Players can leave at any time with `/quiz leave`.
+- **Stop the Game:**  
+  The quizmaster stops the quiz session (e.g., `/quiz stop`). Final scores and the top 3 players are announced.
+
+## Rules & Features
+
+- Only the quizmaster can start or stop the quiz.
+- Players can join or leave at any time while the quiz is active.
+- Questions are loaded from quiz_questions.json and can be multiple choice or free-text.
+- Players earn 1 point for each correct answer.
+- The first player to answer each question correctly is noted.
+- The top 3 players are displayed at the end of the quiz.
+- The quizmaster can broadcast messages to all players.
+
+## Example Commands
+
+- Start quiz:  
+  `/quiz start`
+- Join quiz:  
+  `/quiz join`
+- Answer a question:  
+  `Q: B`  
+  `Q: Paris`
+- Next question:  
+  `Q: ?`
+- Leave quiz:  
+  `/quiz leave`
+- Stop quiz:  
+  `/quiz stop`
+
+## Notes
+
+- Only one quiz can be active at a time.
+- Players can only answer each question once.
+- The quizmaster is defined by the `bbs_admin_list` variable.
+- Questions must be formatted correctly in the JSON file for the game to function.
+
+---
+
+**Written for Meshtastic mesh-bot by K7MHI Kelly Keeton 2025**
+
+Certainly! Here’s documentation for the **Survey Game Module** in the same format as your other game modules:
+
+---
+
+# Survey  Module "game"
+This module implements a survey system for the Meshtastic mesh-bot.
+
+## How to Play
+
+- **Start the Survey:**  
+  Users start a survey by specifying the survey name (e.g., `/survey start example`).  
+  The survey will prompt the user with the first question.
+
+- **Answer Questions:**  
+  - For multiple choice: reply with a letter (A, B, C, ...).
+  - For integer: reply with a number.
+  - For text: reply with your answer as text.
+  After each answer, the next question is shown automatically.
+
+- **End the Survey:**  
+  The survey ends automatically after the last question, or the user can send `end` to finish early.  
+  Responses are saved to a CSV file.
+
+## Rules & Features
+
+- Surveys are defined in JSON files in surveys (e.g., `example_survey.json`).
+- Each survey can have multiple choice, integer, or text questions.
+- User responses are saved to a CSV file named `<survey_name>_responses.csv` in the same directory.
+- Users can only answer each question once per survey session.
+- Survey results can be summarized and reported by the bot.
+
+## Example Commands
+
+- Start a survey:  
+  `/survey start example`
+- Answer a multiple choice question:  
+  `A`
+- Answer an integer question:  
+  `42`
+- Answer a text question:  
+  `My favorite color is blue.`
+- End the survey early:  
+  `end`
+- Get survey results (admin):  
+  `/survey results example`
+
+## Notes
+
+- Only surveys listed in the surveys directory with the `_survey.json` suffix are available.
+- Each user’s responses are tracked separately.
+- Results are summarized and can be displayed by the bot.
+
+---
+
+**Written for Meshtastic mesh-bot by K7MHI Kelly Keeton 2025**
