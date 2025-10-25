@@ -2,9 +2,16 @@
 Description=MeshingAround-ReportingTask
 
 [Timer]
-OnUnitActiveSec=1h
-OnbootSec=5min
-Unit=mesh_bot_reporting.service
+OnCalendar=*-*-* 04:20:00
+Persistent=true
+#Unit=mesh_bot_reporting.service
+#OnUnitActiveSec=1h
+#OnbootSec=5min
 
 [Install]
 WantedBy=timers.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /opt/meshing-around/etc/report_generator5.py
+ExecStartPost=/usr/bin/python3 /opt/meshing-around/etc/report_generator.py

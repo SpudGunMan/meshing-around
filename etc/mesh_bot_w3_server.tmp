@@ -1,0 +1,21 @@
+[Unit]
+Description=MeshingAround-WebServer
+After=network.target
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+WorkingDirectory=/dir/
+ExecStart=python3 modules/web.py
+ExecStop=pkill -f mesh_bot_w3.py
+Environment=REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
+Environment=SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
+Environment=PYTHONUNBUFFERED=1
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+
+
+
