@@ -1393,9 +1393,10 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
         # if not a bot ID track it
         if nodeID != globals().get(f'myNodeNum{rxNode}') and nodeID != 0:
             # consider Meta for most messages leaderboard
-            node_message_count = meshLeaderboard.get('nodeMessageCounts', {})
-            node_message_count[nodeID] = node_message_count.get(nodeID, 0) + 1
-            meshLeaderboard['nodeTMessageCounts'] = node_message_count 
+            if packet_type == 'TEXT_MESSAGE_APP':
+                node_message_count = meshLeaderboard.get('nodeMessageCounts', {})
+                node_message_count[nodeID] = node_message_count.get(nodeID, 0) + 1
+                meshLeaderboard['nodeTMessageCounts'] = node_message_count 
             
             if node_message_count[nodeID] > meshLeaderboard['mostTMessages']['value']:
                 meshLeaderboard['mostTMessages']['value'] = node_message_count[nodeID]
