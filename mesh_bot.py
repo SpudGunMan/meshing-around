@@ -1510,7 +1510,7 @@ def handle_boot(mesh=True):
                     logger.debug("System: Location Telemetry Enabled using Open-Meteo API")
                 else:
                     logger.debug("System: Location Telemetry Enabled using NOAA API")
-            print("debug my_settings.scheduler_enabled:", my_settings.scheduler_enabled)
+                    
             if my_settings.dad_jokes_enabled:
                 logger.debug("System: Dad Jokes Enabled!")
             
