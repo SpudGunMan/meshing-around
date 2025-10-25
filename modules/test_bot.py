@@ -146,9 +146,9 @@ class TestBot(unittest.TestCase):
     ##### GAMES Tests #####
     def test_jokes(self):
         from modules.games.joke import tell_joke
-        self.assertIsInstance(tell_joke(), str)
-
-
+        haha = tell_joke(nodeID=0, test=True)
+        print("Joke response:", haha)
+        self.assertIsInstance(haha, str)
     
     def test_tictactoe_initial_and_move(self):
         from games.tictactoe import tictactoe
@@ -161,7 +161,6 @@ class TestBot(unittest.TestCase):
         print("After move '1':", second)
         self.assertIsInstance(initial, str)
         self.assertIsInstance(second, str)
-
     
     def test_playVideoPoker(self):
         from games.videopoker import playVideoPoker
@@ -175,7 +174,6 @@ class TestBot(unittest.TestCase):
         self.assertIsInstance(initial, str)
         self.assertIsInstance(after_bet, str)
 
-    
     def test_play_blackjack(self):
         from games.blackjack import playBlackJack
         user_id = "testuser"
