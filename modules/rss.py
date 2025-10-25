@@ -56,6 +56,7 @@ def get_rss_feed(msg):
     if "?" in msg_lower:
         return f"Fetches the latest {RSS_RETURN_COUNT} entries RSS feeds. Available feeds are: {', '.join(RSS_FEED_NAMES)}. To fetch a specific feed, include its name in your request."
 
+    # Fetch and parse the RSS feed
     try:
         logger.debug(f"Fetching RSS feed from {feed_url} from message '{msg}'")
         agent = {'User-Agent': COMMON_USER_AGENT}
@@ -63,44 +64,57 @@ def get_rss_feed(msg):
         with urllib.request.urlopen(request, timeout=urlTimeoutSeconds) as response:
             xml_data = response.read()
         root = ET.fromstring(xml_data)
-        # Try both namespaced and non-namespaced item tags
-        items = root.findall('.//item')
-        ns = None
-        if not items:
-            # Try Atom <entry> elements (Reddit, etc.)
-            items = root.findall('.//{http://www.w3.org/2005/Atom}entry')
-            ns = 'http://www.w3.org/2005/Atom'
-        if not items:
-            # Try to find the namespace dynamically for RSS
-            for elem in root.iter():
-                if elem.tag.endswith('item'):
-                    ns_uri = elem.tag.split('}')[0].strip('{')
-                    items = root.findall(f'.//{{{ns_uri}}}item')
-                    ns = ns_uri
-                    break
+
+        # Find all <item> (RSS) and <entry> (Atom) elements, regardless of namespace
+        items = []
+        for elem in root.iter():
+            if elem.tag.endswith('item') or elem.tag.endswith('entry'):
+                items.append(elem)
         items = items[:RSS_RETURN_COUNT]
+
         if not items:
             logger.debug(f"No RSS or Atom feed entries found in feed xml_data: {xml_data[:500]}...")
             return "No RSS or Atom feed entries found."
+
         formatted_entries = []
         for item in items:
-            if ns == 'http://www.w3.org/2005/Atom':
-                # Atom feed
-                title = item.findtext('{http://www.w3.org/2005/Atom}title', default='No title')
-                # Atom links are in <link href="..."/>
+            # Helper to try multiple tag names
+            def find_any(item, tags):
+                for tag in tags:
+                    val = item.findtext(tag)
+                    if val:
+                        return val
+                return None
+
+            title = find_any(item, [
+                'title',
+                '{http://purl.org/rss/1.0/}title',
+                '{http://www.w3.org/2005/Atom}title'
+            ])
+
+            # Atom links are often attributes, not text
+            link = find_any(item, [
+                'link',
+                '{http://purl.org/rss/1.0/}link',
+                '{http://www.w3.org/2005/Atom}link'
+            ])
+            if not link:
                 link_elem = item.find('{http://www.w3.org/2005/Atom}link')
-                link = link_elem.attrib.get('href') if link_elem is not None else None
-                # Atom content or summary
-                description = item.findtext('{http://www.w3.org/2005/Atom}content')
-                if not description:
-                    description = item.findtext('{http://www.w3.org/2005/Atom}summary', default='No description')
-                pub_date = item.findtext('{http://www.w3.org/2005/Atom}updated', default='No date')
-            else:
-                # RSS feed
-                title = item.findtext('title', default='No title')
-                link = item.findtext('link', default=None)
-                description = item.findtext('description', default='No description')
-                pub_date = item.findtext('pubDate', default='No date')
+                if link_elem is not None and 'href' in link_elem.attrib:
+                    link = link_elem.attrib['href']
+
+            description = find_any(item, [
+                'description',
+                '{http://purl.org/rss/1.0/}description',
+                '{http://purl.org/rss/1.0/modules/content/}encoded',
+                '{http://www.w3.org/2005/Atom}summary',
+                '{http://www.w3.org/2005/Atom}content'
+            ])
+            pub_date = find_any(item, [
+                'pubDate',
+                '{http://purl.org/dc/elements/1.1/}date',
+                '{http://www.w3.org/2005/Atom}updated'
+            ])
 
             # Unescape HTML entities and strip tags
             description = html.unescape(description) if description else ""
@@ -113,3 +127,4 @@ def get_rss_feed(msg):
     except Exception as e:
         logger.error(f"Error fetching RSS feed from {feed_url}: {e}")
         return ERROR_FETCHING_DATA
+    
