@@ -1477,6 +1477,149 @@ def handle_whois(message, deviceID, channel_number, message_from_id):
                     msg += f"Loc: {where_am_i(str(location[0]), str(location[1]))}"
         return msg
 
+def handle_boot(mesh=True):
+    try:
+        print (CustomFormatter.bold_white + f"\nMeshtastic Autoresponder Bot CTL+C to exit\n" + CustomFormatter.reset)
+        if mesh:
+            
+            for i in range(1, 10):
+                if globals().get(f'interface{i}_enabled', False):
+                    myNodeNum = globals().get(f'myNodeNum{i}', 0)
+                    logger.info(f"System: Autoresponder Started for Device{i} {get_name_from_number(myNodeNum, 'long', i)},"
+                                f"{get_name_from_number(myNodeNum, 'short', i)}. NodeID: {myNodeNum}, {decimal_to_hex(myNodeNum)}")
+                    
+            if llm_enabled:
+                logger.debug(f"System: Ollama LLM Enabled, loading model {my_settings.llmModel} please wait")
+                llmLoad = llm_query(" ")
+                if "trouble" not in llmLoad:
+                    logger.debug(f"System: LLM Model {my_settings.llmModel} loaded")
+
+            if my_settings.bbs_enabled:
+                logger.debug(f"System: BBS Enabled, {bbsdb} has {len(bbs_messages)} messages. Direct Mail Messages waiting: {(len(bbs_dm) - 1)}")
+                if my_settings.bbs_link_enabled:
+                    if len(bbs_link_whitelist) > 0:
+                        logger.debug(f"System: BBS Link Enabled with {len(bbs_link_whitelist)} peers")
+                    else:
+                        logger.debug(f"System: BBS Link Enabled allowing all")
+            
+            if my_settings.solar_conditions_enabled:
+                logger.debug("System: Celestial Telemetry Enabled")
+            
+            if my_settings.location_enabled:
+                if my_settings.use_meteo_wxApi:
+                    logger.debug("System: Location Telemetry Enabled using Open-Meteo API")
+                else:
+                    logger.debug("System: Location Telemetry Enabled using NOAA API")
+            print("debug my_settings.scheduler_enabled:", my_settings.scheduler_enabled)
+            if my_settings.dad_jokes_enabled:
+                logger.debug("System: Dad Jokes Enabled!")
+            
+            if my_settings.coastalEnabled:
+                logger.debug("System: Coastal Forecast and Tide Enabled!")
+            
+            if games_enabled:
+                logger.debug("System: Games Enabled!")
+            
+            if my_settings.wikipedia_enabled:
+                if my_settings.use_kiwix_server:
+                    logger.debug(f"System: Wikipedia search Enabled using Kiwix server at {kiwix_url}")
+                else:
+                    logger.debug("System: Wikipedia search Enabled")
+            
+            if my_settings.rssEnable:
+                logger.debug(f"System: RSS Feed Reader Enabled for feeds: {rssFeedNames}")
+            
+            if my_settings.radio_detection_enabled:
+                logger.debug(f"System: Radio Detection Enabled using rigctld at {my_settings.rigControlServerAddress} broadcasting to channels: {my_settings.sigWatchBroadcastCh} for {get_freq_common_name(get_hamlib('f'))}")
+            
+            if my_settings.file_monitor_enabled:
+                logger.warning(f"System: File Monitor Enabled for {my_settings.file_monitor_file_path}, broadcasting to channels: {my_settings.file_monitor_broadcastCh}")
+            if my_settings.enable_runShellCmd:
+                logger.debug("System: Shell Command monitor enabled")
+                if my_settings.allowXcmd:
+                    logger.warning("System: File Monitor shell XCMD Enabled")
+            if my_settings.read_news_enabled:
+                logger.debug(f"System: File Monitor News Reader Enabled for {my_settings.news_file_path}")
+            if my_settings.bee_enabled:
+                logger.debug("System: File Monitor Bee Monitor Enabled for bee.txt")
+            
+            if my_settings.wxAlertBroadcastEnabled:
+                logger.debug(f"System: Weather Alert Broadcast Enabled on channels {my_settings.wxAlertBroadcastChannel}")
+            
+            if my_settings.emergencyAlertBrodcastEnabled:
+                logger.debug(f"System: Emergency Alert Broadcast Enabled on channels {my_settings.emergencyAlertBroadcastCh} for FIPS codes {my_settings.myStateFIPSList}")
+                if my_settings.myStateFIPSList == ['']:
+                    logger.warning("System: No FIPS codes set for iPAWS Alerts")
+            
+            if my_settings.emergency_responder_enabled:
+                logger.debug(f"System: Emergency Responder Enabled on channels {my_settings.emergency_responder_alert_channel} for interface {my_settings.emergency_responder_alert_interface}")
+            
+            if my_settings.volcanoAlertBroadcastEnabled:
+                logger.debug(f"System: Volcano Alert Broadcast Enabled on channels {my_settings.volcanoAlertBroadcastChannel}")
+            
+            if my_settings.qrz_hello_enabled:
+                if my_settings.train_qrz:
+                    logger.debug("System: QRZ Welcome/Hello Enabled with training mode")
+                else:
+                    logger.debug("System: QRZ Welcome/Hello Enabled")
+
+            if my_settings.enableSMTP:
+                if my_settings.enableImap:
+                    logger.debug("System: SMTP Email Alerting Enabled using IMAP")
+                else:
+                    logger.warning("System: SMTP Email Alerting Enabled")
+
+        # Default Options
+        if my_settings.useDMForResponse:
+            logger.debug("System: Respond by DM only")
+
+        if my_settings.log_messages_to_file:
+            logger.debug("System: Logging Messages to disk")
+        if my_settings.syslog_to_file:
+            logger.debug("System: Logging System Logs to disk")
+
+        if my_settings.motd_enabled:
+            logger.debug(f"System: MOTD Enabled using {my_settings.MOTD} scheduler:{my_settings.schedulerMotd}")
+        
+        if my_settings.sentry_enabled:
+            logger.debug(f"System: Sentry Mode Enabled {my_settings.sentry_radius}m radius reporting to channel:{my_settings.secure_channel} requestLOC:{reqLocationEnabled}")
+            if my_settings.sentryIgnoreList:
+                logger.debug(f"System: Sentry BlockList Enabled for nodes: {my_settings.sentryIgnoreList}")
+            if my_settings.sentryWatchList:
+                logger.debug(f"System: Sentry WatchList Enabled for nodes: {my_settings.sentryWatchList}")
+
+        if my_settings.highfly_enabled:
+            logger.debug(f"System: HighFly Enabled using {my_settings.highfly_altitude}m limit reporting to channel:{my_settings.highfly_channel}")
+        
+        if my_settings.store_forward_enabled:
+            logger.debug(f"System: S&F(messages command) Enabled using limit: {storeFlimit} and reverse queue:{my_settings.reverseSF}")
+        
+        if my_settings.enableEcho:
+            logger.debug("System: Echo command Enabled")
+        
+        if my_settings.repeater_enabled and multiple_interface:
+            logger.debug(f"System: Repeater Enabled for Channels: {my_settings.repeater_channels}")
+        
+        if my_settings.checklist_enabled:
+            logger.debug("System: CheckList Module Enabled")
+        
+        if my_settings.ignoreChannels:
+            logger.debug(f"System: Ignoring Channels: {my_settings.ignoreChannels}")
+        
+        if my_settings.noisyNodeLogging:
+            logger.debug("System: Noisy Node Logging Enabled")
+        
+        if my_settings.logMetaStats:
+            logger.debug("System: Logging Metadata Stats Enabled, leaderboard")
+        
+        if my_settings.scheduler_enabled:
+            logger.debug("System: Scheduler Enabled")
+
+
+            
+    except Exception as e:
+        logger.error(f"System: Error during boot: {e}")
+
 def onReceive(packet, interface):
     global seenNodes, msg_history, cmdHistory
     # Priocess the incoming packet, handles the responses to the packet with auto_response()
@@ -1822,164 +1965,14 @@ def onReceive(packet, interface):
         logger.debug(f"System: Error Packet = {packet}")
 
 async def start_rx():
-    print (CustomFormatter.bold_white + f"\nMeshtastic Autoresponder Bot CTL+C to exit\n" + CustomFormatter.reset)
-
     # Start the receive subscriber using pubsub via meshtastic library
     pub.subscribe(onReceive, 'meshtastic.receive')
     pub.subscribe(onDisconnect, 'meshtastic.connection.lost')
-
-    for i in range(1, 10):
-        if globals().get(f'interface{i}_enabled', False):
-            myNodeNum = globals().get(f'myNodeNum{i}', 0)
-            logger.info(f"System: Autoresponder Started for Device{i} {get_name_from_number(myNodeNum, 'long', i)},"
-                        f"{get_name_from_number(myNodeNum, 'short', i)}. NodeID: {myNodeNum}, {decimal_to_hex(myNodeNum)}")
-    
-    if llm_enabled:
-        logger.debug(f"System: Ollama LLM Enabled, loading model {my_settings.llmModel} please wait")
-        llmLoad = llm_query(" ")
-        if "trouble" not in llmLoad:
-            logger.debug(f"System: LLM Model {my_settings.llmModel} loaded")
-
-    if my_settings.useDMForResponse:
-        logger.debug("System: Respond by DM only")
-
-    if my_settings.log_messages_to_file:
-        logger.debug("System: Logging Messages to disk")
-    if my_settings.syslog_to_file:
-        logger.debug("System: Logging System Logs to disk")
-    
-    if my_settings.bbs_enabled:
-        logger.debug(f"System: BBS Enabled, {bbsdb} has {len(bbs_messages)} messages. Direct Mail Messages waiting: {(len(bbs_dm) - 1)}")
-        if my_settings.bbs_link_enabled:
-            if len(bbs_link_whitelist) > 0:
-                logger.debug(f"System: BBS Link Enabled with {len(bbs_link_whitelist)} peers")
-            else:
-                logger.debug(f"System: BBS Link Enabled allowing all")
-    
-    if my_settings.solar_conditions_enabled:
-        logger.debug("System: Celestial Telemetry Enabled")
-    
-    if my_settings.location_enabled:
-        if my_settings.use_meteo_wxApi:
-            logger.debug("System: Location Telemetry Enabled using Open-Meteo API")
-        else:
-            logger.debug("System: Location Telemetry Enabled using NOAA API")
-    
-    if my_settings.dad_jokes_enabled:
-        logger.debug("System: Dad Jokes Enabled!")
-    
-    if my_settings.coastalEnabled:
-        logger.debug("System: Coastal Forecast and Tide Enabled!")
-    
-    if my_settings.games_enabled:
-        logger.debug("System: Games Enabled!")
-    
-    if my_settings.wikipedia_enabled:
-        if my_settings.use_kiwix_server:
-            logger.debug(f"System: Wikipedia search Enabled using Kiwix server at {kiwix_url}")
-        else:
-            logger.debug("System: Wikipedia search Enabled")
-    
-    if my_settings.rssEnable:
-        logger.debug(f"System: RSS Feed Reader Enabled for feeds: {rssFeedNames}")
-    
-    if my_settings.MOTD_enabled:
-        logger.debug(f"System: MOTD Enabled using {my_settings.MOTD} scheduler:{my_settings.schedulerMOTD}")
-    
-    if my_settings.sentry_enabled:
-        logger.debug(f"System: Sentry Mode Enabled {my_settings.sentry_radius}m radius reporting to channel:{my_settings.secure_channel} requestLOC:{reqLocationEnabled}")
-        if my_settings.sentryIgnoreList:
-            logger.debug(f"System: Sentry BlockList Enabled for nodes: {my_settings.sentryIgnoreList}")
-        if my_settings.sentryWatchList:
-            logger.debug(f"System: Sentry WatchList Enabled for nodes: {my_settings.sentryWatchList}")
-    
-    if my_settings.highfly_enabled:
-        logger.debug(f"System: HighFly Enabled using {my_settings.highfly_altitude}m limit reporting to channel:{my_settings.highfly_channel}")
-    
-    if my_settings.store_forward_enabled:
-        logger.debug(f"System: S&F(messages command) Enabled using limit: {storeFlimit} and reverse queue:{my_settings.reverseSF}")
-    
-    if my_settings.enableEcho:
-        logger.debug("System: Echo command Enabled")
-    
-    if my_settings.repeater_enabled and multiple_interface:
-        logger.debug(f"System: Repeater Enabled for Channels: {my_settings.repeater_channels}")
-    
-    if my_settings.radio_detection_enabled:
-        logger.debug(f"System: Radio Detection Enabled using rigctld at {my_settings.rigControlServerAddress} broadcasting to channels: {my_settings.sigWatchBroadcastCh} for {get_freq_common_name(get_hamlib('f'))}")
-    
-    if my_settings.file_monitor_enabled:
-        logger.warning(f"System: File Monitor Enabled for {my_settings.file_monitor_file_path}, broadcasting to channels: {my_settings.file_monitor_broadcastCh}")
-    if my_settings.enable_runShellCmd:
-        logger.debug("System: Shell Command monitor enabled")
-        if my_settings.allowXcmd:
-            logger.warning("System: File Monitor shell XCMD Enabled")
-    if my_settings.read_news_enabled:
-        logger.debug(f"System: File Monitor News Reader Enabled for {my_settings.news_file_path}")
-    if my_settings.bee_enabled:
-        logger.debug("System: File Monitor Bee Monitor Enabled for bee.txt")
-    
-    if my_settings.wxAlertBroadcastEnabled:
-        logger.debug(f"System: Weather Alert Broadcast Enabled on channels {my_settings.wxAlertBroadcastChannel}")
-    
-    if my_settings.emergencyAlertBrodcastEnabled:
-        logger.debug(f"System: Emergency Alert Broadcast Enabled on channels {my_settings.emergencyAlertBroadcastCh} for FIPS codes {my_settings.myStateFIPSList}")
-        if my_settings.myStateFIPSList == ['']:
-            logger.warning("System: No FIPS codes set for iPAWS Alerts")
-    
-    if my_settings.emergency_responder_enabled:
-        logger.debug(f"System: Emergency Responder Enabled on channels {my_settings.emergency_responder_alert_channel} for interface {my_settings.emergency_responder_alert_interface}")
-    
-    if my_settings.volcanoAlertBroadcastEnabled:
-        logger.debug(f"System: Volcano Alert Broadcast Enabled on channels {my_settings.volcanoAlertBroadcastChannel}")
-    
-    if my_settings.qrz_hello_enabled:
-        if my_settings.train_qrz:
-            logger.debug("System: QRZ Welcome/Hello Enabled with training mode")
-        else:
-            logger.debug("System: QRZ Welcome/Hello Enabled")
-    
-    if my_settings.checklist_enabled:
-        logger.debug("System: CheckList Module Enabled")
-    
-    if my_settings.ignoreChannels:
-        logger.debug(f"System: Ignoring Channels: {my_settings.ignoreChannels}")
-    
-    if my_settings.noisyNodeLogging:
-        logger.debug("System: Noisy Node Logging Enabled")
-    
-    if my_settings.logMetaStats:
-        logger.debug("System: Logging Metadata Stats Enabled, leaderboard")
-    
-    if my_settings.enableSMTP:
-        if my_settings.enableImap:
-            logger.debug("System: SMTP Email Alerting Enabled using IMAP")
-        else:
-            logger.warning("System: SMTP Email Alerting Enabled")
-
-    if my_settings.scheduler_enabled:
-        # setup the scheduler
-        from modules.scheduler import setup_scheduler
-        await setup_scheduler(
-            scheduler(
-                my_settings.MOTD,
-                my_settings.MOTD,
-                my_settings.schedulerMessage,
-                my_settings.schedulerChannel,
-                my_settings.schedulerInterface,
-                my_settings.schedulerValue,
-                my_settings.schedulerTime,
-                my_settings.schedulerInterval,
-                logger,
-                my_settings.BroadcastScheduler
-            )
-        )
-
+    logger.debug("System: RX Subscriber started")
     # here we go loopty loo
     while True:
         await asyncio.sleep(0.5)
         pass
-
 
 # Initialize game trackers
 loadLeaderboard()
@@ -2002,6 +1995,7 @@ async def main():
     tasks = []
     
     try:
+        handle_boot()
         # Create core tasks
         tasks.append(asyncio.create_task(start_rx(), name="mesh_rx"))
         tasks.append(asyncio.create_task(watchdog(), name="watchdog"))
