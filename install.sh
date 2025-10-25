@@ -256,6 +256,19 @@ if [[ $(echo "${bot}" | grep -i "^m") ]]; then
     service="mesh_bot"
 fi
 
+# install mesh_bot_w3.service timer to run daily at 4:20 am
+echo ""
+echo "Installing mesh_bot_w3.timer to run mesh_bot_w3.service daily at 4:20 am..."
+sudo cp etc/mesh_bot_w3.service /etc/systemd/system/
+sudo cp etc/mesh_bot_w3.timer /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable mesh_bot_w3.timer
+sudo systemctl start mesh_bot_w3.timer
+echo "mesh_bot_w3.timer installed and enabled"
+echo "Check timer status with: systemctl status mesh_bot_w3.timer"
+echo "List all timers with: systemctl list-timers"
+echo ""
+
 # check if running on embedded for final steps
 if [[ $(echo "${embedded}" | grep -i "^n") ]]; then
     # ask if emoji font should be installed for linux
@@ -317,6 +330,10 @@ if [[ $(echo "${embedded}" | grep -i "^n") ]]; then
     printf "sudo systemctl disable %s.service\n" "$service" >> install_notes.txt
     printf "Reporting chron job added to run report_generator5.py\n" >> install_notes.txt
     printf "chronjob: %s\n" "$chronjob" >> install_notes.txt
+    printf "\nmesh_bot_w3.timer installed to run daily at 4:20 am\n" >> install_notes.txt
+    printf "Check timer status: systemctl status mesh_bot_w3.timer\n" >> install_notes.txt
+    printf "List all timers: systemctl list-timers\n" >> install_notes.txt
+    printf "View timer logs: journalctl -u mesh_bot_w3.timer\n" >> install_notes.txt
     printf "*** Stay Up to date using 'bash update.sh' ***\n" >> install_notes.txt
     
     if [[ $(echo "${venv}" | grep -i "^y") ]]; then
@@ -347,6 +364,13 @@ else
     sudo systemctl daemon-reload
     sudo systemctl enable $service.service
     sudo systemctl start $service.service
+    # install mesh_bot_w3.service timer to run daily at 4:20 am
+    sudo cp /opt/meshing-around/etc/mesh_bot_w3.service /etc/systemd/system/
+    sudo cp /opt/meshing-around/etc/mesh_bot_w3.timer /etc/systemd/system/
+    sudo systemctl daemon-reload
+    sudo systemctl enable mesh_bot_w3.timer
+    sudo systemctl start mesh_bot_w3.timer
+    printf "\nmesh_bot_w3.timer installed and enabled\n"
     # check if the cron job already exists
     if ! crontab -l | grep -q "$chronjob"; then
         # add the cron job to run the report_generator5.py script
@@ -363,6 +387,9 @@ else
     printf "sudo journalctl -u %s.service\n" "$service" >> install_notes.txt
     printf "sudo systemctl stop %s.service\n" "$service" >> install_notes.txt
     printf "sudo systemctl disable %s.service\n" "$service" >> install_notes.txt
+    printf "\nmesh_bot_w3.timer installed to run daily at 4:20 am\n" >> install_notes.txt
+    printf "Check timer status: systemctl status mesh_bot_w3.timer\n" >> install_notes.txt
+    printf "List all timers: systemctl list-timers\n" >> install_notes.txt
     printf "*** Stay Up to date using 'bash update.sh' ***\n" >> install_notes.txt
 fi
 

@@ -1,0 +1,9 @@
+[Unit]
+Description=Run mesh_bot_w3.service daily at 4:20 am
+
+[Timer]
+OnCalendar=*-*-* 04:20:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target
