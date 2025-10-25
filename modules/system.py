@@ -1400,13 +1400,19 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
                 if dbm < meshLeaderboard['weakestDBm']['value']:
                     meshLeaderboard['weakestDBm'] = {'nodeID': nodeID, 'value': dbm, 'timestamp': time.time()}
 
-            # if TEXT_MESSAGE consider Meta for most Messages leaderboard
+            # Meta for most Messages leaderboard
             if packet_type == 'TEXT_MESSAGE':
                 message_count = meshLeaderboard.get('nodeMessageCounts', {})
                 message_count[nodeID] = message_count.get(nodeID, 0) + 1
                 meshLeaderboard['nodeMessageCounts'] = message_count
                 if message_count[nodeID] > meshLeaderboard['mostMessages']['value']:
                     meshLeaderboard['mostMessages'] = {'nodeID': nodeID, 'value': message_count[nodeID], 'timestamp': time.time()}
+            else:
+                tmessage_count = meshLeaderboard.get('nodeTMessageCounts', {})
+                tmessage_count[nodeID] = tmessage_count.get(nodeID, 0) + 1
+                meshLeaderboard['nodeTMessageCounts'] = tmessage_count
+                if tmessage_count[nodeID] > meshLeaderboard['mostTMessages']['value']:
+                    meshLeaderboard['mostTMessages'] = {'nodeID': nodeID, 'value': tmessage_count[nodeID], 'timestamp': time.time()}
         
     except Exception as e:
         logger.debug(f"System: Metadata decode error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
@@ -1416,14 +1422,6 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
         if debugMetadata and 'TELEMETRY_APP' not in metadataFilter:
             print(f"DEBUG TELEMETRY_APP: {packet}\n\n")
         telemetry_packet = packet['decoded']['telemetry']
-        # consider Meta for most Tmessages leaderboard
-        if nodeID != globals().get(f'myNodeNum{rxNode}') and nodeID != 0:
-            if telemetry_packet.get('tMessageCount') is not None:
-                tmessage_count = meshLeaderboard.get('nodeTMessageCounts', {})
-                tmessage_count[nodeID] = tmessage_count.get(nodeID, 0) + telemetry_packet['tMessageCount']
-                meshLeaderboard['nodeTMessageCounts'] = tmessage_count
-                if tmessage_count[nodeID] > meshLeaderboard['mostTMessages']['value']:
-                    meshLeaderboard['mostTMessages'] = {'nodeID': nodeID, 'value': tmessage_count[nodeID], 'timestamp': time.time()}
         # Track lowest battery 🪫
         if telemetry_packet.get('deviceMetrics'):
             deviceMetrics = telemetry_packet['deviceMetrics']
