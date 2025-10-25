@@ -46,6 +46,13 @@ dwPlayerTracker = []         # DopeWars player tracker
 jackTracker = []             # Jack game tracker
 mindTracker = []             # Mastermind (mmind) game tracker
 
+# Memory Management Constants
+MAX_MSG_HISTORY = 250
+MAX_CMD_HISTORY = 250
+MAX_SEEN_NODES = 1000
+CLEANUP_INTERVAL = 86400 # 24 hours in seconds
+GAMEDELAY = 3 * CLEANUP_INTERVAL # 3 days in seconds
+
 # Read the config file, if it does not exist, create basic config file
 config = configparser.ConfigParser() 
 config_file = "config.ini"

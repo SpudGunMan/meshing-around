@@ -180,7 +180,7 @@ def isPlayingGame(message_from_id):
 
     trackers = [tracker for tracker in trackers if tracker is not None]
 
-    for tracker, game_name in trackers:
+    for tracker, game_name, _ in trackers:
         for i in range(len(tracker)-1, -1, -1):  # iterate backwards for safe removal
             id_key = 'userID' if game_name == "DopeWars" else 'nodeID'
             id_key = 'id' if game_name == "Survey" else id_key

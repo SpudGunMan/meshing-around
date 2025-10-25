@@ -23,13 +23,6 @@ games_enabled = False
 multiPingList = [{'message_from_id': 0, 'count': 0, 'type': '', 'deviceID': 0, 'channel_number': 0, 'startCount': 0}]
 interface_retry_count = 3
 
-# Memory Management Constants
-MAX_MSG_HISTORY = 250
-MAX_CMD_HISTORY = 250
-MAX_SEEN_NODES = 1000
-CLEANUP_INTERVAL = 86400 # 24 hours in seconds
-GAMEDELAY = 3 * CLEANUP_INTERVAL # 3 days in seconds
-
 # Ping Configuration
 if ping_enabled:
     # ping, pinging, ack, testing, test, pong
