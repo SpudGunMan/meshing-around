@@ -1194,7 +1194,7 @@ def handle_bbspost(message, message_from_id, deviceID):
         subject = message.split("$")[1].split("#")[0]
         subject = subject.rstrip()
         if "#" in message:
-            body = message.split("#")[1]
+            body = message.split("#", 1)[1]
             body = body.rstrip()
             logger.info(f"System: BBS Post: {subject} Body: {body}")
             return bbs_post_message(subject, body, message_from_id)
@@ -1216,7 +1216,9 @@ def handle_bbspost(message, message_from_id, deviceID):
         if "#" in message:
             if toNode == 0:
                 return "Node not found " + message.split("@")[1].split("#")[0]
-            body = message.split("#")[1]
+            body = message.split("#", 1)[1]
+            body = body.rstrip()
+            logger.info(f"System: BBS Post DM to: {toNode} Body: {body}")
             return bbs_post_dm(toNode, body, message_from_id)
         else:
             return "example: bbspost @nodeNumber/ShortName/!hex #✉️message"
