@@ -31,7 +31,6 @@ def load_bbsdb():
                     if all(hash(tuple(existing_msg[1:3])) != msgHash for existing_msg in bbs_messages):
                         new_id = len(bbs_messages) + 1
                         bbs_messages.append([new_id, msg[1], msg[2], msg[3]])
-                        logger.info(f"System: Loaded BBS Message ID {new_id}, subject: {msg[1]} from bbsdb.pkl")
                 return True  # Loaded successfully, regardless of whether new messages were added
             return False # File existed but did not contain a valid list of messages (possibly corrupted)
     except FileNotFoundError:
