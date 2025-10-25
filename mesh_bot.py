@@ -1616,7 +1616,7 @@ def handle_boot(mesh=True):
             logger.debug("System: Scheduler Enabled")
 
 
-            
+
     except Exception as e:
         logger.error(f"System: Error during boot: {e}")
 
@@ -2009,6 +2009,12 @@ async def main():
 
         if my_settings.voxDetectionEnabled:
             tasks.append(asyncio.create_task(voxMonitor(), name="vox_detection"))
+
+        if my_settings.scheduler_enabled:
+            from modules.scheduler import run_scheduler_loop, setup_scheduler
+            setup_scheduler(schedulerMotd, MOTD, schedulerMessage, schedulerChannel, schedulerInterface,
+    schedulerValue, schedulerTime, schedulerInterval)
+            tasks.append(asyncio.create_task(run_scheduler_loop(), name="scheduler"))
         
         logger.debug(f"System: Starting {len(tasks)} async tasks")
         

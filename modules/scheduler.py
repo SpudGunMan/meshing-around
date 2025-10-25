@@ -6,12 +6,30 @@ from modules.log import logger
 from modules.settings import MOTD
 from modules.system import send_message
 
-async def setup_scheduler(
-    schedulerMotd, MOTD, schedulerMessage, schedulerChannel, schedulerInterface,
-    schedulerValue, schedulerTime, schedulerInterval, logger, BroadcastScheduler):
-    
-    # methods available for custom scheduler messages
+async def run_scheduler_loop(interval=1):
+    logger.debug("Scheduler loop started")
     try:
+        while True:
+            try:
+                schedule.run_pending()
+            except Exception as e:
+                logger.error(f"Scheduler loop exception: {e}")
+            await asyncio.sleep(interval)
+    except asyncio.CancelledError:
+        logger.debug("Scheduler loop cancelled, shutting down.")
+
+def safe_int(val, default=0, type=""):
+    try:
+        return int(val)
+    except (ValueError, TypeError):
+        logger.debug(f"System Scheduler: config {type} error '{val}' to int, using default {default}")
+        return default
+
+def setup_scheduler(
+    schedulerMotd, MOTD, schedulerMessage, schedulerChannel, schedulerInterface,
+    schedulerValue, schedulerTime, schedulerInterval):
+    try:
+        # Methods imported from mesh_bot for scheduling tasks
         from mesh_bot import (
             tell_joke,
             welcome_message,
@@ -24,13 +42,15 @@ async def setup_scheduler(
         )
     except ImportError as e:
         logger.warning(f"Some mesh_bot schedule features are unavailable by option disable in config.ini: {e} comment out the use of these methods in your custom_scheduler.py")
-
+    
+    # Setup the scheduler based on configuration
     schedulerValue = schedulerValue.lower().strip()
     schedulerTime = schedulerTime.strip()
     schedulerInterval = schedulerInterval.strip()
-    schedulerChannel = int(schedulerChannel)
-    schedulerInterface = int(schedulerInterface)
-    # Setup the scheduler based on configuration
+    schedulerChannel = safe_int(schedulerChannel, 0, type="channel")
+    schedulerInterface = safe_int(schedulerInterface, 1, type="interface")
+    schedulerIntervalInt = safe_int(schedulerInterval, 5, type="interval")
+
     try:
         if schedulerMotd:
             scheduler_message = MOTD
@@ -45,7 +65,7 @@ async def setup_scheduler(
                 if schedulerTime != '':
                     schedule.every().day.at(schedulerTime).do(lambda: send_message(scheduler_message, schedulerChannel, 0, schedulerInterface))
                 else:
-                    schedule.every(int(schedulerInterval)).days.do(lambda: send_message(scheduler_message, schedulerChannel, 0, schedulerInterface))
+                    schedule.every(schedulerIntervalInt).days.do(lambda: send_message(scheduler_message, schedulerChannel, 0, schedulerInterface))
             elif 'mon' in schedulerValue.lower() and schedulerTime != '':
                 schedule.every().monday.at(schedulerTime).do(lambda: send_message(scheduler_message, schedulerChannel, 0, schedulerInterface))
             elif 'tue' in schedulerValue.lower() and schedulerTime != '':
@@ -61,22 +81,22 @@ async def setup_scheduler(
             elif 'sun' in schedulerValue.lower() and schedulerTime != '':
                 schedule.every().sunday.at(schedulerTime).do(lambda: send_message(scheduler_message, schedulerChannel, 0, schedulerInterface))
             elif 'hour' in schedulerValue.lower():
-                schedule.every(int(schedulerInterval)).hours.do(lambda: send_message(scheduler_message, schedulerChannel, 0, schedulerInterface))
+                schedule.every(schedulerIntervalInt).hours.do(lambda: send_message(scheduler_message, schedulerChannel, 0, schedulerInterface))
             elif 'min' in schedulerValue.lower():
-                schedule.every(int(schedulerInterval)).minutes.do(lambda: send_message(scheduler_message, schedulerChannel, 0, schedulerInterface))
-            logger.debug(f"System: Starting the basic scheduler to send '{scheduler_message}' on schedule '{schedulerValue}' every {schedulerInterval} interval at time '{schedulerTime}' on Device:{schedulerInterface} Channel:{schedulerChannel}")
+                schedule.every(schedulerIntervalInt).minutes.do(lambda: send_message(scheduler_message, schedulerChannel, 0, schedulerInterface))
+            logger.debug(f"System: Starting the basic scheduler to send '{scheduler_message}' on schedule '{schedulerValue}' every {schedulerIntervalInt} interval at time '{schedulerTime}' on Device:{schedulerInterface} Channel:{schedulerChannel}")
         elif 'joke' in schedulerValue.lower():
             # Schedule to send a joke every specified interval
-            schedule.every(int(schedulerInterval)).minutes.do(lambda: send_message(tell_joke(), schedulerChannel, 0, schedulerInterface))
-            logger.debug(f"System: Starting the joke scheduler to send a joke every {schedulerInterval} minutes on Device:{schedulerInterface} Channel:{schedulerChannel}")
+            schedule.every(schedulerIntervalInt).minutes.do(lambda: send_message(tell_joke(), schedulerChannel, 0, schedulerInterface))
+            logger.debug(f"System: Starting the joke scheduler to send a joke every {schedulerIntervalInt} minutes on Device:{schedulerInterface} Channel:{schedulerChannel}")
         elif 'link' in schedulerValue.lower():
             # Schedule to send a link message every specified interval
-            schedule.every(int(schedulerInterval)).hours.do(lambda: send_message(handle_satpass(schedulerInterface, 'link'), schedulerChannel, 0, schedulerInterface))
-            logger.debug(f"System: Starting the link scheduler to send link messages every {schedulerInterval} hours on Device:{schedulerInterface} Channel:{schedulerChannel}")
+            schedule.every(schedulerIntervalInt).hours.do(lambda: send_message(handle_satpass(schedulerInterface, 'link'), schedulerChannel, 0, schedulerInterface))
+            logger.debug(f"System: Starting the link scheduler to send link messages every {schedulerIntervalInt} hours on Device:{schedulerInterface} Channel:{schedulerChannel}")
         elif 'weather' in schedulerValue.lower():
             # Schedule to send weather updates every specified interval
-            schedule.every(int(schedulerInterval)).hours.do(lambda: send_message(handle_wxc(0, schedulerInterface, 'wx'), schedulerChannel, 0, schedulerInterface))
-            logger.debug(f"System: Starting the weather scheduler to send weather updates every {schedulerInterval} hours on Device:{schedulerInterface} Channel:{schedulerChannel}")
+            schedule.every(schedulerIntervalInt).hours.do(lambda: send_message(handle_wxc(0, schedulerInterface, 'wx'), schedulerChannel, 0, schedulerInterface))
+            logger.debug(f"System: Starting the weather scheduler to send weather updates every {schedulerIntervalInt} hours on Device:{schedulerInterface} Channel:{schedulerChannel}")
         elif 'custom' in schedulerValue.lower():
            # Import and setup custom schedules from custom_scheduler.py
             try:
@@ -89,9 +109,5 @@ async def setup_scheduler(
             except Exception as e:
                 logger.debug(f"System: Failed to import custom scheduler. {e}")
                 logger.warning("Custom scheduler file not found or failed to import. cp etc/custom_scheduler.py modules/custom_scheduler.py")
-
-        # Start the Broadcast Scheduler
-        await BroadcastScheduler()
     except Exception as e:
         logger.error(f"System: Scheduler Error {e}")
-

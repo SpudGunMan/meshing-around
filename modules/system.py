@@ -255,10 +255,6 @@ if games_enabled is True:
 else:
     gamesCmdList = ""
 
-# Scheduled Broadcast Configuration
-if scheduler_enabled:
-    import schedule # pip install schedule
-
 # Sentry Configuration
 if sentry_enabled:
     from math import sqrt
@@ -1918,12 +1914,6 @@ def get_sysinfo(nodeID=0, deviceID=1):
     stats = stats.replace("Telemetry", "Int")
     sysinfo += f"📊{stats}"
     return sysinfo
-
-async def BroadcastScheduler():
-    # handle schedule checks for the broadcast of messages
-    while True:
-        schedule.run_pending()
-        await asyncio.sleep(1)
 
 async def handleSignalWatcher():
     global lastHamLibAlert
