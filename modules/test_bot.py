@@ -200,8 +200,62 @@ class TestBot(unittest.TestCase):
         self.assertIsInstance(initial, str)
         self.assertIsInstance(second, str)
 
+   
+    def test_play_lemonade_stand(self):
+        from games.lemonade import playLemonstand, lemonadeTracker
+        user_id = "testuser"
+        # Ensure user is in tracker
+        if not any(u['nodeID'] == user_id for u in lemonadeTracker):
+            lemonadeTracker.append({'nodeID': user_id, 'cups': 0, 'lemons': 0, 'sugar': 0, 'cash': 30.0, 'start': 30.0, 'cmd': 'new', 'last_played': 0})
+        # Start a new game
+        initial = playLemonstand(user_id, "", newgame=True)
+        print("Initial response:", initial)
+        # Buy 1 box of cups
+        after_cups = playLemonstand(user_id, "1")
+        print("After buying 1 box of cups:", after_cups)
+        self.assertIsInstance(initial, str)
+        self.assertIsInstance(after_cups, str)
 
+    
+    def test_play_golfsim_one_hole(self):
+        from games.golfsim import playGolf
+        user_id = "testuser"
+        # Start a new game/hole
+        initial = playGolf(user_id, "", last_cmd="new")
+        print("Initial hole info:", initial)
+        # Take first shot with driver
+        after_shot = playGolf(user_id, "driver")
+        print("After hitting driver:", after_shot)
+        self.assertIsInstance(initial, str)
+        self.assertIsInstance(after_shot, str)
 
+    
+    def test_play_dopewar_choose_city_and_list(self):
+        from games.dopewar import playDopeWars
+        user_id = 1234567899  # Use a unique test user ID
+        # Start a new game, get city selection prompt
+        initial = playDopeWars(user_id, "")
+        print("Initial city selection:", initial)
+        # Choose city 1
+        after_city = playDopeWars(user_id, "1")
+        print("After choosing city 1 (main game list):", after_city)
+        self.assertIsInstance(initial, str)
+        self.assertIsInstance(after_city, str)
+
+    
+    def test_play_mastermind_one_guess(self):
+        from games.mmind import start_mMind
+        user_id = 1234567899  # Use a unique test user ID
+        # Start a new game (should prompt for difficulty/colors)
+        initial = start_mMind(user_id, "n")
+        print("Initial response (difficulty/colors):", initial)
+        # Make a guess (e.g., "RGBY" - valid for normal)
+        after_guess = start_mMind(user_id, "RGBY")
+        print("After guessing RGBY:", after_guess)
+        self.assertIsInstance(initial, str)
+        self.assertIsInstance(after_guess, str)
+
+    
 
 
 
