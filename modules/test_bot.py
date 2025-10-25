@@ -144,6 +144,9 @@ class TestBot(unittest.TestCase):
 
     
     ##### GAMES Tests #####
+    def test_jokes(self):
+        from modules.games.joke import tell_joke
+        self.assertIsInstance(tell_joke(), str)
 
 
     
