@@ -135,13 +135,13 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, chann
                 pingCount = int(message.split(" ")[1])
                 if pingCount == 123 or pingCount == 1234:
                     pingCount =  1
-                elif not autoPingInChannel and not isDM:
+                elif not my_settings.autoPingInChannel and not isDM:
                     # no autoping in channels
                     pingCount = 1
 
                 if pingCount > 51:
                     pingCount = 50
-            except:
+            except ValueError:
                 pingCount = -1
     
         if pingCount > 1:
@@ -152,7 +152,7 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, chann
                 msg = f"🚦Initalizing {pingCount} auto-ping"
 
     # if not a DM add the username to the beginning of msg
-    if not useDMForResponse and not isDM:
+    if not my_settings.useDMForResponse and not isDM:
         msg = "@" + get_name_from_number(message_from_id, 'short', deviceID) + " " + msg
             
     return msg
@@ -162,8 +162,8 @@ def handle_motd(message, message_from_id, isDM):
     isAdmin = False
     msg = MOTD
     # check if the message_from_id is in the bbs_admin_list
-    if bbs_admin_list != ['']:
-        for admin in bbs_admin_list:
+    if my_settings.bbs_admin_list != ['']:
+        for admin in my_settings.bbs_admin_list:
             if str(message_from_id) == admin:
                 isAdmin = True
                 break
@@ -192,7 +192,7 @@ def handle_echo(message, message_from_id, deviceID, isDM, channel_number):
         parts = message.lower().split("echo ", 1)
         if len(parts) > 1 and parts[1].strip() != "":
             echo_msg = parts[1]
-            if channel_number != echoChannel:
+            if channel_number != my_settings.echoChannel:
                 echo_msg = "@" + get_name_from_number(message_from_id, 'short', deviceID) + " " + echo_msg
             return echo_msg
         else:
@@ -239,7 +239,8 @@ def onReceive(packet, interface):
 
     if DEBUGpacket:
         # Debug print the interface object
-        for item in interface.__dict__.items(): intDebug = f"{item}\n"
+        for item in interface.__dict__.items():
+            intDebug = f"{item}\n"
         logger.debug(f"System: Packet Received on {rxType} Interface\n {intDebug} \n END of interface \n")
         # Debug print the packet for debugging
         logger.debug(f"Packet Received\n {packet} \n END of packet \n")
@@ -374,7 +375,7 @@ def onReceive(packet, interface):
             if hop in ("MQTT", "Gateway") and hop_count > 0:
                 hop = f"{hop_count} Hops"
 
-            if enableHopLogs:
+            if my_settings.enableHopLogs:
                 logger.debug(f"System: Packet HopDebugger: hop_away:{hop_away} hop_limit:{hop_limit} hop_start:{hop_start} calculated_hop_count:{hop_count} final_hop_value:{hop} via_mqtt:{via_mqtt} transport_mechanism:{transport_mechanism} Hostname:{rxNodeHostName}")
 
             # check with stringSafeChecker if the message is safe
@@ -418,7 +419,7 @@ def onReceive(packet, interface):
                             send_message(auto_response(message_string, snr, rssi, hop, pkiStatus, message_from_id, channel_number, rxNode, isDM), channel_number, message_from_id, rxNode)
                         else:
                             # or respond to channel message on the channel itself
-                            if channel_number == publicChannel and antiSpam:
+                            if channel_number == my_settings.publicChannel and my_settings.antiSpam:
                                 # warning user spamming default channel
                                 logger.warning(f"System: AntiSpam protection, sending DM to: {get_name_from_number(message_from_id, 'long', rxNode)}")
                             
@@ -431,7 +432,7 @@ def onReceive(packet, interface):
                 else:
                     # message is not for bot to respond to
                     # ignore the message but add it to the message history list
-                    if zuluTime:
+                    if my_settings.zuluTime:
                         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     else:
                         timestamp = datetime.now().strftime("%Y-%m-%d %I:%M:%S%p")
@@ -449,17 +450,17 @@ def onReceive(packet, interface):
                         msgLogger.info(f"Device:{rxNode} Channel:{channel_number} | {get_name_from_number(message_from_id, 'long', rxNode)} | " + message_string.replace('\n', '-nl-'))
 
                      # repeat the message on the other device
-                    if repeater_enabled and multiple_interface:         
+                    if my_settings.repeater_enabled and multiple_interface:
                         # wait a responseDelay to avoid message collision from lora-ack.
-                        time.sleep(responseDelay)
+                        time.sleep(my_settings.responseDelay)
                         rMsg = (f"{message_string} From:{get_name_from_number(message_from_id, 'short', rxNode)}")
                         # if channel found in the repeater list repeat the message
-                        if str(channel_number) in repeater_channels:
+                        if str(channel_number) in my_settings.repeater_channels:
                             for i in range(1, 10):
                                 if globals().get(f'interface{i}_enabled', False) and i != rxNode:
                                     logger.debug(f"Repeating message on Device{i} Channel:{channel_number}")
                                     send_message(rMsg, channel_number, 0, i)
-                                    time.sleep(responseDelay)
+                                    time.sleep(my_settings.responseDelay)
         else:
             # Evaluate non TEXT_MESSAGE_APP packets
             consumeMetadata(packet, rxNode, channel_number)
@@ -478,30 +479,30 @@ async def start_rx():
             logger.info(f"System: Autoresponder Started for Device{i} {get_name_from_number(myNodeNum, 'long', i)},"
                         f"{get_name_from_number(myNodeNum, 'short', i)}. NodeID: {myNodeNum}, {decimal_to_hex(myNodeNum)}")
     
-    if useDMForResponse:
+    if my_settings.useDMForResponse:
         logger.debug(f"System: Respond by DM only")
-    if log_messages_to_file:
+    if my_settings.log_messages_to_file:
         logger.debug("System: Logging Messages to disk")
-    if syslog_to_file:
+    if my_settings.syslog_to_file:
         logger.debug("System: Logging System Logs to disk")
-    if motd_enabled:
-        logger.debug(f"System: MOTD Enabled using {MOTD}")
-    if enableEcho:
+    if my_settings.motd_enabled:
+        logger.debug(f"System: MOTD Enabled using {my_settings.MOTD}")
+    if my_settings.enableEcho:
         logger.debug(f"System: Echo command Enabled")
-    if sentry_enabled:
-        logger.debug(f"System: Sentry Mode Enabled {sentry_radius}m radius reporting to channel:{secure_channel}")
-    if highfly_enabled:
-        logger.debug(f"System: HighFly Enabled using {highfly_altitude}m limit reporting to channel:{highfly_channel}")
-    if repeater_enabled and multiple_interface:
-        logger.debug(f"System: Repeater Enabled for Channels: {repeater_channels}")
-    if bbs_enabled:
+    if my_settings.sentry_enabled:
+        logger.debug(f"System: Sentry Mode Enabled {my_settings.sentry_radius}m radius reporting to channel:{my_settings.secure_channel}")
+    if my_settings.highfly_enabled:
+        logger.debug(f"System: HighFly Enabled using {highfly_altitude}m limit reporting to channel:{my_settings.highfly_channel}")
+    if my_settings.repeater_enabled and multiple_interface:
+        logger.debug(f"System: Repeater Enabled for Channels: {my_settings.repeater_channels}")
+    if my_settings.bbs_enabled:
         logger.debug(f"System: BBS Enabled, {bbsdb} has {len(bbs_messages)} messages. Direct Mail Messages waiting: {(len(bbs_dm) - 1)}")
-        if bbs_link_enabled:
-            if len(bbs_link_whitelist) > 0:
-                logger.debug(f"System: BBS Link Enabled with {len(bbs_link_whitelist)} peers")
+        if my_settings.bbs_link_enabled:
+            if len(my_settings.bbs_link_whitelist) > 0:
+                logger.debug(f"System: BBS Link Enabled with {len(my_settings.bbs_link_whitelist)} peers")
             else:
-                logger.debug(f"System: BBS Link Enabled allowing all")
-    if scheduler_enabled:
+                logger.debug("System: BBS Link Enabled allowing all")
+    if my_settings.scheduler_enabled:
         # Examples of using the scheduler, Times here are in 24hr format
         # https://schedule.readthedocs.io/en/stable/
         
@@ -525,7 +526,7 @@ async def main():
         tasks.append(asyncio.create_task(watchdog(), name="watchdog"))
         
         # Add optional tasks
-        if file_monitor_enabled:
+        if my_settings.file_monitor_enabled:
             tasks.append(asyncio.create_task(handleFileWatcher(), name="file_monitor"))
         
         logger.debug(f"System: Starting {len(tasks)} async tasks")
