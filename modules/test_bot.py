@@ -143,8 +143,70 @@ class TestBot(unittest.TestCase):
         result = get_rss_feed('')
         self.assertIsInstance(result, str)
 
+    
 
-        
+##### GAMES Tests #####
+
+
+    
+    def test_tictactoe_initial_and_move(self):
+        from games.tictactoe import tictactoe
+        user_id = "testuser"
+        # Start a new game (no move yet)
+        initial = tictactoe.play(user_id, "")
+        print("Initial response:", initial)
+        # Make a move, e.g., '1'
+        second = tictactoe.play(user_id, "1")
+        print("After move '1':", second)
+        self.assertIsInstance(initial, str)
+        self.assertIsInstance(second, str)
+
+    
+    def test_playVideoPoker(self):
+        from games.videopoker import playVideoPoker
+        user_id = "testuser"
+        # Start a new game/session
+        initial = playVideoPoker(user_id, 'deal')
+        print("Initial response:", initial)
+        # Place a 5-coin bet
+        after_bet = playVideoPoker(user_id, '5')
+        print("After placing 5-coin bet:", after_bet)
+        self.assertIsInstance(initial, str)
+        self.assertIsInstance(after_bet, str)
+
+    
+    def test_play_blackjack(self):
+        from games.blackjack import playBlackJack
+        user_id = "testuser"
+        # Start a new game/session
+        initial = playBlackJack(user_id, 'deal')
+        print("Initial response:", initial)
+        # Place a 5-chip bet
+        after_bet = playBlackJack(user_id, '5')
+        print("After placing 5-chip bet:", after_bet)
+        self.assertIsInstance(initial, str)
+        self.assertIsInstance(after_bet, str)
+
+
+    def test_hangman_initial_and_guess(self):
+        from games.hangman import hangman
+        user_id = "testuser"
+        # Start a new game (no guess yet)
+        initial = hangman.play(user_id, "")
+        print("Initial response:", initial)
+        # Guess a letter, e.g., 'e'
+        second = hangman.play(user_id, "e")
+        print("After guessing 'e':", second)
+        self.assertIsInstance(initial, str)
+        self.assertIsInstance(second, str)
+
+
+
+
+
+
+
+##### API Tests - Extended tests run only if CHECKALL is True #####
 
 
     if CHECKALL:
