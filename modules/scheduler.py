@@ -2,7 +2,7 @@
 # Scheduler setup for Mesh Bot
 import asyncio
 import schedule
-from modules.log import logger
+from modules.log import *
 from modules.system import send_message
 
 async def setup_scheduler(
