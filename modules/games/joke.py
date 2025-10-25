@@ -4,6 +4,7 @@
 from dadjokes import Dadjoke # pip install dadjokes
 import random
 from modules.log import logger, getPrettyTime
+from modules.settings import dad_jokes_emojiJokes, dad_jokes_enabled
 
 lameJokes = [
     "Why don't scientists trust atoms? Because they make up everything!",
