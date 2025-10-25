@@ -7,22 +7,22 @@ from modules.settings import MOTD
 from modules.system import send_message
 
 async def run_scheduler_loop(interval=1):
-    logger.debug("Scheduler loop started")
+    logger.debug("System: Scheduler loop started")
     try:
         while True:
             try:
                 schedule.run_pending()
             except Exception as e:
-                logger.error(f"Scheduler loop exception: {e}")
+                logger.error(f"System: Scheduler loop exception: {e}")
             await asyncio.sleep(interval)
     except asyncio.CancelledError:
-        logger.debug("Scheduler loop cancelled, shutting down.")
+        logger.debug("System: Scheduler loop cancelled, shutting down.")
 
 def safe_int(val, default=0, type=""):
     try:
         return int(val)
     except (ValueError, TypeError):
-        logger.debug(f"System Scheduler: config {type} error '{val}' to int, using default {default}")
+        logger.debug(f"System: Scheduler config {type} error '{val}' to int, using default {default}")
         return default
 
 def setup_scheduler(
