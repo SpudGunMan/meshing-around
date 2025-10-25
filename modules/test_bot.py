@@ -144,8 +144,7 @@ class TestBot(unittest.TestCase):
         self.assertIsInstance(result, str)
 
     
-
-##### GAMES Tests #####
+    ##### GAMES Tests #####
 
 
     
@@ -255,12 +254,54 @@ class TestBot(unittest.TestCase):
         self.assertIsInstance(initial, str)
         self.assertIsInstance(after_guess, str)
 
-    
+
+    def test_quiz_game_answer_one_and_end(self):
+        from games.quiz import quizGamePlayer
+        quizmaster_id = "admin"  # Use a valid quizmaster ID from bbs_admin_list
+        user_id = "testuser"
+        # Start the quiz as quizmaster
+        start_msg = quizGamePlayer.start_game(quizmaster_id)
+        print("Quiz start:", start_msg)
+        # User joins the quiz
+        join_msg = quizGamePlayer.join(user_id)
+        print("User joined:", join_msg)
+        # Get the first question (should be included in join_msg, but call explicitly for clarity)
+        question_msg = quizGamePlayer.next_question(user_id)
+        print("First question:", question_msg)
+        # Simulate answering with 'A' (adjust if your first question expects a different answer)
+        answer_msg = quizGamePlayer.answer(user_id, "A")
+        print("Answer response:", answer_msg)
+        # End the quiz as quizmaster
+        end_msg = quizGamePlayer.stop_game(quizmaster_id)
+        print("Quiz end:", end_msg)
+        self.assertIsInstance(start_msg, str)
+        self.assertIsInstance(join_msg, str)
+        self.assertIsInstance(question_msg, str)
+        self.assertIsInstance(answer_msg, str)
+        self.assertIsInstance(end_msg, str)
+
+    def test_survey_answer_one_and_end(self):
+        from survey import survey_module
+        user_id = "testuser"
+        survey_name = "example"  # Make sure this survey exists in your data/surveys directory
+
+        # Start the survey
+        start_msg = survey_module.start_survey(user_id, survey_name)
+        print("Survey start:", start_msg)
+        # Answer the first question with 'A' (adjust if your survey expects a different type)
+        answer_msg = survey_module.answer(user_id, "A")
+        print("Answer response:", answer_msg)
+        # End the survey
+        end_msg = survey_module.end_survey(user_id)
+        print("Survey end:", end_msg)
+
+        self.assertIsInstance(start_msg, str)
+        self.assertIsInstance(answer_msg, str)
+        self.assertIsInstance(end_msg, str)
 
 
 
-
-##### API Tests - Extended tests run only if CHECKALL is True #####
+    ##### API Tests - Extended tests run only if CHECKALL is True #####
 
 
     if CHECKALL:
