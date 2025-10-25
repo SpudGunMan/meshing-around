@@ -3,7 +3,7 @@
 # As a Ham, is this obsecuring the meaning of the joke? Or is it enhancing it?
 from dadjokes import Dadjoke # pip install dadjokes
 import random
-from modules.log import *
+from modules.log import logger, getPrettyTime
 
 lameJokes = [
     "Why don't scientists trust atoms? Because they make up everything!",

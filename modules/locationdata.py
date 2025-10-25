@@ -6,13 +6,14 @@ from geopy.geocoders import Nominatim # pip install geopy
 import maidenhead as mh # pip install maidenhead
 import requests # pip install requests
 import bs4 as bs # pip install beautifulsoup4
-import xml.dom.minidom 
+import xml.dom.minidom # used for parsing XML
+import xml.parsers.expat # used for parsing XML
 from datetime import datetime
-from modules.log import *
+from modules.log import logger
+import modules.settings as my_settings
 import math
 import csv
 import os
-
 
 trap_list_location = ("whereami", "wx", "wxa", "wxalert", "rlist", "ea", "ealert", "riverflow", "valert", "earthquake", "howfar", "map",)
 
@@ -23,7 +24,7 @@ def where_am_i(lat=0, lon=0, short=False, zip=False):
     
     if int(float(lat)) == 0 and int(float(lon)) == 0:
         logger.error("Location: No GPS data, try sending location")
-        return NO_DATA_NOGPS
+        return my_settings.NO_DATA_NOGPS
     
     # initialize Nominatim API
     geolocator = Nominatim(user_agent="mesh-bot")
@@ -43,7 +44,7 @@ def where_am_i(lat=0, lon=0, short=False, zip=False):
             whereIam = location.raw['address'].get('postcode', '')
             return whereIam
         
-        if float(lat) == latitudeValue and float(lon) == longitudeValue:
+        if float(lat) == my_settings.latitudeValue and float(lon) == my_settings.longitudeValue:
             # redacted address when no GPS and using default location
             location = geolocator.reverse(str(lat) + ", " + str(lon))
             address = location.raw['address']
@@ -72,7 +73,7 @@ def where_am_i(lat=0, lon=0, short=False, zip=False):
         return whereIam
     except Exception as e:
         logger.debug("Location:Error fetching location data with whereami, likely network error")
-        return ERROR_FETCHING_DATA
+        return my_settings.ERROR_FETCHING_DATA
     
 def getRepeaterBook(lat=0, lon=0):
     grid = mh.to_maiden(float(lat), float(lon))
@@ -90,7 +91,7 @@ def getRepeaterBook(lat=0, lon=0):
     try:
         msg = ''
         user_agent = {'User-agent': 'Mozilla/5.0'}
-        response = requests.get(repeater_url, headers=user_agent, timeout=urlTimeoutSeconds)
+        response = requests.get(repeater_url, headers=user_agent, timeout=my_settings.urlTimeoutSeconds)
         if response.status_code!=200:
             logger.error(f"Location:Error fetching repeater data from {repeater_url} with status code {response.status_code}")
         soup = bs.BeautifulSoup(response.text, 'html.parser')
@@ -129,13 +130,13 @@ def getArtSciRepeaters(lat=0, lon=0):
     #grid = mh.to_maiden(float(lat), float(lon))
     repeaters = []
     zipCode = where_am_i(lat, lon, zip=True)
-    if zipCode == NO_DATA_NOGPS or zipCode == ERROR_FETCHING_DATA:
+    if zipCode == my_settings.NO_DATA_NOGPS or zipCode == my_settings.ERROR_FETCHING_DATA:
         return zipCode
 
     if zipCode.isnumeric():
         try:
             artsci_url = f"http://www.artscipub.com/mobile/showstate.asp?zip={zipCode}"
-            response = requests.get(artsci_url, timeout=urlTimeoutSeconds)
+            response = requests.get(artsci_url, timeout=my_settings.urlTimeoutSeconds)
             if response.status_code!=200:
                 logger.error(f"Location:Error fetching data from {artsci_url} with status code {response.status_code}")
             soup = bs.BeautifulSoup(response.text, 'html.parser')
@@ -177,16 +178,16 @@ def get_NOAAtide(lat=0, lon=0):
     station_id = ""
     location = lat,lon
     if float(lat) == 0 and float(lon) == 0:
-        lat = latitudeValue
-        lon = longitudeValue
+        lat = my_settings.latitudeValue
+        lon = my_settings.longitudeValue
     station_lookup_url = "https://api.tidesandcurrents.noaa.gov/mdapi/prod/webapi/tidepredstations.json?lat=" + str(lat) + "&lon=" + str(lon) + "&radius=50"
     try:
-        station_data = requests.get(station_lookup_url, timeout=urlTimeoutSeconds)
+        station_data = requests.get(station_lookup_url, timeout=my_settings.urlTimeoutSeconds)
         if station_data.ok:
             station_json = station_data.json()
         else:
             logger.error("Location:Error fetching tide station table from NOAA")
-            return ERROR_FETCHING_DATA
+            return my_settings.ERROR_FETCHING_DATA
         
         if station_json['stationList'] == [] or station_json['stationList'] is None:
             logger.error("Location:No tide station found")
@@ -196,26 +197,26 @@ def get_NOAAtide(lat=0, lon=0):
 
     except (requests.exceptions.RequestException, json.JSONDecodeError):
         logger.error("Location:Error fetching tide station table from NOAA")
-        return ERROR_FETCHING_DATA
+        return my_settings.ERROR_FETCHING_DATA
     
     station_url = "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?date=today&time_zone=lst_ldt&datum=MLLW&product=predictions&interval=hilo&format=json&station=" + station_id
 
-    if use_metric:
+    if my_settings.use_metric:
         station_url += "&units=metric"
     else:
         station_url += "&units=english"
 
     try:
-        tide_data = requests.get(station_url, timeout=urlTimeoutSeconds)
+        tide_data = requests.get(station_url, timeout=my_settings.urlTimeoutSeconds)
         if tide_data.ok:
             tide_json = tide_data.json()
         else:
             logger.error("Location:Error fetching tide data from NOAA")
-            return ERROR_FETCHING_DATA
+            return my_settings.ERROR_FETCHING_DATA
 
     except (requests.exceptions.RequestException, json.JSONDecodeError):
         logger.error("Location:Error fetching tide data from NOAA")
-        return ERROR_FETCHING_DATA
+        return my_settings.ERROR_FETCHING_DATA
 
     tide_data = tide_json['predictions']
 
@@ -225,7 +226,7 @@ def get_NOAAtide(lat=0, lon=0):
     tide_table = "Tide Data for " + tide_date + "\n"
     for tide in tide_data:
         tide_time = tide['t'].split(" ")[1]
-        if not zuluTime:
+        if not my_settings.zuluTime:
             # convert to 12 hour clock
             if int(tide_time.split(":")[0]) > 12:
                 tide_time = str(int(tide_time.split(":")[0]) - 12) + ":" + tide_time.split(":")[1] + " PM"
@@ -242,11 +243,11 @@ def get_NOAAweather(lat=0, lon=0, unit=0):
     weather = ""
     location = lat,lon
     if float(lat) == 0 and float(lon) == 0:
-        lat = latitudeValue
-        lon = longitudeValue
+        lat = my_settings.latitudeValue
+        lon = my_settings.longitudeValue
     
     # get weather data from NOAA units for metric unit = 1 is metric
-    if use_metric:
+    if my_settings.use_metric:
         unit = 1
         logger.debug("Location: new API metric units not implemented yet")
         
@@ -254,29 +255,29 @@ def get_NOAAweather(lat=0, lon=0, unit=0):
     weather_api = "https://api.weather.gov/points/" + str(lat) + "," + str(lon)
     # extract the "forecast": property from the JSON response
     try:
-        weather_data = requests.get(weather_api, timeout=urlTimeoutSeconds)
+        weather_data = requests.get(weather_api, timeout=my_settings.urlTimeoutSeconds)
         if not weather_data.ok:
             logger.warning("Location:Error fetching weather data from NOAA for location")
-            return ERROR_FETCHING_DATA
+            return my_settings.ERROR_FETCHING_DATA
     except Exception:
         logger.warning(f"Location:Error fetching weather data error: {Exception}")
-        return ERROR_FETCHING_DATA
+        return my_settings.ERROR_FETCHING_DATA
     # get the forecast URL from the JSON response
     weather_json = weather_data.json()
     forecast_url = weather_json['properties']['forecast']
     try:
-        forecast_data = requests.get(forecast_url, timeout=urlTimeoutSeconds)
+        forecast_data = requests.get(forecast_url, timeout=my_settings.urlTimeoutSeconds)
         if not forecast_data.ok:
             logger.warning("Location:Error fetching weather forecast from NOAA")
-            return ERROR_FETCHING_DATA
+            return my_settings.ERROR_FETCHING_DATA
     except Exception:
         logger.warning(f"Location:Error fetching weather data error: {Exception}")
-        return ERROR_FETCHING_DATA
+        return my_settings.ERROR_FETCHING_DATA
     
     # from periods, get the detailedForecast from number of days in NOAAforecastDuration
     forecast_json = forecast_data.json()
     forecast = forecast_json['properties']['periods']
-    for day in forecast[:forecastDuration]:
+    for day in forecast[:my_settings.forecastDuration]:
         # abreviate the forecast
 
         weather += abbreviate_noaa(day['name']) + ": " + abbreviate_noaa(day['detailedForecast']) + "\n"
@@ -286,7 +287,7 @@ def get_NOAAweather(lat=0, lon=0, unit=0):
     # get any alerts and return the count
     alerts = getWeatherAlertsNOAA(lat, lon)
 
-    if alerts == ERROR_FETCHING_DATA or alerts == NO_DATA_NOGPS or alerts == NO_ALERTS:
+    if alerts == my_settings.ERROR_FETCHING_DATA or alerts == my_settings.NO_DATA_NOGPS or alerts == my_settings.NO_ALERTS:
         alert = ""
         alert_num = 0
     else:
@@ -395,36 +396,36 @@ def getWeatherAlertsNOAA(lat=0, lon=0, useDefaultLatLon=False):
     alerts = ""
     location = lat,lon
     if useDefaultLatLon:
-        lat = latitudeValue
-        lon = longitudeValue
+        lat = my_settings.latitudeValue
+        lon = my_settings.longitudeValue
     if float(lat) == 0 and float(lon) == 0 and not useDefaultLatLon:
-        return NO_DATA_NOGPS
+        return my_settings.NO_DATA_NOGPS
 
     alert_url = "https://api.weather.gov/alerts/active.atom?point=" + str(lat) + "," + str(lon)
     #alert_url = "https://api.weather.gov/alerts/active.atom?area=WA"
     #logger.debug("Location:Fetching weather alerts from NOAA for " + str(lat) + ", " + str(lon))
     
     try:
-        alert_data = requests.get(alert_url, timeout=urlTimeoutSeconds)
+        alert_data = requests.get(alert_url, timeout=my_settings.urlTimeoutSeconds)
         if not alert_data.ok:
             logger.warning("Location:Error fetching weather alerts from NOAA")
-            return ERROR_FETCHING_DATA
+            return my_settings.ERROR_FETCHING_DATA
     except Exception:
         logger.warning(f"Location:Error fetching weather data error: {Exception}")
-        return ERROR_FETCHING_DATA
+        return my_settings.ERROR_FETCHING_DATA
     
     alerts = ""
     alertxml = xml.dom.minidom.parseString(alert_data.text)
     for i in alertxml.getElementsByTagName("entry"):
         title = i.getElementsByTagName("title")[0].childNodes[0].nodeValue
         area_desc = i.getElementsByTagName("cap:areaDesc")[0].childNodes[0].nodeValue
-        if enableExtraLocationWx:
+        if my_settings.enableExtraLocationWx:
             alerts += f"{title}. {area_desc.replace(' ', '')}\n"
         else:
             alerts += f"{title}\n"
 
     if alerts == "" or alerts == None:
-        return NO_ALERTS
+        return my_settings.NO_ALERTS
 
     # trim off last newline
     if alerts[-1] == "\n":
@@ -437,23 +438,23 @@ def getWeatherAlertsNOAA(lat=0, lon=0, useDefaultLatLon=False):
     alerts = abbreviate_noaa(alerts)
 
     # return the first ALERT_COUNT alerts
-    data = "\n".join(alerts.split("\n")[:numWxAlerts]), alert_num
+    data = "\n".join(alerts.split("\n")[:my_settings.numWxAlerts]), alert_num
     return data
 
 wxAlertCacheNOAA = ""
 def alertBrodcastNOAA():
     # get the latest weather alerts and broadcast them if there are any
     global wxAlertCacheNOAA
-    currentAlert = getWeatherAlertsNOAA(latitudeValue, longitudeValue)
+    currentAlert = getWeatherAlertsNOAA(my_settings.latitudeValue, my_settings.longitudeValue)
     # check if any reason to discard the alerts
-    if currentAlert == ERROR_FETCHING_DATA or currentAlert == NO_DATA_NOGPS:
+    if currentAlert == my_settings.ERROR_FETCHING_DATA or currentAlert == my_settings.NO_DATA_NOGPS:
         return False
-    elif currentAlert == NO_ALERTS:
+    elif currentAlert == my_settings.NO_ALERTS:
         wxAlertCacheNOAA = ""
         return False
-    if ignoreEASenable:
+    if my_settings.ignoreEASenable:
         # check if the alert is in the ignoreEAS list
-        for word in ignoreEASwords:
+        for word in my_settings.ignoreEASwords:
             if word.lower() in currentAlert[0].lower():
                 logger.debug(f"Location:Ignoring NOAA Alert: {currentAlert[0]} containing {word}")
                 return False
@@ -471,21 +472,21 @@ def getActiveWeatherAlertsDetailNOAA(lat=0, lon=0):
     alerts = ""
     location = lat,lon
     if float(lat) == 0 and float(lon) == 0:
-        lat = latitudeValue
-        lon = longitudeValue
+        lat = my_settings.latitudeValue
+        lon = my_settings.longitudeValue
 
     alert_url = "https://api.weather.gov/alerts/active.atom?point=" + str(lat) + "," + str(lon)
     #alert_url = "https://api.weather.gov/alerts/active.atom?area=WA"
     #logger.debug("Location:Fetching weather alerts detailed from NOAA for " + str(lat) + ", " + str(lon))
     
     try:
-        alert_data = requests.get(alert_url, timeout=urlTimeoutSeconds)
+        alert_data = requests.get(alert_url, timeout=my_settings.urlTimeoutSeconds)
         if not alert_data.ok:
             logger.warning("Location:Error fetching weather alerts from NOAA")
-            return ERROR_FETCHING_DATA
+            return my_settings.ERROR_FETCHING_DATA
     except Exception:
         logger.warning(f"Location:Error fetching weather data error: {Exception}")
-        return ERROR_FETCHING_DATA
+        return my_settings.ERROR_FETCHING_DATA
     
     alerts = ""
     alertxml = xml.dom.minidom.parseString(alert_data.text)
@@ -505,10 +506,10 @@ def getActiveWeatherAlertsDetailNOAA(lat=0, lon=0):
     alerts = abbreviate_noaa(alerts)
 
     # trim the alerts to the first ALERT_COUNT
-    alerts = alerts.split("\n***\n")[:numWxAlerts]
+    alerts = alerts.split("\n***\n")[:my_settings.numWxAlerts]
     
     if alerts == "" or alerts == ['']:
-        return NO_ALERTS
+        return my_settings.NO_ALERTS
 
     # trim off last newline
     if alerts[-1] == "\n":
@@ -530,13 +531,13 @@ def getIpawsAlert(lat=0, lon=0, shortAlerts = False):
 
     # get the alerts from FEMA
     try:
-        alert_data = requests.get(alert_url, timeout=urlTimeoutSeconds)
+        alert_data = requests.get(alert_url, timeout=my_settings.urlTimeoutSeconds)
         if not alert_data.ok:
             logger.warning(f"System: iPAWS fetching IPAWS alerts from FEMA (HTTP {alert_data.status_code})")
-            return ERROR_FETCHING_DATA
+            return my_settings.ERROR_FETCHING_DATA
     except Exception as e:
         logger.warning(f"System: iPAWS fetching IPAWS alerts from FEMA failed: {e}")
-        return ERROR_FETCHING_DATA
+        return my_settings.ERROR_FETCHING_DATA
     
     # main feed bulletins
     alertxml = xml.dom.minidom.parseString(alert_data.text)
@@ -558,13 +559,13 @@ def getIpawsAlert(lat=0, lon=0, shortAlerts = False):
             continue
 
         # check if it matches your list
-        if stateFips not in myStateFIPSList:
-            #logger.debug(f"Skipping FEMA record link {link} with stateFIPS code of: {stateFips} because it doesn't match our StateFIPSList {myStateFIPSList}")
+        if stateFips not in my_settings.myStateFIPSList:
+            #logger.debug(f"Skipping FEMA record link {link} with stateFIPS code of: {stateFips} because it doesn't match our StateFIPSList {my_settings.myStateFIPSList}")
             continue  # skip to next entry
 
         try:
             # get the linked alert data from FEMA
-            linked_data = requests.get(link, timeout=urlTimeoutSeconds)
+            linked_data = requests.get(link, timeout=my_settings.urlTimeoutSeconds)
             if not linked_data.ok or not linked_data.text.strip():
                 # if the linked data is not ok, skip this alert
                 #logger.warning(f"System: iPAWS Error fetching linked alert data from {link}")
@@ -616,14 +617,14 @@ def getIpawsAlert(lat=0, lon=0, shortAlerts = False):
                 continue
 
              # check if the alert is for the SAME location, if wanted keep alert
-            if (sameVal in mySAMEList) or (geocode_value in mySAMEList) or mySAMEList == ['']:
+            if (sameVal in my_settings.mySAMEList) or (geocode_value in my_settings.mySAMEList) or my_settings.mySAMEList == ['']:
                 ignore_alert = False
-                if ignoreFEMAenable:
+                if my_settings.ignoreFEMAenable:
                     ignore_alert = any(
                         word.lower() in headline.lower()
-                        for word in ignoreFEMAwords)
+                        for word in my_settings.ignoreFEMAwords)
                     if ignore_alert:
-                        logger.debug(f"System: Filtering FEMA Alert by WORD: {headline} containing one of {ignoreFEMAwords} at {areaDesc}")
+                        logger.debug(f"System: Filtering FEMA Alert by WORD: {headline} containing one of {my_settings.ignoreFEMAwords} at {areaDesc}")
                 if ignore_alert:
                     continue
 
@@ -643,16 +644,16 @@ def getIpawsAlert(lat=0, lon=0, shortAlerts = False):
 
     # return the numWxAlerts of alerts
     if len(alerts) > 0:
-        for alertItem in alerts[:numWxAlerts]:
+        for alertItem in alerts[:my_settings.numWxAlerts]:
             if shortAlerts:
                 alert += abbreviate_noaa(f"🚨FEMA Alert: {alertItem['headline']}")
             else:
                 alert += abbreviate_noaa(f"🚨FEMA Alert: {alertItem['headline']}\n{alertItem['description']}")
             # add a newline if not the last alert    
-            if alertItem != alerts[:numWxAlerts][-1]:
+            if alertItem != alerts[:my_settings.numWxAlerts][-1]:
                 alert += "\n"
     else:
-        alert = NO_ALERTS
+        alert = my_settings.NO_ALERTS
 
     return alert
 
@@ -665,22 +666,22 @@ def get_flood_noaa(lat=0, lon=0, uid=None):
     headers = {'accept': 'application/json'}
     if not uid:
         logger.warning(f"Location:No flood gauge data found for UID {uid}")
-        return ERROR_FETCHING_DATA
+        return my_settings.ERROR_FETCHING_DATA
     try:
-        response = requests.get(api_url + str(uid), headers=headers, timeout=urlTimeoutSeconds)
+        response = requests.get(api_url + str(uid), headers=headers, timeout=my_settings.urlTimeoutSeconds)
         if not response.ok:
             logger.warning(f"Location:Error fetching flood gauge data from NOAA for {uid} (HTTP {response.status_code})")
-            return ERROR_FETCHING_DATA
+            return my_settings.ERROR_FETCHING_DATA
         data = response.json()
         if not data or 'status' not in data:
             logger.warning(f"Location:No flood gauge data found for UID {uid}")
             return "No flood gauge data found"
     except requests.exceptions.RequestException as e:
         logger.warning(f"Location:Error fetching flood gauge data from: {api_url}{uid} ({e})")
-        return ERROR_FETCHING_DATA
+        return my_settings.ERROR_FETCHING_DATA
     except Exception as e:
         logger.warning(f"Location:Unexpected error: {e}")
-        return ERROR_FETCHING_DATA
+        return my_settings.ERROR_FETCHING_DATA
 
     # extract values from JSON safely
     try:
@@ -696,35 +697,35 @@ def get_flood_noaa(lat=0, lon=0, uid=None):
         return flood_data
     except Exception as e:
         logger.debug(f"Location:Error extracting flood gauge data from NOAA for {uid}: {e}")
-        return ERROR_FETCHING_DATA
+        return my_settings.ERROR_FETCHING_DATA
 
 def get_volcano_usgs(lat=0, lon=0):
     alerts = ''
     if lat == 0 and lon == 0:
-        lat = latitudeValue
-        lon = longitudeValue
+        lat = my_settings.latitudeValue
+        lon = my_settings.longitudeValue
     # get the latest volcano alert from USGS from CAP feed
     usgs_volcano_url = "https://volcanoes.usgs.gov/hans-public/api/volcano/getCapElevated"
     try:
-        volcano_data = requests.get(usgs_volcano_url, timeout=urlTimeoutSeconds)
+        volcano_data = requests.get(usgs_volcano_url, timeout=my_settings.urlTimeoutSeconds)
         if not volcano_data.ok:
             logger.warning("System: Issue with fetching volcano alerts from USGS")
-            return ERROR_FETCHING_DATA
+            return my_settings.ERROR_FETCHING_DATA
     except (requests.exceptions.RequestException):
         logger.warning("System: Issue with fetching volcano alerts from USGS")
-        return ERROR_FETCHING_DATA
+        return my_settings.ERROR_FETCHING_DATA
     volcano_json = volcano_data.json()
     # extract alerts from main feed
     if volcano_json and isinstance(volcano_json, list):
         for alert in volcano_json:
             # check ignore list
-            if ignoreUSGSEnable:
-                for word in ignoreUSGSwords:
+            if my_settings.ignoreUSGSEnable:
+                for word in my_settings.ignoreUSGSwords:
                     if word.lower() in alert['volcano_name_appended'].lower():
                         logger.debug(f"System: Ignoring USGS Alert: {alert['volcano_name_appended']} containing {word}")
                         continue
             # check if the alert lat long is within the range of bot latitudeValue and longitudeValue
-            if (alert['latitude'] >= latitudeValue - 10 and alert['latitude'] <= latitudeValue + 10) and (alert['longitude'] >= longitudeValue - 10 and alert['longitude'] <= longitudeValue + 10):
+            if (alert['latitude'] >= my_settings.latitudeValue - 10 and alert['latitude'] <= my_settings.latitudeValue + 10) and (alert['longitude'] >= my_settings.longitudeValue - 10 and alert['longitude'] <= my_settings.longitudeValue + 10):
                 volcano_name = alert['volcano_name_appended']
                 alert_level = alert['alert_level']
                 color_code = alert['color_code']
@@ -737,9 +738,9 @@ def get_volcano_usgs(lat=0, lon=0):
                 continue
     else:
         logger.debug("Location:Error fetching volcano data from USGS")
-        return NO_ALERTS
+        return my_settings.NO_ALERTS
     if alerts == "":
-        return NO_ALERTS
+        return my_settings.NO_ALERTS
     # trim off last newline
     if alerts[-1] == "\n":
         alerts = alerts[:-1]
@@ -750,13 +751,13 @@ def get_volcano_usgs(lat=0, lon=0):
 def get_nws_marine(zone, days=3):
     # forecast from NWS coastal products
     try:
-        marine_pz_data = requests.get(zone, timeout=urlTimeoutSeconds)
+        marine_pz_data = requests.get(zone, timeout=my_settings.urlTimeoutSeconds)
         if not marine_pz_data.ok:
             logger.warning(f"Location:Error fetching NWS Marine data (HTTP {marine_pz_data.status_code})")
-            return ERROR_FETCHING_DATA
+            return my_settings.ERROR_FETCHING_DATA
     except requests.exceptions.RequestException as e:
         logger.warning(f"Location:Error fetching NWS Marine data: {e}")
-        return ERROR_FETCHING_DATA
+        return my_settings.ERROR_FETCHING_DATA
 
     marine_pz_data = marine_pz_data.text
     todayDate = datetime.now().strftime("%Y%m%d")
@@ -766,13 +767,13 @@ def get_nws_marine(zone, days=3):
             expires_date = expires[:8]
             if expires_date < todayDate:
                 logger.debug("Location: NWS Marine PZ data expired")
-                return ERROR_FETCHING_DATA
+                return my_settings.ERROR_FETCHING_DATA
         except Exception as e:
             logger.debug(f"Location: NWS Marine PZ data parse error: {e}")
-            return ERROR_FETCHING_DATA
+            return my_settings.ERROR_FETCHING_DATA
     else:
         logger.debug("Location: NWS Marine PZ data not valid or empty")
-        return ERROR_FETCHING_DATA
+        return my_settings.ERROR_FETCHING_DATA
     
     # process the marine forecast data
     marine_pzz_lines = marine_pz_data.split("\n")
@@ -794,7 +795,7 @@ def get_nws_marine(zone, days=3):
         day_blocks.append(current_block.strip())
 
     # Only keep up to pzDays blocks
-    for block in day_blocks[:days]:
+    for block in day_blocks[:my_settings.coastalForecastDays]:
         marine_pz_report += block + "\n"
 
     # remove last newline
@@ -808,13 +809,13 @@ def get_nws_marine(zone, days=3):
     # abbreviate the report
     marine_pz_report = abbreviate_noaa(marine_pz_report)
     if marine_pz_report == "":
-        return NO_DATA_NOGPS
+        return my_settings.NO_DATA_NOGPS
     return marine_pz_report
 
 def checkUSGSEarthQuake(lat=0, lon=0):
     if lat == 0 and lon == 0:
-        lat = latitudeValue
-        lon = longitudeValue
+        lat = my_settings.latitudeValue
+        lon = my_settings.longitudeValue
     radius = 100 # km
     magnitude = 1.5
     history = 7 # days
@@ -824,20 +825,20 @@ def checkUSGSEarthQuake(lat=0, lon=0):
     quake_count = 0
     # fetch the earthquake data from USGS
     try:
-        quake_data = requests.get(USGSquake_url, timeout=urlTimeoutSeconds)
+        quake_data = requests.get(USGSquake_url, timeout=my_settings.urlTimeoutSeconds)
         if not quake_data.ok:
             logger.warning("Location:Error fetching earthquake data from USGS")
-            return NO_ALERTS
+            return my_settings.NO_ALERTS
         if not quake_data.text.strip():
-            return NO_ALERTS
+            return my_settings.NO_ALERTS
         try:
             quake_xml = xml.dom.minidom.parseString(quake_data.text)
         except Exception as e:
             logger.warning(f"Location: USGS earthquake API returned invalid XML: {e}")
-            return NO_ALERTS
+            return my_settings.NO_ALERTS
     except (requests.exceptions.RequestException):
         logger.warning("Location:Error fetching earthquake data from USGS")
-        return NO_ALERTS
+        return my_settings.NO_ALERTS
 
     quake_xml = xml.dom.minidom.parseString(quake_data.text)
     quake_count = len(quake_xml.getElementsByTagName("event"))
@@ -853,7 +854,7 @@ def checkUSGSEarthQuake(lat=0, lon=0):
             description_text = event.getElementsByTagName("description")[0].getElementsByTagName("text")[0].childNodes[0].nodeValue
     largest_mag = round(largest_mag, 1)
     if quake_count == 0:
-        return NO_ALERTS
+        return my_settings.NO_ALERTS
     else:
         return f"{quake_count} 🫨quakes in last {history} days within {radius} km. Largest: {largest_mag}M\n{description_text}"
 
@@ -867,7 +868,7 @@ def distance(lat=0,lon=0,nodeID=0, reset=False):
     r = 6371 # Radius of earth in kilometers # haversine formula
     
     if lat == 0 and lon == 0:
-        return NO_DATA_NOGPS
+        return my_settings.NO_DATA_NOGPS
     if nodeID == 0:
         return "No NodeID provided"
     
@@ -899,7 +900,7 @@ def distance(lat=0,lon=0,nodeID=0, reset=False):
         c = 2 * math.asin(math.sqrt(a))
 
         distance_km = c * r
-        if use_metric:
+        if my_settings.use_metric:
             msg += f"{distance_km:.2f} km"
         else:
             distance_miles = distance_km * 0.621371
@@ -917,7 +918,7 @@ def distance(lat=0,lon=0,nodeID=0, reset=False):
         time_diff = datetime.now() - last_point['time']
         if time_diff.total_seconds() > 60:
             hours = time_diff.total_seconds() / 3600
-            if use_metric:
+            if my_settings.use_metric:
                 speed = distance_km / hours
                 speed_str = f"{speed:.2f} km/h"
             else:
@@ -941,7 +942,7 @@ def distance(lat=0,lon=0,nodeID=0, reset=False):
             total_distance_km += c * r
         # add the distance from last point to current point
         total_distance_km += distance_km
-        if use_metric:
+        if my_settings.use_metric:
             msg += f", Total: {total_distance_km:.2f} km"
         else:
             total_distance_miles = total_distance_km * 0.621371
@@ -974,7 +975,7 @@ def distance(lat=0,lon=0,nodeID=0, reset=False):
             area = area * (6378137 ** 2) / 2.0
             area = abs(area) / 1e6 # convert to square kilometers
 
-            if use_metric:
+            if my_settings.use_metric:
                 msg += f", Area: {area:.2f} sq.km (approx)"
             else:
                 area_miles = area * 0.386102
@@ -1006,7 +1007,7 @@ def distance(lat=0,lon=0,nodeID=0, reset=False):
 def get_openskynetwork(lat=0, lon=0):
     # get the latest aircraft data from OpenSky Network in the area
     if lat == 0 and lon == 0:
-        return NO_ALERTS
+        return my_settings.NO_ALERTS
     # setup a bounding box of 50km around the lat/lon
     box_size = 0.45 # approx 50km
     # return limits for aircraft search
@@ -1019,16 +1020,16 @@ def get_openskynetwork(lat=0, lon=0):
     # fetch the aircraft data from OpenSky Network
     opensky_url = f"https://opensky-network.org/api/states/all?lamin={lamin}&lomin={lomin}&lamax={lamax}&lomax={lomax}"
     try:
-        aircraft_data = requests.get(opensky_url, timeout=urlTimeoutSeconds)
+        aircraft_data = requests.get(opensky_url, timeout=my_settings.urlTimeoutSeconds)
         if not aircraft_data.ok:
             logger.warning("Location:Error fetching aircraft data from OpenSky Network")
-            return ERROR_FETCHING_DATA
+            return my_settings.ERROR_FETCHING_DATA
     except (requests.exceptions.RequestException):
         logger.warning("Location:Error fetching aircraft data from OpenSky Network")
-        return ERROR_FETCHING_DATA
+        return my_settings.ERROR_FETCHING_DATA
     aircraft_json = aircraft_data.json()
     if 'states' not in aircraft_json or not aircraft_json['states']:
-        return NO_ALERTS
+        return my_settings.NO_ALERTS
     aircraft_list = aircraft_json['states']
     aircraft_report = ""
     for aircraft in aircraft_list:
@@ -1055,7 +1056,7 @@ def get_openskynetwork(lat=0, lon=0):
     if aircraft_report.endswith("\n"):
         aircraft_report = aircraft_report[:-1]
     aircraft_report = abbreviate_noaa(aircraft_report)
-    return aircraft_report if aircraft_report else NO_ALERTS
+    return aircraft_report if aircraft_report else my_settings.NO_ALERTS
 
 def log_locationData_toMap(userID, location, message):
     """

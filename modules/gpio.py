@@ -7,7 +7,7 @@
 # https://pythonhosted.org/RPIO/
 import RPIO
 
-from modules.log import *
+from modules.log import logger, getPrettyTime
 trap_list_gpio = ("gpio", "pin", "relay", "switch", "pwm")
 
 # set up input channel without pull-up

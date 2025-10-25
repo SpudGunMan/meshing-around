@@ -3,7 +3,7 @@
 import random
 import time
 import pickle
-from modules.log import *
+from modules.log import logger, getPrettyTime
 
 vpStartingCash = 20
 # Define the Card class

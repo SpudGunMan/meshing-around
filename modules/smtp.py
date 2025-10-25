@@ -3,7 +3,12 @@
 # https://avtech.com/articles/138/list-of-email-to-sms-addresses/
 # 2024 Kelly Keeton K7MHI
 
-from modules.log import *
+from modules.log import logger
+from modules.settings import (
+    SMTP_SERVER, SMTP_PORT, SMTP_AUTH, SMTP_USERNAME, SMTP_PASSWORD,
+    FROM_EMAIL, EMAIL_SUBJECT, enableImap, IMAP_SERVER, IMAP_PORT,
+    IMAP_USERNAME, IMAP_PASSWORD, IMAP_FOLDER, sysopEmails, bbs_ban_list
+)
 import pickle
 import time
 import smtplib

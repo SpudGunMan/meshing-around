@@ -1,5 +1,5 @@
 # Written for Meshtastic mesh-bot by ZR1RF Johannes le Roux 2025
-from modules.log import *
+from modules.log import logger, getPrettyTime
 import os
 import json
 import random

@@ -13,7 +13,8 @@ import os # For file operations
 import csv
 from datetime import datetime
 from collections import Counter
-from modules.log import *
+from modules.log import logger
+from modules.settings import surveyRecordLocation, surveyRecordID
 
 allowedSurveys = []  # List of allowed survey names
 

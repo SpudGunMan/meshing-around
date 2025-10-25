@@ -6,8 +6,8 @@ from random import randrange, uniform # random numbers
 from types import SimpleNamespace     # namespaces support
 import pickle                         # pickle file support
 import time                           # time functions
-from modules.log import *             # mesh-bot logging
-
+from modules.log import logger        # mesh-bot logging
+from modules.system import lemonadeTracker # player tracking
 import locale # culture specific locale
 import math   # math functions
 import re     # regular expressions

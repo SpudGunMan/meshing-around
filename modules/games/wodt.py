@@ -1,6 +1,6 @@
 # python word of the day game module for meshing-around bot
 # 2025 K7MHI Kelly Keeton
-from modules.log import *
+from modules.log import logger, getPrettyTime
 import random
 import json
 import os

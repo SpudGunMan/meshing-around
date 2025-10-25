@@ -3,7 +3,8 @@
 
 import os
 import sqlite3
-from modules.log import *
+from modules.log import logger
+from modules.settings import qrz_db
 
 def initalize_qrz_database():
     try:

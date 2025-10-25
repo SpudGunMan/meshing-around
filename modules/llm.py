@@ -2,7 +2,8 @@
 # LLM Module for meshing-around
 # This module is used to interact with LLM API to generate responses to user input
 # K7MHI Kelly Keeton 2024
-from modules.log import *
+from modules.log import logger
+from modules.settings import llmModel, ollamaHostName, rawLLMQuery
 
 # Ollama Client
 # https://github.com/ollama/ollama/blob/main/docs/faq.md#how-do-i-configure-ollama-server

@@ -11,7 +11,8 @@
 import json
 import os
 import random
-from modules.log import *
+from modules.log import logger
+from modules.settings import bbs_admin_list
 
 QUIZ_JSON = os.path.join(os.path.dirname(__file__), '../', '../', 'data', 'quiz_questions.json')
 QUIZMASTER_ID = bbs_admin_list

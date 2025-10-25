@@ -2,7 +2,8 @@
 # K7MHI Kelly Keeton 2024
 
 import pickle # pip install pickle
-from modules.log import *
+from modules.log import logger
+from modules.settings import bbs_admin_list, bbs_ban_list, MESSAGE_CHUNK_SIZE, bbs_link_enabled, bbs_link_whitelist, responseDelay
 import time
 from datetime import datetime
 

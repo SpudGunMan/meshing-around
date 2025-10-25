@@ -1,5 +1,6 @@
 # rss feed module for meshing-around 2025
-from modules.log import *
+from modules.log import logger
+from modules.settings import rssFeedURL, rssFeedNames, rssMaxItems, rssTruncate, urlTimeoutSeconds, ERROR_FETCHING_DATA
 import urllib.request
 import xml.etree.ElementTree as ET
 import html

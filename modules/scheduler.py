@@ -3,6 +3,7 @@
 import asyncio
 import schedule
 from modules.log import logger
+from modules.settings import MOTD
 from modules.system import send_message
 
 async def setup_scheduler(

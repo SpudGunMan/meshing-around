@@ -2,7 +2,8 @@
 # Adapted for Meshtastic mesh-bot by K7MHI Kelly Keeton 2024
 
 from random import choices, shuffle
-from modules.log import *
+from modules.log import logger
+from modules.settings import jackTracker
 import time
 import pickle
 

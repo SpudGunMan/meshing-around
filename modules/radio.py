@@ -5,8 +5,25 @@
 # requires vosk and sounddevice python modules. will auto download needed. more from https://alphacephei.com/vosk/models and unpack
 # 2024 Kelly Keeton K7MHI
 
-from modules.log import *
+from modules.log import logger
 import asyncio
+from modules.settings import (
+    radio_detection_enabled,
+    rigControlServerAddress,
+    signalDetectionThreshold,
+    signalHoldTime,
+    signalCooldown,
+    signalCycleLimit,
+    voxDetectionEnabled,
+    useLocalVoxModel,
+    localVoxModelPath,
+    voxLanguage,
+    voxInputDevice,
+    voxTrapList,
+    voxOnTrapList,
+    voxEnableCmd,
+    ERROR_FETCHING_DATA
+)
 
 # verbose debug logging for trap words function
 debugVoxTmsg = False

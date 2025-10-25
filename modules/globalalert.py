@@ -2,12 +2,13 @@
 # K7MHI Kelly Keeton 2024
 
 import json # pip install json
-from geopy.geocoders import Nominatim # pip install geopy
-import maidenhead as mh # pip install maidenhead
+#from geopy.geocoders import Nominatim # pip install geopy
+#import maidenhead as mh # pip install maidenhead
 import requests # pip install requests
 import bs4 as bs # pip install beautifulsoup4
-import xml.dom.minidom 
-from modules.log import *
+#import xml.dom.minidom 
+from modules.log import logger
+from modules.settings import urlTimeoutSeconds, NO_ALERTS, myRegionalKeysDE
 
 trap_list_location_eu = ("ukalert", "ukwx", "ukflood")
 trap_list_location_de = ("dealert", "dewx", "deflood")
@@ -22,7 +23,7 @@ def get_govUK_alerts(lat, lon):
         alert = soup.find('h2', class_='govuk-heading-m', id='alert-status')
     except Exception as e:
         logger.warning("Error getting UK alerts: " + str(e))
-        return NO_ALERTS
+        return 
     
     if alert:
         return "🚨" + alert.get_text(strip=True)

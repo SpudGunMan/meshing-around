@@ -12,7 +12,8 @@ import base64
 import contextlib # for suppressing output on watchdog
 import io # for suppressing output on watchdog
 # homebrew 'modules'
-from modules.log import *
+from modules.settings import *
+from modules.log import logger, getPrettyTime, CustomFormatter
 
 # Global Variables
 trap_list = ("cmd","cmd?","bannode",) # base commands

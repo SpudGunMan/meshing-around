@@ -1,13 +1,13 @@
 # Tic-Tac-Toe game for Meshtastic mesh-bot
 # Board positions chosen by numbers 1-9
 # 2025
-from modules.log import *
 import random
 import time
+import modules.settings as my_settings
 
 # to (max), molly and jake, I miss you both so much.
 
-if disable_emojis_in_games:
+if my_settings.disable_emojis_in_games:
     X = "X"
     O = "O"
 else:
@@ -65,7 +65,7 @@ class TicTacToe:
             row = ""
             for j in range(3):
                 pos = i * 3 + j
-                if disable_emojis_in_games:
+                if my_settings.disable_emojis_in_games:
                     cell = b[pos] if b[pos] != " " else str(pos + 1)
                 else:
                     cell = b[pos] if b[pos] != " " else f" {str(pos + 1)} "
@@ -74,7 +74,6 @@ class TicTacToe:
                     row += " | "
             board_str += row
             if i < 2:
-                #board_str += "\n-+-+-\n"
                 board_str += "\n"
         
         return board_str + "\n"

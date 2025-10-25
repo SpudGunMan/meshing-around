@@ -1,7 +1,17 @@
 # File monitor module for the meshing-around bot
 # 2024 Kelly Keeton K7MHI
 
-from modules.log import *
+from modules.log import logger
+from modules.settings import (
+    file_monitor_file_path,
+    news_file_path,
+    news_random_line_only,
+    allowXcmd,
+    bbs_admin_list,
+    xCmd2factorEnabled,
+    xCmd2factor_timeout,
+    enable_runShellCmd
+    )
 import asyncio
 import random
 import os

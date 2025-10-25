@@ -12,7 +12,8 @@ import asyncio
 import time # for sleep, get some when you can :)
 from datetime import datetime
 import random
-from modules.log import *
+from modules.log import logger, CustomFormatter, msgLogger
+import modules.settings as my_settings
 from modules.system import *
 
 # Global Variables

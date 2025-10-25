@@ -1,6 +1,8 @@
 # meshbot wiki module
 
-from modules.log import *
+from modules.log import logger
+from modules.settings import (use_kiwix_server, kiwix_url, kiwix_library_name,
+                              urlTimeoutSeconds, wiki_return_limit, ERROR_FETCHING_DATA)
 #import wikipedia # pip install wikipedia
 import requests
 import bs4 as bs

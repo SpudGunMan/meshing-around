@@ -3,7 +3,8 @@
 
 import requests
 import json
-from modules.log import *
+from modules.log import logger
+from modules.settings import ERROR_FETCHING_DATA
 
 def get_weather_data(api_url, params):
     response = requests.get(api_url, params=params)

@@ -12,7 +12,7 @@ Game Rules:
 """
 
 import pickle
-from modules.log import *
+from modules.log import logger, getPrettyTime
 from datetime import datetime, timedelta
 from geopy.distance import geodesic
 

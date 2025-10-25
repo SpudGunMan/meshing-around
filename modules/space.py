@@ -7,7 +7,10 @@ import xml.dom.minidom
 from datetime import datetime
 import ephem # pip install pyephem
 from datetime import timezone
-from modules.log import *
+from modules.log import logger, getPrettyTime
+from modules.settings import (latitudeValue, longitudeValue, zuluTime,
+                              n2yoAPIKey, urlTimeoutSeconds, use_metric,
+                              ERROR_FETCHING_DATA, NO_DATA_NOGPS, NO_ALERTS)
 import math
 
 trap_list_solarconditions = ("sun", "moon", "solar", "hfcond", "satpass", "howtall")

@@ -1,18 +1,22 @@
 # test_bot.py
 # Unit tests for various modules in the meshing-around project
-import unittest
 import os
 import sys
+
+# Add the parent directory to sys.path to allow module imports
+parent_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, parent_path)
+
+import unittest
 import importlib
 import pkgutil
 import warnings
+from modules.log import logger
+from modules.settings import latitudeValue, longitudeValue
 # Suppress ResourceWarning warnings for asyncio unclosed event  here
 warnings.filterwarnings("ignore", category=ResourceWarning)
 
 
-# Add the parent directory to sys.path to allow module imports
-parent_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.append(parent_path)
 modules_path = os.path.join(parent_path, 'modules')
 
 # Limits API calls during testing
@@ -31,7 +35,7 @@ available_modules = [
 
 try:
     print("\nImporting Core Modules:")
-    from modules.log import *
+    from modules.log import logger, getPrettyTime
     print("  ✔ Imported 'log'")
     # Set location default
     lat = latitudeValue

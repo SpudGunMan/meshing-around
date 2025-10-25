@@ -14,8 +14,10 @@ print("---------------------------------------------------------------")
 try:
     # set the path to import the modules and config.ini
     sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-    from modules.log import *
-    from modules.bbstools import *
+    from modules.log import logger
+    from modules.bbstools import bbs_post_dm, bbs_dm, get_bbs_stats
+    from modules.settings import LOGGING_LEVEL, vpTracker, MOTD
+    logger.setLevel(LOGGING_LEVEL)
 except Exception as e:
     print(f"Error importing modules run this program from the main program directory 'python3 script/injectDM.py'")
     exit(1)

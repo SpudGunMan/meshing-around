@@ -4,7 +4,7 @@
 import random
 import time
 import pickle
-from modules.log import *
+from modules.log import logger
 
 # Global variables
 total_days = 7 # number of days or rotations the player has to play

@@ -2,7 +2,8 @@
 # K7MHI Kelly Keeton 2024
 
 import sqlite3
-from modules.log import *
+from modules.log import logger
+from modules.settings import checklist_db, reverse_in_out, bbs_ban_list
 import time
 
 trap_list_checklist = ("checkin", "checkout", "checklist", "purgein", "purgeout")

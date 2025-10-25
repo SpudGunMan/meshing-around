@@ -9,7 +9,7 @@
 import json
 import random
 import os
-from modules.log import *
+from modules.log import logger
 
 class HamTest:
     def __init__(self):

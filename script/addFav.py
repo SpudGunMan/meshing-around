@@ -34,8 +34,10 @@ print("---------------------------------------------------------------")
 try:
     # set the path to import the modules and config.ini
     sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-    from modules.log import *
-    from modules.system import *
+    from modules.log import logger, getPrettyTime
+    from modules.system import handleFavoriteNode
+    from modules.settings import LOGGING_LEVEL
+    from modules.system import compileFavoriteList
 except Exception as e:
     print(f"Error importing modules run this program from the main repo directory 'python3 script/addFav.py'")
     print(f"if you forgot the rest of it.. git clone https://github.com/spudgunman/meshing-around")

@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 # Meshtastic Autoresponder MESH Bot
 # K7MHI Kelly Keeton 2025
-
 try:
     from pubsub import pub
 except ImportError:
@@ -12,7 +11,8 @@ import asyncio
 import time # for sleep, get some when you can :)
 import random
 from datetime import datetime
-from modules.log import *
+from modules.log import logger, CustomFormatter, msgLogger
+import modules.settings as my_settings
 from modules.system import *
 
 # list of commands to remove from the default list for DM only
@@ -358,16 +358,15 @@ def handle_emergency(message_from_id, deviceID, message):
         return EMERGENCY_RESPONSE
 
 def handle_motd(message, message_from_id, isDM):
-    global MOTD
-    msg = MOTD
+    msg = my_settings.MOTD
     isAdmin = isNodeAdmin(message_from_id)
     if  "?" in message:
         msg = "Message of the day, set with 'motd $ HelloWorld!'"
     elif "$" in message and isAdmin:
-        motd = message.split("$")[1]
-        MOTD = motd.rstrip()
-        logger.debug(f"System: {message_from_id} temporarly changed MOTD: {MOTD}")
-        msg = "MOTD changed to: " + MOTD
+        my_settings.MOTD = message.split("$")[1]
+        my_settings.MOTD = my_settings.MOTD.rstrip()
+        logger.debug(f"System: {message_from_id} temporarly changed my_settings.MOTD: {my_settings.MOTD}")
+        msg = "my_settings.MOTD changed to: " + my_settings.MOTD
     return msg
 
 def handle_echo(message, message_from_id, deviceID, isDM, channel_number):
@@ -1879,8 +1878,8 @@ async def start_rx():
     if rssEnable:
         logger.debug(f"System: RSS Feed Reader Enabled for feeds: {rssFeedNames}")
     
-    if motd_enabled:
-        logger.debug(f"System: MOTD Enabled using {MOTD} scheduler:{schedulerMotd}")
+    if my_settings.MOTD_enabled:
+        logger.debug(f"System: MOTD Enabled using {my_settings.MOTD} scheduler:{my_settings.schedulerMOTD}")
     
     if sentry_enabled:
         logger.debug(f"System: Sentry Mode Enabled {sentry_radius}m radius reporting to channel:{secure_channel} requestLOC:{reqLocationEnabled}")
@@ -1958,8 +1957,18 @@ async def start_rx():
         # setup the scheduler
         from modules.scheduler import setup_scheduler
         await setup_scheduler(
-            schedulerMotd, MOTD, schedulerMessage, schedulerChannel, schedulerInterface,
-            schedulerValue, schedulerTime, schedulerInterval, logger, BroadcastScheduler
+            scheduler(
+                my_settings.MOTD,
+                my_settings.MOTD,
+                my_settings.schedulerMessage,
+                my_settings.schedulerChannel,
+                my_settings.schedulerInterface,
+                my_settings.schedulerValue,
+                my_settings.schedulerTime,
+                my_settings.schedulerInterval,
+                logger,
+                my_settings.BroadcastScheduler
+            )
         )
 
     # here we go loopty loo
