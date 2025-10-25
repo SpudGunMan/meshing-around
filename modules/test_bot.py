@@ -301,6 +301,20 @@ class TestBot(unittest.TestCase):
 
 
 
+    def test_hamtest_answer_one(self):
+        from games.hamtest import hamtest
+        user_id = "testuser"
+        # Start a new ham test game (default level: technician)
+        initial = hamtest.newGame(user_id)
+        print("Initial question:", initial)
+        # Answer the first question with 'A'
+        answer_msg = hamtest.answer(user_id, "A")
+        print("Answer response:", answer_msg)
+        self.assertIsInstance(initial, str)
+        self.assertIsInstance(answer_msg, str)
+
+
+
     ##### API Tests - Extended tests run only if CHECKALL is True #####
 
 
