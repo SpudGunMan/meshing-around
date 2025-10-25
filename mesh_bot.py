@@ -1950,7 +1950,6 @@ async def start_rx():
     
     if my_settings.logMetaStats:
         logger.debug("System: Logging Metadata Stats Enabled, leaderboard")
-        loadLeaderboard()
     
     if my_settings.enableSMTP:
         if my_settings.enableImap:
@@ -1983,6 +1982,7 @@ async def start_rx():
 
 
 # Initialize game trackers
+loadLeaderboard()
 gameTrackers = [
     (dwPlayerTracker, "DopeWars", handleDopeWars),
     (lemonadeTracker, "LemonadeStand", handleLemonade),

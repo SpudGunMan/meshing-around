@@ -516,6 +516,9 @@ async def start_rx():
         await asyncio.sleep(0.5)
         pass
 
+# Load the leaderboard data
+loadLeaderboard()
+
 # Hello World 
 async def main():
     tasks = []
