@@ -93,11 +93,6 @@ class TestBot(unittest.TestCase):
         response = send_ollama_query("Hello, Ollama!")
         self.assertIsInstance(response, str)
 
-    def test_where_am_i(self):
-        from locationdata import where_am_i
-        location = where_am_i(lat, lon)
-        self.assertIsInstance(location, str)
-
     def test_get_moon_phase(self):
         from space import get_moon
         phase = get_moon(lat, lon)
@@ -339,6 +334,11 @@ class TestBot(unittest.TestCase):
             from locationdata import get_NOAAweather
             weather = get_NOAAweather(lat, lon)
             self.assertIsInstance(weather, str)
+
+        def test_where_am_i(self):
+            from locationdata import where_am_i
+            location = where_am_i(lat, lon)
+            self.assertIsInstance(location, str)
 
         def test_getWeatherAlertsNOAA(self):
             from locationdata import getWeatherAlertsNOAA
