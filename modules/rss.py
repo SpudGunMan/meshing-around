@@ -6,6 +6,9 @@ import html
 from html.parser import HTMLParser
 import bs4 as bs
 
+# Common User-Agent for all RSS requests
+COMMON_USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
+
 class MLStripper(HTMLParser):
     def __init__(self):
         super().__init__()
@@ -54,7 +57,7 @@ def get_rss_feed(msg):
 
     try:
         logger.debug(f"Fetching RSS feed from {feed_url} from message '{msg}'")
-        agent = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'}
+        agent = {'User-Agent': COMMON_USER_AGENT}
         request = urllib.request.Request(feed_url, headers=agent)
         with urllib.request.urlopen(request, timeout=urlTimeoutSeconds) as response:
             xml_data = response.read()
@@ -63,7 +66,11 @@ def get_rss_feed(msg):
         items = root.findall('.//item')
         ns = None
         if not items:
-            # Try to find the namespace dynamically
+            # Try Atom <entry> elements (Reddit, etc.)
+            items = root.findall('.//{http://www.w3.org/2005/Atom}entry')
+            ns = 'http://www.w3.org/2005/Atom'
+        if not items:
+            # Try to find the namespace dynamically for RSS
             for elem in root.iter():
                 if elem.tag.endswith('item'):
                     ns_uri = elem.tag.split('}')[0].strip('{')
@@ -72,22 +79,30 @@ def get_rss_feed(msg):
                     break
         items = items[:RSS_RETURN_COUNT]
         if not items:
-            return "No RSS feed entries found."
+            logger.debug(f"No RSS or Atom feed entries found in feed xml_data: {xml_data[:500]}...")
+            return "No RSS or Atom feed entries found."
         formatted_entries = []
         for item in items:
-            if ns:
-                title = item.findtext(f'{{{ns}}}title', default='No title')
-                link = item.findtext(f'{{{ns}}}link', default=None)
-                description = item.findtext(f'{{{ns}}}description', default='No description')
-                pub_date = item.findtext(f'{{{ns}}}pubDate', default='No date')
+            if ns == 'http://www.w3.org/2005/Atom':
+                # Atom feed
+                title = item.findtext('{http://www.w3.org/2005/Atom}title', default='No title')
+                # Atom links are in <link href="..."/>
+                link_elem = item.find('{http://www.w3.org/2005/Atom}link')
+                link = link_elem.attrib.get('href') if link_elem is not None else None
+                # Atom content or summary
+                description = item.findtext('{http://www.w3.org/2005/Atom}content')
+                if not description:
+                    description = item.findtext('{http://www.w3.org/2005/Atom}summary', default='No description')
+                pub_date = item.findtext('{http://www.w3.org/2005/Atom}updated', default='No date')
             else:
+                # RSS feed
                 title = item.findtext('title', default='No title')
                 link = item.findtext('link', default=None)
                 description = item.findtext('description', default='No description')
                 pub_date = item.findtext('pubDate', default='No date')
 
             # Unescape HTML entities and strip tags
-            description = html.unescape(description)
+            description = html.unescape(description) if description else ""
             description = strip_tags(description)
             if len(description) > RSS_TRIM_LENGTH:
                 description = description[:RSS_TRIM_LENGTH - 3] + "..."

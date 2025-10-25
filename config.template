@@ -57,9 +57,9 @@ spaceWeather = True
 
 # enable or disable the RSS module, and truncate the story
 rssEnable = True
-rssFeedURL = http://www.hackaday.com/rss.xml,http://rss.slashdot.org/Slashdot/slashdotMain
+rssFeedURL = http://www.hackaday.com/rss.xml,http://rss.slashdot.org/Slashdot/slashdotMain,http://www.reddit.com/r/meshtastic/.rss
 # RSS feed names must match the order of the URLs above, default is used if no match
-rssFeedNames = default,slashdot
+rssFeedNames = default,slashdot,mesh
 rssMaxItems = 3
 rssTruncate = 100
 
