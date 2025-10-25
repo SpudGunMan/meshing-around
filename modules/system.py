@@ -1763,12 +1763,8 @@ def saveLeaderboard():
 def loadLeaderboard():
     global meshLeaderboard
     try:
-        initializeMeshLeaderboard()
-        defaults = meshLeaderboard.copy()
         with open('data/leaderboard.pkl', 'rb') as f:
-            loaded = pickle.load(f)
-        defaults.update(loaded)  # loaded values overwrite defaults
-        meshLeaderboard = defaults
+            meshLeaderboard = pickle.load(f)
         if logMetaStats:
             logger.debug("System: Mesh Leaderboard loaded from leaderboard.pkl")
     except FileNotFoundError:
