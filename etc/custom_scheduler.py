@@ -26,7 +26,7 @@ def setup_custom_schedules(send_message, tell_joke, welcome_message, handle_wxc,
     # Send MOTD every day at 1 PM
     #schedule.every().day.at("13:00").do(send_motd, send_message, MOTD, schedulerChannel, schedulerInterface)
     # Send bbslink message every 2 days at 10 AM
-    #schedule.every(2).days.at("10:00").do(send_bbslink, send_message, schedulerChannel, schedulerInterface)
+    #schedule.every(2).days.at("10:00").do(send_message("bbslink MeshBot looking for peers", schedulerChannel, 0, schedulerInterface))
 
 # Example task functions, modify as needed the channel and interface parameters default to schedulerChannel and schedulerInterface
 

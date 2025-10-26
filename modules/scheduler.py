@@ -132,7 +132,7 @@ def setup_scheduler(
             logger.debug(f"System: Starting the joke scheduler to send a joke every {schedulerIntervalInt} minutes on Device:{schedulerInterface} Channel:{schedulerChannel}")
         elif 'link' in schedulerValue:
             schedule.every(schedulerIntervalInt).hours.do(
-                partial(send_message, handle_satpass(schedulerInterface, 'link'), schedulerChannel, 0, schedulerInterface)
+                send_message("bbslink MeshBot looking for peers", schedulerChannel, 0, schedulerInterface)
             )
             logger.debug(f"System: Starting the link scheduler to send link messages every {schedulerIntervalInt} hours on Device:{schedulerInterface} Channel:{schedulerChannel}")
         elif 'weather' in schedulerValue:

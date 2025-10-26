@@ -158,7 +158,7 @@ interval = 12 # 12 hours
 ```python
 # Custom Schedule Example if using custom for [scheduler]
 # Send bbslink looking for peers every 2 days at 10 AM
-schedule.every(2).days.at("10:00").do(send_bbslink, send_message, schedulerChannel, schedulerInterface)
+schedule.every(2).days.at("10:00").do(send_message("bbslink MeshBot looking for peers", schedulerChannel, 0, schedulerInterface))
 ```
 
 ---
