@@ -41,10 +41,10 @@ def handledxcluster(message, nodeID, deviceID):
         if spots:
             response_lines = []
             for spot in spots[:5]:
-                callsign = spot.get('dx_call', spot.get('callsign', ''))
+                callsign = spot.get('dx_call', spot.get('callsign', 'N/A'))
                 freq_hz = spot.get('freq', spot.get('frequency', None))
-                frequency = f"{float(freq_hz)/1e6:.3f} MHz" if freq_hz else ""
-                mode_val = spot.get('mode', '')
+                frequency = f"{float(freq_hz)/1e6:.3f} MHz" if freq_hz else "N/A"
+                mode_val = spot.get('mode', 'N/A')
                 comment = spot.get('comment', '')
                 if len(comment) > 111: # Truncate comment to 111 chars
                     comment = comment[:111] + '...'
@@ -86,18 +86,12 @@ def get_spothole_spots(source=None, band=None, mode=None, date=None, dx_call=Non
     params["received_since"] = received_since
     
     # Add spot filters if provided
-    if de_continent:
-        params["de_continent"] = de_continent
-    if de_location:
-        params["de_location"] = de_location
     if source:
         params["source"] = source
     if band:
         params["band"] = band
     if mode:
         params["mode"] = mode
-    if dx_call:
-        params["dx_call"] = dx_call
     if date:
         # date should be a string in YYYY-MM-DD or datetime.date
         if isinstance(date, datetime.date):
@@ -113,4 +107,50 @@ def get_spothole_spots(source=None, band=None, mode=None, date=None, dx_call=Non
     except Exception as e:
         logger.debug(f"Error fetching spots: {e}")
         spots = []
+
+    # Admin Filters done via config.ini
+    de_grid = None  # e.g., "EM00"
+    de_latitude = None  # e.g., 34.05
+    de_longitude = None  # e.g., -118.25
+    de_dxcc_id = None  # e.g., "291"
+    de_call = None  # e.g., "K7MHI"
+
+    dx_itu_zone = None  # e.g., "3"
+    dx_cq_zone = None  # e.g., "4"
+    dx_dxcc_id = None  # e.g., "291"
+
+    # spotter
+    if de_latitude is not None and de_longitude is not None:
+        lat_range = (de_latitude - 1.0, de_latitude + 1.0)
+        lon_range = (de_longitude - 1.0, de_longitude + 1.0)
+        spots = [spot for spot in spots if lat_range[0] <= spot.get('de_latitude', 0) <= lat_range[1] and
+                 lon_range[0] <= spot.get('de_longitude', 0) <= lon_range[1]]
+    if de_grid:
+        spots = [spot for spot in spots if spot.get('de_grid', '').upper() == de_grid.upper()]
+    if de_dxcc_id:
+        spots = [spot for spot in spots if str(spot.get('de_dxcc_id', '')) == str(de_dxcc_id)]
+    if de_call:
+        spots = [spot for spot in spots if spot.get('de_call', '').upper() == de_call.upper()]
+    # DX
+    if dx_itu_zone:
+        spots = [spot for spot in spots if str(spot.get('dx_itu_zone', '')) == str(dx_itu_zone)]
+    if dx_cq_zone:
+        spots = [spot for spot in spots if str(spot.get('dx_cq_zone', '')) == str(dx_cq_zone)]
+    if dx_dxcc_id:
+        spots = [spot for spot in spots if str(spot.get('dx_dxcc_id', '')) == str(dx_dxcc_id)]
+
+    # User Filters
+
+    # Filter by dx_call if provided
+    if dx_call:
+        spots = [spot for spot in spots if spot.get('dx_call', '').upper() == dx_call.upper()]
+
+    # Filter by de_continent if provided
+    if de_continent:
+        spots = [spot for spot in spots if spot.get('de_continent', '').upper() == de_continent.upper()]
+
+    # Filter by de_location if provided
+    if de_location:
+        spots = [spot for spot in spots if spot.get('de_location', '').upper() == de_location.upper()]
+
     return spots
