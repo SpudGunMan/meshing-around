@@ -141,6 +141,11 @@ if dad_jokes_enabled:
     trap_list = trap_list + ("joke",)
     help_message = help_message + ", joke"
 
+if dxspotter_enabled:
+    from modules.dxspot import handledxcluster
+    trap_list = trap_list + ("dx",)
+    help_message = help_message + ", dx"
+
 # Wikipedia Search Configuration
 if wikipedia_enabled:
     from modules.wiki import * # from the spudgunman/meshing-around repo

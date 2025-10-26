@@ -50,6 +50,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "cqcq": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
     "cqcqcq": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
     "dopewars": lambda: handleDopeWars(message, message_from_id, deviceID),
+    "dx": lambda: handledxcluster(message, message_from_id, deviceID),
     "ea": lambda: handle_emergency_alerts(message, message_from_id, deviceID),
     "echo": lambda: handle_echo(message, message_from_id, deviceID, isDM, channel_number),
     "ealert": lambda: handle_emergency_alerts(message, message_from_id, deviceID),

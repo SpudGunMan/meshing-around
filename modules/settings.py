@@ -385,6 +385,7 @@ try:
 
     # radio monitoring
     radio_detection_enabled = config['radioMon'].getboolean('enabled', False)
+    dxspotter_enabled = config['radioMon'].getboolean('dxspotter_enabled', True) # default True
     rigControlServerAddress = config['radioMon'].get('rigControlServerAddress', 'localhost:4532') # default localhost:4532
     sigWatchBroadcastCh = config['radioMon'].get('sigWatchBroadcastCh', '2').split(',') # default Channel 2
     sigWatchBroadcastInterface = config['radioMon'].getint('sigWatchBroadcastInterface', 1) # default interface 1
