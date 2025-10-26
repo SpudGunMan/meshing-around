@@ -9,18 +9,19 @@ This document covers the Bulliten Board System or BBS componment of the meshing-
 
 1. [BBS Core Functions](#1-bbs-core-functions)
     - [Central Message Store](#11-central-message-store)
-    - [Direct Messages (DMs)](#12-direct-mail-dm-messages)
-    - [Message Storage](#message-storage)
+    - [Direct Mail (DM) Messages](#12-direct-mail-dm-messages)
     - [BBS Commands](#bbs-commands)
-2. [BBS Database Sync: File-Based (Out-of-Band)](#1-bbs-database-sync-file-based-out-of-band)
-3. [BBS Over-the-Air (OTA) Sync: Linking](#2-bbs-over-the-air-ota-sync-linking)
-4. [Scheduling BBS Sync](#3-scheduling-bbs-sync)
-5. [Example: Full Sync Workflow](#31-example-full-sync-workflow)
-6. [Troubleshooting](#4-troubleshooting)
-7. [API Reference: BBS Sync](#5-api-reference-bbs-sync)
-8. [Best Practices](#6-best-practices)
+2. [Synchronization bot2bot: Full Sync Workflow](#2-synchronization-bot2bot--full-sync-workflow)
+    - [BBS Database Sync: File-Based (Out-of-Band)](#21-bbs-database-sync-file-based-out-of-band)
+    - [BBS Over-the-Air (OTA) Sync: Linking](#22-bbs-over-the-air-ota-sync-linking)
+    - [Scheduling BBS Auto Sync](#23-scheduling-bbs-auto-sync)
+3. [Troubleshooting](#4-troubleshooting)
+4. [API Reference: BBS Sync](#5-api-reference-bbs-sync)
+5. [Best Practices](#5-best-practices)
 
 ## 1. **BBS Core Functions**
+The mesh-bot provides a basic message mail system for Meshtastic
+
 ## 1.1 Central Message Store
 
 - **Shared public message space** for all nodes.
@@ -70,8 +71,23 @@ bbspost $Subject #Message
 
 ---
 
+## 2. **Synchronization bot2bot : Full Sync Workflow**
 
-## 1. **BBS Database Sync: File-Based (Out-of-Band)**
+1. **Set up a dedicated sync channel** (e.g., channel bot-admin).
+2. **Configure both nodes** with `bbs_link_enabled = True` and add each other to `bbs_link_whitelist`.
+3. **Schedule sync** every hour:
+   - Node A sends `bbslink 0` to Node B on channel 99.
+   - Node B responds with messages and `bbsack`.
+4. **Optionally, use SSH/scp** to copy `bbsdb.pkl` for full out-of-band backup.
+
+
+```ini
+[bbs]
+# The "api" needs enabled which enables file polling 
+bbsAPI_enabled = True 
+```
+
+## 2.1. **BBS Database Sync: File-Based (Out-of-Band)**
 
 ### **Manual/Automated File Sync (e.g., SSH/SCP)**
 - **Purpose:** Sync BBS data between nodes by copying `bbsdb.pkl` and `bbsdm.pkl` files.
@@ -93,7 +109,7 @@ bbspost $Subject #Message
 
 ---
 
-## 2. **BBS Over-the-Air (OTA) Sync: Linking**
+## 2.2. **BBS Over-the-Air (OTA) Sync: Linking**
 ### **How OTA Sync Works**
 - Nodes can exchange BBS messages using special commands over the mesh network.
 - Uses `bbslink` and `bbsack` commands for message exchange.
@@ -114,7 +130,7 @@ bbspost $Subject #Message
 - For high-reliability sync, configure a dedicated channel (not used for chat).
 ---
 
-## 3. **Scheduling BBS Sync**
+## 2.3. **Scheduling BBS Auto Sync**
 
 ### **Using the Bot’s Scheduler**
 
@@ -147,15 +163,6 @@ schedule.every(2).days.at("10:00").do(send_bbslink, send_message, schedulerChann
 ```
 
 ---
-
-## 3.1. **Example: Full Sync Workflow**
-
-1. **Set up a dedicated sync channel** (e.g., channel bot-admin).
-2. **Configure both nodes** with `bbs_link_enabled = True` and add each other to `bbs_link_whitelist`.
-3. **Schedule sync** every hour:
-   - Node A sends `bbslink 0` to Node B on channel 99.
-   - Node B responds with messages and `bbsack`.
-4. **Optionally, use SSH/scp** to copy `bbsdb.pkl` for full out-of-band backup.
 
 ---
 
@@ -206,7 +213,7 @@ Future Use
 - Receiving node uses `bbs_receive_compressed()`.
 
 ---
-### 6. **Best Practices**
+### 5. **Best Practices**
 
 - **Backup:** Regularly back up `bbsdb.pkl` and `bbsdm.pkl`.
 - **Security:** Use SSH keys for file transfer; restrict OTA sync to trusted nodes.
