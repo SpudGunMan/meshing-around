@@ -287,7 +287,7 @@ message = "MeshBot says Hello! DM for more info."
 # enable overides the above and uses the motd as the message
 schedulerMotd = False
 # value can be min,hour,day,mon,tue,wed,thu,fri,sat,sun.
-# value can also be 'joke' (everyXmin) or 'weather' (hour) or 'link' (hour) for special auto messages
+# value can also be 'joke' (min/interval) or 'weather' (time/day) or 'link' (hour/interval) for special auto messages
 # 'custom' for module/scheduler.py custom schedule examples
 value =
 # interval to use when time is not set (e.g. every 2 days)

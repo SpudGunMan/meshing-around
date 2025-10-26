@@ -285,9 +285,9 @@ See modules/custom_scheduler.py for advanced scheduling using python
 
 **Features:**  
 - **Basic Scheduling:** Send messages on a set schedule (e.g., every day at 09:00, every Monday at noon, every hour, etc.).
-- **Joke Scheduler:** Automatically send jokes at a chosen interval.
-- **Weather Scheduler:** Send weather updates at a chosen interval.
-- **Custom Scheduler:** Import and run your own scheduled jobs by editing `custom_scheduler.py`.
+- **Joke Scheduler:** Automatically send jokes every x min
+- **Weather Scheduler:** Send weather updates at time of day, daily.
+- **Custom Scheduler:** run your own scheduled jobs by editing `custom_scheduler.py`.
 - **Logging:** All scheduling actions are logged for debugging and monitoring.
 
 **Example Configuration:**  
@@ -348,11 +348,11 @@ You can schedule messages or actions using the following options in your configu
   - → Sends a bbslink message every 2 hours.
 
 #### **weather**
-- Schedules the bot to send a weather update at the specified interval (in hours).
+- Schedules the bot to send a weather update at the specified time of day, daily.
 - **Example:**  
   - Option: `weather`  
-  - Interval: `3`  
-  - → Sends a weather update every 3 hours.
+  - Interval: `08:00` 
+  - → Sends a weather update daily at 8:00a.
 
 ---
 

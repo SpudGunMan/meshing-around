@@ -117,20 +117,21 @@ def setup_scheduler(
             elif 'min' in schedulerValue.lower():
                 schedule.every(schedulerIntervalInt).minutes.do(lambda: send_message(scheduler_message, schedulerChannel, 0, schedulerInterface))
             logger.debug(f"System: Starting the basic scheduler to send '{scheduler_message}' on schedule '{schedulerValue}' every {schedulerIntervalInt} interval at time '{schedulerTime}' on Device:{schedulerInterface} Channel:{schedulerChannel}")
+        # value can also be 'joke' (interval), 'weather' (time), or 'link' (interval) for special auto messages
         elif 'joke' in schedulerValue.lower():
-            # Schedule to send a joke every specified interval
+            # Schedule to send a joke every specified interval minutes
             schedule.every(schedulerIntervalInt).minutes.do(lambda: send_message(tell_joke(), schedulerChannel, 0, schedulerInterface))
             logger.debug(f"System: Starting the joke scheduler to send a joke every {schedulerIntervalInt} minutes on Device:{schedulerInterface} Channel:{schedulerChannel}")
         elif 'link' in schedulerValue.lower():
-            # Schedule to send a link message every specified interval
+            # Schedule to send a link message every specified interval hours
             schedule.every(schedulerIntervalInt).hours.do(lambda: send_message(handle_satpass(schedulerInterface, 'link'), schedulerChannel, 0, schedulerInterface))
             logger.debug(f"System: Starting the link scheduler to send link messages every {schedulerIntervalInt} hours on Device:{schedulerInterface} Channel:{schedulerChannel}")
         elif 'weather' in schedulerValue.lower():
-            # Schedule to send weather updates every specified interval
-            schedule.every(schedulerIntervalInt).hours.do(lambda: send_message(handle_wxc(0, schedulerInterface, 'wx'), schedulerChannel, 0, schedulerInterface))
+            # Schedule to send weather updates every specified time every day
+            schedule.every().day.at(schedulerTime)(lambda: send_message(handle_wxc(0, schedulerInterface, 'wx'), schedulerChannel, 0, schedulerInterface))
             logger.debug(f"System: Starting the weather scheduler to send weather updates every {schedulerIntervalInt} hours on Device:{schedulerInterface} Channel:{schedulerChannel}")
         elif 'custom' in schedulerValue.lower():
-           # Import and setup custom schedules from custom_scheduler.py
+        # Import and setup custom schedules from custom_scheduler.py
             try:
                 # This file is located in etc/custom_scheduler.py and copied to modules/custom_scheduler.py at install
                 from modules.custom_scheduler import setup_custom_schedules # type: ignore  # pylance
@@ -143,3 +144,5 @@ def setup_scheduler(
                 logger.warning("Custom scheduler file not found or failed to import. cp etc/custom_scheduler.py modules/custom_scheduler.py")
     except Exception as e:
         logger.error(f"System: Scheduler Error {e}")
+    return True
+
