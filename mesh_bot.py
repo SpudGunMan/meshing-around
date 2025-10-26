@@ -1616,9 +1616,7 @@ def handle_boot(mesh=True):
             logger.debug("System: Logging Metadata Stats Enabled, leaderboard")
         
         if my_settings.scheduler_enabled:
-            logger.debug("System: Scheduler Enabled")
-
-
+            logger.debug(f"System: Scheduler Enabled. Default Device:{my_settings.schedulerInterface} Channel:{my_settings.schedulerChannel}")
 
     except Exception as e:
         logger.error(f"System: Error during boot: {e}")

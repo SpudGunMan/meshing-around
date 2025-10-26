@@ -3,50 +3,53 @@ from modules.log import logger
 from modules.system import send_message
 
 def setup_custom_schedules(send_message, tell_joke, welcome_message, handle_wxc, MOTD, schedulerChannel, schedulerInterface):
-    # custom scheduler job to run the schedule see examples below
-    logger.debug(f"System: Starting the custom_scheduler.py default to send reminder every Monday at noon on Device:{schedulerInterface} Channel:{schedulerChannel}")
-    schedule.every().monday.at("12:00").do(lambda: logger.info("System: Scheduled Broadcast Enabled Reminder"))
+    """
+    Set up all custom schedules. Edit this function to add or remove scheduled tasks.
+    """
 
-    # Enhanced Examples of using the scheduler, Times here are in 24hr format
-    # https://schedule.readthedocs.io/en/stable/
-
+    ### Example schedules
     # Send a joke every 2 minutes
-    #logger.debug(f"System: Custom Scheduler: Send a joke every 2 minutes on Device:{schedulerInterface} Channel:{schedulerChannel}")
-    #schedule.every(2).minutes.do(lambda: send_message(tell_joke(), schedulerChannel, 0, schedulerInterface))
+    #schedule.every(2).minutes.do(send_joke, send_message, tell_joke, schedulerChannel, schedulerInterface)
+    # Send a good morning message every day at 9 AM
+    #schedule.every().day.at("09:00").do(send_good_morning, send_message, schedulerChannel, schedulerInterface)
+    # Send weather update every day at 8 AM
+    #schedule.every().day.at("08:00").do(send_wx, send_message, handle_wxc, schedulerChannel, schedulerInterface)
+    # Send weather alerts every Wednesday at noon
+    #schedule.every().wednesday.at("12:00").do(send_weather_alert, send_message, schedulerChannel, schedulerInterface)
+    # Send configuration URL every 2 days at 10 AM
+    #schedule.every(2).days.at("10:00").do(send_config_url, send_message, schedulerChannel, schedulerInterface)
+    # Send net starting message every Wednesday at 7 PM
+    #schedule.every().wednesday.at("19:00").do(send_net_starting, send_message, schedulerChannel, schedulerInterface)
+    # Send welcome message every 2 days at 8 AM
+    #schedule.every(2).days.at("08:00").do(send_welcome, send_message, schedulerChannel, schedulerInterface)
+    # Send MOTD every day at 1 PM
+    #schedule.every().day.at("13:00").do(send_motd, send_message, MOTD, schedulerChannel, schedulerInterface)
+    # Send bbslink message every 2 days at 10 AM
+    #schedule.every(2).days.at("10:00").do(send_bbslink, send_message, schedulerChannel, schedulerInterface)
 
-    # Good Morning Every day at 09:00 using send_message function to channel 2 on device 1
-    #schedule.every().day.at("09:00").do(lambda: send_message("Good Morning", 2, 0, 1))
+def send_joke(send_message, tell_joke, channel, interface):
+    send_message(tell_joke(), channel, 0, interface)
 
-    # Send WX every Morning at 08:00 using handle_wxc function to channel 2 on device 1
-    #logger.debug("System: Custom Scheduler: Send WX every Morning at 08:00")
-    #schedule.every().day.at("08:00").do(lambda: send_message(handle_wxc(0, 1, 'wx'), 2, 0, 1))
+def send_good_morning(send_message, channel, interface):
+    send_message("Good Morning", channel, 0, interface)
 
-    # Send Weather Channel Notice Wed. Noon on channel 2, device 1
-    #schedule.every().wednesday.at("12:00").do(lambda: send_message("Weather alerts available on 'Alerts' channel with default 'AQ==' key.", 2, 0, 1))
+def send_wx(send_message, handle_wxc, channel, interface):
+    send_message(handle_wxc(0, 1, 'wx'), channel, 0, interface)
 
-    # Send config URL for Medium Fast Network Use every other day at 10:00 to default channel 2 on device 1
-    #logger.debug("System: Custom Scheduler: Config URL for Medium Fast Network Use every other day at 10:00")
-    #schedule.every(2).days.at("10:00").do(lambda: send_message("Join us on Medium Fast https://meshtastic.org/e/#CgcSAQE6AggNEg4IARAEOAFAA0gBUB5oAQ", 2, 0, 1))
+def send_weather_alert(send_message, channel, interface):
+    send_message("Weather alerts available on 'Alerts' channel with default 'AQ==' key.", channel, 0, interface)
 
-    # Send a Net Starting Now Message Every Wednesday at 19:00 using send_message function to channel 2 on device 1
-    #schedule.every().wednesday.at("19:00").do(lambda: send_message("Net Starting Now", 2, 0, 1))
+def send_config_url(send_message, channel, interface):
+    send_message("Join us on Medium Fast https://meshtastic.org/e/#CgcSAQE6AggNEg4IARAEOAFAA0gBUB5oAQ", channel, 0, interface)
 
-    # Send a Welcome Notice for group on the 15th and 25th of the month at 12:00 using send_message function to channel 2 on device 1
-    #schedule.every().day.at("12:00").do(lambda: send_message("Welcome to the group", 2, 0, 1)).day(15, 25)
+def send_net_starting(send_message, channel, interface):
+    send_message("Net Starting Now", channel, 0, interface)
 
-    # Send a Welcome Notice for group on the 15th and 25th of the month at 12:00
-    #logger.debug(f"System: Custom Scheduler: Welcome Notice for group on the 15th and 25th of the month at 12:00 on Device:{schedulerInterface} Channel:{schedulerChannel}")
-    #schedule.every().day.at("12:00").do(lambda: send_message("Welcome to the group", schedulerChannel, 0, schedulerInterface)).day(15, 25)
+def send_welcome(send_message, channel, interface):
+    send_message("Welcome to the group", channel, 0, interface)
 
-    # Send a joke every 6 hours
-    #schedule.every(6).hours.do(lambda: send_message(tell_joke(), schedulerChannel, 0, schedulerInterface))
+def send_motd(send_message, MOTD, channel, interface):
+    send_message(MOTD, channel, 0, interface)
 
-    # Send the Welcome Message every other day at 08:00
-    #schedule.every(2).days.at("08:00").do(lambda: send_message(welcome_message, schedulerChannel, 0, schedulerInterface))
-
-    # Send the MOTD every day at 13:00
-    #schedule.every().day.at("13:00").do(lambda: send_message(MOTD, schedulerChannel, 0, schedulerInterface))
-
-    # Send bbslink looking for peers every other day at 10:00
-    #logger.debug("System: Custom Scheduler: bbslink MeshBot looking for peers every other day at 10:00")
-    #schedule.every(2).days.at("10:00").do(lambda: send_message("bbslink MeshBot looking for peers", schedulerChannel, 0, schedulerInterface))
+def send_bbslink(send_message, channel, interface):
+    send_message("bbslink MeshBot looking for peers", channel, 0, interface)
