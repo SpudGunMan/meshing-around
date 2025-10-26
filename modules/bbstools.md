@@ -40,11 +40,11 @@ bbspost $Subject #Message
 ---
 
 ## 1.2 Direct Mail (DM) Messages
-
 - **DMs are private messages** sent from one node to another.
 - Stored separately from public posts in `data/bbsdm.pkl`.
 - Each DM entry typically includes:  
   `[id, toNode, message, fromNode, timestamp, threadID, replytoID]`
+- You can inject DMs directly for automation using the `script/injectDM.py` tool.
 
 ### DM Delivery
 
@@ -81,16 +81,15 @@ bbspost $Subject #Message
 4. **Optionally, use SSH/scp** to copy `bbsdb.pkl` for full out-of-band backup.
 
 
+## 2.1. **BBS Database Sync: File-Based (Out-of-Band)**
+
+### **Manual/Automated File Sync (e.g., SSH/SCP)**
+- **Purpose:** Sync BBS data between nodes by copying `bbsdb.pkl` and `bbsdm.pkl` files.
 ```ini
 [bbs]
 # The "api" needs enabled which enables file polling 
 bbsAPI_enabled = True 
 ```
-
-## 2.1. **BBS Database Sync: File-Based (Out-of-Band)**
-
-### **Manual/Automated File Sync (e.g., SSH/SCP)**
-- **Purpose:** Sync BBS data between nodes by copying `bbsdb.pkl` and `bbsdm.pkl` files.
 - **How-To:**
   1. **Locate Files:**  
      - `data/bbsdb.pkl` (public posts)
@@ -176,6 +175,12 @@ schedule.every(2).days.at("10:00").do(send_bbslink, send_message, schedulerChann
 - **File sync issues?**
   - Verify file permissions and paths.
   - Ensure the bot reloads the database after file copy.
+
+```ini
+[bbs]
+# The "api" needs enabled which enables file polling 
+bbsAPI_enabled = True 
+```
 
 ## 5. **API Reference: BBS Sync**
 
