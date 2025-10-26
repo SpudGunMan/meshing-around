@@ -158,23 +158,18 @@ I used ideas and snippets from other responder bots and want to call them out!
 - ARRL Question Pool Data from https://github.com/russolsen/ham_radio_question_pool
 
 ### Special Thanks
-- **xdep**: For the reporting tools.
-- **Nestpebble**: For new ideas and enhancements.
-- **mrpatrick1991**: For Docker configurations.
-- **[https://github.com/A-c0rN](A-c0rN)**: Assistance with iPAWS and EAS
+For testing and feature ideas on Discord and GitHub, if its stable its thanks to you all.
+- **PiDiBi, Cisien, bitflip, nagu, Nestpebble, NomDeTom, Iris, Josh, GlockTuber, FJRPiolt, dj505, Woof, propstg, snydermesh, trs2982, F0X, Malice, mesb1, Hailo1999**
+- **xdep**: For the reporting html. 📊
+- **mrpatrick1991**: For OG Docker configurations. 💻
+- **[https://github.com/A-c0rN](A-c0rN)**: Assistance with iPAWS and  🚨
 - **Mike O'Connell/skrrt**: For [eas_alert_parser](etc/eas_alert_parser.py) enhanced by **sheer.cold**
-- **PiDiBi**: For looking at test functions and other suggestions like wxc, CPU use, and alerting ideas.
-- **WH6GXZ nurse dude**: For bashing on installer, Volcano Alerts 🌋
-- **Josh**: For more bashing on installer!
-- **dj505**: trying it on windows!
-- **mikecarper**: ideas, and testing. hamtest
-- **c.merphy360**: high altitude alerts
-- **Iris**: testing and finding 🐞
-- **FJRPiolt**: testing bugs out!!
-- **G7KSE**: DX Spotting idea.
-- **GlockTuber**: bugs and ideas.
-- **Cisien, bitflip, Woof, propstg, snydermesh, trs2982, F0X, Malice, mesb1, and Hailo1999**: For testing and feature ideas on Discord and GitHub.
-- **Meshtastic Discord Community**: For tossing out ideas and testing code.
+- **WH6GXZ nurse dude**: Volcano Alerts 🌋
+- **mikecarper**: hamtest, leading to quiz etc.. 📋
+- **c.merphy360**: high altitude alerts. 🚀
+- **G7KSE**: DX Spotting idea. 📻
+- **Growing List of GitHub Contributers**
+- **Meshtastic Discord Community**: For putting up with 🥔
 
 ### Tools
 - **Node Backup Management**: [Node Slurper](https://github.com/SpudGunMan/node-slurper)
