@@ -1145,14 +1145,8 @@ def handle_mwx(message_from_id, deviceID, cmd):
         return my_settings.NO_ALERTS
     return get_nws_marine(zone=myCoastalZone, days=coastalForecastDays)
 
-def handle_wxc(message_from_id, deviceID, cmd, vox=False):
+def handle_wxc(message_from_id, deviceID, cmd, report_days=None, vox=False):
     # Weather from NOAA or Open-Meteo
-    if vox:
-        # return a default message if vox is enabled
-        if use_meteo_wxApi:
-            return get_wx_meteo(my_settings.latitudeValue, my_settings.longitudeValue)
-        else:
-            return get_NOAAweather(my_settings.latitudeValue, my_settings.longitudeValue)
     location = get_node_location(message_from_id, deviceID)
     if my_settings.use_meteo_wxApi and not "wxc" in cmd and not use_metric:
         #logger.debug("System: Bot Returning Open-Meteo API for weather imperial")
@@ -1162,10 +1156,10 @@ def handle_wxc(message_from_id, deviceID, cmd, vox=False):
         weather = get_wx_meteo(str(location[0]), str(location[1]), 1)
     elif not my_settings.use_meteo_wxApi and "wxc" in cmd or my_settings.use_metric:
         #logger.debug("System: Bot Returning NOAA API for weather metric")
-        weather = get_NOAAweather(str(location[0]), str(location[1]), 1)
+        weather = get_NOAAweather(str(location[0]), str(location[1]), 1, report_days=report_days)
     else:
         #logger.debug("System: Bot Returning NOAA API for weather imperial")
-        weather = get_NOAAweather(str(location[0]), str(location[1]))
+        weather = get_NOAAweather(str(location[0]), str(location[1]), report_days=report_days)
     return weather
 
 def handle_emergency_alerts(message, message_from_id, deviceID):
