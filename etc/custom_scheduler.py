@@ -37,7 +37,7 @@ def send_good_morning(send_message, channel, interface):
     send_message("Good Morning", channel, 0, interface)
 
 def send_wx(send_message, handle_wxc, channel, interface):
-    send_message(handle_wxc(0, 1, 'wx'), channel, 0, interface)
+    send_message(handle_wxc(0, 1, 'wx', days=1), channel, 0, interface)
 
 def send_weather_alert(send_message, channel, interface):
     send_message("Weather alerts available on 'Alerts' channel with default 'AQ==' key.", channel, 0, interface)
