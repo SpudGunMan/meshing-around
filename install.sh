@@ -1,10 +1,71 @@
 #!/bin/bash
 # meshing-around install helper script
+# to uninstall, run with --nope
 
-# install.sh
+NOPE=0
 cd "$(dirname "$0")"
 program_path=$(pwd)
-chronjob="0 1 * * * /usr/bin/python3 $program_path/etc/report_generator5.py"
+
+for arg in "$@"; do
+    if [[ "$arg" == "--nope" ]]; then
+        NOPE=1
+    fi
+done
+
+if [[ $NOPE -eq 1 ]]; then
+    echo "Uninstalling Meshing Around and all related services..."
+
+    sudo systemctl stop mesh_bot || true
+    sudo systemctl disable mesh_bot || true
+
+    sudo systemctl stop pong_bot || true
+    sudo systemctl disable pong_bot || true
+
+    sudo systemctl stop mesh_bot_w3_server || true
+    sudo systemctl disable mesh_bot_w3_server || true
+
+    sudo systemctl stop mesh_bot_reporting || true
+    sudo systemctl disable mesh_bot_reporting || true
+
+    sudo rm -f /etc/systemd/system/mesh_bot.service
+    sudo rm -f /etc/systemd/system/mesh_bot_reporting
+    sudo rm -f /etc/systemd/system/pong_bot.service
+    sudo rm -f /etc/systemd/system/mesh_bot_w3_server.service
+    sudo rm -f /etc/systemd/system/mesh_bot_reporting.service
+    sudo rm -f /etc/systemd/system/mesh_bot_reporting.timer
+
+    sudo systemctl daemon-reload
+    sudo systemctl reset-failed
+
+    sudo gpasswd -d meshbot dialout || true
+    sudo gpasswd -d meshbot tty || true
+    sudo gpasswd -d meshbot bluetooth || true
+    sudo groupdel meshbot || true
+    sudo userdel meshbot || true
+
+    sudo rm -rf /opt/meshing-around/
+
+    # If Ollama was installed and you want to remove it:
+    if [[ -f /etc/systemd/system/ollama.service ]]; then
+        read -p "Ollama service detected. Do you want to remove Ollama and all its data? (y/n): " remove_ollama
+        if [[ "$remove_ollama" =~ ^[Yy] ]]; then
+            sudo systemctl stop ollama || true
+            sudo systemctl disable ollama || true
+            sudo rm -f /etc/systemd/system/ollama.service
+            sudo rm -rf /usr/local/bin/ollama
+            sudo rm -rf ~/.ollama
+            echo "Ollama removed."
+        else
+            echo "Ollama not removed."
+        fi
+    fi
+
+    echo "Uninstall complete. Hope to see you again! 73"
+    exit 0
+fi
+
+# install.sh, Meshing Around installer script
+# Thanks for using Meshing Around!
 printf "\n########################"
 printf "\nMeshing Around Installer\n"
 printf "########################\n"
@@ -76,17 +137,19 @@ else
     printf "\nDependencies installed\n"
 fi
 
-# add user to groups for serial access
-printf "\nAdding user to dialout, bluetooth, and tty groups for serial access\n"
-sudo usermod -a -G dialout "$USER"
-sudo usermod -a -G tty "$USER"
-sudo usermod -a -G bluetooth "$USER"
 
 # copy service files
 cp etc/pong_bot.tmp etc/pong_bot.service
 cp etc/mesh_bot.tmp etc/mesh_bot.service
 cp etc/mesh_bot_reporting.tmp etc/mesh_bot_reporting.service
-cp etc/mesh_bot_w3.tmp etc/mesh_bot_w3.service
+cp etc/mesh_bot_w3_server.tmp etc/mesh_bot_w3_server.service
+
+# set the correct path in the service file
+replace="s|/dir/|$program_path/|g"
+sed -i "$replace" etc/pong_bot.service
+sed -i "$replace" etc/mesh_bot.service
+sed -i "$replace" etc/mesh_bot_reporting.service
+sed -i "$replace" etc/mesh_bot_w3_server.service
 
 # copy modules/custom_scheduler.py template if it does not exist
 if [[ ! -f modules/custom_scheduler.py ]]; then
@@ -184,15 +247,7 @@ else
     read bot
 fi
 
-# set the correct path in the service file
-replace="s|/dir/|$program_path/|g"
-sed -i "$replace" etc/pong_bot.service
-sed -i "$replace" etc/mesh_bot.service
-sed -i "$replace" etc/mesh_bot_reporting.service
-sed -i "$replace" etc/mesh_bot_w3.service
-# set the correct user in the service file?
-
-#ask if we should add a user for the bot
+# ask if we should add a user for the bot
 if [[ $(echo "${embedded}" | grep -i "^n") ]]; then
     printf "\nDo you want to add a local user (meshbot) no login, for the bot? (y/n)"
     read meshbotservice
@@ -208,7 +263,23 @@ if [[ $(echo "${meshbotservice}" | grep -i "^y") ]] || [[ $(echo "${embedded}" |
 else
     whoami=$(whoami)
 fi
-# set basic permissions for the bot user
+
+# set the correct user in the service file
+replace="s|User=pi|User=$whoami|g"
+sed -i "$replace" etc/pong_bot.service
+sed -i "$replace" etc/mesh_bot.service
+sed -i "$replace" etc/mesh_bot_reporting.service
+sed -i "$replace" etc/mesh_bot_reporting.timer
+# set the correct group in the service file
+replace="s|Group=pi|Group=$whoami|g"
+sed -i "$replace" etc/pong_bot.service
+sed -i "$replace" etc/mesh_bot.service
+sed -i "$replace" etc/mesh_bot_reporting.service
+sed -i "$replace" etc/mesh_bot_reporting.timer
+printf "\n service files updated\n"
+
+# add user to groups for serial access
+printf "\nAdding user to dialout, bluetooth, and tty groups for serial access\n"
 sudo usermod -a -G dialout "$whoami"
 sudo usermod -a -G tty "$whoami"
 sudo usermod -a -G bluetooth "$whoami"
@@ -225,18 +296,6 @@ if ! systemctl is-active --quiet ntp.service && \
     printf "\nNo NTP service detected, it is recommended to have NTP running for proper bot operation.\n"
 fi
 
-# set the correct user in the service file
-replace="s|User=pi|User=$whoami|g"
-sed -i "$replace" etc/pong_bot.service
-sed -i "$replace" etc/mesh_bot.service
-sed -i "$replace" etc/mesh_bot_reporting.service
-sed -i "$replace" etc/mesh_bot_w3.service
-replace="s|Group=pi|Group=$whoami|g"
-sed -i "$replace" etc/pong_bot.service
-sed -i "$replace" etc/mesh_bot.service
-sed -i "$replace" etc/mesh_bot_reporting.service
-sed -i "$replace" etc/mesh_bot_w3.service
-printf "\n service files updated\n"
 
 if [[ $(echo "${bot}" | grep -i "^p") ]]; then
     # install service for pong bot
@@ -255,6 +314,29 @@ if [[ $(echo "${bot}" | grep -i "^m") ]]; then
     echo "to start mesh bot service: systemctl start mesh_bot"
     service="mesh_bot"
 fi
+
+# install mesh_bot_reporting timer to run daily at 4:20 am
+echo ""
+echo "Installing mesh_bot_reporting.timer to run mesh_bot_reporting daily at 4:20 am..."
+sudo cp etc/mesh_bot_reporting.service /etc/systemd/system/
+sudo cp etc/mesh_bot_reporting.timer /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable mesh_bot_reporting.timer
+sudo systemctl start mesh_bot_reporting.timer
+echo "mesh_bot_reporting.timer installed and enabled"
+echo "Check timer status with: systemctl status mesh_bot_reporting.timer"
+echo "List all timers with: systemctl list-timers"
+echo ""
+
+# # install mesh_bot_w3_server service
+# echo "Installing mesh_bot_w3_server.service to run the web3 server..."
+# sudo cp etc/mesh_bot_w3_server.service /etc/systemd/system/
+# sudo systemctl daemon-reload
+# sudo systemctl enable mesh_bot_w3_server.service
+# sudo systemctl start mesh_bot_w3_server.service
+# echo "mesh_bot_w3_server.service installed and enabled"
+# echo "Check service status with: systemctl status mesh_bot_w3_server.service"
+# echo ""
 
 # check if running on embedded for final steps
 if [[ $(echo "${embedded}" | grep -i "^n") ]]; then
@@ -315,8 +397,14 @@ if [[ $(echo "${embedded}" | grep -i "^n") ]]; then
     printf "sudo journalctl -u %s.service\n" "$service" >> install_notes.txt
     printf "sudo systemctl stop %s.service\n" "$service" >> install_notes.txt
     printf "sudo systemctl disable %s.service\n" "$service" >> install_notes.txt
-    printf "Reporting chron job added to run report_generator5.py\n" >> install_notes.txt
-    printf "chronjob: %s\n" "$chronjob" >> install_notes.txt
+    printf "sudo systemctl disable %s.service\n" "$service" >> install_notes.txt
+    printf "\n older chron statment to run the report generator hourly:\n" >> install_notes.txt
+    printf "0 * * * * /usr/bin/python3 $program_path/etc/report_generator5.py" >> install_notes.txt
+    printf "  to edit crontab run 'crontab -e'\n" >> install_notes.txt
+    printf "\nmesh_bot_reporting.timer installed to run daily at 4:20 am\n" >> install_notes.txt
+    printf "Check timer status: systemctl status mesh_bot_reporting.timer\n" >> install_notes.txt
+    printf "List all timers: systemctl list-timers\n" >> install_notes.txt
+    printf "View timer logs: journalctl -u mesh_bot_reporting.timer\n" >> install_notes.txt
     printf "*** Stay Up to date using 'bash update.sh' ***\n" >> install_notes.txt
     
     if [[ $(echo "${venv}" | grep -i "^y") ]]; then
@@ -347,14 +435,17 @@ else
     sudo systemctl daemon-reload
     sudo systemctl enable $service.service
     sudo systemctl start $service.service
-    # check if the cron job already exists
-    if ! crontab -l | grep -q "$chronjob"; then
-        # add the cron job to run the report_generator5.py script
-        (crontab -l 2>/dev/null; echo "$chronjob") | crontab -
-        printf "\nAdded cron job to run report_generator5.py\n"
-    else
-        printf "\nCron job already exists, skipping\n"
-    fi
+
+    sudo systemctl daemon-reload
+    # # check if the cron job already exists
+    # if ! crontab -l | grep -q "$chronjob"; then
+    #     # add the cron job to run the report_generator5.py script
+    #     (crontab -l 2>/dev/null; echo "$chronjob") | crontab -
+    #     printf "\nAdded cron job to run report_generator5.py\n"
+    # else
+    #     printf "\nCron job already exists, skipping\n"
+    # fi
+    # document the service install
     printf "Reference following commands:\n\n" > install_notes.txt
     printf "sudo systemctl status %s.service\n" "$service" >> install_notes.txt
     printf "sudo systemctl start %s.service\n" "$service" >> install_notes.txt
@@ -363,6 +454,12 @@ else
     printf "sudo journalctl -u %s.service\n" "$service" >> install_notes.txt
     printf "sudo systemctl stop %s.service\n" "$service" >> install_notes.txt
     printf "sudo systemctl disable %s.service\n" "$service" >> install_notes.txt
+    printf "older crontab to run the report generator hourly:" >> install_notes.txt
+    printf "0 * * * * /usr/bin/python3 $program_path/etc/report_generator5.py" >> install_notes.txt
+    printf "  to edit crontab run 'crontab -e'" >> install_notes.txt
+    printf "\nmesh_bot_reporting.timer installed to run daily at 4:20 am\n" >> install_notes.txt
+    printf "Check timer status: systemctl status mesh_bot_reporting.timer\n" >> install_notes.txt
+    printf "List all timers: systemctl list-timers\n" >> install_notes.txt
     printf "*** Stay Up to date using 'bash update.sh' ***\n" >> install_notes.txt
 fi
 
@@ -374,13 +471,23 @@ exit 0
 
 # sudo systemctl stop mesh_bot
 # sudo systemctl disable mesh_bot
+
 # sudo systemctl stop pong_bot
 # sudo systemctl disable pong_bot
+
+# sudo systemctl stop mesh_bot_w3_server
+# sudo systemctl disable mesh_bot_w3_server
+
 # sudo systemctl stop mesh_bot_reporting
 # sudo systemctl disable mesh_bot_reporting
+
 # sudo rm /etc/systemd/system/mesh_bot.service
-# sudo rm /etc/systemd/system/mesh_bot_w3.service
+# sudo rm /etc/systemd/system/mesh_bot_reporting
 # sudo rm /etc/systemd/system/pong_bot.service
+# sudo rm /etc/systemd/system/mesh_bot_w3_server.service
+# sudo rm /etc/systemd/system/mesh_bot_reporting.service
+# sudo rm /etc/systemd/system/mesh_bot_reporting.timer
+
 # sudo systemctl daemon-reload
 # sudo systemctl reset-failed
 
@@ -390,7 +497,14 @@ exit 0
 # sudo groupdel meshbot
 # sudo userdel meshbot
 
-# sudo rm -rf /opt/meshing-around
+# sudo rm -rf /opt/meshing-around/
+
+# If Ollama was installed and you want to remove it:
+# sudo systemctl stop ollama
+# sudo systemctl disable ollama
+# sudo rm /etc/systemd/system/ollama.service
+# sudo rm -rf /usr/local/bin/ollama
+# sudo rm -rf ~/.ollama
 
 
 # after install shenannigans

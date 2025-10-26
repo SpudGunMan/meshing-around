@@ -2,6 +2,9 @@
 
 ## Table of Contents
 
+- [Manual Install](#manual-install)
+- [Docker Installation](#docker-installation)
+- [Requirements](#requirements)
 - [install.sh](#installsh)
   - [Purpose](#purpose)
   - [Usage](#usage)
@@ -22,68 +25,69 @@
 
 ---
 
-### Manual Install
-Install the required dependencies using pip:
+## Manual Install
+
+Install all required dependencies using pip:
+
 ```sh
 pip install -r requirements.txt
 ```
 
-Copy the configuration template to `config.ini` and edit it to suit your needs:
+Copy the configuration template and edit as needed:
+
 ```sh
 cp config.template config.ini
 ```
 
+---
 
-### Docker Installation - handy for windows
-See further info on the [docker.md](script/docker/README.md)
-### Requirements
-Python 3.8? or later is needed (docker on 3.13). The following can be installed with `pip install -r requirements.txt` or using the [install.sh](install.sh) script for venv and automation:
+## Docker Installation
 
-```sh
-pip install meshtastic
-pip install pubsub
-```
+See [script/docker/README.md](script/docker/README.md) for Docker-based setup instructions.  
+Docker is recommended for Windows or if you want an isolated environment.
 
-Mesh-bot enhancements:
+---
 
-```sh
-pip install pyephem
-pip install requests
-pip install geopy
-pip install maidenhead
-pip install beautifulsoup4
-pip install dadjokes
-pip install schedule
-pip install wikipedia
-```
+## Requirements
 
-For the Ollama LLM:
+- **Python 3.8 or later** (Python 3.13+ supported in Docker)
+- All dependencies are listed in `requirements.txt` and can be installed with:
+  ```sh
+  pip install -r requirements.txt
+  ```
+- To enable emoji in the Debian/Ubuntu console:
+  ```sh
+  sudo apt-get install fonts-noto-color-emoji
+  ```
+- For Ollama LLM support, see the prompts during `install.sh` or visit [https://ollama.com](https://ollama.com).
 
-```sh
-pip install googlesearch-python
-```
-
-To enable emoji in the Debian console, install the fonts:
-
-```sh
-sudo apt-get install fonts-noto-color-emoji
-```
+---
 
 ## install.sh
 
 ### Purpose
-`install.sh` is an installation and setup script for the Meshing Around Bot project. It automates installing dependencies, configuring the environment, setting up system services, and preparing the bot for use on Linux systems (especially Debian/Ubuntu/Raspberry Pi and embedded devices).
+
+`install.sh` automates installation, configuration, and service setup for the Meshing Around Bot project. It is designed for Linux systems (Debian/Ubuntu/Raspberry Pi and embedded devices).
 
 ### Usage
-Run this script from the project root directory:
+
+Run from the project root directory:
+
 ```sh
 bash install.sh
 ```
 
+To uninstall:
+
+```sh
+bash install.sh --nope
+```
+
 ### What it does
-- Checks for existing installations and required permissions.
-- Optionally moves the project to `/opt/meshing-around` for standardization.
-- Installs Python and pip if not present (unless on embedded systems).
+
+- Checks for existing installations and permissions.
+- Optionally moves the project to `/opt/meshing-around`.
+- Installs Python and pip if missing (unless on embedded systems).
 - Adds the current user (or a dedicated `meshbot` user) to necessary groups for serial and Bluetooth access.
 - Copies and configures systemd service files for running the bot as a service.
 - Sets up configuration files, updating latitude/longitude automatically.
@@ -95,11 +99,13 @@ bash install.sh
 - Offers to reboot the system to complete setup.
 
 ### When to use
+
 - For first-time installation of the Meshing Around Bot.
 - When migrating to a new device or environment.
 - After cloning or updating the repository to set up dependencies and services.
 
 ### Note
+
 - You may be prompted for input during installation (e.g., for embedded mode, virtual environment, or optional features).
 - Review and edit the script if you have custom requirements or are running on a non-standard system.
 
@@ -108,10 +114,13 @@ bash install.sh
 ## update.sh
 
 ### Purpose
+
 `update.sh` is an update and maintenance script for the Meshing Around Bot project. It automates the process of safely updating your codebase, backing up data, and merging configuration changes.
 
 ### Usage
-Run this script from the project root directory:
+
+Run from the project root directory:
+
 ```sh
 bash update.sh
 ```
@@ -122,6 +131,7 @@ chmod +x update.sh
 ```
 
 ### What it does
+
 - Stops running Mesh Bot services to prevent conflicts during update.
 - Fetches and pulls the latest changes from the GitHub repository (using `git pull --rebase`).
 - Handles git conflicts, offering to reset to the latest remote version if needed.
@@ -132,10 +142,12 @@ chmod +x update.sh
 - Provides status messages and logs for troubleshooting.
 
 ### When to use
+
 - To update your Mesh Bot installation to the latest version.
 - Before making significant changes or troubleshooting, as it creates a backup of your data.
 
 ### Note
+
 - Review `ini_merge_log.txt` and `config_new.ini` after running for any configuration changes or errors.
 - You may be prompted if git conflicts are detected.
 
@@ -144,9 +156,11 @@ chmod +x update.sh
 ## launch.sh
 
 ### Purpose
+
 `launch.sh` is a convenience script for starting the Mesh Bot, Pong Bot, or generating reports within the Python virtual environment. It ensures the correct environment is activated and the appropriate script is run.
 
 ### How to Use
+
 From your project root, run one of the following commands:
 
 - Launch Mesh Bot:  
@@ -171,6 +185,7 @@ From your project root, run one of the following commands:
   ```
 
 ### What it does
+
 - Ensures you are in the project directory.
 - Copies `config.template` to `config.ini` if no config exists.
 - Activates the Python virtual environment (`venv`).
@@ -178,6 +193,7 @@ From your project root, run one of the following commands:
 - Deactivates the virtual environment when done.
 
 ### Note
+
 - The script requires a Python virtual environment (`venv`) to be present in the project directory.
 - If `venv` is missing, the script will exit with an error message.
 - Always provide an argument (`mesh`, `pong`, `html`, `html5`, or `add`) to specify what you want to launch.
