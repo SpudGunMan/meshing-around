@@ -1,7 +1,6 @@
 # Meshtastic Mesh-Bot Modules
 
-This document provides an overview of all modules available in the Mesh-Bot project, including their features, usage, and configuration.  
-Updated Oct-2025 "ver 1.9.8.4"
+This document provides an overview of all modules available in the Mesh-Bot project, including their features, usage, and configuration.
 
 ---
 ## Table of Contents
