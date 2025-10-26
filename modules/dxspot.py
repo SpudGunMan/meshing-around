@@ -4,6 +4,7 @@
 import requests
 import datetime
 from modules.log import logger
+from modules.config import varLatitude, varLongitude
 
 trap_list_dxspotter = ["dx"]
 
@@ -113,8 +114,6 @@ def get_spothole_spots(source=None, band=None, mode=None, date=None, dx_call=Non
 
     # Admin Filters done via config.ini
     de_grid = None  # e.g., "EM00"
-    de_latitude = None  # e.g., 34.05
-    de_longitude = None  # e.g., -118.25
     de_dxcc_id = None  # e.g., "291"
     de_call = None  # e.g., "K7MHI"
 
@@ -122,19 +121,31 @@ def get_spothole_spots(source=None, band=None, mode=None, date=None, dx_call=Non
     dx_cq_zone = None  # e.g., "4"
     dx_dxcc_id = None  # e.g., "291"
 
-    # spotter
-    if de_latitude is not None and de_longitude is not None:
+    # spotter filters
+
+    # location filter
+    de_latitude = None  # e.g., 34.05
+    de_longitude = None  # e.g., -118.25
+    if de_location:
+        de_latitude, de_longitude = de_location
+    elif de_latitude is not None and de_longitude is not None:
+        de_latitude = varLatitude
+        de_longitude = varLongitude
+    if de_latitude and de_longitude:
         lat_range = (de_latitude - 1.0, de_latitude + 1.0)
         lon_range = (de_longitude - 1.0, de_longitude + 1.0)
         spots = [spot for spot in spots if lat_range[0] <= spot.get('de_latitude', 0) <= lat_range[1] and
                  lon_range[0] <= spot.get('de_longitude', 0) <= lon_range[1]]
+    # grid filter
     if de_grid:
         spots = [spot for spot in spots if spot.get('de_grid', '').upper() == de_grid.upper()]
+    # DXCC Filters
     if de_dxcc_id:
         spots = [spot for spot in spots if str(spot.get('de_dxcc_id', '')) == str(de_dxcc_id)]
+    # By reporting callsign
     if de_call:
         spots = [spot for spot in spots if spot.get('de_call', '').upper() == de_call.upper()]
-    # DX
+    # DX spotted in zone
     if dx_itu_zone:
         spots = [spot for spot in spots if str(spot.get('dx_itu_zone', '')) == str(dx_itu_zone)]
     if dx_cq_zone:
@@ -142,7 +153,7 @@ def get_spothole_spots(source=None, band=None, mode=None, date=None, dx_call=Non
     if dx_dxcc_id:
         spots = [spot for spot in spots if str(spot.get('dx_dxcc_id', '')) == str(dx_dxcc_id)]
 
-    # User Filters
+    # User Runtime Filters
 
     # Filter by dx_call if provided
     if dx_call:
