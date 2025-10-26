@@ -2,6 +2,7 @@
 # # Simulate meshing-around de K7MHI 2024
 from modules.log import logger, getPrettyTime # Import the logger; ### --> If you are reading this put the script in the project root <-- ###
 import time
+import datetime
 import random
 
 # Initialize the tool
@@ -22,6 +23,8 @@ def get_name_from_number(nodeID, length='short', interface=1):
     # return random name for nodeID
     names = ["Max","Molly","Jake","Kelly"]
     return names[nodeID % len(names)]
+def mesh_bot(message, nodeID, deviceID):
+    return "Meshing-Around Bot at your service!"
 #simulate GPS locations for testing
 locations = [
         (48.200909, -123.25719),
