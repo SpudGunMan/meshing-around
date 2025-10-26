@@ -171,6 +171,8 @@ I used ideas and snippets from other responder bots and want to call them out!
 - **c.merphy360**: high altitude alerts
 - **Iris**: testing and finding 🐞
 - **FJRPiolt**: testing bugs out!!
+- **G7KSE**: DX Spotting idea.
+- **GlockTuber**: bugs and ideas.
 - **Cisien, bitflip, Woof, propstg, snydermesh, trs2982, F0X, Malice, mesb1, and Hailo1999**: For testing and feature ideas on Discord and GitHub.
 - **Meshtastic Discord Community**: For tossing out ideas and testing code.
 
