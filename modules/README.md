@@ -21,9 +21,8 @@ This document provides an overview of all modules available in the Mesh-Bot proj
 - [DX Spotter Module](#dx-spotter-module)
 - [Mesh Bot Scheduler User Guide](#mesh-bot-scheduler-user-guide)
 - [Other Utilities](#other-utilities)
-- [Configuration](#configuration)
-- [Troubleshooting](#troubleshooting)
 - [Messaging Settings](#messaging-settings)
+- [Troubleshooting](#troubleshooting)
 - [Configuration Guide](#configuration-guide)
 ---
 
@@ -268,17 +267,17 @@ Configure in `[wikipedia]` section of `config.ini`.
 ---
 
 
-# DX Spotter Module
+## DX Spotter Module
 
 The DX Spotter module allows you to fetch and display recent DX cluster spots from [spothole.app](https://spothole.app) directly in your mesh-bot.
 
-## Command
+### Command
 
 | Command | Description                  |
 |---------|------------------------------|
 | `dx`    | Show recent DX cluster spots |
 
-## Usage
+###Usage
 
 Send a message to the bot containing the `dx` command. You can add filters to narrow down the results:
 
@@ -299,7 +298,7 @@ Send a message to the bot containing the `dx` command. You can add filters to na
   - `ota=`: Filter by source/group (e.g., WWFF, POTA, SOTA)
   - `of=`: Filter by callsign of the spotted DX
 
-## Example Output
+### Example Output
 
 ```
 K7ABC @14.074 MHz FT8 WWFF KFF-1234 by:N0CALL CN87 Some comment
@@ -309,14 +308,14 @@ W1XYZ @7.030 MHz CW SOTA W7W/WE-001 by:K7MHI CN88
 - Each line shows:  
   `DX_CALL @FREQUENCY MODE GROUP GROUP_REF by:SPOTTER_CALL SPOTTER_GRID COMMENT`
 
-## Notes
+### Notes
 
 - Returns up to 4 of the most recent spots matching your filters.
 - Data is fetched from [spothole.app](https://spothole.app/).
 - If no spots are found, you’ll see:  
   `No DX spots found.`
 
-## Configuration
+### Configuration
 ```ini
 [radioMon]
 dxspotter_enabled = True
