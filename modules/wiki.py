@@ -124,38 +124,3 @@ def get_wikipedia_summary(search_term, location=None, force=False):
     except Exception as e:
         logger.warning(f"System: Wikipedia API error for:{search_term} {e}")
         return ERROR_FETCHING_DATA
-
-# def get_wikipedia_summary(search_term, location=None, force=False):
-#     lat, lon = location if location else (None, None)
-#     # Use Kiwix if configured
-#     if use_kiwix_server and not force:
-#         return get_kiwix_summary(search_term)
-    
-#     try:
-#         # Otherwise use online Wikipedia
-#         wikipedia_search = wikipedia.search(search_term, results=3)
-#         wikipedia_suggest = wikipedia.suggest(search_term)
-#         #wikipedia_aroundme = wikipedia.geosearch(lat,lon, results=3)
-#         #logger.debug(f"System: Wikipedia Nearby:{wikipedia_aroundme}")
-#     except Exception as e:
-#         logger.debug(f"System: Wikipedia search error for:{search_term} {e}")
-#         return ERROR_FETCHING_DATA
-    
-#     if len(wikipedia_search) == 0:
-#         logger.warning(f"System: No Wikipedia Results for:{search_term}")
-#         return ERROR_FETCHING_DATA
-    
-#     try:
-#         logger.debug(f"System: Searching Wikipedia for:{search_term}, First Result:{wikipedia_search[0]}, Suggest Word:{wikipedia_suggest}")
-#         summary = wikipedia.summary(search_term, sentences=wiki_return_limit, auto_suggest=False, redirect=True)
-#     except wikipedia.DisambiguationError as e:
-#         logger.warning(f"System: Disambiguation Error for:{search_term} trying {wikipedia_search[0]}")
-#         summary = wikipedia.summary(wikipedia_search[0], sentences=wiki_return_limit, auto_suggest=True, redirect=True)
-#     except wikipedia.PageError as e:
-#         logger.warning(f"System: Wikipedia Page Error for:{search_term} {e} trying {wikipedia_search[0]}")
-#         summary = wikipedia.summary(wikipedia_search[0], sentences=wiki_return_limit, auto_suggest=True, redirect=True)
-#     except Exception as e:
-#         logger.warning(f"System: Error with Wikipedia for:{search_term} {e}")
-#         return ERROR_FETCHING_DATA
-    
-#     return summary
