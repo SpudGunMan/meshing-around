@@ -2,6 +2,7 @@
 # Scheduler setup for Mesh Bot
 import asyncio
 import schedule
+from datetime import datetime
 from modules.log import logger
 from modules.settings import MOTD
 from modules.system import send_message
@@ -9,8 +10,14 @@ from modules.system import send_message
 async def run_scheduler_loop(interval=1):
     logger.debug("System: Scheduler loop started")
     try:
+        last_logged_minute = -1
         while True:
             try:
+                # Log scheduled jobs every 20 minutes
+                now = datetime.now()
+                if now.minute % 20 == 0 and now.minute != last_logged_minute:
+                    logger.debug(f"System: Scheduled Tasks {len(schedule.jobs)}, Details:{extract_schedule_fields(schedule.get_jobs())}")
+                    last_logged_minute = now.minute
                 schedule.run_pending()
             except Exception as e:
                 logger.error(f"System: Scheduler loop exception: {e}")
@@ -24,6 +31,31 @@ def safe_int(val, default=0, type=""):
     except (ValueError, TypeError):
         logger.debug(f"System: Scheduler config {type} error '{val}' to int, using default {default}")
         return default
+
+def extract_schedule_fields(jobs):
+    """
+    Extracts 'Every ... (last run: [...], next run: ...)' from schedule.get_jobs() output without regex.
+    """
+    jobs_str = str(jobs)
+    results = []
+    # Split by '), ' to separate jobs, then add ')' back except last
+    parts = jobs_str.split('), ')
+    for i, part in enumerate(parts):
+        if not part.endswith(')'):
+            part += ')'
+        # Find the start of 'Every'
+        start = part.find('Every')
+        if start != -1:
+            # Find the start of 'do <lambda>()'
+            do_idx = part.find('do <lambda>()')
+            if do_idx != -1:
+                summary = part[start:do_idx].strip()
+                # Find the (last run: ... next run: ...) part
+                paren_idx = part.find('(', do_idx)
+                if paren_idx != -1:
+                    summary += ' ' + part[paren_idx:].strip()
+                    results.append(summary)
+    return results
 
 def setup_scheduler(
     schedulerMotd, MOTD, schedulerMessage, schedulerChannel, schedulerInterface,

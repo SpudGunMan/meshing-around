@@ -2101,12 +2101,16 @@ async def process_vox_queue():
 async def watchdog():
     global localTelemetryData, retry_int1, retry_int2, retry_int3, retry_int4, retry_int5, retry_int6, retry_int7, retry_int8, retry_int9
     logger.debug("System: Watchdog started")
+    wd_last_logged_minute = -1
     while True:
         await asyncio.sleep(20)
+        now = datetime.now()
 
-        # perform memory cleanup every 10 minutes
-        if datetime.now().minute % 10 == 0:
+                    
+        if now.minute % 20 == 0 and now.minute != wd_last_logged_minute:
+            # perform memory cleanup every 10 minutes
             cleanup_memory()
+            wd_last_logged_minute = now.minute
 
         # check all interfaces
         for i in range(1, 10):
