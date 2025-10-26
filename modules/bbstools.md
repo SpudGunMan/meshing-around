@@ -178,7 +178,7 @@ schedule.every(2).days.at("10:00").do(send_bbslink, send_message, schedulerChann
 
 ```ini
 [bbs]
-# The "api" needs enabled which enables file polling 
+# The "api" needs enabled which enables file polling and use of `script/injectDM.py`
 bbsAPI_enabled = True 
 ```
 
