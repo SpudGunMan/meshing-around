@@ -81,14 +81,14 @@ else
     echo "Configuration merge log (ini_merge_log.txt) not found. check out the script/configMerge.py tool!"
 fi
 
-# if service was stopped earlier, restart it
 if [[ "$service_stopped" = true ]]; then
     echo "Restarting services..."
-    systemctl start mesh_bot.service
-    systemctl start pong_bot.service
-    systemctl start mesh_bot_reporting.service
-    systemctl start mesh_bot_w3.service
-    echo "Services restarted."
+    for svc in mesh_bot.service pong_bot.service mesh_bot_reporting.service mesh_bot_w3.service; do
+        if systemctl list-unit-files | grep -q "^$svc"; then
+            systemctl start "$svc"
+            echo "$svc restarted."
+        fi
+    done
 fi
 
 # Print completion message
