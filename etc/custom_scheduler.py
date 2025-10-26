@@ -27,6 +27,8 @@ def setup_custom_schedules(send_message, tell_joke, welcome_message, handle_wxc,
     # Send bbslink message every 2 days at 10 AM
     #schedule.every(2).days.at("10:00").do(send_bbslink, send_message, schedulerChannel, schedulerInterface)
 
+# Example task functions, modify as needed the channel and interface parameters default to schedulerChannel and schedulerInterface
+
 def send_joke(send_message, tell_joke, channel, interface):
     send_message(tell_joke(), channel, 0, interface)
 
