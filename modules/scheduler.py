@@ -9,7 +9,7 @@ from modules.settings import MOTD
 from modules.system import send_message
 
 async def run_scheduler_loop(interval=1):
-    logger.debug("System: Scheduler loop started")
+    logger.debug(f"System: Scheduler loop started Tasks: {len(schedule.jobs)}, Details:{extract_schedule_fields(schedule.get_jobs())}")
     try:
         last_logged_minute = -1
         while True:
