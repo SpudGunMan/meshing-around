@@ -4,7 +4,7 @@
 import requests
 import datetime
 from modules.log import logger
-from modules.config import varLatitude, varLongitude
+from modules.settings import varLatitude, varLongitude
 
 trap_list_dxspotter = ["dx"]
 
