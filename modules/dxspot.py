@@ -1,4 +1,6 @@
-#meshing-around modules/dxspot.py
+# meshing-around modules/dxspot.py - Handles DX Spotter integration
+# Fetches DX spots from Spothole API based on user commands
+# 2025 K7MHI Kelly Keeton
 import requests
 import datetime
 from modules.log import logger
@@ -104,7 +106,7 @@ def get_spothole_spots(source=None, band=None, mode=None, date=None, dx_call=Non
             params["date"] = date
     
     try:
-        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Trident/7.0; rv:11.0) like Gecko"}
+        headers = {"User-Agent": "meshing-around-dxspotter/1.0"}
         response = requests.get(url, params=params, headers=headers)
         response.raise_for_status()
         spots = response.json()
