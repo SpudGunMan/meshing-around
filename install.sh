@@ -398,9 +398,9 @@ if [[ $(echo "${embedded}" | grep -i "^n") ]]; then
     printf "sudo systemctl stop %s.service\n" "$service" >> install_notes.txt
     printf "sudo systemctl disable %s.service\n" "$service" >> install_notes.txt
     printf "sudo systemctl disable %s.service\n" "$service" >> install_notes.txt
-    printf "Add this to your crontab to run the report generator hourly:" >> install_notes.txt
+    printf "\n older chron statment to run the report generator hourly:\n" >> install_notes.txt
     printf "0 * * * * /usr/bin/python3 $program_path/etc/report_generator5.py" >> install_notes.txt
-    printf "  to edit crontab run 'crontab -e'" >> install_notes.txt
+    printf "  to edit crontab run 'crontab -e'\n" >> install_notes.txt
     printf "\nmesh_bot_reporting.timer installed to run daily at 4:20 am\n" >> install_notes.txt
     printf "Check timer status: systemctl status mesh_bot_reporting.timer\n" >> install_notes.txt
     printf "List all timers: systemctl list-timers\n" >> install_notes.txt
@@ -454,7 +454,7 @@ else
     printf "sudo journalctl -u %s.service\n" "$service" >> install_notes.txt
     printf "sudo systemctl stop %s.service\n" "$service" >> install_notes.txt
     printf "sudo systemctl disable %s.service\n" "$service" >> install_notes.txt
-    printf "Add this to your crontab to run the report generator hourly:" >> install_notes.txt
+    printf "older crontab to run the report generator hourly:" >> install_notes.txt
     printf "0 * * * * /usr/bin/python3 $program_path/etc/report_generator5.py" >> install_notes.txt
     printf "  to edit crontab run 'crontab -e'" >> install_notes.txt
     printf "\nmesh_bot_reporting.timer installed to run daily at 4:20 am\n" >> install_notes.txt
