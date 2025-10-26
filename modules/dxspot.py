@@ -108,6 +108,8 @@ def get_spothole_spots(source=None, band=None, mode=None, date=None, dx_call=Non
         logger.debug(f"Error fetching spots: {e}")
         spots = []
 
+    logger.debug(f"System: Spothole Fetched {len(spots)} spots from API")
+
     # Admin Filters done via config.ini
     de_grid = None  # e.g., "EM00"
     de_latitude = None  # e.g., 34.05
@@ -153,7 +155,7 @@ def get_spothole_spots(source=None, band=None, mode=None, date=None, dx_call=Non
     if de_location:
         spots = [spot for spot in spots if spot.get('de_location', '').upper() == de_location.upper()]
 
-    return 
+    return spots
 
 def handle_post_dxspot():
     time = int(datetime.datetime.utcnow().timestamp())
