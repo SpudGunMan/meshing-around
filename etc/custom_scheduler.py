@@ -1,5 +1,6 @@
 import schedule
 from modules.log import logger
+from modules.settings import MOTD
 from modules.system import send_message
 
 def setup_custom_schedules(send_message, tell_joke, welcome_message, handle_wxc, MOTD, schedulerChannel, schedulerInterface):
