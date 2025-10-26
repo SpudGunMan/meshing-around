@@ -153,4 +153,36 @@ def get_spothole_spots(source=None, band=None, mode=None, date=None, dx_call=Non
     if de_location:
         spots = [spot for spot in spots if spot.get('de_location', '').upper() == de_location.upper()]
 
-    return spots
+    return 
+
+def handle_post_dxspot():
+    time = int(datetime.datetime.utcnow().timestamp())
+    freq = 14200000  # 14 MHz
+    comment = "Test spot please ignore"
+    de_spot = "N0CALL"
+    dx_spot = "N0CALL"
+    spot = {"dx_call": dx_spot, "time": time, "freq": freq, "comment": comment, "de_call": de_spot}
+    try:
+        success = post_spothole_spot(spot)
+        if success:
+            return "Spot posted successfully."
+        else:
+            return "Failed to post spot."
+    except Exception as e:
+        logger.debug(f"Error in handle_post_dxspot: {e}")
+        return "Error occurred while posting spot."
+
+def post_spothole_spot(spot):
+    """
+    Posts a new spot to https://spothole.app/api/v1/spot.
+    """
+    url = "https://spothole.app/api/v1/spot"
+    headers = {"Content-Type": "application/json", "User-Agent": "meshing-around-dxspotter/1.0"}
+    try:
+        response = requests.post(url, json=spot, headers=headers, timeout=10)
+        response.raise_for_status()
+        logger.debug(f"Spot posted successfully: {response.json()}")
+        return True
+    except Exception as e:
+        logger.debug(f"Error posting spot: {e}")
+        return False
