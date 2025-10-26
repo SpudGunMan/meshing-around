@@ -67,6 +67,7 @@ def get_spothole_spots(source=None, band=None, mode=None, date=None, dx_call=Non
     """
     url = "https://spothole.app/api/v1/spots"
     params = {}
+    fetched_count = 0
     
 
     # Add administrative filters if provided
@@ -108,7 +109,7 @@ def get_spothole_spots(source=None, band=None, mode=None, date=None, dx_call=Non
         logger.debug(f"Error fetching spots: {e}")
         spots = []
 
-    logger.debug(f"System: Spothole Fetched {len(spots)} spots from API")
+    fetched_count = len(spots)
 
     # Admin Filters done via config.ini
     de_grid = None  # e.g., "EM00"
@@ -154,7 +155,7 @@ def get_spothole_spots(source=None, band=None, mode=None, date=None, dx_call=Non
     # Filter by de_location if provided
     if de_location:
         spots = [spot for spot in spots if spot.get('de_location', '').upper() == de_location.upper()]
-
+    logger.debug(f"System: Spothole Returning {len(spots)} spots after filtering (fetched {fetched_count})")
     return spots
 
 def handle_post_dxspot():
