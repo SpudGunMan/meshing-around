@@ -176,6 +176,12 @@ schedule.every(2).days.at("10:00").do(send_message("bbslink MeshBot looking for 
   - Verify file permissions and paths.
   - Ensure the bot reloads the database after file copy.
 
+- **Custom file problems?**
+- remove the custom_scheduler.py and replace it with [etc/custom_scheduler.py](etc/custom_scheduler.py)
+
+ The bbs link command should include `bbslink`
+`.do(send_message("bbslink MeshBot looking for peers", schedulerChannel, 0, schedulerInterface))`
+
 ```ini
 [bbs]
 # The "api" needs enabled which enables file polling and use of `script/injectDM.py`
