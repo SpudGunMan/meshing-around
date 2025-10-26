@@ -4,7 +4,6 @@ This document provides an overview of all modules available in the Mesh-Bot proj
 Updated Oct-2025 "ver 1.9.8.4"
 
 ---
-
 ## Table of Contents
 
 - [Overview](#overview)
@@ -13,19 +12,20 @@ Updated Oct-2025 "ver 1.9.8.4"
 - [BBS (Bulletin Board System)](#bbs-bulletin-board-system)
 - [Checklist](#checklist)
 - [Location & Weather](#location--weather)
+- [Map Command](#-map-command)
 - [EAS & Emergency Alerts](#eas--emergency-alerts)
 - [File Monitoring & News](#file-monitoring--news)
 - [Radio Monitoring](#radio-monitoring)
 - [Voice Commands (VOX)](#voice-commands-vox)
 - [Ollama LLM/AI](#ollama-llmai)
 - [Wikipedia Search](#wikipedia-search)
-- [Scheduler](#-mesh-bot-scheduler-user-guide)
+- [Mesh Bot Scheduler User Guide](#-mesh-bot-scheduler-user-guide)
 - [Other Utilities](#other-utilities)
+- [DX Spotter Module](#dx-spotter-module)
 - [Configuration](#configuration)
 - [Troubleshooting](#troubleshooting)
-- [Adding your Own](adding_more.md)
+- [Messaging Settings](#messaging-settings)
 - [Configuration Guide](#configuration-guide)
-
 ---
 
 ## Overview
