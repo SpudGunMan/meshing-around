@@ -41,10 +41,10 @@ def handledxcluster(message, nodeID, deviceID):
         if spots:
             response_lines = []
             for spot in spots[:5]:
-                callsign = spot.get('dx_call', spot.get('callsign', 'N/A'))
+                callsign = spot.get('dx_call', spot.get('callsign', ''))
                 freq_hz = spot.get('freq', spot.get('frequency', None))
-                frequency = f"{float(freq_hz)/1e6:.3f} MHz" if freq_hz else "N/A"
-                mode_val = spot.get('mode', 'N/A')
+                frequency = f"{float(freq_hz)/1e6:.3f} MHz" if freq_hz else ""
+                mode_val = spot.get('mode', '')
                 comment = spot.get('comment', '')
                 if len(comment) > 111: # Truncate comment to 111 chars
                     comment = comment[:111] + '...'
