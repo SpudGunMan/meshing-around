@@ -238,14 +238,15 @@ def get_NOAAtide(lat=0, lon=0):
     tide_table = tide_table[:-1]
     return tide_table
     
-def get_NOAAweather(lat=0, lon=0, unit=0):
+def get_NOAAweather(lat=0, lon=0, unit=0, report_days=None):
     # get weather report from NOAA for forecast detailed
     weather = ""
     location = lat,lon
     if float(lat) == 0 and float(lon) == 0:
         lat = my_settings.latitudeValue
         lon = my_settings.longitudeValue
-    
+    if report_days is None:
+        report_days = my_settings.forecastDuration
     # get weather data from NOAA units for metric unit = 1 is metric
     if my_settings.use_metric:
         unit = 1
@@ -277,7 +278,7 @@ def get_NOAAweather(lat=0, lon=0, unit=0):
     # from periods, get the detailedForecast from number of days in NOAAforecastDuration
     forecast_json = forecast_data.json()
     forecast = forecast_json['properties']['periods']
-    for day in forecast[:my_settings.forecastDuration]:
+    for day in forecast[:report_days]:
         # abreviate the forecast
 
         weather += abbreviate_noaa(day['name']) + ": " + abbreviate_noaa(day['detailedForecast']) + "\n"
