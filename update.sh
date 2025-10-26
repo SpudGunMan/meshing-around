@@ -3,6 +3,7 @@
 # Usage: bash update.sh or ./update.sh after making it executable with chmod +x update.sh
 
 # Check if the mesh_bot.service or pong_bot.service 
+service_stopped=false
 if systemctl is-active --quiet mesh_bot.service; then
     echo "Stopping mesh_bot.service..."
     systemctl stop mesh_bot.service
