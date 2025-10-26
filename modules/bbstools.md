@@ -8,50 +8,55 @@ This document covers the Bulliten Board System or BBS componment of the meshing-
 ## Table of Contents
 
 1. [BBS Core Functions](#1-bbs-core-functions)
-    - [Direct Messages (DMs)](#11-direct-messages-dms)
+    - [Central Message Store](#11-central-message-store)
+    - [Direct Messages (DMs)](#12-direct-mail-dm-messages)
+    - [Message Storage](#message-storage)
+    - [BBS Commands](#bbs-commands)
 2. [BBS Database Sync: File-Based (Out-of-Band)](#1-bbs-database-sync-file-based-out-of-band)
 3. [BBS Over-the-Air (OTA) Sync: Linking](#2-bbs-over-the-air-ota-sync-linking)
 4. [Scheduling BBS Sync](#3-scheduling-bbs-sync)
-5. [Best Practices](#4-best-practices)
-6. [Example: Full Sync Workflow](#5-example-full-sync-workflow)
-7. [Troubleshooting](#6-troubleshooting)
-8. [API Reference: BBS Sync](#7-api-reference-bbs-sync)
+5. [Example: Full Sync Workflow](#31-example-full-sync-workflow)
+6. [Troubleshooting](#4-troubleshooting)
+7. [API Reference: BBS Sync](#5-api-reference-bbs-sync)
+8. [Best Practices](#6-best-practices)
 
 ## 1. **BBS Core Functions**
+## 1.1 Central Message Store
 
-## 1.1 **Direct Messages (DMs)**
+- **Shared public message space** for all nodes.
+- Classic BBS list with a simple, one-level message tree.
+- Messages are stored in `data/bbsdb.pkl`.
+- Each entry typically includes:  
+  `[id, subject, body, fromNode, timestamp, threadID, replytoID]`
 
-### **How DMs Work**
-- Direct Messages (DMs) are private messages sent from one node to another.
-- DMs are stored separately from public posts in `data/bbsdm.pkl`.
-- Each DM entry in the pickle, typically includes: `[id, toNode, message, fromNode, timestamp, threadID, replytoID]`.
+### Posting to Public
 
-### **DM Delivery**
-- When a DM is posted using `bbs_post_dm(toNode, message, fromNode)`, it is added to the recipient's DM database.
-- DMs can be delivered in two ways:
-  1. **File-Based Sync:**  
-     - The `bbsdm.pkl` file is copied between nodes using SCP, rsync, or other file transfer methods.
-     - After syncing, the recipient node can check for new DMs using `bbs_check_dm(toNode)`.
-  2. **Over-the-Air (OTA) Sync:**  
-     - DMs can be exchanged between nodes using the same OTA sync mechanism as other posts.
-     - The bot will receive (onRX) or detect any packet and deliver the DM/mail to the recipient.
-- DMs are only visible to the intended recipient node and are not listed in the public message list.
-
-### **DM Commands**
-| Command         | Description                                 |
-|-----------------|---------------------------------------------|
-| `bbs_post_dm`   | Send a direct message to another node       |
-| `bbs_check_dm`  | Check for new DMs for your node             |
-| `bbs_delete_dm` | Delete a DM after reading                   |
+To post a public message:
+```sh
+bbspost $Subject #Message
+```
 
 ---
 
+## 1.2 Direct Mail (DM) Messages
 
-### **Message Storage**
-The .. database is
-- Messages are stored in `data/bbsdb.pkl` (public posts) and `data/bbsdm.pkl` (direct messages).
-- Format: Each message is a list, e.g. `[id, subject, body, fromNode, timestamp, threadID, replytoID]`.
+- **DMs are private messages** sent from one node to another.
+- Stored separately from public posts in `data/bbsdm.pkl`.
+- Each DM entry typically includes:  
+  `[id, toNode, message, fromNode, timestamp, threadID, replytoID]`
 
+### DM Delivery
+
+- To post a DM, use:  
+  ```sh
+  bbspost @USER #Message
+  ```
+- When a DM is posted, it is added to the DM database.
+- When the bot detects the recipient node on the network, it delivers the DM and then removes it from local storage.
+
+---
+
+### BBS Commands
 
 | Command      | Description                                   |
 |--------------|-----------------------------------------------|
@@ -64,7 +69,7 @@ The .. database is
 | `bbslink`    | Link messages between BBS systems             |
 
 ---
-Enable in `[bbs]` section of `config.ini`.
+
 
 ## 1. **BBS Database Sync: File-Based (Out-of-Band)**
 
@@ -116,18 +121,34 @@ Enable in `[bbs]` section of `config.ini`.
 - You can schedule periodic sync requests to a peer node.
 - Example: Every hour, send a `bbslink` request to a peer.
 see more at [Module Readme](README.md#scheduler)
----
-
-## 4. **Best Practices**
-
-- **Backup:** Regularly back up `bbsdb.pkl` and `bbsdm.pkl`.
-- **Security:** Use SSH keys for file transfer; restrict OTA sync to trusted nodes.
-- **Reliability:** Use a dedicated channel for BBS sync to avoid chat congestion.
-- **Automation:** Use the scheduler for regular syncs, both file-based and OTA.
 
 ---
 
-## 5. **Example: Full Sync Workflow**
+#### BBS Link
+The scheduler also handles the BBS Link Broadcast message, this would be an example of a mesh-admin channel on 8 being used to pass BBS post traffic between two bots as the initiator, one direction pull. The message just needs to have bbslink
+
+```ini
+[bbs]
+bbslink_enabled = True
+bbslink_whitelist = # list of whitelisted nodes numbers ex: 2813308004,4258675309 empty list allows all
+
+[scheduler]
+enabled = True
+interface = 1
+channel = 2
+value = link
+interval = 12 # 12 hours
+```
+
+```python
+# Custom Schedule Example if using custom for [scheduler]
+# Send bbslink looking for peers every 2 days at 10 AM
+schedule.every(2).days.at("10:00").do(send_bbslink, send_message, schedulerChannel, schedulerInterface)
+```
+
+---
+
+## 3.1. **Example: Full Sync Workflow**
 
 1. **Set up a dedicated sync channel** (e.g., channel bot-admin).
 2. **Configure both nodes** with `bbs_link_enabled = True` and add each other to `bbs_link_whitelist`.
@@ -138,7 +159,7 @@ see more at [Module Readme](README.md#scheduler)
 
 ---
 
-## 6. **Troubleshooting**
+## 4. **Troubleshooting**
 
 - **Messages not syncing?**
   - Check `bbs_link_enabled` and whitelist settings.
@@ -149,7 +170,7 @@ see more at [Module Readme](README.md#scheduler)
   - Verify file permissions and paths.
   - Ensure the bot reloads the database after file copy.
 
-## 7. **API Reference: BBS Sync**
+## 5. **API Reference: BBS Sync**
 
 ### **Key Functions in Python**
 | Function                | Purpose                                   | Usage Example                                      |
@@ -185,5 +206,11 @@ Future Use
 - Receiving node uses `bbs_receive_compressed()`.
 
 ---
+### 6. **Best Practices**
+
+- **Backup:** Regularly back up `bbsdb.pkl` and `bbsdm.pkl`.
+- **Security:** Use SSH keys for file transfer; restrict OTA sync to trusted nodes.
+- **Reliability:** Use a dedicated channel for BBS sync to avoid chat congestion.
+- **Automation:** Use the scheduler for regular syncs, both file-based and OTA.
 
 ---

@@ -11,16 +11,16 @@ This document provides an overview of all modules available in the Mesh-Bot proj
 - [BBS (Bulletin Board System)](#bbs-bulletin-board-system)
 - [Checklist](#checklist)
 - [Location & Weather](#location--weather)
-- [Map Command](#-map-command)
+- [Map Command](#map-command)
 - [EAS & Emergency Alerts](#eas--emergency-alerts)
 - [File Monitoring & News](#file-monitoring--news)
 - [Radio Monitoring](#radio-monitoring)
 - [Voice Commands (VOX)](#voice-commands-vox)
 - [Ollama LLM/AI](#ollama-llmai)
 - [Wikipedia Search](#wikipedia-search)
-- [Mesh Bot Scheduler User Guide](#-mesh-bot-scheduler-user-guide)
-- [Other Utilities](#other-utilities)
 - [DX Spotter Module](#dx-spotter-module)
+- [Mesh Bot Scheduler User Guide](#mesh-bot-scheduler-user-guide)
+- [Other Utilities](#other-utilities)
 - [Configuration](#configuration)
 - [Troubleshooting](#troubleshooting)
 - [Messaging Settings](#messaging-settings)
@@ -317,12 +317,12 @@ W1XYZ @7.030 MHz CW SOTA W7W/WE-001 by:K7MHI CN88
   `No DX spots found.`
 
 ## Configuration
-
-No additional configuration is required. The module is enabled if present in your `modules/` directory.
+```ini
+[radioMon]
+dxspotter_enabled = True
+```
 
 ---
-
-**Written for Meshtastic mesh-bot by K7MHI Kelly Keeton 2025**
  
 
 ## 📅 Mesh Bot Scheduler User Guide
@@ -362,7 +362,6 @@ To send a daily message at 09:00:
 - The scheduler uses the [schedule](https://schedule.readthedocs.io/en/stable/) Python library.
 - All scheduled jobs run asynchronously as long as the bot is running.
 - For troubleshooting, check the logs for scheduler activity and errors.
-
 
 ### Basic Scheduler Options
 
@@ -408,7 +407,7 @@ You can schedule messages or actions using the following options in your configu
 - Schedules the bot to send a weather update at the specified time of day, daily.
 - **Example:**  
   - Option: `weather`  
-  - Interval: `08:00` 
+  - Time: `08:00` 
   - → Sends a weather update daily at 8:00a.
 
 ---
@@ -422,16 +421,6 @@ You can use any of these options to schedule messages on specific days:
 - Option: `fri`  
 - Time: `17:00`  
 - → Sends the message every Friday at 5:00 PM.
-
----
-
-### Configuration Fields
-
-- **schedulerValue**: The schedule type (e.g., `day`, `joke`, `weather`, `mon`, etc.)
-- **schedulerTime**: The time to run (e.g., `08:00`). Leave blank for interval-based schedules.
-- **schedulerInterval**: The interval (e.g., `2` for every 2 hours/days/minutes).
-- **schedulerChannel**: The channel number to send to.
-- **schedulerInterface**: The device/interface number.
 
 ---
 
@@ -594,9 +583,6 @@ Refer to the comments in `config.template` for further guidance on each setting.
 If you continue to have issues, review the logs for error messages and consult the comments in `config.template` for further guidance.
 
 ---
-
-
-
 
 ### Configuration Guide
 The following is documentation for the config.ini file
@@ -896,42 +882,6 @@ enabled = True # QRZ Hello to new nodes
 qrz_hello_string = "send CMD or DM me for more info." # will be sent to all heard nodes once
 training = True # Training mode will not send the hello message to new nodes, use this to build up database
 ```
-
-### Scheduler
-In the config.ini enable the module
-```ini
-[scheduler]
-enabled = False # enable or disable the scheduler module
-interface = 1 # channel to send the message to
-channel = 2
-message = "MeshBot says Hello! DM for more info."
-value = # value can be min,hour,day,mon,tue,wed,thu,fri,sat,sun.
-# value can also be joke (everyXmin) or weather (hour) for special scheduled messages
-# custom for module/scheduler.py custom schedule examples
-interval =  # interval to use when time is not set (e.g. every 2 days)
-time = # time of day in 24:00 hour format when value is 'day' and interval is not set
-```
- The basic brodcast message can be setup in condig.ini. For advanced, See the [modules/scheduler.py](modules/scheduler.py) to edit the schedule. See [schedule documentation](https://schedule.readthedocs.io/en/stable/) for more. Recomend to backup changes so they dont get lost.
-
-```python
-#Send WX every Morning at 08:00 using handle_wxc function to channel 2 on device 1
-schedule.every().day.at("08:00").do(lambda: send_message(handle_wxc(0, 1, 'wx'), 2, 0, 1))
-
-#Send a Net Starting Now Message Every Wednesday at 19:00 using send_message function to channel 2 on device 1
-schedule.every().wednesday.at("19:00").do(lambda: send_message("Net Starting Now", 2, 0, 1))
-```
-
-#### BBS Link
-The scheduler also handles the BBS Link Broadcast message, this would be an example of a mesh-admin channel on 8 being used to pass BBS post traffic between two bots as the initiator, one direction pull. The message just needs to have bbslink
-```python
-# Send bbslink looking for peers every other day at 10:00 using send_message function to channel 8 on device 1
-schedule.every(2).days.at("10:00").do(lambda: send_message("bbslink MeshBot looking for peers", 8, 0, 1))
-```
-```ini
-bbslink_enabled = True
-bbslink_whitelist = # list of whitelisted nodes numbers ex: 2813308004,4258675309 empty list allows all
-```
-
 
 
 Happy meshing!
