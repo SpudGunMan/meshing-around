@@ -267,6 +267,64 @@ Configure in `[wikipedia]` section of `config.ini`.
 
 ---
 
+
+# DX Spotter Module
+
+The DX Spotter module allows you to fetch and display recent DX cluster spots from [spothole.app](https://spothole.app) directly in your mesh-bot.
+
+## Command
+
+| Command | Description                  |
+|---------|------------------------------|
+| `dx`    | Show recent DX cluster spots |
+
+## Usage
+
+Send a message to the bot containing the `dx` command. You can add filters to narrow down the results:
+
+- **Basic usage:**  
+  ```
+  dx
+  ```
+  Returns the latest DX spots.
+
+- **With filters:**  
+  ```
+  dx band=20m mode=SSB
+  dx xota=WWFF
+  dx by=K7MHI
+  ```
+  - `band=`: Filter by band (e.g., 20m, 40m)
+  - `mode=`: Filter by mode (e.g., SSB, CW, FT8)
+  - `ota=`: Filter by source/group (e.g., WWFF, POTA, SOTA)
+  - `of=`: Filter by callsign of the spotted DX
+
+## Example Output
+
+```
+K7ABC @14.074 MHz FT8 WWFF KFF-1234 by:N0CALL CN87 Some comment
+W1XYZ @7.030 MHz CW SOTA W7W/WE-001 by:K7MHI CN88
+```
+
+- Each line shows:  
+  `DX_CALL @FREQUENCY MODE GROUP GROUP_REF by:SPOTTER_CALL SPOTTER_GRID COMMENT`
+
+## Notes
+
+- Returns up to 4 of the most recent spots matching your filters.
+- Data is fetched from [spothole.app](https://spothole.app/).
+- If no spots are found, you’ll see:  
+  `No DX spots found.`
+
+## Configuration
+
+No additional configuration is required. The module is enabled if present in your `modules/` directory.
+
+---
+
+**Written for Meshtastic mesh-bot by K7MHI Kelly Keeton 2025**
+ 
+
 ## 📅 Mesh Bot Scheduler User Guide
 
 Automate messages and tasks using the scheduler module.
@@ -873,62 +931,6 @@ schedule.every(2).days.at("10:00").do(lambda: send_message("bbslink MeshBot look
 bbslink_enabled = True
 bbslink_whitelist = # list of whitelisted nodes numbers ex: 2813308004,4258675309 empty list allows all
 ```
-
-# DX Spotter Module
-
-The DX Spotter module allows you to fetch and display recent DX cluster spots from [spothole.app](https://spothole.app) directly in your mesh-bot.
-
-## Command
-
-| Command | Description                  |
-|---------|------------------------------|
-| `dx`    | Show recent DX cluster spots |
-
-## Usage
-
-Send a message to the bot containing the `dx` command. You can add filters to narrow down the results:
-
-- **Basic usage:**  
-  ```
-  dx
-  ```
-  Returns the latest DX spots.
-
-- **With filters:**  
-  ```
-  dx band=20m mode=SSB
-  dx xota=WWFF
-  dx by=K7MHI
-  ```
-  - `band=`: Filter by band (e.g., 20m, 40m)
-  - `mode=`: Filter by mode (e.g., SSB, CW, FT8)
-  - `xota=`: Filter by source/group (e.g., WWFF, POTA, SOTA)
-  - `by=`: Filter by callsign of the spotter
-
-## Example Output
-
-```
-K7ABC @14.074 MHz FT8 WWFF KFF-1234 by:N0CALL CN87 Some comment
-W1XYZ @7.030 MHz CW SOTA W7W/WE-001 by:K7MHI CN88
-```
-
-- Each line shows:  
-  `DX_CALL @FREQUENCY MODE GROUP GROUP_REF by:SPOTTER_CALL SPOTTER_GRID COMMENT`
-
-## Notes
-
-- Returns up to 4 of the most recent spots matching your filters.
-- Data is fetched from [spothole.app](https://spothole.app/).
-- If no spots are found, you’ll see:  
-  `No DX spots found.`
-
-## Configuration
-
-No additional configuration is required. The module is enabled if present in your `modules/` directory.
-
----
-
-**Written for Meshtastic mesh-bot by K7MHI Kelly Keeton 2025**
 
 
 

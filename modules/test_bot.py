@@ -300,7 +300,6 @@ class TestBot(unittest.TestCase):
         self.assertIsInstance(end_msg, str)
 
 
-
     def test_hamtest_answer_one(self):
         from games.hamtest import hamtest
         user_id = "testuser"
@@ -314,12 +313,18 @@ class TestBot(unittest.TestCase):
         self.assertIsInstance(answer_msg, str)
 
 
-
     ##### API Tests - Extended tests run only if CHECKALL is True #####
 
 
     if CHECKALL:
         logger.info("Running extended API tests as CHECKALL is enabled.")
+    def test_handledxcluster(self):
+        from modules.dxspot import handledxcluster
+        test_message = "DX band=20m mode=SSB of=K7MHI"
+        response = handledxcluster(test_message, nodeID=0, deviceID='testdevice')
+        print("DX Spotter response:", response)
+        self.assertIsInstance(response, str)
+
         def test_getRepeaterBook(self):
             from locationdata import getRepeaterBook
             repeaters = getRepeaterBook(lat, lon)

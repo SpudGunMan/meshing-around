@@ -21,9 +21,9 @@ def handledxcluster(message, nodeID, deviceID):
                 band = part.split("=")[1]
             elif part.lower().startswith("mode="):
                 mode = part.split("=")[1]
-            elif part.lower().startswith("xota="):
+            elif part.lower().startswith("ota="):
                 source = part.split("=")[1]
-            elif part.lower().startswith("by="):
+            elif part.lower().startswith("of="):
                 dx_call = part.split("=")[1]
         # Build params dict
         params = {}
