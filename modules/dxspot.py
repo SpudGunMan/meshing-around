@@ -4,7 +4,7 @@
 import requests
 import datetime
 from modules.log import logger
-from modules.settings import varLatitude, varLongitude
+from modules.settings import latitudeValue, longitudeValue
 
 trap_list_dxspotter = ["dx"]
 
@@ -129,8 +129,8 @@ def get_spothole_spots(source=None, band=None, mode=None, date=None, dx_call=Non
     if de_location:
         de_latitude, de_longitude = de_location
     elif de_latitude is not None and de_longitude is not None:
-        de_latitude = varLatitude
-        de_longitude = varLongitude
+        de_latitude = latitudeValue
+        de_longitude = longitudeValue
     if de_latitude and de_longitude:
         lat_range = (de_latitude - 1.0, de_latitude + 1.0)
         lon_range = (de_longitude - 1.0, de_longitude + 1.0)
