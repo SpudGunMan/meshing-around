@@ -77,6 +77,7 @@ def get_rss_feed(msg):
             return "No RSS or Atom feed entries found."
 
         formatted_entries = []
+        seen_first3 = set()  # Track first 3 words (lowercased) to avoid duplicates
         for item in items:
             # Helper to try multiple tag names
             def find_any(item, tags):
@@ -122,9 +123,16 @@ def get_rss_feed(msg):
             if len(description) > RSS_TRIM_LENGTH:
                 description = description[:RSS_TRIM_LENGTH - 3] + "..."
 
+            # Duplicate check: use first 3 words of description (or title if description is empty)
+            text_for_dupe = description if description else (title or "")
+            first3 = " ".join(text_for_dupe.lower().split()[:3])
+            if first3 in seen_first3:
+                continue
+            seen_first3.add(first3)
+
             formatted_entries.append(f"{title}\n{description}\n")
         return "\n".join(formatted_entries)
     except Exception as e:
         logger.error(f"Error fetching RSS feed from {feed_url}: {e}")
         return ERROR_FETCHING_DATA
-    
+
