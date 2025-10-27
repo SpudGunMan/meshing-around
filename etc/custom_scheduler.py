@@ -6,6 +6,11 @@ from modules.system import send_message
 def setup_custom_schedules(send_message, tell_joke, welcome_message, handle_wxc, MOTD, schedulerChannel, schedulerInterface):
     """
     Set up all custom schedules. Edit the example schedules as needed.
+    1. in config.ini set "value" under [scheduler] to:  value = custom_scheduler
+    2. edit this file to add/remove/modify schedules
+    3. restart mesh bot
+    4. verify schedules are working by checking the log file
+    5. Make sure to uncomment the example schedules below to enable them
     """
     try:
         # Example task functions, modify as needed the channel and interface parameters default to schedulerChannel and schedulerInterface
