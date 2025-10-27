@@ -378,9 +378,14 @@ def handle_echo(message, message_from_id, deviceID, isDM, channel_number):
             #send_raw_bytes echo the data to the channel with synch word:
             port_num = 256
             synch_word = b"echo:"
-            message = message.split("echo ")[1]
-            raw_bytes = synch_word + message.encode('utf-8')
-            send_raw_bytes(message_from_id, raw_bytes, nodeInt=deviceID, channel=channel_number, portnum=port_num)
+            parts = message.split("echo ", 1)
+            if len(parts) > 1 and parts[1].strip() != "":
+                msg_to_echo = parts[1]
+                raw_bytes = synch_word + msg_to_echo.encode('utf-8')
+                send_raw_bytes(message_from_id, raw_bytes, nodeInt=deviceID, channel=channel_number, portnum=port_num)
+                return f"Sent binary echo message to {message_from_id} to {port_num} on channel {channel_number} device {deviceID}"
+            else:
+                return "Please provide a message to echo back to you. Example:echo Hello World"
         except Exception as e:
             logger.error(f"System: Echo Exception {e}")
         return f"Sent binary echo message to {message_from_id} to {port_num} on channel {channel_number} device {deviceID}"
