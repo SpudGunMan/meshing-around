@@ -5,8 +5,9 @@ from modules.system import send_message
 
 def setup_custom_schedules(send_message, tell_joke, welcome_message, handle_wxc, MOTD, schedulerChannel, schedulerInterface):
     """
-    Set up all custom schedules. Edit the example schedules as needed.
-    1. in config.ini set "value" under [scheduler] to:  value = custom_scheduler
+    Set up custom schedules. Edit the example schedules as needed.
+    
+    1. in config.ini set "value" under [scheduler] to:  value = custom    
     2. edit this file to add/remove/modify schedules
     3. restart mesh bot
     4. verify schedules are working by checking the log file
