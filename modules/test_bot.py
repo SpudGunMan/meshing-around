@@ -97,6 +97,24 @@ class TestBot(unittest.TestCase):
         response = send_ollama_query("Hello, Ollama!")
         self.assertIsInstance(response, str)
 
+    def test_extract_search_terms(self):
+        from llm import extract_search_terms
+        # Test with capitalized terms
+        terms = extract_search_terms("What is Python programming?")
+        self.assertIsInstance(terms, list)
+        self.assertTrue(len(terms) > 0)
+        # Test with multiple capitalized words
+        terms2 = extract_search_terms("Tell me about Albert Einstein and Marie Curie")
+        self.assertIsInstance(terms2, list)
+        self.assertTrue(len(terms2) > 0)
+
+    def test_get_wiki_context(self):
+        from llm import get_wiki_context
+        # Test with a well-known topic
+        context = get_wiki_context("Python programming language")
+        self.assertIsInstance(context, str)
+        # Context might be empty if wiki is disabled or fails, that's ok
+
     def test_get_moon_phase(self):
         from space import get_moon
         phase = get_moon(lat, lon)

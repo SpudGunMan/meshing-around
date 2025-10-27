@@ -256,6 +256,10 @@ try:
     llmModel = config['general'].get('ollamaModel', 'gemma3:270m') # default gemma3:270m
     rawLLMQuery = config['general'].getboolean('rawLLMQuery', True) #default True
     llmReplyToNonCommands = config['general'].getboolean('llmReplyToNonCommands', True) # default True
+    llmUseWikiContext = config['general'].getboolean('llmUseWikiContext', False) # default False
+    useOpenWebUI = config['general'].getboolean('useOpenWebUI', False) # default False
+    openWebUIURL = config['general'].get('openWebUIURL', 'http://localhost:3000') # default localhost:3000
+    openWebUIAPIKey = config['general'].get('openWebUIAPIKey', '') # default empty
     dont_retry_disconnect = config['general'].getboolean('dont_retry_disconnect', False) # default False, retry on disconnect
     favoriteNodeList = config['general'].get('favoriteNodeList', '').split(',')
     enableEcho = config['general'].getboolean('enableEcho', False) # default False

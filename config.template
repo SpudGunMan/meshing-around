@@ -83,7 +83,16 @@ ollamaHostName = http://localhost:11434
 # If False, the LLM only replies to the "ask:" and "askai" commands.
 llmReplyToNonCommands = True
 # if True, the input is sent raw to the LLM, if False uses legacy template query
-rawLLMQuery = True 
+rawLLMQuery = True
+# Enable Wikipedia/Kiwix integration with LLM for RAG (Retrieval Augmented Generation)
+# When enabled, LLM will automatically search Wikipedia/Kiwix and include context in responses
+llmUseWikiContext = False
+# Use OpenWebUI instead of direct Ollama API (enables advanced RAG features)
+useOpenWebUI = False
+# OpenWebUI server URL (e.g., http://localhost:3000)
+openWebUIURL = http://localhost:3000
+# OpenWebUI API key/token (required when useOpenWebUI is True)
+openWebUIAPIKey = 
 
 # StoreForward Enabled and Limits
 StoreForward = True
