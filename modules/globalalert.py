@@ -10,8 +10,8 @@ import bs4 as bs # pip install beautifulsoup4
 from modules.log import logger
 from modules.settings import urlTimeoutSeconds, NO_ALERTS, myRegionalKeysDE
 
-trap_list_location_eu = ("ukalert")
-trap_list_location_de = ("dealert")
+trap_list_location_eu = ("ukalert",)
+trap_list_location_de = ("dealert",)
 
 def get_govUK_alerts(lat, lon):
     try:
