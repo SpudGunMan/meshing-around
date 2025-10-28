@@ -11,6 +11,8 @@ from modules.settings import (llmModel, ollamaHostName, rawLLMQuery,
 import requests
 import json
 from datetime import datetime
+if llmUseWikiContext or use_kiwix_server:
+    from modules.wiki import get_wikipedia_summary, get_kiwix_summary
 
 # LLM System Variables
 ollamaAPI = ollamaHostName + "/api/generate"
@@ -112,7 +114,6 @@ def get_wiki_context(input):
     :return: Wikipedia summary or empty string if not available
     """
     try:
-        from modules.wiki import get_wikipedia_summary, get_kiwix_summary
         # Extract potential search terms from the input
         # Try to identify key topics/entities for Wikipedia search
         search_terms = extract_search_terms(input)
@@ -124,7 +125,7 @@ def get_wiki_context(input):
             else:
                 summary = get_wikipedia_summary(term, truncate=False)
 
-            if summary and "error" not in summary.lower():
+            if summary and "error" not in summary.lower() or "html://" not in summary or "ambiguous" not in summary.lower():
                 wiki_context.append(f"Wikipedia context for '{term}': {summary}")
         
         return '\n'.join(wiki_context) if wiki_context else ''
