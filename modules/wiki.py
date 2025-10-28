@@ -2,7 +2,7 @@
 
 from modules.log import logger
 from modules.settings import (use_kiwix_server, kiwix_url, kiwix_library_name,
-                              urlTimeoutSeconds, wiki_return_limit, ERROR_FETCHING_DATA)
+                              urlTimeoutSeconds, wiki_return_limit, ERROR_FETCHING_DATA, wikipedia_enabled)
 #import wikipedia # pip install wikipedia
 import requests
 import bs4 as bs
@@ -84,15 +84,11 @@ def get_kiwix_summary(search_term, truncate=True):
                         return summary.strip()
         
         logger.warning(f"System: No Kiwix Results for:{search_term}")
-        # try to fall back to online Wikipedia if available
-        return get_wikipedia_summary(search_term, force=True)
+        if wikipedia_enabled:
+            # try to fall back to online Wikipedia if available
+            return get_wikipedia_summary(search_term, force=True)
+        return ERROR_FETCHING_DATA
 
-        
-    except requests.RequestException as e:
-        logger.warning(f"System: Kiwix connection error: {e}")
-        return "Unable to connect to local wiki server"
-        # Fallback to online Wikipedia
-        return get_wikipedia_summary(search_term, force=True)
     except Exception as e:
         logger.warning(f"System: Error with Kiwix for:{search_term} {e}")
         return ERROR_FETCHING_DATA
