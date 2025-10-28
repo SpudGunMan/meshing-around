@@ -41,5 +41,12 @@ openWebUIURL = http://IP:3000
 http://IP:3000
 make a new admin user.
 validate you have models imported or that the system is working for query.
+make a new user for the bot
+
+
+upper right settings for the user
+settings -> account
+get/create the API key for the user
+
+
 set api endpoint [OpenWebUI API](https://docs.openwebui.com/getting-started/api-endpoints)
-to quickly get started, go to admin ->settings ->connections ->Manage OpenAI API Connections ->Auth Type None
