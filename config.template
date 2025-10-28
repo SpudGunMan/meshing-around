@@ -272,6 +272,14 @@ enabled = False
 checklist_db = data/checklist.db
 reverse_in_out = False
 
+# Inventory and Point of Sale System
+[inventory]
+enabled = False
+inventory_db = data/inventory.db
+# Set to True to enable penny rounding (USA cash sales)
+# Rounds down for cash sales, up for taxed sales
+disable_penny = False
+
 [qrz]
 # QRZ Hello to new nodes with message
 enabled = False
