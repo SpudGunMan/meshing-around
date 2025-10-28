@@ -436,14 +436,30 @@ def decode_wsjtx_packet(data):
         return None
 
 def check_callsign_match(message, callsigns):
-    """Check if any watched callsign appears in the message"""
+    """Check if any watched callsign appears in the message
+    
+    Uses word boundary matching to avoid false positives like matching
+    'K7' when looking for 'K7MHI'. Callsigns are expected to be
+    separated by spaces or be at the start/end of the message.
+    """
     if not callsigns:
         return True  # If no filter, accept all
     
     message_upper = message.upper()
+    # Split message into words for exact matching
+    words = message_upper.split()
+    
     for callsign in callsigns:
-        if callsign in message_upper:
+        callsign_upper = callsign.upper()
+        # Check if callsign appears as a complete word
+        if callsign_upper in words:
             return True
+        # Also check for callsigns in compound forms like "K7MHI/P" or "K7MHI-7"
+        for word in words:
+            if word.startswith(callsign_upper + '/') or word.startswith(callsign_upper + '-'):
+                return True
+            if word.endswith('/' + callsign_upper) or word.endswith('-' + callsign_upper):
+                return True
     return False
 
 async def wsjtxMonitor():

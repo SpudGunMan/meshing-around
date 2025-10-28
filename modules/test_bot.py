@@ -442,7 +442,13 @@ class TestBot(unittest.TestCase):
         self.assertTrue(check_callsign_match("CQ W1AW FN31", ["K7MHI", "W1AW"]))
         self.assertTrue(check_callsign_match("K7MHI DE W1AW", ["K7MHI", "W1AW"]))
         
-        print("Callsign filtering tests passed")
+        # Test portable/mobile suffixes
+        self.assertTrue(check_callsign_match("CQ K7MHI/P CN87", ["K7MHI"]))
+        self.assertTrue(check_callsign_match("W1AW-7", ["W1AW"]))
+        
+        # Test no false positives with partial matches
+        self.assertFalse(check_callsign_match("CQ K7MHIX CN87", ["K7MHI"]))
+        self.assertFalse(check_callsign_match("K7 TEST", ["K7MHI"]))
 
 
 
