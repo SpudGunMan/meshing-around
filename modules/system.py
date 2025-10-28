@@ -1358,6 +1358,7 @@ def initializeMeshLeaderboard():
         'longestUptime': {'nodeID': None, 'value': 0, 'timestamp': 0},    # 🕰️
         'fastestSpeed': {'nodeID': None, 'value': 0, 'timestamp': 0},     # 🚓
         'highestAltitude': {'nodeID': None, 'value': 0, 'timestamp': 0},  # 🚀
+        'tallestNode': {'nodeID': None, 'value': 0, 'timestamp': 0},      # 🪜
         'coldestTemp': {'nodeID': None, 'value': 999, 'timestamp': 0},    # 🥶
         'hottestTemp': {'nodeID': None, 'value': -999, 'timestamp': 0},   # 🥵
         'worstAirQuality': {'nodeID': None, 'value': 0, 'timestamp': 0},  # 💨
@@ -1423,10 +1424,11 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
         if debugMetadata and 'TELEMETRY_APP' not in metadataFilter:
             print(f"DEBUG TELEMETRY_APP: {packet}\n\n")
         telemetry_packet = packet['decoded']['telemetry']
-        # Track lowest battery 🪫
+        # Track device metrics (battery, uptime)
         if telemetry_packet.get('deviceMetrics'):
             deviceMetrics = telemetry_packet['deviceMetrics']
             current_time = time.time()
+            # Track lowest battery 🪫
             try:
                 if deviceMetrics.get('batteryLevel') is not None:
                     battery = float(deviceMetrics['batteryLevel'])
@@ -1516,6 +1518,15 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
                     meshLeaderboard['highestAltitude'] = {'nodeID': nodeID, 'value': altitude, 'timestamp': time.time()}
                     if logMetaStats:
                         logger.info(f"System: 🚀 New altitude record: {altitude}m from NodeID:{nodeID} ShortName:{get_name_from_number(nodeID, 'short', rxNode)}")
+            # Track tallest node 🪜 (under the highfly_altitude limit by 100m)
+            if position_data.get('altitude') is not None:
+                altitude = position_data['altitude']
+                if altitude < (highfly_altitude - 100):
+                    if altitude > meshLeaderboard['tallestNode']['value']:
+                        meshLeaderboard['tallestNode'] = {'nodeID': nodeID, 'value': altitude, 'timestamp': time.time()}
+                        if logMetaStats:
+                            logger.info(f"System: 🪜 New tallest node record: {altitude}m from NodeID:{nodeID} ShortName:{get_name_from_number(nodeID, 'short', rxNode)}")
+
             # if altitude is over highfly_altitude send a log and message for high-flying nodes and not in highfly_ignoreList
             if position_data.get('altitude', 0) > highfly_altitude and highfly_enabled and str(nodeID) not in highfly_ignoreList and not isNodeBanned(nodeID):
                 logger.info(f"System: High Altitude {position_data['altitude']}m on Device: {rxNode} Channel: {channel} NodeID:{nodeID} Lat:{position_data.get('latitude', 0)} Lon:{position_data.get('longitude', 0)}")
@@ -1543,7 +1554,7 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
                     ):
                         plane_alt = flight_info['altitude']
                         node_alt = position_data.get('altitude', 0)
-                        if abs(node_alt - plane_alt) <= 900:  # within 900m
+                        if abs(node_alt - plane_alt) <= 1000:  # within 1000 meters
                             msg += f"\n✈️Detected near:\n{flight_info}"
                 send_message(msg, highfly_channel, 0, highfly_interface)
 
@@ -1824,6 +1835,16 @@ def get_mesh_leaderboard(msg, fromID, deviceID):
             result += f"🚀 Altitude: {int(round(value_m, 0))}m {get_name_from_number(nodeID, 'short', 1)}\n"
         else:
             result += f"🚀 Altitude: {int(value_ft)}ft {get_name_from_number(nodeID, 'short', 1)}\n"
+
+    # Tallest node
+    if meshLeaderboard['tallestNode']['nodeID']:
+        nodeID = meshLeaderboard['tallestNode']['nodeID']
+        value_m = meshLeaderboard['tallestNode']['value']
+        value_ft = round(value_m * 3.28084, 0)
+        if use_metric:
+            result += f"🪜 Tallest Node: {int(round(value_m, 0))}m {get_name_from_number(nodeID, 'short', 1)}\n"
+        else:
+            result += f"🪜 Tallest Node: {int(value_ft)}ft {get_name_from_number(nodeID, 'short', 1)}\n"
     
     # Coldest temperature
     if meshLeaderboard['coldestTemp']['nodeID']:
