@@ -17,63 +17,43 @@ def tag_visible(element):
     return True
 
 def text_from_html(body):
-    """Extract visible text from HTML content"""
+    """Extract main article text from HTML content"""
     soup = bs.BeautifulSoup(body, 'html.parser')
-    texts = soup.find_all(string=True)
+    # Try to find the main content div (works for both Kiwix and Wikipedia HTML)
+    main = soup.find('div', class_='mw-parser-output')
+    if not main:
+        # Fallback: just use the body if main content div not found
+        main = soup.body
+    if not main:
+        return ""
+    texts = main.find_all(string=True)
     visible_texts = filter(tag_visible, texts)
     return " ".join(t.strip() for t in visible_texts if t.strip())
 
 def get_kiwix_summary(search_term, truncate=True):
-    """Query local Kiwix server for Wikipedia article"""
+    """Query local Kiwix server for Wikipedia article using only search results."""
     if search_term is None or search_term.strip() == "":
         return ERROR_FETCHING_DATA
     try:
         search_encoded = quote(search_term)
-        # Try direct article access first
-        wiki_article = search_encoded.capitalize().replace("%20", "_")
-        exact_url = f"{kiwix_url}/raw/{kiwix_library_name}/content/A/{wiki_article}"
-        
-        response = requests.get(exact_url, timeout=urlTimeoutSeconds)
-        if response.status_code == 200:
-            # Extract and clean text
-            text = text_from_html(response.text)
-            # Remove common Wikipedia metadata prefixes
-            text = text.split("Jump to navigation", 1)[-1]
-            text = text.split("Jump to search", 1)[-1]
-            # Truncate to reasonable length (first few sentences)
-            sentences = text.split('. ')
-            summary = '. '.join(sentences[:wiki_return_limit])
-            if summary and not summary.endswith('.'):
-                summary += '.'
-            if truncate:
-                return summary.strip()[:500]  # Hard limit at 500 chars
-            else:
-                return summary.strip()
-        else:
-            logger.debug(f"System: Kiwix Library:{kiwix_library_name} failed for:{search_term} with status code {response.status_code}")
-
-        # If direct access fails, try search
         search_url = f"{kiwix_url}/search?content={kiwix_library_name}&pattern={search_encoded}"
         response = requests.get(search_url, timeout=urlTimeoutSeconds)
-        
+
         if response.status_code == 200 and "No results were found" not in response.text:
             soup = bs.BeautifulSoup(response.text, 'html.parser')
-            links = [a['href'] for a in soup.find_all('a', href=True) if "start=" not in a['href']]
-        else:
-            links = []
-            logger.debug(f"System: Kiwix Search failed for:{search_term} with status code {response.status_code}")
-            
-            for link in links[:3]:  # Check first 3 results
-                article_name = link.split("/")[-1]
-                if not article_name or article_name[0].islower():
+            results = soup.select('div.results ul li')
+            logger.debug(f"Kiwix: Found {len(results)} results in search results for:{search_term}")
+            for li in results[:3]:
+                a = li.find('a', href=True)
+                if not a:
                     continue
-                    
-                article_url = f"{kiwix_url}{link}"
+                article_url = f"{kiwix_url}{a['href']}"
                 article_response = requests.get(article_url, timeout=urlTimeoutSeconds)
                 if article_response.status_code == 200:
                     text = text_from_html(article_response.text)
-                    text = text.split("Jump to navigation", 1)[-1]
-                    text = text.split("Jump to search", 1)[-1]
+                    # Remove navigation and search jump text
+                    # text = text.split("Jump to navigation", 1)[-1]
+                    # text = text.split("Jump to search", 1)[-1]
                     sentences = text.split('. ')
                     summary = '. '.join(sentences[:wiki_return_limit])
                     if summary and not summary.endswith('.'):
@@ -82,15 +62,15 @@ def get_kiwix_summary(search_term, truncate=True):
                         return summary.strip()[:500]
                     else:
                         return summary.strip()
-        
-        logger.warning(f"System: No Kiwix Results for:{search_term}")
+
+        logger.debug(f"System: No Kiwix Results for:{search_term}")
         if wikipedia_enabled:
-            # try to fall back to online Wikipedia if available
+            logger.debug("Kiwix: Falling back to Wikipedia API.")
             return get_wikipedia_summary(search_term, force=True)
         return ERROR_FETCHING_DATA
 
     except Exception as e:
-        logger.warning(f"System: Error with Kiwix for:{search_term} {e}")
+        logger.warning(f"System: Error with Kiwix for:{search_term} URL:{search_url} {e}")
         return ERROR_FETCHING_DATA
 
 def get_wikipedia_summary(search_term, location=None, force=False, truncate=True):
