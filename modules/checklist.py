@@ -361,8 +361,8 @@ def process_checklist_command(nodeID, message, name="none", location="none"):
     elif "?" in message_lower:
         if not reverse_in_out:
             return ("Command: checklist followed by\n"
-                    "checkin [interval] [note] - check in (optional interval in minutes)\n"
-                    "checkout [note] - check out\n"
+                    "checkin [interval] [note]\n"
+                    "checkout [note]\n"
                     "purgein - delete your checkin\n"
                     "purgeout - delete your checkout\n"
                     "checklistapprove <id> - approve checkin\n"
@@ -370,8 +370,8 @@ def process_checklist_command(nodeID, message, name="none", location="none"):
                     "Example: checkin 60 Hunting in tree stand")
         else:
             return ("Command: checklist followed by\n"
-                    "checkout [interval] [note] - check out (optional interval)\n"
-                    "checkin [note] - check in\n"
+                    "checkout [interval] [note]\n"
+                    "checkin [note]\n"
                     "purgeout - delete your checkout\n"
                     "purgein - delete your checkin\n"
                     "Example: checkout 60 Leaving park")
