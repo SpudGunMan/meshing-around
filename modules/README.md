@@ -254,6 +254,8 @@ Enable and configure VOX features in the `[vox]` section of `config.ini`.
 
 Configure in `[ollama]` section of `config.ini`.
 
+More at [LLM Readme](llm.md)
+
 ---
 
 ## Wikipedia Search
