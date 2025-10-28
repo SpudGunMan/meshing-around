@@ -201,7 +201,7 @@ def send_openwebui_query(prompt, model=None, max_tokens=450, context=''):
     }
     
     try:
-        result = requests.post(openWebUIChatAPI, headers=headers, json=data, timeout=10)
+        result = requests.post(openWebUIChatAPI, headers=headers, json=data, timeout=urlTimeoutSeconds * 4)
         if result.status_code == 200:
             result_json = result.json()
             # OpenWebUI returns OpenAI-compatible format
@@ -274,15 +274,14 @@ def llm_query(input, nodeID=0, location_name=None, init=False):
         # classic model for gemma2, deepseek-r1, etc
         logger.debug(f"System: Using SYSTEM model framework, ideally for gemma2, deepseek-r1, etc")
 
-
-    # Remove command bang if present
-    if cmdBang:
-        input = input[1:].strip()
-
     if not location_name:
         location_name = "no location provided "
+
+    # Remove command bang if present
+    if cmdBang and input.startswith('!'):
+        input = input.strip('!').strip()
     
-    # remove askai: and ask: from the input
+    # Remove any trap words from the start of the input
     for trap in trap_list_llm:
         if input.lower().startswith(trap):
             input = input[len(trap):].strip()
