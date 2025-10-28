@@ -58,7 +58,30 @@ make a new user for the bot
 - settings -> account
 - get/create the API key for the user
 
+## Troubleshooting
+- make sure the OpenWebUI works from the bot node and loads (try lynx etc)
+- make sure the model in config.ini is also loaded in OpenWebUI and you can use it
+- make sure **OpenWebUI** can reach **Ollama IP** it should auto import the models
+- I find using IP and not common use names like localhost which may not work well with docker etc..
+
+- Check OpenWebUI and Ollama are working
+  - Go to Admin Settings within Open WebUI.
+  - Connections tab
+  - Ollama connection and click on the Manage (wrench icon)
+  - download models directly from the Ollama library
+  - **Once the model is downloaded or imported, it will become available for use within Open WebUI, allowing you to interact with it through the chat interface**
+
 ## Docs
-set api endpoint [OpenWebUI API](https://docs.openwebui.com/getting-started/api-endpoints)
+[OpenWebUI Quick Start](https://docs.openwebui.com/getting-started/quick-start/)
+[OpenWebUI API](https://docs.openwebui.com/getting-started/api-endpoints)
+[OpenWebUI Ollama](https://docs.openwebui.com/getting-started/quick-start/starting-with-ollama/)
+
+
+https://docs.openwebui.com/tutorials/tips/rag-tutorial#tutorial-configuring-rag-with-open-webui-documentation
+https://docs.openwebui.com/features/plugin/
+
+
+
+
 
 ---
