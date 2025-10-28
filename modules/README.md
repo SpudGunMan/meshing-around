@@ -218,11 +218,77 @@ Configure in `[fileMon]` section of `config.ini`.
 
 ## Radio Monitoring
 
+The Radio Monitoring module provides several ways to integrate amateur radio software with the mesh network.
+
+### Hamlib Integration
+
 | Command      | Description                                   |
 |--------------|-----------------------------------------------|
 | `radio`      | Monitor radio SNR via Hamlib                  |
 
-Configure in `[radioMon]` section of `config.ini`.
+Monitors signal strength (S-meter) from a connected radio via Hamlib's `rigctld` daemon. When the signal exceeds a configured threshold, it broadcasts an alert to the mesh network with frequency and signal strength information.
+
+### WSJT-X Integration
+
+Monitors WSJT-X decode messages (FT8, FT4, WSPR, etc.) via UDP and forwards them to the mesh network. You can optionally filter by specific callsigns.
+
+**Features:**
+- Listens to WSJT-X UDP broadcasts (default port 2237)
+- Decodes WSJT-X protocol messages
+- Filters by watched callsigns (or monitors all if no filter is set)
+- Forwards decode messages with SNR information to configured mesh channels
+
+**Example Output:**
+```
+WSJT-X FT8: CQ K7MHI CN87 (+12dB)
+```
+
+### JS8Call Integration
+
+Monitors JS8Call messages via TCP API and forwards them to the mesh network. You can optionally filter by specific callsigns.
+
+**Features:**
+- Connects to JS8Call TCP API (default port 2442)
+- Listens for directed and activity messages
+- Filters by watched callsigns (or monitors all if no filter is set)
+- Forwards messages with SNR information to configured mesh channels
+
+**Example Output:**
+```
+JS8Call from W1ABC: HELLO WORLD (+8dB)
+```
+
+### Configuration
+
+Configure all radio monitoring features in the `[radioMon]` section of `config.ini`:
+
+```ini
+[radioMon]
+# Hamlib monitoring
+enabled = False
+rigControlServerAddress = localhost:4532
+signalDetectionThreshold = -10
+
+# WSJT-X monitoring
+wsjtxDetectionEnabled = False
+wsjtxUdpServerAddress = 127.0.0.1:2237
+wsjtxWatchedCallsigns = K7MHI,W1AW
+
+# JS8Call monitoring  
+js8callDetectionEnabled = False
+js8callServerAddress = 127.0.0.1:2442
+js8callWatchedCallsigns = K7MHI,W1AW
+
+# Broadcast settings (shared by all radio monitoring)
+sigWatchBroadcastCh = 2
+sigWatchBroadcastInterface = 1
+```
+
+**Configuration Notes:**
+- Leave `wsjtxWatchedCallsigns` or `js8callWatchedCallsigns` empty to monitor all callsigns
+- Callsigns are comma-separated, case-insensitive
+- Both services can run simultaneously
+- Messages are broadcast to the same channels as Hamlib alerts
 
 ---
 
@@ -794,8 +860,11 @@ The bot will automatically extract and truncate content to fit Meshtastic's mess
 ### Radio Monitoring
 A module allowing a Hamlib compatible radio to connect to the bot. When functioning, it will message the configured channel with a message of in use. **Requires hamlib/rigctld to be running as a service.**
 
+Additionally, the module supports monitoring WSJT-X and JS8Call for amateur radio digital modes.
+
 ```ini
 [radioMon]
+# Hamlib monitoring
 enabled = True
 rigControlServerAddress = localhost:4532
 sigWatchBroadcastCh = 2 # channel to broadcast to can be 2,3
@@ -803,7 +872,29 @@ signalDetectionThreshold = -10 # minimum SNR as reported by radio via hamlib
 signalHoldTime = 10 # hold time for high SNR
 signalCooldown = 5 # the following are combined to reset the monitor
 signalCycleLimit = 5
+
+# WSJT-X monitoring (FT8, FT4, WSPR, etc.)
+# Monitors WSJT-X UDP broadcasts and forwards decode messages to mesh
+wsjtxDetectionEnabled = False
+wsjtxUdpServerAddress = 127.0.0.1:2237 # UDP address and port where WSJT-X broadcasts
+wsjtxWatchedCallsigns =  # Comma-separated list of callsigns to watch (empty = all)
+
+# JS8Call monitoring
+# Connects to JS8Call TCP API and forwards messages to mesh
+js8callDetectionEnabled = False
+js8callServerAddress = 127.0.0.1:2442 # TCP address and port where JS8Call API listens
+js8callWatchedCallsigns =  # Comma-separated list of callsigns to watch (empty = all)
+
+# Broadcast settings (shared by Hamlib, WSJT-X, and JS8Call)
+sigWatchBroadcastInterface = 1
 ```
+
+**Setup Notes:**
+- **WSJT-X**: Enable UDP Server in WSJT-X settings (File → Settings → Reporting → Enable UDP Server)
+- **JS8Call**: Enable TCP Server in JS8Call settings (File → Settings → Reporting → Enable TCP Server API)
+- Both services can run simultaneously
+- Leave callsign filters empty to monitor all activity
+- Callsigns are case-insensitive and comma-separated (e.g., `K7MHI,W1AW`)
 
 ### File Monitoring
 Some dev notes for ideas of use
