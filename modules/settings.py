@@ -32,6 +32,8 @@ cmdHistory = [] # list to hold the command history for lheard and history comman
 msg_history = [] # list to hold the message history for the messages command
 max_bytes = 200 # Meshtastic has ~237 byte limit, use conservative 200 bytes for message content
 voxMsgQueue = [] # queue for VOX detected messages
+wsjtxMsgQueue = [] # queue for WSJT-X detected messages
+js8callMsgQueue = [] # queue for JS8Call detected messages
 # Game trackers
 surveyTracker = []           # Survey game tracker
 tictactoeTracker = []        # TicTacToe game tracker
@@ -406,6 +408,14 @@ try:
     voxOnTrapList = config['radioMon'].getboolean('voxOnTrapList', False) # default False
     voxTrapList = config['radioMon'].get('voxTrapList', 'chirpy').split(',') # default chirpy
     voxEnableCmd = config['radioMon'].getboolean('voxEnableCmd', True) # default True
+    
+    # WSJT-X and JS8Call monitoring
+    wsjtx_detection_enabled = config['radioMon'].getboolean('wsjtxDetectionEnabled', False) # default WSJT-X detection disabled
+    wsjtx_udp_server_address = config['radioMon'].get('wsjtxUdpServerAddress', '127.0.0.1:2237') # default localhost:2237
+    wsjtx_watched_callsigns = config['radioMon'].get('wsjtxWatchedCallsigns', '') # default empty (all callsigns)
+    js8call_detection_enabled = config['radioMon'].getboolean('js8callDetectionEnabled', False) # default JS8Call detection disabled
+    js8call_server_address = config['radioMon'].get('js8callServerAddress', '127.0.0.1:2442') # default localhost:2442
+    js8call_watched_callsigns = config['radioMon'].get('js8callWatchedCallsigns', '') # default empty (all callsigns)
 
     # file monitor
     file_monitor_enabled = config['fileMon'].getboolean('filemon_enabled', False)

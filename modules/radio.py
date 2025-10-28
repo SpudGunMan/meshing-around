@@ -263,4 +263,309 @@ async def voxMonitor():
     except Exception as e:
         logger.error(f"RadioMon: Error in VOX monitor: {e}")
 
+# WSJT-X and JS8Call UDP Monitoring
+# Based on WSJT-X UDP protocol specification
+# Reference: https://github.com/ckuhtz/ham/blob/main/mcast/recv_decode.py
+
+wsjtx_enabled = False
+js8call_enabled = False
+wsjtx_udp_port = 2237
+js8call_udp_port = 2442
+watched_callsigns = []
+wsjtx_udp_address = '127.0.0.1'
+js8call_tcp_address = '127.0.0.1'
+js8call_tcp_port = 2442
+
+try:
+    from modules.settings import (
+        wsjtx_detection_enabled,
+        wsjtx_udp_server_address,
+        wsjtx_watched_callsigns,
+        js8call_detection_enabled,
+        js8call_server_address,
+        js8call_watched_callsigns
+    )
+    wsjtx_enabled = wsjtx_detection_enabled
+    js8call_enabled = js8call_detection_enabled
+    
+    if wsjtx_enabled:
+        import socket
+        import struct
+        # Parse UDP address
+        if ':' in wsjtx_udp_server_address:
+            wsjtx_udp_address, port_str = wsjtx_udp_server_address.split(':')
+            wsjtx_udp_port = int(port_str)
+        watched_callsigns.extend(wsjtx_watched_callsigns.split(',') if wsjtx_watched_callsigns else [])
+        
+    if js8call_enabled:
+        import socket
+        import json
+        # Parse TCP address for JS8Call
+        if ':' in js8call_server_address:
+            js8call_tcp_address, port_str = js8call_server_address.split(':')
+            js8call_tcp_port = int(port_str)
+        watched_callsigns.extend(js8call_watched_callsigns.split(',') if js8call_watched_callsigns else [])
+        
+    # Clean up callsigns - remove whitespace
+    watched_callsigns = [cs.strip().upper() for cs in watched_callsigns if cs.strip()]
+    
+except ImportError:
+    logger.debug("RadioMon: WSJT-X/JS8Call settings not configured")
+except Exception as e:
+    logger.warning(f"RadioMon: Error loading WSJT-X/JS8Call settings: {e}")
+
+# WSJT-X UDP Protocol Message Types
+WSJTX_HEARTBEAT = 0
+WSJTX_STATUS = 1
+WSJTX_DECODE = 2
+WSJTX_CLEAR = 3
+WSJTX_REPLY = 4
+WSJTX_QSO_LOGGED = 5
+WSJTX_CLOSE = 6
+WSJTX_REPLAY = 7
+WSJTX_HALT_TX = 8
+WSJTX_FREE_TEXT = 9
+WSJTX_WSPR_DECODE = 10
+WSJTX_LOCATION = 11
+WSJTX_LOGGED_ADIF = 12
+
+wsjtxMsgQueue = []  # Queue for WSJT-X detected messages
+js8callMsgQueue = []  # Queue for JS8Call detected messages
+
+def decode_wsjtx_packet(data):
+    """Decode WSJT-X UDP packet according to the protocol specification"""
+    try:
+        # WSJT-X uses Qt's QDataStream format (big-endian)
+        magic = struct.unpack('>I', data[0:4])[0]
+        if magic != 0xADBCCBDA:
+            return None
+        
+        schema_version = struct.unpack('>I', data[4:8])[0]
+        msg_type = struct.unpack('>I', data[8:12])[0]
+        
+        offset = 12
+        
+        # Helper to read Qt QString (4-byte length + UTF-8 data)
+        def read_qstring(data, offset):
+            if offset + 4 > len(data):
+                return "", offset
+            length = struct.unpack('>I', data[offset:offset+4])[0]
+            offset += 4
+            if length == 0xFFFFFFFF:  # Null string
+                return "", offset
+            if offset + length > len(data):
+                return "", offset
+            text = data[offset:offset+length].decode('utf-8', errors='ignore')
+            return text, offset + length
+        
+        # Decode DECODE message (type 2)
+        if msg_type == WSJTX_DECODE:
+            # Read fields according to WSJT-X protocol
+            wsjtx_id, offset = read_qstring(data, offset)
+            
+            # Read other decode fields: new, time, snr, delta_time, delta_frequency, mode, message
+            if offset + 1 > len(data):
+                return None
+            new = struct.unpack('>?', data[offset:offset+1])[0]
+            offset += 1
+            
+            if offset + 4 > len(data):
+                return None
+            time_val = struct.unpack('>I', data[offset:offset+4])[0]
+            offset += 4
+            
+            if offset + 4 > len(data):
+                return None
+            snr = struct.unpack('>i', data[offset:offset+4])[0]
+            offset += 4
+            
+            if offset + 8 > len(data):
+                return None
+            delta_time = struct.unpack('>d', data[offset:offset+8])[0]
+            offset += 8
+            
+            if offset + 4 > len(data):
+                return None
+            delta_frequency = struct.unpack('>I', data[offset:offset+4])[0]
+            offset += 4
+            
+            mode, offset = read_qstring(data, offset)
+            message, offset = read_qstring(data, offset)
+            
+            return {
+                'type': 'decode',
+                'id': wsjtx_id,
+                'new': new,
+                'time': time_val,
+                'snr': snr,
+                'delta_time': delta_time,
+                'delta_frequency': delta_frequency,
+                'mode': mode,
+                'message': message
+            }
+        
+        # Decode QSO_LOGGED message (type 5)
+        elif msg_type == WSJTX_QSO_LOGGED:
+            wsjtx_id, offset = read_qstring(data, offset)
+            
+            # Read QSO logged fields
+            if offset + 8 > len(data):
+                return None
+            date_off = struct.unpack('>Q', data[offset:offset+8])[0]
+            offset += 8
+            
+            if offset + 8 > len(data):
+                return None
+            time_off = struct.unpack('>Q', data[offset:offset+8])[0]
+            offset += 8
+            
+            dx_call, offset = read_qstring(data, offset)
+            dx_grid, offset = read_qstring(data, offset)
+            
+            return {
+                'type': 'qso_logged',
+                'id': wsjtx_id,
+                'dx_call': dx_call,
+                'dx_grid': dx_grid
+            }
+            
+        return None
+        
+    except Exception as e:
+        logger.debug(f"RadioMon: Error decoding WSJT-X packet: {e}")
+        return None
+
+def check_callsign_match(message, callsigns):
+    """Check if any watched callsign appears in the message"""
+    if not callsigns:
+        return True  # If no filter, accept all
+    
+    message_upper = message.upper()
+    for callsign in callsigns:
+        if callsign in message_upper:
+            return True
+    return False
+
+async def wsjtxMonitor():
+    """Monitor WSJT-X UDP broadcasts for decode messages"""
+    if not wsjtx_enabled:
+        logger.warning("RadioMon: WSJT-X monitoring called but not enabled")
+        return
+    
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        sock.bind((wsjtx_udp_address, wsjtx_udp_port))
+        sock.setblocking(False)
+        
+        logger.info(f"RadioMon: WSJT-X UDP listener started on {wsjtx_udp_address}:{wsjtx_udp_port}")
+        if watched_callsigns:
+            logger.info(f"RadioMon: Watching for callsigns: {', '.join(watched_callsigns)}")
+        
+        while True:
+            try:
+                data, addr = sock.recvfrom(4096)
+                decoded = decode_wsjtx_packet(data)
+                
+                if decoded and decoded['type'] == 'decode':
+                    message = decoded['message']
+                    mode = decoded['mode']
+                    snr = decoded['snr']
+                    
+                    # Check if message contains watched callsigns
+                    if check_callsign_match(message, watched_callsigns):
+                        msg_text = f"WSJT-X {mode}: {message} (SNR: {snr:+d}dB)"
+                        logger.info(f"RadioMon: {msg_text}")
+                        wsjtxMsgQueue.append(msg_text)
+                        
+            except BlockingIOError:
+                # No data available
+                await asyncio.sleep(0.1)
+            except Exception as e:
+                logger.debug(f"RadioMon: Error in WSJT-X monitor loop: {e}")
+                await asyncio.sleep(1)
+                
+    except Exception as e:
+        logger.error(f"RadioMon: Error starting WSJT-X monitor: {e}")
+
+async def js8callMonitor():
+    """Monitor JS8Call TCP API for messages"""
+    if not js8call_enabled:
+        logger.warning("RadioMon: JS8Call monitoring called but not enabled")
+        return
+    
+    try:
+        logger.info(f"RadioMon: JS8Call TCP listener connecting to {js8call_tcp_address}:{js8call_tcp_port}")
+        if watched_callsigns:
+            logger.info(f"RadioMon: Watching for callsigns: {', '.join(watched_callsigns)}")
+        
+        while True:
+            try:
+                # Connect to JS8Call TCP API
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                sock.settimeout(5)
+                sock.connect((js8call_tcp_address, js8call_tcp_port))
+                sock.setblocking(False)
+                
+                logger.info("RadioMon: Connected to JS8Call API")
+                
+                buffer = ""
+                while True:
+                    try:
+                        data = sock.recv(4096)
+                        if not data:
+                            logger.warning("RadioMon: JS8Call connection closed")
+                            break
+                        
+                        buffer += data.decode('utf-8', errors='ignore')
+                        
+                        # Process complete JSON messages (newline delimited)
+                        while '\n' in buffer:
+                            line, buffer = buffer.split('\n', 1)
+                            if not line.strip():
+                                continue
+                                
+                            try:
+                                msg = json.loads(line)
+                                msg_type = msg.get('type', '')
+                                
+                                # Handle RX.DIRECTED and RX.ACTIVITY messages
+                                if msg_type in ['RX.DIRECTED', 'RX.ACTIVITY']:
+                                    params = msg.get('params', {})
+                                    text = params.get('TEXT', '')
+                                    from_call = params.get('FROM', '')
+                                    snr = params.get('SNR', 0)
+                                    
+                                    if text and check_callsign_match(text, watched_callsigns):
+                                        msg_text = f"JS8Call from {from_call}: {text} (SNR: {snr:+d}dB)"
+                                        logger.info(f"RadioMon: {msg_text}")
+                                        js8callMsgQueue.append(msg_text)
+                                        
+                            except json.JSONDecodeError:
+                                logger.debug(f"RadioMon: Invalid JSON from JS8Call: {line[:100]}")
+                            except Exception as e:
+                                logger.debug(f"RadioMon: Error processing JS8Call message: {e}")
+                                
+                    except BlockingIOError:
+                        await asyncio.sleep(0.1)
+                    except socket.timeout:
+                        await asyncio.sleep(0.1)
+                    except Exception as e:
+                        logger.debug(f"RadioMon: Error in JS8Call receive loop: {e}")
+                        break
+                        
+                sock.close()
+                logger.warning("RadioMon: JS8Call connection lost, reconnecting in 5s...")
+                await asyncio.sleep(5)
+                
+            except socket.timeout:
+                logger.warning("RadioMon: JS8Call connection timeout, retrying in 5s...")
+                await asyncio.sleep(5)
+            except Exception as e:
+                logger.warning(f"RadioMon: Error connecting to JS8Call: {e}")
+                await asyncio.sleep(10)
+                
+    except Exception as e:
+        logger.error(f"RadioMon: Error starting JS8Call monitor: {e}")
+
 # end of file

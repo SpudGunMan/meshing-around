@@ -2007,6 +2007,62 @@ async def handleFileWatcher():
         await asyncio.sleep(1)
         pass
 
+async def handleWsjtxWatcher():
+    # monitor WSJT-X UDP broadcasts for decode messages
+    from modules.radio import wsjtxMsgQueue, wsjtxMonitor
+    from modules.settings import sigWatchBroadcastCh, sigWatchBroadcastInterface
+    
+    # Start the WSJT-X monitor task
+    monitor_task = asyncio.create_task(wsjtxMonitor())
+    
+    while True:
+        if wsjtxMsgQueue:
+            msg = wsjtxMsgQueue.pop(0)
+            logger.debug(f"System: Detected message from WSJT-X: {msg}")
+            
+            # Broadcast to configured channels
+            if type(sigWatchBroadcastCh) is list:
+                for ch in sigWatchBroadcastCh:
+                    if antiSpam and int(ch) != publicChannel:
+                        send_message(msg, int(ch), 0, sigWatchBroadcastInterface)
+                    else:
+                        logger.warning(f"System: antiSpam prevented Alert from WSJT-X")
+            else:
+                if antiSpam and sigWatchBroadcastCh != publicChannel:
+                    send_message(msg, int(sigWatchBroadcastCh), 0, sigWatchBroadcastInterface)
+                else:
+                    logger.warning(f"System: antiSpam prevented Alert from WSJT-X")
+        
+        await asyncio.sleep(0.5)
+
+async def handleJs8callWatcher():
+    # monitor JS8Call TCP API for messages
+    from modules.radio import js8callMsgQueue, js8callMonitor
+    from modules.settings import sigWatchBroadcastCh, sigWatchBroadcastInterface
+    
+    # Start the JS8Call monitor task
+    monitor_task = asyncio.create_task(js8callMonitor())
+    
+    while True:
+        if js8callMsgQueue:
+            msg = js8callMsgQueue.pop(0)
+            logger.debug(f"System: Detected message from JS8Call: {msg}")
+            
+            # Broadcast to configured channels
+            if type(sigWatchBroadcastCh) is list:
+                for ch in sigWatchBroadcastCh:
+                    if antiSpam and int(ch) != publicChannel:
+                        send_message(msg, int(ch), 0, sigWatchBroadcastInterface)
+                    else:
+                        logger.warning(f"System: antiSpam prevented Alert from JS8Call")
+            else:
+                if antiSpam and sigWatchBroadcastCh != publicChannel:
+                    send_message(msg, int(sigWatchBroadcastCh), 0, sigWatchBroadcastInterface)
+                else:
+                    logger.warning(f"System: antiSpam prevented Alert from JS8Call")
+        
+        await asyncio.sleep(0.5)
+
 async def retry_interface(nodeID):
     global retry_int1, retry_int2, retry_int3, retry_int4, retry_int5, retry_int6, retry_int7, retry_int8, retry_int9
     global max_retry_count1, max_retry_count2, max_retry_count3, max_retry_count4, max_retry_count5, max_retry_count6, max_retry_count7, max_retry_count8, max_retry_count9

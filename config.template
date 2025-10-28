@@ -335,6 +335,20 @@ voxOnTrapList = True
 voxTrapList = chirpy
 voxEnableCmd = True
 
+# WSJT-X UDP monitoring - listens for decode messages from WSJT-X, FT8/FT4/WSPR etc.
+wsjtxDetectionEnabled = False
+# UDP address and port where WSJT-X broadcasts (default: 127.0.0.1:2237)
+wsjtxUdpServerAddress = 127.0.0.1:2237
+# Comma-separated list of callsigns to watch (empty = all callsigns)
+wsjtxWatchedCallsigns = 
+
+# JS8Call TCP monitoring - connects to JS8Call API for message forwarding
+js8callDetectionEnabled = False
+# TCP address and port where JS8Call API listens (default: 127.0.0.1:2442)
+js8callServerAddress = 127.0.0.1:2442
+# Comma-separated list of callsigns to watch (empty = all callsigns)
+js8callWatchedCallsigns = 
+
 
 [fileMon]
 filemon_enabled = False

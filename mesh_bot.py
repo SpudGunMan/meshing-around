@@ -2020,6 +2020,12 @@ async def main():
 
         if my_settings.voxDetectionEnabled:
             tasks.append(asyncio.create_task(voxMonitor(), name="vox_detection"))
+        
+        if my_settings.wsjtx_detection_enabled:
+            tasks.append(asyncio.create_task(handleWsjtxWatcher(), name="wsjtx_monitor"))
+        
+        if my_settings.js8call_detection_enabled:
+            tasks.append(asyncio.create_task(handleJs8callWatcher(), name="js8call_monitor"))
 
         if my_settings.scheduler_enabled:
             from modules.scheduler import run_scheduler_loop, setup_scheduler
