@@ -309,14 +309,17 @@ interval =
 time =
 
 [radioMon]
-# using Hamlib rig control will monitor and alert on channel use
-enabled = False
-rigControlServerAddress = localhost:4532
+# dx cluster `dx` command
 dxspotter_enabled = True
-# device interface to send the message to
+
+# alerts in this module use the following interface and channel
 sigWatchBroadcastInterface = 1
 # broadcast channel can also be a comma separated list of channels
 sigWatchBroadcastCh = 2
+
+# using Hamlib rig control will monitor and alert on channel use
+enabled = False
+rigControlServerAddress = 127.0.0.1:4532
 # minimum SNR as reported by radio via hamlib
 signalDetectionThreshold = -10
 # hold time for high SNR
@@ -324,15 +327,21 @@ signalHoldTime = 10
 # the following are combined to reset the monitor
 signalCooldown = 5
 signalCycleLimit = 5
-# enable VOX detection using default input
+
+# Enable VOX detection using default input
 voxDetectionEnabled = False
 # description to use in the alert message
 voxDescription = VOX
+
 useLocalVoxModel = False
+# default language for VOX detection
 voxLanguage = en-us
+# sound.card input device to use for VOX detection, 'default' uses system default
 voxInputDevice = default
+# "hey chirpy"
 voxOnTrapList = True
 voxTrapList = chirpy
+# allow use of 'weather' and 'joke' commands via VOX
 voxEnableCmd = True
 
 # WSJT-X UDP monitoring - listens for decode messages from WSJT-X, FT8/FT4/WSPR etc.
