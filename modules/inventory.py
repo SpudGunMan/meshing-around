@@ -533,17 +533,25 @@ def process_inventory_command(nodeID, message, name="none"):
         
         # Item management commands
         if message_lower.startswith("itemadd "):
-            # itemadd name price quantity [location]
-            if len(parts) < 4:
-                return "Usage: itemadd <name> <price> <quantity> [location]"
+            # itemadd <name> <qty> [price] [location]
+            if len(parts) < 3:
+                return "Usage: itemadd <name> <qty> [price] [location]"
             item_name = parts[1]
             try:
-                price = float(parts[2])
-                quantity = int(parts[3])
-                location = " ".join(parts[4:]) if len(parts) > 4 else ""
-                return add_item(item_name, price, quantity, location)
+                quantity = int(parts[2])
             except ValueError:
-                return "Invalid price or quantity."
+                return "Invalid quantity."
+            price = 0.0
+            location = ""
+            if len(parts) > 3:
+                try:
+                    price = float(parts[3])
+                    location = " ".join(parts[4:]) if len(parts) > 4 else ""
+                except ValueError:
+                    # If price is omitted, treat parts[3] as location
+                    price = 0.0
+                    location = " ".join(parts[3:])
+            return add_item(item_name, price, quantity, location)
         
         elif message_lower.startswith("itemremove "):
             item_name = " ".join(parts[1:])
@@ -633,18 +641,20 @@ def process_inventory_command(nodeID, message, name="none"):
 
 def get_inventory_help():
     """Return help text for inventory commands"""
-    return """📦 Inventory Commands:
-itemadd <name> <price> <qty> [loc]
-itemremove <name>
-itemreset <name> [price=X] [qty=Y]
-itemsell <name> <qty> [notes]
-itemreturn <transaction_id>
-itemlist - list inventory
-itemstats - today's stats
-
-🛒 Cart Commands:
-cartadd <name> <qty>
-cartremove <name>
-cartlist - view cart
-cartbuy/cartsell [notes]
-cartclear - empty cart"""
+    return (
+        "📦 Inventory Commands:\n"
+        "  itemadd <name> <qty> [price] [loc]    Add a new item (price and location optional)\n"
+        "  itemremove <name>                     Remove an item\n"
+        "  itemreset name> <qty> [price] [loc]    Update price and/or quantity\n"
+        "  itemsell <name> <qty> [notes]         Sell an item\n"
+        "  itemreturn <transaction_id>           Return a transaction\n"
+        "  itemlist                              List inventory\n"
+        "  itemstats                             Show today's stats\n"
+        "\n"
+        "🛒 Cart Commands:\n"
+        "  cartadd <name> <qty>                  Add to cart\n"
+        "  cartremove <name>                     Remove from cart\n"
+        "  cartlist                              View cart\n"
+        "  cartbuy/cartsell [notes]              Checkout cart\n"
+        "  cartclear                             Empty cart"
+    )
