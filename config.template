@@ -276,8 +276,9 @@ reverse_in_out = False
 [inventory]
 enabled = False
 inventory_db = data/inventory.db
-# Set to True to enable penny rounding (USA cash sales)
-# Rounds down for cash sales, up for taxed sales
+# Set to True to disable penny precision and round to nickels (USA cash sales)
+# When True: cash sales round down, taxed sales round up to nearest $0.05
+# When False (default): normal penny precision ($0.01)
 disable_penny = False
 
 [qrz]

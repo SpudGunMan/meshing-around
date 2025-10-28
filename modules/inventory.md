@@ -41,8 +41,9 @@ Add to your `config.ini`:
 [inventory]
 enabled = True
 inventory_db = data/inventory.db
-# Set to True to enable penny rounding (USA cash sales)
-# Rounds down for cash sales, up for taxed sales
+# Set to True to disable penny precision and round to nickels (USA cash sales)
+# When True: cash sales round down, taxed sales round up to nearest $0.05
+# When False (default): normal penny precision ($0.01)
 disable_penny = False
 ```
 
@@ -293,7 +294,7 @@ cartsell Member-123 purchase
 
 ## Penny Rounding (USA Mode)
 
-When `disable_penny = True`, the system implements penny rounding:
+When `disable_penny = True` is set in the configuration, the system implements penny rounding (disabling penny precision). This follows USA practice where pennies are not commonly used in cash transactions.
 
 ### Cash Sales (Round Down)
 - $10.47 → $10.45

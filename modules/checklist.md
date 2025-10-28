@@ -159,7 +159,9 @@ This tells the system:
 
 ### Overdue Check-ins
 
-The system tracks all check-ins with time intervals and can identify who is overdue. While the module provides the data, integration with the bot's alert system can send notifications when someone becomes overdue.
+The system tracks all check-ins with time intervals and can identify who is overdue. The module provides the `get_overdue_checkins()` function that returns a list of overdue users. 
+
+**Note**: Automatic alerts for overdue check-ins require integration with the bot's scheduler or alert system. The checklist module provides the detection capability, but sending notifications must be configured separately through the main bot's alert features.
 
 ## Practical Examples
 
@@ -304,7 +306,7 @@ If hunter falls or has medical emergency, they'll be marked overdue after 60 min
 ```
 checkin 30 Generator maintenance at remote site
 ```
-If technician encounters danger, overdue status triggers response.
+If technician encounters danger, overdue status can be detected. Note: Requires alert system integration to send notifications.
 
 ### Scenario 3: Hiking
 ```
