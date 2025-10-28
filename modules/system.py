@@ -1842,9 +1842,9 @@ def get_mesh_leaderboard(msg, fromID, deviceID):
         value_m = meshLeaderboard['tallestNode']['value']
         value_ft = round(value_m * 3.28084, 0)
         if use_metric:
-            result += f"🪜 Tallest Node: {int(round(value_m, 0))}m {get_name_from_number(nodeID, 'short', 1)}\n"
+            result += f"🪜 Tallest: {int(round(value_m, 0))}m {get_name_from_number(nodeID, 'short', 1)}\n"
         else:
-            result += f"🪜 Tallest Node: {int(value_ft)}ft {get_name_from_number(nodeID, 'short', 1)}\n"
+            result += f"🪜 Tallest: {int(value_ft)}ft {get_name_from_number(nodeID, 'short', 1)}\n"
     
     # Coldest temperature
     if meshLeaderboard['coldestTemp']['nodeID']:
