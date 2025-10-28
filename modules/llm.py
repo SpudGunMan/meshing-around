@@ -4,7 +4,7 @@
 # K7MHI Kelly Keeton 2024
 from modules.log import logger
 from modules.settings import (llmModel, ollamaHostName, rawLLMQuery, 
-                              llmUseWikiContext, useOpenWebUI, openWebUIURL, openWebUIAPIKey, cmdBang, urlTimeoutSeconds)
+                              llmUseWikiContext, useOpenWebUI, openWebUIURL, openWebUIAPIKey, cmdBang, urlTimeoutSeconds, use_kiwix_server)
 
 # Ollama Client
 # https://github.com/ollama/ollama/blob/main/docs/faq.md#how-do-i-configure-ollama-server
@@ -112,14 +112,18 @@ def get_wiki_context(input):
     :return: Wikipedia summary or empty string if not available
     """
     try:
-        from modules.wiki import get_wikipedia_summary
+        from modules.wiki import get_wikipedia_summary, get_kiwix_summary
         # Extract potential search terms from the input
         # Try to identify key topics/entities for Wikipedia search
         search_terms = extract_search_terms(input)
         
         wiki_context = []
         for term in search_terms[:2]:  # Limit to 2 searches to avoid excessive API calls
-            summary = get_wikipedia_summary(term)
+            if use_kiwix_server:
+                summary = get_kiwix_summary(term, truncate=False)
+            else:
+                summary = get_wikipedia_summary(term, truncate=False)
+
             if summary and "error" not in summary.lower():
                 wiki_context.append(f"Wikipedia context for '{term}': {summary}")
         
@@ -234,7 +238,7 @@ def send_openwebui_query(prompt, model=None, max_tokens=450, context=''):
         logger.debug(f"OpenWebUI endpoint: {openWebUIChatAPI}")
 
     try:
-        result = requests.post(openWebUIChatAPI, headers=headers, json=data, timeout=urlTimeoutSeconds * 4)
+        result = requests.post(openWebUIChatAPI, headers=headers, json=data, timeout=urlTimeoutSeconds * 5)
         if DEBUG_LLM:
             logger.debug(f"OpenWebUI response status: {result.status_code}")
             logger.debug(f"OpenWebUI response text: {result.text}")
@@ -257,7 +261,7 @@ def send_openwebui_query(prompt, model=None, max_tokens=450, context=''):
 def send_ollama_query(llmQuery):
     # Send the query to the Ollama API and return the response
     try:
-        result = requests.post(ollamaAPI, data=json.dumps(llmQuery), timeout= urlTimeoutSeconds * 4)
+        result = requests.post(ollamaAPI, data=json.dumps(llmQuery), timeout= urlTimeoutSeconds * 5)
         if result.status_code == 200:
             result_json = result.json()
             result = result_json.get("response", "")
@@ -338,7 +342,10 @@ def llm_query(input, nodeID=0, location_name=None, init=False):
         search_terms = extract_search_terms(input)
         wiki_context_list = []
         for term in search_terms[:2]:
-            summary = get_wiki_context(term)
+            if not use_kiwix_server:
+                summary = get_wiki_context(term)
+            else:
+                summary = get_wiki_context(term)
             if summary and "error" not in summary.lower():
                 wiki_context_list.append(f"Wikipedia context for '{term}': {summary}")
         wikiContext = '\n'.join(wiki_context_list) if wiki_context_list else ''
