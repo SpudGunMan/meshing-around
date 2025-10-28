@@ -11,39 +11,40 @@ def setup_custom_schedules(send_message, tell_joke, welcome_message, handle_wxc,
     2. edit this file to add/remove/modify schedules
     3. restart mesh bot
     4. verify schedules are working by checking the log file
-    5. Make sure to uncomment the example schedules below to enable them
+    5. Make sure to uncomment (delete the single #) the example schedules down at the end of the file to enable them
     """
     try:
         # Example task functions, modify as needed the channel and interface parameters default to schedulerChannel and schedulerInterface
         def send_joke(channel, interface):
-            # uses system.send_message to send the result of tell_joke()
+            ## uses system.send_message to send the result of tell_joke()
             send_message(tell_joke(), channel, 0, interface)
 
         def send_good_morning(channel, interface):
-            # uses system.send_message to send "Good Morning"
+            ## uses system.send_message to send "Good Morning"
             send_message("Good Morning", channel, 0, interface)
 
         def send_wx(channel, interface):
-            # uses system.send_message to send the result of handle_wxc(id,id,cmd,days_returned)
+            ## uses system.send_message to send the result of handle_wxc(id,id,cmd,days_returned)
             send_message(handle_wxc(0, 1, 'wx', days=1), channel, 0, interface)
 
         def send_weather_alert(channel, interface):
-            # uses system.send_message to send string
+            ## uses system.send_message to send string
             send_message("Weather alerts available on 'Alerts' channel with default 'AQ==' key.", channel, 0, interface)
 
         def send_config_url(channel, interface):
-            # uses system.send_message to send string
+            ## uses system.send_message to send string
             send_message("Join us on Medium Fast https://meshtastic.org/e/#CgcSAQE6AggNEg4IARAEOAFAA0gBUB5oAQ", channel, 0, interface)
 
         def send_net_starting(channel, interface):
-            # uses system.send_message to send string, channel 2, interface 3
+            ## uses system.send_message to send string, channel 2, interface 3
             send_message("Net Starting Now", 2, 0, 3)
 
         def send_welcome(channel, interface):
-            # uses system.send_message to send string, channel 2, interface 1
+            ## uses system.send_message to send string, channel 2, interface 1
             send_message("Welcome to the group", 2, 0, 1)
 
         def send_motd(channel, interface):
+            ## uses system.send_message to send message of the day string which can be updated in runtime
             send_message(MOTD, channel, 0, interface)
 
         ### Send a joke every 2 minutes
