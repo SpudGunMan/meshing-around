@@ -75,8 +75,9 @@ kiwixLibraryName = wikipedia_en_100_nopic_2025-09
 
 # Enable ollama LLM see more at https://ollama.com
 ollama = False
-# Ollama model to use (defaults to gemma3:270m)
+# Ollama model to use (defaults to gemma3:270m) gemma2 is good for older SYSTEM prompt
 # ollamaModel = gemma3:latest
+# ollamaModel = gemma2:2b
 # server instance to use (defaults to local machine install)
 ollamaHostName = http://localhost:11434
 # Produce LLM replies to messages that aren't commands?

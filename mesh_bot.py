@@ -1486,10 +1486,21 @@ def handle_boot(mesh=True):
                                 f"{get_name_from_number(myNodeNum, 'short', i)}. NodeID: {myNodeNum}, {decimal_to_hex(myNodeNum)}")
                     
             if llm_enabled:
-                logger.debug(f"System: Ollama LLM Enabled, loading model {my_settings.llmModel} please wait")
-                llmLoad = llm_query(" ")
+                msg = f"System: LLM Enabled"
+                llmLoad = llm_query(" ", init=True)
                 if "trouble" not in llmLoad:
-                    logger.debug(f"System: LLM Model {my_settings.llmModel} loaded")
+                    if my_settings.llmReplyToNonCommands:
+                        msg += " | Reply to DM's Enabled"
+                    if my_settings.llmUseWikiContext:
+                        wiki_source = "Kiwixpedia" if my_settings.use_kiwix_server else "Wikipedia"
+                        msg += f" | {wiki_source} Context Enabled"
+                    if my_settings.useOpenWebUI:
+                        msg += " | OpenWebUI API Enabled"
+                    else:
+                        msg += f" | Ollama API Model {my_settings.llmModel} loaded. Use {'RAW' if my_settings.rawLLMQuery else 'SYSTEM'} prompt mode."
+                    logger.debug(msg)
+                else:
+                    logger.debug(f"System: Bad response from LLM: {llmLoad}")
 
             if my_settings.bbs_enabled:
                 logger.debug(f"System: BBS Enabled, {bbsdb} has {len(bbs_messages)} messages. Direct Mail Messages waiting: {(len(bbs_dm) - 1)}")
