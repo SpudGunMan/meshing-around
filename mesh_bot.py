@@ -1636,7 +1636,8 @@ def handle_boot(mesh=True):
         
         if my_settings.checklist_enabled:
             logger.debug("System: CheckList Module Enabled")
-        
+        if my_settings.inventory_enabled:
+            logger.debug("System: Inventory Module Enabled")
         if my_settings.ignoreChannels:
             logger.debug(f"System: Ignoring Channels: {my_settings.ignoreChannels}")
         
