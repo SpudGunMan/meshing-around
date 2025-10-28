@@ -75,15 +75,28 @@ kiwixLibraryName = wikipedia_en_100_nopic_2025-09
 
 # Enable ollama LLM see more at https://ollama.com
 ollama = False
-# Ollama model to use (defaults to gemma3:270m)
+# Ollama model to use (defaults to gemma3:270m) gemma2 is good for older SYSTEM prompt
 # ollamaModel = gemma3:latest
+# ollamaModel = gemma2:2b
 # server instance to use (defaults to local machine install)
 ollamaHostName = http://localhost:11434
+
 # Produce LLM replies to messages that aren't commands?
 # If False, the LLM only replies to the "ask:" and "askai" commands.
 llmReplyToNonCommands = True
-# if True, the input is sent raw to the LLM, if False uses legacy template query
-rawLLMQuery = True 
+# if True, the input is sent raw to the LLM, if False uses SYSTEM prompt
+rawLLMQuery = True
+
+# Enable Wikipedia/Kiwix integration with LLM for RAG (Retrieval Augmented Generation)
+# When enabled, LLM will automatically search Wikipedia/Kiwix and include context in responses
+llmUseWikiContext = False
+
+# Use OpenWebUI instead of direct Ollama API (enables advanced RAG features)
+useOpenWebUI = False
+# OpenWebUI server URL (e.g., http://localhost:3000)
+openWebUIURL = http://localhost:3000
+# OpenWebUI API key/token (required when useOpenWebUI is True)
+openWebUIAPIKey = 
 
 # StoreForward Enabled and Limits
 StoreForward = True

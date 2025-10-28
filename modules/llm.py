@@ -3,7 +3,8 @@
 # This module is used to interact with LLM API to generate responses to user input
 # K7MHI Kelly Keeton 2024
 from modules.log import logger
-from modules.settings import llmModel, ollamaHostName, rawLLMQuery
+from modules.settings import (llmModel, ollamaHostName, rawLLMQuery, 
+                              llmUseWikiContext, useOpenWebUI, openWebUIURL, openWebUIAPIKey, cmdBang, urlTimeoutSeconds, use_kiwix_server)
 
 # Ollama Client
 # https://github.com/ollama/ollama/blob/main/docs/faq.md#how-do-i-configure-ollama-server
@@ -11,22 +12,17 @@ import requests
 import json
 from datetime import datetime
 
-if not rawLLMQuery:
-    # this may be removed in the future
-    from googlesearch import search # pip install googlesearch-python
-
 # LLM System Variables
 ollamaAPI = ollamaHostName + "/api/generate"
+openWebUIChatAPI = openWebUIURL + "/api/chat/completions"
+openWebUIOllamaProxy = openWebUIURL + "/ollama/api/generate"
 tokens = 450 # max charcters for the LLM response, this is the max length of the response also in prompts
-requestTruncation = True # if True, the LLM "will" truncate the response 
-
-openaiAPI = "https://api.openai.com/v1/completions" # not used, if you do push a enhancement!
+requestTruncation = True # if True, the LLM "will" truncate the response
+DEBUG_LLM = False # enable debug logging for LLM queries
 
 # Used in the meshBotAI template
 llmEnableHistory = True # enable last message history for the LLM model
-llmContext_fromGoogle = True # enable context from google search results adds to compute time but really helps with responses accuracy
 
-googleSearchResults = 3 # number of google search results to include in the context more results = more compute time
 antiFloodLLM = []
 llmChat_history = {}
 trap_list_llm = ("ask:", "askai")
@@ -49,24 +45,6 @@ meshBotAI = """
 
     PROMPT
     {input}
-
-    """
-
-if llmContext_fromGoogle:
-    meshBotAI = meshBotAI + """
-    CONTEXT
-    The following is the location of the user
-    {location_name}
-
-    The following is for context around the prompt to help guide your response.
-    {context}
-
-    """
-else:
-    meshBotAI = meshBotAI + """
-    CONTEXT
-    The following is the location of the user
-    {location_name}
 
     """
 
@@ -101,22 +79,6 @@ def llmTool_math_calculator(expression):
     except Exception as e:
         return f"Error in calculation: {e}"
 
-def llmTool_get_google(query, num_results=3):
-    """
-    Example tool function to perform a Google search and return results.
-    :param query: The search query string.
-    :param num_results: Number of search results to return.
-    :return: A list of search result titles and descriptions.
-    """
-    results = []
-    try:
-        googleSearch = search(query, advanced=True, num_results=num_results)
-        for result in googleSearch:
-            results.append(f"{result.title}: {result.description}")
-        return results
-    except Exception as e:
-        return [f"Error in Google search: {e}"]
-
 llmFunctions = [
 
     {
@@ -141,46 +103,164 @@ llmFunctions = [
             "required": ["expression"]
         }
     },
-    {
-        "name": "llmTool_get_google",
-        "description": "Perform a Google search and return results.",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "query": {
-                    "type": "string",
-                    "description": "The search query string."
-                },
-                "num_results": {
-                    "type": "integer",
-                    "description": "Number of search results to return.",
-                    "default": 3
-                }
-            },
-            "required": ["query"]
-        }
-    }  
 ]
 
-def get_google_context(input, num_results):
-    # Get context from Google search results
-    googleResults = []
+def get_wiki_context(input):
+    """
+    Get context from Wikipedia/Kiwix for RAG enhancement
+    :param input: The user query
+    :return: Wikipedia summary or empty string if not available
+    """
     try:
-        googleSearch = search(input, advanced=True, num_results=num_results)
-        if googleSearch:
-            for result in googleSearch:
-                googleResults.append(f"{result.title} {result.description}")
-        else:
-            googleResults = ['no other context provided']
+        from modules.wiki import get_wikipedia_summary, get_kiwix_summary
+        # Extract potential search terms from the input
+        # Try to identify key topics/entities for Wikipedia search
+        search_terms = extract_search_terms(input)
+        
+        wiki_context = []
+        for term in search_terms[:2]:  # Limit to 2 searches to avoid excessive API calls
+            if use_kiwix_server:
+                summary = get_kiwix_summary(term, truncate=False)
+            else:
+                summary = get_wikipedia_summary(term, truncate=False)
+
+            if summary and "error" not in summary.lower():
+                wiki_context.append(f"Wikipedia context for '{term}': {summary}")
+        
+        return '\n'.join(wiki_context) if wiki_context else ''
     except Exception as e:
-        logger.debug(f"System: LLM Query: context gathering failed, likely due to network issues")
-        googleResults = ['no other context provided']
-    return googleResults
+        logger.debug(f"System: LLM Query: Wiki context gathering failed: {e}")
+        return ''
+    
+def llm_extract_topic(input):
+    """
+    Use LLM to extract the main topic as a single word or short phrase.
+    Always uses raw mode and supports both Ollama and OpenWebUI.
+    :param input: The user query
+    :return: List with one topic string, or empty list on failure
+    """
+    prompt = (
+        "Summarize the following query into a single word or short phrase that best represents the main topic, "
+        "for use as a Wikipedia search term. Only return the word or phrase, nothing else:\n"
+        f"{input}"
+    )
+    try:
+        if useOpenWebUI and openWebUIAPIKey:
+            result = send_openwebui_query(prompt, max_tokens=10)
+        else:
+            llmQuery = {"model": llmModel, "prompt": prompt, "stream": False, "max_tokens": 10}
+            result = send_ollama_query(llmQuery)
+        topic = result.strip().split('\n')[0]
+        topic = topic.strip(' "\'.,!?;:')
+        if topic:
+            return [topic]
+    except Exception as e:
+        logger.debug(f"LLM topic extraction failed: {e}")
+    return []
+
+def extract_search_terms(input):
+    """
+    Extract potential search terms from user input.
+    Enhanced: Try LLM-based topic extraction first, fallback to heuristic.
+    :param input: The user query
+    :return: List of potential search terms
+    """
+    # Remove common command prefixes
+    for trap in trap_list_llm:
+        if input.lower().startswith(trap):
+            input = input[len(trap):].strip()
+            break
+
+    # Try LLM-based extraction first
+    terms = llm_extract_topic(input)
+    if terms:
+        return terms
+
+    # Fallback: Simple heuristic (existing code)
+    words = input.split()
+    search_terms = []
+    temp_phrase = []
+    for word in words:
+        clean_word = word.strip('.,!?;:')
+        if clean_word and clean_word[0].isupper() and len(clean_word) > 2:
+            temp_phrase.append(clean_word)
+        elif temp_phrase:
+            search_terms.append(' '.join(temp_phrase))
+            temp_phrase = []
+    if temp_phrase:
+        search_terms.append(' '.join(temp_phrase))
+    if not search_terms:
+        search_terms = [input.strip()]
+    if DEBUG_LLM:
+        logger.debug(f"Extracted search terms: {search_terms}")
+    return search_terms[:3]  # Limit to 3 terms
+
+def send_openwebui_query(prompt, model=None, max_tokens=450, context=''):
+    """
+    Send query to OpenWebUI API for chat completion
+    :param prompt: The user prompt
+    :param model: Model name (optional, defaults to llmModel)
+    :param max_tokens: Max tokens for response
+    :param context: Additional context to include
+    :return: Response text or error message
+    """
+    if model is None:
+        model = llmModel
+
+    headers = {
+        'Authorization': f'Bearer {openWebUIAPIKey}',
+        'Content-Type': 'application/json'
+    }
+
+    messages = []
+    if context:
+        messages.append({
+            "role": "system",
+            "content": f"Use the following context to help answer questions:\n{context}"
+        })
+
+    messages.append({
+        "role": "user",
+        "content": prompt
+    })
+
+    data = {
+        "model": model,
+        "messages": messages,
+        "max_tokens": max_tokens,
+        "stream": False
+    }
+
+    # Debug logging
+    if DEBUG_LLM:
+        logger.debug(f"OpenWebUI payload: {json.dumps(data)}")
+        logger.debug(f"OpenWebUI endpoint: {openWebUIChatAPI}")
+
+    try:
+        result = requests.post(openWebUIChatAPI, headers=headers, json=data, timeout=urlTimeoutSeconds * 5)
+        if DEBUG_LLM:
+            logger.debug(f"OpenWebUI response status: {result.status_code}")
+            logger.debug(f"OpenWebUI response text: {result.text}")
+        if result.status_code == 200:
+            result_json = result.json()
+            # OpenWebUI returns OpenAI-compatible format
+            if 'choices' in result_json and len(result_json['choices']) > 0:
+                response = result_json['choices'][0]['message']['content']
+                return response.strip()
+            else:
+                logger.warning(f"System: OpenWebUI API returned unexpected format")
+                return "⛔️ Response Error"
+        else:
+            logger.warning(f"System: OpenWebUI API returned status code {result.status_code}")
+            return f"⛔️ Request Error"
+    except requests.exceptions.RequestException as e:
+        logger.warning(f"System: OpenWebUI API request failed: {e}")
+        return f"⛔️ Request Error"
 
 def send_ollama_query(llmQuery):
     # Send the query to the Ollama API and return the response
     try:
-        result = requests.post(ollamaAPI, data=json.dumps(llmQuery), timeout=5)
+        result = requests.post(ollamaAPI, data=json.dumps(llmQuery), timeout= urlTimeoutSeconds * 5)
         if result.status_code == 200:
             result_json = result.json()
             result = result_json.get("response", "")
@@ -219,24 +299,28 @@ def send_ollama_tooling_query(prompt, functions, model=None, max_tokens=450):
     else:
         raise Exception(f"HTTP Error: {result.status_code} - {result.text}")
 
-def llm_query(input, nodeID=0, location_name=None):
+def llm_query(input, nodeID=0, location_name=None, init=False):
     global antiFloodLLM, llmChat_history
-    googleResults = []
+    wikiContext = ''
 
     # if this is the first initialization of the LLM the query of " " should bring meshbotAIinit OTA shouldnt reach this?
     # This is for LLM like gemma and others now?
-    if input == " " and rawLLMQuery:
+    if init and rawLLMQuery:
         logger.warning("System: These LLM models lack a traditional system prompt, they can be verbose and not very helpful be advised.")
         input = meshbotAIinit
-    else:
+    elif init:
         input = input.strip()
         # classic model for gemma2, deepseek-r1, etc
-        logger.debug(f"System: Using classic LLM model framework, ideally for gemma2, deepseek-r1, etc")
+        logger.debug(f"System: Using SYSTEM model framework, ideally for gemma2, deepseek-r1, etc")
 
     if not location_name:
         location_name = "no location provided "
+
+    # Remove command bang if present
+    if cmdBang and input.startswith('!'):
+        input = input.strip('!').strip()
     
-    # remove askai: and ask: from the input
+    # Remove any trap words from the start of the input
     for trap in trap_list_llm:
         if input.lower().startswith(trap):
             input = input[len(trap):].strip()
@@ -251,34 +335,84 @@ def llm_query(input, nodeID=0, location_name=None):
     else:
         antiFloodLLM.append(nodeID)
 
-    if llmContext_fromGoogle and not rawLLMQuery:
-        googleResults = get_google_context(input, googleSearchResults)
+    # Get Wikipedia/Kiwix context if enabled (RAG)
+    if llmUseWikiContext and input != meshbotAIinit:
+        # get_wiki_context returns a string, but we want to count the items before joining
+        search_terms = extract_search_terms(input)
+        wiki_context_list = []
+        for term in search_terms[:2]:
+            if not use_kiwix_server:
+                summary = get_wiki_context(term)
+            else:
+                summary = get_wiki_context(term)
+            if summary and "error" not in summary.lower():
+                wiki_context_list.append(f"Wikipedia context for '{term}': {summary}")
+        wikiContext = '\n'.join(wiki_context_list) if wiki_context_list else ''
+        if wikiContext:
+            logger.debug(f"System: using Wikipedia/Kiwix context for LLM query got {len(wiki_context_list)} results")
 
     history = llmChat_history.get(nodeID, ["", ""])
-
-    if googleResults:
-        logger.debug(f"System: Google-Enhanced LLM Query: {input} From:{nodeID}")
-    else:
-        logger.debug(f"System: LLM Query: {input} From:{nodeID}")
     
     response = ""
     result = ""
     location_name += f" at the current time of {datetime.now().strftime('%Y-%m-%d %H:%M:%S %Z')}"
 
     try:
-        if rawLLMQuery:
-            # sanitize the input to remove tool call syntax
-            if '```' in input:
-                logger.warning("System: LLM Query: Code markdown detected, removing for raw query")
-            input = input.replace('```bash', '').replace('```python', '').replace('```', '')
-            modelPrompt = input
-        else:
-            # Build the query from the template
-            modelPrompt = meshBotAI.format(input=input, context='\n'.join(googleResults), location_name=location_name, llmModel=llmModel, history=history)
+        # Use OpenWebUI if enabled
+        if useOpenWebUI and openWebUIAPIKey:
+            logger.debug(f"System: LLM Query: Using OpenWebUI API for LLM query {input} From:{nodeID}")
             
-        llmQuery = {"model": llmModel, "prompt": modelPrompt, "stream": False, "max_tokens": tokens}
-        # Query the model via Ollama web API
-        result = send_ollama_query(llmQuery)
+            # Combine all context sources
+            combined_context = []
+            if wikiContext:
+                combined_context.append(wikiContext)
+            
+            context_str = '\n\n'.join(combined_context)
+            
+            # For OpenWebUI, we send a cleaner prompt
+            if rawLLMQuery:
+                result = send_openwebui_query(input, context=context_str, max_tokens=tokens)
+            else:
+                # Use the template for non-raw queries
+                modelPrompt = meshBotAI.format(
+                    input=input, 
+                    context=context_str if combined_context else 'no other context provided',
+                    location_name=location_name, 
+                    llmModel=llmModel, 
+                    history=history
+                )
+                result = send_openwebui_query(modelPrompt, max_tokens=tokens)
+        else:
+            logger.debug(f"System: LLM Query: Using Ollama API for LLM query {input} From:{nodeID}")
+            # Use standard Ollama API
+            if rawLLMQuery:
+                # sanitize the input to remove tool call syntax
+                if '```' in input:
+                    logger.warning("System: LLM Query: Code markdown detected, removing for raw query")
+                input = input.replace('```bash', '').replace('```python', '').replace('```', '')
+                modelPrompt = input
+                
+                # Add wiki context to raw queries if available
+                if wikiContext:
+                    modelPrompt = f"Context:\n{wikiContext}\n\nQuestion: {input}"
+            else:
+                # Build the query from the template
+                all_context = []
+                if wikiContext:
+                    all_context.append(wikiContext)
+                
+                context_text = '\n'.join(all_context) if all_context else 'no other context provided'
+                modelPrompt = meshBotAI.format(
+                    input=input, 
+                    context=context_text,
+                    location_name=location_name, 
+                    llmModel=llmModel, 
+                    history=history
+                )
+                
+            llmQuery = {"model": llmModel, "prompt": modelPrompt, "stream": False, "max_tokens": tokens}
+            # Query the model via Ollama web API
+            result = send_ollama_query(llmQuery)
 
         #logger.debug(f"System: LLM Response: " + result.strip().replace('\n', ' '))
     except Exception as e:
@@ -290,13 +424,17 @@ def llm_query(input, nodeID=0, location_name=None):
     response = result.strip().replace('\n', ' ')
     
     if rawLLMQuery and requestTruncation and len(response) > 450:
-        #retryy loop to truncate the response
+        # retry loop to truncate the response
         logger.warning(f"System: LLM Query: Response exceeded {tokens} characters, requesting truncation")
-        truncateQuery = {"model": llmModel, "prompt": truncatePrompt + response, "stream": False, "max_tokens": tokens}
-        truncateResult = send_ollama_query(truncateQuery)
+        truncate_prompt_full = truncatePrompt + response
+        if useOpenWebUI and openWebUIAPIKey:
+            truncateResult = send_openwebui_query(truncate_prompt_full, max_tokens=tokens)
+        else:
+            truncateQuery = {"model": llmModel, "prompt": truncate_prompt_full, "stream": False, "max_tokens": tokens}
+            truncateResult = send_ollama_query(truncateQuery)
 
         # cleanup for message output
-        response = result.strip().replace('\n', ' ')
+        response = truncateResult.strip().replace('\n', ' ')
 
     # done with the query, remove the user from the anti flood list
     antiFloodLLM.remove(nodeID)

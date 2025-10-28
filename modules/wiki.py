@@ -23,7 +23,7 @@ def text_from_html(body):
     visible_texts = filter(tag_visible, texts)
     return " ".join(t.strip() for t in visible_texts if t.strip())
 
-def get_kiwix_summary(search_term):
+def get_kiwix_summary(search_term, truncate=True):
     """Query local Kiwix server for Wikipedia article"""
     if search_term is None or search_term.strip() == "":
         return ERROR_FETCHING_DATA
@@ -45,16 +45,23 @@ def get_kiwix_summary(search_term):
             summary = '. '.join(sentences[:wiki_return_limit])
             if summary and not summary.endswith('.'):
                 summary += '.'
-            return summary.strip()[:500]  # Hard limit at 500 chars
+            if truncate:
+                return summary.strip()[:500]  # Hard limit at 500 chars
+            else:
+                return summary.strip()
+        else:
+            logger.debug(f"System: Kiwix Library:{kiwix_library_name} failed for:{search_term} with status code {response.status_code}")
 
         # If direct access fails, try search
-        logger.debug(f"System: Kiwix direct article not found for:{search_term} Status Code:{response.status_code}")
         search_url = f"{kiwix_url}/search?content={kiwix_library_name}&pattern={search_encoded}"
         response = requests.get(search_url, timeout=urlTimeoutSeconds)
         
         if response.status_code == 200 and "No results were found" not in response.text:
             soup = bs.BeautifulSoup(response.text, 'html.parser')
             links = [a['href'] for a in soup.find_all('a', href=True) if "start=" not in a['href']]
+        else:
+            links = []
+            logger.debug(f"System: Kiwix Search failed for:{search_term} with status code {response.status_code}")
             
             for link in links[:3]:  # Check first 3 results
                 article_name = link.split("/")[-1]
@@ -71,7 +78,10 @@ def get_kiwix_summary(search_term):
                     summary = '. '.join(sentences[:wiki_return_limit])
                     if summary and not summary.endswith('.'):
                         summary += '.'
-                    return summary.strip()[:500]
+                    if truncate:
+                        return summary.strip()[:500]
+                    else:
+                        return summary.strip()
         
         logger.warning(f"System: No Kiwix Results for:{search_term}")
         # try to fall back to online Wikipedia if available
@@ -87,7 +97,7 @@ def get_kiwix_summary(search_term):
         logger.warning(f"System: Error with Kiwix for:{search_term} {e}")
         return ERROR_FETCHING_DATA
 
-def get_wikipedia_summary(search_term, location=None, force=False):
+def get_wikipedia_summary(search_term, location=None, force=False, truncate=True):
     if use_kiwix_server and not force:
         return get_kiwix_summary(search_term)
 
@@ -120,7 +130,11 @@ def get_wikipedia_summary(search_term, location=None, force=False):
         summary = '. '.join(sentences[:wiki_return_limit])
         if summary and not summary.endswith('.'):
             summary += '.'
-        return summary.strip()[:500]
+        if truncate:
+            # Truncate to 500 characters
+            return summary.strip()[:500]
+        else:
+            return summary.strip()
     except Exception as e:
         logger.warning(f"System: Wikipedia API error for:{search_term} {e}")
         return ERROR_FETCHING_DATA
