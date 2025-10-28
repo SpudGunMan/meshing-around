@@ -234,7 +234,6 @@ def send_openwebui_query(prompt, model=None, max_tokens=450, context=''):
     # Debug logging
     if DEBUG_LLM:
         logger.debug(f"OpenWebUI payload: {json.dumps(data)}")
-        logger.debug(f"OpenWebUI headers: {headers}")
         logger.debug(f"OpenWebUI endpoint: {openWebUIChatAPI}")
 
     try:
