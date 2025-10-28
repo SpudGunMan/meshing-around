@@ -153,6 +153,8 @@ The checklist module provides asset tracking and accountability features with sa
   - `checklistapprove <id>` - Approve a pending check-in (admin)
   - `checklistdeny <id>` - Deny/remove a check-in (admin)
 
+more at [modules/checklist.md](modules/checklist.md)
+
 #### Examples
 
 ```
@@ -192,10 +194,11 @@ The inventory module provides a full point-of-sale (POS) system with inventory t
 
 | Command      | Description                                   |
 |--------------|-----------------------------------------------|
-| `itemadd <name> <price> <qty> [location]` | Add new item to inventory |
+| `itemadd <name> <qty> [price] [loc]` | Add new item to inventory |
 | `itemremove <name>` | Remove item from inventory |
-| `itemreset <name> [price=X] [qty=Y]` | Update item price or quantity |
+| `itemadd <name> <qty> [price] [loc]` | Update item price or quantity |
 | `itemsell <name> <qty> [notes]` | Quick sale (bypasses cart) |
+| `itemloan <name> <note>` - Loan/checkout an item |
 | `itemreturn <transaction_id>` | Reverse a transaction |
 | `itemlist` | View all inventory items |
 | `itemstats` | View today's sales statistics |
@@ -209,6 +212,8 @@ The inventory module provides a full point-of-sale (POS) system with inventory t
 | `cartlist` or `cart` | View your cart |
 | `cartbuy` or `cartsell` | Complete transaction |
 | `cartclear` | Empty your cart |
+
+more at [modules/inventory.py](modules/inventory.py)
 
 #### Features
 
