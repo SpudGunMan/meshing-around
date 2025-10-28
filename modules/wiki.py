@@ -49,15 +49,19 @@ def get_kiwix_summary(search_term, truncate=True):
                 return summary.strip()[:500]  # Hard limit at 500 chars
             else:
                 return summary.strip()
+        else:
+            logger.debug(f"System: Kiwix Library:{kiwix_library_name} failed for:{search_term} with status code {response.status_code}")
 
         # If direct access fails, try search
-        logger.debug(f"System: Kiwix direct article not found for:{search_term} Status Code:{response.status_code}")
         search_url = f"{kiwix_url}/search?content={kiwix_library_name}&pattern={search_encoded}"
         response = requests.get(search_url, timeout=urlTimeoutSeconds)
         
         if response.status_code == 200 and "No results were found" not in response.text:
             soup = bs.BeautifulSoup(response.text, 'html.parser')
             links = [a['href'] for a in soup.find_all('a', href=True) if "start=" not in a['href']]
+        else:
+            links = []
+            logger.debug(f"System: Kiwix Search failed for:{search_term} with status code {response.status_code}")
             
             for link in links[:3]:  # Check first 3 results
                 article_name = link.split("/")[-1]
