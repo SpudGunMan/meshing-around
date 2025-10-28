@@ -19,6 +19,7 @@ def initialize_inventory_database():
         c = conn.cursor()
         
         # Items table - stores inventory items
+        logger.debug("System: Inventory: Initializing database...")
         c.execute('''CREATE TABLE IF NOT EXISTS items
                      (item_id INTEGER PRIMARY KEY AUTOINCREMENT,
                       item_name TEXT UNIQUE NOT NULL,
