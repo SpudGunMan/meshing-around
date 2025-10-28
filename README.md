@@ -56,6 +56,8 @@ Mesh Bot is a feature-rich Python bot designed to enhance your [Meshtastic](http
 - **SNR RF Activity Alerts**: Monitor radio frequencies and receive alerts when high SNR (Signal-to-Noise Ratio) activity is detected.
 - **Hamlib Integration**: Use Hamlib (rigctld) to monitor the S meter on a connected radio.
 - **Speech-to-Text Broadcasting**: Convert received audio to text using [Vosk](https://alphacephei.com/vosk/models) and broadcast it to the mesh.
+- **WSJT-X Integration**: Monitor WSJT-X (FT8, FT4, WSPR, etc.) decode messages and forward them to the mesh network with optional callsign filtering.
+- **JS8Call Integration**: Monitor JS8Call messages and forward them to the mesh network with optional callsign filtering.
 
 ### Check-In / Check-Out & Asset Tracking
 - **Asset Tracking**: Maintain a check-in/check-out list for nodes or assets—ideal for accountability of people and equipment (e.g., Radio-Net, FEMA, trailhead groups).
