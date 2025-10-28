@@ -110,13 +110,18 @@ git clone https://github.com/spudgunman/meshing-around
 - **Automated Installation**: [install.sh](INSTALL.md) will automate optional venv and requirements installation.
 - **Launch Script**: [laynch.sh](INSTALL.md) only used in a venv install, to launch the bot and the report generator.
 
-### Docker Installation - Good for Windows!
-See further info on the [docker.md](script/docker/README.md)
+### Docker Installation
+Good for windows or OpenWebUI enabled bots
 
-## Full list of commands for the bot
+[docker.md](script/docker/README.md)
+
+## Module Help
+Configuration Guide
 [modules/README.md](modules/README.md)
 
-### Games (via DM only)
+### Game Help
+Games are DM only by default
+
 [modules/games/README.md](modules/games/README.md)
 
 ### Firmware 2.6 DM Key, and 2.7 CLIENT_BASE Favorite Nodes
@@ -162,7 +167,7 @@ For testing and feature ideas on Discord and GitHub, if its stable its thanks to
 - **PiDiBi, Cisien, bitflip, nagu, Nestpebble, NomDeTom, Iris, Josh, GlockTuber, FJRPiolt, dj505, Woof, propstg, snydermesh, trs2982, F0X, Malice, mesb1, Hailo1999**
 - **xdep**: For the reporting html. 📊
 - **mrpatrick1991**: For OG Docker configurations. 💻
-- **A-c0rN**: Assistance with iPAWS and  🚨
+- **A-c0rN**: Assistance with iPAWS and 🚨
 - **Mike O'Connell/skrrt**: For [eas_alert_parser](etc/eas_alert_parser.py) enhanced by **sheer.cold**
 - **WH6GXZ nurse dude**: Volcano Alerts 🌋
 - **mikecarper**: hamtest, leading to quiz etc.. 📋
