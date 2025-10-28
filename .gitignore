@@ -25,6 +25,10 @@ data/rag/*
 # qrz db
 data/qrz.db
 
+# checklist and inventory databases
+data/checklist.db
+data/inventory.db
+
 # fileMonitor test file
 bee.txt
 

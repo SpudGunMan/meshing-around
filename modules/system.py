@@ -282,6 +282,12 @@ if checklist_enabled:
     trap_list = trap_list + trap_list_checklist # items checkin, checkout, checklist, purgein, purgeout
     help_message = help_message + ", checkin, checkout"
 
+# Inventory and POS Configuration
+if inventory_enabled:
+    from modules.inventory import * # from the spudgunman/meshing-around repo
+    trap_list = trap_list + trap_list_inventory # items item, itemlist, itemsell, etc.
+    help_message = help_message + ", item, cart"
+
 # Radio Monitor Configuration
 if radio_detection_enabled:
     from modules.radio import * # from the spudgunman/meshing-around repo
