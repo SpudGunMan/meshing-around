@@ -10,6 +10,7 @@ This document provides an overview of all modules available in the Mesh-Bot proj
 - [Games](#games)
 - [BBS (Bulletin Board System)](#bbs-bulletin-board-system)
 - [Checklist](#checklist)
+- [Inventory & Point of Sale](#inventory--point-of-sale)
 - [Location & Weather](#location--weather)
 - [Map Command](#map-command)
 - [EAS & Emergency Alerts](#eas--emergency-alerts)
@@ -127,13 +128,148 @@ more at [meshBBS: How-To & API Documentation](bbstools.md)
 
 ## Checklist
 
+### Enhanced Check-in/Check-out System
+
+The checklist module provides asset tracking and accountability features with safety monitoring capabilities.
+
+#### Basic Commands
+
 | Command      | Description                                   |
 |--------------|-----------------------------------------------|
 | `checkin`    | Check in a node/asset                         |
 | `checkout`   | Check out a node/asset                        |
-| `checklist`  | Show checklist database                       |
+| `checklist`  | Show active check-ins                         |
+| `purgein`    | Delete your check-in record                   |
+| `purgeout`   | Delete your check-out record                  |
 
-Enable in `[checklist]` section of `config.ini`.
+#### Advanced Features
+
+- **Safety Monitoring with Time Intervals**
+  - Check in with an expected interval: `checkin 60 Hunting in tree stand`
+  - The system will track if you don't check back in within the specified time (in minutes)
+  - Ideal for solo activities, remote work, or safety accountability
+
+- **Approval Workflow**
+  - `checklistapprove <id>` - Approve a pending check-in (admin)
+  - `checklistdeny <id>` - Deny/remove a check-in (admin)
+
+#### Examples
+
+```
+# Basic check-in
+checkin Arrived at campsite
+
+# Check-in with 30-minute monitoring interval
+checkin 30 Solo hiking on north trail
+
+# Check out when done
+checkout Heading back to base
+
+# View all active check-ins
+checklist
+```
+
+#### Configuration
+
+Enable in `[checklist]` section of `config.ini`:
+
+```ini
+[checklist]
+enabled = True
+checklist_db = data/checklist.db
+reverse_in_out = False
+```
+
+---
+
+## Inventory & Point of Sale
+
+### Complete Inventory Management System
+
+The inventory module provides a full point-of-sale (POS) system with inventory tracking, cart management, and transaction logging.
+
+#### Item Management Commands
+
+| Command      | Description                                   |
+|--------------|-----------------------------------------------|
+| `itemadd <name> <price> <qty> [location]` | Add new item to inventory |
+| `itemremove <name>` | Remove item from inventory |
+| `itemreset <name> [price=X] [qty=Y]` | Update item price or quantity |
+| `itemsell <name> <qty> [notes]` | Quick sale (bypasses cart) |
+| `itemreturn <transaction_id>` | Reverse a transaction |
+| `itemlist` | View all inventory items |
+| `itemstats` | View today's sales statistics |
+
+#### Cart Commands
+
+| Command      | Description                                   |
+|--------------|-----------------------------------------------|
+| `cartadd <name> <qty>` | Add item to your cart |
+| `cartremove <name>` | Remove item from cart |
+| `cartlist` or `cart` | View your cart |
+| `cartbuy` or `cartsell` | Complete transaction |
+| `cartclear` | Empty your cart |
+
+#### Features
+
+- **Transaction Tracking**: All sales are logged with timestamps and user information
+- **Cart Management**: Build up orders before completing transactions
+- **Penny Rounding**: Optional rounding for cash sales (USA mode)
+  - Cash sales round down
+  - Taxed sales round up
+- **Hot Item Stats**: Track best-selling items
+- **Location Tracking**: Optional warehouse/location field for items
+- **Transaction History**: Full audit trail of all sales and returns
+
+#### Examples
+
+```
+# Add items to inventory
+itemadd Radio 149.99 5 Shelf-A
+itemadd Battery 12.50 20 Warehouse-B
+
+# View inventory
+itemlist
+
+# Add items to cart
+cartadd Radio 2
+cartadd Battery 4
+
+# View cart
+cartlist
+
+# Complete sale
+cartsell Customer purchase
+
+# Quick sale without cart
+itemsell Battery 1 Emergency sale
+
+# View today's stats
+itemstats
+
+# Process a return
+itemreturn 123
+```
+
+#### Configuration
+
+Enable in `[inventory]` section of `config.ini`:
+
+```ini
+[inventory]
+enabled = True
+inventory_db = data/inventory.db
+# Set to True to enable penny rounding for USA cash sales
+disable_penny = False
+```
+
+#### Database Schema
+
+The system uses SQLite with four tables:
+- **items**: Product inventory
+- **transactions**: Sales records
+- **transaction_items**: Line items for each transaction
+- **carts**: Temporary shopping carts
 
 ---
 
