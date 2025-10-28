@@ -23,7 +23,7 @@ def text_from_html(body):
     visible_texts = filter(tag_visible, texts)
     return " ".join(t.strip() for t in visible_texts if t.strip())
 
-def get_kiwix_summary(search_term):
+def get_kiwix_summary(search_term, truncate=True):
     """Query local Kiwix server for Wikipedia article"""
     if search_term is None or search_term.strip() == "":
         return ERROR_FETCHING_DATA
@@ -45,7 +45,10 @@ def get_kiwix_summary(search_term):
             summary = '. '.join(sentences[:wiki_return_limit])
             if summary and not summary.endswith('.'):
                 summary += '.'
-            return summary.strip()[:500]  # Hard limit at 500 chars
+            if truncate:
+                return summary.strip()[:500]  # Hard limit at 500 chars
+            else:
+                return summary.strip()
 
         # If direct access fails, try search
         logger.debug(f"System: Kiwix direct article not found for:{search_term} Status Code:{response.status_code}")
@@ -71,7 +74,10 @@ def get_kiwix_summary(search_term):
                     summary = '. '.join(sentences[:wiki_return_limit])
                     if summary and not summary.endswith('.'):
                         summary += '.'
-                    return summary.strip()[:500]
+                    if truncate:
+                        return summary.strip()[:500]
+                    else:
+                        return summary.strip()
         
         logger.warning(f"System: No Kiwix Results for:{search_term}")
         # try to fall back to online Wikipedia if available
@@ -87,7 +93,7 @@ def get_kiwix_summary(search_term):
         logger.warning(f"System: Error with Kiwix for:{search_term} {e}")
         return ERROR_FETCHING_DATA
 
-def get_wikipedia_summary(search_term, location=None, force=False):
+def get_wikipedia_summary(search_term, location=None, force=False, truncate=True):
     if use_kiwix_server and not force:
         return get_kiwix_summary(search_term)
 
@@ -120,7 +126,11 @@ def get_wikipedia_summary(search_term, location=None, force=False):
         summary = '. '.join(sentences[:wiki_return_limit])
         if summary and not summary.endswith('.'):
             summary += '.'
-        return summary.strip()[:500]
+        if truncate:
+            # Truncate to 500 characters
+            return summary.strip()[:500]
+        else:
+            return summary.strip()
     except Exception as e:
         logger.warning(f"System: Wikipedia API error for:{search_term} {e}")
         return ERROR_FETCHING_DATA
