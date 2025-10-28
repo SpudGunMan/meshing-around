@@ -13,10 +13,11 @@ curl -fsSL https://ollama.com/install.sh | sh
 docker run -d -p 3000:8080 --add-host=host.docker.internal:host-gateway -e OLLAMA_API_BASE_URL=http://host.docker.internal:11434 open-webui/open-webui
 ```
 
+## Update /etc/systemd/system/ollama.service
+https://github.com/ollama/ollama/issues/703
 ```ini
-#service file addition
-# https://github.com/ollama/ollama/issues/703
-[Service]
+#service file addition not config.ini
+# [Service]
 Environment="OLLAMA_HOST=0.0.0.0:11434"
 ```
 ## validation
