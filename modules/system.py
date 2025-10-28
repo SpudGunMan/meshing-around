@@ -148,7 +148,7 @@ if dxspotter_enabled:
 
 # Wikipedia Search Configuration
 if wikipedia_enabled or use_kiwix_server:
-    from modules.wiki import * # from the spudgunman/meshing-around repo
+    from modules.wiki import get_wikipedia_summary, get_kiwix_summary, get_wikipedia_summary
     trap_list = trap_list + ("wiki",)
     help_message = help_message + ", wiki"
 
