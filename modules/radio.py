@@ -451,15 +451,24 @@ def check_callsign_match(message, callsigns):
     
     for callsign in callsigns:
         callsign_upper = callsign.upper()
+        # Pre-compute patterns for portable/mobile suffixes
+        callsign_with_slash = callsign_upper + '/'
+        callsign_with_dash = callsign_upper + '-'
+        slash_callsign = '/' + callsign_upper
+        dash_callsign = '-' + callsign_upper
+        
         # Check if callsign appears as a complete word
         if callsign_upper in words:
             return True
-        # Also check for callsigns in compound forms like "K7MHI/P" or "K7MHI-7"
+        
+        # Check for callsigns in compound forms like "K7MHI/P" or "K7MHI-7"
         for word in words:
-            if word.startswith(callsign_upper + '/') or word.startswith(callsign_upper + '-'):
+            if (word.startswith(callsign_with_slash) or 
+                word.startswith(callsign_with_dash) or
+                word.endswith(slash_callsign) or 
+                word.endswith(dash_callsign)):
                 return True
-            if word.endswith('/' + callsign_upper) or word.endswith('-' + callsign_upper):
-                return True
+    
     return False
 
 async def wsjtxMonitor():
