@@ -3,10 +3,19 @@
 # depends on rigctld running externally as a network service
 # also can use VOX detection with a microphone and vosk speech to text to send voice messages to mesh network
 # requires vosk and sounddevice python modules. will auto download needed. more from https://alphacephei.com/vosk/models and unpack
-# 2024 Kelly Keeton K7MHI
+# 2025 Kelly Keeton K7MHI
 
-from modules.log import logger
+# WSJT-X and JS8Call UDP Monitoring
+# Based on WSJT-X UDP protocol specification
+# Reference: https://github.com/ckuhtz/ham/blob/main/mcast/recv_decode.py
+
+
 import asyncio
+import socket
+import struct
+import json
+from modules.log import logger
+
 from modules.settings import (
     radio_detection_enabled,
     rigControlServerAddress,
@@ -25,8 +34,75 @@ from modules.settings import (
     ERROR_FETCHING_DATA
 )
 
+# module global variables
+
+
 # verbose debug logging for trap words function
 debugVoxTmsg = False
+
+# --- WSJT-X and JS8Call Settings Initialization ---
+wsjtxMsgQueue = []  # Queue for WSJT-X detected messages
+js8callMsgQueue = []  # Queue for JS8Call detected messages
+wsjtx_enabled = False
+js8call_enabled = False
+wsjtx_udp_port = 2237
+js8call_udp_port = 2442
+watched_callsigns = []
+wsjtx_udp_address = '127.0.0.1'
+js8call_tcp_address = '127.0.0.1'
+js8call_tcp_port = 2442
+# WSJT-X UDP Protocol Message Types
+WSJTX_HEARTBEAT = 0
+WSJTX_STATUS = 1
+WSJTX_DECODE = 2
+WSJTX_CLEAR = 3
+WSJTX_REPLY = 4
+WSJTX_QSO_LOGGED = 5
+WSJTX_CLOSE = 6
+WSJTX_REPLAY = 7
+WSJTX_HALT_TX = 8
+WSJTX_FREE_TEXT = 9
+WSJTX_WSPR_DECODE = 10
+WSJTX_LOCATION = 11
+WSJTX_LOGGED_ADIF = 12
+
+
+try:
+    from modules.settings import (
+        wsjtx_detection_enabled,
+        wsjtx_udp_server_address,
+        wsjtx_watched_callsigns,
+        js8call_detection_enabled,
+        js8call_server_address,
+        js8call_watched_callsigns
+    )
+    wsjtx_enabled = wsjtx_detection_enabled
+    js8call_enabled = js8call_detection_enabled
+
+    # Use a local list to collect callsigns before assigning to watched_callsigns
+    callsigns = []
+
+    if wsjtx_enabled:
+        if ':' in wsjtx_udp_server_address:
+            wsjtx_udp_address, port_str = wsjtx_udp_server_address.split(':')
+            wsjtx_udp_port = int(port_str)
+        if wsjtx_watched_callsigns:
+            callsigns.extend([cs.strip() for cs in wsjtx_watched_callsigns.split(',') if cs.strip()])
+
+    if js8call_enabled:
+        if ':' in js8call_server_address:
+            js8call_tcp_address, port_str = js8call_server_address.split(':')
+            js8call_tcp_port = int(port_str)
+        if js8call_watched_callsigns:
+            callsigns.extend([cs.strip() for cs in js8call_watched_callsigns.split(',') if cs.strip()])
+
+    # Clean up and deduplicate callsigns, uppercase for matching
+    watched_callsigns = list({cs.upper() for cs in callsigns})
+
+except ImportError:
+    logger.debug("RadioMon: WSJT-X/JS8Call settings not configured")
+except Exception as e:
+    logger.warning(f"RadioMon: Error loading WSJT-X/JS8Call settings: {e}")
 
 
 if radio_detection_enabled:
@@ -262,75 +338,6 @@ async def voxMonitor():
                 await asyncio.sleep(0.1)
     except Exception as e:
         logger.error(f"RadioMon: Error in VOX monitor: {e}")
-
-# WSJT-X and JS8Call UDP Monitoring
-# Based on WSJT-X UDP protocol specification
-# Reference: https://github.com/ckuhtz/ham/blob/main/mcast/recv_decode.py
-
-import socket
-import struct
-import json
-
-wsjtx_enabled = False
-js8call_enabled = False
-wsjtx_udp_port = 2237
-js8call_udp_port = 2442
-watched_callsigns = []
-wsjtx_udp_address = '127.0.0.1'
-js8call_tcp_address = '127.0.0.1'
-js8call_tcp_port = 2442
-
-try:
-    from modules.settings import (
-        wsjtx_detection_enabled,
-        wsjtx_udp_server_address,
-        wsjtx_watched_callsigns,
-        js8call_detection_enabled,
-        js8call_server_address,
-        js8call_watched_callsigns
-    )
-    wsjtx_enabled = wsjtx_detection_enabled
-    js8call_enabled = js8call_detection_enabled
-    
-    if wsjtx_enabled:
-        # Parse UDP address
-        if ':' in wsjtx_udp_server_address:
-            wsjtx_udp_address, port_str = wsjtx_udp_server_address.split(':')
-            wsjtx_udp_port = int(port_str)
-        watched_callsigns.extend(wsjtx_watched_callsigns.split(',') if wsjtx_watched_callsigns else [])
-        
-    if js8call_enabled:
-        # Parse TCP address for JS8Call
-        if ':' in js8call_server_address:
-            js8call_tcp_address, port_str = js8call_server_address.split(':')
-            js8call_tcp_port = int(port_str)
-        watched_callsigns.extend(js8call_watched_callsigns.split(',') if js8call_watched_callsigns else [])
-        
-    # Clean up callsigns - remove whitespace
-    watched_callsigns = [cs.strip().upper() for cs in watched_callsigns if cs.strip()]
-    
-except ImportError:
-    logger.debug("RadioMon: WSJT-X/JS8Call settings not configured")
-except Exception as e:
-    logger.warning(f"RadioMon: Error loading WSJT-X/JS8Call settings: {e}")
-
-# WSJT-X UDP Protocol Message Types
-WSJTX_HEARTBEAT = 0
-WSJTX_STATUS = 1
-WSJTX_DECODE = 2
-WSJTX_CLEAR = 3
-WSJTX_REPLY = 4
-WSJTX_QSO_LOGGED = 5
-WSJTX_CLOSE = 6
-WSJTX_REPLAY = 7
-WSJTX_HALT_TX = 8
-WSJTX_FREE_TEXT = 9
-WSJTX_WSPR_DECODE = 10
-WSJTX_LOCATION = 11
-WSJTX_LOGGED_ADIF = 12
-
-wsjtxMsgQueue = []  # Queue for WSJT-X detected messages
-js8callMsgQueue = []  # Queue for JS8Call detected messages
 
 def decode_wsjtx_packet(data):
     """Decode WSJT-X UDP packet according to the protocol specification"""
