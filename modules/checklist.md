@@ -28,6 +28,26 @@ The enhanced checklist module provides asset tracking and accountability feature
 - View last known location in checklist
 - Track movement over time
 
+- **Time Window Monitoring**: Check-in with safety intervals (e.g., `checkin 60 Hunting in tree stand`)
+  - Tracks if users don't check in within expected timeframe
+  - Ideal for solo activities, remote work, or safety accountability
+  - Provides `get_overdue_checkins()` function for alert integration
+
+- **Approval Workflow**:
+  - `checklistapprove <id>` - Approve pending check-ins (admin)
+  - `checklistdeny <id>` - Deny/remove check-ins (admin)
+  - Support for approval-based workflows
+
+- **Enhanced Database Schema**:
+  - Added `approved` field for approval workflows
+  - Added `expected_checkin_interval` field for safety monitoring
+  - Automatic migration for existing databases
+
+#### New Commands:
+- `checklistapprove <id>` - Approve a check-in
+- `checklistdeny <id>` - Deny a check-in
+- Enhanced `checkin [interval] [note]` - Now supports interval parameter
+
 ## Configuration
 
 Add to your `config.ini`:

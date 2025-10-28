@@ -33,6 +33,23 @@ The inventory module provides a complete point-of-sale (POS) system for mesh net
 - **Sales Reports**: Daily transaction summaries
 - **Best Sellers**: Most popular items
 
+**Cart System:**
+- `cartadd <name> <qty>` - Add to cart
+- `cartremove <name>` - Remove from cart
+- `cartlist` / `cart` - View cart
+- `cartbuy` / `cartsell [notes]` - Complete transaction
+- `cartclear` - Empty cart
+
+**Item Management:**
+- `itemadd <name> <price> <qty> [location]` - Add new item
+- `itemremove <name>` - Remove item
+- `itemreset <name> [price=X] [qty=Y]` - Update item
+- `itemsell <name> <qty> [notes]` - Quick sale
+- `itemreturn <transaction_id>` - Reverse transaction
+- `itemlist` - View all inventory
+- `itemstats` - Daily statistics
+
+
 ## Configuration
 
 Add to your `config.ini`:
