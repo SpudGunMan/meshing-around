@@ -310,8 +310,6 @@ def llm_query(input, nodeID=0, location_name=None, init=False):
             logger.debug(f"System: using Wikipedia/Kiwix context for LLM query got {len(wiki_context_list)} results")
 
     history = llmChat_history.get(nodeID, ["", ""])
-
-    logger.debug(f"System: LLM Query: {input} From:{nodeID}")
     
     response = ""
     result = ""
@@ -320,7 +318,7 @@ def llm_query(input, nodeID=0, location_name=None, init=False):
     try:
         # Use OpenWebUI if enabled
         if useOpenWebUI and openWebUIAPIKey:
-            logger.debug("System: Using OpenWebUI API")
+            logger.debug(f"System: LLM Query: Using OpenWebUI API for LLM query {input} From:{nodeID}")
             
             # Combine all context sources
             combined_context = []
@@ -343,6 +341,7 @@ def llm_query(input, nodeID=0, location_name=None, init=False):
                 )
                 result = send_openwebui_query(modelPrompt, max_tokens=tokens)
         else:
+            logger.debug(f"System: LLM Query: Using Ollama API for LLM query {input} From:{nodeID}")
             # Use standard Ollama API
             if rawLLMQuery:
                 # sanitize the input to remove tool call syntax
