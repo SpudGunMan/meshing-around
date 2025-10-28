@@ -12,6 +12,8 @@ def setup_custom_schedules(send_message, tell_joke, welcome_message, handle_wxc,
     3. restart mesh bot
     4. verify schedules are working by checking the log file
     5. Make sure to uncomment (delete the single #) the example schedules down at the end of the file to enable them
+    Python is sensitive to indentation so be careful when editing this file. 
+    https://thonny.org is included on pi's image and is a simple IDE to use for editing python files.
     """
     try:
         # Example task functions, modify as needed the channel and interface parameters default to schedulerChannel and schedulerInterface
