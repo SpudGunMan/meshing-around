@@ -75,7 +75,7 @@ def delete_checkin(checkin_id):
 
 def checkout(name, date, time_str, location, notes):
     location = ", ".join(map(str, location))
-    # checkout a user
+    checkin_record = None  # Ensure variable is always defined
     conn = sqlite3.connect(checklist_db)
     c = conn.cursor()
     try:
@@ -95,18 +95,21 @@ def checkout(name, date, time_str, location, notes):
         if checkin_record:
             c.execute("INSERT INTO checkout (checkout_name, checkout_date, checkout_time, location, checkout_notes) VALUES (?, ?, ?, ?, ?)", (name, date, time_str, location, notes))
             # calculate length of time checked in
-            c.execute("SELECT checkin_time FROM checkin WHERE checkin_id = ?", (checkin_record[0],))
-            checkin_time = c.fetchone()[0]
-            checkin_datetime = time.strptime(date + " " + checkin_time, "%Y-%m-%d %H:%M:%S")
+            c.execute("SELECT checkin_time, checkin_date FROM checkin WHERE checkin_id = ?", (checkin_record[0],))
+            checkin_time, checkin_date = c.fetchone()
+            checkin_datetime = time.strptime(checkin_date + " " + checkin_time, "%Y-%m-%d %H:%M:%S")
             time_checked_in_seconds = time.time() - time.mktime(checkin_datetime)
             timeCheckedIn = time.strftime("%H:%M:%S", time.gmtime(time_checked_in_seconds))
             # # remove the checkin record older than the checkout
             # c.execute("DELETE FROM checkin WHERE checkin_date < ? OR (checkin_date = ? AND checkin_time < ?)", (date, date, time_str))
     except sqlite3.OperationalError as e:
         if "no such table" in str(e):
+            conn.close()
             initialize_checklist_database()
-            c.execute("INSERT INTO checkout (checkout_name, checkout_date, checkout_time, location, checkout_notes) VALUES (?, ?, ?, ?, ?)", (name, date, time_str, location, notes))
+            # Try again after initializing
+            return checkout(name, date, time_str, location, notes)
         else:
+            conn.close()
             raise
     conn.commit()
     conn.close()
