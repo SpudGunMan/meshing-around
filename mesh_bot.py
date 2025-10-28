@@ -70,6 +70,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "item": lambda: handle_inventory(message, message_from_id, deviceID),
     "itemadd": lambda: handle_inventory(message, message_from_id, deviceID),
     "itemlist": lambda: handle_inventory(message, message_from_id, deviceID),
+    "itemloan": lambda: handle_inventory(message, message_from_id, deviceID),
     "itemremove": lambda: handle_inventory(message, message_from_id, deviceID),
     "itemreset": lambda: handle_inventory(message, message_from_id, deviceID),
     "itemreturn": lambda: handle_inventory(message, message_from_id, deviceID),

@@ -8,7 +8,7 @@ from modules.settings import inventory_db, disable_penny, bbs_ban_list
 import time
 from decimal import Decimal, ROUND_HALF_UP, ROUND_DOWN
 
-trap_list_inventory = ("item", "itemlist", "itemsell", "itemreturn", "itemadd", "itemremove", 
+trap_list_inventory = ("item", "itemlist", "itemloan", "itemsell", "itemreturn", "itemadd", "itemremove", 
                        "itemreset", "itemstats", "cart", "cartadd", "cartremove", "cartlist",
                        "cartbuy", "cartsell", "cartclear")
 
@@ -230,18 +230,19 @@ def sell_item(name, quantity, user_name="", notes=""):
         return "Error processing sale."
 
 def return_item(transaction_id):
-    """Return items from a transaction (reverse the sale)"""
+    """Return items from a transaction (reverse the sale or loan)"""
     conn = sqlite3.connect(inventory_db)
     c = conn.cursor()
     current_date = time.strftime("%Y-%m-%d")
     
     try:
         # Get transaction details
-        c.execute("SELECT total_amount FROM transactions WHERE transaction_id = ?", (transaction_id,))
+        c.execute("SELECT transaction_type FROM transactions WHERE transaction_id = ?", (transaction_id,))
         transaction = c.fetchone()
         if not transaction:
             conn.close()
             return f"Transaction {transaction_id} not found."
+        transaction_type = transaction[0]
         
         # Get items in transaction
         c.execute("""SELECT ti.item_id, ti.quantity, i.item_name 
@@ -259,39 +260,116 @@ def return_item(transaction_id):
             c.execute("UPDATE items SET item_quantity = item_quantity + ?, updated_date = ? WHERE item_id = ?",
                       (quantity, current_date, item_id))
         
-        # Mark transaction as returned (or delete it)
+        # Remove transaction and transaction_items
         c.execute("DELETE FROM transactions WHERE transaction_id = ?", (transaction_id,))
         c.execute("DELETE FROM transaction_items WHERE transaction_id = ?", (transaction_id,))
         
         conn.commit()
         conn.close()
-        return f"↩️ Transaction {transaction_id} reversed. Items returned to inventory."
+        if transaction_type == "LOAN":
+            return f"↩️ Loan {transaction_id} returned. Item(s) back in inventory."
+        else:
+            return f"↩️ Transaction {transaction_id} reversed. Items returned to inventory."
     except Exception as e:
         conn.close()
         logger.error(f"Inventory: Error returning item: {e}")
         return "Error processing return."
 
-def list_items():
-    """List all items in inventory"""
+def loan_item(name, user_name="", note=""):
+    """Loan an item (checkout/loan to someone, record transaction)"""
     conn = sqlite3.connect(inventory_db)
     c = conn.cursor()
-    
+    current_date = time.strftime("%Y-%m-%d")
+    current_time = time.strftime("%H:%M:%S")
+
+    try:
+        # Get item details
+        c.execute("SELECT item_id, item_price, item_quantity FROM items WHERE item_name = ?", (name,))
+        item = c.fetchone()
+        if not item:
+            conn.close()
+            return f"Item '{name}' not found."
+        item_id, price, current_qty = item
+
+        if current_qty < 1:
+            conn.close()
+            return f"Insufficient quantity. Available: {current_qty}"
+
+        # Create loan transaction (quantity always 1 for now)
+        c.execute("""INSERT INTO transactions (transaction_type, transaction_date, transaction_time, 
+                     user_name, total_amount, notes)
+                     VALUES (?, ?, ?, ?, ?, ?)""",
+                  ("LOAN", current_date, current_time, user_name, 0.0, note))
+        transaction_id = c.lastrowid
+
+        # Add transaction item
+        c.execute("""INSERT INTO transaction_items (transaction_id, item_id, quantity, price_at_sale)
+                     VALUES (?, ?, ?, ?)""",
+                  (transaction_id, item_id, 1, price))
+
+        # Update inventory
+        c.execute("UPDATE items SET item_quantity = item_quantity - 1, updated_date = ? WHERE item_id = ?",
+                  (current_date, item_id))
+
+        conn.commit()
+        conn.close()
+        return f"🔖 Loaned: {name} (note: {note}) [Transaction #{transaction_id}]"
+    except Exception as e:
+        conn.close()
+        logger.error(f"Inventory: Error loaning item: {e}")
+        return "Error processing loan."
+
+def get_loans_for_items():
+    """Return a dict of item_name -> list of loan notes for currently loaned items"""
+    conn = sqlite3.connect(inventory_db)
+    c = conn.cursor()
+    try:
+        # Find all active loans (not returned)
+        c.execute("""
+            SELECT i.item_name, t.notes
+            FROM transactions t
+            JOIN transaction_items ti ON t.transaction_id = ti.transaction_id
+            JOIN items i ON ti.item_id = i.item_id
+            WHERE t.transaction_type = 'LOAN'
+        """)
+        rows = c.fetchall()
+        conn.close()
+        loans = {}
+        for item_name, note in rows:
+            loans.setdefault(item_name, []).append(note)
+        return loans
+    except Exception as e:
+        conn.close()
+        logger.error(f"Inventory: Error fetching loans: {e}")
+        return {}
+
+def list_items():
+    """List all items in inventory, with loan info if any"""
+    conn = sqlite3.connect(inventory_db)
+    c = conn.cursor()
     try:
         c.execute("SELECT item_name, item_price, item_quantity, location FROM items ORDER BY item_name")
         items = c.fetchall()
         conn.close()
-        
+
         if not items:
             return "No items in inventory."
-        
+
+        # Get loan info
+        loans = get_loans_for_items()
+
         result = "📦 Inventory:\n"
         total_value = 0
         for name, price, qty, location in items:
             value = price * qty
             total_value += value
             loc_str = f" @ {location}" if location else ""
-            result += f"{name}: ${price:.2f} x {qty}{loc_str} = ${value:.2f}\n"
-        
+            loan_str = ""
+            if name in loans:
+                for note in loans[name]:
+                    loan_str += f" [loan: {note}]"
+            result += f"{name}: ${price:.2f} x {qty}{loc_str} = ${value:.2f}{loan_str}\n"
+
         result += f"\nTotal Value: ${total_value:.2f}"
         return result.rstrip()
     except Exception as e:
@@ -599,6 +677,14 @@ def process_inventory_command(nodeID, message, name="none"):
             except ValueError:
                 return "Invalid transaction ID."
         
+        elif message_lower.startswith("itemloan "):
+            # itemloan <name> <note>
+            if len(parts) < 3:
+                return "Usage: itemloan <name> <note>"
+            item_name = parts[1]
+            note = " ".join(parts[2:])
+            return loan_item(item_name, name, note)
+        
         elif message_lower == "itemlist":
             return list_items()
         
@@ -643,18 +729,19 @@ def get_inventory_help():
     """Return help text for inventory commands"""
     return (
         "📦 Inventory Commands:\n"
-        "  itemadd <name> <qty> [price] [loc]    Add a new item (price and location optional)\n"
-        "  itemremove <name>                     Remove an item\n"
-        "  itemreset name> <qty> [price] [loc]    Update price and/or quantity\n"
-        "  itemsell <name> <qty> [notes]         Sell an item\n"
-        "  itemreturn <transaction_id>           Return a transaction\n"
-        "  itemlist                              List inventory\n"
-        "  itemstats                             Show today's stats\n"
+        "  itemadd <name> <qty> [price] [loc]\n"
+        "  itemremove <name>\n"
+        "  itemreset name> <qty> [price] [loc]\n"
+        "  itemsell <name> <qty> [notes]\n"
+        "  itemloan <name> <note>\n"
+        "  itemreturn <transaction_id>\n"
+        "  itemlist\n"
+        "  itemstats\n"
         "\n"
         "🛒 Cart Commands:\n"
-        "  cartadd <name> <qty>                  Add to cart\n"
-        "  cartremove <name>                     Remove from cart\n"
-        "  cartlist                              View cart\n"
-        "  cartbuy/cartsell [notes]              Checkout cart\n"
-        "  cartclear                             Empty cart"
+        "  cartadd <name> <qty>\n"
+        "  cartremove <name>\n"
+        "  cartlist\n"
+        "  cartbuy/cartsell [notes]\n"
+        "  cartclear\n"
     )
