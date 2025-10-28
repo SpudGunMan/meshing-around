@@ -1033,6 +1033,7 @@ def get_openskynetwork(lat=0, lon=0):
         return my_settings.NO_ALERTS
     aircraft_list = aircraft_json['states']
     aircraft_report = ""
+    logger.debug(f"Location: OpenSky Network: Found {len(aircraft_list)} possible aircraft in area")
     for aircraft in aircraft_list:
         if len(aircraft_report.split("\n")) >= search_limit:
             break
