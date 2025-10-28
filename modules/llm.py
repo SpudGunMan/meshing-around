@@ -17,7 +17,8 @@ ollamaAPI = ollamaHostName + "/api/generate"
 openWebUIChatAPI = openWebUIURL + "/api/chat/completions"
 openWebUIOllamaProxy = openWebUIURL + "/ollama/api/generate"
 tokens = 450 # max charcters for the LLM response, this is the max length of the response also in prompts
-requestTruncation = True # if True, the LLM "will" truncate the response 
+requestTruncation = True # if True, the LLM "will" truncate the response
+DEBUG_LLM = False # enable debug logging for LLM queries
 
 # Used in the meshBotAI template
 llmEnableHistory = True # enable last message history for the LLM model
@@ -126,11 +127,37 @@ def get_wiki_context(input):
     except Exception as e:
         logger.debug(f"System: LLM Query: Wiki context gathering failed: {e}")
         return ''
+    
+def llm_extract_topic(input):
+    """
+    Use LLM to extract the main topic as a single word or short phrase.
+    Always uses raw mode and supports both Ollama and OpenWebUI.
+    :param input: The user query
+    :return: List with one topic string, or empty list on failure
+    """
+    prompt = (
+        "Summarize the following query into a single word or short phrase that best represents the main topic, "
+        "for use as a Wikipedia search term. Only return the word or phrase, nothing else:\n"
+        f"{input}"
+    )
+    try:
+        if useOpenWebUI and openWebUIAPIKey:
+            result = send_openwebui_query(prompt, max_tokens=10)
+        else:
+            llmQuery = {"model": llmModel, "prompt": prompt, "stream": False, "max_tokens": 10}
+            result = send_ollama_query(llmQuery)
+        topic = result.strip().split('\n')[0]
+        topic = topic.strip(' "\'.,!?;:')
+        if topic:
+            return [topic]
+    except Exception as e:
+        logger.debug(f"LLM topic extraction failed: {e}")
+    return []
 
 def extract_search_terms(input):
     """
-    Extract potential search terms from user input
-    Simple implementation: look for capitalized words, proper nouns, etc.
+    Extract potential search terms from user input.
+    Enhanced: Try LLM-based topic extraction first, fallback to heuristic.
     :param input: The user query
     :return: List of potential search terms
     """
@@ -139,29 +166,29 @@ def extract_search_terms(input):
         if input.lower().startswith(trap):
             input = input[len(trap):].strip()
             break
-    
-    # Simple heuristic: extract capitalized words and phrases
+
+    # Try LLM-based extraction first
+    terms = llm_extract_topic(input)
+    if terms:
+        return terms
+
+    # Fallback: Simple heuristic (existing code)
     words = input.split()
     search_terms = []
-    
-    # Look for multi-word capitalized phrases
     temp_phrase = []
     for word in words:
-        # Remove punctuation for checking
         clean_word = word.strip('.,!?;:')
         if clean_word and clean_word[0].isupper() and len(clean_word) > 2:
             temp_phrase.append(clean_word)
         elif temp_phrase:
             search_terms.append(' '.join(temp_phrase))
             temp_phrase = []
-    
     if temp_phrase:
         search_terms.append(' '.join(temp_phrase))
-    
-    # If no capitalized terms found, use the whole query
     if not search_terms:
         search_terms = [input.strip()]
-    
+    if DEBUG_LLM:
+        logger.debug(f"Extracted search terms: {search_terms}")
     return search_terms[:3]  # Limit to 3 terms
 
 def send_openwebui_query(prompt, model=None, max_tokens=450, context=''):
@@ -175,33 +202,42 @@ def send_openwebui_query(prompt, model=None, max_tokens=450, context=''):
     """
     if model is None:
         model = llmModel
-    
+
     headers = {
         'Authorization': f'Bearer {openWebUIAPIKey}',
         'Content-Type': 'application/json'
     }
-    
+
     messages = []
     if context:
         messages.append({
             "role": "system",
             "content": f"Use the following context to help answer questions:\n{context}"
         })
-    
+
     messages.append({
         "role": "user",
         "content": prompt
     })
-    
+
     data = {
         "model": model,
         "messages": messages,
         "max_tokens": max_tokens,
         "stream": False
     }
-    
+
+    # Debug logging
+    if DEBUG_LLM:
+        logger.debug(f"OpenWebUI payload: {json.dumps(data)}")
+        logger.debug(f"OpenWebUI headers: {headers}")
+        logger.debug(f"OpenWebUI endpoint: {openWebUIChatAPI}")
+
     try:
         result = requests.post(openWebUIChatAPI, headers=headers, json=data, timeout=urlTimeoutSeconds * 4)
+        if DEBUG_LLM:
+            logger.debug(f"OpenWebUI response status: {result.status_code}")
+            logger.debug(f"OpenWebUI response text: {result.text}")
         if result.status_code == 200:
             result_json = result.json()
             # OpenWebUI returns OpenAI-compatible format
@@ -382,10 +418,14 @@ def llm_query(input, nodeID=0, location_name=None, init=False):
     response = result.strip().replace('\n', ' ')
     
     if rawLLMQuery and requestTruncation and len(response) > 450:
-        #retryy loop to truncate the response
+        # retry loop to truncate the response
         logger.warning(f"System: LLM Query: Response exceeded {tokens} characters, requesting truncation")
-        truncateQuery = {"model": llmModel, "prompt": truncatePrompt + response, "stream": False, "max_tokens": tokens}
-        truncateResult = send_ollama_query(truncateQuery)
+        truncate_prompt_full = truncatePrompt + response
+        if useOpenWebUI and openWebUIAPIKey:
+            truncateResult = send_openwebui_query(truncate_prompt_full, max_tokens=tokens)
+        else:
+            truncateQuery = {"model": llmModel, "prompt": truncate_prompt_full, "stream": False, "max_tokens": tokens}
+            truncateResult = send_ollama_query(truncateQuery)
 
         # cleanup for message output
         response = truncateResult.strip().replace('\n', ' ')
