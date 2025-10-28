@@ -1769,7 +1769,11 @@ def loadLeaderboard():
     global meshLeaderboard
     try:
         with open('data/leaderboard.pkl', 'rb') as f:
-            meshLeaderboard = pickle.load(f)
+            loaded = pickle.load(f)
+        # Merge with current default structure to add any new keys
+        initializeMeshLeaderboard()  # sets meshLeaderboard to default structure
+        for k, v in loaded.items():
+            meshLeaderboard[k] = v
         if logMetaStats:
             logger.debug("System: Mesh Leaderboard loaded from leaderboard.pkl")
     except FileNotFoundError:
