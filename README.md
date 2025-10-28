@@ -162,7 +162,7 @@ For testing and feature ideas on Discord and GitHub, if its stable its thanks to
 - **PiDiBi, Cisien, bitflip, nagu, Nestpebble, NomDeTom, Iris, Josh, GlockTuber, FJRPiolt, dj505, Woof, propstg, snydermesh, trs2982, F0X, Malice, mesb1, Hailo1999**
 - **xdep**: For the reporting html. 📊
 - **mrpatrick1991**: For OG Docker configurations. 💻
-- **[https://github.com/A-c0rN](A-c0rN)**: Assistance with iPAWS and  🚨
+- **A-c0rN**: Assistance with iPAWS and  🚨
 - **Mike O'Connell/skrrt**: For [eas_alert_parser](etc/eas_alert_parser.py) enhanced by **sheer.cold**
 - **WH6GXZ nurse dude**: Volcano Alerts 🌋
 - **mikecarper**: hamtest, leading to quiz etc.. 📋
