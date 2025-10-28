@@ -4,17 +4,13 @@
 # K7MHI Kelly Keeton 2024
 from modules.log import logger
 from modules.settings import (llmModel, ollamaHostName, rawLLMQuery, 
-                              llmUseWikiContext, useOpenWebUI, openWebUIURL, openWebUIAPIKey)
+                              llmUseWikiContext, useOpenWebUI, openWebUIURL, openWebUIAPIKey, cmdBang, urlTimeoutSeconds)
 
 # Ollama Client
 # https://github.com/ollama/ollama/blob/main/docs/faq.md#how-do-i-configure-ollama-server
 import requests
 import json
 from datetime import datetime
-
-if not rawLLMQuery:
-    # this may be removed in the future
-    from googlesearch import search # pip install googlesearch-python
 
 # LLM System Variables
 ollamaAPI = ollamaHostName + "/api/generate"
@@ -23,13 +19,9 @@ openWebUIOllamaProxy = openWebUIURL + "/ollama/api/generate"
 tokens = 450 # max charcters for the LLM response, this is the max length of the response also in prompts
 requestTruncation = True # if True, the LLM "will" truncate the response 
 
-openaiAPI = "https://api.openai.com/v1/completions" # not used, if you do push a enhancement!
-
 # Used in the meshBotAI template
 llmEnableHistory = True # enable last message history for the LLM model
-llmContext_fromGoogle = True # enable context from google search results adds to compute time but really helps with responses accuracy
 
-googleSearchResults = 3 # number of google search results to include in the context more results = more compute time
 antiFloodLLM = []
 llmChat_history = {}
 trap_list_llm = ("ask:", "askai")
@@ -52,24 +44,6 @@ meshBotAI = """
 
     PROMPT
     {input}
-
-    """
-
-if llmContext_fromGoogle:
-    meshBotAI = meshBotAI + """
-    CONTEXT
-    The following is the location of the user
-    {location_name}
-
-    The following is for context around the prompt to help guide your response.
-    {context}
-
-    """
-else:
-    meshBotAI = meshBotAI + """
-    CONTEXT
-    The following is the location of the user
-    {location_name}
 
     """
 
@@ -104,22 +78,6 @@ def llmTool_math_calculator(expression):
     except Exception as e:
         return f"Error in calculation: {e}"
 
-def llmTool_get_google(query, num_results=3):
-    """
-    Example tool function to perform a Google search and return results.
-    :param query: The search query string.
-    :param num_results: Number of search results to return.
-    :return: A list of search result titles and descriptions.
-    """
-    results = []
-    try:
-        googleSearch = search(query, advanced=True, num_results=num_results)
-        for result in googleSearch:
-            results.append(f"{result.title}: {result.description}")
-        return results
-    except Exception as e:
-        return [f"Error in Google search: {e}"]
-
 llmFunctions = [
 
     {
@@ -144,41 +102,7 @@ llmFunctions = [
             "required": ["expression"]
         }
     },
-    {
-        "name": "llmTool_get_google",
-        "description": "Perform a Google search and return results.",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "query": {
-                    "type": "string",
-                    "description": "The search query string."
-                },
-                "num_results": {
-                    "type": "integer",
-                    "description": "Number of search results to return.",
-                    "default": 3
-                }
-            },
-            "required": ["query"]
-        }
-    }  
 ]
-
-def get_google_context(input, num_results):
-    # Get context from Google search results
-    googleResults = []
-    try:
-        googleSearch = search(input, advanced=True, num_results=num_results)
-        if googleSearch:
-            for result in googleSearch:
-                googleResults.append(f"{result.title} {result.description}")
-        else:
-            googleResults = ['no other context provided']
-    except Exception as e:
-        logger.debug(f"System: LLM Query: context gathering failed, likely due to network issues")
-        googleResults = ['no other context provided']
-    return googleResults
 
 def get_wiki_context(input):
     """
@@ -297,7 +221,7 @@ def send_openwebui_query(prompt, model=None, max_tokens=450, context=''):
 def send_ollama_query(llmQuery):
     # Send the query to the Ollama API and return the response
     try:
-        result = requests.post(ollamaAPI, data=json.dumps(llmQuery), timeout=5)
+        result = requests.post(ollamaAPI, data=json.dumps(llmQuery), timeout= urlTimeoutSeconds * 4)
         if result.status_code == 200:
             result_json = result.json()
             result = result_json.get("response", "")
@@ -336,20 +260,24 @@ def send_ollama_tooling_query(prompt, functions, model=None, max_tokens=450):
     else:
         raise Exception(f"HTTP Error: {result.status_code} - {result.text}")
 
-def llm_query(input, nodeID=0, location_name=None):
+def llm_query(input, nodeID=0, location_name=None, init=False):
     global antiFloodLLM, llmChat_history
-    googleResults = []
     wikiContext = ''
 
     # if this is the first initialization of the LLM the query of " " should bring meshbotAIinit OTA shouldnt reach this?
     # This is for LLM like gemma and others now?
-    if input == " " and rawLLMQuery:
+    if init and rawLLMQuery:
         logger.warning("System: These LLM models lack a traditional system prompt, they can be verbose and not very helpful be advised.")
         input = meshbotAIinit
-    else:
+    elif init:
         input = input.strip()
         # classic model for gemma2, deepseek-r1, etc
-        logger.debug(f"System: Using classic LLM model framework, ideally for gemma2, deepseek-r1, etc")
+        logger.debug(f"System: Using SYSTEM model framework, ideally for gemma2, deepseek-r1, etc")
+
+
+    # Remove command bang if present
+    if cmdBang:
+        input = input[1:].strip()
 
     if not location_name:
         location_name = "no location provided "
@@ -371,20 +299,20 @@ def llm_query(input, nodeID=0, location_name=None):
 
     # Get Wikipedia/Kiwix context if enabled (RAG)
     if llmUseWikiContext and input != meshbotAIinit:
-        wikiContext = get_wiki_context(input)
+        # get_wiki_context returns a string, but we want to count the items before joining
+        search_terms = extract_search_terms(input)
+        wiki_context_list = []
+        for term in search_terms[:2]:
+            summary = get_wiki_context(term)
+            if summary and "error" not in summary.lower():
+                wiki_context_list.append(f"Wikipedia context for '{term}': {summary}")
+        wikiContext = '\n'.join(wiki_context_list) if wiki_context_list else ''
         if wikiContext:
-            logger.debug(f"System: Wiki-Enhanced LLM Query with context")
-
-    # Get Google context if enabled and not using raw query
-    if llmContext_fromGoogle and not rawLLMQuery:
-        googleResults = get_google_context(input, googleSearchResults)
+            logger.debug(f"System: using Wikipedia/Kiwix context for LLM query got {len(wiki_context_list)} results")
 
     history = llmChat_history.get(nodeID, ["", ""])
 
-    if googleResults or wikiContext:
-        logger.debug(f"System: Context-Enhanced LLM Query: {input} From:{nodeID}")
-    else:
-        logger.debug(f"System: LLM Query: {input} From:{nodeID}")
+    logger.debug(f"System: LLM Query: {input} From:{nodeID}")
     
     response = ""
     result = ""
@@ -399,8 +327,6 @@ def llm_query(input, nodeID=0, location_name=None):
             combined_context = []
             if wikiContext:
                 combined_context.append(wikiContext)
-            if googleResults:
-                combined_context.append("Google search results: " + '\n'.join(googleResults))
             
             context_str = '\n\n'.join(combined_context)
             
@@ -434,8 +360,6 @@ def llm_query(input, nodeID=0, location_name=None):
                 all_context = []
                 if wikiContext:
                     all_context.append(wikiContext)
-                if googleResults:
-                    all_context.extend(googleResults)
                 
                 context_text = '\n'.join(all_context) if all_context else 'no other context provided'
                 modelPrompt = meshBotAI.format(
