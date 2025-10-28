@@ -267,6 +267,10 @@ async def voxMonitor():
 # Based on WSJT-X UDP protocol specification
 # Reference: https://github.com/ckuhtz/ham/blob/main/mcast/recv_decode.py
 
+import socket
+import struct
+import json
+
 wsjtx_enabled = False
 js8call_enabled = False
 wsjtx_udp_port = 2237
@@ -289,8 +293,6 @@ try:
     js8call_enabled = js8call_detection_enabled
     
     if wsjtx_enabled:
-        import socket
-        import struct
         # Parse UDP address
         if ':' in wsjtx_udp_server_address:
             wsjtx_udp_address, port_str = wsjtx_udp_server_address.split(':')
@@ -298,8 +300,6 @@ try:
         watched_callsigns.extend(wsjtx_watched_callsigns.split(',') if wsjtx_watched_callsigns else [])
         
     if js8call_enabled:
-        import socket
-        import json
         # Parse TCP address for JS8Call
         if ':' in js8call_server_address:
             js8call_tcp_address, port_str = js8call_server_address.split(':')

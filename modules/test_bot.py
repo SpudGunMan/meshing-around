@@ -421,6 +421,29 @@ class TestBot(unittest.TestCase):
             flood_report = get_flood_openmeteo(lat, lon)
             self.assertIsInstance(flood_report, str)
 
+    def test_check_callsign_match(self):
+        # Test the callsign filtering function for WSJT-X/JS8Call
+        from radio import check_callsign_match
+        
+        # Test with empty filter (should match all)
+        self.assertTrue(check_callsign_match("CQ K7MHI CN87", []))
+        
+        # Test exact match
+        self.assertTrue(check_callsign_match("CQ K7MHI CN87", ["K7MHI"]))
+        
+        # Test case insensitive match
+        self.assertTrue(check_callsign_match("CQ k7mhi CN87", ["K7MHI"]))
+        self.assertTrue(check_callsign_match("CQ K7MHI CN87", ["k7mhi"]))
+        
+        # Test no match
+        self.assertFalse(check_callsign_match("CQ W1AW FN31", ["K7MHI"]))
+        
+        # Test multiple callsigns
+        self.assertTrue(check_callsign_match("CQ W1AW FN31", ["K7MHI", "W1AW"]))
+        self.assertTrue(check_callsign_match("K7MHI DE W1AW", ["K7MHI", "W1AW"]))
+        
+        print("Callsign filtering tests passed")
+
 
 
 
