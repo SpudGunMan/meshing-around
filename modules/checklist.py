@@ -14,6 +14,7 @@ def initialize_checklist_database():
         conn = sqlite3.connect(checklist_db)
         c = conn.cursor()
         # Check if the checkin table exists, and create it if it doesn't
+        logger.debug("System: Checklist: Initializing database...")
         c.execute('''CREATE TABLE IF NOT EXISTS checkin
                      (checkin_id INTEGER PRIMARY KEY, checkin_name TEXT, checkin_date TEXT, 
                       checkin_time TEXT, location TEXT, checkin_notes TEXT, 
@@ -255,14 +256,24 @@ def list_checkin():
     # list checkins
     conn = sqlite3.connect(checklist_db)
     c = conn.cursor()
-    c.execute("""
-        SELECT * FROM checkin
-        WHERE checkin_id NOT IN (
-            SELECT checkin_id FROM checkout
-            WHERE checkout_date > checkin_date OR (checkout_date = checkin_date AND checkout_time > checkin_time)
-        )
-    """)
-    rows = c.fetchall()
+    try:
+        c.execute("""
+            SELECT * FROM checkin
+            WHERE checkin_id NOT IN (
+                SELECT checkin_id FROM checkout
+                WHERE checkout_date > checkin_date OR (checkout_date = checkin_date AND checkout_time > checkin_time)
+            )
+        """)
+        rows = c.fetchall()
+    except sqlite3.OperationalError as e:
+        if "no such table" in str(e):
+            conn.close()
+            initialize_checklist_database()
+            return list_checkin()
+        else:
+            conn.close()
+            logger.error(f"Checklist: Error listing checkins: {e}")
+            return "Error listing checkins."
     conn.close()
     timeCheckedIn = ""
     checkin_list = ""
