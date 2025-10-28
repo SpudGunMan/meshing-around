@@ -41,9 +41,9 @@ The inventory module provides a complete point-of-sale (POS) system for mesh net
 - `cartclear` - Empty cart
 
 **Item Management:**
-- `itemadd <name> <price> <qty> [location]` - Add new item
+- `itemadd <name> <qty> [price] [loc]` - Add new item
 - `itemremove <name>` - Remove item
-- `itemreset <name> [price=X] [qty=Y]` - Update item
+- `itemreset name> <qty> [price] [loc]` - Update item
 - `itemsell <name> <qty> [notes]` - Quick sale
 - `itemreturn <transaction_id>` - Reverse transaction
 - `itemlist` - View all inventory
