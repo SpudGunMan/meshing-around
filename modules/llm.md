@@ -75,7 +75,7 @@ make a new user for the bot
 [OpenWebUI Quick Start](https://docs.openwebui.com/getting-started/quick-start/)
 [OpenWebUI API](https://docs.openwebui.com/getting-started/api-endpoints)
 [OpenWebUI Ollama](https://docs.openwebui.com/getting-started/quick-start/starting-with-ollama/)
-
+[Blog OpenWebUI on Pi](https://pimylifeup.com/raspberry-pi-open-webui/)
 
 https://docs.openwebui.com/tutorials/tips/rag-tutorial#tutorial-configuring-rag-with-open-webui-documentation
 https://docs.openwebui.com/features/plugin/
