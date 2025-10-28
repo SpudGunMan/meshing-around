@@ -45,6 +45,7 @@ The inventory module provides a complete point-of-sale (POS) system for mesh net
 - `itemremove <name>` - Remove item
 - `itemreset name> <qty> [price] [loc]` - Update item
 - `itemsell <name> <qty> [notes]` - Quick sale
+- `itemloan <name> <note>` - Loan/checkout an item
 - `itemreturn <transaction_id>` - Reverse transaction
 - `itemlist` - View all inventory
 - `itemstats` - Daily statistics
