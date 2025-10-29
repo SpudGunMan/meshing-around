@@ -187,7 +187,7 @@ def setup_scheduler(
                     lambda: logger.info("System: Scheduled Broadcast Enabled Reminder")
                 )
             except Exception as e:
-                logger.warning("Custom scheduler file not found or failed to import. cp etc/custom_scheduler.py modules/custom_scheduler.py")
+                logger.warning("Custom scheduler file not found or failed to import. cp etc/custom_scheduler.template modules/custom_scheduler.py")
     except Exception as e:
         logger.error(f"System: Scheduler Error {e}")
     return True
