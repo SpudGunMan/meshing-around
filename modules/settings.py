@@ -316,6 +316,8 @@ try:
     # location alerts
     eAlertBroadcastEnabled = config['location'].getboolean('eAlertBroadcastEnabled', False) # old deprecated name
     ipawsAlertEnabled = config['location'].getboolean('ipawsAlertEnabled', False) # default False new ^
+    if not eAlertBroadcastEnabled and ipawsAlertEnabled:
+        eAlertBroadcastEnabled = True # maintain backward compatibility
     wxAlertsEnabled = config['location'].getboolean('NOAAalertsEnabled', True) # default True
     wxAlertBroadcastEnabled = config['location'].getboolean('wxAlertBroadcastEnabled', False) # default False
     volcanoAlertBroadcastEnabled = config['location'].getboolean('volcanoAlertBroadcastEnabled', False) # default False
