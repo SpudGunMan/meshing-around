@@ -49,7 +49,7 @@ fi
 if [[ ! -f modules/custom_scheduler.py ]]; then
     cp -n etc/custom_scheduler.py modules/
     printf "\nCustom scheduler template copied to modules/custom_scheduler.py\n"
-elif ! cmp -s modules/custom_scheduler.py etc/custom_scheduler.py; then
+elif ! cmp -s modules/custom_scheduler.template etc/custom_scheduler.py; then
     echo "custom_scheduler.py is set. To check changes run: diff etc/custom_scheduler.py modules/custom_scheduler.py"
 fi
 
