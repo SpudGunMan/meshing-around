@@ -40,7 +40,7 @@ Mesh Bot is a feature-rich Python bot designed to enhance your [Meshtastic](http
 - **New Node Greetings**: Automatically greet new nodes via text.
 
 ### Interactive AI and Data Lookup
-- **Weather, Earthquake, River, and Tide Data**: Get local alerts and info from NOAA/USGS; uses Open-Meteo for areas outside NOAA coverage.
+- **Weather, Earthquake, River, and Tide Data**: Get local alerts and info from NOAA/USGS; uses Open-Meteo for areas outside NOAA coverage. Global tide predictions available via tidepredict library for worldwide locations.
 - **Wikipedia Search**: Retrieve summaries from Wikipedia.
 - **OpenWebUI, Ollama LLM Integration**: Query the [Ollama](https://github.com/ollama/ollama/tree/main/docs) AI for advanced responses. Supports RAG (Retrieval Augmented Generation) with Wikipedia/Kiwix context and [OpenWebUI](https://github.com/open-webui/open-webui) integration for enhanced AI capabilities. [LLM Readme](modules/llm.md)
 - **Satellite Passes**: Find upcoming satellite passes for your location.

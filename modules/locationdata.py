@@ -175,6 +175,7 @@ def getArtSciRepeaters(lat=0, lon=0):
     return msg
 
 def get_NOAAtide(lat=0, lon=0):
+    # get tide data from NOAA for lat/lon
     station_id = ""
     location = lat,lon
     if float(lat) == 0 and float(lon) == 0:

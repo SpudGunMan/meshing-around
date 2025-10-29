@@ -125,6 +125,10 @@ if coastalEnabled:
     from modules.locationdata import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + ("mwx","tide",)
     help_message = help_message + ", mwx, tide"
+if useTidePredict:
+    from modules import xtide
+    trap_list = trap_list + ("tide",)
+    help_message = help_message + ", tide"
         
 # BBS Configuration
 if bbs_enabled:
