@@ -1123,8 +1123,8 @@ last_alerts = {
 def should_send_alert(alert_type, new_message, min_interval=1):
     now = time.time()
     last = last_alerts[alert_type]
-    # Only send if enough time has passed, regardless of message change
-    if (now - last["time"]) > min_interval:
+    # Only send if enough time has passed AND the message is different
+    if (now - last["time"]) > min_interval and new_message != last["message"]:
         last_alerts[alert_type]["time"] = now
         last_alerts[alert_type]["message"] = new_message
         return True
