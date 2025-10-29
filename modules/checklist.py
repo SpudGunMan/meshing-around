@@ -257,7 +257,8 @@ def format_overdue_alert():
     try:
         """Format overdue check-ins as an alert message"""
         overdue = get_overdue_checkins()
-        logger.debug(f"Overdue check-ins: {overdue}")  # Add this line
+        if overdue:
+            logger.debug(f"Overdue check-ins: {overdue}")
         if not overdue:
             return None
         
@@ -265,7 +266,10 @@ def format_overdue_alert():
         for entry in overdue:
             hours = entry['overdue_minutes'] // 60
             minutes = entry['overdue_minutes'] % 60
-            alert += f"{entry['name']}: {hours}h {minutes}m overdue"
+            if hours > 0:
+                alert += f"{entry['name']}: {hours}h {minutes}m overdue"
+            else:
+                alert += f"{entry['name']}: {minutes}m overdue"
             # if entry['location']:
             #     alert += f" @ {entry['location']}"
             if entry['checkin_notes']:
@@ -314,9 +318,15 @@ def list_checkin():
             timeCheckedIn = f"{days}d {hours:02}:{minutes:02}:{seconds:02}"
         else:
             timeCheckedIn = f"{hours:02}:{minutes:02}:{seconds:02}"
-            checkin_list += "ID: " + str(row[0]) + " " + row[1] + " checked-In for " + timeCheckedIn
+
+        # Add ⏰ if routine check-ins are required
+        routine = ""
+        if len(row) > 7 and row[7] and int(row[7]) > 0:
+            routine = f" ⏰({row[7]}m)"
+
+        checkin_list += f"ID: {row[0]} {row[1]} checked-In for {timeCheckedIn}{routine}"
         if row[5] != "":
-            checkin_list += "📝" + row[5]
+            checkin_list += " 📝" + row[5]
         if row != rows[-1]:
             checkin_list += "\n"
     # if empty list
