@@ -259,8 +259,6 @@ def format_overdue_alert():
     try:
         """Format overdue check-ins as an alert message"""
         overdue = get_overdue_checkins()
-        if overdue:
-            logger.debug(f"Overdue check-ins: {overdue}")
         if not overdue:
             return None
         for entry in overdue:
