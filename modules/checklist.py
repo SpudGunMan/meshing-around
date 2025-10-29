@@ -436,8 +436,6 @@ def process_checklist_command(nodeID, message, name="none", location="none"):
             return ("Command: checklist followed by\n"
                     "checkin [interval] [note]\n"
                     "checkout [all] [note]\n"
-                    "checklistapprove <id>\n"
-                    "checklistdeny <id>\n"
                     "Example: checkin 60 Leaving for a hike")
         else:
             return ("Command: checklist followed by\n"
@@ -445,7 +443,7 @@ def process_checklist_command(nodeID, message, name="none", location="none"):
                     "checkin [note]\n"
                     "Example: checkout 60 Leaving for a hike")
     
-    elif "checklist" in message_lower:
+    elif message_lower.strip() == "checklist":
         return list_checkin()
     
     else:
