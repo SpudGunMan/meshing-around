@@ -325,6 +325,9 @@ def list_checkin():
         if len(row) > 7 and row[7] and int(row[7]) > 0:
             routine = f" ⏰({row[7]}m)"
 
+        # Indicate approval status
+        approved_marker = "✅" if row[6] == 1 else "☑️"
+
         # Check if overdue
         if checkin_id in overdue:
             overdue_minutes = overdue[checkin_id]['overdue_minutes']
@@ -338,7 +341,7 @@ def list_checkin():
         else:
             status = f"{row[1]} checked-In for {timeCheckedIn}{routine}"
 
-        checkin_list += f"ID: {checkin_id} {status}"
+        checkin_list += f"ID: {checkin_id} {approved_marker} {status}"
         if row[5] != "":
             checkin_list += " 📝" + row[5]
         if row != rows[-1]:
