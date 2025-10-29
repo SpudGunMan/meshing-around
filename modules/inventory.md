@@ -412,16 +412,6 @@ If `itemreturn` fails, verify the transaction ID exists. Use recent transaction 
 ### Cart Not Showing Items
 Each user has their own cart. Make sure you're using your own node to view your cart.
 
-## Future Enhancements
-
-Planned features for future releases:
-- Multi-item itemsell command
-- Transaction history viewing
-- Inventory reports by date range
-- Low stock alerts
-- Price history tracking
-- Barcode/QR code support
-- Integration with external accounting systems
 
 ## Support
 

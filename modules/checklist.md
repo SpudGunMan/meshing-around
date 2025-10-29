@@ -391,20 +391,6 @@ Duration is calculated from check-in time to current time. If system clock is wr
 ### Can't Approve/Deny Check-ins
 These are admin-only commands. Check that your node ID is in the `bbs_admin_list`.
 
-### Location Not Showing
-GPS coordinates are only captured if the node has GPS enabled and has a fix. Check node GPS settings.
-
-## Future Enhancements
-
-Planned features:
-- Configurable alert thresholds per user
-- Email/SMS notifications for overdue check-ins
-- Historical check-in reports
-- Check-in schedules and recurring events
-- Geo-fence monitoring
-- Integration with tracking systems
-- Mobile app support
-
 ## Support
 
 For issues or feature requests, please file an issue on the GitHub repository.
