@@ -1164,10 +1164,11 @@ def handleAlertBroadcast(deviceID=1):
         if volcanoAlertBroadcastEnabled:
             volcanoAlert = get_volcano_usgs(latitudeValue, longitudeValue)
 
+
         alert_types = [
             ("fema", alertFema, ipawsAlertEnabled),
-            ("uk", alertUk, ipawsAlertEnabled),
-            ("de", alertDe, ipawsAlertEnabled),
+            ("uk", alertUk, enableGBalerts),
+            ("de", alertDe, enableDEalerts),
             ("wx", wxAlert, wxAlertBroadcastEnabled),
             ("volcano", volcanoAlert, volcanoAlertBroadcastEnabled),
         ]
