@@ -245,8 +245,11 @@ def get_overdue_checkins():
                 })
         
         return overdue_list
-    except Exception as e:
+    except sqlite3.OperationalError as e:
         conn.close()
+        if "no such table" in str(e):
+            initialize_checklist_database()
+            return get_overdue_checkins()
         logger.error(f"Checklist: Error getting overdue check-ins: {e}")
         return []
 
