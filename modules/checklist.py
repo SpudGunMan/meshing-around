@@ -6,7 +6,7 @@ from modules.log import logger
 from modules.settings import checklist_db, reverse_in_out, bbs_ban_list, bbs_admin_list
 import time
 
-trap_list_checklist = ("checkin", "checkout", "checklist", "okcl", "denycl",)
+trap_list_checklist = ("checkin", "checkout", "checklist", "approvecl", "denycl",)
 
 def initialize_checklist_database():
     try:
@@ -415,7 +415,7 @@ def process_checklist_command(nodeID, message, name="none", location="none"):
     # elif "purgeout" in message_lower:
     #     return mark_checkout_removed_by_name(name)
     
-    elif "okcl " in message_lower:
+    elif "approvecl " in message_lower:
         if not is_admin:
             return "You do not have permission to approve check-ins."
         try:

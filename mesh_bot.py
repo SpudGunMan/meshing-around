@@ -40,7 +40,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "bbspost": lambda: handle_bbspost(message, message_from_id, deviceID),
     "bbsread": lambda: handle_bbsread(message),
     "blackjack": lambda: handleBlackJack(message, message_from_id, deviceID),
-    "okcl": lambda: handle_checklist(message, message_from_id, deviceID),
+    "approvecl": lambda: handle_checklist(message, message_from_id, deviceID),
     "denycl": lambda: handle_checklist(message, message_from_id, deviceID),
     "checkin": lambda: handle_checklist(message, message_from_id, deviceID),
     "checklist": lambda: handle_checklist(message, message_from_id, deviceID),
