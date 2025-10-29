@@ -5,7 +5,7 @@ import schedule
 from datetime import datetime
 from functools import partial
 from modules.log import logger
-from modules.settings import MOTD
+from modules.settings import MOTD, schedulerChannel, schedulerInterface, schedulerMessage, schedulerMotd, schedulerTime, schedulerInterval, schedulerValue
 from modules.system import send_message
 
 async def run_scheduler_loop(interval=1):
@@ -107,8 +107,10 @@ def setup_scheduler(
         if any(option in schedulerValue for option in basicOptions):
             if schedulerValue == 'day':
                 if schedulerTime:
+                    # Specific time each day
                     schedule.every().day.at(schedulerTime).do(send_sched_msg)
                 else:
+                    # Every N days
                     schedule.every(schedulerIntervalInt).days.do(send_sched_msg)
             elif 'mon' in schedulerValue and schedulerTime:
                 schedule.every().monday.at(schedulerTime).do(send_sched_msg)
