@@ -287,6 +287,11 @@ echo "Added user $whoami to dialout, tty, and bluetooth groups"
 
 sudo chown -R "$whoami:$whoami" "$program_path/logs"
 sudo chown -R "$whoami:$whoami" "$program_path/data"
+sudo chown "$whoami:$whoami" "$program_path/config.ini"
+sudo chmod 640 "$program_path/config.ini"
+echo "Permissions set for meshbot on config.ini"
+sudo chmod 750 "$program_path/logs"
+sudo chmod 750 "$program_path/data"
 echo "Permissions set for meshbot on logs and data directories"
 
 # check and see if some sort of NTP is running

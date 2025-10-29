@@ -70,10 +70,10 @@ if [[ -f "config.ini" ]]; then
     echo "config.ini is owned by: $owner"
     echo "config.ini permissions: $perms"
     if [[ "$owner" == "root" ]]; then
-        echo "Warning: config.ini is owned by root (possibly edited with sudo)."
+        echo "Warning: config.ini is owned by root check out the etc/set-permissions.sh script"
     fi
     if [[ $(stat -f "%Lp" config.ini) =~ .*[7,6,2]$ ]]; then
-        echo "Warning: config.ini is world-writable or world-readable!"
+        echo "Warning: config.ini is world-writable or world-readable! check out the etc/set-permissions.sh script"
     fi
 
     echo "Including config.ini in backup..."
