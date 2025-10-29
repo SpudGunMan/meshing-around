@@ -1123,8 +1123,8 @@ last_alerts = {
 def should_send_alert(alert_type, new_message, min_interval=1):
     now = time.time()
     last = last_alerts[alert_type]
-    # Only send if message is new or enough time has passed
-    if new_message != last["message"] or (now - last["time"]) > min_interval:
+    # Only send if enough time has passed, regardless of message change
+    if (now - last["time"]) > min_interval:
         last_alerts[alert_type]["time"] = now
         last_alerts[alert_type]["message"] = new_message
         return True
@@ -1140,7 +1140,6 @@ def handleAlertBroadcast(deviceID=1):
         if checklist_enabled:
             overdueAlerts = format_overdue_alert()
             if overdueAlerts:
-                logger.debug("System: Adding overdue checkin to emergency alerts")
                 if should_send_alert("overdue", overdueAlerts, min_interval=300): # 5 minutes interval for overdue alerts
                     send_message(overdueAlerts, emergency_responder_alert_channel, 0, emergency_responder_alert_interface)
 
