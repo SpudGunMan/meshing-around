@@ -63,13 +63,30 @@ if [[ -f "modules/custom_scheduler.py" ]]; then
     echo "Including custom_scheduler.py in backup..."
     cp modules/custom_scheduler.py data/
 fi
+# Check config.ini ownership and permissions
+if [[ -f "config.ini" ]]; then
+    owner=$(stat -f "%Su" config.ini)
+    perms=$(stat -f "%A" config.ini)
+    echo "config.ini is owned by: $owner"
+    echo "config.ini permissions: $perms"
+    if [[ "$owner" == "root" ]]; then
+        echo "Warning: config.ini is owned by root (possibly edited with sudo)."
+    fi
+    if [[ $(stat -f "%Lp" config.ini) =~ .*[7,6,2]$ ]]; then
+        echo "Warning: config.ini is world-writable or world-readable!"
+    fi
+
+    echo "Including config.ini in backup..."
+
+    cp config.ini data/config.backup
+fi
+#create the tar.gz backup
 tar -czf "$backup_file" "$path2backup"
 if [ $? -ne 0 ]; then
     echo "Error: Backup failed."
 else
     echo "Backup of ${path2backup} completed: ${backup_file}"
 fi
-
 
 # Build a config_new.ini file merging user config with new defaults
 echo "Merging configuration files..."
