@@ -100,13 +100,6 @@ ID: Hunter1 checked-In for 01:23:45📝Solo hunting
 ID: Tech2 checked-In for 00:15:30📝Equipment repair
 ```
 
-#### Purge Records
-```
-purgein    # Delete your check-in record
-purgeout   # Delete your check-out record
-```
-
-Use these to manually remove your records if needed.
 
 ### Admin Commands
 

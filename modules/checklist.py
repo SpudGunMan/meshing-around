@@ -6,7 +6,7 @@ from modules.log import logger
 from modules.settings import checklist_db, reverse_in_out, bbs_ban_list
 import time
 
-trap_list_checklist = ("checkin", "checkout", "checklist", "purgein", "purgeout", 
+trap_list_checklist = ("checkin", "checkout", "checklist", 
                        "checklistapprove", "checklistdeny", "checklistadd", "checklistremove")
 
 def initialize_checklist_database():
