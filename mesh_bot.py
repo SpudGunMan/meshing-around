@@ -1581,11 +1581,13 @@ def handle_boot(mesh=True):
             if my_settings.anyAlertBroadcastEnabled:
                 logger.debug(f"System: Emergency Alert Broadcast Enabled on channel {my_settings.emergency_responder_alert_channel} for interface {my_settings.emergency_responder_alert_interface}")
             if my_settings.volcanoAlertBroadcastEnabled:
-                logger.debug(f"System: Volcano Alert Broadcast Enabled on channels {my_settings.emergency_responder_alert_channel}")
+                logger.debug(f"System: Volcano Alert Broadcast Enabled on channels {my_settings.emergency_responder_alert_channel} ignoreUSGSWords {my_settings.ignoreUSGSwords}")
             if my_settings.ipawsAlertEnabled:
-                logger.debug(f"System: iPAWS Alerts Enabled with FIPS codes {my_settings.myStateFIPSList} ignorelist {my_settings.ipawsAlertIgnoreList}")
+                logger.debug(f"System: iPAWS Alerts Enabled with FIPS codes {my_settings.myStateFIPSList} ignorelist {my_settings.ignoreFEMAwords}")
+            if my_settings.ninaAlertEnabled:
+                logger.debug(f"System: NINA Alerts Enabled with counties {my_settings.ninaCountyList}")
             if my_settings.wxAlertBroadcastEnabled:
-                logger.debug(f"System: Weather Alert Broadcast Enabled on channels {my_settings.emergency_responder_alert_channel}")
+                logger.debug(f"System: Weather Alert Broadcast Enabled on channels {my_settings.emergency_responder_alert_channel} ignoreUSGSWords {my_settings.ignoreNWSwords}")
             if my_settings.emergency_responder_enabled:
                 logger.debug(f"System: Emergency Responder Enabled on channels {my_settings.emergency_responder_alert_channel}")
             
