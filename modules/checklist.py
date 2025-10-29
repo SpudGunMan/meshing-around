@@ -255,7 +255,7 @@ def get_overdue_checkins():
 
 def format_overdue_alert():
     header = "⚠️ OVERDUE CHECK-INS:\n"
-    alert = None
+    alert = ""
     try:
         """Format overdue check-ins as an alert message"""
         overdue = get_overdue_checkins()
