@@ -254,6 +254,8 @@ def get_overdue_checkins():
         return []
 
 def format_overdue_alert():
+    header = "⚠️ OVERDUE CHECK-INS:\n"
+    alert = ''
     try:
         """Format overdue check-ins as an alert message"""
         overdue = get_overdue_checkins()
@@ -261,8 +263,6 @@ def format_overdue_alert():
             logger.debug(f"Overdue check-ins: {overdue}")
         if not overdue:
             return None
-        
-        alert = "⚠️ OVERDUE CHECK-INS:\n"
         for entry in overdue:
             hours = entry['overdue_minutes'] // 60
             minutes = entry['overdue_minutes'] % 60
@@ -275,8 +275,8 @@ def format_overdue_alert():
             if entry['checkin_notes']:
                 alert += f" 📝{entry['checkin_notes']}"
             alert += "\n"
-        
-        return alert.rstrip()
+        if alert:
+            return header + alert.rstrip()
     except Exception as e:
         logger.error(f"Checklist: Error formatting overdue alert: {e}")
         return None
