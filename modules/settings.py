@@ -315,6 +315,7 @@ try:
     n2yoAPIKey = config['location'].get('n2yoAPIKey', '') # default empty
     satListConfig = config['location'].get('satList', '25544').split(',') # default 25544 ISS
     riverListDefault = config['location'].get('riverList', '').split(',') # default None
+    useTidePredict = config['location'].getboolean('useTidePredict', False) # default False use NOAA
     coastalEnabled = config['location'].getboolean('coastalEnabled', False) # default False
     myCoastalZone = config['location'].get('myCoastalZone', None) # default None
     coastalForecastDays = config['location'].getint('coastalForecastDays', 3) # default 3 days

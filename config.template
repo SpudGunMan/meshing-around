@@ -211,6 +211,11 @@ NOAAalertCount = 2
 # use Open-Meteo API for weather data not NOAA useful for non US locations
 UseMeteoWxAPI = False
 
+# Global Tide Prediction using tidepredict (for non-US locations)
+# When enabled, uses tidepredict library for global tide predictions instead of NOAA API
+# tidepredict uses University of Hawaii's Research Quality Dataset for worldwide coverage
+useTidePredict = False
+
 # NOAA Coastal Data Enable NOAA Coastal Waters Forecasts and Tide
 coastalEnabled = False
 # Find the correct costal weather directory at https://tgftp.nws.noaa.gov/data/forecasts/marine/coastal/
