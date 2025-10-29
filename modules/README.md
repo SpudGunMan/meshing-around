@@ -541,17 +541,23 @@ Configure in `[scheduler]` section of `config.ini`.
 See modules/custom_scheduler.py for advanced scheduling using python
 
 **Purpose:**  
-`scheduler.py` provides automated scheduling for Mesh Bot, allowing you to send messages, jokes, weather updates, and custom actions at specific times or intervals.
+`scheduler.py` provides automated scheduling for Mesh Bot, allowing you to send messages, jokes, weather updates, news, RSS feeds, marine weather, system info, tide info, sun info, and custom actions at specific times or intervals.
 
 **How to Use:**  
 - The scheduler is configured via your bot’s settings or commands, specifying what to send, when, and on which channel/interface.
-- Supports daily, weekly, hourly, and minutely schedules, as well as special jobs like jokes and weather.
+- Supports daily, weekly, hourly, and minutely schedules, as well as special jobs like jokes, weather, news, RSS feeds, marine weather, system info, tide info, and sun info.
 - For advanced automation, you can define your own schedules in `etc/custom_scheduler.py` (copied to `modules/custom_scheduler.py` at install).
 
 **Features:**  
 - **Basic Scheduling:** Send messages on a set schedule (e.g., every day at 09:00, every Monday at noon, every hour, etc.).
 - **Joke Scheduler:** Automatically send jokes every x min
 - **Weather Scheduler:** Send weather updates at time of day, daily.
+- **News Scheduler:** Send news updates at specified intervals.
+- **RSS Scheduler:** Send RSS feed updates at specified intervals.
+- **Marine Weather Scheduler:** Send marine weather forecasts at time of day, daily.
+- **System Info Scheduler:** Send system information at specified intervals.
+- **Tide Scheduler:** Send tide information at time of day, daily.
+- **Sun Scheduler:** Send sun information (sunrise/sunset) at time of day, daily.
 - **Custom Scheduler:** run your own scheduled jobs by editing `custom_scheduler.py`.
 - **Logging:** All scheduling actions are logged for debugging and monitoring.
 
@@ -617,6 +623,48 @@ You can schedule messages or actions using the following options in your configu
   - Option: `weather`  
   - Time: `08:00` 
   - → Sends a weather update daily at 8:00a.
+
+#### **news**
+- Schedules the bot to send news updates at the specified interval (in hours).
+- **Example:**  
+  - Option: `news`  
+  - Interval: `6`  
+  - → Sends news updates every 6 hours.
+
+#### **readrss**
+- Schedules the bot to send RSS feed updates at the specified interval (in hours).
+- **Example:**  
+  - Option: `readrss`  
+  - Interval: `4`  
+  - → Sends RSS feed updates every 4 hours.
+
+#### **mwx**
+- Schedules the bot to send marine weather updates at the specified time of day, daily.
+- **Example:**  
+  - Option: `mwx`  
+  - Time: `06:00`  
+  - → Sends marine weather updates daily at 6:00a.
+
+#### **sysinfo**
+- Schedules the bot to send system information at the specified interval (in hours).
+- **Example:**  
+  - Option: `sysinfo`  
+  - Interval: `12`  
+  - → Sends system information every 12 hours.
+
+#### **tide**
+- Schedules the bot to send tide information at the specified time of day, daily.
+- **Example:**  
+  - Option: `tide`  
+  - Time: `05:00`  
+  - → Sends tide information daily at 5:00a.
+
+#### **solar**
+- Schedules the bot to send sun information (sunrise/sunset) at the specified time of day, daily.
+- **Example:**  
+  - Option: `solar`  
+  - Time: `06:00`  
+  - → Sends sun information daily at 6:00a.
 
 ---
 

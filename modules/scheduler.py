@@ -1,11 +1,9 @@
 # modules/scheduler.py 2025 meshing-around
-# Scheduler setup for Mesh Bot
+# Scheduler module for mesh_bot
 import asyncio
 import schedule
 from datetime import datetime
-from functools import partial
 from modules.log import logger
-from modules.settings import MOTD
 from modules.system import send_message
 
 async def run_scheduler_loop(interval=1):
@@ -80,7 +78,11 @@ def setup_scheduler(
             handle_riverFlow,
             handle_tide,
             handle_satpass,
+            handleNews,
+            handle_mwx,
+            sysinfo,
         )
+        from modules.rss import get_rss_feed
     except ImportError as e:
         logger.warning(f"Some mesh_bot schedule features are unavailable by option disable in config.ini: {e} comment out the use of these methods in your custom_scheduler.py")
     
@@ -103,8 +105,10 @@ def setup_scheduler(
         if any(option in schedulerValue for option in basicOptions):
             if schedulerValue == 'day':
                 if schedulerTime:
+                    # Specific time each day
                     schedule.every().day.at(schedulerTime).do(send_sched_msg)
                 else:
+                    # Every N days
                     schedule.every(schedulerIntervalInt).days.do(send_sched_msg)
             elif 'mon' in schedulerValue and schedulerTime:
                 schedule.every().monday.at(schedulerTime).do(send_sched_msg)
@@ -127,19 +131,49 @@ def setup_scheduler(
             logger.debug(f"System: Starting the basic scheduler to send '{scheduler_message}' on schedule '{schedulerValue}' every {schedulerIntervalInt} interval at time '{schedulerTime}' on Device:{schedulerInterface} Channel:{schedulerChannel}")
         elif 'joke' in schedulerValue:
             schedule.every(schedulerIntervalInt).minutes.do(
-                partial(send_message, tell_joke(), schedulerChannel, 0, schedulerInterface)
+                lambda: send_message(tell_joke(), schedulerChannel, 0, schedulerInterface)
             )
             logger.debug(f"System: Starting the joke scheduler to send a joke every {schedulerIntervalInt} minutes on Device:{schedulerInterface} Channel:{schedulerChannel}")
         elif 'link' in schedulerValue:
             schedule.every(schedulerIntervalInt).hours.do(
-                send_message("bbslink MeshBot looking for peers", schedulerChannel, 0, schedulerInterface)
+                lambda: send_message("bbslink MeshBot looking for peers", schedulerChannel, 0, schedulerInterface)
             )
             logger.debug(f"System: Starting the link scheduler to send link messages every {schedulerIntervalInt} hours on Device:{schedulerInterface} Channel:{schedulerChannel}")
         elif 'weather' in schedulerValue:
             schedule.every().day.at(schedulerTime).do(
-                partial(send_message, handle_wxc(0, schedulerInterface, 'wx', days=1), schedulerChannel, 0, schedulerInterface)
+                lambda: send_message(handle_wxc(0, schedulerInterface, 'wx', days=1), schedulerChannel, 0, schedulerInterface)
             )
             logger.debug(f"System: Starting the weather scheduler to send weather updates every {schedulerIntervalInt} hours on Device:{schedulerInterface} Channel:{schedulerChannel}")
+        elif 'news' in schedulerValue:
+            schedule.every(schedulerIntervalInt).hours.do(
+                lambda: send_message(handleNews(0, schedulerInterface, 'readnews', False), schedulerChannel, 0, schedulerInterface)
+            )
+            logger.debug(f"System: Starting the news scheduler to send news updates every {schedulerIntervalInt} hours on Device:{schedulerInterface} Channel:{schedulerChannel}")
+        elif 'readrss' in schedulerValue:
+            schedule.every(schedulerIntervalInt).hours.do(
+                lambda: send_message(get_rss_feed(''), schedulerChannel, 0, schedulerInterface)
+            )
+            logger.debug(f"System: Starting the RSS scheduler to send RSS feeds every {schedulerIntervalInt} hours on Device:{schedulerInterface} Channel:{schedulerChannel}")
+        elif 'mwx' in schedulerValue:
+            schedule.every().day.at(schedulerTime).do(
+                lambda: send_message(handle_mwx(0, schedulerInterface, 'mwx'), schedulerChannel, 0, schedulerInterface)
+            )
+            logger.debug(f"System: Starting the marine weather scheduler to send marine weather updates at {schedulerTime} on Device:{schedulerInterface} Channel:{schedulerChannel}")
+        elif 'sysinfo' in schedulerValue:
+            schedule.every(schedulerIntervalInt).hours.do(
+                lambda: send_message(sysinfo('', 0, schedulerInterface, False), schedulerChannel, 0, schedulerInterface)
+            )
+            logger.debug(f"System: Starting the sysinfo scheduler to send system information every {schedulerIntervalInt} hours on Device:{schedulerInterface} Channel:{schedulerChannel}")
+        elif 'tide' in schedulerValue:
+            schedule.every().day.at(schedulerTime).do(
+                lambda: send_message(handle_tide(0, schedulerInterface, schedulerChannel), schedulerChannel, 0, schedulerInterface)
+            )
+            logger.debug(f"System: Starting the tide scheduler to send tide information at {schedulerTime} on Device:{schedulerInterface} Channel:{schedulerChannel}")
+        elif 'solar' in schedulerValue:
+            schedule.every().day.at(schedulerTime).do(
+                lambda: send_message(handle_sun(0, schedulerInterface, schedulerChannel), schedulerChannel, 0, schedulerInterface)
+            )
+            logger.debug(f"System: Starting the scheduler to send solar information at {schedulerTime} on Device:{schedulerInterface} Channel:{schedulerChannel}")
         elif 'custom' in schedulerValue:
             try:
                 from modules.custom_scheduler import setup_custom_schedules # type: ignore
@@ -151,7 +185,7 @@ def setup_scheduler(
                     lambda: logger.info("System: Scheduled Broadcast Enabled Reminder")
                 )
             except Exception as e:
-                logger.warning("Custom scheduler file not found or failed to import. cp etc/custom_scheduler.py modules/custom_scheduler.py")
+                logger.warning("Custom scheduler file not found or failed to import. cp etc/custom_scheduler.template modules/custom_scheduler.py")
     except Exception as e:
         logger.error(f"System: Scheduler Error {e}")
     return True
