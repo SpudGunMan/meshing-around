@@ -22,7 +22,7 @@ Environment=SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
 Environment=PYTHONUNBUFFERED=1
 
 Restart=on-failure
-Type=notify #try simple if any problems
+
 
 [Install]
 WantedBy=default.target

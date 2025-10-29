@@ -23,7 +23,6 @@ ExecStop=pkill -f report_generator5.py
 Environment=PYTHONUNBUFFERED=1
 
 Restart=on-failure
-Type=notify #try simple if any problems
 
 [Install]
 WantedBy=timers.target
