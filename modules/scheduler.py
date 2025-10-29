@@ -171,11 +171,11 @@ def setup_scheduler(
                 lambda: send_message(handle_tide(0, schedulerInterface, schedulerChannel), schedulerChannel, 0, schedulerInterface)
             )
             logger.debug(f"System: Starting the tide scheduler to send tide information at {schedulerTime} on Device:{schedulerInterface} Channel:{schedulerChannel}")
-        elif 'sun' in schedulerValue:
+        elif 'solar' in schedulerValue:
             schedule.every().day.at(schedulerTime).do(
                 lambda: send_message(handle_sun(0, schedulerInterface, schedulerChannel), schedulerChannel, 0, schedulerInterface)
             )
-            logger.debug(f"System: Starting the sun scheduler to send sun information at {schedulerTime} on Device:{schedulerInterface} Channel:{schedulerChannel}")
+            logger.debug(f"System: Starting the scheduler to send solar information at {schedulerTime} on Device:{schedulerInterface} Channel:{schedulerChannel}")
         elif 'custom' in schedulerValue:
             try:
                 from modules.custom_scheduler import setup_custom_schedules # type: ignore

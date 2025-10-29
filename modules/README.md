@@ -659,10 +659,10 @@ You can schedule messages or actions using the following options in your configu
   - Time: `05:00`  
   - → Sends tide information daily at 5:00a.
 
-#### **sun**
+#### **solar**
 - Schedules the bot to send sun information (sunrise/sunset) at the specified time of day, daily.
 - **Example:**  
-  - Option: `sun`  
+  - Option: `solar`  
   - Time: `06:00`  
   - → Sends sun information daily at 6:00a.
 
