@@ -13,7 +13,7 @@ The enhanced checklist module provides asset tracking and accountability feature
 - Notes support for additional context
 
 ### ⏰ Safety Monitoring with Time Intervals
-- Set expected check-in intervals for safety monitoring
+- Set expected check-in intervals for safety  (minimal 20min)
 - Automatic tracking of overdue check-ins
 - Ideal for solo activities, remote work, or high-risk operations
 - Get alerts when someone hasn't checked in within their expected timeframe

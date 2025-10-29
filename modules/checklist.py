@@ -35,6 +35,17 @@ def initialize_checklist_database():
         except sqlite3.OperationalError:
             pass  # Column already exists
         
+        try:
+            c.execute("ALTER TABLE checkin ADD COLUMN removed INTEGER DEFAULT 0")
+        except sqlite3.OperationalError:
+            pass  # Column already exists
+        
+        # Add this to your DB init (if not already present)
+        try:
+            c.execute("ALTER TABLE checkout ADD COLUMN removed INTEGER DEFAULT 0")
+        except sqlite3.OperationalError:
+            pass  # Column already exists
+        
         conn.commit()
         conn.close()
         return True
@@ -203,7 +214,7 @@ def get_overdue_checkins():
     
     try:
         c.execute("""
-            SELECT checkin_id, checkin_name, checkin_date, checkin_time, expected_checkin_interval, location
+            SELECT checkin_id, checkin_name, checkin_date, checkin_time, expected_checkin_interval, location, checkin_notes
             FROM checkin
             WHERE expected_checkin_interval > 0
             AND approved = 1
@@ -218,7 +229,7 @@ def get_overdue_checkins():
         conn.close()
         
         overdue_list = []
-        for checkin_id, name, date, time_str, interval, location in active_checkins:
+        for checkin_id, name, date, time_str, interval, location, notes in active_checkins:
             checkin_datetime = time.mktime(time.strptime(f"{date} {time_str}", "%Y-%m-%d %H:%M:%S"))
             time_since_checkin = (current_time - checkin_datetime) / 60  # in minutes
             
@@ -229,7 +240,8 @@ def get_overdue_checkins():
                     'name': name,
                     'location': location,
                     'overdue_minutes': overdue_minutes,
-                    'interval': interval
+                    'interval': interval,
+                    'checkin_notes': notes
                 })
         
         return overdue_list
@@ -239,21 +251,28 @@ def get_overdue_checkins():
         return []
 
 def format_overdue_alert():
-    """Format overdue check-ins as an alert message"""
-    overdue = get_overdue_checkins()
-    if not overdue:
+    try:
+        """Format overdue check-ins as an alert message"""
+        overdue = get_overdue_checkins()
+        logger.debug(f"Overdue check-ins: {overdue}")  # Add this line
+        if not overdue:
+            return None
+        
+        alert = "⚠️ OVERDUE CHECK-INS:\n"
+        for entry in overdue:
+            hours = entry['overdue_minutes'] // 60
+            minutes = entry['overdue_minutes'] % 60
+            alert += f"{entry['name']}: {hours}h {minutes}m overdue"
+            # if entry['location']:
+            #     alert += f" @ {entry['location']}"
+            if entry['checkin_notes']:
+                alert += f" 📝{entry['checkin_notes']}"
+            alert += "\n"
+        
+        return alert.rstrip()
+    except Exception as e:
+        logger.error(f"Checklist: Error formatting overdue alert: {e}")
         return None
-    
-    alert = "⚠️ OVERDUE CHECK-INS:\n"
-    for entry in overdue:
-        hours = entry['overdue_minutes'] // 60
-        minutes = entry['overdue_minutes'] % 60
-        alert += f"{entry['name']}: {hours}h {minutes}m overdue"
-        if entry['location']:
-            alert += f" @ {entry['location']}"
-        alert += "\n"
-    
-    return alert.rstrip()
 
 def list_checkin():
     # list checkins
@@ -262,7 +281,8 @@ def list_checkin():
     try:
         c.execute("""
             SELECT * FROM checkin
-            WHERE checkin_id NOT IN (
+            WHERE removed = 0
+            AND checkin_id NOT IN (
                 SELECT checkin_id FROM checkout
                 WHERE checkout_date > checkin_date OR (checkout_date = checkin_date AND checkout_time > checkin_time)
             )
@@ -291,7 +311,7 @@ def list_checkin():
             timeCheckedIn = f"{days}d {hours:02}:{minutes:02}:{seconds:02}"
         else:
             timeCheckedIn = f"{hours:02}:{minutes:02}:{seconds:02}"
-        checkin_list += "ID: " + row[1] + " checked-In for " + timeCheckedIn
+            checkin_list += "ID: " + str(row[0]) + " " + row[1] + " checked-In for " + timeCheckedIn
         if row[5] != "":
             checkin_list += "📝" + row[5]
         if row != rows[-1]:
@@ -339,10 +359,10 @@ def process_checklist_command(nodeID, message, name="none", location="none"):
         return checkout(name, current_date, current_time, location, comment)
     
     elif "purgein" in message_lower:
-        return delete_checkin(nodeID)
+        return mark_checkin_removed_by_name(name)
     
     elif "purgeout" in message_lower:
-        return delete_checkout(nodeID)
+        return mark_checkout_removed_by_name(name)
     
     elif message_lower.startswith("checklistapprove "):
         try:
@@ -381,3 +401,21 @@ def process_checklist_command(nodeID, message, name="none", location="none"):
     
     else:
         return "Invalid command."
+
+def mark_checkin_removed_by_name(name):
+    conn = sqlite3.connect(checklist_db)
+    c = conn.cursor()
+    c.execute("UPDATE checkin SET removed = 1 WHERE checkin_name = ?", (name,))
+    affected = c.rowcount
+    conn.commit()
+    conn.close()
+    return f"Marked {affected} check-in(s) as removed for {name}."
+
+def mark_checkout_removed_by_name(name):
+    conn = sqlite3.connect(checklist_db)
+    c = conn.cursor()
+    c.execute("UPDATE checkout SET removed = 1 WHERE checkout_name = ?", (name,))
+    affected = c.rowcount
+    conn.commit()
+    conn.close()
+    return f"Marked {affected} checkout(s) as removed for {name}."

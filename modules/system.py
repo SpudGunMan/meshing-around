@@ -1115,105 +1115,135 @@ priorVolcanoAlert = ""
 priorEmergencyAlert = ""
 priorWxAlert = ""
 def handleAlertBroadcast(deviceID=1):
-    global priorVolcanoAlert, priorEmergencyAlert, priorWxAlert
-    alertUk = NO_ALERTS
-    alertDe = NO_ALERTS
-    alertFema = NO_ALERTS
-    wxAlert = NO_ALERTS
-    volcanoAlert = NO_ALERTS
-    alertWx = False
-    # only allow API call every 20 minutes
-    # the watchdog will call this function 3 times, seeing possible throttling on the API
-    clock = datetime.now()
-    if clock.minute % 20 != 0:
-        return False
-    if clock.second > 17:
-        return False
-    
-    # check for alerts
-    if wxAlertBroadcastEnabled:
-        alertWx = alertBrodcastNOAA()
+    try:
+        global priorVolcanoAlert, priorEmergencyAlert, priorWxAlert
+        alertUk = NO_ALERTS
+        alertDe = NO_ALERTS
+        alertFema = NO_ALERTS
+        wxAlert = NO_ALERTS
+        volcanoAlert = NO_ALERTS
+        overdueAlerts = NO_ALERTS
+        alertWx = False
+        # only allow API call every 20 minutes
+        # the watchdog will call this function 3 times, seeing possible throttling on the API
+        clock = datetime.now()
+        if clock.minute % 20 != 0:
+            return False
+        if clock.second > 17:
+            return False
+        
+        # check for alerts
+        if wxAlertBroadcastEnabled:
+            alertWx = alertBrodcastNOAA()
 
-    if emergencyAlertBrodcastEnabled:
-        if enableDEalerts:
-            alertDe = get_nina_alerts()
-        if enableGBalerts:
-            alertUk = get_govUK_alerts()
+        if emergencyAlertBrodcastEnabled:
+            if enableDEalerts:
+                alertDe = get_nina_alerts()
+            if enableGBalerts:
+                alertUk = get_govUK_alerts()
+            else:
+                # default USA alerts
+                alertFema = getIpawsAlert(latitudeValue,longitudeValue, shortAlerts=True)
+
+        if checklist_enabled:
+            overdueAlerts = format_overdue_alert()
+        
+        # format alert
+        if alertWx:
+            wxAlert = f"🚨 {alertWx[1]} EAS-WX ALERT: {alertWx[0]}"
         else:
-            # default USA alerts
-            alertFema = getIpawsAlert(latitudeValue,longitudeValue, shortAlerts=True)
+            wxAlert = False
 
-    # format alert
-    if alertWx:
-        wxAlert = f"🚨 {alertWx[1]} EAS-WX ALERT: {alertWx[0]}"
-    else:
-        wxAlert = False
+        femaAlert = alertFema
+        ukAlert = alertUk
+        deAlert = alertDe
 
-    femaAlert = alertFema
-    ukAlert = alertUk
-    deAlert = alertDe
+        if overdueAlerts != NO_ALERTS and overdueAlerts != None:
+            logger.debug("System: Adding overdue checkin to emergency alerts")
+            if femaAlert and NO_ALERTS not in femaAlert and ERROR_FETCHING_DATA not in femaAlert:
+                femaAlert += "\n\n" + overdueAlerts
+            elif ukAlert and NO_ALERTS not in ukAlert and ERROR_FETCHING_DATA not in ukAlert:
+                ukAlert += "\n\n" + overdueAlerts
+            elif deAlert and NO_ALERTS not in deAlert and ERROR_FETCHING_DATA not in deAlert:
+                deAlert += "\n\n" + overdueAlerts
+            else:
+                # only overdue alerts to send
+                if overdueAlerts != "" and overdueAlerts is not None and overdueAlerts != NO_ALERTS:
+                    if overdueAlerts != priorEmergencyAlert:
+                        priorEmergencyAlert = overdueAlerts
+                    else:
+                        return False
+                    if isinstance(emergencyAlertBroadcastCh, list):
+                        for channel in emergencyAlertBroadcastCh:
+                            send_message(overdueAlerts, int(channel), 0, deviceID)
+                    else:
+                        send_message(overdueAlerts, emergencyAlertBroadcastCh, 0, deviceID)
+                        return True
 
-    if emergencyAlertBrodcastEnabled:
-        if NO_ALERTS not in femaAlert and ERROR_FETCHING_DATA not in femaAlert:
-            if femaAlert != priorEmergencyAlert:
-                priorEmergencyAlert = femaAlert
-            else:
-                return False
-            if isinstance(emergencyAlertBroadcastCh, list):
-                for channel in emergencyAlertBroadcastCh:
-                    send_message(femaAlert, int(channel), 0, deviceID)
-            else:
-                send_message(femaAlert, emergencyAlertBroadcastCh, 0, deviceID)
-            return True
-        if NO_ALERTS not in ukAlert:
-            if ukAlert != priorEmergencyAlert:
-                priorEmergencyAlert = ukAlert
-            else:
-                return False
-            if isinstance(emergencyAlertBroadcastCh, list):
-                for channel in emergencyAlertBroadcastCh:
-                    send_message(ukAlert, int(channel), 0, deviceID)
-            else:
-                send_message(ukAlert, emergencyAlertBroadcastCh, 0, deviceID)
-            return True
-
-        if NO_ALERTS not in alertDe:
-            if deAlert != priorEmergencyAlert:
-                priorEmergencyAlert = deAlert
-            else:
-                return False
-            if isinstance(emergencyAlertBroadcastCh, list):
-                for channel in emergencyAlertBroadcastCh:
-                    send_message(deAlert, int(channel), 0, deviceID)
-            else:
-                send_message(deAlert, emergencyAlertBroadcastCh, 0, deviceID)
-            return True
-
-    if wxAlertBroadcastEnabled:
-        if wxAlert:
-            if wxAlert != priorWxAlert:
-                priorWxAlert = wxAlert
-            else:
-                return False
-            if isinstance(wxAlertBroadcastChannel, list):
-                for channel in wxAlertBroadcastChannel:
-                    send_message(wxAlert, int(channel), 0, deviceID)
-            else:
-                send_message(wxAlert, wxAlertBroadcastChannel, 0, deviceID)
-            return True
-
-    if volcanoAlertBroadcastEnabled:
-        volcanoAlert = get_volcano_usgs(latitudeValue, longitudeValue)
-        if volcanoAlert and NO_ALERTS not in volcanoAlert and ERROR_FETCHING_DATA not in volcanoAlert:
-            # check if the alert is different from the last one
-            if volcanoAlert != priorVolcanoAlert:
-                priorVolcanoAlert = volcanoAlert
-                if isinstance(volcanoAlertBroadcastChannel, list):
-                    for channel in volcanoAlertBroadcastChannel:
-                        send_message(volcanoAlert, int(channel), 0, deviceID)
+        if emergencyAlertBrodcastEnabled:
+            if NO_ALERTS not in femaAlert and ERROR_FETCHING_DATA not in femaAlert:
+                if femaAlert != priorEmergencyAlert:
+                    priorEmergencyAlert = femaAlert
                 else:
-                    send_message(volcanoAlert, volcanoAlertBroadcastChannel, 0, deviceID)
+                    return False
+                if isinstance(emergencyAlertBroadcastCh, list):
+                    for channel in emergencyAlertBroadcastCh:
+                        send_message(femaAlert, int(channel), 0, deviceID)
+                else:
+                    send_message(femaAlert, emergencyAlertBroadcastCh, 0, deviceID)
                 return True
+            if NO_ALERTS not in ukAlert:
+                if ukAlert != priorEmergencyAlert:
+                    priorEmergencyAlert = ukAlert
+                else:
+                    return False
+                if isinstance(emergencyAlertBroadcastCh, list):
+                    for channel in emergencyAlertBroadcastCh:
+                        send_message(ukAlert, int(channel), 0, deviceID)
+                else:
+                    send_message(ukAlert, emergencyAlertBroadcastCh, 0, deviceID)
+                return True
+
+            if NO_ALERTS not in alertDe:
+                if deAlert != priorEmergencyAlert:
+                    priorEmergencyAlert = deAlert
+                else:
+                    return False
+                if isinstance(emergencyAlertBroadcastCh, list):
+                    for channel in emergencyAlertBroadcastCh:
+                        send_message(deAlert, int(channel), 0, deviceID)
+                else:
+                    send_message(deAlert, emergencyAlertBroadcastCh, 0, deviceID)
+                return True
+
+        if wxAlertBroadcastEnabled:
+            if wxAlert:
+                if wxAlert != priorWxAlert:
+                    priorWxAlert = wxAlert
+                else:
+                    return False
+                if isinstance(wxAlertBroadcastChannel, list):
+                    for channel in wxAlertBroadcastChannel:
+                        send_message(wxAlert, int(channel), 0, deviceID)
+                else:
+                    send_message(wxAlert, wxAlertBroadcastChannel, 0, deviceID)
+                return True
+
+        if volcanoAlertBroadcastEnabled:
+            volcanoAlert = get_volcano_usgs(latitudeValue, longitudeValue)
+            if volcanoAlert and NO_ALERTS not in volcanoAlert and ERROR_FETCHING_DATA not in volcanoAlert:
+                # check if the alert is different from the last one
+                if volcanoAlert != priorVolcanoAlert:
+                    priorVolcanoAlert = volcanoAlert
+                    if isinstance(volcanoAlertBroadcastChannel, list):
+                        for channel in volcanoAlertBroadcastChannel:
+                            send_message(volcanoAlert, int(channel), 0, deviceID)
+                    else:
+                        send_message(volcanoAlert, volcanoAlertBroadcastChannel, 0, deviceID)
+                    return True
+    except Exception as e:
+        logger.error(f"System: Error in handleAlertBroadcast: {e}")
+    return False
 
 def onDisconnect(interface):
     # Handle disconnection of the interface
@@ -2141,7 +2171,7 @@ async def watchdog():
 
                     handleMultiPing(0, i)
 
-                    if wxAlertBroadcastEnabled or emergencyAlertBrodcastEnabled or volcanoAlertBroadcastEnabled:
+                    if wxAlertBroadcastEnabled or emergencyAlertBrodcastEnabled or volcanoAlertBroadcastEnabled or checklist_enabled:
                         handleAlertBroadcast(i)
 
                     intData = displayNodeTelemetry(0, i)
