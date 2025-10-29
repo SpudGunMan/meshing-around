@@ -127,6 +127,10 @@ if 'qrz' not in config:
     config['qrz'] = {'enabled': 'False', 'qrz_db': 'data/qrz.db', 'qrz_hello_string': 'send CMD or DM me for more info.'}
     config.write(open(config_file, 'w'))
 
+if 'inventory' not in config:
+    config['inventory'] = {'enabled': 'False', 'inventory_db': 'data/inventory.db', 'disable_penny': 'False'}
+    config.write(open(config_file, 'w'))
+
 # interface1 settings
 interface1_type = config['interface'].get('type', 'serial')
 port1 = config['interface'].get('port', '')
@@ -357,6 +361,11 @@ try:
     qrz_db = config['qrz'].get('qrz_db', 'data/qrz.db')
     qrz_hello_string = config['qrz'].get('qrz_hello_string', 'MeshBot says Hello! DM for more info.')
     train_qrz = config['qrz'].getboolean('training', True)
+    
+    # inventory and POS
+    inventory_enabled = config['inventory'].getboolean('enabled', False)
+    inventory_db = config['inventory'].get('inventory_db', 'data/inventory.db')
+    disable_penny = config['inventory'].getboolean('disable_penny', False)
     
     # E-Mail Settings
     sysopEmails = config['smtp'].get('sysopEmails', '').split(',')

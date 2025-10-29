@@ -59,8 +59,8 @@ Mesh Bot is a feature-rich Python bot designed to enhance your [Meshtastic](http
 - **WSJT-X Integration**: Monitor WSJT-X (FT8, FT4, WSPR, etc.) decode messages and forward them to the mesh network with optional callsign filtering.
 - **JS8Call Integration**: Monitor JS8Call messages and forward them to the mesh network with optional callsign filtering.
 
-### Check-In / Check-Out & Asset Tracking
-- **Asset Tracking**: Maintain a check-in/check-out list for nodes or assets—ideal for accountability of people and equipment (e.g., Radio-Net, FEMA, trailhead groups).
+### Asset Tracking, Check-In/Check-Out, and Inventory Management
+Advanced check-in/check-out and asset tracking for people and equipment—ideal for accountability, safety monitoring, and logistics (e.g., Radio-Net, FEMA, trailhead groups). Admin approval workflows, GPS location capture, and overdue alerts. The integrated inventory and point-of-sale (POS) system enables item management, sales tracking, cart-based transactions, and daily reporting, for swaps, emergency supply management, and field operations, maker-places.
 
 ### Fun and Games
 - **Built-in Games**: Play classic games like DopeWars, Lemonade Stand, BlackJack, and Video Poker directly via DM.

@@ -42,6 +42,8 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "blackjack": lambda: handleBlackJack(message, message_from_id, deviceID),
     "checkin": lambda: handle_checklist(message, message_from_id, deviceID),
     "checklist": lambda: handle_checklist(message, message_from_id, deviceID),
+    "checklistapprove": lambda: handle_checklist(message, message_from_id, deviceID),
+    "checklistdeny": lambda: handle_checklist(message, message_from_id, deviceID),
     "checkout": lambda: handle_checklist(message, message_from_id, deviceID),
     "chess": lambda: handle_gTnW(chess=True),
     "clearsms": lambda: handle_sms(message_from_id, message),
@@ -65,6 +67,22 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "history": lambda: handle_history(message, message_from_id, deviceID, isDM),
     "howfar": lambda: handle_howfar(message, message_from_id, deviceID, isDM),
     "howtall": lambda: handle_howtall(message, message_from_id, deviceID, isDM),
+    "item": lambda: handle_inventory(message, message_from_id, deviceID),
+    "itemadd": lambda: handle_inventory(message, message_from_id, deviceID),
+    "itemlist": lambda: handle_inventory(message, message_from_id, deviceID),
+    "itemloan": lambda: handle_inventory(message, message_from_id, deviceID),
+    "itemremove": lambda: handle_inventory(message, message_from_id, deviceID),
+    "itemreset": lambda: handle_inventory(message, message_from_id, deviceID),
+    "itemreturn": lambda: handle_inventory(message, message_from_id, deviceID),
+    "itemsell": lambda: handle_inventory(message, message_from_id, deviceID),
+    "itemstats": lambda: handle_inventory(message, message_from_id, deviceID),
+    "cart": lambda: handle_inventory(message, message_from_id, deviceID),
+    "cartadd": lambda: handle_inventory(message, message_from_id, deviceID),
+    "cartbuy": lambda: handle_inventory(message, message_from_id, deviceID),
+    "cartclear": lambda: handle_inventory(message, message_from_id, deviceID),
+    "cartlist": lambda: handle_inventory(message, message_from_id, deviceID),
+    "cartremove": lambda: handle_inventory(message, message_from_id, deviceID),
+    "cartsell": lambda: handle_inventory(message, message_from_id, deviceID),
     "joke": lambda: tell_joke(message_from_id),
     "leaderboard": lambda: get_mesh_leaderboard(message, message_from_id, deviceID),
     "lemonstand": lambda: handleLemonade(message, message_from_id, deviceID),
@@ -78,6 +96,8 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "ping": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
     "pinging": lambda: handle_ping(message_from_id, deviceID, message, hop, snr, rssi, isDM, channel_number),
     "pong": lambda: "🏓PING!!🛜",
+    "purgein": lambda: handle_checklist(message, message_from_id, deviceID),
+    "purgeout": lambda: handle_checklist(message, message_from_id, deviceID),
     "q:": lambda: quizHandler(message, message_from_id, deviceID),
     "quiz": lambda: quizHandler(message, message_from_id, deviceID),
     "readnews": lambda: handleNews(message_from_id, deviceID, message, isDM),
@@ -1189,6 +1209,10 @@ def handle_checklist(message, message_from_id, deviceID):
     location = get_node_location(message_from_id, deviceID)
     return process_checklist_command(message_from_id, message, name, location)
 
+def handle_inventory(message, message_from_id, deviceID):
+    name = get_name_from_number(message_from_id, 'short', deviceID)
+    return process_inventory_command(message_from_id, message, name)
+
 def handle_bbspost(message, message_from_id, deviceID):
     if "$" in message and not "example:" in message:
         subject = message.split("$")[1].split("#")[0]
@@ -1615,7 +1639,8 @@ def handle_boot(mesh=True):
         
         if my_settings.checklist_enabled:
             logger.debug("System: CheckList Module Enabled")
-        
+        if my_settings.inventory_enabled:
+            logger.debug("System: Inventory Module Enabled")
         if my_settings.ignoreChannels:
             logger.debug(f"System: Ignoring Channels: {my_settings.ignoreChannels}")
         
