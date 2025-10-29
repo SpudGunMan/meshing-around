@@ -174,7 +174,7 @@ Deny and remove a check-in (requires admin privileges).
 
 **Example:**
 ```
-checklistdeny 456
+denycl 456
 ```
 
 ## Safety Monitoring Feature

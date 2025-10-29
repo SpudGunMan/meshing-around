@@ -150,8 +150,8 @@ The checklist module provides asset tracking and accountability features with sa
   - Ideal for solo activities, remote work, or safety accountability
 
 - **Approval Workflow**
-  - `checklistapprove <id>` - Approve a pending check-in (admin)
-  - `checklistdeny <id>` - Deny/remove a check-in (admin)
+  - `approvecl <id>` - Approve a pending check-in (admin)
+  - `denycl <id>` - Deny/remove a check-in (admin)
 
 more at [modules/checklist.md](modules/checklist.md)
 
