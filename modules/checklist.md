@@ -33,13 +33,13 @@ The enhanced checklist module provides asset tracking and accountability feature
   - Provides `get_overdue_checkins()` function for alert integration
 
 - **Approval Workflow**:
-  - `checklistapprove <id>` - Approve pending check-ins (admin)
-  - `checklistdeny <id>` - Deny/remove check-ins (admin)
+  - `clok <id>` - Approve pending check-ins (admin)
+  - `denycl <id>` - Deny/remove check-ins (admin)
   - Support for approval-based workflows
 
 #### New Commands:
-- `checklistapprove <id>` - Approve a check-in
-- `checklistdeny <id>` - Deny a check-in
+- `clok <id>` - Approve a check-in
+- `denycl <id>` - Deny a check-in
 - Enhanced `checkin [interval] [note]` - Now supports interval parameter
 
 ### Enhanced Check Out Options
@@ -155,19 +155,19 @@ ID: Tech2 checked-In for 00:15:30📝Equipment repair
 
 #### Approve Check-in
 ```
-checklistapprove <checkin_id>
+clok <checkin_id>
 ```
 
 Approve a pending check-in (requires admin privileges).
 
 **Example:**
 ```
-checklistapprove 123
+clok 123
 ```
 
 #### Deny Check-in
 ```
-checklistdeny <checkin_id>
+denycl <checkin_id>
 ```
 
 Deny and remove a check-in (requires admin privileges).

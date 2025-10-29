@@ -6,8 +6,7 @@ from modules.log import logger
 from modules.settings import checklist_db, reverse_in_out, bbs_ban_list, bbs_admin_list
 import time
 
-trap_list_checklist = ("checkin", "checkout", "checklist", 
-                       "checklistapprove", "checklistdeny", "checklistadd", "checklistremove")
+trap_list_checklist = ("checkin", "checkout", "checklist", "okcl", "denycl",)
 
 def initialize_checklist_database():
     try:
@@ -413,7 +412,7 @@ def process_checklist_command(nodeID, message, name="none", location="none"):
     # elif "purgeout" in message_lower:
     #     return mark_checkout_removed_by_name(name)
     
-    elif message_lower.startswith("checklistapprove "):
+    elif "okcl " in message_lower:
         if not is_admin:
             return "You do not have permission to approve check-ins."
         try:
@@ -421,8 +420,8 @@ def process_checklist_command(nodeID, message, name="none", location="none"):
             return approve_checkin(checkin_id)
         except (ValueError, IndexError):
             return "Usage: checklistapprove <checkin_id>"
-    
-    elif message_lower.startswith("checklistdeny "):
+
+    elif "denycl " in message_lower:
         if not is_admin:
             return "You do not have permission to deny check-ins."
         try:
