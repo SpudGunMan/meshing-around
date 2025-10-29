@@ -16,7 +16,7 @@ def setup_custom_schedules(send_message, tell_joke, welcome_message, handle_wxc,
     Python is sensitive to indentation so be careful when editing this file. 
     https://thonny.org is included on pi's image and is a simple IDE to use for editing python files.
     
-    Available functions you can import and use:
+    Available functions you can import and use, be sure they are enabled modules in config.ini:
     - tell_joke() - Returns a random joke
     - welcome_message - A welcome message string
     - handle_wxc(message_from_id, deviceID, cmd, days=None) - Weather information
