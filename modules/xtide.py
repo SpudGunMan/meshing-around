@@ -13,7 +13,7 @@ try:
     TIDEPREDICT_AVAILABLE = True
 except ImportError:
     TIDEPREDICT_AVAILABLE = False
-    logger.warning("xtide: tidepredict module not installed. Install with: pip install tidepredict")
+    logger.error("xtide: tidepredict module not installed. Install with: pip install tidepredict")
 
 def get_nearest_station(lat, lon):
     """
@@ -114,7 +114,7 @@ def get_tide_predictions(lat=0, lon=0, days=1):
     - Formatted string with tide predictions or error message
     """
     if not TIDEPREDICT_AVAILABLE:
-        return "tidepredict library not installed"
+        return "module not installed, see logs for more ⚓️"
     
     if float(lat) == 0 and float(lon) == 0:
         return "No GPS data for tide prediction"
@@ -132,7 +132,7 @@ def get_tide_predictions(lat=0, lon=0, days=1):
         
         # Check if harmonic data exists for this station
         if station_code not in station_dict:
-            logger.warning(f"xtide: No harmonic data for {station_name}.")
+            logger.warning(f"xtide: No harmonic data.     python -m tidepredict -l \"{station_name}\" -genharm")
             return f"Tide data not available for {station_name}. Station database may need initialization."
         
         # Reconstruct tide model

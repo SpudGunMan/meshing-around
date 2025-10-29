@@ -94,6 +94,18 @@ The module couldn't find a nearby station. This may happen if:
 - The station database hasn't been initialized
 - Network issues prevented loading the station list
 
+Tide Station Map 
+[https://uhslc.soest.hawaii.edu/network/](https://uhslc.soest.hawaii.edu/network/)
+- click on Tide Guages
+- Find yourself on the map
+- Locate the closest Gauge and its name (typically the city name)
+
+To manually download data for the station first location the needed station id
+- `python -m tidepredict -l "Port Angeles"` finds a station
+- `python -m tidepredict -l "Port Angeles" -genharm` downloads that datafile
+
+
+
 ## Data Source
 
 Tide predictions are based on harmonic analysis of historical tide data from:

@@ -1428,10 +1428,21 @@ def handle_repeaterQuery(message_from_id, deviceID, channel_number):
         return "Repeater lookup not enabled"
 
 def handle_tide(message_from_id, deviceID, channel_number, vox=False):
-    if vox:
-        return get_NOAAtide(str(my_settings.latitudeValue), str(my_settings.longitudeValue))
+    # Check if tidepredict (xtide) is enabled
     location = get_node_location(message_from_id, deviceID, channel_number)
-    return get_NOAAtide(str(location[0]), str(location[1]))
+    lat = str(location[0])
+    lon = str(location[1])
+    if lat == "0.0" or lon == "0.0":
+        lat = str(my_settings.latitudeValue)
+        lon = str(my_settings.longitudeValue)
+
+    if my_settings.useTidePredict:
+        logger.debug("System: Location: Using tidepredict")
+        return xtide.get_tide_predictions(lat, lon)
+    else:
+        # Fallback to NOAA tide data
+        logger.debug("System: Location: Using NOAA")
+        return get_NOAAtide(str(location[0]), str(location[1]))
 
 def handle_moon(message_from_id, deviceID, channel_number, vox=False):
     if vox:
@@ -1553,6 +1564,8 @@ def handle_boot(mesh=True):
             
             if my_settings.coastalEnabled:
                 logger.debug("System: Coastal Forecast and Tide Enabled!")
+            if my_settings.useTidePredict:
+                logger.debug("System: Using Local TidePredict for Tide Data")
             
             if games_enabled:
                 logger.debug("System: Games Enabled!")

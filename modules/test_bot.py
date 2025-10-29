@@ -28,7 +28,7 @@ if os.path.isfile(checkall_path):
 
 
 # List of module names to exclude
-exclude = ['test_bot','udp', 'system', 'log', 'gpio', 'web',]
+exclude = ['test_bot','udp', 'system', 'log', 'gpio', 'web','test_xtide',]
 available_modules = [
     m.name for m in pkgutil.iter_modules([modules_path])
     if m.name not in exclude]

@@ -175,17 +175,7 @@ def getArtSciRepeaters(lat=0, lon=0):
     return msg
 
 def get_NOAAtide(lat=0, lon=0):
-    # Check if tidepredict (xtide) is enabled
-    if my_settings.useTidePredict:
-        try:
-            from modules import xtide
-            if xtide.is_enabled():
-                logger.debug("Location: Using tidepredict for global tide data")
-                return xtide.get_tide_predictions(lat, lon)
-        except Exception as e:
-            logger.warning(f"Location: Failed to use tidepredict, falling back to NOAA: {e}")
-    
-    # Original NOAA implementation
+    # get tide data from NOAA for lat/lon
     station_id = ""
     location = lat,lon
     if float(lat) == 0 and float(lon) == 0:
