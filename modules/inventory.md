@@ -2,7 +2,7 @@
 
 ## Overview
 
-The inventory module provides a complete point-of-sale (POS) system for mesh networks, enabling inventory management, sales tracking, and cart-based transactions. This system is ideal for:
+The inventory module provides a simple point-of-sale (POS) system for mesh networks, enabling inventory management, sales tracking, and cart-based transactions. This system is ideal for:
 
 - Emergency supply management
 - Event merchandise sales
@@ -10,10 +10,15 @@ The inventory module provides a complete point-of-sale (POS) system for mesh net
 - Remote location inventory
 - Asset management
 - Field operations logistics
+- Tool lending in makerspaces or ham swaps
+- Tracking and lending shared items like Legos or kits
+
+> **Tool Lending & Shared Item Tracking:**  
+> The system supports lending out tools or kits (e.g., in a makerspace or ham swap) using the `itemloan` and `itemreturn` commands. You can also track bulk or set-based items like Legos, manage their locations, and log checkouts and returns for community sharing or events.
 
 ## Features
 
-### 🏪 Complete POS System
+### 🏪 Simple POS System
 - **Item Management**: Add, remove, and update inventory items
 - **Cart System**: Build orders before completing transactions
 - **Transaction Logging**: Full audit trail of all sales and returns
