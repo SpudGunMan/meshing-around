@@ -1584,8 +1584,8 @@ def handle_boot(mesh=True):
                 logger.debug(f"System: Volcano Alert Broadcast Enabled on channels {my_settings.emergency_responder_alert_channel} ignoreUSGSWords {my_settings.ignoreUSGSWords}")
             if my_settings.ipawsAlertEnabled:
                 logger.debug(f"System: iPAWS Alerts Enabled with FIPS codes {my_settings.myStateFIPSList} ignorelist {my_settings.ignoreFEMAwords}")
-            if my_settings.ninaAlertEnabled:
-                logger.debug(f"System: NINA Alerts Enabled with counties {my_settings.ninaCountyList}")
+            if my_settings.enableDEalerts:
+                logger.debug(f"System: NINA Alerts Enabled with counties {my_settings.myRegionalKeysDE}")
             if my_settings.wxAlertBroadcastEnabled:
                 logger.debug(f"System: Weather Alert Broadcast Enabled on channels {my_settings.emergency_responder_alert_channel} ignoreEASwords {my_settings.ignoreEASwords}")
             if my_settings.emergency_responder_enabled:
