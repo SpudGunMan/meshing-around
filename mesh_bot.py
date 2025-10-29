@@ -1578,19 +1578,16 @@ def handle_boot(mesh=True):
             if my_settings.bee_enabled:
                 logger.debug("System: File Monitor Bee Monitor Enabled for bee.txt")
             
-            if my_settings.wxAlertBroadcastEnabled:
-                logger.debug(f"System: Weather Alert Broadcast Enabled on channels {my_settings.wxAlertBroadcastChannel}")
-            
-            if my_settings.emergencyAlertBrodcastEnabled:
-                logger.debug(f"System: Emergency Alert Broadcast Enabled on channels {my_settings.emergencyAlertBroadcastCh} for FIPS codes {my_settings.myStateFIPSList}")
-                if my_settings.myStateFIPSList == ['']:
-                    logger.warning("System: No FIPS codes set for iPAWS Alerts")
-            
-            if my_settings.emergency_responder_enabled:
-                logger.debug(f"System: Emergency Responder Enabled on channels {my_settings.emergency_responder_alert_channel} for interface {my_settings.emergency_responder_alert_interface}")
-            
+            if my_settings.anyAlertBroadcastEnabled:
+                logger.debug(f"System: Emergency Alert Broadcast Enabled on channel {my_settings.emergency_responder_alert_channel} for interface {my_settings.emergency_responder_alert_interface}")
             if my_settings.volcanoAlertBroadcastEnabled:
                 logger.debug(f"System: Volcano Alert Broadcast Enabled on channels {my_settings.volcanoAlertBroadcastChannel}")
+            if my_settings.ipawsAlertEnabled:
+                logger.debug(f"System: iPAWS Alerts Enabled with FIPS codes {my_settings.myStateFIPSList} ignorelist {my_settings.ipawsAlertIgnoreList}")
+            if my_settings.wxAlertBroadcastEnabled:
+                logger.debug(f"System: Weather Alert Broadcast Enabled on channels {my_settings.wxAlertBroadcastChannel}")
+            if my_settings.emergency_responder_enabled:
+                logger.debug(f"System: Emergency Responder Enabled on channels {my_settings.emergency_responder_alert_channel} for interface {my_settings.emergency_responder_alert_interface}")
             
             if my_settings.qrz_hello_enabled:
                 if my_settings.train_qrz:

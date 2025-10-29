@@ -203,13 +203,27 @@ useMetric = False
 # repeaterList lookup location (rbook / artsci / False)
 repeaterLookup = rbook
 
+# use Open-Meteo API for weather data not NOAA useful for non US locations
+UseMeteoWxAPI = False
+
+# Satalite Pass Prediction
+# Register for free API https://www.n2yo.com/login/ personal data page at bottom 'Are you developer?'
+n2yoAPIKey = 
+# NORAD list https://www.n2yo.com/satellites/
+satList = 25544,7530
+
 # NOAA weather forecast days
 NOAAforecastDuration = 3
 # number of weather alerts to display
 NOAAalertCount = 2
 
-# use Open-Meteo API for weather data not NOAA useful for non US locations
-UseMeteoWxAPI = False
+# NOAA Weather EAS Alert Broadcast
+wxAlertBroadcastEnabled = False
+#  Enable Ignore any message that includes following word list
+ignoreEASenable = False
+ignoreEASwords = test,advisory
+# Add extra location to the weather alert
+enableExtraLocationWx = False
 
 # NOAA Coastal Data Enable NOAA Coastal Waters Forecasts and Tide
 coastalEnabled = False
@@ -225,46 +239,27 @@ coastalForecastDays = 3
 # for multiple rivers use comma separated list e.g. 12484500,14105700
 riverList = 
 
-# NOAA EAS Alert Broadcast
-wxAlertBroadcastEnabled = False
-#  Enable Ignore any message that includes following word list
-ignoreEASenable = False
-ignoreEASwords = test,advisory
-# EAS Alert Broadcast Channels
-wxAlertBroadcastCh = 2
-# Add extra location to the weather alert
-enableExtraLocationWx = False
-
-# Goverment Alert Broadcast defaults to FEMA IPAWS
-eAlertBroadcastEnabled = False
+# USA FEMA IPAWS alerts
+ipawsAlertEnabled = True
 # comma separated list of FIPS codes to trigger local alert. find your FIPS codes at https://en.wikipedia.org/wiki/Federal_Information_Processing_Standard_state_code
 myFIPSList = 57,58,53
 # find your SAME https://www.weather.gov/nwr/counties comma separated list of SAME code to further refine local alert.
 mySAMEList = 053029,053073
-# Goverment Alert Broadcast Channels
-eAlertBroadcastCh = 2
 #  Enable Ignore, headline that includes following word list
 ignoreFEMAenable = True
 ignoreFEMAwords = test,exercise
 
 # USGS Volcano alerts Enable USGS Volcano Alert Broadcast
 volcanoAlertBroadcastEnabled = False
-volcanoAlertBroadcastCh = 2
 # Enable Ignore any message that includes following word list
 ignoreUSGSEnable = False
 ignoreUSGSWords = test,advisory
 
-# Use DE Alert Broadcast Data
+# Use Germany/DE Alert Broadcast Data
 enableDEalerts = False
 # comma separated list of regional codes trigger local alert.
 # find your regional codet at https://www.xrepository.de/api/xrepository/urn:de:bund:destatis:bevoelkerungsstatistik:schluessel:rs_2021-07-31/download/Regionalschl_ssel_2021-07-31.json
 myRegionalKeysDE = 110000000000,120510000000
-
-# Satalite Pass Prediction
-# Register for free API https://www.n2yo.com/login/ personal data page at bottom 'Are you developer?'
-n2yoAPIKey = 
-# NORAD list https://www.n2yo.com/satellites/
-satList = 25544,7530
 
 # CheckList Checkin/Checkout
 [checklist]

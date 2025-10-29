@@ -276,12 +276,6 @@ try:
     rssTruncate = config['general'].getint('rssTruncate', 100) # default 100 characters
     rssFeedNames = config['general'].get('rssFeedNames', 'default,arrl').split(',')
 
-    # emergency response
-    emergency_responder_enabled = config['emergencyHandler'].getboolean('enabled', False)
-    emergency_responder_alert_channel = config['emergencyHandler'].getint('alert_channel', 2) # default 2
-    emergency_responder_alert_interface = config['emergencyHandler'].getint('alert_interface', 1) # default 1
-    emergency_responder_email = config['emergencyHandler'].get('email', '').split(',')
-
     # sentry
     sentry_enabled = config['sentry'].getboolean('SentryEnabled', False) # default False
     secure_channel = config['sentry'].getint('SentryChannel', 2) # default 2
@@ -320,28 +314,46 @@ try:
     coastalForecastDays = config['location'].getint('coastalForecastDays', 3) # default 3 days
 
     # location alerts
-    emergencyAlertBrodcastEnabled = config['location'].getboolean('eAlertBroadcastEnabled', False) # default False
+    eAlertBroadcastEnabled = config['location'].getboolean('eAlertBroadcastEnabled', False) # old deprecated name
+    ipawsAlertEnabled = config['location'].getboolean('ipawsAlertEnabled', False) # default False new ^
+    wxAlertsEnabled = config['location'].getboolean('NOAAalertsEnabled', True) # default True
     wxAlertBroadcastEnabled = config['location'].getboolean('wxAlertBroadcastEnabled', False) # default False
+    volcanoAlertBroadcastEnabled = config['location'].getboolean('volcanoAlertBroadcastEnabled', False) # default False
     enableGBalerts = config['location'].getboolean('enableGBalerts', False) # default False
     enableDEalerts = config['location'].getboolean('enableDEalerts', False) # default False
-    wxAlertsEnabled = config['location'].getboolean('NOAAalertsEnabled', True) # default True
+
     ignoreEASenable = config['location'].getboolean('ignoreEASenable', False) # default False
     ignoreEASwords = config['location'].get('ignoreEASwords', 'test,advisory').split(',') # default test,advisory
-    myRegionalKeysDE = config['location'].get('myRegionalKeysDE', '110000000000').split(',') # default city Berlin
+    ignoreFEMAenable = config['location'].getboolean('ignoreFEMAenable', True) # default True
+    ignoreFEMAwords = config['location'].get('ignoreFEMAwords', 'test,exercise').split(',') # default test,exercise
+    ignoreUSGSEnable = config['location'].getboolean('ignoreVolcanoEnable', False) # default False
+    ignoreUSGSWords = config['location'].get('ignoreVolcanoWords', 'test,advisory').split(',') # default test,advisory
+    
     forecastDuration = config['location'].getint('NOAAforecastDuration', 4) # NOAA forcast days
     numWxAlerts = config['location'].getint('NOAAalertCount', 2) # default 2 alerts
     enableExtraLocationWx = config['location'].getboolean('enableExtraLocationWx', False) # default False
     myStateFIPSList = config['location'].get('myFIPSList', '').split(',') # default empty
     mySAMEList = config['location'].get('mySAMEList', '').split(',') # default empty
-    ignoreFEMAenable = config['location'].getboolean('ignoreFEMAenable', True) # default True
-    ignoreFEMAwords = config['location'].get('ignoreFEMAwords', 'test,exercise').split(',') # default test,exercise
-    wxAlertBroadcastChannel = config['location'].get('wxAlertBroadcastCh', '2').split(',') # default Channel 2
-    emergencyAlertBroadcastCh = config['location'].get('eAlertBroadcastCh', '2').split(',') # default Channel 2
-    volcanoAlertBroadcastEnabled = config['location'].getboolean('volcanoAlertBroadcastEnabled', False) # default False
-    volcanoAlertBroadcastChannel = config['location'].get('volcanoAlertBroadcastCh', '2').split(',') # default Channel 2
-    ignoreUSGSEnable = config['location'].getboolean('ignoreVolcanoEnable', False) # default False
-    ignoreUSGSWords = config['location'].get('ignoreVolcanoWords', 'test,advisory').split(',') # default test,advisory
+    myRegionalKeysDE = config['location'].get('myRegionalKeysDE', '110000000000').split(',') # default city Berlin
+
+    # any alert broadcast enabled
+    anyAlertBroadcastEnabled = (
+        ipawsAlertEnabled or
+        wxAlertBroadcastEnabled or
+        volcanoAlertBroadcastEnabled or
+        enableGBalerts or
+        enableDEalerts or
+        wxAlertsEnabled or 
+        eAlertBroadcastEnabled
+        )
     
+    # emergency response
+    emergency_responder_enabled = config['emergencyHandler'].getboolean('enabled', False)
+    emergency_responder_alert_channel = config['emergencyHandler'].getint('alert_channel', 2) # default 2
+    emergency_responder_alert_interface = config['emergencyHandler'].getint('alert_interface', 1) # default 1
+    emergency_responder_email = config['emergencyHandler'].get('email', '').split(',')
+
+
     # bbs
     bbs_enabled = config['bbs'].getboolean('enabled', False)
     bbsdb = config['bbs'].get('bbsdb', 'data/bbsdb.pkl')

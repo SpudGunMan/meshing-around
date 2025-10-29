@@ -972,7 +972,6 @@ This uses USA: SAME, FIPS, to locate the alerts in the feed. By default ignoring
 
 ```ini
 eAlertBroadcastEnabled = False # Goverment IPAWS/CAP Alert Broadcast
-eAlertBroadcastCh = 2,3 # Goverment Emergency IPAWS/CAP Alert Broadcast Channels
 ignoreFEMAenable = True # Ignore any headline that includes followig word list
 ignoreFEMAwords = test,exercise
 # comma separated list of FIPS codes to trigger local alert. find your FIPS codes at https://en.wikipedia.org/wiki/Federal_Information_Processing_Standard_state_code
