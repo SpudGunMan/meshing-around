@@ -3,9 +3,7 @@
 import asyncio
 import schedule
 from datetime import datetime
-from functools import partial
 from modules.log import logger
-from modules.settings import MOTD, schedulerChannel, schedulerInterface, schedulerMessage, schedulerMotd, schedulerTime, schedulerInterval, schedulerValue
 from modules.system import send_message
 
 async def run_scheduler_loop(interval=1):
