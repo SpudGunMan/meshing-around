@@ -287,7 +287,7 @@ The system uses SQLite with four tables:
 | `wxa`        | NOAA alerts                                   |
 | `wxalert`    | NOAA alerts (expanded)                        |
 | `mwx`        | NOAA Coastal Marine Forecast                  |
-| `tide`       | NOAA tide info                                |
+| `tide`       | Tide info (NOAA/tidepredict for global)       |
 | `riverflow`  | NOAA river flow info                          |
 | `earthquake` | USGS earthquake info                          |
 | `valert`     | USGS volcano alerts                           |
@@ -298,6 +298,8 @@ The system uses SQLite with four tables:
 | `whereami`   | Show current location                         |
 
 Configure in `[location]` section of `config.ini`.
+
+**Note**: For global tide predictions outside the US, enable `useTidePredict = True` in `config.ini`. See [xtide.md](xtide.md) for setup details.
 
 Certainly! Here’s a README help section for your `mapHandler` command, suitable for users of your meshbot:
 
