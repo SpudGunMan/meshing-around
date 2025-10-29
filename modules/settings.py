@@ -339,6 +339,7 @@ try:
     myStateFIPSList = config['location'].get('myFIPSList', '').split(',') # default empty
     mySAMEList = config['location'].get('mySAMEList', '').split(',') # default empty
     myRegionalKeysDE = config['location'].get('myRegionalKeysDE', '110000000000').split(',') # default city Berlin
+    eAlertBroadcastChannel = config['location'].getint('eAlertBroadcastChannel', '') # default empty
 
     # any alert broadcast enabled
     anyAlertBroadcastEnabled = (

@@ -203,14 +203,14 @@ useMetric = False
 # repeaterList lookup location (rbook / artsci / False)
 repeaterLookup = rbook
 
-# use Open-Meteo API for weather data not NOAA useful for non US locations
-UseMeteoWxAPI = False
-
 # Satalite Pass Prediction
 # Register for free API https://www.n2yo.com/login/ personal data page at bottom 'Are you developer?'
 n2yoAPIKey = 
 # NORAD list https://www.n2yo.com/satellites/
 satList = 25544,7530
+
+# use Open-Meteo API for weather data not NOAA useful for non US locations
+UseMeteoWxAPI = False
 
 # NOAA weather forecast days
 NOAAforecastDuration = 3
@@ -260,6 +260,9 @@ enableDEalerts = False
 # comma separated list of regional codes trigger local alert.
 # find your regional codet at https://www.xrepository.de/api/xrepository/urn:de:bund:destatis:bevoelkerungsstatistik:schluessel:rs_2021-07-31/download/Regionalschl_ssel_2021-07-31.json
 myRegionalKeysDE = 110000000000,120510000000
+
+# Alerts are sent to the emergency_handler interface and channel duplicate messages are send here if set
+eAlertBroadcastCh = 
 
 # CheckList Checkin/Checkout
 [checklist]
