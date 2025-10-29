@@ -1585,7 +1585,7 @@ def handle_boot(mesh=True):
             if my_settings.ipawsAlertEnabled:
                 logger.debug(f"System: iPAWS Alerts Enabled with FIPS codes {my_settings.myStateFIPSList} ignorelist {my_settings.ipawsAlertIgnoreList}")
             if my_settings.wxAlertBroadcastEnabled:
-                logger.debug(f"System: Weather Alert Broadcast Enabled on channels {my_settings.wxAlertBroadcastChannel}")
+                logger.debug(f"System: Weather Alert Broadcast Enabled on channels {my_settings.emergency_responder_alert_channel}")
             if my_settings.emergency_responder_enabled:
                 logger.debug(f"System: Emergency Responder Enabled on channels {my_settings.emergency_responder_alert_channel}")
             
