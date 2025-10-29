@@ -80,7 +80,11 @@ def setup_scheduler(
             handle_riverFlow,
             handle_tide,
             handle_satpass,
+            handleNews,
+            handle_mwx,
+            sysinfo,
         )
+        from modules.rss import get_rss_feed
     except ImportError as e:
         logger.warning(f"Some mesh_bot schedule features are unavailable by option disable in config.ini: {e} comment out the use of these methods in your custom_scheduler.py")
     
@@ -140,6 +144,36 @@ def setup_scheduler(
                 partial(send_message, handle_wxc(0, schedulerInterface, 'wx', days=1), schedulerChannel, 0, schedulerInterface)
             )
             logger.debug(f"System: Starting the weather scheduler to send weather updates every {schedulerIntervalInt} hours on Device:{schedulerInterface} Channel:{schedulerChannel}")
+        elif 'news' in schedulerValue:
+            schedule.every(schedulerIntervalInt).hours.do(
+                lambda: send_message(handleNews(0, schedulerInterface, 'readnews', False), schedulerChannel, 0, schedulerInterface)
+            )
+            logger.debug(f"System: Starting the news scheduler to send news updates every {schedulerIntervalInt} hours on Device:{schedulerInterface} Channel:{schedulerChannel}")
+        elif 'readrss' in schedulerValue:
+            schedule.every(schedulerIntervalInt).hours.do(
+                lambda: send_message(get_rss_feed(''), schedulerChannel, 0, schedulerInterface)
+            )
+            logger.debug(f"System: Starting the RSS scheduler to send RSS feeds every {schedulerIntervalInt} hours on Device:{schedulerInterface} Channel:{schedulerChannel}")
+        elif 'mwx' in schedulerValue:
+            schedule.every().day.at(schedulerTime).do(
+                lambda: send_message(handle_mwx(0, schedulerInterface, 'mwx'), schedulerChannel, 0, schedulerInterface)
+            )
+            logger.debug(f"System: Starting the marine weather scheduler to send marine weather updates at {schedulerTime} on Device:{schedulerInterface} Channel:{schedulerChannel}")
+        elif 'sysinfo' in schedulerValue:
+            schedule.every(schedulerIntervalInt).hours.do(
+                lambda: send_message(sysinfo('', 0, schedulerInterface, False), schedulerChannel, 0, schedulerInterface)
+            )
+            logger.debug(f"System: Starting the sysinfo scheduler to send system information every {schedulerIntervalInt} hours on Device:{schedulerInterface} Channel:{schedulerChannel}")
+        elif 'tide' in schedulerValue:
+            schedule.every().day.at(schedulerTime).do(
+                lambda: send_message(handle_tide(0, schedulerInterface, schedulerChannel), schedulerChannel, 0, schedulerInterface)
+            )
+            logger.debug(f"System: Starting the tide scheduler to send tide information at {schedulerTime} on Device:{schedulerInterface} Channel:{schedulerChannel}")
+        elif 'sun' in schedulerValue:
+            schedule.every().day.at(schedulerTime).do(
+                lambda: send_message(handle_sun(0, schedulerInterface, schedulerChannel), schedulerChannel, 0, schedulerInterface)
+            )
+            logger.debug(f"System: Starting the sun scheduler to send sun information at {schedulerTime} on Device:{schedulerInterface} Channel:{schedulerChannel}")
         elif 'custom' in schedulerValue:
             try:
                 from modules.custom_scheduler import setup_custom_schedules # type: ignore
