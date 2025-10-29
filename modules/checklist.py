@@ -413,14 +413,18 @@ def process_checklist_command(nodeID, message, name="none", location="none"):
     # elif "purgeout" in message_lower:
     #     return mark_checkout_removed_by_name(name)
     
-    elif message_lower.startswith("checklistapprove ") and is_admin:
+    elif message_lower.startswith("checklistapprove "):
+        if not is_admin:
+            return "You do not have permission to approve check-ins."
         try:
             checkin_id = int(parts[1])
             return approve_checkin(checkin_id)
         except (ValueError, IndexError):
             return "Usage: checklistapprove <checkin_id>"
     
-    elif message_lower.startswith("checklistdeny ") and is_admin:
+    elif message_lower.startswith("checklistdeny "):
+        if not is_admin:
+            return "You do not have permission to deny check-ins."
         try:
             checkin_id = int(parts[1])
             return deny_checkin(checkin_id)
