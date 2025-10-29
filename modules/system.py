@@ -1142,8 +1142,6 @@ def handleAlertBroadcast(deviceID=1):
             if overdueAlerts:
                 logger.debug("System: Adding overdue checkin to emergency alerts")
                 if should_send_alert("overdue", overdueAlerts, min_interval=300): # 5 minutes interval for overdue alerts
-                    last_alerts["overdue"]["time"] = time.time()
-                    last_alerts["overdue"]["message"] = overdueAlerts
                     send_message(overdueAlerts, emergency_responder_alert_channel, 0, emergency_responder_alert_interface)
 
         # Only allow API call every 20 minutes
@@ -1175,8 +1173,6 @@ def handleAlertBroadcast(deviceID=1):
         for alert_type, alert_msg, enabled in alert_types:
             if enabled and alert_msg and NO_ALERTS not in alert_msg and ERROR_FETCHING_DATA not in alert_msg:
                 if should_send_alert(alert_type, alert_msg):
-                    last_alerts[alert_type]["time"] = time.time()
-                    last_alerts[alert_type]["message"] = alert_msg
                     send_message(alert_msg, emergency_responder_alert_channel, 0, deviceID)
     except Exception as e:
         logger.error(f"System: Error in handleAlertBroadcast: {e}")
