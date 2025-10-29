@@ -1141,7 +1141,7 @@ def handleAlertBroadcast(deviceID=1):
             overdueAlerts = format_overdue_alert()
             if overdueAlerts:
                 logger.debug("System: Adding overdue checkin to emergency alerts")
-                if should_send_alert("overdue", overdueAlerts):
+                if should_send_alert("overdue", overdueAlerts, min_interval=300): # 5 minutes interval for overdue alerts
                     last_alerts["overdue"]["time"] = time.time()
                     last_alerts["overdue"]["message"] = overdueAlerts
                     send_message(overdueAlerts, emergency_responder_alert_channel, 0, emergency_responder_alert_interface)
