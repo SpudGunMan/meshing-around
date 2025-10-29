@@ -139,8 +139,8 @@ The checklist module provides asset tracking and accountability features with sa
 | `checkin`    | Check in a node/asset                         |
 | `checkout`   | Check out a node/asset                        |
 | `checklist`  | Show active check-ins                         |
-| `purgein`    | Delete your check-in record                   |
-| `purgeout`   | Delete your check-out record                  |
+| `approvecl`  | Admin Approve id                              |
+| `denycl`     | Admin Remove id                               |
 
 #### Advanced Features
 

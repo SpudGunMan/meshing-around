@@ -155,14 +155,14 @@ ID: Tech2 checked-In for 00:15:30📝Equipment repair
 
 #### Approve Check-in
 ```
-clok <checkin_id>
+approvecl <checkin_id>
 ```
 
 Approve a pending check-in (requires admin privileges).
 
 **Example:**
 ```
-clok 123
+approvecl 123
 ```
 
 #### Deny Check-in
