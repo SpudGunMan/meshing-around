@@ -36,14 +36,14 @@ def checkin(name, date, time, location, notes):
     c = conn.cursor()
     try:
         c.execute(
-            "INSERT INTO checkin (checkin_name, checkin_date, checkin_time, location, checkin_notes, removed) VALUES (?, ?, ?, ?, 0, 0)",
+            "INSERT INTO checkin (checkin_name, checkin_date, checkin_time, location, checkin_notes, removed, approved) VALUES (?, ?, ?, ?, ?, 0, 0)",
             (name, date, time, location, notes)
         )
     except sqlite3.OperationalError as e:
         if "no such table" in str(e):
             initialize_checklist_database()
             c.execute(
-                "INSERT INTO checkin (checkin_name, checkin_date, checkin_time, location, checkin_notes, removed) VALUES (?, ?, ?, ?, 0, 0)",
+                "INSERT INTO checkin (checkin_name, checkin_date, checkin_time, location, checkin_notes, removed, approved) VALUES (?, ?, ?, ?, ?, 0, 0)",
                 (name, date, time, location, notes)
             )
         else:
