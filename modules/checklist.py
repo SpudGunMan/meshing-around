@@ -3,7 +3,7 @@
 
 import sqlite3
 from modules.log import logger
-from modules.settings import checklist_db, reverse_in_out, bbs_ban_list
+from modules.settings import checklist_db, reverse_in_out, bbs_ban_list, bbs_admin_list
 import time
 
 trap_list_checklist = ("checkin", "checkout", "checklist", 
@@ -13,44 +13,21 @@ def initialize_checklist_database():
     try:
         conn = sqlite3.connect(checklist_db)
         c = conn.cursor()
-        # Check if the checkin table exists, and create it if it doesn't
         logger.debug("System: Checklist: Initializing database...")
         c.execute('''CREATE TABLE IF NOT EXISTS checkin
                      (checkin_id INTEGER PRIMARY KEY, checkin_name TEXT, checkin_date TEXT, 
                       checkin_time TEXT, location TEXT, checkin_notes TEXT, 
-                      approved INTEGER DEFAULT 1, expected_checkin_interval INTEGER DEFAULT 0)''')
-        # Check if the checkout table exists, and create it if it doesn't
+                      approved INTEGER DEFAULT 1, expected_checkin_interval INTEGER DEFAULT 0,
+                      removed INTEGER DEFAULT 0)''')
         c.execute('''CREATE TABLE IF NOT EXISTS checkout
                      (checkout_id INTEGER PRIMARY KEY, checkout_name TEXT, checkout_date TEXT, 
-                      checkout_time TEXT, location TEXT, checkout_notes TEXT)''')
-        
-        # Add new columns if they don't exist (for migration)
-        try:
-            c.execute("ALTER TABLE checkin ADD COLUMN approved INTEGER DEFAULT 1")
-        except sqlite3.OperationalError:
-            pass  # Column already exists
-        
-        try:
-            c.execute("ALTER TABLE checkin ADD COLUMN expected_checkin_interval INTEGER DEFAULT 0")
-        except sqlite3.OperationalError:
-            pass  # Column already exists
-        
-        try:
-            c.execute("ALTER TABLE checkin ADD COLUMN removed INTEGER DEFAULT 0")
-        except sqlite3.OperationalError:
-            pass  # Column already exists
-        
-        # Add this to your DB init (if not already present)
-        try:
-            c.execute("ALTER TABLE checkout ADD COLUMN removed INTEGER DEFAULT 0")
-        except sqlite3.OperationalError:
-            pass  # Column already exists
-        
+                      checkout_time TEXT, location TEXT, checkout_notes TEXT,
+                      checkin_id INTEGER, removed INTEGER DEFAULT 0)''')
         conn.commit()
         conn.close()
         return True
     except Exception as e:
-        logger.error(f"Checklist: Failed to initialize database: {e}")
+        logger.error(f"Checklist: Failed to initialize database: {e} Please delete old checklist database file. rm data/checklist.db")
         return False
 
 def checkin(name, date, time, location, notes):
@@ -59,13 +36,17 @@ def checkin(name, date, time, location, notes):
     conn = sqlite3.connect(checklist_db)
     c = conn.cursor()
     try:
-        c.execute("INSERT INTO checkin (checkin_name, checkin_date, checkin_time, location, checkin_notes) VALUES (?, ?, ?, ?, ?)", (name, date, time, location, notes))
-        # # remove any checkouts that are older than the checkin
-        # c.execute("DELETE FROM checkout WHERE checkout_date < ? OR (checkout_date = ? AND checkout_time < ?)", (date, date, time))
+        c.execute(
+            "INSERT INTO checkin (checkin_name, checkin_date, checkin_time, location, checkin_notes, removed) VALUES (?, ?, ?, ?, ?, 0)",
+            (name, date, time, location, notes)
+        )
     except sqlite3.OperationalError as e:
         if "no such table" in str(e):
             initialize_checklist_database()
-            c.execute("INSERT INTO checkin (checkin_name, checkin_date, checkin_time, location, checkin_notes) VALUES (?, ?, ?, ?, ?)", (name, date, time, location, notes))
+            c.execute(
+                "INSERT INTO checkin (checkin_name, checkin_date, checkin_time, location, checkin_notes, removed) VALUES (?, ?, ?, ?, ?, 0)",
+                (name, date, time, location, notes)
+            )
         else:
             raise
     conn.commit()
@@ -75,71 +56,90 @@ def checkin(name, date, time, location, notes):
     else:
         return "Checked✅In: " + str(name)
 
-def delete_checkin(checkin_id):
-    # delete a checkin
-    conn = sqlite3.connect(checklist_db)
-    c = conn.cursor()
-    c.execute("DELETE FROM checkin WHERE checkin_id = ?", (checkin_id,))
-    conn.commit()
-    conn.close()
-    return "Checkin deleted." + str(checkin_id)
-
-def checkout(name, date, time_str, location, notes):
+def checkout(name, date, time_str, location, notes, all=False, checkin_id=None):
     location = ", ".join(map(str, location))
-    checkin_record = None  # Ensure variable is always defined
     conn = sqlite3.connect(checklist_db)
     c = conn.cursor()
+    checked_out_ids = []
+    durations = []
     try:
-        # Check if the user has a checkin before checking out
-        c.execute("""
-            SELECT checkin_id FROM checkin 
-            WHERE checkin_name = ? 
-            AND NOT EXISTS (
-            SELECT 1 FROM checkout 
-            WHERE checkout_name = checkin_name 
-            AND (checkout_date > checkin_date OR (checkout_date = checkin_date AND checkout_time > checkin_time))
-            )
-            ORDER BY checkin_date DESC, checkin_time DESC 
-            LIMIT 1
-        """, (name,))
-        checkin_record = c.fetchone()
-        if checkin_record:
-            c.execute("INSERT INTO checkout (checkout_name, checkout_date, checkout_time, location, checkout_notes) VALUES (?, ?, ?, ?, ?)", (name, date, time_str, location, notes))
-            # calculate length of time checked in
-            c.execute("SELECT checkin_time, checkin_date FROM checkin WHERE checkin_id = ?", (checkin_record[0],))
-            checkin_time, checkin_date = c.fetchone()
-            checkin_datetime = time.strptime(checkin_date + " " + checkin_time, "%Y-%m-%d %H:%M:%S")
-            time_checked_in_seconds = time.time() - time.mktime(checkin_datetime)
-            timeCheckedIn = time.strftime("%H:%M:%S", time.gmtime(time_checked_in_seconds))
-            # # remove the checkin record older than the checkout
-            # c.execute("DELETE FROM checkin WHERE checkin_date < ? OR (checkin_date = ? AND checkin_time < ?)", (date, date, time_str))
+        if checkin_id is not None:
+            # Check out a specific check-in by ID
+            c.execute("""
+                SELECT checkin_id, checkin_time, checkin_date FROM checkin
+                WHERE checkin_id = ? AND checkin_name = ?
+            """, (checkin_id, name))
+            row = c.fetchone()
+            if row:
+                c.execute("INSERT INTO checkout (checkout_name, checkout_date, checkout_time, location, checkout_notes, checkin_id) VALUES (?, ?, ?, ?, ?, ?)",
+                          (name, date, time_str, location, notes, row[0]))
+                checkin_time, checkin_date = row[1], row[2]
+                checkin_datetime = time.strptime(checkin_date + " " + checkin_time, "%Y-%m-%d %H:%M:%S")
+                time_checked_in_seconds = time.time() - time.mktime(checkin_datetime)
+                durations.append(time.strftime("%H:%M:%S", time.gmtime(time_checked_in_seconds)))
+                checked_out_ids.append(row[0])
+        elif all:
+            # Check out all active check-ins for this user
+            c.execute("""
+                SELECT checkin_id, checkin_time, checkin_date FROM checkin 
+                WHERE checkin_name = ? 
+                AND removed = 0
+                AND checkin_id NOT IN (
+                    SELECT checkin_id FROM checkout WHERE checkin_id IS NOT NULL
+                )
+            """, (name,))
+            rows = c.fetchall()
+            for row in rows:
+                c.execute("INSERT INTO checkout (checkout_name, checkout_date, checkout_time, location, checkout_notes, checkin_id) VALUES (?, ?, ?, ?, ?, ?)",
+                          (name, date, time_str, location, notes, row[0]))
+                checkin_time, checkin_date = row[1], row[2]
+                checkin_datetime = time.strptime(checkin_date + " " + checkin_time, "%Y-%m-%d %H:%M:%S")
+                time_checked_in_seconds = time.time() - time.mktime(checkin_datetime)
+                durations.append(time.strftime("%H:%M:%S", time.gmtime(time_checked_in_seconds)))
+                checked_out_ids.append(row[0])
+        else:
+            # Default: check out the most recent active check-in
+            c.execute("""
+                SELECT checkin_id, checkin_time, checkin_date FROM checkin 
+                WHERE checkin_name = ? 
+                AND removed = 0
+                AND checkin_id NOT IN (
+                    SELECT checkin_id FROM checkout WHERE checkin_id IS NOT NULL
+                )
+                ORDER BY checkin_date DESC, checkin_time DESC 
+                LIMIT 1
+            """, (name,))
+            row = c.fetchone()
+            if row:
+                c.execute("INSERT INTO checkout (checkout_name, checkout_date, checkout_time, location, checkout_notes, checkin_id) VALUES (?, ?, ?, ?, ?, ?)",
+                          (name, date, time_str, location, notes, row[0]))
+                checkin_time, checkin_date = row[1], row[2]
+                checkin_datetime = time.strptime(checkin_date + " " + checkin_time, "%Y-%m-%d %H:%M:%S")
+                time_checked_in_seconds = time.time() - time.mktime(checkin_datetime)
+                durations.append(time.strftime("%H:%M:%S", time.gmtime(time_checked_in_seconds)))
+                checked_out_ids.append(row[0])
     except sqlite3.OperationalError as e:
         if "no such table" in str(e):
             conn.close()
             initialize_checklist_database()
-            # Try again after initializing
-            return checkout(name, date, time_str, location, notes)
+            return checkout(name, date, time_str, location, notes, all=all, checkin_id=checkin_id)
         else:
             conn.close()
             raise
     conn.commit()
     conn.close()
-    if checkin_record:
-        if reverse_in_out:
-            return "Checked⌛️In: " + str(name) + " duration " + timeCheckedIn
+    if checked_out_ids:
+        if all:
+            return f"Checked out {len(checked_out_ids)} check-ins for {name}. Durations: {', '.join(durations)}"
+        elif checkin_id is not None:
+            return f"Checked out check-in ID {checkin_id} for {name}. Duration: {durations[0]}"
         else:
-            return "Checked⌛️Out: " + str(name) + " duration " + timeCheckedIn
+            if reverse_in_out:
+                return f"Checked⌛️In: {name} duration {durations[0]}"
+            else:
+                return f"Checked⌛️Out: {name} duration {durations[0]}"
     else:
-        return "None found for " + str(name)
-
-def delete_checkout(checkout_id):
-    # delete a checkout
-    conn = sqlite3.connect(checklist_db)
-    c = conn.cursor()
-    c.execute("DELETE FROM checkout WHERE checkout_id = ?", (checkout_id,))
-    conn.commit()
-    conn.close()
-    return "Checkout deleted." + str(checkout_id)
+        return f"None found for {name}"
 
 def approve_checkin(checkin_id):
     """Approve a pending check-in"""
@@ -255,7 +255,7 @@ def get_overdue_checkins():
 
 def format_overdue_alert():
     header = "⚠️ OVERDUE CHECK-INS:\n"
-    alert = ''
+    alert = None
     try:
         """Format overdue check-ins as an alert message"""
         overdue = get_overdue_checkins()
@@ -289,9 +289,9 @@ def list_checkin():
         c.execute("""
             SELECT * FROM checkin
             WHERE removed = 0
-            AND checkin_id NOT IN (
-                SELECT checkin_id FROM checkout
-                WHERE checkout_date > checkin_date OR (checkout_date = checkin_date AND checkout_time > checkin_time)
+            AND NOT EXISTS (
+                SELECT 1 FROM checkout
+                WHERE checkout.checkin_id = checkin.checkin_id
             )
         """)
         rows = c.fetchall()
@@ -302,12 +302,16 @@ def list_checkin():
             return list_checkin()
         else:
             conn.close()
-            logger.error(f"Checklist: Error listing checkins: {e}")
+            initialize_checklist_database()
             return "Error listing checkins."
     conn.close()
-    timeCheckedIn = ""
+
+    # Get overdue info
+    overdue = {entry['id']: entry for entry in get_overdue_checkins()}
+
     checkin_list = ""
     for row in rows:
+        checkin_id = row[0]
         # Calculate length of time checked in, including days
         total_seconds = time.time() - time.mktime(time.strptime(row[2] + " " + row[3], "%Y-%m-%d %H:%M:%S"))
         days = int(total_seconds // 86400)
@@ -324,7 +328,20 @@ def list_checkin():
         if len(row) > 7 and row[7] and int(row[7]) > 0:
             routine = f" ⏰({row[7]}m)"
 
-        checkin_list += f"ID: {row[0]} {row[1]} checked-In for {timeCheckedIn}{routine}"
+        # Check if overdue
+        if checkin_id in overdue:
+            overdue_minutes = overdue[checkin_id]['overdue_minutes']
+            overdue_hours = overdue_minutes // 60
+            overdue_mins = overdue_minutes % 60
+            if overdue_hours > 0:
+                overdue_str = f"overdue by {overdue_hours}h {overdue_mins}m"
+            else:
+                overdue_str = f"overdue by {overdue_mins}m"
+            status = f"{row[1]} {overdue_str}{routine}"
+        else:
+            status = f"{row[1]} checked-In for {timeCheckedIn}{routine}"
+
+        checkin_list += f"ID: {checkin_id} {status}"
         if row[5] != "":
             checkin_list += " 📝" + row[5]
         if row != rows[-1]:
@@ -341,6 +358,9 @@ def process_checklist_command(nodeID, message, name="none", location="none"):
     if str(nodeID) in bbs_ban_list:
         logger.warning("System: Checklist attempt from the ban list")
         return "unable to process command"
+    is_admin = False
+    if str(nodeID) in bbs_admin_list:
+        is_admin = True
     
     message_lower = message.lower()
     parts = message.split()
@@ -369,22 +389,40 @@ def process_checklist_command(nodeID, message, name="none", location="none"):
         return result
     
     elif ("checkout" in message_lower and not reverse_in_out) or ("checkin" in message_lower and reverse_in_out):
-        return checkout(name, current_date, current_time, location, comment)
+        # Support: checkout all, checkout <id>, or checkout [note]
+        all_flag = False
+        checkin_id = None
+        actual_comment = comment
     
-    elif "purgein" in message_lower:
-        return mark_checkin_removed_by_name(name)
+        # Split the command into parts after the keyword
+        checkout_args = parts[1:] if len(parts) > 1 else []
     
-    elif "purgeout" in message_lower:
-        return mark_checkout_removed_by_name(name)
+        if checkout_args:
+            if checkout_args[0].lower() == "all":
+                all_flag = True
+                actual_comment = " ".join(checkout_args[1:]) if len(checkout_args) > 1 else ""
+            elif checkout_args[0].isdigit():
+                checkin_id = int(checkout_args[0])
+                actual_comment = " ".join(checkout_args[1:]) if len(checkout_args) > 1 else ""
+            else:
+                actual_comment = " ".join(checkout_args)
     
-    elif message_lower.startswith("checklistapprove "):
+        return checkout(name, current_date, current_time, location, actual_comment, all=all_flag, checkin_id=checkin_id)
+    
+    # elif "purgein" in message_lower:
+    #     return mark_checkin_removed_by_name(name)
+    
+    # elif "purgeout" in message_lower:
+    #     return mark_checkout_removed_by_name(name)
+    
+    elif message_lower.startswith("checklistapprove ") and is_admin:
         try:
             checkin_id = int(parts[1])
             return approve_checkin(checkin_id)
         except (ValueError, IndexError):
             return "Usage: checklistapprove <checkin_id>"
     
-    elif message_lower.startswith("checklistdeny "):
+    elif message_lower.startswith("checklistdeny ") and is_admin:
         try:
             checkin_id = int(parts[1])
             return deny_checkin(checkin_id)
@@ -395,18 +433,14 @@ def process_checklist_command(nodeID, message, name="none", location="none"):
         if not reverse_in_out:
             return ("Command: checklist followed by\n"
                     "checkin [interval] [note]\n"
-                    "checkout [note]\n"
-                    "purgein - remove checkins\n"
-                    "purgeout - remove checkouts\n"
+                    "checkout [all] [note]\n"
                     "checklistapprove <id>\n"
                     "checklistdeny <id>\n"
                     "Example: checkin 60 Leaving for a hike")
         else:
             return ("Command: checklist followed by\n"
-                    "checkout [interval] [note]\n"
+                    "checkout [all] [interval] [note]\n"
                     "checkin [note]\n"
-                    "purgeout - remove any checkouts\n"
-                    "purgein - remove checkins\n"
                     "Example: checkout 60 Leaving for a hike")
     
     elif "checklist" in message_lower:

@@ -42,6 +42,56 @@ The enhanced checklist module provides asset tracking and accountability feature
 - `checklistdeny <id>` - Deny a check-in
 - Enhanced `checkin [interval] [note]` - Now supports interval parameter
 
+### Enhanced Check Out Options
+
+You can now check out in three ways:
+
+#### 1. Check Out the Most Recent Active Check-in
+```
+checkout [notes]
+```
+Checks out your most recent active check-in.  
+*Example:*
+```
+checkout Heading back to camp
+```
+
+#### 2. Check Out All Active Check-ins
+```
+checkout all [notes]
+```
+Checks out **all** of your active check-ins at once.  
+*Example:*
+```
+checkout all Done for the day
+```
+*Response:*
+```
+Checked out 2 check-ins for Hunter1. Durations: 01:23:45, 00:15:30
+```
+
+#### 3. Check Out a Specific Check-in by ID
+```
+checkout <checkin_id> [notes]
+```
+Checks out a specific check-in using its ID (as shown in the `checklist` command).  
+*Example:*
+```
+checkout 123 Leaving early
+```
+*Response:*
+```
+Checked out check-in ID 123 for Hunter1. Duration: 00:45:12
+```
+
+**Tip:**  
+- Use `checklist` to see your current check-in IDs and durations.
+- You can always add a note to any checkout command for context.
+
+---
+
+These options allow you to manage your check-ins more flexibly, whether you want to check out everything at once or just a specific session.
+
 ## Configuration
 
 Add to your `config.ini`:
