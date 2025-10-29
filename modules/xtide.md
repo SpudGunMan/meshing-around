@@ -12,8 +12,15 @@ This module provides global tide prediction capabilities using the [tidepredict]
 ## Installation
 
 1. Install tidepredict library:
+this takes about 3-500MB of disk
+
 ```bash
 pip install tidepredict
+```
+note: if you see warning about system packages the override for debian OS to install it anyway is..
+
+```bash
+pip install tidepredict --break-system-packages
 ```
 
 2. Enable in `config.ini`:
@@ -33,6 +40,8 @@ python3 -m tidepredict -l <location> -genharm
 ```
 
 The station data is cached locally in `~/.tidepredict/` for offline use afterward.
+
+No other downloads will happen automatically, its offline
 
 ## Usage
 
