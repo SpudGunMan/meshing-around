@@ -1,5 +1,5 @@
 # modules/scheduler.py 2025 meshing-around
-# Scheduler setup for Mesh Bot
+# Scheduler module for mesh_bot
 import asyncio
 import schedule
 from datetime import datetime
