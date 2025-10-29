@@ -386,18 +386,18 @@ def process_checklist_command(nodeID, message, name="none", location="none"):
             return ("Command: checklist followed by\n"
                     "checkin [interval] [note]\n"
                     "checkout [note]\n"
-                    "purgein - delete your checkin\n"
-                    "purgeout - delete your checkout\n"
-                    "checklistapprove <id> - approve checkin\n"
-                    "checklistdeny <id> - deny checkin\n"
-                    "Example: checkin 60 Hunting in tree stand")
+                    "purgein - remove checkins\n"
+                    "purgeout - remove checkouts\n"
+                    "checklistapprove <id>\n"
+                    "checklistdeny <id>\n"
+                    "Example: checkin 60 Leaving for a hike")
         else:
             return ("Command: checklist followed by\n"
                     "checkout [interval] [note]\n"
                     "checkin [note]\n"
-                    "purgeout - delete your checkout\n"
-                    "purgein - delete your checkin\n"
-                    "Example: checkout 60 Leaving park")
+                    "purgeout - remove any checkouts\n"
+                    "purgein - remove checkins\n"
+                    "Example: checkout 60 Leaving for a hike")
     
     elif "checklist" in message_lower:
         return list_checkin()

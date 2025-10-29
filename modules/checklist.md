@@ -26,7 +26,6 @@ The enhanced checklist module provides asset tracking and accountability feature
 ### 📍 Location Tracking
 - Automatic GPS location capture when checking in/out
 - View last known location in checklist
-- Track movement over time
 
 - **Time Window Monitoring**: Check-in with safety intervals (e.g., `checkin 60 Hunting in tree stand`)
   - Tracks if users don't check in within expected timeframe
@@ -37,11 +36,6 @@ The enhanced checklist module provides asset tracking and accountability feature
   - `checklistapprove <id>` - Approve pending check-ins (admin)
   - `checklistdeny <id>` - Deny/remove check-ins (admin)
   - Support for approval-based workflows
-
-- **Enhanced Database Schema**:
-  - Added `approved` field for approval workflows
-  - Added `expected_checkin_interval` field for safety monitoring
-  - Automatic migration for existing databases
 
 #### New Commands:
 - `checklistapprove <id>` - Approve a check-in
@@ -153,7 +147,7 @@ checkin 60 Hunting in remote area
 This tells the system:
 - You're checking in now
 - You expect to check in again or check out within 60 minutes
-- If 60 minutes pass without activity, you'll be marked as overdue
+- If 60 minutes pass without activity, you'll be marked as overdue alert
 
 ### Use Cases for Time Intervals
 
@@ -174,14 +168,17 @@ This tells the system:
 
 4. **Check-in Points**: Regular status updates during long operations
    ```
-   checkin 15 Descending cliff face
+   checkin 15 Descending cliff 
+   ```
+
+5. **Check-in a reminder**: Reminders to check in on something like a pot roast
+   ```
+   checkin 30 🍠🍖
    ```
 
 ### Overdue Check-ins
 
-The system tracks all check-ins with time intervals and can identify who is overdue. The module provides the `get_overdue_checkins()` function that returns a list of overdue users. 
-
-**Note**: Automatic alerts for overdue check-ins require integration with the bot's scheduler or alert system. The checklist module provides the detection capability, but sending notifications must be configured separately through the main bot's alert features.
+The system tracks all check-ins with time intervals and can identify who is overdue. The module provides the `get_overdue_checkins()` function that returns a list of overdue users. It alerts on the 20min watchdog.
 
 ## Practical Examples
 
@@ -258,15 +255,12 @@ checkin 45 Site survey tower location 2
 
 The checklist system automatically captures GPS coordinates when available. This can be used for:
 - Tracking last known position
-- Geo-fencing applications
-- Emergency response coordination
 - Asset location management
 
 ### Alert Systems
 
 The overdue check-in feature can trigger:
 - Notifications to supervisors
-- Emergency alerts
 - Automated messages to response teams
 - Email/SMS notifications (if configured)
 
@@ -274,9 +268,7 @@ The overdue check-in feature can trigger:
 
 Combine with the scheduler module to:
 - Send reminders to check in
-- Automatically generate reports
 - Schedule periodic check-in requirements
-- Send daily summaries
 
 ## Best Practices
 
