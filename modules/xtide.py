@@ -27,10 +27,14 @@ def get_nearest_station(lat, lon):
         # Read the station list
         try:
             stations = pd.read_csv(constants.STATIONFILE)
-        except:
-            # If station file doesn't exist, create it
-            logger.info("xtide: Creating station database from online source")
-            stations = process_station_list.create_station_dataframe()
+        except FileNotFoundError:
+            # If station file doesn't exist, create it (requires network)
+            logger.info("xtide: Creating station database from online source (requires network)")
+            try:
+                stations = process_station_list.create_station_dataframe()
+            except Exception as net_error:
+                logger.error(f"xtide: Failed to download station database: {net_error}")
+                return None
         
         if stations.empty:
             logger.error("xtide: No stations found in database")
@@ -119,7 +123,7 @@ def get_tide_predictions(lat=0, lon=0, days=1):
         # Find nearest station
         station_info = get_nearest_station(float(lat), float(lon))
         if not station_info:
-            return "No tide station found nearby"
+            return "No tide station found nearby. Network may be required to download station data."
         
         station_code, station_name, station_country = station_info
         
@@ -128,8 +132,8 @@ def get_tide_predictions(lat=0, lon=0, days=1):
         
         # Check if harmonic data exists for this station
         if station_code not in station_dict:
-            logger.warning(f"xtide: No harmonic data for {station_name}. Generating from online data...")
-            return f"Tide data not available for {station_name}. Use 'tide ?' for more info."
+            logger.warning(f"xtide: No harmonic data for {station_name}.")
+            return f"Tide data not available for {station_name}. Station database may need initialization."
         
         # Reconstruct tide model
         tide = processdata.reconstruct_tide_model(station_dict, station_code)
@@ -186,6 +190,9 @@ def get_tide_predictions(lat=0, lon=0, days=1):
         else:
             return predictions
     
+    except FileNotFoundError as e:
+        logger.error(f"xtide: Station data file not found: {e}")
+        return "Tide station database not initialized. Network access required for first-time setup."
     except Exception as e:
         logger.error(f"xtide: Error getting tide predictions: {e}")
         return f"Error getting tide data: {str(e)}"
