@@ -1587,7 +1587,7 @@ def handle_boot(mesh=True):
             if my_settings.ninaAlertEnabled:
                 logger.debug(f"System: NINA Alerts Enabled with counties {my_settings.ninaCountyList}")
             if my_settings.wxAlertBroadcastEnabled:
-                logger.debug(f"System: Weather Alert Broadcast Enabled on channels {my_settings.emergency_responder_alert_channel} ignoreUSGSWords {my_settings.ignoreNWSwords}")
+                logger.debug(f"System: Weather Alert Broadcast Enabled on channels {my_settings.emergency_responder_alert_channel} ignoreEASwords {my_settings.ignoreEASwords}")
             if my_settings.emergency_responder_enabled:
                 logger.debug(f"System: Emergency Responder Enabled on channels {my_settings.emergency_responder_alert_channel}")
             
