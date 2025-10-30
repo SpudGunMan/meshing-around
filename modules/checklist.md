@@ -341,6 +341,17 @@ Combine with the scheduler module to:
    checklist
    ```
 
+   The list will show ✅  approved and ☑️ unapproved
+   The alarm will only alert on approved.
+
+   in config.ini 
+   ```ini
+   # Auto approve new checklists
+   auto_approve = True
+   # Check-in reminder interval is 5min
+   # Checkin broadcast interface and channel is emergency_handler interface and channel
+   ```
+
 2. **Respond to Overdue Situations**: Act on overdue check-ins promptly
 
 3. **Set Clear Policies**: Establish when and how to use the system
