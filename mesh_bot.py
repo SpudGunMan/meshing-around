@@ -84,6 +84,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "cartremove": lambda: handle_inventory(message, message_from_id, deviceID),
     "cartsell": lambda: handle_inventory(message, message_from_id, deviceID),
     "joke": lambda: tell_joke(message_from_id),
+    "latest": lambda: get_newsAPI(message),
     "leaderboard": lambda: get_mesh_leaderboard(message, message_from_id, deviceID),
     "lemonstand": lambda: handleLemonade(message, message_from_id, deviceID),
     "lheard": lambda: handle_lheard(message, message_from_id, deviceID, isDM),
@@ -1560,12 +1561,14 @@ def handle_boot(mesh=True):
             
             if my_settings.wikipedia_enabled:
                 if my_settings.use_kiwix_server:
-                    logger.debug(f"System: Wikipedia search Enabled using Kiwix server at {kiwix_url}")
+                    logger.debug(f"System: Wikipedia search Enabled using Kiwix server at {my_settings.kiwix_url}")
                 else:
                     logger.debug("System: Wikipedia search Enabled")
             
             if my_settings.rssEnable:
-                logger.debug(f"System: RSS Feed Reader Enabled for feeds: {rssFeedNames}")
+                logger.debug(f"System: RSS Feed Reader Enabled for feeds: {my_settings.rssFeedNames}")
+            if my_settings.enable_headlines:
+                logger.debug("System: News Headlines Enabled from NewsAPI.org")
             
             if my_settings.radio_detection_enabled:
                 logger.debug(f"System: Radio Detection Enabled using rigctld at {my_settings.rigControlServerAddress} broadcasting to channels: {my_settings.sigWatchBroadcastCh}")
@@ -1579,8 +1582,7 @@ def handle_boot(mesh=True):
             if my_settings.read_news_enabled:
                 logger.debug(f"System: File Monitor News Reader Enabled for {my_settings.news_file_path}")
             if my_settings.bee_enabled:
-                logger.debug("System: File Monitor Bee Monitor Enabled for bee.txt")
-            
+                logger.debug("System: File Monitor Bee Monitor Enabled for 🐝bee.txt")
             if my_settings.usAlerts:
                 logger.debug(f"System: Emergency Alert Broadcast Enabled on channel {my_settings.emergency_responder_alert_channel} for interface {my_settings.emergency_responder_alert_interface}")
             if my_settings.enableDEalerts:

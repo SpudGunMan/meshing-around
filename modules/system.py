@@ -153,10 +153,14 @@ if wikipedia_enabled or use_kiwix_server:
     help_message = help_message + ", wiki"
 
 # RSS Feed Configuration
-if rssEnable:
+if rssEnable or enable_headlines:
     from modules.rss import * # from the spudgunman/meshing-around repo
-    trap_list = trap_list + ("readrss",)
-    help_message = help_message + ", readrss"
+    if rssEnable:
+        trap_list = trap_list + ("readrss",)
+        help_message = help_message + ", readrss"
+    if enable_headlines:
+        trap_list = trap_list + ("latest",)
+        help_message = help_message + ", latest"
 
 # LLM Configuration
 if llm_enabled:
@@ -1152,7 +1156,6 @@ def handleAlertBroadcast(deviceID=1):
 
         if enableDEalerts:
             deAlerts = get_nina_alerts()
-
 
         if usAlerts:
             alert_types = [

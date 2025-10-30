@@ -1,11 +1,13 @@
 # rss feed module for meshing-around 2025
 from modules.log import logger
-from modules.settings import rssFeedURL, rssFeedNames, rssMaxItems, rssTruncate, urlTimeoutSeconds, ERROR_FETCHING_DATA
+from modules.settings import rssFeedURL, rssFeedNames, rssMaxItems, rssTruncate, urlTimeoutSeconds, ERROR_FETCHING_DATA, newsAPI_KEY
 import urllib.request
 import xml.etree.ElementTree as ET
 import html
 from html.parser import HTMLParser
 import bs4 as bs
+import requests
+import datetime
 
 # Common User-Agent for all RSS requests
 COMMON_USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
@@ -136,3 +138,39 @@ def get_rss_feed(msg):
         logger.error(f"Error fetching RSS feed from {feed_url}: {e}")
         return ERROR_FETCHING_DATA
 
+def get_newsAPI(user_search="meshtastic"):
+    # Fetch news from NewsAPI.org
+    user_search = user_search.lower().replace("latest ", "", 1).strip()
+    try:
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome'}
+        last_week = datetime.datetime.now() - datetime.timedelta(days=7)
+        newsAPIurl = (
+            f"https://newsapi.org/v2/everything?"
+            f"q={user_search}&language=en&from={last_week.strftime('%Y-%m-%d')}&sortBy=popularity&pageSize=7&apiKey={newsAPI_KEY}"
+        )
+
+        response = requests.get(newsAPIurl, headers=headers, timeout=10)
+        news_data = response.json()
+
+        if news_data.get("status") != "ok":
+            error_message = news_data.get("message", "Unknown error")
+            logger.error(f"NewsAPI error: {error_message}")
+            return [f"NewsAPI error: {error_message}"]
+        logger.debug(f"System: NewsAPI Searching for '{user_search}' got {news_data.get('totalResults', 0)} results")
+        articles = news_data.get("articles", [])[:3]
+        news_list = []
+        for article in articles:
+            title = article.get("title", "No Title")
+            url = article.get("url", "")
+            description = article.get("description", '')
+            news_list.append(f"📰{title}\n{description}")
+        
+
+        # Make a nice newspaper style output
+        msg = f"🗞️:"
+        for item in news_list:
+            msg += item + "\n\n"
+        return msg.strip()
+    except Exception as e:
+        logger.error(f"Error fetching news: {e}")
+        return [f"Exception: {e}"]

@@ -475,7 +475,62 @@ Configure in `[wikipedia]` section of `config.ini`.
 
 ---
 
+## News & Headlines (`latest` Command)
 
+The `latest` command allows you to fetch current news headlines or articles on any topic using the NewsAPI integration. This is useful for quickly checking the latest developments on a subject, even from the mesh.
+
+### Usage
+
+- **Get the latest headlines on a topic:**
+  ```
+  latest <topic>
+  ```
+  Example:
+  ```
+  latest meshtastic
+  ```
+  This will return the most recent news articles about "meshtastic".
+
+- **General latest news:**
+  ```
+  latest
+  ```
+  Returns the latest general news headlines.
+
+### How It Works
+
+- The bot queries NewsAPI.org for the most recent articles matching your topic.
+- Each result includes the article title and a short description.
+
+You need to go register for the developer key and read terms of use.
+
+```ini
+# enable or disable the headline command which uses NewsAPI.org 
+enableNewsAPI = True
+newsAPI_KEY = key at https://newsapi.org/register
+newsAPIregion = us
+```
+
+### Example Output
+
+```
+🗞️:📰Meshtastic project launches new firmware
+The open-source mesh radio project Meshtastic has released a major firmware update...
+
+📰How Meshtastic is changing off-grid communication
+A look at how Meshtastic devices are being used for emergency response...
+
+📰Meshtastic featured at DEF CON 2025
+The Meshtastic team presented new features at DEF CON, drawing large crowds...
+```
+
+### Notes
+
+- You can search for any topic, e.g., `latest wildfire`, `latest ham radio`, etc.
+- The number of results can be adjusted in the configuration.
+- Requires internet access for the bot to fetch news.
+
+___
 ## DX Spotter Module
 
 The DX Spotter module allows you to fetch and display recent DX cluster spots from [spothole.app](https://spothole.app) directly in your mesh-bot.

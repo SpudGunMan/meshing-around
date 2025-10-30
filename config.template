@@ -62,7 +62,11 @@ rssFeedURL = http://www.hackaday.com/rss.xml,http://rss.slashdot.org/Slashdot/sl
 rssFeedNames = default,slashdot,mesh
 rssMaxItems = 3
 rssTruncate = 100
-
+# enable or disable the headline command which uses NewsAPI.org key at https://newsapi.org/register
+enableNewsAPI = False
+newsAPI_KEY = 
+newsAPIregion = us
+# 
 # enable or disable the wikipedia search module
 wikipedia = True
 # Use local Kiwix server instead of online Wikipedia

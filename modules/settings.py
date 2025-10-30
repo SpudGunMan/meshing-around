@@ -276,6 +276,9 @@ try:
     rssMaxItems = config['general'].getint('rssMaxItems', 3) # default 3 items
     rssTruncate = config['general'].getint('rssTruncate', 100) # default 100 characters
     rssFeedNames = config['general'].get('rssFeedNames', 'default,arrl').split(',')
+    newsAPI_KEY = config['general'].get('newsAPI_KEY', '') # default empty
+    newsAPIregion = config['general'].get('newsAPIregion', 'us') # default us
+    enable_headlines = config['general'].getboolean('enableNewsAPI', False) # default False
 
     # sentry
     sentry_enabled = config['sentry'].getboolean('SentryEnabled', False) # default False
