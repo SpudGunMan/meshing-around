@@ -45,6 +45,7 @@ Mesh Bot is a feature-rich Python bot designed to enhance your [Meshtastic](http
 - **OpenWebUI, Ollama LLM Integration**: Query the [Ollama](https://github.com/ollama/ollama/tree/main/docs) AI for advanced responses. Supports RAG (Retrieval Augmented Generation) with Wikipedia/Kiwix context and [OpenWebUI](https://github.com/open-webui/open-webui) integration for enhanced AI capabilities. [LLM Readme](modules/llm.md)
 - **Satellite Passes**: Find upcoming satellite passes for your location.
 - **GeoMeasuring Tools**: Calculate distances and midpoints using collected GPS data; supports Fox & Hound direction finding.
+- **RSS & News Feeds**: Receive news and data from multiple sources directly on the mesh.
 
 ### Proximity Alerts
 - **Location-Based Alerts**: Get notified when members arrive at a configured latitude/longitude—ideal for campsites, geo-fences, or remote locations. Optionally, trigger scripts, send emails, or automate actions (e.g., change node config, turn on lights, or drop an `alert.txt` file to start a survey or game).
@@ -94,7 +95,6 @@ Advanced check-in/check-out and asset tracking for people and equipment—ideal 
 
 ### Data Reporting
 - **HTML Reports**: Visualize bot traffic and data flows with a built-in HTML generator. See [data reporting](logs/README.md) for details.
-- **RSS & News Feeds**: Receive news and data from multiple sources directly on the mesh.
 
 ### Robust Message Handling
 - **Automatic Message Chunking**: Messages over 160 characters are automatically split to ensure reliable delivery across multiple hops.
