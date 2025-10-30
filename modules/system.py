@@ -1477,10 +1477,11 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
             # Track highest altitude 🚀 (also log if over highfly_altitude threshold)
             if position_data.get('altitude') is not None:
                 altitude = position_data['altitude']
-                if altitude > meshLeaderboard['highestAltitude']['value']:
-                    meshLeaderboard['highestAltitude'] = {'nodeID': nodeID, 'value': altitude, 'timestamp': time.time()}
-                    if logMetaStats:
-                        logger.info(f"System: 🚀 New altitude record: {altitude}m from NodeID:{nodeID} ShortName:{get_name_from_number(nodeID, 'short', rxNode)}")
+                if altitude > highfly_altitude:
+                    if altitude > meshLeaderboard['highestAltitude']['value']:
+                        meshLeaderboard['highestAltitude'] = {'nodeID': nodeID, 'value': altitude, 'timestamp': time.time()}
+                        if logMetaStats:
+                            logger.info(f"System: 🚀 New altitude record: {altitude}m from NodeID:{nodeID} ShortName:{get_name_from_number(nodeID, 'short', rxNode)}")
             # Track tallest node 🪜 (under the highfly_altitude limit by 100m)
             if position_data.get('altitude') is not None:
                 altitude = position_data['altitude']
