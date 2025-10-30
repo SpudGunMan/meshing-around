@@ -32,6 +32,7 @@ cmdHistory = [] # list to hold the command history for lheard and history comman
 msg_history = [] # list to hold the message history for the messages command
 max_bytes = 200 # Meshtastic has ~237 byte limit, use conservative 200 bytes for message content
 voxMsgQueue = [] # queue for VOX detected messages
+tts_read_queue = [] # queue for TTS messages
 wsjtxMsgQueue = [] # queue for WSJT-X detected messages
 js8callMsgQueue = [] # queue for JS8Call detected messages
 # Game trackers
@@ -434,6 +435,9 @@ try:
     voxOnTrapList = config['radioMon'].getboolean('voxOnTrapList', False) # default False
     voxTrapList = config['radioMon'].get('voxTrapList', 'chirpy').split(',') # default chirpy
     voxEnableCmd = config['radioMon'].getboolean('voxEnableCmd', True) # default True
+    meshagesTTS = config['radioMon'].getboolean('meshagesTTS', False) # default False
+    ttsChannels = config['radioMon'].get('ttsChannels', '2').split(',') # default Channel 2
+    ttsnoWelcome = config['radioMon'].getboolean('ttsnoWelcome', False) # default False
     
     # WSJT-X and JS8Call monitoring
     wsjtx_detection_enabled = config['radioMon'].getboolean('wsjtxDetectionEnabled', False) # default WSJT-X detection disabled

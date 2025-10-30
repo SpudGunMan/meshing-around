@@ -288,13 +288,6 @@ if inventory_enabled:
     trap_list = trap_list + trap_list_inventory # items item, itemlist, itemsell, etc.
     help_message = help_message + ", item, cart"
 
-# Radio Monitor Configuration
-if radio_detection_enabled:
-    from modules.radio import * # from the spudgunman/meshing-around repo
-
-if voxDetectionEnabled:
-    from modules.radio import * # from the spudgunman/meshing-around repo
-
 # File Monitor Configuration
 if file_monitor_enabled or read_news_enabled or bee_enabled or enable_runShellCmd or cmdShellSentryAlerts:
     from modules.filemon import * # from the spudgunman/meshing-around repo
@@ -1916,7 +1909,8 @@ def get_sysinfo(nodeID=0, deviceID=1):
     return sysinfo
 
 async def handleSignalWatcher():
-    global lastHamLibAlert
+    from modules.radio import signalWatcher
+    from modules.settings import sigWatchBroadcastCh, sigWatchBroadcastInterface, lastHamLibAlert
     # monitor rigctld for signal strength and frequency
     while True:
         msg =  await signalWatcher()
@@ -2142,17 +2136,40 @@ async def handleSentinel(deviceID):
         handleSentinel_loop = 0  # Reset if nothing detected
 
 async def process_vox_queue():
-        # process the voxMsgQueue
-        global voxMsgQueue
-        items_to_process = voxMsgQueue[:]
-        voxMsgQueue.clear()
-        if len(items_to_process) > 0:
-            logger.debug(f"System: Processing {len(items_to_process)} items in voxMsgQueue")
-            for item in items_to_process:
-                message = item
-                for channel in sigWatchBroadcastCh:
-                    if antiSpam and int(channel) != publicChannel:
-                        send_message(message, int(channel), 0, sigWatchBroadcastInterface)
+    # process the voxMsgQueue
+    from modules.settings import sigWatchBroadcastCh, sigWatchBroadcastInterface, voxMsgQueue
+    items_to_process = voxMsgQueue[:]
+    voxMsgQueue.clear()
+    if len(items_to_process) > 0:
+        logger.debug(f"System: Processing {len(items_to_process)} items in voxMsgQueue")
+        for item in items_to_process:
+            message = item
+            for channel in sigWatchBroadcastCh:
+                if antiSpam and int(channel) != publicChannel:
+                    send_message(message, int(channel), 0, sigWatchBroadcastInterface)
+
+async def handleTTS():
+    from modules.radio import generate_and_play_tts, available_voices
+    from modules.settings import ttsnoWelcome, tts_read_queue
+    logger.debug("System: Handle TTS started")
+    if not ttsnoWelcome:
+        logger.debug("System: Playing TTS welcome message to disable set 'ttsnoWelcome = True' in settings.ini")
+        await generate_and_play_tts("Hey its Cheerpy! Thanks for using Meshing-Around on Meshtasstic!", available_voices[0])
+    try:
+        while True:
+            if tts_read_queue:
+                tts_read = tts_read_queue.pop(0)
+                voice = available_voices[0]
+                # ensure the tts_read ends with a punctuation mark
+                if not tts_read.endswith(('.', '!', '?')):
+                    tts_read += '.'
+                try:
+                    await generate_and_play_tts(tts_read, voice)
+                except Exception as e:
+                    logger.error(f"System: TTShandler error: {e}")
+            await asyncio.sleep(1)
+    except Exception as e:
+        logger.critical(f"System: handleTTS crashed: {e}")
 
 async def watchdog():
     global localTelemetryData, retry_int1, retry_int2, retry_int3, retry_int4, retry_int5, retry_int6, retry_int7, retry_int8, retry_int9

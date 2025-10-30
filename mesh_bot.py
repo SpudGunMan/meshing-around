@@ -1539,6 +1539,9 @@ def handle_boot(mesh=True):
             
             if my_settings.solar_conditions_enabled:
                 logger.debug("System: Celestial Telemetry Enabled")
+
+            if my_settings.meshagesTTS:
+                logger.debug("System: Meshages TTS Text-to-Speech Enabled")
             
             if my_settings.location_enabled:
                 if my_settings.use_meteo_wxApi:
@@ -1565,7 +1568,7 @@ def handle_boot(mesh=True):
                 logger.debug(f"System: RSS Feed Reader Enabled for feeds: {rssFeedNames}")
             
             if my_settings.radio_detection_enabled:
-                logger.debug(f"System: Radio Detection Enabled using rigctld at {my_settings.rigControlServerAddress} broadcasting to channels: {my_settings.sigWatchBroadcastCh} for {get_freq_common_name(get_hamlib('f'))}")
+                logger.debug(f"System: Radio Detection Enabled using rigctld at {my_settings.rigControlServerAddress} broadcasting to channels: {my_settings.sigWatchBroadcastCh}")
             
             if my_settings.file_monitor_enabled:
                 logger.warning(f"System: File Monitor Enabled for {my_settings.file_monitor_file_path}, broadcasting to channels: {my_settings.file_monitor_broadcastCh}")
@@ -1886,7 +1889,13 @@ def onReceive(packet, interface):
                                 else:
                                     # respond with help message on DM
                                     send_message(help_message, channel_number, message_from_id, rxNode)
-
+                    
+                    # add message to tts queue
+                    if meshagesTTS:
+                        # add to the tts_read_queue
+                        readMe = f"DM from {get_name_from_number(message_from_id, 'short', rxNode)}: {message_string}"
+                        tts_read_queue.append(readMe)
+                        
                     # log the message to the message log
                     if log_messages_to_file:
                         msgLogger.info(f"Device:{rxNode} Channel:{channel_number} | {get_name_from_number(message_from_id, 'long', rxNode)} | DM | " + message_string.replace('\n', '-nl-'))
@@ -1990,6 +1999,12 @@ def onReceive(packet, interface):
                         if slotMachine:
                             msg = f"🎉 {get_name_from_number(message_from_id, 'long', rxNode)} played the Slot Machine and got: {slotMachine} 🥳"
                             send_message(msg, channel_number, 0, rxNode)
+
+                    # add message to tts queue
+                    if my_settings.meshagesTTS and channel_number == my_settings.ttsChannels:
+                        # add to the tts_read_queue
+                        readMe = f"DM from {get_name_from_number(message_from_id, 'short', rxNode)}: {message_string}"
+                        tts_read_queue.append(readMe)
         else:
             # Evaluate non TEXT_MESSAGE_APP packets
             consumeMetadata(packet, rxNode, channel_number)
@@ -2041,7 +2056,11 @@ async def main():
             tasks.append(asyncio.create_task(handleSignalWatcher(), name="hamlib"))
 
         if my_settings.voxDetectionEnabled:
+            from modules.radio import voxMonitor
             tasks.append(asyncio.create_task(voxMonitor(), name="vox_detection"))
+
+        if my_settings.meshagesTTS:
+            tasks.append(asyncio.create_task(handleTTS(), name="tts_handler"))
         
         if my_settings.wsjtx_detection_enabled:
             tasks.append(asyncio.create_task(handleWsjtxWatcher(), name="wsjtx_monitor"))

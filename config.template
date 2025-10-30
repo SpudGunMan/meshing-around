@@ -353,6 +353,10 @@ voxTrapList = chirpy
 # allow use of 'weather' and 'joke' commands via VOX
 voxEnableCmd = True
 
+# Meshages Text-to-Speech (TTS) for incoming messages and DM
+meshagesTTS = False
+ttsChannels = 2
+
 # WSJT-X UDP monitoring - listens for decode messages from WSJT-X, FT8/FT4/WSPR etc.
 wsjtxDetectionEnabled = False
 # UDP address and port where WSJT-X broadcasts (default: 127.0.0.1:2237)

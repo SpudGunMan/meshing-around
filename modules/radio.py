@@ -34,7 +34,8 @@ from modules.settings import (
     voxTrapList,
     voxOnTrapList,
     voxEnableCmd,
-    ERROR_FETCHING_DATA
+    ERROR_FETCHING_DATA,
+    meshagesTTS,
 )
 
 # module global variables
@@ -140,9 +141,9 @@ try:
     watched_callsigns = list({cs.upper() for cs in callsigns})
 
 except ImportError:
-    logger.debug("RadioMon: WSJT-X/JS8Call settings not configured")
+    logger.debug("System: RadioMon: WSJT-X/JS8Call settings not configured")
 except Exception as e:
-    logger.warning(f"RadioMon: Error loading WSJT-X/JS8Call settings: {e}")
+    logger.warning(f"System: RadioMon: Error loading WSJT-X/JS8Call settings: {e}")
 
 
 if radio_detection_enabled:
@@ -176,13 +177,43 @@ if voxDetectionEnabled:
             voxModel = Model(lang=voxLanguage) # use built in model for specified language
 
     except Exception as e:
-        print(f"RadioMon: Error importing VOX dependencies: {e}")
+        print(f"System: RadioMon: Error importing VOX dependencies: {e}")
         print(f"To use VOX detection please install the vosk and sounddevice python modules")
         print(f"pip install vosk sounddevice")
         print(f"sounddevice needs pulseaudio,  apt-get install portaudio19-dev")
         voxDetectionEnabled = False
-        logger.error(f"RadioMon: VOX detection disabled due to import error")
+        logger.error(f"System: RadioMon: VOX detection disabled due to import error")
 
+if meshagesTTS:
+    try:
+        # TTS for meshages imports
+        logger.debug("System: RadioMon: Initializing TTS model for audible meshages")
+        import sounddevice as sd
+        from kittentts import KittenTTS
+        ttsModel = KittenTTS("KittenML/kitten-tts-nano-0.2")
+        available_voices = [
+            'expr-voice-2-m', 'expr-voice-2-f', 'expr-voice-3-m', 'expr-voice-3-f',
+            'expr-voice-4-m', 'expr-voice-4-f', 'expr-voice-5-m', 'expr-voice-5-f'
+        ]
+    except Exception as e:
+        logger.error(f"To use Meshages TTS please review the radio.md documentation for setup instructions.")
+        meshagesTTS = False
+
+async def generate_and_play_tts(text, voice, samplerate=24000):
+    """Async: Generate speech and play audio."""
+    text = text.strip()
+    if not text:
+        return
+    try:
+        logger.debug(f"System: RadioMon: Generating TTS for text: {text} with voice: {voice}")
+        audio = await asyncio.to_thread(ttsModel.generate, text, voice=voice)
+        if audio is None or len(audio) == 0:
+            return
+        await asyncio.to_thread(sd.play, audio, samplerate)
+        await asyncio.to_thread(sd.wait)
+        del audio
+    except Exception as e:
+        logger.warning(f"System: RadioMon: Error in generate_and_play_tts: {e}")
 
 def get_freq_common_name(freq):
     freq = int(freq)
@@ -196,14 +227,14 @@ def get_freq_common_name(freq):
 def get_hamlib(msg="f"):
     # get data from rigctld server
     if "socket" not in globals():
-        logger.warning("RadioMon: 'socket' module not imported. Hamlib disabled.")
+        logger.warning("System: RadioMon: 'socket' module not imported. Hamlib disabled.")
         return ERROR_FETCHING_DATA
     try:
         rigControlSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         rigControlSocket.settimeout(2)
         rigControlSocket.connect((rigControlServerAddress.split(":")[0],int(rigControlServerAddress.split(":")[1])))
     except Exception as e:
-        logger.error(f"RadioMon: Error connecting to rigctld: {e}")
+        logger.error(f"System: RadioMon: Error connecting to rigctld: {e}")
         return ERROR_FETCHING_DATA
 
     try:
@@ -217,7 +248,7 @@ def get_hamlib(msg="f"):
         data = data.replace(b'\n',b'')
         return data.decode("utf-8").rstrip()
     except Exception as e:
-        logger.error(f"RadioMon: Error fetching data from rigctld: {e}")
+        logger.error(f"System: RadioMon: Error fetching data from rigctld: {e}")
         return ERROR_FETCHING_DATA
     
 def get_sig_strength():
@@ -227,7 +258,7 @@ def get_sig_strength():
 def checkVoxTrapWords(text):
     try:
         if not voxOnTrapList:
-            logger.debug(f"RadioMon: VOX detected: {text}")
+            logger.debug(f"System: RadioMon: VOX detected: {text}")
             return text
         if text:
             traps = [voxTrapList] if isinstance(voxTrapList, str) else voxTrapList
@@ -237,27 +268,27 @@ def checkVoxTrapWords(text):
                 trap_lower = trap_clean.lower()
                 idx = text_lower.find(trap_lower)
                 if debugVoxTmsg:
-                    logger.debug(f"RadioMon: VOX checking for trap word '{trap_lower}' in: '{text}' (index: {idx})")
+                    logger.debug(f"System: RadioMon: VOX checking for trap word '{trap_lower}' in: '{text}' (index: {idx})")
                 if idx != -1:
                     new_text = text[idx + len(trap_clean):].strip()
                     if debugVoxTmsg:
-                        logger.debug(f"RadioMon: VOX detected trap word '{trap_lower}' in: '{text}' (remaining: '{new_text}')")
+                        logger.debug(f"System: RadioMon: VOX detected trap word '{trap_lower}' in: '{text}' (remaining: '{new_text}')")
                     new_words = new_text.split()
                     if voxEnableCmd:
                         for word in new_words:
                             if word in botMethods:
-                                logger.info(f"RadioMon: VOX action '{word}' with '{new_text}'")
+                                logger.info(f"System: RadioMon: VOX action '{word}' with '{new_text}'")
                                 if word == "joke":
                                     return botMethods[word](vox=True)
                                 else:
                                     return botMethods[word](None, None, None, vox=True)
-                    logger.debug(f"RadioMon: VOX returning text after trap word '{trap_lower}': '{new_text}'")
+                    logger.debug(f"System: RadioMon: VOX returning text after trap word '{trap_lower}': '{new_text}'")
                     return new_text
             if debugVoxTmsg:
-                logger.debug(f"RadioMon: VOX no trap word found in: '{text}'")
+                logger.debug(f"System: RadioMon: VOX no trap word found in: '{text}'")
         return None
     except Exception as e:
-        logger.debug(f"RadioMon: Error in checkVoxTrapWords: {e}")
+        logger.debug(f"System: RadioMon: Error in checkVoxTrapWords: {e}")
         return None
 
 async def signalWatcher():
@@ -267,7 +298,7 @@ async def signalWatcher():
         signalStrength = int(get_sig_strength())
         if signalStrength >= previousStrength and signalStrength > signalDetectionThreshold:
             message = f"Detected {get_freq_common_name(get_hamlib('f'))} active. S-Meter:{signalStrength}dBm"
-            logger.debug(f"RadioMon: {message}. Waiting for {signalHoldTime} seconds")
+            logger.debug(f"System: RadioMon: {message}. Waiting for {signalHoldTime} seconds")
             previousStrength = signalStrength
             signalCycle = 0
             await asyncio.sleep(signalHoldTime)
@@ -287,7 +318,7 @@ async def signalWatcher():
 async def make_vox_callback(loop, q):
     def vox_callback(indata, frames, time, status):
         if status:
-            logger.warning(f"RadioMon: VOX input status: {status}")
+            logger.warning(f"System: RadioMon: VOX input status: {status}")
         try:
             loop.call_soon_threadsafe(q.put_nowait, bytes(indata))
         except asyncio.QueueFull:
@@ -300,7 +331,7 @@ async def make_vox_callback(loop, q):
                 loop.call_soon_threadsafe(q.put_nowait, bytes(indata))
             except asyncio.QueueFull:
                 # If still full, just drop this frame
-                logger.debug("RadioMon: VOX queue full, dropping audio frame")
+                logger.debug("System: RadioMon: VOX queue full, dropping audio frame")
         except RuntimeError:
             # Loop may be closed
             pass
@@ -312,7 +343,7 @@ async def voxMonitor():
         model = voxModel
         device_info = sd.query_devices(voxInputDevice, 'input')
         samplerate = 16000
-        logger.debug(f"RadioMon: VOX monitor started on device {device_info['name']} with samplerate {samplerate} using trap words: {voxTrapList if voxOnTrapList else 'none'}")
+        logger.debug(f"System: RadioMon: VOX monitor started on device {device_info['name']} with samplerate {samplerate} using trap words: {voxTrapList if voxOnTrapList else 'none'}")
         rec = KaldiRecognizer(model, samplerate)
         loop = asyncio.get_running_loop()
         callback = await make_vox_callback(loop, q)
@@ -339,7 +370,7 @@ async def voxMonitor():
 
                 await asyncio.sleep(0.1)
     except Exception as e:
-        logger.error(f"RadioMon: Error in VOX monitor: {e}")
+        logger.warning(f"System: RadioMon: Error in VOX monitor: {e}")
 
 def decode_wsjtx_packet(data):
     """Decode WSJT-X UDP packet according to the protocol specification"""
@@ -441,7 +472,7 @@ def decode_wsjtx_packet(data):
         return None
         
     except Exception as e:
-        logger.debug(f"RadioMon: Error decoding WSJT-X packet: {e}")
+        logger.debug(f"System: RadioMon: Error decoding WSJT-X packet: {e}")
         return None
 
 def check_callsign_match(message, callsigns):
@@ -483,7 +514,7 @@ def check_callsign_match(message, callsigns):
 async def wsjtxMonitor():
     """Monitor WSJT-X UDP broadcasts for decode messages"""
     if not wsjtx_enabled:
-        logger.warning("RadioMon: WSJT-X monitoring called but not enabled")
+        logger.warning("System: RadioMon: WSJT-X monitoring called but not enabled")
         return
     
     try:
@@ -492,9 +523,9 @@ async def wsjtxMonitor():
         sock.bind((wsjtx_udp_address, wsjtx_udp_port))
         sock.setblocking(False)
         
-        logger.info(f"RadioMon: WSJT-X UDP listener started on {wsjtx_udp_address}:{wsjtx_udp_port}")
+        logger.info(f"System: RadioMon: WSJT-X UDP listener started on {wsjtx_udp_address}:{wsjtx_udp_port}")
         if watched_callsigns:
-            logger.info(f"RadioMon: Watching for callsigns: {', '.join(watched_callsigns)}")
+            logger.info(f"System: RadioMon: Watching for callsigns: {', '.join(watched_callsigns)}")
         
         while True:
             try:
@@ -509,29 +540,29 @@ async def wsjtxMonitor():
                     # Check if message contains watched callsigns
                     if check_callsign_match(message, watched_callsigns):
                         msg_text = f"WSJT-X {mode}: {message} (SNR: {snr:+d}dB)"
-                        logger.info(f"RadioMon: {msg_text}")
+                        logger.info(f"System: RadioMon: {msg_text}")
                         wsjtxMsgQueue.append(msg_text)
                         
             except BlockingIOError:
                 # No data available
                 await asyncio.sleep(0.1)
             except Exception as e:
-                logger.debug(f"RadioMon: Error in WSJT-X monitor loop: {e}")
+                logger.debug(f"System: RadioMon: Error in WSJT-X monitor loop: {e}")
                 await asyncio.sleep(1)
                 
     except Exception as e:
-        logger.error(f"RadioMon: Error starting WSJT-X monitor: {e}")
+        logger.warning(f"System: RadioMon: Error starting WSJT-X monitor: {e}")
 
 async def js8callMonitor():
     """Monitor JS8Call TCP API for messages"""
     if not js8call_enabled:
-        logger.warning("RadioMon: JS8Call monitoring called but not enabled")
+        logger.warning("System: RadioMon: JS8Call monitoring called but not enabled")
         return
     
     try:
-        logger.info(f"RadioMon: JS8Call TCP listener connecting to {js8call_tcp_address}:{js8call_tcp_port}")
+        logger.info(f"System: RadioMon: JS8Call TCP listener connecting to {js8call_tcp_address}:{js8call_tcp_port}")
         if watched_callsigns:
-            logger.info(f"RadioMon: Watching for callsigns: {', '.join(watched_callsigns)}")
+            logger.info(f"System: RadioMon: Watching for callsigns: {', '.join(watched_callsigns)}")
         
         while True:
             try:
@@ -541,14 +572,14 @@ async def js8callMonitor():
                 sock.connect((js8call_tcp_address, js8call_tcp_port))
                 sock.setblocking(False)
                 
-                logger.info("RadioMon: Connected to JS8Call API")
+                logger.info("System: RadioMon: Connected to JS8Call API")
                 
                 buffer = ""
                 while True:
                     try:
                         data = sock.recv(4096)
                         if not data:
-                            logger.warning("RadioMon: JS8Call connection closed")
+                            logger.warning("System: RadioMon: JS8Call connection closed")
                             break
                         
                         buffer += data.decode('utf-8', errors='ignore')
@@ -572,34 +603,34 @@ async def js8callMonitor():
                                     
                                     if text and check_callsign_match(text, watched_callsigns):
                                         msg_text = f"JS8Call from {from_call}: {text} (SNR: {snr:+d}dB)"
-                                        logger.info(f"RadioMon: {msg_text}")
+                                        logger.info(f"System: RadioMon: {msg_text}")
                                         js8callMsgQueue.append(msg_text)
                                         
                             except json.JSONDecodeError:
-                                logger.debug(f"RadioMon: Invalid JSON from JS8Call: {line[:100]}")
+                                logger.debug(f"System: RadioMon: Invalid JSON from JS8Call: {line[:100]}")
                             except Exception as e:
-                                logger.debug(f"RadioMon: Error processing JS8Call message: {e}")
+                                logger.debug(f"System: RadioMon: Error processing JS8Call message: {e}")
                                 
                     except BlockingIOError:
                         await asyncio.sleep(0.1)
                     except socket.timeout:
                         await asyncio.sleep(0.1)
                     except Exception as e:
-                        logger.debug(f"RadioMon: Error in JS8Call receive loop: {e}")
+                        logger.debug(f"System: RadioMon: Error in JS8Call receive loop: {e}")
                         break
                         
                 sock.close()
-                logger.warning("RadioMon: JS8Call connection lost, reconnecting in 5s...")
+                logger.warning("System: RadioMon: JS8Call connection lost, reconnecting in 5s...")
                 await asyncio.sleep(5)
                 
             except socket.timeout:
-                logger.warning("RadioMon: JS8Call connection timeout, retrying in 5s...")
+                logger.warning("System: RadioMon: JS8Call connection timeout, retrying in 5s...")
                 await asyncio.sleep(5)
             except Exception as e:
-                logger.warning(f"RadioMon: Error connecting to JS8Call: {e}")
+                logger.warning(f"System: RadioMon: Error connecting to JS8Call: {e}")
                 await asyncio.sleep(10)
                 
     except Exception as e:
-        logger.error(f"RadioMon: Error starting JS8Call monitor: {e}")
+        logger.warning(f"System: RadioMon: Error starting JS8Call monitor: {e}")
 
 # end of file
