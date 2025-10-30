@@ -16,6 +16,9 @@ import struct
 import json
 from modules.log import logger
 
+# verbose debug logging for trap words function
+debugVoxTmsg = False
+
 from modules.settings import (
     radio_detection_enabled,
     rigControlServerAddress,
@@ -35,10 +38,48 @@ from modules.settings import (
 )
 
 # module global variables
+previousStrength = -40
+signalCycle = 0
+voxMsgQueue = []  # Queue for VOX detected messages
 
-
-# verbose debug logging for trap words function
-debugVoxTmsg = False
+FREQ_NAME_MAP = {
+    462562500: "GRMS CH1",
+    462587500: "GRMS CH2",
+    462612500: "GRMS CH3",
+    462637500: "GRMS CH4",
+    462662500: "GRMS CH5",
+    462687500: "GRMS CH6",
+    462712500: "GRMS CH7",
+    467562500: "GRMS CH8",
+    467587500: "GRMS CH9",
+    467612500: "GRMS CH10",
+    467637500: "GRMS CH11",
+    467662500: "GRMS CH12",
+    467687500: "GRMS CH13",
+    467712500: "GRMS CH14",
+    467737500: "GRMS CH15",
+    462550000: "GRMS CH16",
+    462575000: "GMRS CH17",
+    462600000: "GMRS CH18",
+    462625000: "GMRS CH19",
+    462675000: "GMRS CH20",
+    462670000: "GMRS CH21",
+    462725000: "GMRS CH22",
+    462725500: "GMRS CH23",
+    467575000: "GMRS CH24",
+    467600000: "GMRS CH25",
+    467625000: "GMRS CH26",
+    467650000: "GMRS CH27",
+    467675000: "GMRS CH28",
+    467700000: "FRS CH1",
+    462650000: "FRS CH5",
+    462700000: "FRS CH7",
+    462737500: "FRS CH16",
+    146520000: "2M Simplex Calling",
+    446000000: "70cm Simplex Calling",
+    156800000: "Marine CH16",
+    # Add more as needed
+}
 
 # --- WSJT-X and JS8Call Settings Initialization ---
 wsjtxMsgQueue = []  # Queue for WSJT-X detected messages
@@ -143,44 +184,6 @@ if voxDetectionEnabled:
         voxDetectionEnabled = False
         logger.error(f"RadioMon: VOX detection disabled due to import error")
 
-FREQ_NAME_MAP = {
-    462562500: "GRMS CH1",
-    462587500: "GRMS CH2",
-    462612500: "GRMS CH3",
-    462637500: "GRMS CH4",
-    462662500: "GRMS CH5",
-    462687500: "GRMS CH6",
-    462712500: "GRMS CH7",
-    467562500: "GRMS CH8",
-    467587500: "GRMS CH9",
-    467612500: "GRMS CH10",
-    467637500: "GRMS CH11",
-    467662500: "GRMS CH12",
-    467687500: "GRMS CH13",
-    467712500: "GRMS CH14",
-    467737500: "GRMS CH15",
-    462550000: "GRMS CH16",
-    462575000: "GMRS CH17",
-    462600000: "GMRS CH18",
-    462625000: "GMRS CH19",
-    462675000: "GMRS CH20",
-    462670000: "GMRS CH21",
-    462725000: "GMRS CH22",
-    462725500: "GMRS CH23",
-    467575000: "GMRS CH24",
-    467600000: "GMRS CH25",
-    467625000: "GMRS CH26",
-    467650000: "GMRS CH27",
-    467675000: "GMRS CH28",
-    467700000: "FRS CH1",
-    462650000: "FRS CH5",
-    462700000: "FRS CH7",
-    462737500: "FRS CH16",
-    146520000: "2M Simplex Calling",
-    446000000: "70cm Simplex Calling",
-    156800000: "Marine CH16",
-    # Add more as needed
-}
 
 def get_freq_common_name(freq):
     freq = int(freq)
