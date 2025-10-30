@@ -158,7 +158,7 @@ def get_newsAPI(user_search="meshtastic"):
         if news_data.get("status") != "ok":
             error_message = news_data.get("message", "Unknown error")
             logger.error(f"NewsAPI error: {error_message}")
-            return [f"NewsAPI error: {error_message}"]
+            return ERROR_FETCHING_DATA
         logger.debug(f"System: NewsAPI Searching for '{user_search}' got {news_data.get('totalResults', 0)} results")
         articles = news_data.get("articles", [])[:3]
         news_list = []
@@ -168,12 +168,11 @@ def get_newsAPI(user_search="meshtastic"):
             description = article.get("description", '')
             news_list.append(f"📰{title}\n{description}")
         
-
         # Make a nice newspaper style output
         msg = f"🗞️:"
         for item in news_list:
             msg += item + "\n\n"
         return msg.strip()
     except Exception as e:
-        logger.error(f"Error fetching news: {e}")
-        return [f"Exception: {e}"]
+        logger.error(f"System: NewsAPI fetching news: {e}")
+        return ERROR_FETCHING_DATA
