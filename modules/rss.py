@@ -150,10 +150,10 @@ def get_newsAPI(user_search="meshtastic"):
         last_week = datetime.datetime.now() - datetime.timedelta(days=7)
         newsAPIurl = (
             f"https://newsapi.org/v2/everything?"
-            f"q={user_search}&language=en&from={last_week.strftime('%Y-%m-%d')}&sortBy=popularity&pageSize=7&apiKey={newsAPI_KEY}"
+            f"q={user_search}&language=en&from={last_week.strftime('%Y-%m-%d')}&sortBy=popularity&pageSize=5&apiKey={newsAPI_KEY}"
         )
 
-        response = requests.get(newsAPIurl, headers=headers, timeout=10)
+        response = requests.get(newsAPIurl, headers=headers, timeout=urlTimeoutSeconds)
         news_data = response.json()
 
         if news_data.get("status") != "ok":
