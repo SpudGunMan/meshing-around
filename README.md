@@ -58,6 +58,7 @@ Mesh Bot is a feature-rich Python bot designed to enhance your [Meshtastic](http
 - **Speech-to-Text Broadcasting**: Convert received audio to text using [Vosk](https://alphacephei.com/vosk/models) and broadcast it to the mesh.
 - **WSJT-X Integration**: Monitor WSJT-X (FT8, FT4, WSPR, etc.) decode messages and forward them to the mesh network with optional callsign filtering.
 - **JS8Call Integration**: Monitor JS8Call messages and forward them to the mesh network with optional callsign filtering.
+- **Meshages TTS**: The bot can speak mesh messages aloud using [KittenTTS](https://github.com/KittenML/KittenTTS). Enable this feature to have important alerts and messages read out loud on your device—ideal for hands-free operation or accessibility. See [radio.md](modules/radio.md) for setup instructions.
 
 ### Asset Tracking, Check-In/Check-Out, and Inventory Management
 Advanced check-in/check-out and asset tracking for people and equipment—ideal for accountability, safety monitoring, and logistics (e.g., Radio-Net, FEMA, trailhead groups). Admin approval workflows, GPS location capture, and overdue alerts. The integrated inventory and point-of-sale (POS) system enables item management, sales tracking, cart-based transactions, and daily reporting, for swaps, emergency supply management, and field operations, maker-places.
