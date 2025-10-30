@@ -67,12 +67,13 @@ fi
 if [[ -f "config.ini" ]]; then
     owner=$(stat -f "%Su" config.ini)
     perms=$(stat -f "%A" config.ini)
-    echo "config.ini is owned by: $owner"
-    echo "config.ini permissions: $perms"
+    
     if [[ "$owner" == "root" ]]; then
+        echo "config.ini is owned by: $owner"
         echo "Warning: config.ini is owned by root check out the etc/set-permissions.sh script"
     fi
     if [[ $(stat -f "%Lp" config.ini) =~ .*[7,6,2]$ ]]; then
+        cho "config.ini permissions: $perms"
         echo "Warning: config.ini is world-writable or world-readable! check out the etc/set-permissions.sh script"
     fi
 
