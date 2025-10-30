@@ -146,14 +146,13 @@ def get_newsAPI(user_search="meshtastic"):
     if not user_search:
         user_search = "meshtastic"
     try:
-        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome'}
         last_week = datetime.datetime.now() - datetime.timedelta(days=7)
         newsAPIurl = (
             f"https://newsapi.org/v2/everything?"
             f"q={user_search}&language=en&from={last_week.strftime('%Y-%m-%d')}&sortBy=popularity&pageSize=5&apiKey={newsAPI_KEY}"
         )
 
-        response = requests.get(newsAPIurl, headers=headers, timeout=urlTimeoutSeconds)
+        response = requests.get(newsAPIurl, headers=COMMON_USER_AGENT, timeout=urlTimeoutSeconds)
         news_data = response.json()
 
         if news_data.get("status") != "ok":
