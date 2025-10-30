@@ -140,8 +140,9 @@ def get_rss_feed(msg):
 
 def get_newsAPI(user_search="meshtastic"):
     # Fetch news from NewsAPI.org
-    user_search = user_search.lower().replace("latest ", "", 1).strip()
-    # if seach term is empty, use default
+    user_search = user_search.strip()
+    if user_search.lower().startswith("latest"):
+        user_search = user_search[6:].strip()
     if not user_search:
         user_search = "meshtastic"
     try:
