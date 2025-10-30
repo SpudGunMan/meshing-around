@@ -53,6 +53,18 @@ Mesh Bot is a feature-rich Python bot designed to enhance your [Meshtastic](http
 - **High Flying Alerts**: Receive notifications when nodes with high altitude are detected on the mesh.
 - **Voice/Command Triggers**: Activate bot functions using keywords or voice commands (see [Voice Commands](#voice-commands-vox) for "Hey Chirpy!" support).
 
+### EAS Alerts
+- **FEMA iPAWS/EAS Alerts**: Receive Emergency Alerts from FEMA via API on internet-connected nodes.
+- **NOAA EAS Alerts**: Get Emergency Alerts from NOAA via API.
+- **USGS Volcano Alerts**: Receive volcano alerts from USGS via API.
+- **NINA Alerts (Germany)**: Receive emergency alerts from the xrepository.de feed for Germany.
+- **Offline EAS Alerts**: Report EAS alerts over the mesh using external tools, even without internet.
+
+### File Monitor Alerts
+- **File Monitoring**: Watch a text file for changes and broadcast updates to the mesh channel.
+- **News File Access**: Retrieve the contents of a news file on request; supports multiple news sources or files.
+- **Shell Command Access**: Execute shell commands via DM with replay protection (admin only).
+
 #### Radio Frequency Monitoring
 - **SNR RF Activity Alerts**: Monitor radio frequencies and receive alerts when high SNR (Signal-to-Noise Ratio) activity is detected.
 - **Hamlib Integration**: Use Hamlib (rigctld) to monitor the S meter on a connected radio.
@@ -80,18 +92,6 @@ Advanced check-in/check-out and asset tracking for people and equipment—ideal 
 - **Custom Surveys**: Create and manage surveys by editing JSON files in `data/survey`. Multiple surveys are supported (e.g., `survey snow`).
 - **User Feedback**: Users participate via DM; responses are logged for review.
 - **Reporting**: Retrieve survey results with `survey report` or `survey report <surveyname>`.
-
-### EAS Alerts
-- **FEMA iPAWS/EAS Alerts**: Receive Emergency Alerts from FEMA via API on internet-connected nodes.
-- **NOAA EAS Alerts**: Get Emergency Alerts from NOAA via API.
-- **USGS Volcano Alerts**: Receive volcano alerts from USGS via API.
-- **Offline EAS Alerts**: Report EAS alerts over the mesh using external tools, even without internet.
-- **NINA Alerts (Germany)**: Receive emergency alerts from the xrepository.de feed for Germany.
-
-### File Monitor Alerts
-- **File Monitoring**: Watch a text file for changes and broadcast updates to the mesh channel.
-- **News File Access**: Retrieve the contents of a news file on request; supports multiple news sources or files.
-- **Shell Command Access**: Execute shell commands via DM with replay protection (admin only).
 
 ### Data Reporting
 - **HTML Reports**: Visualize bot traffic and data flows with a built-in HTML generator. See [data reporting](logs/README.md) for details.
