@@ -2208,7 +2208,7 @@ async def watchdog():
 
                     handleMultiPing(0, i)
 
-                    if anyAlertBroadcastEnabled or checklist_enabled:
+                    if usAlerts or checklist_enabled or enableDEalerts:
                         handleAlertBroadcast(i)
 
                     intData = displayNodeTelemetry(0, i)
