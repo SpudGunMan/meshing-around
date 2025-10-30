@@ -342,13 +342,11 @@ try:
     myRegionalKeysDE = config['location'].get('myRegionalKeysDE', '110000000000').split(',') # default city Berlin
     eAlertBroadcastChannel = config['location'].getint('eAlertBroadcastChannel', '') # default empty
 
-    # any alert broadcast enabled
-    anyAlertBroadcastEnabled = (
+    # any US alerts enabled
+    usAlerts = (
         ipawsAlertEnabled or
         wxAlertBroadcastEnabled or
         volcanoAlertBroadcastEnabled or
-        enableGBalerts or
-        enableDEalerts or
         wxAlertsEnabled or 
         eAlertBroadcastEnabled
         )

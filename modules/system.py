@@ -1145,23 +1145,24 @@ def handleAlertBroadcast(deviceID=1):
             alertWx = alertBrodcastNOAA()
             if alertWx:
                 wxAlert = f"🚨 {alertWx[1]} EAS-WX ALERT: {alertWx[0]}"
-        if enableDEalerts:
-            alertDe = get_nina_alerts()
-        if enableGBalerts:
-            alertUk = get_govUK_alerts()
         if eAlertBroadcastEnabled or ipawsAlertEnabled:
             alertFema = getIpawsAlert(latitudeValue, longitudeValue, shortAlerts=True)
         if volcanoAlertBroadcastEnabled:
             volcanoAlert = get_volcano_usgs(latitudeValue, longitudeValue)
 
+        if enableDEalerts:
+            deAlerts = get_nina_alerts()
 
-        alert_types = [
-            ("fema", alertFema, ipawsAlertEnabled),
-            ("uk", alertUk, enableGBalerts),
-            ("de", alertDe, enableDEalerts),
-            ("wx", wxAlert, wxAlertBroadcastEnabled),
-            ("volcano", volcanoAlert, volcanoAlertBroadcastEnabled),
-        ]
+
+        if usAlerts:
+            alert_types = [
+                ("fema", alertFema, ipawsAlertEnabled),
+                ("wx", wxAlert, wxAlertBroadcastEnabled),
+                ("volcano", volcanoAlert, volcanoAlertBroadcastEnabled),]
+
+        if deAlerts:
+            alert_types.append(("de", deAlerts, enableDEalerts))
+
         for alert_type, alert_msg, enabled in alert_types:
             if enabled and alert_msg and NO_ALERTS not in alert_msg and ERROR_FETCHING_DATA not in alert_msg:
                 if should_send_alert(alert_type, alert_msg):
