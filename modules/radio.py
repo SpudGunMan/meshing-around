@@ -40,7 +40,6 @@ from modules.settings import (
 # module global variables
 previousStrength = -40
 signalCycle = 0
-voxMsgQueue = []  # Queue for VOX detected messages
 
 FREQ_NAME_MAP = {
     462562500: "GRMS CH1",
