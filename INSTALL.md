@@ -197,3 +197,26 @@ From your project root, run one of the following commands:
 - The script requires a Python virtual environment (`venv`) to be present in the project directory.
 - If `venv` is missing, the script will exit with an error message.
 - Always provide an argument (`mesh`, `pong`, `html`, `html5`, or `add`) to specify what you want to launch.
+
+## Troubleshooting
+
+### Permissions Issues
+
+If you encounter errors related to file or directory permissions (e.g., "Permission denied" or services failing to start):
+
+- Ensure you are running installation scripts with sufficient privileges (use `sudo` if needed).
+- The `logs`, `data`, and `config.ini` files must be owned by the user running the bot (often `meshbot` or your current user).
+- You can manually reset permissions using the provided script:
+
+  ```sh
+  sudo bash etc/set-permissions.sh meshbot
+  ```
+
+- If you moved the project directory, re-run the permissions script to update ownership.
+
+- For systemd service issues, check logs with:
+  ```sh
+  sudo journalctl -u mesh_bot.service
+  ```
+
+If problems persist, double-check that the user specified in your service files matches the owner of the project files and directories.
