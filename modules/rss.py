@@ -141,6 +141,9 @@ def get_rss_feed(msg):
 def get_newsAPI(user_search="meshtastic"):
     # Fetch news from NewsAPI.org
     user_search = user_search.lower().replace("latest ", "", 1).strip()
+    # if seach term is empty, use default
+    if not user_search:
+        user_search = "meshtastic"
     try:
         headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome'}
         last_week = datetime.datetime.now() - datetime.timedelta(days=7)
