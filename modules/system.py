@@ -1160,8 +1160,8 @@ def handleAlertBroadcast(deviceID=1):
                 ("wx", wxAlert, wxAlertBroadcastEnabled),
                 ("volcano", volcanoAlert, volcanoAlertBroadcastEnabled),]
 
-        if deAlerts:
-            alert_types.append(("de", deAlerts, enableDEalerts))
+        if enableDEalerts:
+            alert_types = [("de", deAlerts, enableDEalerts)]
 
         for alert_type, alert_msg, enabled in alert_types:
             if enabled and alert_msg and NO_ALERTS not in alert_msg and ERROR_FETCHING_DATA not in alert_msg:

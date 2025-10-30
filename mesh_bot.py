@@ -1581,8 +1581,10 @@ def handle_boot(mesh=True):
             if my_settings.bee_enabled:
                 logger.debug("System: File Monitor Bee Monitor Enabled for bee.txt")
             
-            if my_settings.anyAlertBroadcastEnabled:
+            if my_settings.usAlerts:
                 logger.debug(f"System: Emergency Alert Broadcast Enabled on channel {my_settings.emergency_responder_alert_channel} for interface {my_settings.emergency_responder_alert_interface}")
+            if my_settings.enableDEalerts:
+                logger.debug(f"System: NINA Alerts Enabled with counties {my_settings.myRegionalKeysDE}")
             if my_settings.volcanoAlertBroadcastEnabled:
                 logger.debug(f"System: Volcano Alert Broadcast Enabled on channels {my_settings.emergency_responder_alert_channel} ignoreUSGSWords {my_settings.ignoreUSGSWords}")
             if my_settings.ipawsAlertEnabled:
