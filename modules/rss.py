@@ -152,7 +152,7 @@ def get_newsAPI(user_search="meshtastic"):
             f"q={user_search}&language=en&from={last_week.strftime('%Y-%m-%d')}&sortBy=popularity&pageSize=5&apiKey={newsAPI_KEY}"
         )
 
-        response = requests.get(newsAPIurl, headers=COMMON_USER_AGENT, timeout=urlTimeoutSeconds)
+        response = requests.get(newsAPIurl, headers={"User-Agent": COMMON_USER_AGENT}, timeout=urlTimeoutSeconds)
         news_data = response.json()
 
         if news_data.get("status") != "ok":
