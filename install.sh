@@ -312,17 +312,17 @@ if [[ $(echo "${bot}" | grep -i "^m") ]]; then
 fi
 
 # install mesh_bot_reporting timer to run daily at 4:20 am
-# echo ""
-# echo "Installing mesh_bot_reporting.timer to run mesh_bot_reporting daily at 4:20 am..."
-# sudo cp etc/mesh_bot_reporting.service /etc/systemd/system/
-# sudo cp etc/mesh_bot_reporting.timer /etc/systemd/system/
-# sudo systemctl daemon-reload
-# sudo systemctl enable mesh_bot_reporting.timer
-# sudo systemctl start mesh_bot_reporting.timer
-# echo "mesh_bot_reporting.timer installed and enabled"
-# echo "Check timer status with: systemctl status mesh_bot_reporting.timer"
-# echo "List all timers with: systemctl list-timers"
-# echo ""
+echo ""
+echo "Installing mesh_bot_reporting.timer to run mesh_bot_reporting daily at 4:20 am..."
+sudo cp etc/mesh_bot_reporting.service /etc/systemd/system/
+sudo cp etc/mesh_bot_reporting.timer /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable mesh_bot_reporting.timer
+sudo systemctl start mesh_bot_reporting.timer
+echo "mesh_bot_reporting.timer installed and enabled"
+echo "Check timer status with: systemctl status mesh_bot_reporting.timer"
+echo "List all timers with: systemctl list-timers"
+echo ""
 
 # # install mesh_bot_w3_server service
 # echo "Installing mesh_bot_w3_server.service to run the web3 server..."
