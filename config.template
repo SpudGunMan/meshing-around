@@ -66,7 +66,9 @@ rssTruncate = 100
 enableNewsAPI = False
 newsAPI_KEY = 
 newsAPIregion = us
-# 
+# could also be 'relevancy' or 'popularity' or 'publishedAt'
+sort_by = relevancy
+
 # enable or disable the wikipedia search module
 wikipedia = True
 # Use local Kiwix server instead of online Wikipedia

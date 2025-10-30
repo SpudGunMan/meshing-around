@@ -1,6 +1,6 @@
 # rss feed module for meshing-around 2025
 from modules.log import logger
-from modules.settings import rssFeedURL, rssFeedNames, rssMaxItems, rssTruncate, urlTimeoutSeconds, ERROR_FETCHING_DATA, newsAPI_KEY
+from modules.settings import rssFeedURL, rssFeedNames, rssMaxItems, rssTruncate, urlTimeoutSeconds, ERROR_FETCHING_DATA, newsAPI_KEY, newsAPIsort
 import urllib.request
 import xml.etree.ElementTree as ET
 import html
@@ -149,7 +149,7 @@ def get_newsAPI(user_search="meshtastic"):
         last_week = datetime.datetime.now() - datetime.timedelta(days=7)
         newsAPIurl = (
             f"https://newsapi.org/v2/everything?"
-            f"q={user_search}&language=en&from={last_week.strftime('%Y-%m-%d')}&sortBy=popularity&pageSize=5&apiKey={newsAPI_KEY}"
+            f"q={user_search}&language=en&from={last_week.strftime('%Y-%m-%d')}&sortBy={newsAPIsort}shedAt&pageSize=5&apiKey={newsAPI_KEY}"
         )
 
         response = requests.get(newsAPIurl, headers={"User-Agent": COMMON_USER_AGENT}, timeout=urlTimeoutSeconds)

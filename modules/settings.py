@@ -279,6 +279,7 @@ try:
     newsAPI_KEY = config['general'].get('newsAPI_KEY', '') # default empty
     newsAPIregion = config['general'].get('newsAPIregion', 'us') # default us
     enable_headlines = config['general'].getboolean('enableNewsAPI', False) # default False
+    newsAPIsort = config['general'].get('sort_by', 'relevancy') # default publishedAt
 
     # sentry
     sentry_enabled = config['sentry'].getboolean('SentryEnabled', False) # default False
