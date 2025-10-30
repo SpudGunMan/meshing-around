@@ -3,7 +3,7 @@
 
 import sqlite3
 from modules.log import logger
-from modules.settings import checklist_db, reverse_in_out, bbs_ban_list, bbs_admin_list
+from modules.settings import checklist_db, reverse_in_out, bbs_ban_list, bbs_admin_list, checklist_auto_approve
 import time
 
 trap_list_checklist = ("checkin", "checkout", "checklist", "approvecl", "denycl",)
@@ -31,20 +31,21 @@ def initialize_checklist_database():
 
 def checkin(name, date, time, location, notes):
     location = ", ".join(map(str, location))
-    # checkin a user
+    # Auto-approve if setting is enabled
+    approved_value = 1 if checklist_auto_approve else 0
     conn = sqlite3.connect(checklist_db)
     c = conn.cursor()
     try:
         c.execute(
-            "INSERT INTO checkin (checkin_name, checkin_date, checkin_time, location, checkin_notes, removed, approved) VALUES (?, ?, ?, ?, ?, 0, 0)",
-            (name, date, time, location, notes)
+            "INSERT INTO checkin (checkin_name, checkin_date, checkin_time, location, checkin_notes, removed, approved) VALUES (?, ?, ?, ?, ?, 0, ?)",
+            (name, date, time, location, notes, approved_value)
         )
     except sqlite3.OperationalError as e:
         if "no such table" in str(e):
             initialize_checklist_database()
             c.execute(
-                "INSERT INTO checkin (checkin_name, checkin_date, checkin_time, location, checkin_notes, removed, approved) VALUES (?, ?, ?, ?, ?, 0, 0)",
-                (name, date, time, location, notes)
+                "INSERT INTO checkin (checkin_name, checkin_date, checkin_time, location, checkin_notes, removed, approved) VALUES (?, ?, ?, ?, ?, 0, ?)",
+                (name, date, time, location, notes, approved_value)
             )
         else:
             raise
