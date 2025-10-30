@@ -285,15 +285,6 @@ sudo usermod -a -G tty "$whoami"
 sudo usermod -a -G bluetooth "$whoami"
 echo "Added user $whoami to dialout, tty, and bluetooth groups"
 
-sudo chown -R "$whoami:$whoami" "$program_path/logs"
-sudo chown -R "$whoami:$whoami" "$program_path/data"
-sudo chown "$whoami:$whoami" "$program_path/config.ini"
-sudo chmod 640 "$program_path/config.ini"
-echo "Permissions set for meshbot on config.ini"
-sudo chmod 750 "$program_path/logs"
-sudo chmod 750 "$program_path/data"
-echo "Permissions set for meshbot on logs and data directories"
-
 # check and see if some sort of NTP is running
 if ! systemctl is-active --quiet ntp.service && \
    ! systemctl is-active --quiet systemd-timesyncd.service && \
@@ -467,6 +458,15 @@ else
     printf "List all timers: systemctl list-timers\n" >> install_notes.txt
     printf "*** Stay Up to date using 'bash update.sh' ***\n" >> install_notes.txt
 fi
+
+sudo chown -R "$whoami:$whoami" "$program_path/logs"
+sudo chown -R "$whoami:$whoami" "$program_path/data"
+sudo chown "$whoami:$whoami" "$program_path/config.ini"
+sudo chmod 640 "$program_path/config.ini"
+echo "Permissions set for meshbot on config.ini"
+sudo chmod 750 "$program_path/logs"
+sudo chmod 750 "$program_path/data"
+echo "Permissions set for meshbot on logs and data directories"
 
 printf "\nInstallation complete?\n"
 
