@@ -19,7 +19,9 @@ This document provides an overview of all modules available in the Mesh-Bot proj
 - [Voice Commands (VOX)](#voice-commands-vox)
 - [Ollama LLM/AI](#ollama-llmai)
 - [Wikipedia Search](#wikipedia-search)
+- [News & Headlines (`latest` Command)](#news--headlines-latest-command)
 - [DX Spotter Module](#dx-spotter-module)
+- [Echo Command](#echo-command)
 - [Mesh Bot Scheduler User Guide](#mesh-bot-scheduler-user-guide)
 - [Other Utilities](#other-utilities)
 - [Messaging Settings](#messaging-settings)
@@ -1225,6 +1227,22 @@ The `echo` command returns your message back to you.
   echo Hello world c=1 d=2
   ```
   This will send "Hello world" to channel 1, device 2.
+#### MOTD Substitution
+
+- In admin echo, if you include the word `motd` or `MOTD` (case-insensitive) anywhere in your message, it will be replaced with the current Message of the Day.
+- Example:
+  ```
+  echo Today's message is motd c=1 d=2
+  ```
+  If the MOTD is "Potatos Are Cool!", the message sent will be:
+  ```
+  Today's message is Potatos Are Cool!
+  ```
+
+#### Notes
+- Only admins can use the `c=<channel>` and `d=<device>` override.
+- If you omit `c=<channel>` and `d=<device>`, the message is echoed back to your current channel/device.
+- MOTD substitution works for any standalone `motd` or `MOTD` in the message.
 
 #### Help
 
