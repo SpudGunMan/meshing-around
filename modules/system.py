@@ -1003,8 +1003,6 @@ def isNodeAdmin(nodeID):
         for admin in bbs_admin_list:
             if str(nodeID) == admin:
                 return True
-    else:
-        return True
     return False
 
 def isNodeBanned(nodeID):
