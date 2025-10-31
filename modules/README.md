@@ -1227,9 +1227,12 @@ The `echo` command returns your message back to you.
   echo Hello world c=1 d=2
   ```
   This will send "Hello world" to channel 1, device 2.
-#### MOTD Substitution
 
-- In admin echo, if you include the word `motd` or `MOTD` (case-insensitive) anywhere in your message, it will be replaced with the current Message of the Day.
+#### Special Keyword Substitution
+
+- In admin echo, if you include the word `motd` or `MOTD` (case-insensitive), it will be replaced with the current Message of the Day.
+- If you include the word `welcome!` (case-insensitive), it will be replaced with the current Welcome Message as set in your configuration.
+
 - Example:
   ```
   echo Today's message is motd c=1 d=2
