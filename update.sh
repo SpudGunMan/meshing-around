@@ -71,27 +71,7 @@ if [[ -f "modules/custom_scheduler.py" ]]; then
     echo "Including custom_scheduler.py in backup..."
     cp modules/custom_scheduler.py data/
 fi
-# Check config.ini ownership and permissions
-if [[ -f "config.ini" ]]; then
-    owner=$(stat -f "%Su" config.ini)
-    perms=$(stat -f "%A" config.ini)
-    mode=$(stat -f "%Lp" config.ini)
 
-    if [[ "$owner" == "root" ]]; then
-        echo "config.ini is owned by: $owner"
-        echo "Warning: config.ini is owned by root. Check out the etc/set-permissions.sh script."
-    fi
-
-    # Check if world-readable or world-writable (others have r or w)
-    if (( (mode & 0004) != 0 )) || (( (mode & 0002) != 0 )); then
-        echo "config.ini permissions: $perms"
-        echo "Warning: config.ini is world-readable or world-writable! Check out the etc/set-permissions.sh script."
-    fi
-
-    echo "Including config.ini in backup..."
-
-    cp config.ini data/config.backup
-fi
 #create the tar.gz backup
 tar -czf "$backup_file" "$path2backup"
 if [ $? -ne 0 ]; then
