@@ -1169,8 +1169,10 @@ def handleAlertBroadcast(deviceID=1):
         for alert_type, alert_msg, enabled in alert_types:
             if enabled and alert_msg and NO_ALERTS not in alert_msg and ERROR_FETCHING_DATA not in alert_msg:
                 if should_send_alert(alert_type, alert_msg):
+                    logger.debug(f"System: Sending {alert_type} alert to emergency responder channel {emergency_responder_alert_channel}")
                     send_message(alert_msg, emergency_responder_alert_channel, 0, emergency_responder_alert_interface)
                 if eAlertBroadcastChannel != '':
+                    logger.debug(f"System: Sending {alert_type} alert to aux channel {eAlertBroadcastChannel}")
                     send_message(alert_msg, eAlertBroadcastChannel, 0, emergency_responder_alert_interface)
     except Exception as e:
         logger.error(f"System: Error in handleAlertBroadcast: {e}")
