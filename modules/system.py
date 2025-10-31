@@ -1176,6 +1176,7 @@ def handleAlertBroadcast(deviceID=1):
                     send_message(alert_msg, emergency_responder_alert_channel, 0, emergency_responder_alert_interface)
                 if eAlertBroadcastChannel != '':
                     logger.debug(f"System: Sending {alert_type} alert to aux channel {eAlertBroadcastChannel}")
+                    time.sleep(splitDelay)
                     send_message(alert_msg, eAlertBroadcastChannel, 0, emergency_responder_alert_interface)
     except Exception as e:
         logger.error(f"System: Error in handleAlertBroadcast: {e}")
