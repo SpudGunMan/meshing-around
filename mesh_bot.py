@@ -1996,12 +1996,12 @@ def onReceive(packet, interface):
                             msg = f"🎉 {get_name_from_number(message_from_id, 'long', rxNode)} found the Word of the Day🎊:\n {wordWas}, {metaWas}"
                             send_message(msg, channel_number, 0, rxNode)
                         if bingo_win:
-                            msg = f"🎉 {get_name_from_number(message_from_id, 'long', rxNode)} scored BINGO!🥳 {bingo_message}"
+                            msg = f"🎉 {get_name_from_number(message_from_id, 'long', rxNode)} scored word-search-BINGO!🥳 {bingo_message}"
                             send_message(msg, channel_number, 0, rxNode)
 
                         slotMachine = theWordOfTheDay.emojiMiniGame(message_string, emojiSeen=emojiSeen, nodeID=message_from_id, nodeInt=rxNode)
                         if slotMachine:
-                            msg = f"🎉 {get_name_from_number(message_from_id, 'long', rxNode)} played the Slot Machine and got: {slotMachine} 🥳"
+                            msg = f"🎉 {get_name_from_number(message_from_id, 'long', rxNode)} played the emote-Fruit-Machine and got: {slotMachine} 🥳"
                             send_message(msg, channel_number, 0, rxNode)
 
                     # add message to tts queue
