@@ -376,6 +376,9 @@ for i in range(1, 10):
         logger.critical(f"System: abort. Initializing Interface{i} {e}")
         exit()
 
+# Get my node numbers for global use       
+my_node_ids = [globals().get(f'myNodeNum{i}') for i in range(1, 10)]
+
 # Get the node number of the devices, check if the devices are connected meshtastic devices
 for i in range(1, 10):
     if globals().get(f'interface{i}') and globals().get(f'interface{i}_enabled'):
@@ -659,7 +662,7 @@ async def get_closest_nodes(nodeInt=1,returnCount=3, channel=publicChannel):
                         distance = round(geopy.distance.geodesic((latitudeValue, longitudeValue), (latitude, longitude)).m, 2)
                         
                         if (distance < sentry_radius):
-                            if (nodeID not in [globals().get(f'myNodeNum{i}') for i in range(1, 10)]) and str(nodeID) not in sentryIgnoreList:
+                            if (nodeID not in my_node_ids) and str(nodeID) not in sentryIgnoreList:
                                 node_list.append({'id': nodeID, 'latitude': latitude, 'longitude': longitude, 'distance': distance})
                                 
                     except Exception as e:
@@ -671,7 +674,7 @@ async def get_closest_nodes(nodeInt=1,returnCount=3, channel=publicChannel):
                         try:
                             logger.debug(f"System: Requesting location data for {node['id']}, lastHeard: {node.get('lastHeard', 'N/A')}")
                             # if not a interface node
-                            if node['num'] in [globals().get(f'myNodeNum{i}') for i in range(1, 10)]:
+                            if node['num'] in my_node_ids:
                                 ignore = True
                             else:
                                 # one idea is to send a ping to the node to request location data for if or when, ask again later
@@ -1373,11 +1376,13 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
 
             # Meta for most Messages leaderboard
             if packet_type == 'TEXT_MESSAGE':
-                message_count = meshLeaderboard.get('nodeMessageCounts', {})
-                message_count[nodeID] = message_count.get(nodeID, 0) + 1
-                meshLeaderboard['nodeMessageCounts'] = message_count
-                if message_count[nodeID] > meshLeaderboard['mostMessages']['value']:
-                    meshLeaderboard['mostMessages'] = {'nodeID': nodeID, 'value': message_count[nodeID], 'timestamp': time.time()}
+                # if packet isnt TO a my_node_id count it
+                if packet.get('to') not in my_node_ids:
+                    message_count = meshLeaderboard.get('nodeMessageCounts', {})
+                    message_count[nodeID] = message_count.get(nodeID, 0) + 1
+                    meshLeaderboard['nodeMessageCounts'] = message_count
+                    if message_count[nodeID] > meshLeaderboard['mostMessages']['value']:
+                        meshLeaderboard['mostMessages'] = {'nodeID': nodeID, 'value': message_count[nodeID], 'timestamp': time.time()}
             else:
                 tmessage_count = meshLeaderboard.get('nodeTMessageCounts', {})
                 tmessage_count[nodeID] = tmessage_count.get(nodeID, 0) + 1
