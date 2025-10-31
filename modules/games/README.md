@@ -719,3 +719,33 @@ This module implements a survey system for the Meshtastic mesh-bot.
 ---
 
 **Written for Meshtastic mesh-bot by K7MHI Kelly Keeton 2025**
+
+
+
+___
+
+Pay no attention to the..
+
+'pygame - Community Edition' ('pygame-ce' for short) is a fork of the original 'pygame' library by former 'pygame' core contributors.
+
+It offers many new features and optimizations, receives much better maintenance and runs under a better governance model, while being highly compatible with code written for upstream pygame (`import pygame` still works).
+
+**Details**
+- [Initial announcement on Reddit](<https://www.reddit.com/r/pygame/comments/1112q10/pygame_community_edition_announcement/>) (or https://discord.com/channels/772505616680878080/772506385304649738/1074593440148500540)
+- [Why the forking happened](<https://www.reddit.com/r/pygame/comments/18xy7nf/what_was_the_disagreement_that_led_to_pygamece/>)
+
+**Helpful Links**
+- https://discord.com/channels/772505616680878080/772506385304649738
+- [Our GitHub releases](<https://github.com/pygame-community/pygame-ce/releases>)
+- [Our docs](https://pyga.me/docs/)
+
+**Installation**
+```sh
+pip uninstall pygame # Uninstall pygame first since it would conflict with pygame-ce
+pip install pygame-ce
+```
+-# Because 'pygame' installs to the same location as 'pygame-ce', it must first be uninstalled.
+-# Note that the `import pygame` syntax has not changed with pygame-ce.
+
+
+---
