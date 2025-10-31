@@ -390,11 +390,36 @@ def handle_motd(message, message_from_id, isDM):
     return msg
 
 def handle_echo(message, message_from_id, deviceID, isDM, channel_number):
+    # Check if user is admin
+    isAdmin = isNodeAdmin(message_from_id)
 
+    # Admin extended syntax: echo <string> c=<channel> d=<device>
+    if isAdmin and message.strip().lower().startswith("echo ") and not message.strip().endswith("?"):
+        msg_to_echo = message.split(" ", 1)[1]
+        target_channel = channel_number
+        target_device = deviceID
+
+        # Split into words to find c= and d=, but preserve spaces in message
+        words = msg_to_echo.split()
+        new_words = []
+        for w in words:
+            if w.startswith("c=") and w[2:].isdigit():
+                target_channel = int(w[2:])
+            elif w.startswith("d=") and w[2:].isdigit():
+                target_device = int(w[2:])
+            else:
+                new_words.append(w)
+        msg_to_echo = " ".join(new_words).strip()
+
+        # Send echo to specified channel/device
+        send_message(msg_to_echo, target_channel, 0, target_device)
+        time.sleep(splitDelay) # throttle for 2x send
+        return f"🐬echoed to channel {target_channel} device {target_device}"
+
+    # dev echoBinary off
     echoBinary = False
     if echoBinary:
         try:
-            #send_raw_bytes echo the data to the channel with synch word:
             port_num = 256
             synch_word = b"echo:"
             parts = message.split("echo ", 1)
@@ -403,25 +428,29 @@ def handle_echo(message, message_from_id, deviceID, isDM, channel_number):
                 raw_bytes = synch_word + msg_to_echo.encode('utf-8')
                 send_raw_bytes(message_from_id, raw_bytes, nodeInt=deviceID, channel=channel_number, portnum=port_num)
                 return f"Sent binary echo message to {message_from_id} to {port_num} on channel {channel_number} device {deviceID}"
-            else:
-                return "Please provide a message to echo back to you. Example:echo Hello World"
         except Exception as e:
             logger.error(f"System: Echo Exception {e}")
-        return f"Sent binary echo message to {message_from_id} to {port_num} on channel {channel_number} device {deviceID}"
 
-    if "?" in message.lower():
-        return "command returns your message back to you. Example:echo Hello World"
-    elif "echo " in message.lower():
-        parts = message.lower().split("echo ", 1)
+    if "?" in message:
+        isAdmin = isNodeAdmin(message_from_id)
+        if isAdmin:
+            return (
+                "Admin usage: echo <message> c=<channel> d=<device>\n"
+                "Example: echo Hello world c=1 d=2"
+            )
+        return "command returns your message back to you. Example: echo Hello World"
+
+    # process normal echo back to user
+    elif message.strip().lower().startswith("echo "):
+        parts = message.split("echo ", 1)
         if len(parts) > 1 and parts[1].strip() != "":
             echo_msg = parts[1]
             if channel_number != my_settings.echoChannel and not isDM:
                 echo_msg = "@" + get_name_from_number(message_from_id, 'short', deviceID) + " " + echo_msg
             return echo_msg
         else:
-            return "Please provide a message to echo back to you. Example:echo Hello World"
-    else:
-        return "Please provide a message to echo back to you. Example:echo Hello World"
+            return "Please provide a message to echo back to you. Example: echo Hello World"
+    return "🐬echo.."
 
 def handle_wxalert(message_from_id, deviceID, message):
     if my_settings.use_meteo_wxApi:

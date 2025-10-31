@@ -1194,6 +1194,50 @@ enabled = True # QRZ Hello to new nodes
 qrz_hello_string = "send CMD or DM me for more info." # will be sent to all heard nodes once
 training = True # Training mode will not send the hello message to new nodes, use this to build up database
 ```
+| Command      | Description | ✅ Works Off-Grid |
+|--------------|-------------|------------------|
+| `echo` | Echo string back. Admins can use `echo <message> c=<channel> d=<device>` to send to any channel/device. | ✅ |
+
+---
+
+### Echo Command
+
+The `echo` command returns your message back to you.  
+**Admins** can use an extended syntax to send a message to any channel and device.
+
+#### Usage
+
+- **Basic Echo (all users):**
+  ```
+  echo Hello World
+  ```
+  Response:
+  ```
+  Hello World
+  ```
+
+- **Admin Extended Syntax:**
+  ```
+  echo <message> c=<channel> d=<device>
+  ```
+  Example:
+  ```
+  echo Hello world c=1 d=2
+  ```
+  This will send "Hello world" to channel 1, device 2.
+
+#### Help
+
+- Send `echo?` for usage instructions.
+- Admins will see this help message:
+  ```
+  Admin usage: echo <message> c=<channel> d=<device>
+  Example: echo Hello world c=1 d=2
+  ```
+
+#### Notes
+- Only admins can use the `c=<channel>` and `d=<device>` override.
+- If you omit `c=<channel>` and `d=<device>`, the message is echoed back to your current channel/device.
 
 
 Happy meshing!
