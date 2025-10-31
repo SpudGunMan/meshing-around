@@ -951,20 +951,22 @@ def messageTrap(msg):
                 return True
     return False
 
-def stringSafeCheck(s):
+def stringSafeCheck(s, fromID=0):
     # Check if a string is safe to use, no control characters or non-printable characters
     if not all(c.isprintable() or c.isspace() for c in s):
-        return False
+        ban_hammer(fromID, reason="Non-printable character in message")
+        return False # non-printable characters found
     if any(ord(c) < 32 and c not in '\n\r\t' for c in s):
-        return False
+        ban_hammer(fromID, reason="Control character in message")
+        return False # control characters found
     if any(c in s for c in ['\x0b', '\x0c', '\x1b']):
-        return False
+        return False # vertical tab, form feed, escape characters found
     if len(s) > 1000:
         return False
     # Check for single-character injections
     single_injection_chars = [';', '|', '}', '>', ')']
     if any(c in s for c in single_injection_chars):
-        return False
+        return False # injection character found
     # Check for multi-character patterns
     multi_injection_patterns = ['../', '||']
     if any(pattern in s for pattern in multi_injection_patterns):
@@ -980,6 +982,9 @@ def ban_hammer(node_id, rxInterface=None, channel=None, reason=""):
 
     current_time = time.time()
     node_id_str = str(node_id)
+
+    if isNodeAdmin(node_id_str):
+        return False  # Do not ban admin nodes
 
     # Check if the node is already banned
     if node_id_str in bbs_ban_list or node_id_str in autoBanlist:

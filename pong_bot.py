@@ -394,7 +394,7 @@ def onReceive(packet, interface):
                 logger.debug(f"System: Packet HopDebugger: hop_away:{hop_away} hop_limit:{hop_limit} hop_start:{hop_start} calculated_hop_count:{hop_count} final_hop_value:{hop} via_mqtt:{via_mqtt} transport_mechanism:{transport_mechanism} Hostname:{rxNodeHostName}")
 
             # check with stringSafeChecker if the message is safe
-            if stringSafeCheck(message_string) is False:
+            if stringSafeCheck(message_string, message_from_id) is False:
                 logger.warning(f"System: Possibly Unsafe Message from {get_name_from_number(message_from_id, 'long', rxNode)}")
 
             if help_message in message_string or welcome_message in message_string or "CMD?:" in message_string:
