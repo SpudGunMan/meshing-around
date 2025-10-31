@@ -401,9 +401,9 @@ enable_runShellCmd = False
 # direct shell command handler the x: command in DMs
 allowXcmd = False
 # Enable 2 factor authentication for x: commands
-2factor_enabled = True
+twoFactor_enabled = True
 # time in seconds to wait for the correct 2FA answer
-2factor_timeout = 100
+twoFactor_timeout = 100
 
 [smtp]
 # enable or disable the SMTP module
