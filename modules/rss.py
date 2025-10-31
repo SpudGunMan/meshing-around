@@ -7,7 +7,7 @@ import html
 from html.parser import HTMLParser
 import bs4 as bs
 import requests
-import datetime
+from datetime import datetime, timedelta
 
 # Common User-Agent for all RSS requests
 COMMON_USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
@@ -146,7 +146,7 @@ def get_newsAPI(user_search="meshtastic"):
     if not user_search:
         user_search = "meshtastic"
     try:
-        last_week = datetime.datetime.now() - datetime.timedelta(days=7)
+        last_week = datetime.now() - timedelta(days=7)
         newsAPIurl = (
             f"https://newsapi.org/v2/everything?"
             f"q={user_search}&language=en&from={last_week.strftime('%Y-%m-%d')}&sortBy={newsAPIsort}shedAt&pageSize=5&apiKey={newsAPI_KEY}"

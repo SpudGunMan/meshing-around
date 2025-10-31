@@ -2,7 +2,7 @@
 # # Simulate meshing-around de K7MHI 2024
 from modules.log import logger, getPrettyTime # Import the logger; ### --> If you are reading this put the script in the project root <-- ###
 import time
-import datetime
+from datetime import datetime
 import random
 
 # Initialize the tool
@@ -51,8 +51,8 @@ def example_handler(message, nodeID, deviceID):
         msg = f"Hello {get_name_from_number(nodeID)}, simulator ready for testing {projectName} project! on device {deviceID}"
         msg += f" Your location is {location}"
         msg += f" you said: {message}"
-
-
+        # Add timestamp
+        msg += f" [Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]"
         return msg
 
 

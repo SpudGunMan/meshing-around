@@ -2,7 +2,7 @@
 # Fetches DX spots from Spothole API based on user commands
 # 2025 K7MHI Kelly Keeton
 import requests
-import datetime
+from datetime import datetime, timedelta
 from modules.log import logger
 from modules.settings import latitudeValue, longitudeValue
 
@@ -69,7 +69,6 @@ def get_spothole_spots(source=None, band=None, mode=None, date=None, dx_call=Non
     url = "https://spothole.app/api/v1/spots"
     params = {}
     fetched_count = 0
-    
 
     # Add administrative filters if provided
     qrt = False  # Always fetch active spots
@@ -83,7 +82,7 @@ def get_spothole_spots(source=None, band=None, mode=None, date=None, dx_call=Non
     params["needs_sig"] = str(needs_sig).lower()
     params["needs_sig_ref"] = 'true'
     # Only get spots from last 9 hours
-    received_since_dt = datetime.datetime.utcnow() - datetime.timedelta(hours=9)
+    received_since_dt = datetime.utcnow() - timedelta(hours=9)
     received_since = int(received_since_dt.timestamp())
     params["received_since"] = received_since
     
@@ -170,7 +169,7 @@ def get_spothole_spots(source=None, band=None, mode=None, date=None, dx_call=Non
     return spots
 
 def handle_post_dxspot():
-    time = int(datetime.datetime.utcnow().timestamp())
+    time = int(datetime.utcnow().timestamp())
     freq = 14200000  # 14 MHz
     comment = "Test spot please ignore"
     de_spot = "N0CALL"
