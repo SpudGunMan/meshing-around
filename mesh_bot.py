@@ -412,6 +412,8 @@ def handle_echo(message, message_from_id, deviceID, isDM, channel_number):
         msg_to_echo = " ".join(new_words).strip()
 
         # Send echo to specified channel/device
+        logger.debug(f"System: Admin Echo to channel {target_channel} device {target_device} message: {msg_to_echo}")
+        time.sleep(splitDelay) # throttle for 2x send
         send_message(msg_to_echo, target_channel, 0, target_device)
         time.sleep(splitDelay) # throttle for 2x send
         return f"🐬echoed to channel {target_channel} device {target_device}"
