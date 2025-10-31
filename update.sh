@@ -28,8 +28,16 @@ fi
 # Fetch latest changes from GitHub
 echo "Fetching latest changes from GitHub..."
 if ! git fetch origin; then
-    echo "Error: Failed to fetch from GitHub, check your network connection."
+    echo "Error: Failed to fetch from GitHub, check your network connection. script expects to be run inside a git repository."
     exit 1
+fi
+
+# Check for detached HEAD state
+if [[ $(git symbolic-ref --short -q HEAD) == "" ]]; then
+    echo "WARNING: You are in a detached HEAD state."
+    echo "You may not be on a branch. To return to the main branch, run:"
+    echo "    git checkout main"
+    echo "Proceed with caution; changes may not be saved to a branch."
 fi
 
 # git pull with rebase to avoid unnecessary merge commits
@@ -67,14 +75,17 @@ fi
 if [[ -f "config.ini" ]]; then
     owner=$(stat -f "%Su" config.ini)
     perms=$(stat -f "%A" config.ini)
-    
+    mode=$(stat -f "%Lp" config.ini)
+
     if [[ "$owner" == "root" ]]; then
         echo "config.ini is owned by: $owner"
-        echo "Warning: config.ini is owned by root check out the etc/set-permissions.sh script"
+        echo "Warning: config.ini is owned by root. Check out the etc/set-permissions.sh script."
     fi
-    if [[ $(stat -f "%Lp" config.ini) =~ .*[7,6,2]$ ]]; then
-        cho "config.ini permissions: $perms"
-        echo "Warning: config.ini is world-writable or world-readable! check out the etc/set-permissions.sh script"
+
+    # Check if world-readable or world-writable (others have r or w)
+    if (( (mode & 0004) != 0 )) || (( (mode & 0002) != 0 )); then
+        echo "config.ini permissions: $perms"
+        echo "Warning: config.ini is world-readable or world-writable! Check out the etc/set-permissions.sh script."
     fi
 
     echo "Including config.ini in backup..."
