@@ -410,6 +410,8 @@ def handle_echo(message, message_from_id, deviceID, isDM, channel_number):
             else:
                 new_words.append(w)
         msg_to_echo = " ".join(new_words).strip()
+        # Replace motd/MOTD with the current MOTD from settings
+        msg_to_echo = " ".join(my_settings.MOTD if w.lower() == "motd" else w for w in msg_to_echo.split())
 
         # Send echo to specified channel/device
         logger.debug(f"System: Admin Echo to channel {target_channel} device {target_device} message: {msg_to_echo}")
