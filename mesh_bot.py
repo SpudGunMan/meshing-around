@@ -249,7 +249,11 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, chann
     global multiPing
     myNodeNum = globals().get(f'myNodeNum{deviceID}', 777)
     if  "?" in message and isDM:
-        return message.split("?")[0].title() + " command returns SNR and RSSI, or hopcount from your message. Try adding e.g. @place or #tag"
+        pingHelp = "🤖Ping Command Help:\n" \
+        "🏓 Send 'ping' or 'ack' or 'test' to get a response.\n" \
+        "🏓 Send 'ping <number>' to get multiple pings in DM"
+        "🏓 ping @USERID to send a Joke from the bot"
+        return pingHelp
     
     msg = ""
     type = ''
@@ -330,8 +334,11 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, chann
                     # no autoping in channels
                     pingCount = 1
 
-                if pingCount > 51:
+                if pingCount > 51 and pingCount <= 101:
                     pingCount = 50
+                if pingCount > 800:
+                    ban_hammer(message_from_id, deviceID, reason="Excessive auto-ping request")
+                    return "🚫⛔️auto-ping request denied."
             except ValueError:
                 pingCount = -1
     
@@ -358,7 +365,8 @@ def handle_emergency(message_from_id, deviceID, message):
     # if user in bbs_ban_list return
     if str(message_from_id) in my_settings.bbs_ban_list:
         # silent discard
-        logger.warning(f"System: {message_from_id} on spam list, no emergency responder alert sent")
+        hammer_value = ban_hammer(message_from_id, deviceID, reason="Emergency Alert from banned node")
+        logger.warning(f"System: {message_from_id} on spam list, no emergency responder alert sent. Ban hammer value: {hammer_value}")
         return ''
     # trgger alert to emergency_responder_alert_channel
     if message_from_id != 0:
@@ -1649,6 +1657,10 @@ def handle_boot(mesh=True):
         if my_settings.useDMForResponse:
             logger.debug("System: Respond by DM only")
 
+        if my_settings.autoBanEnabled:
+            logger.debug(f"System: Auto-Ban Enabled for {my_settings.autoBanThreshold} messages in {my_settings.autoBanTimeframe} seconds")
+            load_bbsBanList()
+
         if my_settings.log_messages_to_file:
             logger.debug("System: Logging Messages to disk")
         if my_settings.syslog_to_file:
@@ -1781,9 +1793,14 @@ def onReceive(packet, interface):
     message_from_id = packet['from']
 
     # if message_from_id is not in the seenNodes list add it
-    if not any(node['nodeID'] == message_from_id for node in seenNodes):
-        seenNodes.append({'nodeID': message_from_id, 'rxInterface': rxNode, 'channel': channel_number, 'welcome': False, 'lastSeen': time.time()})
-
+    if not any(node.get('nodeID') == message_from_id for node in seenNodes):
+        seenNodes.append({'nodeID': message_from_id, 'rxInterface': rxNode, 'channel': channel_number, 'welcome': False, 'first_seen': time.time(), 'lastSeen': time.time()})
+    else:
+        # update lastSeen time
+        for node in seenNodes:
+            if node.get('nodeID') == message_from_id:
+                node['lastSeen'] = time.time()
+                break
     # BBS DM MAIL CHECKER
     if bbs_enabled and 'decoded' in packet:
         msg = bbs_check_dm(message_from_id)
@@ -1792,7 +1809,12 @@ def onReceive(packet, interface):
             message = "Mail: " + msg[1] + "  From: " + get_name_from_number(msg[2], 'long', rxNode)
             bbs_delete_dm(msg[0], msg[1])
             send_message(message, channel_number, message_from_id, rxNode)
-            
+
+    # CHECK with ban_hammer() if the node is banned
+    if str(message_from_id) in my_settings.bbs_ban_list or str(message_from_id) in my_settings.autoBanlist:
+        logger.warning(f"System: Banned Node {message_from_id} tried to send a message. Ignored. Try adding to node firmware-blocklist")
+        return
+
     # handle TEXT_MESSAGE_APP
     try:
         if 'decoded' in packet and packet['decoded']['portnum'] == 'TEXT_MESSAGE_APP':

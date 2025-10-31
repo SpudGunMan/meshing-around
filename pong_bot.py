@@ -65,7 +65,11 @@ def handle_cmd(message, message_from_id, deviceID):
 def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, channel_number):
     global multiPing
     if  "?" in message and isDM:
-        return message.split("?")[0].title() + " command returns SNR and RSSI, or hopcount from your message. Try adding e.g. @place or #tag"
+        pingHelp = "🤖Ping Command Help:\n" \
+        "🏓 Send 'ping' or 'ack' or 'test' to get a response.\n" \
+        "🏓 Send 'ping <number>' to get multiple pings in DM"
+        "🏓 ping @USERID to send a Joke from the bot"
+        return pingHelp
     
     msg = ""
     type = ''
@@ -303,10 +307,21 @@ def onReceive(packet, interface):
     # set the message_from_id
     message_from_id = packet['from']
 
-    # check if the packet has a channel flag use it
-    if packet.get('channel'):
-        channel_number = packet.get('channel', 0)
+    # if message_from_id is not in the seenNodes list add it
+    if not any(node.get('nodeID') == message_from_id for node in seenNodes):
+        seenNodes.append({'nodeID': message_from_id, 'rxInterface': rxNode, 'channel': channel_number, 'welcome': False, 'first_seen': time.time(), 'lastSeen': time.time()})
+    else:
+        # update lastSeen time
+        for node in seenNodes:
+            if node.get('nodeID') == message_from_id:
+                node['lastSeen'] = time.time()
+                break
 
+    # CHECK with ban_hammer() if the node is banned
+    if str(message_from_id) in my_settings.bbs_ban_list or str(message_from_id) in my_settings.autoBanlist:
+        logger.warning(f"System: Banned Node {message_from_id} tried to send a message. Ignored. Try adding to node firmware-blocklist")
+        return
+    
     # handle TEXT_MESSAGE_APP
     try:
         if 'decoded' in packet and packet['decoded']['portnum'] == 'TEXT_MESSAGE_APP':
@@ -573,6 +588,10 @@ def handle_boot(mesh=True):
         # Default Options
         if my_settings.useDMForResponse:
             logger.debug("System: Respond by DM only")
+
+        if my_settings.autoBanEnabled:
+            logger.debug(f"System: Auto-Ban Enabled for {my_settings.autoBanThreshold} messages in {my_settings.autoBanTimeframe} seconds")
+            load_bbsBanList()
 
         if my_settings.log_messages_to_file:
             logger.debug("System: Logging Messages to disk")

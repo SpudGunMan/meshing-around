@@ -953,7 +953,6 @@ def messageTrap(msg):
 
 def stringSafeCheck(s):
     # Check if a string is safe to use, no control characters or non-printable characters
-    soFarSoGood = True
     if not all(c.isprintable() or c.isspace() for c in s):
         return False
     if any(ord(c) < 32 and c not in '\n\r\t' for c in s):
@@ -962,10 +961,79 @@ def stringSafeCheck(s):
         return False
     if len(s) > 1000:
         return False
-    injection_chars = [';', '|', '../']
-    if any(char in s for char in injection_chars):
+    # Check for single-character injections
+    single_injection_chars = [';', '|', '}', '>', ')']
+    if any(c in s for c in single_injection_chars):
         return False
-    return soFarSoGood
+    # Check for multi-character patterns
+    multi_injection_patterns = ['../', '||']
+    if any(pattern in s for pattern in multi_injection_patterns):
+        return False
+    return True
+
+def ban_hammer(node_id, rxInterface=None, channel=None, reason=""):
+    """
+    Auto-ban nodes that exceed the message threshold within the timeframe.
+    Returns True if the node is (or becomes) banned, False otherwise.
+    """
+    global autoBanlist, seenNodes, bbs_ban_list
+
+    current_time = time.time()
+    node_id_str = str(node_id)
+
+    # Check if the node is already banned
+    if node_id_str in bbs_ban_list or node_id_str in autoBanlist:
+        return True  # Node is already banned
+    
+    # if no reason provided, dont ban just run that last check
+    if reason == "":
+        return False
+
+    # Find or create the seenNodes entry (patched for missing 'node_id')
+    node_entry = next((entry for entry in seenNodes if entry.get('node_id') == node_id_str), None)
+    if node_entry:
+        # Update interface and channel if provided
+        if rxInterface is not None:
+            node_entry['rxInterface'] = rxInterface
+        if channel is not None:
+            node_entry['channel'] = channel
+        # Check if the timeframe has expired
+        if (current_time - node_entry['lastSeen']) > autoBanTimeframe:
+            node_entry['auto_ban_count'] = 1
+            node_entry['lastSeen'] = current_time
+        else:
+            node_entry['auto_ban_count'] += 1
+            node_entry['lastSeen'] = current_time
+    else:
+        # node not found, create a new entry
+        entry = {
+            'node_id': node_id_str,
+            'first_seen': current_time,
+            'lastSeen': current_time,
+            'auto_ban_count': 3,  # start at 3 to trigger ban faster
+            'rxInterface': rxInterface,
+            'channel': channel,
+            'welcome': False
+        }
+        seenNodes.append(entry)
+        node_entry = entry
+
+    # Check if the node has exceeded the ban threshold
+    if node_entry['auto_ban_count'] < autoBanThreshold:
+        logger.debug(f"System: Node {node_id_str} auto-ban count: {node_entry['auto_ban_count']}")
+        return False  # No ban applied
+
+    # If the node has exceeded the ban threshold within the time window
+    autoBanlist.append(node_id_str)
+    logger.info(f"System: Node {node_id_str} exceeded auto-ban threshold with {node_entry['auto_ban_count']} messages")
+    if autoBanEnabled:
+        logger.warning(f"System: Auto-banned node {node_id_str} Reason: {reason}")
+        if node_id_str not in bbs_ban_list:
+            bbs_ban_list.append(node_id_str)
+            save_bbsBanList()
+        return True  # Node is now banned
+
+    return False  # No ban applied
 
 def save_bbsBanList():
     # save the bbs_ban_list to file
@@ -983,7 +1051,7 @@ def load_bbsBanList():
     try:
         with open('data/bbs_ban_list.txt', 'r') as f:
             loaded_list = [line.strip() for line in f if line.strip()]
-        logger.debug("System: BBS ban list loaded from file")
+        logger.debug(f"System: BBS ban list now has {len(loaded_list)} entries loaded from file")
     except FileNotFoundError:
         config_val = config['bbs'].get('bbs_ban_list', '')
         if config_val:
@@ -1013,6 +1081,7 @@ def isNodeBanned(nodeID):
     return False
 
 def handle_bbsban(message, message_from_id, isDM):
+    global bbs_ban_list
     msg = ""
     if not isDM:
         return "🤖only available in a Direct Message📵"
