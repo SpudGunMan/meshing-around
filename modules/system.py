@@ -1590,25 +1590,26 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
                 if current_time - last_alert_time < 1800:
                     return False # less than 30 minutes since last alert
                 positionMetadata[nodeID]['lastHighFlyAlert'] = current_time
-                
-                if highfly_check_openskynetwork:
-                    # check get_openskynetwork to see if the node is an aircraft
-                    if 'latitude' in position_data and 'longitude' in position_data:
-                        flight_info = get_openskynetwork(position_data.get('latitude', 0), position_data.get('longitude', 0))
-                    # Only show plane if within altitude
-                    if (
-                        flight_info
-                        and NO_ALERTS not in flight_info
-                        and ERROR_FETCHING_DATA not in flight_info
-                        and isinstance(flight_info, dict)
-                        and 'altitude' in flight_info
-                    ):
-                        plane_alt = flight_info['altitude']
-                        node_alt = position_data.get('altitude', 0)
-                        if abs(node_alt - plane_alt) <= 1000:  # within 1000 meters
-                            msg += f"\n✈️Detected near:\n{flight_info}"
-                send_message(msg, highfly_channel, 0, highfly_interface)
-
+                try:
+                    if highfly_check_openskynetwork:
+                        if 'latitude' in position_data and 'longitude' in position_data and 'altitude' in position_data:
+                            flight_info = get_openskynetwork(
+                                position_data.get('latitude', 0),
+                                position_data.get('longitude', 0),
+                                node_altitude=position_data.get('altitude', 0)
+                            )
+                            if flight_info and isinstance(flight_info, dict):
+                                msg += (
+                                    f"\n✈️Detected near:\n"
+                                    f"{flight_info.get('callsign', 'N/A')} "
+                                    f"Alt:{int(flight_info.get('geo_altitude', 0)) if flight_info.get('geo_altitude') else 'N/A'}m "
+                                    f"Vel:{int(flight_info.get('velocity', 0)) if flight_info.get('velocity') else 'N/A'}m/s "
+                                    f"Heading:{int(flight_info.get('true_track', 0)) if flight_info.get('true_track') else 'N/A'}°\n"
+                                    f"From:{flight_info.get('origin_country', 'N/A')}"
+                                )
+                    send_message(msg, highfly_channel, 0, highfly_interface)
+                except Exception as e:
+                    logger.debug(f"System: Highfly: error: {e}")
             # Keep the positionMetadata dictionary at a maximum size
             if len(positionMetadata) > MAX_SEEN_NODES:
                 # Remove the oldest entry

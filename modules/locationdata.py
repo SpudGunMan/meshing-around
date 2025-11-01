@@ -1004,21 +1004,24 @@ def distance(lat=0,lon=0,nodeID=0, reset=False):
 
         return msg
 
-def get_openskynetwork(lat=0, lon=0):
-    # get the latest aircraft data from OpenSky Network in the area
+def get_openskynetwork(lat=0, lon=0, altitude=0, node_altitude=0, altitude_window=1000):
+    """
+    Returns the aircraft dict from OpenSky Network closest in altitude (within altitude_window meters)
+    to the given node_altitude. If no aircraft found, returns my_settings.NO_ALERTS.
+    """
     if lat == 0 and lon == 0:
         return my_settings.NO_ALERTS
-    # setup a bounding box of 50km around the lat/lon
-    box_size = 0.45 # approx 50km
-    # return limits for aircraft search
-    search_limit = 3
+
+    box_size = 0.45  # approx 50km
     lamin = lat - box_size
     lamax = lat + box_size
     lomin = lon - box_size
     lomax = lon + box_size
 
-    # fetch the aircraft data from OpenSky Network
-    opensky_url = f"https://opensky-network.org/api/states/all?lamin={lamin}&lomin={lomin}&lamax={lamax}&lomax={lomax}"
+    opensky_url = (
+        f"https://opensky-network.org/api/states/all?lamin={lamin}&lomin={lomin}"
+        f"&lamax={lamax}&lomax={lomax}"
+    )
     try:
         aircraft_data = requests.get(opensky_url, timeout=my_settings.urlTimeoutSeconds)
         if not aircraft_data.ok:
@@ -1027,16 +1030,16 @@ def get_openskynetwork(lat=0, lon=0):
     except (requests.exceptions.RequestException):
         logger.warning("Location:Error fetching aircraft data from OpenSky Network")
         return my_settings.ERROR_FETCHING_DATA
+
     aircraft_json = aircraft_data.json()
     if 'states' not in aircraft_json or not aircraft_json['states']:
         return my_settings.NO_ALERTS
+
     aircraft_list = aircraft_json['states']
-    aircraft_report = ""
     logger.debug(f"Location: OpenSky Network: Found {len(aircraft_list)} possible aircraft in area")
+    closest = None
+    min_diff = float('inf')
     for aircraft in aircraft_list:
-        if len(aircraft_report.split("\n")) >= search_limit:
-            break
-        # extract values from JSON
         try:
             callsign = aircraft[1].strip() if aircraft[1] else "N/A"
             origin_country = aircraft[2]
@@ -1044,20 +1047,37 @@ def get_openskynetwork(lat=0, lon=0):
             true_track = aircraft[10]
             vertical_rate = aircraft[11]
             sensors = aircraft[12]
+            baro_altitude = aircraft[7]
             geo_altitude = aircraft[13]
             squawk = aircraft[14] if len(aircraft) > 14 else "N/A"
         except Exception as e:
             logger.debug("Location:Error extracting aircraft data from OpenSky Network")
             continue
-        
-        # format the aircraft data
-        aircraft_report += f"{callsign} Alt:{int(geo_altitude) if geo_altitude else 'N/A'}m Vel:{int(velocity) if velocity else 'N/A'}m/s Heading:{int(true_track) if true_track else 'N/A'}°\n"
-    
-    # remove last newline
-    if aircraft_report.endswith("\n"):
-        aircraft_report = aircraft_report[:-1]
-    aircraft_report = abbreviate_noaa(aircraft_report)
-    return aircraft_report if aircraft_report else my_settings.NO_ALERTS
+
+        # Prefer geo_altitude, fallback to baro_altitude
+        plane_alt = geo_altitude if geo_altitude is not None else baro_altitude
+        if plane_alt is None or node_altitude == 0:
+            continue
+
+        diff = abs(plane_alt - node_altitude)
+        if diff <= altitude_window and diff < min_diff:
+            min_diff = diff
+            closest = {
+                "callsign": callsign,
+                "origin_country": origin_country,
+                "velocity": velocity,
+                "true_track": true_track,
+                "vertical_rate": vertical_rate,
+                "sensors": sensors,
+                "altitude": baro_altitude,
+                "geo_altitude": geo_altitude,
+                "squawk": squawk,
+            }
+
+    if closest:
+        return closest
+    else:
+        return my_settings.NO_ALERTS
 
 def log_locationData_toMap(userID, location, message):
     """
