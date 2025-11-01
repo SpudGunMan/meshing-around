@@ -208,7 +208,7 @@ The checklist module provides asset tracking and accountability features with sa
   - `approvecl <id>` - Approve a pending check-in (admin)
   - `denycl <id>` - Deny/remove a check-in (admin)
 
-more at [modules/checklist.md](modules/checklist.md)
+more at [modules/checklist.md](checklist.md)
 
 #### Examples
 
@@ -268,7 +268,7 @@ The inventory module provides a full point-of-sale (POS) system with inventory t
 | `cartbuy` or `cartsell` | Complete transaction |
 | `cartclear` | Empty your cart |
 
-more at [modules/inventory.py](modules/inventory.py)
+more at [modules/inventory.py](inventory.py)
 
 #### Features
 
@@ -871,7 +871,7 @@ The `echo` command returns your message back to you.
 ## Troubleshooting
 
 - Use the `logger` module for debug output.
-- See [modules/README.md](modules/README.md) for developer help.
+- See [modules/README.md](adding_more.md) for developer help.
 - Use `etc/simulator.py` for local testing.
 - Check the logs in the `logs/` directory for errors.
 
