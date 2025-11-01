@@ -37,29 +37,85 @@ See [modules/adding_more.md](adding_more.md) for developer notes.
 
 ### ping / pinging / test / testing / ack
 
-- **Usage:** `ping`, `pinging`, `test`, `testing`, `ack`, `ping @user`, `ping #tag`
-- **Description:** Sends a ping to the bot. The bot responds with signal information such as SNR (Signal-to-Noise Ratio), RSSI (Received Signal Strength Indicator), and hop count. Used for making field report etc.
-- **Targeted Ping:**  
-  You can direct a ping to a specific user or group by mentioning their short name or tag:
-  - `ping @NODE` — Pings a Joke to specific node by its short name.
-- **Example:**  
+- **Usage:**  
+  - `ping`, `pinging`, `test`, `testing`, `ack`
+  - `ping <number>` — Request multiple auto-pings (DM only)
+  - `ping @user` — Target a specific user (can trigger a joke via BBS DM)
+  - `ping ?` — Get help (DM only)
+  - `ping stop` — Stop auto-ping
+
+- **Description:**  
+  Sends a ping to the bot. The bot responds with signal and routing information such as SNR (Signal-to-Noise Ratio), RSSI (Received Signal Strength Indicator), hop count, and gateway status. Used for field reports, connectivity checks, and diagnostics.
+
+#### **Response Types and Examples**
+
+- **Basic Ping:**
   ```
   ping
   ```
   Response:  
   ```
-  SNR: 12.5, RSSI: -80, Hops: 2
+  🏓PONG [RF]
+  SNR:12.5 RSSI:-80
   ```
+  - `[GW]` = Received via Gateway (internet or MQTT)
+  - `[RF]` = Received via direct radio
+  - `[F]` = Received via mesh/flood route
+
+- **Meta Ping:**
   ```
-  ping @Top of the hill
+  ping @Top Of Hill
   ```
   Response:  
   ```
-  PING @Top of the hill SNR: 10.2, RSSI: -85, Hops: 1
+  🏓PONG @Top Of Hill [RF]
+  SNR: 12.5, RSSI: -80, Hops: 2
   ```
-- **Help:**  
-  Send `ping?` in a Direct Message (DM) for usage instructions.
 
+- **Multi-ping (auto-ping):**
+  ```
+  ping 10
+  ```
+  Response:  
+  ```
+  🚦Initalizing 10 auto-ping
+  ```
+  - The bot will send 10 pings at intervals (DM only).
+  - Use `ping stop` to cancel.
+
+- **Help:**
+  ```
+  ping?
+  ```
+  Response (DM only):  
+  ```
+  🤖Ping Command Help:
+  🏓 Send 'ping' or 'ack' or 'test' to get a response.
+  🏓 Send 'ping <number>' to get multiple pings in DM
+  🏓 ping @USERID to send a Joke from the bot
+  ```
+
+#### **Response Field Explanations**
+
+- **SNR:** Signal-to-Noise Ratio (dB) — higher is better.
+- **RSSI:** Received Signal Strength Indicator (dBm) — closer to 0 is stronger.
+- **[GW]:** Message received via Gateway (internet/MQTT).
+- **[RF]:** Message received via direct radio.
+- **[F]:** Message received via mesh/flood route.
+
+- **Joke via BBS DM:** If you ping `@'shortname'` and BBS is enabled, the bot will DM a joke to that user.
+
+#### **Notes**
+
+- You can mention users or tags in your ping/test messages (e.g., `ping @user`) to target specific nodes.
+- Some commands (like multi-ping) are only available in Direct Messages, depending on configuration.
+- If you request too many auto-pings, the bot may throttle or deny the request.
+- Use `ping stop` to cancel an ongoing auto-ping.
+
+---
+
+**Tip:**  
+Use `ping?` in DM for a quick help message on all ping options.
 ---
 
 ### Notes
