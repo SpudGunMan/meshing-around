@@ -77,6 +77,13 @@ class TestBot(unittest.TestCase):
         self.assertTrue(result)
         self.assertIsInstance(result1, str)
 
+    def test_initialize_inventory_database(self):
+        from inventory import initialize_inventory_database, process_inventory_command
+        result = initialize_inventory_database()
+        result1 = process_inventory_command(0, 'inventory', name="none", location="none")
+        self.assertTrue(result)
+        self.assertIsInstance(result1, str)
+
     def test_init_news_sources(self):
         from filemon import initNewsSources
         result = initNewsSources()
