@@ -82,7 +82,7 @@ if 'sentry' not in config:
     config.write(open(config_file, 'w'))
 
 if 'location' not in config:
-    config['location'] = {'enabled': 'True', 'lat': '48.50', 'lon': '-123.0', 'UseMeteoWxAPI': 'False', 'useMetric': 'False', 'NOAAforecastDuration': '4', 'NOAAalertCount': '2', 'NOAAalertsEnabled': 'True', 'wxAlertBroadcastEnabled': 'False', 'wxAlertBroadcastChannel': '2', 'repeaterLookup': 'rbook'}
+    config['location'] = {'enabled': 'True', 'lat': '48.50', 'lon': '-123.0', 'fuzzConfigLocation': 'True',}
     config.write(open(config_file, 'w'))
 
 if 'bbs' not in config:
@@ -326,7 +326,6 @@ try:
     if eAlertBroadcastEnabled or ipawsAlertEnabled:
         eAlertBroadcastEnabled = True
         ipawsAlertEnabled = True
-    wxAlertsEnabled = config['location'].getboolean('NOAAalertsEnabled', True) # default True
     wxAlertBroadcastEnabled = config['location'].getboolean('wxAlertBroadcastEnabled', False) # default False
     volcanoAlertBroadcastEnabled = config['location'].getboolean('volcanoAlertBroadcastEnabled', False) # default False
     enableGBalerts = config['location'].getboolean('enableGBalerts', False) # default False
@@ -352,7 +351,6 @@ try:
         ipawsAlertEnabled or
         wxAlertBroadcastEnabled or
         volcanoAlertBroadcastEnabled or
-        wxAlertsEnabled or 
         eAlertBroadcastEnabled
         )
     
