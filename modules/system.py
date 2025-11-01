@@ -1004,6 +1004,8 @@ def api_throttle(node_id, rxInterface=None, channel=None, apiName=""):
             node_entry['lastSeen'] = current_time
             if node_entry['api_throttle_count'] > apiThrottleValue:
                 logger.warning(f"System: Node {node_id_str} throttled on API {apiName} count: {node_entry['api_throttle_count']}")
+                if autoBanEnabled:
+                    ban_hammer(node_id_str, reason="API Throttle Exceeded")
                 return "🚦 System busy, try again later."
     else:
         # node not found, create a new entry
