@@ -1016,6 +1016,8 @@ def api_throttle(node_id, rxInterface=None, channel=None, apiName=""):
             'channel': channel
         }
         apiThrottleList.append(entry)
+        node_entry = entry 
+
     logger.debug(f"System: API Throttle check for Node {node_id} on API {apiName} count: {node_entry['api_throttle_count']}")
     return False  # Not throttled
 
