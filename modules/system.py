@@ -1016,8 +1016,7 @@ def api_throttle(node_id, rxInterface=None, channel=None, apiName=""):
             'channel': channel
         }
         apiThrottleList.append(entry)
-    request_so_far = next((entry for entry in apiThrottleList if entry['node_id'] == node_id_str), None)
-    logger.debug(f"System: API Throttle check for Node {node_id} on API {apiName} count: {request_so_far['api_throttle_count']}")
+    logger.debug(f"System: API Throttle check for Node {node_id} on API {apiName} count: {node_entry['api_throttle_count']}")
     return False  # Not throttled
 
 def ban_hammer(node_id, rxInterface=None, channel=None, reason=""):
