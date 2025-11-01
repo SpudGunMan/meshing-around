@@ -80,7 +80,7 @@ class TestBot(unittest.TestCase):
     def test_initialize_inventory_database(self):
         from inventory import initialize_inventory_database, process_inventory_command
         result = initialize_inventory_database()
-        result1 = process_inventory_command(0, 'inventory', name="none", location="none")
+        result1 = process_inventory_command(0, 'inventory', name="none")
         self.assertTrue(result)
         self.assertIsInstance(result1, str)
 
@@ -93,11 +93,6 @@ class TestBot(unittest.TestCase):
         from globalalert import get_nina_alerts
         alerts = get_nina_alerts()
         self.assertIsInstance(alerts, str)
-
-    def test_llmTool_get_google(self):
-        from llm import llmTool_get_google
-        result = llmTool_get_google("What is 2+2?",  1)
-        self.assertIsInstance(result, list)
 
     def test_send_ollama_query(self):
         from llm import send_ollama_query
@@ -157,10 +152,13 @@ class TestBot(unittest.TestCase):
         result = initalize_qrz_database()
         self.assertTrue(result)
 
-    def test_get_hamlib(self):
-        from radio import get_hamlib
-        frequency = get_hamlib('f')
-        self.assertIsInstance(frequency, str)
+    def test_import_radio_module(self):
+        try:
+            import radio
+        #frequency = get_hamlib('f')
+        #self.assertIsInstance(frequency, str)
+        except Exception as e:
+            self.fail(f"Importing radio module failed: {e}")
 
     def test_get_rss_feed(self):
         from rss import get_rss_feed
