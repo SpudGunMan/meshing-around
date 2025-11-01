@@ -1010,7 +1010,7 @@ def get_openskynetwork(lat=0, lon=0, altitude=0, node_altitude=0, altitude_windo
     to the given node_altitude. If no aircraft found, returns my_settings.NO_ALERTS.
     """
     if lat == 0 and lon == 0:
-        return my_settings.NO_ALERTS
+        return False
 
     box_size = 0.45  # approx 50km
     lamin = lat - box_size
@@ -1026,14 +1026,14 @@ def get_openskynetwork(lat=0, lon=0, altitude=0, node_altitude=0, altitude_windo
         aircraft_data = requests.get(opensky_url, timeout=my_settings.urlTimeoutSeconds)
         if not aircraft_data.ok:
             logger.warning("Location:Error fetching aircraft data from OpenSky Network")
-            return my_settings.ERROR_FETCHING_DATA
+            return False
     except (requests.exceptions.RequestException):
         logger.warning("Location:Error fetching aircraft data from OpenSky Network")
-        return my_settings.ERROR_FETCHING_DATA
+        return False
 
     aircraft_json = aircraft_data.json()
     if 'states' not in aircraft_json or not aircraft_json['states']:
-        return my_settings.NO_ALERTS
+        return False
 
     aircraft_list = aircraft_json['states']
     logger.debug(f"Location: OpenSky Network: Found {len(aircraft_list)} possible aircraft in area")
@@ -1077,7 +1077,7 @@ def get_openskynetwork(lat=0, lon=0, altitude=0, node_altitude=0, altitude_windo
     if closest:
         return closest
     else:
-        return my_settings.NO_ALERTS
+        return False
 
 def log_locationData_toMap(userID, location, message):
     """
