@@ -9,21 +9,18 @@ This document provides an overview of all modules available in the Mesh-Bot proj
 - [Networking](#networking)
 - [Games](#games)
 - [BBS (Bulletin Board System)](#bbs-bulletin-board-system)
-- [Checklist](#checklist)
-- [Inventory & Point of Sale](#inventory--point-of-sale)
 - [Location & Weather](#location--weather)
-- [Map Command](#map-command)
 - [EAS & Emergency Alerts](#eas--emergency-alerts)
 - [File Monitoring & News](#file-monitoring--news)
 - [Radio Monitoring](#radio-monitoring)
 - [Voice Commands (VOX)](#voice-commands-vox)
 - [Ollama LLM/AI](#ollama-llmai)
 - [Wikipedia Search](#wikipedia-search)
-- [News & Headlines (`latest` Command)](#news--headlines-latest-command)
 - [DX Spotter Module](#dx-spotter-module)
-- [Echo Command](#echo-command)
-- [Mesh Bot Scheduler User Guide](#mesh-bot-scheduler-user-guide)
 - [Other Utilities](#other-utilities)
+- [Checklist](#checklist)
+- [Inventory & Point of Sale](#inventory--point-of-sale)
+- [Echo Command](#echo-command)
 - [Messaging Settings](#messaging-settings)
 - [Troubleshooting](#troubleshooting)
 - [Configuration Guide](#configuration-guide)
@@ -298,6 +295,7 @@ The system uses SQLite with four tables:
 | `howfar`     | Distance traveled since last check            |
 | `howtall`    | Calculate height using sun angle              |
 | `whereami`   | Show current location                         |
+| `map`        | Location data/map.csv                         |
 
 Configure in `[location]` section of `config.ini`.
 
@@ -343,7 +341,6 @@ The `map` command allows you to log your current GPS location with a custom desc
 |--------------|-----------------------------------------------|
 | `ea`/`ealert`| FEMA iPAWS/EAS alerts (USA/DE)                |
 
-Enable in `[eas]` section of `config.ini`.
 
 ---
 
@@ -364,10 +361,6 @@ Configure in `[fileMon]` section of `config.ini`.
 The Radio Monitoring module provides several ways to integrate amateur radio software with the mesh network.
 
 ### Hamlib Integration
-
-| Command      | Description                                   |
-|--------------|-----------------------------------------------|
-| `radio`      | Monitor radio SNR via Hamlib                  |
 
 Monitors signal strength (S-meter) from a connected radio via Hamlib's `rigctld` daemon. When the signal exceeds a configured threshold, it broadcasts an alert to the mesh network with frequency and signal strength information.
 
@@ -459,9 +452,6 @@ Enable and configure VOX features in the `[vox]` section of `config.ini`.
 | Command      | Description                                   |
 |--------------|-----------------------------------------------|
 | `askai`      | Ask Ollama LLM AI                             |
-| `ask:`       | Ask Ollama LLM AI (raw)                       |
-
-Configure in `[ollama]` section of `config.ini`.
 
 More at [LLM Readme](llm.md)
 
@@ -473,7 +463,7 @@ More at [LLM Readme](llm.md)
 |--------------|-----------------------------------------------|
 | `wiki`      | Search Wikipedia or local Kiwix server        |
 
-Configure in `[wikipedia]` section of `config.ini`.
+Configure in `[general]` section of `config.ini`.
 
 ---
 
@@ -744,6 +734,73 @@ You can use any of these options to schedule messages on specific days:
 - `lheard` — Last heard nodes
 - `history` — Command history
 - `cmd`/`cmd?` — Show help message (the bot avoids the use of saying or using help)
+
+
+
+| Command      | Description | ✅ Works Off-Grid |
+|--------------|-------------|------------------|
+| `echo` | Echo string back. Admins can use `echo <message> c=<channel> d=<device>` to send to any channel/device. | ✅ |
+---
+
+### Echo Command
+
+The `echo` command returns your message back to you.  
+**Admins** can use an extended syntax to send a message to any channel and device.
+
+#### Usage
+
+- **Basic Echo (all users):**
+  ```
+  echo Hello World
+  ```
+  Response:
+  ```
+  Hello World
+  ```
+
+- **Admin Extended Syntax:**
+  ```
+  echo <message> c=<channel> d=<device>
+  ```
+  Example:
+  ```
+  echo Hello world c=1 d=2
+  ```
+  This will send "Hello world" to channel 1, device 2.
+
+#### Special Keyword Substitution
+
+- In admin echo, if you include the word `motd` or `MOTD` (case-insensitive), it will be replaced with the current Message of the Day.
+- If you include the word `welcome!` (case-insensitive), it will be replaced with the current Welcome Message as set in your configuration.
+
+- Example:
+  ```
+  echo Today's message is motd c=1 d=2
+  ```
+  If the MOTD is "Potatos Are Cool!", the message sent will be:
+  ```
+  Today's message is Potatos Are Cool!
+  ```
+
+#### Notes
+- Only admins can use the `c=<channel>` and `d=<device>` override.
+- If you omit `c=<channel>` and `d=<device>`, the message is echoed back to your current channel/device.
+- MOTD substitution works for any standalone `motd` or `MOTD` in the message.
+
+#### Help
+
+- Send `echo?` for usage instructions.
+- Admins will see this help message:
+  ```
+  Admin usage: echo <message> c=<channel> d=<device>
+  Example: echo Hello world c=1 d=2
+  ```
+
+#### Notes
+- Only admins can use the `c=<channel>` and `d=<device>` override.
+- If you omit `c=<channel>` and `d=<device>`, the message is echoed back to your current channel/device.
+
+
 
 ---
 
@@ -1196,69 +1253,4 @@ enabled = True # QRZ Hello to new nodes
 qrz_hello_string = "send CMD or DM me for more info." # will be sent to all heard nodes once
 training = True # Training mode will not send the hello message to new nodes, use this to build up database
 ```
-| Command      | Description | ✅ Works Off-Grid |
-|--------------|-------------|------------------|
-| `echo` | Echo string back. Admins can use `echo <message> c=<channel> d=<device>` to send to any channel/device. | ✅ |
-
----
-
-### Echo Command
-
-The `echo` command returns your message back to you.  
-**Admins** can use an extended syntax to send a message to any channel and device.
-
-#### Usage
-
-- **Basic Echo (all users):**
-  ```
-  echo Hello World
-  ```
-  Response:
-  ```
-  Hello World
-  ```
-
-- **Admin Extended Syntax:**
-  ```
-  echo <message> c=<channel> d=<device>
-  ```
-  Example:
-  ```
-  echo Hello world c=1 d=2
-  ```
-  This will send "Hello world" to channel 1, device 2.
-
-#### Special Keyword Substitution
-
-- In admin echo, if you include the word `motd` or `MOTD` (case-insensitive), it will be replaced with the current Message of the Day.
-- If you include the word `welcome!` (case-insensitive), it will be replaced with the current Welcome Message as set in your configuration.
-
-- Example:
-  ```
-  echo Today's message is motd c=1 d=2
-  ```
-  If the MOTD is "Potatos Are Cool!", the message sent will be:
-  ```
-  Today's message is Potatos Are Cool!
-  ```
-
-#### Notes
-- Only admins can use the `c=<channel>` and `d=<device>` override.
-- If you omit `c=<channel>` and `d=<device>`, the message is echoed back to your current channel/device.
-- MOTD substitution works for any standalone `motd` or `MOTD` in the message.
-
-#### Help
-
-- Send `echo?` for usage instructions.
-- Admins will see this help message:
-  ```
-  Admin usage: echo <message> c=<channel> d=<device>
-  Example: echo Hello world c=1 d=2
-  ```
-
-#### Notes
-- Only admins can use the `c=<channel>` and `d=<device>` override.
-- If you omit `c=<channel>` and `d=<device>`, the message is echoed back to your current channel/device.
-
-
 Happy meshing!
