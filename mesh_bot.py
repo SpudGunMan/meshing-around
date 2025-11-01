@@ -586,6 +586,11 @@ def handle_satpass(message_from_id, deviceID, message='', vox=False):
     satList = my_settings.satListConfig
     message = message.lower()
 
+    # check api_throttle
+    check_throttle = api_throttle(message_from_id, deviceID, apiName='satpass')
+    if check_throttle:
+        return check_throttle
+
     # if user has a NORAD ID in the message
     if "satpass " in message:
         try:
@@ -1458,10 +1463,18 @@ def handle_history(message, nodeid, deviceID, isDM, lheard=False):
 
 def handle_whereami(message_from_id, deviceID, channel_number):
     location = get_node_location(message_from_id, deviceID, channel_number)
+    # check api_throttle
+    check_throttle = api_throttle(message_from_id, deviceID, apiName='whereami')
+    if check_throttle:
+        return check_throttle
     return where_am_i(str(location[0]), str(location[1]))
 
 def handle_repeaterQuery(message_from_id, deviceID, channel_number):
     location = get_node_location(message_from_id, deviceID, channel_number)
+    # check api_throttle
+    check_throttle = api_throttle(message_from_id, deviceID, apiName='repeaterQuery')
+    if check_throttle:
+        return check_throttle
     if repeater_lookup == "rbook":
         return getRepeaterBook(str(location[0]), str(location[1]))
     elif repeater_lookup == "artsci":
