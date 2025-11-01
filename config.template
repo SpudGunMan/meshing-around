@@ -485,5 +485,7 @@ metadataFilter = TELEMETRY_APP,POSITION_APP
 autoBanEnabled = False
 # Number of offenses before auto-ban
 autoBanThreshold = 5
+# Throttle value for API requests no ban_hammer
+apiThrottleValue = 20
 # Timeframe for offenses (in seconds)
 autoBanTimeframe = 3600

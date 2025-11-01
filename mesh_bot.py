@@ -84,7 +84,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "cartremove": lambda: handle_inventory(message, message_from_id, deviceID),
     "cartsell": lambda: handle_inventory(message, message_from_id, deviceID),
     "joke": lambda: tell_joke(message_from_id),
-    "latest": lambda: get_newsAPI(message),
+    "latest": lambda: get_newsAPI(message, message_from_id, deviceID, isDM),
     "leaderboard": lambda: get_mesh_leaderboard(message, message_from_id, deviceID),
     "lemonstand": lambda: handleLemonade(message, message_from_id, deviceID),
     "lheard": lambda: handle_lheard(message, message_from_id, deviceID, isDM),

@@ -36,6 +36,7 @@ tts_read_queue = [] # queue for TTS messages
 wsjtxMsgQueue = [] # queue for WSJT-X detected messages
 js8callMsgQueue = [] # queue for JS8Call detected messages
 autoBanlist = [] # list of nodes to autoban for repeated offenses
+apiThrottleList = [] # list of nodes to throttle API requests for repeated offenses
 # Game trackers
 surveyTracker = []           # Survey game tracker
 tictactoeTracker = []        # TicTacToe game tracker
@@ -496,6 +497,7 @@ try:
     autoBanEnabled = config['messagingSettings'].getboolean('autoBanEnabled', False) # default False
     autoBanThreshold = config['messagingSettings'].getint('autoBanThreshold', 5) # default 5 offenses
     autoBanTimeframe = config['messagingSettings'].getint('autoBanTimeframe', 3600) # default 1 hour in seconds
+    apiThrottleValue = config['messagingSettings'].getint('apiThrottleValue', 20) # default 20 requests
 except Exception as e:
     print(f"System: Error reading config file: {e}")
     print("System: Check the config.ini against config.template file for missing sections or values.")

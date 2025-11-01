@@ -138,9 +138,15 @@ def get_rss_feed(msg):
         logger.error(f"Error fetching RSS feed from {feed_url}: {e}")
         return ERROR_FETCHING_DATA
 
-def get_newsAPI(user_search="meshtastic"):
+def get_newsAPI(user_search="meshtastic", message_from_id=None, deviceID=None, isDM=False):
     # Fetch news from NewsAPI.org
     user_search = user_search.strip()
+    # check api_throttle
+    from modules.system import api_throttle
+    check_throttle = api_throttle(message_from_id, deviceID, apiName="NewsAPI")
+    if check_throttle:
+        return check_throttle  # Return throttle message if applicable
+
     if user_search.lower().startswith("latest"):
         user_search = user_search[6:].strip()
     if not user_search:

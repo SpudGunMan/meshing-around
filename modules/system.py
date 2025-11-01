@@ -154,11 +154,12 @@ if wikipedia_enabled or use_kiwix_server:
 
 # RSS Feed Configuration
 if rssEnable or enable_headlines:
-    from modules.rss import * # from the spudgunman/meshing-around repo
     if rssEnable:
+        from modules.rss import get_rss_feed
         trap_list = trap_list + ("readrss",)
         help_message = help_message + ", readrss"
     if enable_headlines:
+        from modules.rss import get_newsAPI
         trap_list = trap_list + ("latest",)
         help_message = help_message + ", latest"
 
@@ -972,6 +973,52 @@ def stringSafeCheck(s, fromID=0):
     if any(pattern in s for pattern in multi_injection_patterns):
         return False
     return True
+
+def api_throttle(node_id, rxInterface=None, channel=None, apiName=""):
+    """
+    Throttle API requests from nodes to prevent abuse.
+    Returns False if not throttled, or a string message if throttled.
+    """
+    global apiThrottleList
+
+    current_time = time.time()
+    node_id_str = str(node_id)
+
+    if isNodeAdmin(node_id_str):
+        return False  # Do not throttle admin nodes
+    
+    # Find or create the apiThrottleList entry
+    node_entry = next((entry for entry in apiThrottleList if entry['node_id'] == node_id_str), None)
+    if node_entry:
+        # Update interface and channel if provided
+        if rxInterface is not None:
+            node_entry['rxInterface'] = rxInterface
+        if channel is not None:
+            node_entry['channel'] = channel
+        # Check if the timeframe has expired
+        if (current_time - node_entry['lastSeen']) > autoBanTimeframe:
+            node_entry['api_throttle_count'] = 1
+            node_entry['lastSeen'] = current_time
+        else:
+            node_entry['api_throttle_count'] += 1
+            node_entry['lastSeen'] = current_time
+            if node_entry['api_throttle_count'] > apiThrottleValue:
+                logger.warning(f"System: Node {node_id_str} throttled on API {apiName}")
+                return "🚦 System busy, try again later."
+    else:
+        # node not found, create a new entry
+        entry = {
+            'node_id': node_id_str,
+            'first_seen': current_time,
+            'lastSeen': current_time,
+            'api_throttle_count': 1,
+            'rxInterface': rxInterface,
+            'channel': channel
+        }
+        apiThrottleList.append(entry)
+    request_so_far = next((entry for entry in apiThrottleList if entry['node_id'] == node_id_str), None)
+    logger.debug(f"System: API Throttle check for Node {node_id} on API {apiName} count: {request_so_far['api_throttle_count']}")
+    return False  # Not throttled
 
 def ban_hammer(node_id, rxInterface=None, channel=None, reason=""):
     """
