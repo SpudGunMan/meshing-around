@@ -23,7 +23,6 @@ except ImportError:
     exit(1)
 
 # import logging
-# import sys
 
 # logger = logging.getLogger("MeshBot Game Server")
 # logger.setLevel(logging.DEBUG)
