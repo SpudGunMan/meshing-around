@@ -122,9 +122,12 @@ class TicTacToe:
                 return msg
 
             # Add refresh/draw command
-            if input_str in ("refresh"):
+            if input_str in ("refresh", "board", "b"):
                 self.update_display(nodeID, status="refresh")
-                return "Display refreshed."
+                if mode == "2D":
+                    return self.show_board(nodeID) + f"Pick 1-{max_pos}:"
+                else:
+                    return "Display refreshed."
 
             # Allow 'new', 'new 2d', 'new 3d'
             if input_str.startswith("new"):
