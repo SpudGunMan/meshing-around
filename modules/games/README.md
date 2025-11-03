@@ -306,6 +306,8 @@ Play another week🥤? or (E)nd Game
 
 A classic Tic-Tac-Toe game for the Meshtastic mesh-bot. Play against the bot, track your stats, and see if you can beat the AI!
 
+![Example Use](../../etc/3dttt.jpg "Example Use")
+
 ## How to Play
 
 - **Start the Game:**  
