@@ -180,6 +180,7 @@ def ttt_main():
     screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
     pygame.display.set_caption("Tic-Tac-Toe 3D Display")
     info = pygame.display.Info()
+    print(f"[MeshBot TTT Display] Pygame version: {pygame.version.ver}")
     print(f"[MeshBot TTT Display] Resolution: {info.current_w}x{info.current_h} (fullscreen)")
     print(f"[MeshBot TTT Display] Display driver: {pygame.display.get_driver()}")
     running = True

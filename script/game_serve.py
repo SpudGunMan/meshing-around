@@ -7,6 +7,7 @@ import os
 import sys
 import time
 from collections import OrderedDict
+import configparser
 
 try:
     from pubsub import pub
@@ -42,11 +43,27 @@ except Exception as e:
 # logger.addHandler(handler)
 # logger.debug("Mesh Bot Game Server Logger initialized")
 
-MCAST_GRP, MCAST_PORT, CHANNEL_ID, KEY = "224.0.0.69", 4403, "LongFast", "1PG7OiApB1nwvP+rz05pAQ=="
-PUBLIC_CHANNEL_IDS = ["LongFast", "ShortSlow", "Medium", "LongSlow", "ShortFast", "ShortTurbo"]
-NODE_ID, LONG_NAME, SHORT_NAME = "!meshbotg", "Mesh Bot Game Server", "MBGS"
+# Load config from game.ini if it exists
+config = configparser.ConfigParser()
+config_path = os.path.join(os.path.dirname(__file__), "game.ini")
+if os.path.exists(config_path):
+    config.read(config_path)
+    MCAST_GRP = config.get("network", "MCAST_GRP", fallback="224.0.0.69")
+    MCAST_PORT = config.getint("network", "MCAST_PORT", fallback=4403)
+    CHANNEL_ID = config.get("network", "CHANNEL_ID", fallback="LongFast")
+    KEY = config.get("network", "KEY", fallback="1PG7OiApB1nwvP+rz05pAQ==")
+    PUBLIC_CHANNEL_IDS = [x.strip() for x in config.get("network", "PUBLIC_CHANNEL_IDS", fallback="LongFast,ShortSlow,Medium,LongSlow,ShortFast,ShortTurbo").split(",")]
+    NODE_ID = config.get("node", "NODE_ID", fallback="!meshbotg")
+    LONG_NAME = config.get("node", "LONG_NAME", fallback="Mesh Bot Game Server")
+    SHORT_NAME = config.get("node", "SHORT_NAME", fallback="MBGS")
+    SEEN_MESSAGES_MAX = config.getint("game", "SEEN_MESSAGES_MAX", fallback=1000)
+else:
+    MCAST_GRP, MCAST_PORT, CHANNEL_ID, KEY = "224.0.0.69", 4403, "LongFast", "1PG7OiApB1nwvP+rz05pAQ=="
+    PUBLIC_CHANNEL_IDS = ["LongFast", "ShortSlow", "Medium", "LongSlow", "ShortFast", "ShortTurbo"]
+    NODE_ID, LONG_NAME, SHORT_NAME = "!meshbotg", "Mesh Bot Game Server", "MBGS"
+    SEEN_MESSAGES_MAX = 1000  # Adjust as needed
+
 CHANNEL_HASHES = {generate_hash(name, KEY): name for name in PUBLIC_CHANNEL_IDS}
-SEEN_MESSAGES_MAX = 1000  # Adjust as needed
 mudpEnabled, mudpInterface = True, None
 seen_messages = OrderedDict()  # Track seen (from, to, payload) tuples
 is_running = False

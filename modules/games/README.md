@@ -13,6 +13,7 @@
 - [Quiz](#quiz-game-module)
 - [Survey](#survey--module-game)
 - [Word of the Day Game](#word-of-the-day-game--rules--features)
+- [Game Server Configuration (`game.ini`)](#game-server-configuration-gameini)
 - [PyGame Help](#pygame-help)
 ---
 
@@ -738,6 +739,19 @@ This module implements a survey system for the Meshtastic mesh-bot.
 
 
 ___
+
+# Game Server Configuration (`game.ini`)
+
+The game server (`script/game_serve.py`) supports configuration via a `game.ini` file placed in the same directory as the script. This allows you to customize network and node settings without modifying the Python code.
+
+## How to Use
+
+1. **Create a `game.ini` file** in the `script/` directory (next to `game_serve.py`).
+
+If `game.ini` is not present, the server will use built-in default values.
+
+---
+
 
 # PyGame Help
 
