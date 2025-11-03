@@ -16,7 +16,7 @@ import modules.settings as my_settings
 from modules.system import *
 
 # list of commands to remove from the default list for DM only
-restrictedCommands = ["blackjack", "videopoker", "dopewars", "lemonstand", "golfsim", "mastermind", "hangman", "hamtest", "tictactoe", "quiz", "q:", "survey", "s:"]
+restrictedCommands = ["blackjack", "videopoker", "dopewars", "lemonstand", "golfsim", "mastermind", "hangman", "hamtest", "tictactoe", "tic-tac-toe", "quiz", "q:", "survey", "s:"]
 restrictedResponse = "🤖only available in a Direct Message📵" # "" for none
 
 def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_number, deviceID, isDM):
@@ -1051,30 +1051,35 @@ def handleHamtest(message, nodeID, deviceID):
 
 def handleTicTacToe(message, nodeID, deviceID):
     global tictactoeTracker
-    index = 0
-    msg = ''
-    
-    # Find or create player tracker entry
-    for i in range(len(tictactoeTracker)):
-        if tictactoeTracker[i]['nodeID'] == nodeID:
-            tictactoeTracker[i]["last_played"] = time.time()
-            index = i+1
-            break
 
+    tracker_entry = next((entry for entry in tictactoeTracker if entry['nodeID'] == nodeID), None)
+
+    # Handle end/exit command
     if message.lower().startswith('e'):
-        if index:
+        if tracker_entry:
             tictactoe.end(nodeID)
-            tictactoeTracker.pop(index-1)
+            tictactoeTracker.remove(tracker_entry)
         return "Thanks for playing! 🎯"
 
-    if not index:
+    # If not found, create new tracker entry and ask for 2D/3D if not specified
+    if not tracker_entry:
+        mode = "2D"
+        if "3d" in message.lower():
+            mode = "3D"
+        elif "2d" in message.lower():
+            mode = "2D"
         tictactoeTracker.append({
             "nodeID": nodeID,
-            "last_played": time.time()
+            "last_played": time.time(),
+            "mode": mode
         })
-        msg = "🎯Tic-Tac-Toe🤖 '(e)nd'\n"
-    
-    msg += tictactoe.play(nodeID, message)
+        msg = f"🎯Tic-Tac-Toe🤖 '{mode}' mode. (e)nd to quit\n"
+        msg += tictactoe.new_game(nodeID, mode=mode)
+        return msg
+    else:
+        tracker_entry["last_played"] = time.time()
+
+    msg = tictactoe.play(nodeID, message)
     return msg
 
 def quizHandler(message, nodeID, deviceID):
