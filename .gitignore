@@ -5,7 +5,7 @@ ini_merge_log.txt
 install_notes.txt
 
 # logs
-logs/
+logs/*.log
 
 # modified .service files
 etc/*.service
