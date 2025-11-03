@@ -2,7 +2,11 @@
 # Uses Pygame to render the game board visually
 # 2025 K7MHI Kelly Keeton
 
-import pygame
+try:
+    import pygame
+except ImportError:
+    print("Pygame is not installed. Please install it with 'pip install pygame-ce' to use the Tic-Tac-Toe display module.")
+    exit(1)
 
 latest_board = [" "] * 9  # or 27 for 3D
 latest_meta = {} # To store metadata like status
