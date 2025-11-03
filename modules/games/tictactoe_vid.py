@@ -174,21 +174,26 @@ def draw_board(screen, board, meta=None):
                         screen.blit(text, text_rect)
     pygame.display.flip()
 
-def ttt_main():
+def ttt_main(fullscreen=True):
     global latest_board, latest_meta
     pygame.init()
-    screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+    if fullscreen:
+        screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+    else:
+        # Use a reasonable windowed size if not fullscreen
+        screen = pygame.display.set_mode((900, 700))
     pygame.display.set_caption("Tic-Tac-Toe 3D Display")
     info = pygame.display.Info()
+    mode = "fullscreen" if fullscreen else "windowed"
     print(f"[MeshBot TTT Display] Pygame version: {pygame.version.ver}")
-    print(f"[MeshBot TTT Display] Resolution: {info.current_w}x{info.current_h} (fullscreen)")
+    print(f"[MeshBot TTT Display] Resolution: {info.current_w}x{info.current_h} ({mode})")
     print(f"[MeshBot TTT Display] Display driver: {pygame.display.get_driver()}")
     running = True
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                 running = False
-        draw_board(screen, latest_board, latest_meta)  # <-- Pass meta/status
+        draw_board(screen, latest_board, latest_meta)
         pygame.display.flip()
         pygame.time.wait(75)  # or 50-100 for lower CPU
     pygame.quit()

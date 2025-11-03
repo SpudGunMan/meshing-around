@@ -57,11 +57,13 @@ if os.path.exists(config_path):
     LONG_NAME = config.get("node", "LONG_NAME", fallback="Mesh Bot Game Server")
     SHORT_NAME = config.get("node", "SHORT_NAME", fallback="MBGS")
     SEEN_MESSAGES_MAX = config.getint("game", "SEEN_MESSAGES_MAX", fallback=1000)
+    FULLSCREEN = config.getboolean("game", "FULLSCREEN", fallback=True)
 else:
     MCAST_GRP, MCAST_PORT, CHANNEL_ID, KEY = "224.0.0.69", 4403, "LongFast", "1PG7OiApB1nwvP+rz05pAQ=="
     PUBLIC_CHANNEL_IDS = ["LongFast", "ShortSlow", "Medium", "LongSlow", "ShortFast", "ShortTurbo"]
     NODE_ID, LONG_NAME, SHORT_NAME = "!meshbotg", "Mesh Bot Game Server", "MBGS"
     SEEN_MESSAGES_MAX = 1000  # Adjust as needed
+    FULLSCREEN = True
 
 CHANNEL_HASHES = {generate_hash(name, KEY): name for name in PUBLIC_CHANNEL_IDS}
 mudpEnabled, mudpInterface = True, None
@@ -159,7 +161,7 @@ def main():
     is_running = True
     try:
         while is_running:
-            ttt_main()
+            ttt_main(fullscreen=FULLSCREEN)
             is_running = False
             time.sleep(0.1)
     except KeyboardInterrupt:
