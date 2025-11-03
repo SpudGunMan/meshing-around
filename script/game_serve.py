@@ -9,6 +9,11 @@ import time
 from collections import OrderedDict
 import configparser
 
+useSynchCompression = True
+
+if useSynchCompression:
+    import zlib
+
 try:
     from pubsub import pub
     from meshtastic.protobuf import mesh_pb2, portnums_pb2
@@ -90,23 +95,37 @@ def add_seen_message(msg_tuple):
             seen_messages.popitem(last=False)  # Remove oldest
         seen_messages[msg_tuple] = None
 
+def compress_payload(data: str) -> bytes:
+    """Compress a string to bytes using zlib if enabled."""
+    if useSynchCompression:
+        return zlib.compress(data.encode("utf-8"))
+    else:
+        return data.encode("utf-8")
+
+def decompress_payload(data: bytes) -> str:
+    """Decompress bytes to string using zlib if enabled, fallback to utf-8 if not compressed."""
+    if useSynchCompression:
+        try:
+            return zlib.decompress(data).decode("utf-8")
+        except Exception:
+            return data.decode("utf-8", "ignore")
+    else:
+        return data.decode("utf-8", "ignore")
+
 def on_private_app(packet: mesh_pb2.MeshPacket, addr=None):
     global seen_messages
     packet_payload = ""
     packet_from_id = None
     if packet.HasField("decoded"):
         try:
-            packet_payload = packet.decoded.payload.decode("utf-8", "ignore")
+            # Try to decompress, fallback to decode if not compressed
+            packet_payload = decompress_payload(packet.decoded.payload)
             packet_from_id = getattr(packet, 'from', None)
             port_name = portnums_pb2.PortNum.Name(packet.decoded.portnum) if packet.decoded.portnum else "N/A"
             rx_channel = get_channel_name(packet.channel)
-            # check the synch word which should be xxxx:
-            # if synch = 'echo:' remove the b'word' from the string and pass to the handler
             if packet_payload.startswith("MTTT:"):
-                packet_payload = packet_payload[5:]  # remove 'echo:'
-
+                packet_payload = packet_payload[5:]  # remove 'MTTT:'
                 msg_tuple = (getattr(packet, 'from', None), packet.to, packet_payload)
-                # Only log the first occurrence of this message tuple
                 if msg_tuple not in seen_messages:
                     add_seen_message(msg_tuple)
                     handle_tictactoe_payload(packet_payload, from_id=packet_from_id)
@@ -116,7 +135,6 @@ def on_private_app(packet: mesh_pb2.MeshPacket, addr=None):
                 if msg_tuple not in seen_messages:
                     add_seen_message(msg_tuple)
                     print(f"[Channel: {rx_channel}] [Port: {port_name}] Private App payload:", packet_payload)
-
         except Exception:
             print(" Private App extraction error  payload (raw bytes):", packet.decoded.payload)
 
@@ -128,7 +146,8 @@ def on_text_message(packet: mesh_pb2.MeshPacket, addr=None):
             rx_channel = get_channel_name(packet.channel)
             port_name = portnums_pb2.PortNum.Name(packet.decoded.portnum) if packet.decoded.portnum else "N/A"
             try:
-                packet_payload = packet.decoded.payload.decode("utf-8", "ignore")
+                # Try to decompress, fallback to decode if not compressed
+                packet_payload = decompress_payload(packet.decoded.payload)
                 msg_tuple = (getattr(packet, 'from', None), packet.to, packet_payload)
                 if msg_tuple not in seen_messages:
                     add_seen_message(msg_tuple)
@@ -150,7 +169,7 @@ def main():
     print(r"""
       ___
      /   \
-    | HOT |   Mesh Bot Game Server v0.9
+    | HOT |   Mesh Bot Display Server v0.9.5
     | TOT |        (aka tot-bot)
      \___/
 

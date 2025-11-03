@@ -5,6 +5,10 @@ import random
 import time
 import modules.settings as my_settings
 
+useSynchCompression = True  
+if useSynchCompression:
+    import zlib
+
 # to (max), molly and jake, I miss you both so much.
 
 class TicTacToe:
@@ -50,7 +54,11 @@ class TicTacToe:
         msg = f"MTTT:{board_str}|{g['nodeID']}|{g['channel']}|{g['deviceID']}"
         if status:
             msg += f"|status={status}"
-        send_raw_bytes(nodeID, msg.encode("utf-8"), portnum=256)
+        if useSynchCompression:
+            payload = zlib.compress(msg.encode("utf-8"))
+        else:
+            payload = msg.encode("utf-8")
+        send_raw_bytes(nodeID, payload, portnum=256)
         if self.display_module:
             self.display_module.update_board(
                 g["board"], g["channel"], g["nodeID"], g["deviceID"]
