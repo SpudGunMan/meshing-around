@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # UDP Interface game server for Meshtastic Meshing-Around Mesh Bot
-# depends on: pip install meshtastic protobuf zeroconf pubsub
+# depends on: pip install meshtastic protobuf mudp
 # 2025 Kelly Keeton K7MHI
 import os
 import sys
