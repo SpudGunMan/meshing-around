@@ -12,6 +12,7 @@ etc/*.service
 
 # fileMonitor test file
 bee.txt
+bible.txt
 
 # data files
 data/*.json

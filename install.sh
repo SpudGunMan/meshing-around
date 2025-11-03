@@ -519,6 +519,25 @@ exit 0
 # sudo rm -rf ~/.ollama
 
 
-# after install shenannigans
+# if install done manually 
+# copy modules/custom_scheduler.py template if it does not exist
+# copy data files from etc/data to data/
+
+
+#### after install shenannigans
 # add 'bee = True' to config.ini General section.
 # wget https://gist.githubusercontent.com/MattIPv4/045239bc27b16b2bcf7a3a9a4648c08a/raw/2411e31293a35f3e565f61e7490a806d4720ea7e/bee%2520movie%2520script -O bee.txt
+# place bee.txt in project root
+
+####
+# download bible in text from places like https://www.biblesupersearch.com/bible-downloads/
+# in the project root place bible.txt and use verse = True
+# to use machine reading format like this
+# Genesis 1:1 In the beginning God created the heavens and the earth.
+# Genesis 1:2 And the earth was waste and void..
+# or simple format like this (less preferred)
+# Chapter 1
+# 1 In the beginning God created the heavens and the earth.
+# 2 And the earth was waste and void..
+
+

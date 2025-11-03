@@ -174,6 +174,12 @@ def setup_scheduler(
                 lambda: send_message(handle_sun(0, schedulerInterface, schedulerChannel), schedulerChannel, 0, schedulerInterface)
             )
             logger.debug(f"System: Starting the scheduler to send solar information at {schedulerTime} on Device:{schedulerInterface} Channel:{schedulerChannel}")
+        elif 'verse' in schedulerValue:
+            from modules.filemon import read_verse
+            schedule.every().day.at(schedulerTime).do(
+                lambda: send_message(read_verse(), schedulerChannel, 0, schedulerInterface)
+            )
+            logger.debug(f"System: Starting the verse scheduler to send a verse at {schedulerTime} on Device:{schedulerInterface} Channel:{schedulerChannel}")
         elif 'custom' in schedulerValue:
             try:
                 from modules.custom_scheduler import setup_custom_schedules # type: ignore

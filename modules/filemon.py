@@ -24,14 +24,18 @@ trap_list_filemon = ("readnews",)
 NEWS_DATA_DIR = os.path.join(os.path.dirname(__file__), '..', 'data')
 newsSourcesList = []
 
-def read_file(file_monitor_file_path, random_line_only=False, news_block_mode=False):
-    logger.debug(f"FileMon: Reading file: {file_monitor_file_path} options - random_line_only: {random_line_only}, news_block_mode: {news_block_mode}")
+def read_file(file_monitor_file_path, random_line_only=False, news_block_mode=False, verse_only=False):
     try:
         if not os.path.exists(file_monitor_file_path):
             if file_monitor_file_path == "bee.txt":
                 return "🐝buzz 💐buzz buzz🍯"
-        if news_block_mode:
-            # read a random block (separated by 2+ blank lines, robust to line endings)
+            if file_monitor_file_path == 'bible.txt':
+                return "🐝Go, and make disciples of all nations."
+        if verse_only:
+            # process verse/bible file 
+            verse = get_verses(file_monitor_file_path)
+            return verse
+        elif news_block_mode:
             with open(file_monitor_file_path, 'r', encoding='utf-8') as f:
                 content = f.read().replace('\r\n', '\n').replace('\r', '\n')
                 blocks = []
@@ -74,6 +78,54 @@ def read_news(source=None, random_line_only=False, news_block_mode=False):
         return read_file(file_path, random_line_only=True, news_block_mode=False)
     else:
         return read_file(file_path)
+    
+def read_verse():
+    # Reads a random verse from the file bible.txt in the data/ directory
+    verses = get_verses('bible.txt')
+    if verses:
+        return random.choice(verses)
+    return None
+
+def get_verses(file_monitor_file_path):
+    # Handles both "4 ..." and "1 Timothy 4:15 ..." style verse starts
+    verses = []
+    current_verse = []
+    with open(file_monitor_file_path, 'r', encoding='utf-8') as f:
+        for line in f:
+            stripped = line.strip()
+            # Check for "number space" OR "Book Chapter:Verse" at start
+            is_numbered = stripped and len(stripped) > 1 and stripped[0].isdigit() and stripped[1] == ' '
+            is_reference = (
+                stripped and
+                ':' in stripped and
+                any(stripped.startswith(book + ' ') for book in [
+                    "Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy", "Joshua", "Judges", "Ruth",
+                    "1 Samuel", "2 Samuel", "1 Kings", "2 Kings", "1 Chronicles", "2 Chronicles", "Ezra", "Nehemiah",
+                    "Esther", "Job", "Psalms", "Proverbs", "Ecclesiastes", "Song of Solomon", "Isaiah", "Jeremiah",
+                    "Lamentations", "Ezekiel", "Daniel", "Hosea", "Joel", "Amos", "Obadiah", "Jonah", "Micah",
+                    "Nahum", "Habakkuk", "Zephaniah", "Haggai", "Zechariah", "Malachi", "Matthew", "Mark", "Luke",
+                    "John", "Acts", "Romans", "1 Corinthians", "2 Corinthians", "Galatians", "Ephesians", "Philippians",
+                    "Colossians", "1 Thessalonians", "2 Thessalonians", "1 Timothy", "2 Timothy", "Titus", "Philemon",
+                    "Hebrews", "James", "1 Peter", "2 Peter", "1 John", "2 John", "3 John", "Jude", "Revelation"
+                ])
+            )
+            if is_numbered or is_reference:
+                if current_verse:
+                    verses.append(' '.join(current_verse).strip())
+                    current_verse = []
+                # For numbered, drop the number; for reference, keep the whole line
+                if is_numbered:
+                    current_verse.append(stripped.split(' ', 1)[1])
+                else:
+                    current_verse.append(stripped)
+            elif stripped and not stripped.lower().startswith('psalm'):
+                current_verse.append(stripped)
+            elif not stripped and current_verse:
+                verses.append(' '.join(current_verse).strip())
+                current_verse = []
+        if current_verse:
+            verses.append(' '.join(current_verse).strip())
+    return verses
 
 def write_news(content, append=False):
     # write the news file on demand

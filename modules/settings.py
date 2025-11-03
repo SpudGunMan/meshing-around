@@ -255,6 +255,7 @@ try:
     dad_jokes_enabled = config['general'].getboolean('DadJokes', False)
     dad_jokes_emojiJokes = config['general'].getboolean('DadJokesEmoji', False)
     bee_enabled = config['general'].getboolean('bee', False) # 🐝 off by default undocumented
+    bible_enabled = config['general'].getboolean('verse', False) # verse command
     solar_conditions_enabled = config['general'].getboolean('spaceWeather', True)
     wikipedia_enabled = config['general'].getboolean('wikipedia', False)
     use_kiwix_server = config['general'].getboolean('useKiwixServer', False)

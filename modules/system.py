@@ -303,6 +303,9 @@ if file_monitor_enabled or read_news_enabled or bee_enabled or enable_runShellCm
     # Bee Configuration uses file monitor module
     if bee_enabled:
         trap_list = trap_list + ("🐝",)
+    if bible_enabled:
+        trap_list = trap_list + ("verse",)
+        help_message = help_message + ", verse"
     # x: command for shell access
     if enable_runShellCmd and allowXcmd:
         trap_list = trap_list + ("x:",)

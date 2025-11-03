@@ -119,6 +119,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "tic-tac-toe": lambda: handleTicTacToe(message, message_from_id, deviceID),
     "tide": lambda: handle_tide(message_from_id, deviceID, channel_number),
     "valert": lambda: get_volcano_usgs(),
+    "verse": lambda: read_verse(),
     "videopoker": lambda: handleVideoPoker(message, message_from_id, deviceID),
     "whereami": lambda: handle_whereami(message_from_id, deviceID, channel_number),
     "whoami": lambda: handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus),
@@ -1655,6 +1656,8 @@ def handle_boot(mesh=True):
                 logger.debug(f"System: File Monitor News Reader Enabled for {my_settings.news_file_path}")
             if my_settings.bee_enabled:
                 logger.debug("System: File Monitor Bee Monitor Enabled for 🐝bee.txt")
+            if my_settings.bible_enabled:
+                logger.debug("System: File Monitor Bible Verse Enabled for bible.txt")
             if my_settings.usAlerts:
                 logger.debug(f"System: Emergency Alert Broadcast Enabled on channel {my_settings.emergency_responder_alert_channel} for interface {my_settings.emergency_responder_alert_interface}")
             if my_settings.enableDEalerts:
