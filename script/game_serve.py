@@ -3,14 +3,24 @@
 # UDP Interface game server for Meshtastic Meshing-Around Mesh Bot
 # depends on: pip install meshtastic protobuf zeroconf pubsub
 # 2025 Kelly Keeton K7MHI
-from pubsub import pub
-from meshtastic.protobuf import mesh_pb2, portnums_pb2
-from mudp import UDPPacketStream, node, conn, send_text_message, send_nodeinfo, send_device_telemetry, send_position, send_environment_metrics, send_power_metrics, send_waypoint, send_data
-from mudp.encryption import generate_hash
-from collections import OrderedDict
-import time
-import sys
 import os
+import sys
+import time
+from collections import OrderedDict
+
+try:
+    from pubsub import pub
+    from meshtastic.protobuf import mesh_pb2, portnums_pb2
+except ImportError:
+    print("meshtastic API not found.      pip install -U meshtastic")
+    exit(1)
+
+try:
+    from mudp import UDPPacketStream, node, conn, send_text_message, send_nodeinfo, send_device_telemetry, send_position, send_environment_metrics, send_power_metrics, send_waypoint, send_data
+    from mudp.encryption import generate_hash
+except ImportError:
+    print("mUDP module not found.   pip install -U mudp")
+    exit(1)
 
 # import logging
 # import sys
