@@ -21,6 +21,12 @@ try:
 except ImportError:
     print("mUDP module not found.   pip install -U mudp")
     exit(1)
+try:
+    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+    from modules.games.tictactoe_vid import handle_tictactoe_payload, ttt_main
+except Exception as e:
+    print(f"Error importing modules: {e}\nRun this program from the main project directory, e.g. 'python3 script/game_serve.py'")
+    exit(1)
 
 # import logging
 
@@ -35,12 +41,6 @@ except ImportError:
 # handler = logging.StreamHandler(sys.stdout)
 # logger.addHandler(handler)
 # logger.debug("Mesh Bot Game Server Logger initialized")
-try:
-    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-    from modules.games.tictactoe_vid import handle_tictactoe_payload, ttt_main
-except Exception as e:
-    print(f"Error importing modules: {e}\nRun this program from the main project directory, e.g. 'python3 script/game_serve.py'")
-    exit(1)
 
 MCAST_GRP, MCAST_PORT, CHANNEL_ID, KEY = "224.0.0.69", 4403, "LongFast", "1PG7OiApB1nwvP+rz05pAQ=="
 PUBLIC_CHANNEL_IDS = ["LongFast", "ShortSlow", "Medium", "LongSlow", "ShortFast", "ShortTurbo"]
