@@ -762,5 +762,15 @@ pip install pygame-ce
 -# Because 'pygame' installs to the same location as 'pygame-ce', it must first be uninstalled.
 -# Note that the `import pygame` syntax has not changed with pygame-ce.
 
+# mUDP Help
 
+mUDP library provides UDP-based broadcasting of Meshtastic-compatible packets. MeshBot uses this for the game_server_display server.
+
+**Details**
+- [pdxlocations/mudp](https://github.com/pdxlocations/mudp)
+
+**Installation**
+```sh
+pip install mudp
+```
 ---
