@@ -28,8 +28,12 @@ elif [[ "$1" == "html5" ]]; then
     python3 etc/report_generator5.py
 elif [[ "$1" == add* ]]; then
     python3 script/addFav.py
+elif [[ "$1" == "game" ]]; then
+    python3 script/game_serve.py
+elif [[ "$1" == "display" ]]; then
+    python3 script/game_serve.py
 else
-    echo "Please provide a bot to launch (pong/mesh) or a report to generate (html/html5) or addFav"
+    echo "Please provide a bot to launch (pong/mesh/display) or a report to generate (html/html5) or addFav"
     exit 1
 fi
 
