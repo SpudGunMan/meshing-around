@@ -2,40 +2,29 @@
 config.ini
 config_new.ini
 ini_merge_log.txt
-
-# Pickle files
-*.pkl
-
-# virtualenv
-venv/
+install_notes.txt
 
 # logs
 logs/
-install_notes.txt
 
 # modified .service files
 etc/*.service
 
-# Python cache
-__pycache__/
+# fileMonitor test file
+bee.txt
 
 # data files
 data/*.json
-
-# qrz db
-data/qrz.db
-
-# checklist and inventory databases
-data/checklist.db
-data/inventory.db
-
-# fileMonitor test file
-bee.txt
-*news.txt
-
-# .csv files
-*.csv
+data/*.txt
+data/*.pkl
+data/*.csv
+data/*.db
 
 # modules/custom_scheduler.py
 modules/custom_scheduler.py
 
+# virtualenv
+venv/
+
+# Python cache
+__pycache__/
