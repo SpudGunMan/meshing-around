@@ -157,6 +157,13 @@ if [[ ! -f modules/custom_scheduler.py ]]; then
     printf "\nCustom scheduler template copied to modules/custom_scheduler.py\n"
 fi
 
+# copy contents of etc/data to data/
+if [[ -d data ]]; then
+    printf "\nCopying data templates to data/ directory\n"
+    mkdir -p data
+    cp etc/data/* data/
+fi
+
 # generate config file, check if it exists
 if [[ -f config.ini ]]; then
     printf "\nConfig file already exists, moving to backup config.old\n"
@@ -514,4 +521,4 @@ exit 0
 
 # after install shenannigans
 # add 'bee = True' to config.ini General section.
-# wget https://gist.github.com/MattIPv4/045239bc27b16b2bcf7a3a9a4648c08a -O bee.txt
+# wget https://gist.githubusercontent.com/MattIPv4/045239bc27b16b2bcf7a3a9a4648c08a/raw/2411e31293a35f3e565f61e7490a806d4720ea7e/bee%2520movie%2520script -O bee.txt

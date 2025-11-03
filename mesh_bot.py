@@ -483,15 +483,26 @@ def handle_wxalert(message_from_id, deviceID, message):
 
 def handleNews(message_from_id, deviceID, message, isDM):
     news = ''
-    # if news source is provided pass that to read_news()
     if "?" in message.lower():
         return "returns the news. Add a source e.g. 📰readnews mesh"
     elif "readnews" in message.lower():
         source = message.lower().replace("readnews", "").strip()
         if source:
-            news = read_news(source)
+            # if news source is provided pass that to read_news()
+            if my_settings.news_block_mode:
+                news = read_news(source=source, news_block_mode=True)
+            elif my_settings.news_random_line_only:
+                news = read_news(source=source, random_line_only=True)
+            else:
+                news = read_news(source=source)
         else:
-            news = read_news()
+            # no source provided, use news.txt
+            if my_settings.news_block_mode:
+                news = read_news(news_block_mode=True)
+            elif my_settings.news_random_line_only:
+                news = read_news(random_line_only=True)
+            else:
+                news = read_news()
 
     if news:
         # if not a DM add the username to the beginning of msg

@@ -19,8 +19,8 @@ etc/*.service
 # Python cache
 __pycache__/
 
-# rag data
-data/rag/*
+# data files
+data/*.json
 
 # qrz db
 data/qrz.db
@@ -31,6 +31,7 @@ data/inventory.db
 
 # fileMonitor test file
 bee.txt
+*news.txt
 
 # .csv files
 *.csv

@@ -6,6 +6,7 @@ from modules.settings import (
     file_monitor_file_path,
     news_file_path,
     news_random_line_only,
+    news_block_mode,
     allowXcmd,
     bbs_admin_list,
     xCmd2factorEnabled,
@@ -23,16 +24,34 @@ trap_list_filemon = ("readnews",)
 NEWS_DATA_DIR = os.path.join(os.path.dirname(__file__), '..', 'data')
 newsSourcesList = []
 
-def read_file(file_monitor_file_path, random_line_only=False):
+def read_file(file_monitor_file_path, random_line_only=False, news_block_mode=False):
+    logger.debug(f"FileMon: Reading file: {file_monitor_file_path} options - random_line_only: {random_line_only}, news_block_mode: {news_block_mode}")
     try:
         if not os.path.exists(file_monitor_file_path):
             if file_monitor_file_path == "bee.txt":
                 return "🐝buzz 💐buzz buzz🍯"
-        if random_line_only:
+        if news_block_mode:
+            # read a random block (separated by 2+ blank lines, robust to line endings)
+            with open(file_monitor_file_path, 'r', encoding='utf-8') as f:
+                content = f.read().replace('\r\n', '\n').replace('\r', '\n')
+                blocks = []
+                block = []
+                for line in content.split('\n'):
+                    if line.strip() == '':
+                        if block:
+                            blocks.append('\n'.join(block).strip())
+                            block = []
+                    else:
+                        block.append(line)
+                if block:
+                    blocks.append('\n'.join(block).strip())
+                blocks = [b for b in blocks if b]
+                return random.choice(blocks) if blocks else None
+        elif random_line_only:
             # read a random line from the file
             with open(file_monitor_file_path, 'r', encoding='utf-8') as f:
-                lines = f.readlines()
-                return random.choice(lines)
+                lines = [line.strip() for line in f if line.strip()]
+                return random.choice(lines) if lines else None
         else:
             # read the whole file
             with open(file_monitor_file_path, 'r', encoding='utf-8') as f:
@@ -42,13 +61,19 @@ def read_file(file_monitor_file_path, random_line_only=False):
         logger.warning(f"FileMon: Error reading file: {file_monitor_file_path}")
         return None
 
-def read_news(source=None):
+def read_news(source=None, random_line_only=False, news_block_mode=False):
     # Reads the news file. If a source is provided, reads {source}_news.txt.
     if source:
         file_path = os.path.join(NEWS_DATA_DIR, f"{source}_news.txt")
     else:
         file_path = os.path.join(NEWS_DATA_DIR, news_file_path)
-    return read_file(file_path, news_random_line_only)
+    # Block mode takes precedence over line mode
+    if news_block_mode:
+        return read_file(file_path, random_line_only=False, news_block_mode=True)
+    elif random_line_only:
+        return read_file(file_path, random_line_only=True, news_block_mode=False)
+    else:
+        return read_file(file_path)
 
 def write_news(content, append=False):
     # write the news file on demand

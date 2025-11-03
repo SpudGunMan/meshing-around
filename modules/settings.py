@@ -457,6 +457,9 @@ try:
     read_news_enabled = config['fileMon'].getboolean('enable_read_news', False) # default disabled
     news_file_path = config['fileMon'].get('news_file_path', '../data/news.txt') # default ../data/news.txt
     news_random_line_only = config['fileMon'].getboolean('news_random_line', False) # default False
+    news_block_mode = config['fileMon'].getboolean('news_block_mode', False) # default False
+    if news_random_line_only and news_block_mode:
+        news_random_line_only = False
     enable_runShellCmd = config['fileMon'].getboolean('enable_runShellCmd', False) # default False
     allowXcmd = config['fileMon'].getboolean('allowXcmd', False) # default False
     xCmd2factorEnabled = config['fileMon'].getboolean('twoFactor_enabled', True) # default True
