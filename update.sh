@@ -61,6 +61,19 @@ elif ! cmp -s modules/custom_scheduler.template etc/custom_scheduler.py; then
     echo "custom_scheduler.py is set. To check changes run: diff etc/custom_scheduler.py modules/custom_scheduler.py"
 fi
 
+# copy contents of etc/data to data/
+if [[ -d data ]]; then
+    printf "\nCopying data templates to data/ directory (only new files)\n"
+    mkdir -p data
+    for f in etc/data/*; do
+        base=$(basename "$f")
+        if [[ ! -e "data/$base" ]]; then
+            cp "$f" "data/"
+            echo "Copied $base"
+        fi
+    done
+fi
+
 # Backup the data/ directory
 echo "Backing up data/ directory..."
 #backup_file="backup_$(date +%Y%m%d_%H%M%S).tar.gz"
