@@ -6,13 +6,14 @@
 - [DopeWars](#dopewars-game-module)
 - [GolfSim](#golfsim-game-module)
 - [Lemonade Stand](#lemonade-stand-game-module)
-- [Tic-Tac-Toe](#tic-tac-toe-game-module)
+- [Tic-Tac-Toe (2D/3D)](#tic-tac-toe-game-module)
 - [MasterMind](#mastermind-game-module)
 - [Video Poker](#video-poker-game-module)
 - [Hangman](#hangman-game-module)
 - [Quiz](#quiz-game-module)
 - [Survey](#survey--module-game)
 - [Word of the Day Game](#word-of-the-day-game--rules--features)
+- [PyGame Help](#pygame-help)
 ---
 
 
@@ -310,26 +311,38 @@ A classic Tic-Tac-Toe game for the Meshtastic mesh-bot. Play against the bot, tr
 - **Start the Game:**  
   Send the command `tictactoe` via DM to the bot to begin a new game.
 
+- **3D Mode:**  
+  You can play in 3D mode by sending `new 3d` during a game session. The board expands to 27 positions (1-27) and supports 3D win lines.
+
+- **Run as a Game Server (Optional):**  
+  For UDP/visual/remote play, you can run the dedicated game server:
+  ```sh
+  python3 script/game_serve.py
+  ```
+  This enables networked play and visual board updates if supported.
+  [PyGame Help](#pygame-help)
+
 - **Objective:**  
   Get three of your marks in a row (horizontally, vertically, or diagonally) before the bot does.
 
 - **Game Flow:**
   1. **Board Layout:**  
-     - The board is numbered 1-9, left to right, top to bottom.
-     - Example:
+     - The board is numbered 1-9 (2D) or 1-27 (3D), left to right, top to bottom.
+     - Example (2D):
        ```
         1 | 2 | 3
         4 | 5 | 6
         7 | 8 | 9
        ```
   2. **Making Moves:**  
-     - On your turn, type the number (1-9) where you want to place your mark.
+     - On your turn, type the number (1-9 or 1-27) where you want to place your mark.
      - The bot will respond with the updated board and make its move.
   3. **Commands:**  
      - `n` — Start a new game.
+     - `new 2d` or `new 3d` — Start a new game in 2D or 3D mode.
      - `e` or `q` — End the current game.
      - `b` — Show the current board.
-     - Enter a number (1-9) to make a move.
+     - Enter a number (1-9 or 1-27) to make a move.
   4. **Winning:**  
      - The first to get three in a row wins.
      - If the board fills with no winner, it’s a tie.
@@ -356,12 +369,12 @@ Your turn! Pick 1-9:
 - Emojis are used for X and O unless disabled in settings.
 - Your win/loss stats are tracked across games.
 - The bot will try to win, block you, or pick a random move.
-- Play via DM for best experience.
+- Play via DM for best experience, or run the game server for network/visual play.
 - Only one game session per player at a time.
 
 ## Credits
 
-- Written for Meshtastic mesh-bot by Martin
+- Written for Meshtastic mesh-bot by Martin, refactored by K7MHI
 
 # MasterMind Game Module
 
@@ -724,7 +737,7 @@ This module implements a survey system for the Meshtastic mesh-bot.
 
 ___
 
-Pay no attention to the..
+# PyGame Help
 
 'pygame - Community Edition' ('pygame-ce' for short) is a fork of the original 'pygame' library by former 'pygame' core contributors.
 
