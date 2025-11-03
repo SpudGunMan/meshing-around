@@ -16,7 +16,7 @@ except ImportError:
     exit(1)
 
 try:
-    from mudp import UDPPacketStream, node, conn, send_text_message, send_nodeinfo, send_device_telemetry, send_position, send_environment_metrics, send_power_metrics, send_waypoint, send_data
+    from mudp import UDPPacketStream, node, conn
     from mudp.encryption import generate_hash
 except ImportError:
     print("mUDP module not found.   pip install -U mudp")
