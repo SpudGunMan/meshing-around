@@ -1,3 +1,7 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# Battleship Display Module Meshing Around
+# 2025 K7MHI Kelly Keeton
 import pygame
 import sys
 import time

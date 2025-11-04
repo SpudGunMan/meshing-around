@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# Battleship game module Meshing Around
+# 2025 K7MHI Kelly Keeton
 import random
 import copy
 import uuid
