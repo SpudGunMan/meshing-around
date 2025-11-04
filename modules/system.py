@@ -235,6 +235,11 @@ if wordOfTheDay:
     theWordOfTheDay = WordOfTheDayGame()
     # this runs in background and wont enable other games
 
+if battleship_enabled:
+    from modules.games.battleship import playBattleship # from the spudgunman/meshing-around repo
+    trap_list = trap_list + ("battleship",)
+    games_enabled = True
+
 # Games Configuration
 if games_enabled is True:
     help_message = help_message + ", games"
@@ -262,6 +267,8 @@ if games_enabled is True:
         gamesCmdList += "hamTest, "
     if tictactoe_enabled:
         gamesCmdList += "ticTacToe, "
+    if battleship_enabled:
+        gamesCmdList += "battleship, "
     gamesCmdList = gamesCmdList[:-2] # remove the last comma
 else:
     gamesCmdList = ""
@@ -483,7 +490,7 @@ def cleanup_game_trackers(current_time):
         tracker_names = [
             'dwPlayerTracker', 'lemonadeTracker', 'jackTracker', 
             'vpTracker', 'mindTracker', 'golfTracker', 
-            'hangmanTracker', 'hamtestTracker', 'tictactoeTracker', 'surveyTracker'
+            'hangmanTracker', 'hamtestTracker', 'tictactoeTracker', 'surveyTracker', 'battleshipTracker'
         ]
         
         for tracker_name in tracker_names:

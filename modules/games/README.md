@@ -8,12 +8,13 @@
 - [Lemonade Stand](#lemonade-stand-game-module)
 - [Tic-Tac-Toe (2D/3D)](#tic-tac-toe-game-module)
 - [MasterMind](#mastermind-game-module)
+- [Battleship](#battleship-game-module)
 - [Video Poker](#video-poker-game-module)
 - [Hangman](#hangman-game-module)
 - [Quiz](#quiz-game-module)
 - [Survey](#survey--module-game)
 - [Word of the Day Game](#word-of-the-day-game--rules--features)
-- [Game Server Configuration (`game.ini`)](#game-server-configuration-gameini)
+- [Game Server](#game-server-configuration-gameini)
 - [PyGame Help](#pygame-help)
 ---
 
@@ -520,6 +521,77 @@ Place your Bet, or (L)eave Table.
 - Adapted for Meshtastic mesh-bot by K7MHI Kelly Keeton 2024
 
 
+# Battleship Game Module
+
+A classic Battleship game for the Meshtastic mesh-bot. Play solo against the AI or challenge another user in peer-to-peer (P2P) mode!
+
+## How to Play
+
+- **Start a New Game (vs AI):**  
+  Send `battleship` via DM to the bot to start a new game against the AI.
+
+- **Start a New P2P Game:**  
+  Send `battleship new` to create a game and receive a join code.  
+  Share the code with another user.
+
+- **Join a P2P Game:**  
+  Send `battleship join <code>` (replace `<code>` with the provided number) to join a waiting game.
+
+- **View Open Games:**  
+  Send `battleship lobby` to see a list of open P2P games waiting for players.
+
+- **Gameplay:**  
+  - Enter your move using coordinates:  
+    - Format: `B4` or `B,4` (row letter, column number)
+    - Example: `C7`
+  - The bot will show your radar, ship status, and results after each move.
+  - In P2P, you and your opponent take turns. The bot will notify you when it’s your turn.
+
+- **End Game:**  
+  Send `end` or `exit` to leave your current game.
+
+## Rules & Features
+
+- 10x10 grid, classic ship sizes (Carrier, Battleship, Cruiser, Submarine, Destroyer).
+- Ships are placed randomly.
+- In P2P, the joining player goes first.
+- Radar view shows a 4x4 grid centered on your last move.
+- Game tracks whose turn it is and notifies the next player in P2P mode.
+- Game ends when all ships of one player are sunk.
+
+## Example Session
+
+```
+New 🚢Battleship🤖 game started!
+Enter your move using coordinates: row-letter, column-number.
+Example: B5 or C,7
+Type 'exit' or 'end' to quit the game.
+
+> B4
+
+Your move: 💥Hit!
+AI ships: 5/5 afloat
+Radar:
+🗺️3 4 5 6
+B ~ ~ * ~
+C ~ ~ ~ ~
+D ~ ~ ~ ~
+E ~ ~ ~ ~
+AI move: D7 (missed)
+Your ships: 5/5 afloat
+```
+
+## Notes
+
+- Only one Battleship session per player at a time.
+- Play via DM for best experience.
+- In P2P, share the join code with your opponent.
+- Coordinates are not case-sensitive.
+
+## Credits
+
+- Written for Meshtastic mesh-bot by K7MHI Kelly Keeton 2025
+
 # Word of the Day Game — Rules & Features
 
 - **Word of the Day:**  
@@ -736,8 +808,6 @@ This module implements a survey system for the Meshtastic mesh-bot.
 
 **Written for Meshtastic mesh-bot by K7MHI Kelly Keeton 2025**
 
-
-
 ___
 
 # Game Server Configuration (`game.ini`)
@@ -787,4 +857,3 @@ mUDP library provides UDP-based broadcasting of Meshtastic-compatible packets. M
 ```sh
 pip install mudp
 ```
----

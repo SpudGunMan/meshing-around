@@ -16,7 +16,7 @@ import modules.settings as my_settings
 from modules.system import *
 
 # list of commands to remove from the default list for DM only
-restrictedCommands = ["blackjack", "videopoker", "dopewars", "lemonstand", "golfsim", "mastermind", "hangman", "hamtest", "tictactoe", "tic-tac-toe", "quiz", "q:", "survey", "s:"]
+restrictedCommands = ["blackjack", "videopoker", "dopewars", "lemonstand", "golfsim", "mastermind", "hangman", "hamtest", "tictactoe", "tic-tac-toe", "quiz", "q:", "survey", "s:", "battleship"]
 restrictedResponse = "🤖only available in a Direct Message📵" # "" for none
 
 def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_number, deviceID, isDM):
@@ -31,6 +31,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "ask:": lambda: handle_llm(message_from_id, channel_number, deviceID, message, publicChannel),
     "askai": lambda: handle_llm(message_from_id, channel_number, deviceID, message, publicChannel),
     "bannode": lambda: handle_bbsban(message, message_from_id, isDM),
+    "battleship": lambda: handleBattleship(message, message_from_id, deviceID),
     "bbsack": lambda: bbs_sync_posts(message, message_from_id, deviceID),
     "bbsdelete": lambda: handle_bbsdelete(message, message_from_id),
     "bbshelp": bbs_help,
@@ -1094,6 +1095,118 @@ def handleTicTacToe(message, nodeID, deviceID):
     msg = tictactoe.play(nodeID, message)
     return msg
 
+
+def handleBattleship(message, nodeID, deviceID):
+    global battleshipTracker
+    from modules.games import battleship
+
+    # Helper to get short_name from tracker
+    def get_short_name(nid):
+        entry = next((e for e in battleshipTracker if e['nodeID'] == nid), None)
+        return entry['short_name'] if entry and 'short_name' in entry else get_name_from_number(nid, 'short', deviceID)
+
+    msg_lower = message.lower().strip()
+    tracker_entry = next((entry for entry in battleshipTracker if entry['nodeID'] == nodeID), None)
+
+    # End/exit command
+    if msg_lower.startswith('end') or msg_lower.startswith('exit'):
+        if tracker_entry:
+            if 'session_id' in tracker_entry:
+                battleship.Battleship.end_game(tracker_entry['session_id'])
+            battleshipTracker.remove(tracker_entry)
+        return "Thanks for playing Battleship! 🚢"
+
+    # Create new P2P game with short code
+    if msg_lower.startswith("battleship new"):
+        short_name = get_name_from_number(nodeID, 'short', deviceID)
+        msg, code = battleship.Battleship.new_game(nodeID, vs_ai=False)
+        battleshipTracker.append({
+            "nodeID": nodeID,
+            "short_name": short_name,
+            "last_played": time.time(),
+            "session_id": battleship.Battleship.short_codes.get(code, code)
+        })
+        return f"{msg}"
+
+    # Show open P2P games waiting for a player
+    if msg_lower.startswith("battleship lobby"):
+        open_codes = []
+        for code, session_id in battleship.Battleship.short_codes.items():
+            session = battleship.Battleship.sessions.get(session_id)
+            if session and session.player2_id is None:
+                open_codes.append(code)
+        if not open_codes:
+            return "No open Battleship games waiting for players."
+        return "Open Battleship games (join with 'battleship join <code>'):\n" + ", ".join(open_codes)
+
+    # Join existing P2P game using short code
+    if msg_lower.startswith("battleship join"):
+        try:
+            code = msg_lower.split("join", 1)[1].strip()
+        except IndexError:
+            return "Usage: battleship join <code>"
+        session = battleship.Battleship.get_session(code)
+        if not session:
+            return "Session not found."
+        if session.player2_id is not None:
+            return "Session already has two players."
+        session.player2_id = nodeID
+        session.next_turn = nodeID  # Make joining player go first!
+        short_name = get_name_from_number(nodeID, 'short', deviceID)
+        battleshipTracker.append({
+            "nodeID": nodeID,
+            "short_name": short_name,
+            "last_played": time.time(),
+            "session_id": session.session_id
+        })
+        p1_short_name = get_short_name(session.player1_id)
+        send_message(
+            f"{p1_short_name}, your opponent {short_name} has joined the game! It's their turn first.",
+            0,  # channel 0 for DM
+            session.player1_id,  # recipient nodeID
+            deviceID
+        )
+        time.sleep(splitDelay)  # slight delay to avoid message overlap
+        return "You joined the game! It's your turn. Enter your move (e.g., 'B4')."
+
+    # If not found, create new tracker entry and new game vs AI (default)
+    if not tracker_entry:
+        short_name = get_name_from_number(nodeID, 'short', deviceID)
+        msg, session_id = battleship.Battleship.new_game(nodeID)
+        battleshipTracker.append({
+            "nodeID": nodeID,
+            "short_name": short_name,
+            "last_played": time.time(),
+            "session_id": session_id
+        })
+        return msg
+
+    # Update last played
+    tracker_entry["last_played"] = time.time()
+    session_id = tracker_entry.get("session_id")
+
+    # Play the game and check if we need to alert the next player
+    response = battleship.playBattleship(message, nodeID, deviceID, session_id=session_id)
+
+    # --- Notify the next player when it's their turn in P2P ---
+    session = battleship.Battleship.get_session(session_id)
+    if session and not session.vs_ai and session.player1_id and session.player2_id:
+        # Only notify if the game is not over (optional: add a game-over check)
+        if getattr(session, "last_move", None):
+            next_player_id = session.next_turn
+            # Only notify if it's not the player who just moved
+            if next_player_id != nodeID:
+                next_player_short_name = get_short_name(next_player_id)
+                send_message(
+                    f"{next_player_short_name}, it's your turn in Battleship! Enter your move (e.g., 'B4').",
+                    0,  # channel 0 for DM
+                    next_player_id,
+                    deviceID
+                )
+                time.sleep(splitDelay)  # slight delay to avoid message overlap
+
+    return response
+
 def quizHandler(message, nodeID, deviceID):
     global quizGamePlayer
     user_name = get_name_from_number(nodeID)
@@ -2128,6 +2241,7 @@ gameTrackers = [
     (hamtestTracker, "HamTest", handleHamtest),
     (tictactoeTracker, "TicTacToe", handleTicTacToe),
     (surveyTracker, "Survey", surveyHandler),
+    (battleshipTracker, "Battleship", handleBattleship),
     # quiz does not use a tracker (quizGamePlayer) always active
 ]
 

@@ -50,6 +50,7 @@ lemonadeTracker = []         # Lemonade Stand game tracker
 dwPlayerTracker = []         # DopeWars player tracker
 jackTracker = []             # Jack game tracker
 mindTracker = []             # Mastermind (mmind) game tracker
+battleshipTracker = []       # Battleship game tracker
 
 # Memory Management Constants
 MAX_MSG_HISTORY = 250
@@ -484,6 +485,7 @@ try:
     surveyRecordID = config['games'].getboolean('surveyRecordID', True)
     surveyRecordLocation = config['games'].getboolean('surveyRecordLocation', True)
     wordOfTheDay = config['games'].getboolean('wordOfTheDay', True)
+    battleship_enabled = config['games'].getboolean('battleShip', True)
 
     # messaging settings
     responseDelay = config['messagingSettings'].getfloat('responseDelay', 0.7) # default 0.7
