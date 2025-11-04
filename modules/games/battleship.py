@@ -262,6 +262,62 @@ def playBattleship(message, nodeID, deviceID, session_id=None):
         msg = msg[2:].strip()
     msg = msg.replace(" ", "")
 
+    # --- Ping Command ---
+    if msg == "p":
+        import random
+        # 30% chance to fail
+        if random.random() < 0.3:
+            return "I can hear a couple of 🦞lobsters dukin' it out down there..."
+        # Determine center of ping
+        if session.vs_ai:
+            # Use last move if available, else center of board
+            if session.shots_fired > 0:
+                # Find last move coordinates from radar (most recent HIT or FIRE)
+                radar = game.get_player_radar()
+                found = False
+                for i in range(SIZE):
+                    for j in range(SIZE):
+                        if radar[i][j] in (HIT, FIRE):
+                            center_y, center_x = i, j
+                            found = True
+                if not found:
+                    center_y, center_x = SIZE // 2, SIZE // 2
+            else:
+                center_y, center_x = SIZE // 2, SIZE // 2
+            # Scan 3x3 area on AI board for unsunk ship cells
+            board = game.ai_board
+        else:
+            # For P2P, use player's radar and opponent's board
+            if session.last_move:
+                coord = session.last_move[1]
+                center_y = ord(coord[0]) - ord('A')
+                center_x = int(coord[1:]) - 1
+            else:
+                center_y, center_x = SIZE // 2, SIZE // 2
+            # Scan 3x3 area on opponent's board
+            if nodeID == session.player1_id:
+                board = game.player2_board
+            else:
+                board = game.player1_board
+
+        min_y = max(0, center_y - 1)
+        max_y = min(SIZE, center_y + 2)
+        min_x = max(0, center_x - 1)
+        max_x = min(SIZE, center_x + 2)
+        ship_cells = set()
+        for i in range(min_y, max_y):
+            for j in range(min_x, max_x):
+                cell = board[i][j]
+                if cell.isdigit():
+                    ship_cells.add(cell)
+        pong_count = len(ship_cells)
+        if pong_count == 0:
+            return "silence in the deep..."
+        elif pong_count == 1:
+            return "something lurking nearby."
+        else:
+            return f"targets in the area!"
+
     x = y = None
     if "," in msg:
         parts = msg.split(",")
