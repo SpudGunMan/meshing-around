@@ -5,6 +5,7 @@
 import random
 import copy
 import uuid
+import time
 
 OCEAN = "~"
 FIRE = "x"
@@ -22,6 +23,8 @@ class Session:
         self.game = Battleship(vs_ai=vs_ai)
         self.next_turn = player1_id
         self.last_move = None
+        self.shots_fired = 0
+        self.start_time = time.time()
 
 class Battleship:
     sessions = {}
@@ -232,7 +235,14 @@ def playBattleship(message, nodeID, deviceID, session_id=None):
             winner = get_short_name(session.player1_id)
         else:
             winner = "Nobody"
-        return f"Game over! {winner} wins! 🚢🏆"
+        elapsed = int(time.time() - session.start_time)
+        mins, secs = divmod(elapsed, 60)
+        time_str = f"{mins}m {secs}s" if mins else f"{secs}s"
+        shots = session.shots_fired
+        return (
+            f"Game over! {winner} wins! 🚢🏆\n"
+            f"Game finished in {shots} shots and {time_str}.\n"
+        )
 
     if not session.vs_ai and session.player2_id is None:
         code = next((k for k, v in Battleship.short_codes.items() if v == session.session_id), None)
@@ -329,7 +339,7 @@ def playBattleship(message, nodeID, deviceID, session_id=None):
 
     radar_str = "🗺️" + " ".join(str(i+1) for i in range(min_col, max_col)) + "\n"
     for idx in range(min_row, max_row):
-        radar_str += chr(ord('A') + idx) + " " + " ".join(radar[idx][j] for j in range(min_col, max_col)) + "\n"
+        radar_str += chr(ord('A') + idx) + "  " + " ".join(radar[idx][j] for j in range(min_col, max_col)) + "\n"
 
     def format_ship_status(status_dict):
         afloat = 0
@@ -365,6 +375,14 @@ def playBattleship(message, nodeID, deviceID, session_id=None):
     else:
         session.next_turn = session.player2_id if nodeID == session.player1_id else session.player1_id
 
+    # Increment shots fired
+    session.shots_fired += 1
+
+    # Waste of ammo comment
+    funny_comment = ""
+    if session.shots_fired % 50 == 0:
+        funny_comment = f"\n🥵shoCaptain, that's {session.shots_fired} rounds! The barrels are getting warm!"
+
     # Output message
     if session.vs_ai:
         msg_out = (
@@ -373,6 +391,7 @@ def playBattleship(message, nodeID, deviceID, session_id=None):
             f"Radar:\n{radar_str}"
             f"AI move: {chr(ai_row+65)}{ai_col+1} ({move_result_text(ai_result, False)})\n"
             f"Your ships: {player_status_str}"
+            f"{funny_comment}"
         )
     else:
         my_name = get_short_name(nodeID)
@@ -397,16 +416,24 @@ def playBattleship(message, nodeID, deviceID, session_id=None):
             f"Radar:\n{radar_str}"
             f"Your ships: {player_status_str}\n"
             f"{turn_prompt}"
+            f"{funny_comment}"
         )
 
     if over:
+        elapsed = int(time.time() - session.start_time)
+        mins, secs = divmod(elapsed, 60)
+        time_str = f"{mins}m {secs}s" if mins else f"{secs}s"
+        shots = session.shots_fired
         if session.vs_ai:
             if game.player_alive == 0:
                 winner = "AI 🤖"
                 msg_out += f"\nGame over! {winner} wins! Better luck next time.\n"
             else:
                 winner = get_short_name(nodeID)
-                msg_out += f"\nGame over! {winner} wins! You sank all the AI's ships! 🎉\n"
+                msg_out += (
+                    f"\nGame over! {winner} wins! You sank all the AI's ships! 🎉\n"
+                    f"Took {shots} shots in {time_str}.\n"
+                )
         else:
             # P2P: Announce winner by short name
             if game.player1_alive == 0:
@@ -415,7 +442,10 @@ def playBattleship(message, nodeID, deviceID, session_id=None):
                 winner = get_short_name(session.player1_id)
             else:
                 winner = "Nobody"
-            msg_out += f"\nGame over! {winner} wins! 🚢🏆\n"
+            msg_out += (
+                f"\nGame over! {winner} wins! 🚢🏆\n"
+                f"Game finished in {shots} shots and {time_str}.\n"
+            )
         msg_out += "Type 'battleship' to start a new game."
 
     return msg_out
