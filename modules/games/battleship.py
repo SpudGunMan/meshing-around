@@ -339,7 +339,7 @@ def playBattleship(message, nodeID, deviceID, session_id=None):
 
     radar_str = "🗺️" + " ".join(str(i+1) for i in range(min_col, max_col)) + "\n"
     for idx in range(min_row, max_row):
-        radar_str += chr(ord('A') + idx) + "  " + " ".join(radar[idx][j] for j in range(min_col, max_col)) + "\n"
+        radar_str += chr(ord('A') + idx) + " :" + " ".join(radar[idx][j] for j in range(min_col, max_col)) + "\n"
 
     def format_ship_status(status_dict):
         afloat = 0
@@ -381,7 +381,7 @@ def playBattleship(message, nodeID, deviceID, session_id=None):
     # Waste of ammo comment
     funny_comment = ""
     if session.shots_fired % 50 == 0:
-        funny_comment = f"\n🥵shoCaptain, that's {session.shots_fired} rounds! The barrels are getting warm!"
+        funny_comment = f"\n🥵Captain, that's {session.shots_fired} rounds! The barrels are getting warm!"
 
     # Output message
     if session.vs_ai:
