@@ -381,7 +381,9 @@ def playBattleship(message, nodeID, deviceID, session_id=None):
     # Waste of ammo comment
     funny_comment = ""
     if session.shots_fired % 50 == 0:
-        funny_comment = f"\n🥵Captain, that's {session.shots_fired} rounds! The barrels are getting warm!"
+        funny_comment = f"\n🥵{session.shots_fired} rounds!"
+    elif session.shots_fired % 25 == 0:
+        funny_comment = f"\n🥔{session.shots_fired} fired!"
 
     # Output message
     if session.vs_ai:
