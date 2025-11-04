@@ -223,6 +223,17 @@ def playBattleship(message, nodeID, deviceID, session_id=None):
     session = Battleship.get_session(session_id)
     game = session.game
 
+    # Check for game over
+    if not session.vs_ai and game.is_game_over(vs_ai=False):
+        winner = None
+        if game.player1_alive == 0:
+            winner = get_short_name(session.player2_id)
+        elif game.player2_alive == 0:
+            winner = get_short_name(session.player1_id)
+        else:
+            winner = "Nobody"
+        return f"Game over! {winner} wins! 🚢🏆\nType 'battleship' to start a new game."
+
     if not session.vs_ai and session.player2_id is None:
         code = next((k for k, v in Battleship.short_codes.items() if v == session.session_id), None)
         return (
