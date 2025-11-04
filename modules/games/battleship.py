@@ -339,7 +339,7 @@ def playBattleship(message, nodeID, deviceID, session_id=None):
 
     radar_str = "🗺️" + " ".join(str(i+1) for i in range(min_col, max_col)) + "\n"
     for idx in range(min_row, max_row):
-        radar_str += chr(ord('A') + idx) + " :" + " ".join(radar[idx][j] for j in range(min_col, max_col)) + "\n"
+        radar_str += chr(ord('A') + idx) + "  :" + " ".join(radar[idx][j] for j in range(min_col, max_col)) + "\n"
 
     def format_ship_status(status_dict):
         afloat = 0
