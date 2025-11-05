@@ -442,14 +442,14 @@ def getWeatherAlertsNOAA(lat=0, lon=0, useDefaultLatLon=False):
             # adds location data which is too much data?
             alerts += f"{main_alert}. {area_desc.replace(' ', '')}"
             # Only add headline if not already used as main_alert
-            if nws_headline and main_alert != nws_headline:
-                alerts += f" ALERT: {nws_headline}"
+            # if nws_headline and main_alert != nws_headline:
+            #     alerts += f" ALERT: {nws_headline}"
             alerts += "\n"
         else:
             alerts += f"{main_alert}"
             # Only add headline if not already used as main_alert
-            if nws_headline and main_alert != nws_headline:
-                alerts += f" ALERT: {nws_headline}"
+            # if nws_headline and main_alert != nws_headline:
+            #     alerts += f" ALERT: {nws_headline}"
             alerts += "\n"
 
     if alerts == "" or alerts == None:
