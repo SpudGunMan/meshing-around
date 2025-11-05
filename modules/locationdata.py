@@ -420,10 +420,29 @@ def getWeatherAlertsNOAA(lat=0, lon=0, useDefaultLatLon=False):
     for i in alertxml.getElementsByTagName("entry"):
         title = i.getElementsByTagName("title")[0].childNodes[0].nodeValue
         area_desc = i.getElementsByTagName("cap:areaDesc")[0].childNodes[0].nodeValue
+
+        # Extract NWSheadline from cap:parameter if present
+        nws_headline = ""
+        for param in i.getElementsByTagName("cap:parameter"):
+            try:
+                value_name = param.getElementsByTagName("valueName")[0].childNodes[0].nodeValue
+                if value_name == "NWSheadline":
+                    nws_headline = param.getElementsByTagName("value")[0].childNodes[0].nodeValue
+                    break
+            except Exception:
+                continue
+
         if my_settings.enableExtraLocationWx:
-            alerts += f"{title}. {area_desc.replace(' ', '')}\n"
+            # adds area description to the alert its not ideal to use - too much text
+            alerts += f"{title}. {area_desc.replace(' ', '')}"
+            if nws_headline:
+                alerts += f" ALERT: {nws_headline}"
+            alerts += "\n"
         else:
-            alerts += f"{title}\n"
+            alerts += f"{title}"
+            if nws_headline:
+                alerts += f" ALERT: {nws_headline}"
+            alerts += "\n"
 
     if alerts == "" or alerts == None:
         return my_settings.NO_ALERTS
