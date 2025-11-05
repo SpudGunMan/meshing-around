@@ -1614,10 +1614,7 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
                 positionMetadata[nodeID][key] = position_data.get(key, 0)
             # Track fastest speed 🚓
             if position_data.get('groundSpeed') is not None:
-                if use_metric:
-                    speed = position_data['groundSpeed']
-                else:
-                    speed = round(position_data['groundSpeed'] * 1.60934, 1)  # Convert mph to km/h
+                speed = position_data['groundSpeed']
                 if speed > meshLeaderboard['fastestSpeed']['value']:
                     meshLeaderboard['fastestSpeed'] = {'nodeID': nodeID, 'value': speed, 'timestamp': time.time()}
                     if logMetaStats:
