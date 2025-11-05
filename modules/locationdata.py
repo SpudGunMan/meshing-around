@@ -433,7 +433,7 @@ def getWeatherAlertsNOAA(lat=0, lon=0, useDefaultLatLon=False):
                 continue
 
         # If title is "Special Weather Statement" and headline exists, use headline only
-        if "Special Weather Statement" in title and nws_headline:
+        if "special" in title.lower() and nws_headline:
             main_alert = nws_headline
         else:
             main_alert = title
