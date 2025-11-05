@@ -432,15 +432,23 @@ def getWeatherAlertsNOAA(lat=0, lon=0, useDefaultLatLon=False):
             except Exception:
                 continue
 
+        # If title is "Special Weather Statement" and headline exists, use headline only
+        if "Special Weather Statement" in title and nws_headline:
+            main_alert = nws_headline
+        else:
+            main_alert = title
+
         if my_settings.enableExtraLocationWx:
-            # adds area description to the alert its not ideal to use - too much text
-            alerts += f"{title}. {area_desc.replace(' ', '')}"
-            if nws_headline:
+            # adds location data which is too much data?
+            alerts += f"{main_alert}. {area_desc.replace(' ', '')}"
+            # Only add headline if not already used as main_alert
+            if nws_headline and main_alert != nws_headline:
                 alerts += f" ALERT: {nws_headline}"
             alerts += "\n"
         else:
-            alerts += f"{title}"
-            if nws_headline:
+            alerts += f"{main_alert}"
+            # Only add headline if not already used as main_alert
+            if nws_headline and main_alert != nws_headline:
                 alerts += f" ALERT: {nws_headline}"
             alerts += "\n"
 
