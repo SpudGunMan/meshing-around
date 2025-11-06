@@ -18,5 +18,4 @@ jobs:
       - uses: actions/first-interaction@v3
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-          issue_message: "Dependabot's first issue"
           pr_message: "Thank you for your pull request!"
