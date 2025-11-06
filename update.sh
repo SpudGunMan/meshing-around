@@ -2,37 +2,32 @@
 # MeshBot Update Script
 # Usage: bash update.sh or ./update.sh after making it executable with chmod +x update.sh
 
-# Check if the mesh_bot.service or pong_bot.service 
-service_stopped=false
-if systemctl is-active --quiet mesh_bot.service; then
-    echo "Stopping mesh_bot.service..."
-    systemctl stop mesh_bot.service
-    service_stopped=true
-fi
-if systemctl is-active --quiet pong_bot.service; then
-    echo "Stopping pong_bot.service..."
-    systemctl stop pong_bot.service
-    service_stopped=true
-fi
-if systemctl is-active --quiet mesh_bot_reporting.service; then
-    echo "Stopping mesh_bot_reporting.service..."
-    systemctl stop mesh_bot_reporting.service
-    service_stopped=true
-fi
-if systemctl is-active --quiet mesh_bot_w3.service; then
-    echo "Stopping mesh_bot_w3.service..."
-    systemctl stop mesh_bot_w3.service
-    service_stopped=true
-fi
+echo "=============================================="
+echo "     MeshBot Automated Update & Backup Tool    "
+echo "        (c) 2025 Kelly Keeton, K7MHI          "
+echo "=============================================="
+echo
 
-# Fetch latest changes from GitHub
+# --- Service Management ---
+service_stopped=false
+for svc in mesh_bot.service pong_bot.service mesh_bot_reporting.service mesh_bot_w3.service; do
+    if systemctl is-active --quiet "$svc"; then
+        echo ">> Stopping $svc ..."
+        systemctl stop "$svc"
+        service_stopped=true
+    fi
+done
+
+# --- Git Operations ---
+echo
+echo "----------------------------------------------"
 echo "Fetching latest changes from GitHub..."
+echo "----------------------------------------------"
 if ! git fetch origin; then
-    echo "Error: Failed to fetch from GitHub, check your network connection. script expects to be run inside a git repository."
+    echo "ERROR: Failed to fetch from GitHub. Check your network connection. Script expects to be run inside a git repository."
     exit 1
 fi
 
-# Check for detached HEAD state
 if [[ $(git symbolic-ref --short -q HEAD) == "" ]]; then
     echo "WARNING: You are in a detached HEAD state."
     echo "You may not be on a branch. To return to the main branch, run:"
@@ -40,7 +35,6 @@ if [[ $(git symbolic-ref --short -q HEAD) == "" ]]; then
     echo "Proceed with caution; changes may not be saved to a branch."
 fi
 
-# git pull with rebase to avoid unnecessary merge commits
 echo "Pulling latest changes from GitHub..."
 if ! git pull origin main --rebase; then
     read -p "Git pull resulted in conflicts. Do you want to reset hard to origin/main? This will discard local changes. (y/n): " choice
@@ -53,52 +47,59 @@ if ! git pull origin main --rebase; then
     fi
 fi
 
-# copy modules/custom_scheduler.py template if it does not exist
+
 if [[ ! -f modules/custom_scheduler.py ]]; then
+# --- Scheduler Template ---
+echo
+echo "----------------------------------------------"
+echo "Checking custom scheduler template..."
+echo "----------------------------------------------"
     cp -n etc/custom_scheduler.py modules/
-    printf "\nCustom scheduler template copied to modules/custom_scheduler.py\n"
+    printf "Custom scheduler template copied to modules/custom_scheduler.py\n"
 elif ! cmp -s modules/custom_scheduler.template etc/custom_scheduler.py; then
     echo "custom_scheduler.py is set. To check changes run: diff etc/custom_scheduler.py modules/custom_scheduler.py"
 fi
 
+# --- Data Templates ---
 if [[ -d data ]]; then
-    printf "\nCopying data templates to data/ directory (only new files)\n"
     mkdir -p data
     for f in etc/data/*; do
         base=$(basename "$f")
         if [[ ! -e "data/$base" ]]; then
             if [[ -d "$f" ]]; then
                 cp -r "$f" "data/"
-                echo "Copied directory $base"
+                echo "Copied new data/directory $base"
             else
                 cp "$f" "data/"
-                echo "Copied $base"
+                echo "Copied new data/$base"
             fi
         fi
     done
 fi
 
-# Backup the data/ directory
+# --- Backup ---
+echo
+echo "----------------------------------------------"
 echo "Backing up data/ directory..."
-#backup_file="backup_$(date +%Y%m%d_%H%M%S).tar.gz"
+echo "----------------------------------------------"
 backup_file="data_backup.tar.gz"
 path2backup="data/"
-#copy custom_scheduler.py if it exists
 if [[ -f "modules/custom_scheduler.py" ]]; then
     echo "Including custom_scheduler.py in backup..."
     cp modules/custom_scheduler.py data/
 fi
-
-#create the tar.gz backup
 tar -czf "$backup_file" "$path2backup"
 if [ $? -ne 0 ]; then
-    echo "Error: Backup failed."
+    echo "ERROR: Backup failed."
 else
     echo "Backup of ${path2backup} completed: ${backup_file}"
 fi
 
-# Build a config_new.ini file merging user config with new defaults
+# --- Config Merge ---
+echo
+echo "----------------------------------------------"
 echo "Merging configuration files..."
+echo "----------------------------------------------"
 python3 script/configMerge.py > ini_merge_log.txt 2>&1
 if [[ -f ini_merge_log.txt ]]; then
     if grep -q "Error during configuration merge" ini_merge_log.txt; then
@@ -107,11 +108,15 @@ if [[ -f ini_merge_log.txt ]]; then
         echo "Configuration merge completed. Please review config_new.ini and ini_merge_log.txt."
     fi
 else
-    echo "Configuration merge log (ini_merge_log.txt) not found. check out the script/configMerge.py tool!"
+    echo "Configuration merge log (ini_merge_log.txt) not found. Check out the script/configMerge.py tool!"
 fi
 
+# --- Service Restart ---
 if [[ "$service_stopped" = true ]]; then
+    echo
+    echo "----------------------------------------------"
     echo "Restarting services..."
+    echo "----------------------------------------------"
     for svc in mesh_bot.service pong_bot.service mesh_bot_reporting.service mesh_bot_w3.service; do
         if systemctl list-unit-files | grep -q "^$svc"; then
             systemctl start "$svc"
@@ -120,7 +125,9 @@ if [[ "$service_stopped" = true ]]; then
     done
 fi
 
-# Print completion message
-echo "Update completed successfully?"
+echo
+echo "=============================================="
+echo "      MeshBot Update Completed Successfully!   "
+echo "=============================================="
 exit 0
 # End of script
