@@ -13,7 +13,8 @@ User=pi
 Group=pi
 WorkingDirectory=/dir/
 ExecStart=python3 mesh_bot.py
-ExecStop=pkill -f mesh_bot.py
+ExecStop=
+KillSignal=SIGINT
 Environment=REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
 Environment=SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
 
