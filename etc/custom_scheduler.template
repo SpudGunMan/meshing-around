@@ -94,6 +94,8 @@ def setup_custom_schedules(send_message, tell_joke, welcome_message, handle_wxc,
         #schedule.every(2).minutes.do(lambda: send_joke(schedulerChannel, schedulerInterface))
         ### Send a good morning message every day at 9 AM
         #schedule.every().day.at("09:00").do(lambda: send_good_morning(schedulerChannel, schedulerInterface))
+        ### Send a good morning message every day at 9 AM to DM node 4258675309 without above function
+        #schedule.every().day.at("09:00").do(lambda: send_message("Good Morning Jenny", 0, 4258675309, schedulerInterface))
         ### Send weather update every day at 8 AM
         #schedule.every().day.at("08:00").do(lambda: send_wx(schedulerChannel, schedulerInterface))
         ### Send weather alerts every Wednesday at noon
