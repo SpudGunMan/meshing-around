@@ -158,11 +158,8 @@ if [[ ! -f modules/custom_scheduler.py ]]; then
 fi
 
 # copy contents of etc/data to data/
-if [[ -d data ]]; then
-    printf "\nCopying data templates to data/ directory\n"
-    mkdir -p data
-    cp etc/data/* data/
-fi
+printf "\nCopying data templates to data/ directory\n"
+cp -r etc/data/* data/
 
 # generate config file, check if it exists
 if [[ -f config.ini ]]; then
