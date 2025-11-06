@@ -72,4 +72,28 @@ python etc/simulator.py
 **Note:**  
 Edit the `projectName` variable to match the handler function you want to test. You can expand this script to test additional handlers or scenarios as needed.
 
-Feel free to add or update resources here as needed for documentation, configuration, or project support.
+## yolo_vision.py
+
+**Purpose:**  
+`yolo_vision.py` provides real-time object detection and movement tracking using a Raspberry Pi camera and YOLOv5. It is designed for integration with the Mesh Bot project, outputting alerts to both the console and an optional `alert.txt` file for further use (such as with Meshtastic).
+
+**Features:**  
+- Ignores specified object classes (e.g., "bed", "chair") to reduce false positives.
+- Configurable detection confidence threshold and movement sensitivity.
+- Tracks object movement direction (left, right, stationary).
+- Fuse counter: only alerts after an object is detected for several consecutive frames.
+- Optionally writes the latest alert (without timestamp) to a specified file, overwriting previous alerts.
+
+**Configuration:**  
+- `LOW_RES_MODE`: Use low or high camera resolution for CPU savings.
+- `IGNORE_CLASSES`: List of object classes to ignore.
+- `CONFIDENCE_THRESHOLD`: Minimum confidence for reporting detections.
+- `MOVEMENT_THRESHOLD`: Minimum pixel movement to consider as "moving".
+- `ALERT_FUSE_COUNT`: Number of consecutive detections before alerting.
+- `ALERT_FILE_PATH`: Path to alert file (set to `None` to disable file output).
+
+**Usage:**  
+Run this script to monitor the camera feed and generate alerts for detected and moving objects. Alerts are printed to the console and, if configured, written to `alert.txt` for integration with other systems.
+
+---
+
