@@ -13,8 +13,10 @@ for arg in "$@"; do
 done
 
 if [[ $NOPE -eq 1 ]]; then
-    echo "Uninstalling Meshing Around and all related services..."
-
+    echo "----------------------------------------------"
+    echo "Uninstalling Meshing Around ..."
+    echo "----------------------------------------------"
+    
     sudo systemctl stop mesh_bot || true
     sudo systemctl disable mesh_bot || true
 
@@ -66,47 +68,70 @@ fi
 
 # install.sh, Meshing Around installer script
 # Thanks for using Meshing Around!
-printf "\n########################"
-printf "\nMeshing Around Installer\n"
-printf "########################\n"
-printf "\nThis script will try and install the Meshing Around Bot and its dependencies.\n"
-printf "Installer works best in raspian/debian/ubuntu or foxbuntu embedded systems.\n"
-printf "If there is a problem, try running the installer again.\n"
-printf "\nChecking for dependencies...\n"
-
-# fuse check for existing installation
+echo "=============================================="
+echo "     Meshing Around Automated Installer        "
+echo "=============================================="
+echo
+echo "This script will attempt to install the Meshing Around Bot and its dependencies."
+echo "Recommended for Raspbian, Debian, Ubuntu, or Foxbuntu embedded systems."
+echo "If you encounter any issues, try running the installer again."
+echo
+echo "----------------------------------------------"
+echo "Checking for dependencies..."
+echo "----------------------------------------------"
+# check if we have an existing installation
 if [[ -f config.ini ]]; then
-    printf "\nDetected existing installation, please backup and remove existing installation before proceeding\n"
+    echo
+    echo "=========================================================="
+    echo "  Detected existing installation of Meshing Around."
+    echo "  Please backup and remove the existing installation"
+    echo "  before proceeding with a new install."
+    echo "=========================================================="
     exit 1
 fi
+# check if we have write access to the install path
+if [[ ! -w ${program_path} ]]; then
+    echo
+    echo "=========================================================="
+    echo "  ERROR: Install path not writable."
+    echo "  Try running the installer with sudo?"
+    echo "=========================================================="
+    exit 1
+fi
+
 # check if we are in /opt/meshing-around
 if [[ "$program_path" != "/opt/meshing-around" ]]; then
-    printf "\nIt is suggested to project path to /opt/meshing-around\n"
-    printf "Do you want to move the project to /opt/meshing-around? (y/n)"
+    echo "----------------------------------------------"
+    echo "  Project Path Decision"
+    echo "----------------------------------------------"
+    printf "\nIt is recommended to install Meshing Around in /opt/meshing-around if used as a service.\n"
+    printf "Do you want to move the project to /opt/meshing-around now? (y/n): "
     read move
     if [[ $(echo "$move" | grep -i "^y") ]]; then
         sudo mv "$program_path" /opt/meshing-around
         cd /opt/meshing-around
-        printf "\nProject moved to /opt/meshing-around. re-run the installer\n"
+        printf "\nProject moved to /opt/meshing-around.\n"
+        printf "Please re-run the installer from the new location.\n"
         exit 0
+    else
+        echo "Continuing installation in current directory: $program_path"
     fi
 fi
 
-# check write access to program path
-if [[ ! -w ${program_path} ]]; then
-    printf "\nInstall path not writable, try running the installer with sudo\n"
-    exit 1
-fi
 
-# if hostname = femtofox, then we are on embedded
+
+echo "----------------------------------------------"
+echo "Embedded install? auto answers install stuff..."
+echo "----------------------------------------------"
 if [[ $(hostname) == "femtofox" ]]; then
-    printf "\nDetected femtofox embedded system\n"
+    printf "\n[INFO] Detected femtofox embedded system.\n"
     embedded="y"
 else
-    # check if running on embedded
-    printf "\nAre You installing into an embedded system like a luckfox or -native? most should say no here (y/n)"
+    printf "\nAre you installing on an embedded system (like Luckfox)?\n"
+    printf "Most users should answer 'n' here. (y/n): "
     read embedded
 fi
+
 
 if [[ $(echo "${embedded}" | grep -i "^y") ]]; then
     printf "\nDetected embedded skipping dependency installation\n"
@@ -137,7 +162,9 @@ else
     printf "\nDependencies installed\n"
 fi
 
-
+echo "----------------------------------------------"
+echo "Installing service files and templates..."
+echo "----------------------------------------------"
 # copy service files
 cp etc/pong_bot.tmp etc/pong_bot.service
 cp etc/mesh_bot.tmp etc/mesh_bot.service
@@ -169,6 +196,10 @@ fi
 
 cp config.template config.ini
 printf "\nConfig files generated!\n"
+
+echo "----------------------------------------------"
+echo "Customizing configuration..."
+echo "----------------------------------------------"
 
 # update lat,long in config.ini 
 latlong=$(curl --silent --max-time 20 https://ipinfo.io/loc || echo "48.50,-123.0")
@@ -237,6 +268,10 @@ else
     fi
 fi
 
+echo "----------------------------------------------"
+echo "Installing bot service? - mesh or pong or none"
+echo "----------------------------------------------"
+
 # if $1 is passed
 if [[ $1 == "pong" ]]; then
     bot="pong"
@@ -271,6 +306,10 @@ else
         whoami=$(whoami)
     fi
 fi
+
+echo "----------------------------------------------"
+echo "Finalizing service installation..."
+echo "----------------------------------------------"
 
 # set the correct user in the service file
 replace="s|User=pi|User=$whoami|g"
@@ -341,6 +380,10 @@ echo ""
 # echo "mesh_bot_w3_server.service installed and enabled"
 # echo "Check service status with: systemctl status mesh_bot_w3_server.service"
 # echo ""
+
+echo "----------------------------------------------"
+echo "Extra options for installation..."
+echo "----------------------------------------------"
 
 # check if running on embedded for final steps
 if [[ $(echo "${embedded}" | grep -i "^n") ]]; then
@@ -466,6 +509,10 @@ else
     printf "List all timers: systemctl list-timers\n" >> install_notes.txt
     printf "*** Stay Up to date using 'bash update.sh' ***\n" >> install_notes.txt
 fi
+
+echo "----------------------------------------------"
+echo "Finalizing permissions..."
+echo "----------------------------------------------"
 
 sudo chown -R "$whoami:$whoami" "$program_path/logs"
 sudo chown -R "$whoami:$whoami" "$program_path/data"
