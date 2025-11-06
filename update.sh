@@ -4,7 +4,6 @@
 
 echo "=============================================="
 echo "     MeshBot Automated Update & Backup Tool    "
-echo "        (c) 2025 Kelly Keeton, K7MHI          "
 echo "=============================================="
 echo
 
