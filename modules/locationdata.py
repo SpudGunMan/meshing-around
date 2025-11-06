@@ -647,13 +647,11 @@ def getIpawsAlert(lat=0, lon=0, shortAlerts = False):
             if (sameVal in my_settings.mySAMEList) or (geocode_value in my_settings.mySAMEList) or my_settings.mySAMEList == ['']:
                 ignore_alert = False
                 if my_settings.ignoreFEMAenable:
-                    ignore_words = [word for word in my_settings.ignoreFEMAwords if word.strip()]
                     ignore_alert = any(
                         word.lower() in headline.lower()
-                        for word in ignore_words
-                    )
+                        for word in my_settings.ignoreFEMAwords)
                     if ignore_alert:
-                        logger.debug(f"System: Filtering FEMA Alert: {headline} containing one of {ignore_words} at {areaDesc}")
+                        logger.debug(f"System: Filtering FEMA Alert by WORD: {headline} containing one of {my_settings.ignoreFEMAwords} at {areaDesc}")
                 if ignore_alert:
                     continue
 
