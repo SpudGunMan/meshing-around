@@ -9,6 +9,8 @@ This document provides an overview of all modules available in the Mesh-Bot proj
 - [Networking](#networking)
 - [Games](#games)
 - [BBS (Bulletin Board System)](#bbs-bulletin-board-system)
+- [Checklist](#checklist)
+- [Inventory & Point of Sale](#inventory--point-of-sale)
 - [Location & Weather](#location--weather)
 - [EAS & Emergency Alerts](#eas--emergency-alerts)
 - [File Monitoring & News](#file-monitoring--news)
@@ -16,10 +18,10 @@ This document provides an overview of all modules available in the Mesh-Bot proj
 - [Voice Commands (VOX)](#voice-commands-vox)
 - [Ollama LLM/AI](#ollama-llmai)
 - [Wikipedia Search](#wikipedia-search)
+- [News & Headlines (`latest` Command)](#news--headlines-latest-command)
 - [DX Spotter Module](#dx-spotter-module)
+- [Mesh Bot Scheduler](#-mesh-bot-scheduler-user-guide)
 - [Other Utilities](#other-utilities)
-- [Checklist](#checklist)
-- [Inventory & Point of Sale](#inventory--point-of-sale)
 - [Echo Command](#echo-command)
 - [Messaging Settings](#messaging-settings)
 - [Troubleshooting](#troubleshooting)
@@ -335,24 +337,23 @@ The system uses SQLite with four tables:
 
 ## Location & Weather
 
-| Command      | Description                                   |
-|--------------|-----------------------------------------------|
-| `wx`         | Local weather forecast (NOAA/Open-Meteo)      |
-| `wxc`        | Weather in metric/imperial                    |
-| `wxa`        | NOAA alerts                                   |
-| `wxalert`    | NOAA alerts (expanded)                        |
-| `mwx`        | NOAA Coastal Marine Forecast                  |
-| `tide`       | NOAA tide info                                |
-| `riverflow`  | NOAA river flow info                          |
-| `earthquake` | USGS earthquake info                          |
-| `valert`     | USGS volcano alerts                           |
-| `rlist`      | Nearby repeaters from RepeaterBook            |
-| `satpass`    | Satellite pass info                           |
-| `howfar`     | Distance traveled since last check            |
-| `howtall`    | Calculate height using sun angle              |
-| `whereami`   | Show current location                         |
-| `map`        | Location data/map.csv                         |
-
+| Command      | Description                                             |
+|--------------|---------------------------------------------------------|
+| `wx`         | Local weather forecast (NOAA/Open-Meteo)                |
+| `wxc`        | Weather in metric/imperial units                        |
+| `wxa`        | NOAA weather alerts (summary)                           |
+| `wxalert`    | NOAA weather alerts (detailed/expanded)                 |
+| `mwx`        | NOAA Coastal Marine Forecast                            |
+| `tide`       | NOAA tide information                                   |
+| `riverflow`  | NOAA river flow information                             |
+| `earthquake` | USGS earthquake information                             |
+| `valert`     | USGS volcano alerts                                     |
+| `rlist`      | Nearby repeaters from RepeaterBook                      |
+| `satpass`    | Satellite pass information                              |
+| `howfar`     | Distance traveled since last check                      |
+| `howtall`    | Calculate height using sun angle                        |
+| `whereami`   | Show current location/address                           |
+| `map`        | Log/view location data to map.csv                       |
 Configure in `[location]` section of `config.ini`.
 
 Certainly! Here’s a README help section for your `mapHandler` command, suitable for users of your meshbot:
