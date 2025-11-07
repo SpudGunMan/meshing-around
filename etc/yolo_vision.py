@@ -3,7 +3,7 @@
 # YOLOv5 Requirements: yolo5 https://docs.ultralytics.com/yolov5/quickstart_tutorial/
 # PiCamera2 Requirements: picamera2 https://github.com/raspberrypi/picamera2  `sudo apt install imx500-all`
 # NVIDIA GPU PyTorch: https://developer.nvidia.com/cuda-downloads
-# OCR with Tesseract: https://tesseract-ocr.github.io/tessdoc/Installation.html. `sudo apt-get install tesseract-ocr
+# OCR with Tesseract: https://tesseract-ocr.github.io/tessdoc/Installation.html. `sudo apt-get install tesseract-ocr`
 # Adjust settings below as needed, indended for meshing-around alert.txt output to meshtastic
 # 2025 K7MHI Kelly Keeton
 
@@ -94,6 +94,7 @@ def extract_text_from_bbox(img, bbox):
         return f"{text_stripped}"
     except Exception as e:
         print(f"Error during OCR: {e}")
+        print("More at https://tesseract-ocr.github.io/tessdoc/Installation.html")
         return False
 
 try:
