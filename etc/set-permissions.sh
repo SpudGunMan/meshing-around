@@ -9,7 +9,8 @@ fi
 
 # Use first argument as user, or default to meshbot
 TARGET_USER="${1:-meshbot}"
-
+echo "DEBUG: TARGET_USER='$TARGET_USER'"
+id "$TARGET_USER"
 # Check if user exists
 if ! id "$TARGET_USER" &>/dev/null; then
   echo "User '$TARGET_USER' does not exist."
