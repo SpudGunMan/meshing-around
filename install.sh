@@ -456,6 +456,7 @@ if [[ $(echo "${embedded}" | grep -i "^n") ]]; then
     printf "List all timers: systemctl list-timers\n" >> install_notes.txt
     printf "View timer logs: journalctl -u mesh_bot_reporting.timer\n" >> install_notes.txt
     printf "*** Stay Up to date using 'bash update.sh' ***\n" >> install_notes.txt
+    printf "sudo ./update.sh && sudo -u meshbot ./launch.sh mesh_bot.py\n" >> install_notes.txt
     
     if [[ $(echo "${venv}" | grep -i "^y") ]]; then
         printf "\nFor running on venv, virtual launch bot with './launch.sh mesh' in path $program_path\n" >> install_notes.txt
@@ -505,12 +506,14 @@ else
     printf "Check timer status: systemctl status mesh_bot_reporting.timer\n" >> install_notes.txt
     printf "List all timers: systemctl list-timers\n" >> install_notes.txt
     printf "*** Stay Up to date using 'bash update.sh' ***\n" >> install_notes.txt
+    printf "sudo ./update.sh && sudo -u meshbot ./launch.sh mesh_bot.py\n" >> install_notes.txt
 fi
 
 echo "----------------------------------------------"
 echo "Finalizing permissions..."
 echo "----------------------------------------------"
-
+export REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
+export SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
 sudo chown -R "$bot_user:$bot_user" "$program_path/logs"
 sudo chown -R "$bot_user:$bot_user" "$program_path/data"
 sudo chown "$bot_user:$bot_user" "$program_path/config.ini"
