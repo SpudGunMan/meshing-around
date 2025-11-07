@@ -29,12 +29,12 @@ fi
 
 echo "Setting ownership to $TARGET_USER:$TARGET_USER"
 
-chown -R "$TARGET_USER:$TARGET_USER" "/opt/meshing-around/-around"
-chown -R "$TARGET_USER:$TARGET_USER" "/opt/meshing-around/-around/logs"
-chown -R "$TARGET_USER:$TARGET_USER" "/opt/meshing-around/-around/data"
-chown "$TARGET_USER:$TARGET_USER" "/opt/meshing-around/-around/config.ini"
-chmod 664 "/opt/meshing-around/-around/config.ini"
-chmod 775 "/opt/meshing-around/-around/logs"
-chmod 775 "/opt/meshing-around/-around/data"
+chown -R "$TARGET_USER:$TARGET_USER" "/opt/meshing-around"
+chown -R "$TARGET_USER:$TARGET_USER" "/opt/meshing-around/logs"
+chown -R "$TARGET_USER:$TARGET_USER" "/opt/meshing-around/data"
+chown "$TARGET_USER:$TARGET_USER" "/opt/meshing-around/config.ini"
+chmod 664 "/opt/meshing-around/config.ini"
+chmod 775 "/opt/meshing-around/logs"
+chmod 775 "/opt/meshing-around/data"
 
 echo "Permissions and ownership have been set."
