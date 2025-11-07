@@ -9,9 +9,8 @@ This is not a full turnkey setup for Docker yet?
 
 `docker compose run meshing-around`
 
+`docker compose run debug-console`
+
 `docker compose run ollama`
 
-
-
-
-`docker compose run debug-console`
+`docker run -d -p 3000:8080 -e OLLAMA_BASE_URL=http://127.0.0.1:11434 -v open-webui:/app/backend/data --name open-webui --restart always ghcr.io/open-webui/open-webui:main`
