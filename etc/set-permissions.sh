@@ -10,15 +10,17 @@ fi
 # Use first argument as user, or default to meshbot
 TARGET_USER="${1:-meshbot}"
 echo "DEBUG: TARGET_USER='$TARGET_USER'"
-id "$TARGET_USER"
+
 # Check if user exists
-if ! id "$TARGET_USER" &>/dev/null; then
+if ! id "$TARGET_USER" >/dev/null 2>&1; then
   echo "User '$TARGET_USER' does not exist."
-  read -p "Would you like to use the current user ($(logname)) instead? [y/N]: " yn
-  if [[ "$yn" =~ ^[Yy]$ ]]; then
-    TARGET_USER="$(logname)"
+  CUR_USER="$(whoami)"
+  printf "Would you like to use the current user (%s) instead? [y/N]: " "$CUR_USER"
+  read yn
+  if [ "$yn" = "y" ] || [ "$yn" = "Y" ]; then
+    TARGET_USER="$CUR_USER"
     echo "Using current user: $TARGET_USER"
-    if ! id "$TARGET_USER" &>/dev/null; then
+    if ! id "$TARGET_USER" >/dev/null 2>&1; then
       echo "Current user '$TARGET_USER' does not exist or cannot be determined."
       exit 1
     fi
@@ -27,6 +29,8 @@ if ! id "$TARGET_USER" &>/dev/null; then
     exit 1
   fi
 fi
+
+id "$TARGET_USER"
 
 echo "Setting ownership to $TARGET_USER:$TARGET_USER"
 
