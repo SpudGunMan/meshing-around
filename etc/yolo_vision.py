@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # YOLOv5 Object Detection with Movement Tracking using Raspberry Pi AI Camera or USB Webcam
 # YOLOv5 Requirements: yolo5 https://docs.ultralytics.com/yolov5/quickstart_tutorial/
-# PiCamera2 Requirements: picamera2 https://github.com/raspberrypi/picamera2
-# PiCamera2 may need `sudo apt install imx500-all` on Raspberry Pi OS
+# PiCamera2 Requirements: picamera2 https://github.com/raspberrypi/picamera2  `sudo apt install imx500-all`
 # NVIDIA GPU PyTorch: https://developer.nvidia.com/cuda-downloads
+# OCR with Tesseract: https://tesseract-ocr.github.io/tessdoc/Installation.html. `sudo apt-get install tesseract-ocr
 # Adjust settings below as needed, indended for meshing-around alert.txt output to meshtastic
 # 2025 K7MHI Kelly Keeton
 
@@ -16,6 +16,10 @@ MOVEMENT_THRESHOLD = 50     # Pixels to consider as movement (adjust as needed)
 IGNORE_STATIONARY = True   # Whether to ignore stationary objects in output
 ALERT_FUSE_COUNT = 5  # Number of consecutive detections before alerting
 ALERT_FILE_PATH = "alert.txt"  # e.g., "/opt/meshing-around/alert.txt" or None for no file output
+OCR_PROCESSING_ENABLED = True  # Whether to perform OCR on detected objects
+SAVE_EVIDENCE_IMAGES = True  # Whether to save evidence images when OCR text is found in bbox
+EVIDENCE_IMAGE_DIR = "."  # Change to desired directory, e.g., "/opt/meshing-around/data/images"
+EVIDENCE_IMAGE_PATTERN = "evidence_{timestamp}.png"
 
 try:
     import torch # YOLOv5 https://docs.ultralytics.com/yolov5/quickstart_tutorial/
@@ -24,7 +28,10 @@ try:
     import time
     import warnings
     import sys
+    import os
     import datetime
+    if OCR_PROCESSING_ENABLED:
+        import pytesseract  # pip install pytesseract
 
     if PI_CAM:
         from picamera2 import Picamera2 # pip install picamera2
@@ -60,10 +67,10 @@ else:
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, cam_res[0])
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, cam_res[1])
 
-print("="*40)
-print(f"                  Sentinal Vision 3000 Booting Up!")
-print(f"  Model: {YOLO_MODEL} | Camera: {CAMERA_TYPE} | Resolution: {RESOLUTION}")
-print("="*40)
+print("="*80)
+print(f"                       Sentinal Vision 3000 Booting Up!")
+print(f"  Model: {YOLO_MODEL} | Camera: {CAMERA_TYPE} | Resolution: {RESOLUTION} | OCR: {'Enabled' if OCR_PROCESSING_ENABLED else 'Disabled'}")
+print("="*80)
 time.sleep(1)
 
 def alert_output(msg, alert_file_path=ALERT_FILE_PATH):
@@ -73,6 +80,21 @@ def alert_output(msg, alert_file_path=ALERT_FILE_PATH):
         msg_no_time = " ".join(msg.split("] ")[1:]) if "] " in msg else msg
         with open(alert_file_path, "w") as f:  # Use "a" to append instead of overwrite
             f.write(msg_no_time + "\n")
+
+def extract_text_from_bbox(img, bbox):
+    try:
+        cropped = img.crop((bbox[0], bbox[1], bbox[2], bbox[3]))
+        text = pytesseract.image_to_string(cropped, config="--psm 7")
+        text_stripped = text.strip()
+        if text_stripped and SAVE_EVIDENCE_IMAGES:
+            timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+            image_path = os.path.join(EVIDENCE_IMAGE_DIR, EVIDENCE_IMAGE_PATTERN.format(timestamp=timestamp))
+            cropped.save(image_path)
+            print(f"Saved evidence image: {image_path}")
+        return f"{text_stripped}"
+    except Exception as e:
+        print(f"Error during OCR: {e}")
+        return False
 
 try:
     i = 0 # Frame counter if zero will be infinite
@@ -134,23 +156,40 @@ try:
             if fuse_counters[obj_id] < ALERT_FUSE_COUNT:
                 continue  # Don't alert yet
 
+            # OCR on detected region
+            bbox = [row['xmin'], row['ymin'], row['xmax'], row['ymax']]
+            if OCR_PROCESSING_ENABLED:
+                ocr_text = extract_text_from_bbox(img, bbox)
+
             if prev_x is not None:
                 delta = x_center - prev_x
                 if abs(delta) < MOVEMENT_THRESHOLD:
                     direction = "stationary"
                     if IGNORE_STATIONARY:
                         if obj_id not in __builtins__.stationary_reported:
-                            alert_output(f"[{timestamp}] {count} {row['name']} {direction}")
+                            msg = f"[{timestamp}] {count} {row['name']} {direction}"
+                            if OCR_PROCESSING_ENABLED and ocr_text:
+                                msg += f" | OCR: {ocr_text}"
+                            alert_output(msg)
                             __builtins__.stationary_reported.add(obj_id)
                     else:
-                        alert_output(f"[{timestamp}] {count} {row['name']} {direction}")
+                        msg = f"[{timestamp}] {count} {row['name']} {direction}"
+                        if OCR_PROCESSING_ENABLED and ocr_text:
+                            msg += f" | OCR: {ocr_text}"
+                        alert_output(msg)
                 else:
                     direction = "moving right" if delta > 0 else "moving left"
-                    alert_output(f"[{timestamp}] {count} {row['name']} {direction}")
+                    msg = f"[{timestamp}] {count} {row['name']} {direction}"
+                    if OCR_PROCESSING_ENABLED and ocr_text:
+                        msg += f" | OCR: {ocr_text}"
+                    alert_output(msg)
                     __builtins__.stationary_reported.discard(obj_id)
             else:
                 direction = "detected"
-                alert_output(f"[{timestamp}] {count} {row['name']} {direction}")
+                msg = f"[{timestamp}] {count} {row['name']} {direction}"
+                if OCR_PROCESSING_ENABLED and ocr_text:
+                    msg += f" | OCR: {ocr_text}"
+                alert_output(msg)
 
         # Reset fuse counters for objects not detected in this frame
         for obj_id in list(__builtins__.fuse_counters.keys()):
