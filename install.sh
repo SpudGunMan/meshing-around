@@ -288,7 +288,7 @@ fi
 
 # Only ask about meshbot user if bot is not "none" (n)
 if [[ $(echo "${bot}" | grep -i "^n") ]]; then
-    whoami=$(whoami)
+    bot_user=$(whoami)
 else
     if [[ $(echo "${embedded}" | grep -i "^n") ]]; then
         printf "\nDo you want to add a local user (meshbot) no login, for the bot? (y/n)"
@@ -296,14 +296,20 @@ else
     fi
 
     if [[ $(echo "${meshbotservice}" | grep -i "^y") ]] || [[ $(echo "${embedded}" | grep -i "^y") ]]; then
-        sudo useradd -M meshbot
-        sudo usermod -L meshbot
-        sudo groupadd meshbot
-        sudo usermod -a -G meshbot meshbot
-        whoami="meshbot"
-        echo "Added user meshbot with no home directory"
+        if ! id meshbot &>/dev/null; then
+            sudo useradd -M meshbot
+            sudo usermod -L meshbot
+            if ! getent group meshbot &>/dev/null; then
+                sudo groupadd meshbot
+            fi
+            sudo usermod -a -G meshbot meshbot
+            echo "Added user meshbot with no home directory"
+        else
+            echo "User meshbot already exists"
+        fi
+        bot_user="meshbot"
     else
-        whoami=$(whoami)
+        bot_user=$(whoami)
     fi
 fi
 
