@@ -7,7 +7,7 @@
 # Adjust settings below as needed, indended for meshing-around alert.txt output to meshtastic
 # 2025 K7MHI Kelly Keeton
 
-PI_CAM = 0  # 1 for Raspberry Pi AI Camera, 0 for USB webcam
+PI_CAM = 1  # 1 for Raspberry Pi AI Camera, 0 for USB webcam
 YOLO_MODEL = "yolov5s"  # e.g., 'yolov5s', 'yolov5m', 'yolov5l', 'yolov5x'
 LOW_RES_MODE = 0  # 1 for low res (320x240), 0 for high res (640x480)
 IGNORE_CLASSES = ["bed", "chair"]  # Add object names to ignore
@@ -36,7 +36,7 @@ except ImportError as e:
 
 # Suppress FutureWarnings from imports upstream noise
 warnings.filterwarnings("ignore", category=FutureWarning)
-CAMERA_TYPE = "Raspberry Pi Camera" if PI_CAM else "USB Webcam"
+CAMERA_TYPE = "RaspPi AI-Cam" if PI_CAM else "USB Webcam"
 RESOLUTION = "320x240" if LOW_RES_MODE else "640x480"
 
 # Load YOLOv5
@@ -61,7 +61,7 @@ else:
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, cam_res[1])
 
 print("="*40)
-print(f"  Sentinal Vision 3000 Booting Up!")
+print(f"                  Sentinal Vision 3000 Booting Up!")
 print(f"  Model: {YOLO_MODEL} | Camera: {CAMERA_TYPE} | Resolution: {RESOLUTION}")
 print("="*40)
 time.sleep(1)
