@@ -165,6 +165,10 @@ fi
 echo "----------------------------------------------"
 echo "Installing service files and templates..."
 echo "----------------------------------------------"
+# bootstrap
+mkdir -p "$program_path/logs"
+mkdir -p "$program_path/data"
+
 # copy service files
 cp etc/pong_bot.tmp etc/pong_bot.service
 cp etc/mesh_bot.tmp etc/mesh_bot.service
