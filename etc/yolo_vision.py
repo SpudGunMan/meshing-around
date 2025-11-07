@@ -1,22 +1,14 @@
 #!/usr/bin/env python3
-# YOLOv5 Object Detection with Movement Tracking using Raspberry Pi AI Camera
-# Adapted from Ultralytics YOLOv5 and Picamera2 examples
-# Requirements: torch, torchvision, pillow, picamera2, numpy
+# YOLOv5 Object Detection with Movement Tracking using Raspberry Pi AI Camera or USB Webcam
+# YOLOv5 Requirements: yolo5 https://docs.ultralytics.com/yolov5/quickstart_tutorial/
+# PiCamera2 Requirements: picamera2 https://github.com/raspberrypi/picamera2
+# PiCamera2 may need `sudo apt install imx500-all` on Raspberry Pi OS
+# GPU PyTorch: https://developer.nvidia.com/cuda-downloads
 # Adjust settings below as needed, indended for meshing-around alert.txt output to meshtastic
 # 2025 K7MHI Kelly Keeton
-import torch
-from PIL import Image
-import numpy as np
-import time
-import warnings
-import sys
-import datetime
 
-PI_CAM = 0  # 1 for Raspberry Pi Camera, 0 for USB webcam
-
-# Load YOLOv5 model, other options include 'yolov5m', 'yolov5l', 'yolov5x'
-model = torch.hub.load("ultralytics/yolov5", "yolov5s")
-
+PI_CAM = 0  # 1 for Raspberry Pi AI Camera, 0 for USB webcam
+YOLO_MODEL = "yolov5s"  # e.g., 'yolov5s', 'yolov5m', 'yolov5l', 'yolov5x'
 LOW_RES_MODE = 0  # 1 for low res (320x240), 0 for high res (640x480)
 IGNORE_CLASSES = ["bed", "chair"]  # Add object names to ignore
 CONFIDENCE_THRESHOLD = 0.8  # Only show detections above this confidence
@@ -25,13 +17,30 @@ IGNORE_STATIONARY = True   # Whether to ignore stationary objects in output
 ALERT_FUSE_COUNT = 5  # Number of consecutive detections before alerting
 ALERT_FILE_PATH = "alert.txt"  # e.g., "/opt/meshing-around/alert.txt" or None for no file output
 
-if PI_CAM:
-    from picamera2 import Picamera2
-else:
-    import cv2
+try:
+    import torch # YOLOv5 https://docs.ultralytics.com/yolov5/quickstart_tutorial/
+    from PIL import Image # pip install pillow
+    import numpy as np # pip install numpy
+    import time
+    import warnings
+    import sys
+    import datetime
 
-# Suppress FutureWarnings from libraries
+    if PI_CAM:
+        from picamera2 import Picamera2 # pip install picamera2
+    else:
+        import cv2
+except ImportError as e:
+    print(f"Missing required module: {e.name}. Please review the comments in program, and try again.", file=sys.stderr)
+    sys.exit(1)
+
+# Suppress FutureWarnings from imports upstream noise
 warnings.filterwarnings("ignore", category=FutureWarning)
+CAMERA_TYPE = "Raspberry Pi Camera" if PI_CAM else "USB Webcam"
+RESOLUTION = "320x240" if LOW_RES_MODE else "640x480"
+
+# Load YOLOv5
+model = torch.hub.load("ultralytics/yolov5", YOLO_MODEL)
 
 if PI_CAM:
     picam2 = Picamera2()
@@ -52,7 +61,8 @@ else:
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, cam_res[1])
 
 print("="*40)
-print("  Sentinal Vision 3000 Booting Up!")
+print(f"  Sentinal Vision 3000 Booting Up!")
+print(f"  Model: {YOLO_MODEL} | Camera: {CAMERA_TYPE} | Resolution: {RESOLUTION}")
 print("="*40)
 time.sleep(1)
 
