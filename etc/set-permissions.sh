@@ -30,12 +30,20 @@ fi
 
 echo "Setting ownership to $TARGET_USER:$TARGET_USER"
 
-chown -R "$TARGET_USER:$TARGET_USER" "/opt/meshing-around"
-chown -R "$TARGET_USER:$TARGET_USER" "/opt/meshing-around/logs"
-chown -R "$TARGET_USER:$TARGET_USER" "/opt/meshing-around/data"
-chown "$TARGET_USER:$TARGET_USER" "/opt/meshing-around/config.ini"
-chmod 664 "/opt/meshing-around/config.ini"
-chmod 775 "/opt/meshing-around/logs"
-chmod 775 "/opt/meshing-around/data"
+for dir in "/opt/meshing-around" "/opt/meshing-around/logs" "/opt/meshing-around/data"; do
+  if [ -d "$dir" ]; then
+    chown -R "$TARGET_USER:$TARGET_USER" "$dir"
+    chmod 775 "$dir"
+  else
+    echo "Warning: Directory $dir does not exist, skipping."
+  fi
+done
+
+if [ -f "/opt/meshing-around/config.ini" ]; then
+  chown "$TARGET_USER:$TARGET_USER" "/opt/meshing-around/config.ini"
+  chmod 664 "/opt/meshing-around/config.ini"
+else
+  echo "Warning: /opt/meshing-around/config.ini does not exist, skipping."
+fi
 
 echo "Permissions and ownership have been set."
