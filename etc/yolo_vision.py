@@ -8,13 +8,11 @@ import torch
 from PIL import Image
 import numpy as np
 import time
-from picamera2 import Picamera2
 import warnings
 import sys
 import datetime
 
-# Suppress FutureWarnings from libraries
-warnings.filterwarnings("ignore", category=FutureWarning)
+PI_CAM = 0  # 1 for Raspberry Pi Camera, 0 for USB webcam
 
 # Load YOLOv5 model, other options include 'yolov5m', 'yolov5l', 'yolov5x'
 model = torch.hub.load("ultralytics/yolov5", "yolov5s")
@@ -27,14 +25,31 @@ IGNORE_STATIONARY = True   # Whether to ignore stationary objects in output
 ALERT_FUSE_COUNT = 5  # Number of consecutive detections before alerting
 ALERT_FILE_PATH = "alert.txt"  # e.g., "/opt/meshing-around/alert.txt" or None for no file output
 
-picam2 = Picamera2()
-if LOW_RES_MODE:
-    picam2.preview_configuration.main.size = (320, 240)
+if PI_CAM:
+    from picamera2 import Picamera2
 else:
-    picam2.preview_configuration.main.size = (640, 480)
-picam2.preview_configuration.main.format = "RGB888"
-picam2.configure("preview")
-picam2.start()
+    import cv2
+
+# Suppress FutureWarnings from libraries
+warnings.filterwarnings("ignore", category=FutureWarning)
+
+if PI_CAM:
+    picam2 = Picamera2()
+    if LOW_RES_MODE:
+        picam2.preview_configuration.main.size = (320, 240)
+    else:
+        picam2.preview_configuration.main.size = (640, 480)
+    picam2.preview_configuration.main.format = "RGB888"
+    picam2.configure("preview")
+    picam2.start()
+else:
+    if LOW_RES_MODE:
+        cam_res = (320, 240)
+    else:
+        cam_res = (640, 480)
+    cap = cv2.VideoCapture(0)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, cam_res[0])
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, cam_res[1])
 
 print("="*40)
 print("  Sentinal Vision 3000 Booting Up!")
@@ -54,7 +69,14 @@ try:
     system_normal_printed = False # system nominal flag, if true disables printing
     while True:
         i += 1
-        frame = picam2.capture_array()
+        if PI_CAM:
+            frame = picam2.capture_array()
+        else:
+            ret, frame = cap.read()
+            if not ret:
+                print("Failed to grab frame from webcam.")
+                break
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         img = Image.fromarray(frame)
 
         results = model(img)
@@ -133,5 +155,9 @@ except KeyboardInterrupt:
 except Exception as e:
     print(f"\nAn error occurred: {e}", file=sys.stderr)
 finally:
-    picam2.close()
-    print("Camera closed. Goodbye!")
+    if PI_CAM:
+        picam2.close()
+        print("Camera closed. Goodbye!")
+    else:
+        cap.release()
+        print("Webcam released. Goodbye!")
