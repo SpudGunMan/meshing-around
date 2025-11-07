@@ -17,6 +17,9 @@ else
     exit 1
 fi
 
+export REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
+export SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
+
 # launch the application
 if [[ "$1" == pong* ]]; then
     python3 pong_bot.py
