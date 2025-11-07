@@ -462,12 +462,6 @@ if [[ $(echo "${embedded}" | grep -i "^n") ]]; then
     fi
 
     read -p "Press enter to complete the installation, these commands saved to install_notes.txt"
-
-    printf "\nGood time to reboot? (y/n)"
-    read reboot
-    if [[ $(echo "${reboot}" | grep -i "^y") ]]; then
-        sudo reboot
-    fi
 else
     # we are on embedded
     # replace "type = serial" with "type = tcp" in config.ini
@@ -526,8 +520,12 @@ sudo chmod 775 "$program_path/logs"
 sudo chmod 775 "$program_path/data"
 echo "Permissions set for meshbot on logs and data directories"
 
-printf "\nInstallation complete?\n"
-
+printf "\nGood time to reboot? (y/n)"
+read reboot
+if [[ $(echo "${reboot}" | grep -i "^y") ]]; then
+    sudo reboot
+fi
+printf "\nInstallation complete! 73\n"
 exit 0
 
 # to uninstall the product run the following commands as needed
