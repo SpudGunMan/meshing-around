@@ -3,7 +3,7 @@
 # YOLOv5 Requirements: yolo5 https://docs.ultralytics.com/yolov5/quickstart_tutorial/
 # PiCamera2 Requirements: picamera2 https://github.com/raspberrypi/picamera2
 # PiCamera2 may need `sudo apt install imx500-all` on Raspberry Pi OS
-# GPU PyTorch: https://developer.nvidia.com/cuda-downloads
+# NVIDIA GPU PyTorch: https://developer.nvidia.com/cuda-downloads
 # Adjust settings below as needed, indended for meshing-around alert.txt output to meshtastic
 # 2025 K7MHI Kelly Keeton
 
