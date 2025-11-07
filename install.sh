@@ -286,31 +286,24 @@ else
     read bot
 fi
 
-# Only ask about meshbot user if bot is not "none" (n)
+# Decide which user to use for the service
 if [[ $(echo "${bot}" | grep -i "^n") ]]; then
+    # Not installing as a service, use current user
     bot_user=$(whoami)
 else
-    if [[ $(echo "${embedded}" | grep -i "^n") ]]; then
-        printf "\nDo you want to add a local user (meshbot) no login, for the bot? (y/n)"
-        read meshbotservice
-    fi
-
-    if [[ $(echo "${meshbotservice}" | grep -i "^y") ]] || [[ $(echo "${embedded}" | grep -i "^y") ]]; then
-        if ! id meshbot &>/dev/null; then
-            sudo useradd -M meshbot
-            sudo usermod -L meshbot
-            if ! getent group meshbot &>/dev/null; then
-                sudo groupadd meshbot
-            fi
-            sudo usermod -a -G meshbot meshbot
-            echo "Added user meshbot with no home directory"
-        else
-            echo "User meshbot already exists"
+    # Installing as a service (meshbot or pongbot), always use meshbot account
+    if ! id meshbot &>/dev/null; then
+        sudo useradd -M meshbot
+        sudo usermod -L meshbot
+        if ! getent group meshbot &>/dev/null; then
+            sudo groupadd meshbot
         fi
-        bot_user="meshbot"
+        sudo usermod -a -G meshbot meshbot
+        echo "Added user meshbot with no home directory"
     else
-        bot_user=$(whoami)
+        echo "User meshbot already exists"
     fi
+    bot_user="meshbot"
 fi
 
 echo "----------------------------------------------"
@@ -318,13 +311,13 @@ echo "Finalizing service installation..."
 echo "----------------------------------------------"
 
 # set the correct user in the service file
-replace="s|User=pi|User=$whoami|g"
+replace="s|User=pi|User=$bot_user|g"
 sed -i "$replace" etc/pong_bot.service
 sed -i "$replace" etc/mesh_bot.service
 sed -i "$replace" etc/mesh_bot_reporting.service
 sed -i "$replace" etc/mesh_bot_reporting.timer
 # set the correct group in the service file
-replace="s|Group=pi|Group=$whoami|g"
+replace="s|Group=pi|Group=$bot_user|g"
 sed -i "$replace" etc/pong_bot.service
 sed -i "$replace" etc/mesh_bot.service
 sed -i "$replace" etc/mesh_bot_reporting.service
@@ -333,10 +326,10 @@ printf "\n service files updated\n"
 
 # add user to groups for serial access
 printf "\nAdding user to dialout, bluetooth, and tty groups for serial access\n"
-sudo usermod -a -G dialout "$whoami"
-sudo usermod -a -G tty "$whoami"
-sudo usermod -a -G bluetooth "$whoami"
-echo "Added user $whoami to dialout, tty, and bluetooth groups"
+sudo usermod -a -G dialout "$bot_user"
+sudo usermod -a -G tty "$bot_user"
+sudo usermod -a -G bluetooth "$bot_user"
+echo "Added user $bot_user to dialout, tty, and bluetooth groups"
 
 # check and see if some sort of NTP is running
 if ! systemctl is-active --quiet ntp.service && \
@@ -520,9 +513,9 @@ echo "----------------------------------------------"
 echo "Finalizing permissions..."
 echo "----------------------------------------------"
 
-sudo chown -R "$whoami:$whoami" "$program_path/logs"
-sudo chown -R "$whoami:$whoami" "$program_path/data"
-sudo chown "$whoami:$whoami" "$program_path/config.ini"
+sudo chown -R "$bot_user:$bot_user" "$program_path/logs"
+sudo chown -R "$bot_user:$bot_user" "$program_path/data"
+sudo chown "$bot_user:$bot_user" "$program_path/config.ini"
 sudo chmod 640 "$program_path/config.ini"
 echo "Permissions set for meshbot on config.ini"
 sudo chmod 750 "$program_path/logs"
