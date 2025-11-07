@@ -15,8 +15,8 @@ WorkingDirectory=/dir/
 ExecStart=python3 pong_bot.py
 ExecStop=
 KillSignal=SIGINT
-Environment=REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
-Environment=SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
+Environment="REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt"
+Environment="SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt"
 
 # Disable Python's buffering of STDOUT and STDERR, so that output from the
 # service shows up immediately in systemd's logs

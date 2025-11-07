@@ -10,8 +10,8 @@ WorkingDirectory=/dir/
 ExecStart=python3 modules/web.py
 ExecStop=
 KillSignal=SIGINT
-Environment=REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
-Environment=SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
+Environment="REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt"
+Environment="SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt"
 Environment=PYTHONUNBUFFERED=1
 Restart=on-failure
 
