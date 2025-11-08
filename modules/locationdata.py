@@ -1066,8 +1066,9 @@ def get_openskynetwork(lat=0, lon=0, altitude=0, node_altitude=0, altitude_windo
     logger.debug(f"Location: OpenSky Network: Found {len(aircraft_list)} possible aircraft in area")
     closest = None
     min_diff = float('inf')
-
+    
     if len(aircraft_list) == 1:
+        # Only one aircraft found; assume it's the one overhead, even if altitude is missing
         aircraft = aircraft_list[0]
         return {
             "callsign": aircraft[1].strip() if aircraft[1] else "N/A",
