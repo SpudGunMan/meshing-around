@@ -56,6 +56,14 @@ if [[ $NOPE -eq 1 ]]; then
             sudo rm -f /etc/systemd/system/ollama.service
             sudo rm -rf /usr/local/bin/ollama
             sudo rm -rf ~/.ollama
+            # remove ollama service account if exists
+            if id ollama &>/dev/null; then
+                sudo userdel ollama || true
+            fi
+            # remove ollama group if exists
+            if getent group ollama &>/dev/null; then
+                sudo groupdel ollama || true
+            fi
             echo "Ollama removed."
         else
             echo "Ollama not removed."
