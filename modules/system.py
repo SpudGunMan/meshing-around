@@ -1613,38 +1613,39 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
                 positionMetadata[nodeID] = {}
             for key in position_stats_keys:
                 positionMetadata[nodeID][key] = position_data.get(key, 0)
-            # Track highest altitude 🚀 (also log if over highfly_altitude threshold)
-            highflying = False
+ 
+            # Track altitude and speed records
             if position_data.get('altitude') is not None:
                 altitude = position_data['altitude']
-                if altitude > highfly_altitude:
-                    if altitude > meshLeaderboard['highestAltitude']['value']:
-                        highflying = True
-                        meshLeaderboard['highestAltitude'] = {'nodeID': nodeID, 'value': altitude, 'timestamp': time.time()}
-                        if logMetaStats:
-                            logger.info(f"System: 🚀 New altitude record: {altitude}m from NodeID:{nodeID} ShortName:{get_name_from_number(nodeID, 'short', rxNode)}")
-            # Track tallest node 🪜 (under the highfly_altitude limit by 100m)
-            if position_data.get('altitude') is not None:
-                altitude = position_data['altitude']
+                highflying = altitude > highfly_altitude
+            
+                # Tallest node (below highfly_altitude - 100m)
                 if altitude < (highfly_altitude - 100):
                     if altitude > meshLeaderboard['tallestNode']['value']:
                         meshLeaderboard['tallestNode'] = {'nodeID': nodeID, 'value': altitude, 'timestamp': time.time()}
                         if logMetaStats:
                             logger.info(f"System: 🪜 New tallest node record: {altitude}m from NodeID:{nodeID} ShortName:{get_name_from_number(nodeID, 'short', rxNode)}")
-           # Track fastest speed 🚓
-            if position_data.get('groundSpeed') is not None:
-                speed = position_data['groundSpeed']
-                if speed > meshLeaderboard['fastestSpeed']['value'] and not highflying:
-                    meshLeaderboard['fastestSpeed'] = {'nodeID': nodeID, 'value': speed, 'timestamp': time.time()}
-                    if logMetaStats:
-                        logger.info(f"System: 🚓 New speed record: {speed} km/h from NodeID:{nodeID} ShortName:{get_name_from_number(nodeID, 'short', rxNode)}")
-                elif speed > meshLeaderboard['fastestAirSpeed']['value'] and highflying:
-                    meshLeaderboard['fastestAirSpeed'] = {'nodeID': nodeID, 'value': speed, 'timestamp': time.time()}
-                    if logMetaStats:
-                        logger.info(f"System: ✈️ New air speed record: {speed} km/h from NodeID:{nodeID} ShortName:{get_name_from_number(nodeID, 'short', rxNode)}")
-                elif speed > 160 and highflying:
-                    logger.info(f"System: High Speed Flying Object {speed}km/h on Device: {rxNode} Channel: {channel} NodeID:{nodeID} Lat:{position_data.get('latitude', 0)} Lon:{position_data.get('longitude', 0)}")
             
+                # Highest altitude (above highfly_altitude)
+                if highflying:
+                    if altitude > meshLeaderboard['highestAltitude']['value']:
+                        meshLeaderboard['highestAltitude'] = {'nodeID': nodeID, 'value': altitude, 'timestamp': time.time()}
+                        if logMetaStats:
+                            logger.info(f"System: 🚀 New altitude record: {altitude}m from NodeID:{nodeID} ShortName:{get_name_from_number(nodeID, 'short', rxNode)}")
+            
+                # Track speed records
+                if position_data.get('groundSpeed') is not None:
+                    speed = position_data['groundSpeed']
+                    # Fastest ground speed (not highflying)
+                    if not highflying and speed > meshLeaderboard['fastestSpeed']['value']:
+                        meshLeaderboard['fastestSpeed'] = {'nodeID': nodeID, 'value': speed, 'timestamp': time.time()}
+                        if logMetaStats:
+                            logger.info(f"System: 🚓 New speed record: {speed} km/h from NodeID:{nodeID} ShortName:{get_name_from_number(nodeID, 'short', rxNode)}")
+                    # Fastest air speed (highflying)
+                    elif highflying and speed > meshLeaderboard['fastestAirSpeed']['value']:
+                        meshLeaderboard['fastestAirSpeed'] = {'nodeID': nodeID, 'value': speed, 'timestamp': time.time()}
+                        if logMetaStats:
+                            logger.info(f"System: ✈️ New air speed record: {speed} km/h from NodeID:{nodeID} ShortName:{get_name_from_number(nodeID, 'short', rxNode)}")
             # if altitude is over highfly_altitude send a log and message for high-flying nodes and not in highfly_ignoreList
             if position_data.get('altitude', 0) > highfly_altitude and highfly_enabled and str(nodeID) not in highfly_ignoreList and not isNodeBanned(nodeID):
                 logger.info(f"System: High Altitude {position_data['altitude']}m on Device: {rxNode} Channel: {channel} NodeID:{nodeID} Lat:{position_data.get('latitude', 0)} Lon:{position_data.get('longitude', 0)}")
