@@ -1466,6 +1466,7 @@ def initializeMeshLeaderboard():
         'lowestBattery': {'nodeID': None, 'value': 101, 'timestamp': 0},  # 🪫
         'longestUptime': {'nodeID': None, 'value': 0, 'timestamp': 0},    # 🕰️
         'fastestSpeed': {'nodeID': None, 'value': 0, 'timestamp': 0},     # 🚓
+        'fastestAirSpeed': {'nodeID': None, 'value': 0, 'timestamp': 0},  # ✈️
         'highestAltitude': {'nodeID': None, 'value': 0, 'timestamp': 0},  # 🚀
         'tallestNode': {'nodeID': None, 'value': 0, 'timestamp': 0},      # 🪜
         'coldestTemp': {'nodeID': None, 'value': 999, 'timestamp': 0},    # 🥶
@@ -1612,18 +1613,13 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
                 positionMetadata[nodeID] = {}
             for key in position_stats_keys:
                 positionMetadata[nodeID][key] = position_data.get(key, 0)
-            # Track fastest speed 🚓
-            if position_data.get('groundSpeed') is not None:
-                speed = position_data['groundSpeed']
-                if speed > meshLeaderboard['fastestSpeed']['value']:
-                    meshLeaderboard['fastestSpeed'] = {'nodeID': nodeID, 'value': speed, 'timestamp': time.time()}
-                    if logMetaStats:
-                        logger.info(f"System: 🚓 New speed record: {speed} km/h from NodeID:{nodeID} ShortName:{get_name_from_number(nodeID, 'short', rxNode)}")
             # Track highest altitude 🚀 (also log if over highfly_altitude threshold)
+            highflying = False
             if position_data.get('altitude') is not None:
                 altitude = position_data['altitude']
                 if altitude > highfly_altitude:
                     if altitude > meshLeaderboard['highestAltitude']['value']:
+                        highflying = True
                         meshLeaderboard['highestAltitude'] = {'nodeID': nodeID, 'value': altitude, 'timestamp': time.time()}
                         if logMetaStats:
                             logger.info(f"System: 🚀 New altitude record: {altitude}m from NodeID:{nodeID} ShortName:{get_name_from_number(nodeID, 'short', rxNode)}")
@@ -1635,7 +1631,20 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
                         meshLeaderboard['tallestNode'] = {'nodeID': nodeID, 'value': altitude, 'timestamp': time.time()}
                         if logMetaStats:
                             logger.info(f"System: 🪜 New tallest node record: {altitude}m from NodeID:{nodeID} ShortName:{get_name_from_number(nodeID, 'short', rxNode)}")
-
+           # Track fastest speed 🚓
+            if position_data.get('groundSpeed') is not None:
+                speed = position_data['groundSpeed']
+                if speed > meshLeaderboard['fastestSpeed']['value'] and not highflying:
+                    meshLeaderboard['fastestSpeed'] = {'nodeID': nodeID, 'value': speed, 'timestamp': time.time()}
+                    if logMetaStats:
+                        logger.info(f"System: 🚓 New speed record: {speed} km/h from NodeID:{nodeID} ShortName:{get_name_from_number(nodeID, 'short', rxNode)}")
+                elif speed > meshLeaderboard['fastestAirSpeed']['value'] and highflying:
+                    meshLeaderboard['fastestAirSpeed'] = {'nodeID': nodeID, 'value': speed, 'timestamp': time.time()}
+                    if logMetaStats:
+                        logger.info(f"System: ✈️ New air speed record: {speed} km/h from NodeID:{nodeID} ShortName:{get_name_from_number(nodeID, 'short', rxNode)}")
+                elif speed > 160 and highflying:
+                    logger.info(f"System: High Speed Flying Object {speed}km/h on Device: {rxNode} Channel: {channel} NodeID:{nodeID} Lat:{position_data.get('latitude', 0)} Lon:{position_data.get('longitude', 0)}")
+            
             # if altitude is over highfly_altitude send a log and message for high-flying nodes and not in highfly_ignoreList
             if position_data.get('altitude', 0) > highfly_altitude and highfly_enabled and str(nodeID) not in highfly_ignoreList and not isNodeBanned(nodeID):
                 logger.info(f"System: High Altitude {position_data['altitude']}m on Device: {rxNode} Channel: {channel} NodeID:{nodeID} Lat:{position_data.get('latitude', 0)} Lon:{position_data.get('longitude', 0)}")
@@ -1935,6 +1944,16 @@ def get_mesh_leaderboard(msg, fromID, deviceID):
             result += f"🚓 Speed: {value_kmh} km/h {get_name_from_number(nodeID, 'short', 1)}\n"
         else:
             result += f"🚓 Speed: {value_mph} mph {get_name_from_number(nodeID, 'short', 1)}\n"
+
+    # Tallest node
+    if meshLeaderboard['tallestNode']['nodeID']:
+        nodeID = meshLeaderboard['tallestNode']['nodeID']
+        value_m = meshLeaderboard['tallestNode']['value']
+        value_ft = round(value_m * 3.28084, 0)
+        if use_metric:
+            result += f"🪜 Tallest: {int(round(value_m, 0))}m {get_name_from_number(nodeID, 'short', 1)}\n"
+        else:
+            result += f"🪜 Tallest: {int(value_ft)}ft {get_name_from_number(nodeID, 'short', 1)}\n"
     
     # Highest altitude
     if meshLeaderboard['highestAltitude']['nodeID']:
@@ -1946,15 +1965,15 @@ def get_mesh_leaderboard(msg, fromID, deviceID):
         else:
             result += f"🚀 Altitude: {int(value_ft)}ft {get_name_from_number(nodeID, 'short', 1)}\n"
 
-    # Tallest node
-    if meshLeaderboard['tallestNode']['nodeID']:
-        nodeID = meshLeaderboard['tallestNode']['nodeID']
-        value_m = meshLeaderboard['tallestNode']['value']
-        value_ft = round(value_m * 3.28084, 0)
+    # Fastest airspeed
+    if meshLeaderboard['fastestAirSpeed']['nodeID']:
+        nodeID = meshLeaderboard['fastestAirSpeed']['nodeID']
+        value_kmh = round(meshLeaderboard['fastestAirSpeed']['value'], 1)
+        value_mph = round(value_kmh / 1.60934, 1)
         if use_metric:
-            result += f"🪜 Tallest: {int(round(value_m, 0))}m {get_name_from_number(nodeID, 'short', 1)}\n"
+            result += f"✈️ Airspeed: {value_kmh} km/h {get_name_from_number(nodeID, 'short', 1)}\n"
         else:
-            result += f"🪜 Tallest: {int(value_ft)}ft {get_name_from_number(nodeID, 'short', 1)}\n"
+            result += f"✈️ Airspeed: {value_mph} mph {get_name_from_number(nodeID, 'short', 1)}\n"
     
     # Coldest temperature
     if meshLeaderboard['coldestTemp']['nodeID']:
@@ -2040,7 +2059,7 @@ def get_mesh_leaderboard(msg, fromID, deviceID):
     result = result.strip()
     
     if result == "📊Leaderboard📊\n":
-        result += "No records yet! Keep meshing! 📡"
+        result += "No records yet! Keep meshing! 📡 \n firmware 2.7+ `Broadcast Device Metrics` in Telemetry Config, needs enabled for full use. Ideally not on AQ=="
     
     return result
 
