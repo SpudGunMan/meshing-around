@@ -15,6 +15,7 @@ def setup_custom_schedules(send_message, tell_joke, welcome_message, handle_wxc,
     5. Make sure to uncomment (delete the single #) the example schedules down at the end of the file to enable them
     Python is sensitive to indentation so be careful when editing this file. 
     https://thonny.org is included on pi's image and is a simple IDE to use for editing python files.
+    6. System Tasks run every 20min try and avoid overlapping schedules to reduce API rapid fire issues. use like 8:05
     
     Available functions you can import and use, be sure they are enabled modules in config.ini:
     - tell_joke() - Returns a random joke
