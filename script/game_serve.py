@@ -30,6 +30,7 @@ except ImportError:
 try:
     sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
     from modules.games.tictactoe_vid import handle_tictactoe_payload, ttt_main
+    from modules.games.battleship_vid import parse_battleship_message
 except Exception as e:
     print(f"Error importing modules: {e}\nRun this program from the main project directory, e.g. 'python3 script/game_serve.py'")
     exit(1)
@@ -130,6 +131,13 @@ def on_private_app(packet: mesh_pb2.MeshPacket, addr=None):
                     add_seen_message(msg_tuple)
                     handle_tictactoe_payload(packet_payload, from_id=packet_from_id)
                     print(f"[Channel: {rx_channel}] [Port: {port_name}] Tic-Tac-Toe Message payload:", packet_payload)
+            elif packet_payload.startswith("MBSP:"):
+                packet_payload = packet_payload[5:]  # remove 'MBSP:'
+                msg_tuple = (getattr(packet, 'from', None), packet.to, packet_payload)
+                if msg_tuple not in seen_messages:
+                    add_seen_message(msg_tuple)
+                    #parse_battleship_message(packet_payload, from_id=packet_from_id)
+                    print(f"[Channel: {rx_channel}] [Port: {port_name}] Battleship Message payload:", packet_payload)
             else:
                 msg_tuple = (getattr(packet, 'from', None), packet.to, packet_payload)
                 if msg_tuple not in seen_messages:
@@ -169,7 +177,7 @@ def main():
     print(r"""
       ___
      /   \
-    | HOT |   Mesh Bot Display Server v0.9.5
+    | HOT |   Mesh Bot Display Server v0.9.5b
     | TOT |        (aka tot-bot)
      \___/
 
