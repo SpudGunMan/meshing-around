@@ -1909,25 +1909,15 @@ def onReceive(packet, interface):
     # check if the packet has a channel flag use it ## FIXME needs to be channel hash lookup
     if packet.get('channel'):
         channel_number = packet.get('channel')
-        # get channel name from channel number from connected devices
-        for device in channel_list:
-            if device["interface_id"] == rxNode:
-                device_channels = device['channels']
-                for chan_name, info in device_channels.items():
-                    if info['number'] == channel_number:
-                        channel_name = chan_name
-                        break
-        
-    # get channel hashes for the interface
-    device = next((d for d in channel_list if d["interface_id"] == rxNode), None)
-    if device:
-        # Find the channel name whose hash matches channel_number
-        for chan_name, info in device['channels'].items():
-            if info['hash'] == channel_number:
-                print(f"Matched channel hash {info['hash']} to channel name {chan_name}")
-                channel_name = chan_name
-                break
+        try:
+            channel_name, _ = resolve_channel_name(channel_number, rxNode, interface)
+        except Exception as e:
+            channel_name = "unknown"
+            logger.debug(f"System: channel resolution error: {e}")
 
+        #debug channel info
+        logger.debug(f"System: Packet Received on Interface {rxNode} Channel: {channel_number} Name: {channel_name}")
+    
     # check if the packet has a simulator flag
     simulator_flag = packet.get('decoded', {}).get('simulator', False)
     if isinstance(simulator_flag, dict):
