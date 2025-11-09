@@ -323,6 +323,7 @@ value =
 # interval to use when time is not set (e.g. every 2 days)
 interval = 
 # time of day in 24:00 hour format when value is 'day' and interval is not set
+# Process run :00,:20,:40 try and vary the 20 minute offsets to avoid collision
 time =
 
 [radioMon]
