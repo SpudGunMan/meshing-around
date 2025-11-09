@@ -286,7 +286,7 @@ def onReceive(packet, interface):
             logger.debug(f"System: channel resolution error: {e}")
 
         #debug channel info
-        if channel_name == "unknown":
+        if "unknown" in str(channel_name):
             logger.debug(f"System: Received Packet on Channel:{channel_number} on Interface:{rxNode}")
         else:
             logger.debug(f"System: Received Packet on Channel:{channel_number} Name:{channel_name} on Interface:{rxNode}")
