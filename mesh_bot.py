@@ -1916,7 +1916,10 @@ def onReceive(packet, interface):
             logger.debug(f"System: channel resolution error: {e}")
 
         #debug channel info
-        logger.debug(f"System: Packet Received on Interface {rxNode} Channel: {channel_number} Name: {channel_name}")
+        if channel_name == "unknown":
+            logger.debug(f"System: Unknown Channel {channel_number} on Interface {rxNode}")
+        else:
+            logger.debug(f"System: Resolved Channel {channel_number} to Name: {channel_name} on Interface {rxNode}")
     
     # check if the packet has a simulator flag
     simulator_flag = packet.get('decoded', {}).get('simulator', False)
