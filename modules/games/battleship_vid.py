@@ -12,6 +12,9 @@ CELL_SIZE = 40
 BOARD_MARGIN = 50
 STATUS_WIDTH = 320
 
+latest_battleship_board = None
+latest_battleship_meta = None
+
 def draw_board(screen, board, top_left, cell_size, show_ships=False):
     font = pygame.font.Font(None, 28)
     x0, y0 = top_left
@@ -91,6 +94,11 @@ def battleship_visual_main(game):
         clock.tick(30)
     pygame.quit()
     sys.exit()
+
+def parse_battleship_message(msg):
+    # Expected payload:
+    # MBSP|label|timestamp|nodeID|deviceID|sessionID|status|shotsFired|boardType|shipsStatus|boardString
+    print("Parsing Battleship message:", msg)
 
 # if __name__ == "__main__":
 #     # Example: create a new game and show the boards
