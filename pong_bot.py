@@ -287,9 +287,9 @@ def onReceive(packet, interface):
 
         #debug channel info
         if channel_name == "unknown":
-            logger.debug(f"System: Unknown Channel {channel_number} on Interface {rxNode}")
+            logger.debug(f"System: Received Packet on Channel:{channel_number} on Interface:{rxNode}")
         else:
-            logger.debug(f"System: Resolved Channel {channel_number} to Name: {channel_name} on Interface {rxNode}")
+            logger.debug(f"System: Received Packet on Channel:{channel_number} Name:{channel_name} on Interface:{rxNode}")
 
     # check if the packet has a simulator flag
     simulator_flag = packet.get('decoded', {}).get('simulator', False)
