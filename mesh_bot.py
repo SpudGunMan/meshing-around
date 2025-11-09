@@ -660,7 +660,7 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
         if not any(node['nodeID'] == message_from_id and node['welcome'] == True for node in seenNodes):
             if (channel_number == publicChannel and my_settings.antiSpam) or my_settings.useDMForResponse:
                 # send via DM
-                send_message(my_settings.welcome_message, channel_number, message_from_id, deviceID)
+                send_message(my_settings.welcome_message, 0, message_from_id, deviceID)
             else:
                 # send via channel
                 send_message(my_settings.welcome_message, channel_number, 0, deviceID)
@@ -693,7 +693,7 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
     if msg != '':
         if (channel_number == publicChannel and my_settings.antiSpam) or my_settings.useDMForResponse:
             # send via DM
-            send_message(msg, channel_number, message_from_id, deviceID)
+            send_message(msg, 0, message_from_id, deviceID)
         else:
             # send via channel
             send_message(msg, channel_number, 0, deviceID)
