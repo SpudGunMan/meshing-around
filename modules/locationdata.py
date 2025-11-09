@@ -1036,89 +1036,127 @@ def get_openskynetwork(lat=0, lon=0, altitude=0, node_altitude=0, altitude_windo
     Returns the aircraft dict from OpenSky Network closest in altitude (within altitude_window meters)
     to the given node_altitude. If no aircraft found, returns my_settings.NO_ALERTS.
     """
-    if lat == 0 and lon == 0:
-        return False
+    def _to_float(v):
+        try:
+            # handle numeric and numeric-strings, treat empty/'N/A' as None
+            if v is None:
+                return None
+            if isinstance(v, (int, float)):
+                return float(v)
+            s = str(v).strip()
+            if s == "" or s.upper() == "N/A":
+                return None
+            return float(s)
+        except Exception:
+            return None
 
-    box_size = 0.45  # approx 50km
-    lamin = lat - box_size
-    lamax = lat + box_size
-    lomin = lon - box_size
-    lomax = lon + box_size
-
-    opensky_url = (
-        f"https://opensky-network.org/api/states/all?lamin={lamin}&lomin={lomin}"
-        f"&lamax={lamax}&lomax={lomax}"
-    )
     try:
-        aircraft_data = requests.get(opensky_url, timeout=my_settings.urlTimeoutSeconds)
-        if not aircraft_data.ok:
+        # basic input validation/coercion
+        try:
+            lat = float(lat)
+            lon = float(lon)
+        except Exception:
+            return False
+
+        try:
+            node_altitude = _to_float(node_altitude) or 0.0
+        except Exception:
+            node_altitude = 0.0
+
+        if lat == 0 and lon == 0:
+            return False
+
+        box_size = 0.45  # approx 50km
+        lamin = lat - box_size
+        lamax = lat + box_size
+        lomin = lon - box_size
+        lomax = lon + box_size
+
+        opensky_url = (
+            f"https://opensky-network.org/api/states/all?lamin={lamin}&lomin={lomin}"
+            f"&lamax={lamax}&lomax={lomax}"
+        )
+        try:
+            aircraft_data = requests.get(opensky_url, timeout=my_settings.urlTimeoutSeconds)
+            if not aircraft_data.ok:
+                logger.warning("Location:Error fetching aircraft data from OpenSky Network")
+                return False
+        except (requests.exceptions.RequestException):
             logger.warning("Location:Error fetching aircraft data from OpenSky Network")
             return False
-    except (requests.exceptions.RequestException):
-        logger.warning("Location:Error fetching aircraft data from OpenSky Network")
-        return False
 
-    aircraft_json = aircraft_data.json()
-    if 'states' not in aircraft_json or not aircraft_json['states']:
-        return False
+        aircraft_json = aircraft_data.json()
+        if 'states' not in aircraft_json or not aircraft_json['states']:
+            return False
 
-    aircraft_list = aircraft_json['states']
-    logger.debug(f"Location: OpenSky Network: Found {len(aircraft_list)} possible aircraft in area")
-    closest = None
-    min_diff = float('inf')
-    
-    if len(aircraft_list) == 1:
-        # Only one aircraft found; assume it's the one overhead, even if altitude is missing
-        aircraft = aircraft_list[0]
-        return {
-            "callsign": aircraft[1].strip() if aircraft[1] else "N/A",
-            "origin_country": aircraft[2] if aircraft[2] is not None else "N/A",
-            "velocity": aircraft[9] if aircraft[9] is not None else "N/A",
-            "true_track": aircraft[10] if aircraft[10] is not None else "N/A",
-            "vertical_rate": aircraft[11] if aircraft[11] is not None else "N/A",
-            "sensors": aircraft[12] if aircraft[12] is not None else "N/A",
-            "altitude": aircraft[7] if aircraft[7] is not None else "N/A",
-            "geo_altitude": aircraft[13] if aircraft[13] is not None else "N/A",
-            "squawk": aircraft[14] if len(aircraft) > 14 and aircraft[14] is not None else "N/A",
-        }
+        aircraft_list = aircraft_json['states']
+        logger.debug(f"Location: OpenSky Network: Found {len(aircraft_list)} possible aircraft in area")
+        closest = None
+        min_diff = float('inf')
 
-    for aircraft in aircraft_list:
-        try:
-            callsign = aircraft[1].strip() if aircraft[1] else "N/A"
-            origin_country = aircraft[2] if aircraft[2] is not None else "N/A"
-            velocity = aircraft[9] if aircraft[9] is not None else "N/A"
-            true_track = aircraft[10] if aircraft[10] is not None else "N/A"
-            vertical_rate = aircraft[11] if aircraft[11] is not None else "N/A"
-            sensors = aircraft[12] if aircraft[12] is not None else "N/A"
-            baro_altitude = aircraft[7] if aircraft[7] is not None else "N/A"
-            geo_altitude = aircraft[13] if aircraft[13] is not None else "N/A"
-            squawk = aircraft[14] if len(aircraft) > 14 and aircraft[14] is not None else "N/A"
-        except Exception as e:
-            logger.debug("Location:Error extracting aircraft data from OpenSky Network")
-            continue
-
-        # Prefer geo_altitude, fallback to baro_altitude
-        plane_alt = geo_altitude if geo_altitude is not None else baro_altitude
-        if plane_alt is None or node_altitude == 0:
-            continue
-
-        diff = abs(plane_alt - node_altitude)
-        if diff <= altitude_window and diff < min_diff:
-            min_diff = diff
-            closest = {
-                "callsign": callsign,
-                "origin_country": origin_country,
-                "velocity": velocity,
-                "true_track": true_track,
-                "vertical_rate": vertical_rate,
-                "sensors": sensors,
-                "altitude": baro_altitude,
-                "geo_altitude": geo_altitude,
-                "squawk": squawk,
+        if len(aircraft_list) == 1:
+            # Only one aircraft found; return normalized values (altitudes coerced to numbers or None)
+            aircraft = aircraft_list[0]
+            baro_alt = _to_float(aircraft[7])  # barometric altitude
+            geo_alt = _to_float(aircraft[13])  # geometric altitude
+            return {
+                "callsign": aircraft[1].strip() if aircraft[1] else "N/A",
+                "origin_country": aircraft[2] if aircraft[2] is not None else "N/A",
+                "velocity": aircraft[9] if aircraft[9] is not None else "N/A",
+                "true_track": aircraft[10] if aircraft[10] is not None else "N/A",
+                "vertical_rate": aircraft[11] if aircraft[11] is not None else "N/A",
+                "sensors": aircraft[12] if aircraft[12] is not None else "N/A",
+                "altitude": baro_alt,
+                "geo_altitude": geo_alt,
+                "squawk": aircraft[14] if len(aircraft) > 14 and aircraft[14] is not None else "N/A",
             }
-    if closest:
-        return closest
-    else:
+
+        for aircraft in aircraft_list:
+            try:
+                callsign = aircraft[1].strip() if aircraft[1] else "N/A"
+                origin_country = aircraft[2] if aircraft[2] is not None else "N/A"
+                velocity = aircraft[9] if aircraft[9] is not None else "N/A"
+                true_track = aircraft[10] if aircraft[10] is not None else "N/A"
+                vertical_rate = aircraft[11] if aircraft[11] is not None else "N/A"
+                sensors = aircraft[12] if aircraft[12] is not None else "N/A"
+                baro_altitude = _to_float(aircraft[7])
+                geo_altitude = _to_float(aircraft[13])
+                squawk = aircraft[14] if len(aircraft) > 14 and aircraft[14] is not None else "N/A"
+            except Exception:
+                logger.debug("Location:Error extracting aircraft data from OpenSky Network")
+                continue
+
+            # Prefer geo_altitude, fallback to baro_altitude
+            plane_alt = geo_altitude if geo_altitude is not None else baro_altitude
+            # skip if we can't get a numeric plane altitude or node_altitude is zero/unset
+            if plane_alt is None or (node_altitude == 0 or node_altitude is None):
+                continue
+
+            # safe numeric diff
+            try:
+                diff = abs(float(plane_alt) - float(node_altitude))
+            except Exception:
+                continue
+
+            if diff <= altitude_window and diff < min_diff:
+                min_diff = diff
+                closest = {
+                    "callsign": callsign,
+                    "origin_country": origin_country,
+                    "velocity": velocity,
+                    "true_track": true_track,
+                    "vertical_rate": vertical_rate,
+                    "sensors": sensors,
+                    "altitude": baro_altitude,
+                    "geo_altitude": geo_altitude,
+                    "squawk": squawk,
+                }
+        if closest:
+            return closest
+        else:
+            return False
+    except Exception as e:
+        logger.debug(f"SYSTEM: Location HighFly: Error processing OpenSky Network data: {e}")
         return False
 
 def log_locationData_toMap(userID, location, message):
