@@ -483,21 +483,6 @@ else
     # add service dependency for meshtasticd into service file
     #replace="s|After=network.target|After=network.target meshtasticd.service|g"
 
-    # Set up the meshing around service
-    sudo cp /opt/meshing-around/etc/$service.service /etc/systemd/system/$service.service
-    sudo systemctl daemon-reload
-    sudo systemctl enable $service.service
-    sudo systemctl start $service.service
-
-    sudo systemctl daemon-reload
-    # # check if the cron job already exists
-    # if ! crontab -l | grep -q "$chronjob"; then
-    #     # add the cron job to run the report_generator5.py script
-    #     (crontab -l 2>/dev/null; echo "$chronjob") | crontab -
-    #     printf "\nAdded cron job to run report_generator5.py\n"
-    # else
-    #     printf "\nCron job already exists, skipping\n"
-    # fi
     # document the service install
     printf "Reference following commands:\n\n" > install_notes.txt
     printf "sudo systemctl status %s.service\n" "$service" >> install_notes.txt
