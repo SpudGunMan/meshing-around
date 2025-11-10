@@ -424,9 +424,9 @@ def build_channel_cache(force_refresh: bool = False):
             channels = getattr(node, "channels", []) or []
             # try to use the node-provided channel/hash table if available
             try:
-                ch_hash_table = node.get_channels_with_hash() if hasattr(node, "get_channels_with_hash") else {}
+                ch_hash_table = node.get_channels_with_hash()
             except Exception:
-                logger.warning(f"System: meshtastic API 2.7.4+ required for channel hash fetching. Falling back to default PSK hashing.")
+                logger.warning(f"System: meshtastic API 2.7.4+ required for channel hash fetching. Attempting PSK hashing.")
                 ch_hash_table = {}
  
             channel_dict = {}
