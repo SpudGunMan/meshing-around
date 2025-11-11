@@ -174,7 +174,9 @@ class TestBot(unittest.TestCase):
         self.assertIsInstance(haha, str)
     
     def test_tictactoe_initial_and_move(self):
-        from games.tictactoe import tictactoe
+        from games.tictactoe import TicTacToe
+        # Create an instance (no display module required for tests)
+        tictactoe = TicTacToe(display_module=None)
         user_id = "testuser"
         # Start a new game (no move yet)
         initial = tictactoe.play(user_id, "")
