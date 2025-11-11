@@ -425,6 +425,7 @@ def build_channel_cache(force_refresh: bool = False):
             # try to use the node-provided channel/hash table if available
             try:
                 ch_hash_table = node.get_channels_with_hash()
+                print(f"System: Device{i} Channel Hash Table: {ch_hash_table}")
             except Exception:
                 logger.warning(f"System: update meshtastic API 2.7.4 +")
                 ch_hash_table = {}
