@@ -4,6 +4,7 @@
 import meshtastic.serial_interface #pip install meshtastic or use launch.sh for venv
 import meshtastic.tcp_interface
 import meshtastic.ble_interface
+from meshtastic.util import generate_channel_hash
 import time
 import asyncio
 import random
@@ -331,24 +332,6 @@ if ble_count > 1:
     logger.critical(f"System: Multiple BLE interfaces detected. Only one BLE interface is allowed. Exiting")
     exit()
 
-def xor_hash(data: bytes) -> int:
-    """Compute an XOR hash from bytes."""
-    result = 0
-    for char in data:
-        result ^= char
-    return result
-
-def generate_hash(name: str, key: str) -> int:
-    """generate the channel number by hashing the channel name and psk"""
-    if key == "AQ==":
-        key = "1PG7OiApB1nwvP+rz05pAQ=="
-    replaced_key = key.replace("-", "+").replace("_", "/")
-    key_bytes = base64.b64decode(replaced_key.encode("utf-8"))
-    h_name = xor_hash(bytes(name, "utf-8"))
-    h_key = xor_hash(key_bytes)
-    result: int = h_name ^ h_key
-    return result
-
 # Initialize interfaces
 logger.debug(f"System: Initializing Interfaces")
 interface1 = interface2 = interface3 = interface4 = interface5 = interface6 = interface7 = interface8 = interface9 = None
@@ -419,17 +402,31 @@ def build_channel_cache(force_refresh: bool = False):
         if not globals().get(f'interface{i}') or not globals().get(f'interface{i}_enabled'):
             continue
         try:
-            # lightweight call to fetch local node and its channels once
             node = globals()[f'interface{i}'].getNode('^local')
             channels = getattr(node, "channels", []) or []
-            # try to use the node-provided channel/hash table if available
+            # Try to use the node-provided channel/hash table if available
             try:
-                ch_hash_table = node.get_channels_with_hash()
-                print(f"System: Device{i} Channel Hash Table: {ch_hash_table}")
+                ch_hash_table_raw = node.get_channels_with_hash()
+                print(f"System: Device{i} Channel Hash Table: {ch_hash_table_raw}")
+                # Convert list of dicts to lookup dict by name and index
+                ch_hash_table = {}
+                if isinstance(ch_hash_table_raw, list):
+                    for entry in ch_hash_table_raw:
+                        name = entry.get("name", "").strip()
+                        idx = entry.get("index")
+                        hash_val = entry.get("hash")
+                        if name:
+                            ch_hash_table[name] = hash_val
+                        if idx is not None:
+                            ch_hash_table[idx] = hash_val
+                elif isinstance(ch_hash_table_raw, dict):
+                    ch_hash_table = ch_hash_table_raw
+                else:
+                    ch_hash_table = {}
             except Exception:
                 logger.warning(f"System: update meshtastic API 2.7.4 +")
                 ch_hash_table = {}
- 
+
             channel_dict = {}
             for channel in channels:
                 if getattr(channel, "role", False):
@@ -439,31 +436,15 @@ def build_channel_cache(force_refresh: bool = False):
                         continue
 
                     ch_hash = None
-                    # ch_hash_table may map by name or by index; try both defensively
-                    if isinstance(ch_hash_table, dict):
-                        # by name
-                        if channel_name in ch_hash_table:
-                            entry = ch_hash_table[channel_name]
-                            if isinstance(entry, dict):
-                                ch_hash = entry.get("hash") or entry.get("pskHash") or entry.get("hashValue")
-                            elif isinstance(entry, (list, tuple)) and len(entry) >= 2:
-                                ch_hash = entry[1]
-                            else:
-                                ch_hash = entry
-                        # by index
-                        elif channel_number in ch_hash_table:
-                            entry = ch_hash_table[channel_number]
-                            if isinstance(entry, dict):
-                                ch_hash = entry.get("hash") or entry.get("pskHash") or entry.get("hashValue")
-                            elif isinstance(entry, (list, tuple)) and len(entry) >= 2:
-                                ch_hash = entry[1]
-                            else:
-                                ch_hash = entry
-
-                    # fallback to generate_hash with default PSK if no table/hash available
+                    # Lookup hash by name or index
+                    if channel_name in ch_hash_table:
+                        ch_hash = ch_hash_table[channel_name]
+                    elif channel_number in ch_hash_table:
+                        ch_hash = ch_hash_table[channel_number]
+                    # Fallback to generate_channel_hash if not found
                     if ch_hash is None:
                         try:
-                            ch_hash = generate_hash(channel_name, "AQ==")
+                            ch_hash = generate_channel_hash(channel_name, "AQ==")
                         except Exception:
                             ch_hash = 0
 
@@ -474,7 +455,6 @@ def build_channel_cache(force_refresh: bool = False):
         except Exception as e:
             logger.debug(f"System: Error fetching channel list from Device{i}: {e}")
 
-    # hashes are attached above using node.get_channels_with_hash() when available
     _channel_cache = cache
     return _channel_cache
 
@@ -483,6 +463,7 @@ def refresh_channel_cache():
     return build_channel_cache(force_refresh=True)
 
 channel_list = build_channel_cache()
+print(f"System: Initial Channel List: {channel_list}")
 
 #### FUN-ctions ####
 def resolve_channel_name(channel_number, rxNode=1, interface_obj=None):
