@@ -422,29 +422,58 @@ def build_channel_cache(force_refresh: bool = False):
             # lightweight call to fetch local node and its channels once
             node = globals()[f'interface{i}'].getNode('^local')
             channels = getattr(node, "channels", []) or []
+            # try to use the node-provided channel/hash table if available
+            try:
+                ch_hash_table = node.get_channels_with_hash()
+            except Exception:
+                logger.warning(f"System: update meshtastic API 2.7.4 +")
+                ch_hash_table = {}
+ 
             channel_dict = {}
             for channel in channels:
                 if getattr(channel, "role", False):
                     channel_name = getattr(channel.settings, "name", "").strip()
                     channel_number = getattr(channel, "index", 0)
-                    if channel_name:
-                        channel_dict[channel_name] = {"number": channel_number}
+                    if not channel_name:
+                        continue
+
+                    ch_hash = None
+                    # ch_hash_table may map by name or by index; try both defensively
+                    if isinstance(ch_hash_table, dict):
+                        # by name
+                        if channel_name in ch_hash_table:
+                            entry = ch_hash_table[channel_name]
+                            if isinstance(entry, dict):
+                                ch_hash = entry.get("hash") or entry.get("pskHash") or entry.get("hashValue")
+                            elif isinstance(entry, (list, tuple)) and len(entry) >= 2:
+                                ch_hash = entry[1]
+                            else:
+                                ch_hash = entry
+                        # by index
+                        elif channel_number in ch_hash_table:
+                            entry = ch_hash_table[channel_number]
+                            if isinstance(entry, dict):
+                                ch_hash = entry.get("hash") or entry.get("pskHash") or entry.get("hashValue")
+                            elif isinstance(entry, (list, tuple)) and len(entry) >= 2:
+                                ch_hash = entry[1]
+                            else:
+                                ch_hash = entry
+
+                    # fallback to generate_hash with default PSK if no table/hash available
+                    if ch_hash is None:
+                        try:
+                            ch_hash = generate_hash(channel_name, "AQ==")
+                        except Exception:
+                            ch_hash = 0
+
+                    channel_dict[channel_name] = {"number": channel_number, "hash": ch_hash}
             if channel_dict:
                 cache.append({"interface_id": i, "channels": channel_dict})
             logger.debug(f"System: Fetched Channel List from Device{i} (cached)")
         except Exception as e:
             logger.debug(f"System: Error fetching channel list from Device{i}: {e}")
 
-    # compute and attach channel hash (PSK default) once
-    for device in cache:
-        for channel_name, info in list(device["channels"].items()):
-            psk_base64 = "AQ=="
-            try:
-                channel_hash = generate_hash(channel_name, psk_base64)
-            except Exception:
-                channel_hash = 0
-            device["channels"][channel_name] = {"number": info.get("number", 0), "hash": channel_hash}
-
+    # hashes are attached above using node.get_channels_with_hash() when available
     _channel_cache = cache
     return _channel_cache
 
@@ -455,12 +484,9 @@ def refresh_channel_cache():
 channel_list = build_channel_cache()
 
 #### FUN-ctions ####
-def resolve_channel_name(channel_number, rxNode=1, interface_obj=None, allow_node_lookup: bool = False):
+def resolve_channel_name(channel_number, rxNode=1, interface_obj=None):
     """
-    Resolve a channel number/hash to a human name.
-    Prefers the cached channel_list (build_channel_cache) and only does node API lookups
-    if allow_node_lookup is True.
-    Returns (channel_name, matched_index_or_hash)
+    Resolve a channel number/hash to its name using cached channel list.
     """
     try:
         # ensure cache exists (cheap)
@@ -480,63 +506,9 @@ def resolve_channel_name(channel_number, rxNode=1, interface_obj=None, allow_nod
                                 return (chan_name, info)
                     except Exception:
                         continue
-                break
-
-        # If caller allows, try heavier node-level lookups as a fallback
-        if not allow_node_lookup:
-            return ("unknown", channel_number)
-
-        if interface_obj is None:
-            interface_obj = globals().get(f'interface{rxNode}')
-        # Try node-level API
-        node = None
-        if interface_obj:
-            if hasattr(interface_obj, "get_node") and callable(interface_obj.get_node):
-                node = interface_obj.get_node()
-            elif hasattr(interface_obj, "node"):
-                node = getattr(interface_obj, "node")
-
-        channels = None
-        if node is not None and hasattr(node, "get_channels_with_hash"):
-            try:
-                channels = node.get_channels_with_hash()
-            except Exception:
-                channels = None
-
-        # Fallback: generate channel list from raw payload
-        if not channels:
-            try:
-                from meshtastic.util import generate_channel_hash
-            except Exception:
-                generate_channel_hash = None
-
-            channels_raw = {}
-            if node is not None:
-                if isinstance(node, dict):
-                    channels_raw = node.get("channels", {}) or {}
-                else:
-                    channels_raw = getattr(node, "channels", None) or getattr(node, "channels_payload", None) or {}
-                    if channels_raw is None:
-                        channels_raw = {}
-
-            if generate_channel_hash and channels_raw:
-                try:
-                    channels = generate_channel_hash(channels_raw)
-                except Exception:
-                    channels = None
-
-        # If we have a channels sequence, try to match by hash or index
-        if channels and isinstance(channels, (list, tuple)):
-            for ch in channels:
-                try:
-                    if str(ch.get('hash')) == str(channel_number) or str(ch.get('index')) == str(channel_number):
-                        return (ch.get('name', 'unknown'), ch.get('index') or ch.get('hash'))
-                except Exception:
-                    continue
-
-    except Exception:
-        pass
-    return ("unknown", channel_number)
+                break  # stop searching other devices
+    except Exception as e:
+        logger.debug(f"System: Error resolving channel name from cache: {e}")
 
 
 def cleanup_memory():
