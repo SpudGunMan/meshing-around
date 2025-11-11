@@ -279,10 +279,15 @@ def onReceive(packet, interface):
     # check if the packet has a channel flag use it ## FIXME needs to be channel hash lookup
     if packet.get('channel'):
         channel_number = packet.get('channel')
+        channel_name = "unknown"
         try:
-            channel_name, _ = resolve_channel_name(channel_number, rxNode, interface)
+            res = resolve_channel_name(channel_number, rxNode, interface)
+            if res:
+                try:
+                    channel_name, _ = res
+                except Exception:
+                    channel_name = "unknown"
         except Exception as e:
-            channel_name = "unknown"
             logger.debug(f"System: channel resolution error: {e}")
 
         #debug channel info
