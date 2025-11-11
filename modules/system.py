@@ -426,7 +426,7 @@ def build_channel_cache(force_refresh: bool = False):
             try:
                 ch_hash_table = node.get_channels_with_hash()
             except Exception:
-                logger.warning(f"System: meshtastic API 2.7.4+ required for channel hash fetching. Attempting PSK hashing.")
+                logger.warning(f"System: update meshtastic API 2.7.4 +")
                 ch_hash_table = {}
  
             channel_dict = {}
