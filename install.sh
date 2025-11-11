@@ -118,6 +118,7 @@ if [[ "$program_path" != "/opt/meshing-around" ]]; then
     if [[ $(echo "$move" | grep -i "^y") ]]; then
         sudo mv "$program_path" /opt/meshing-around
         cd /opt/meshing-around
+        sudo git config --global --add safe.directory /opt/meshing-around
         printf "\nProject moved to /opt/meshing-around.\n"
         printf "Please re-run the installer from the new location.\n"
         exit 0
