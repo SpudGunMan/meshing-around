@@ -68,6 +68,77 @@ def drap_xray_conditions():
         xray_flux = ERROR_FETCHING_DATA
     return xray_flux
 
+def get_noaa_scales_summary():
+    """
+    Show latest observed, 24-hour max, and predicted geomagnetic, storm, and blackout data.
+    """
+    try:
+        response = requests.get("https://services.swpc.noaa.gov/products/noaa-scales.json", timeout=urlTimeoutSeconds)
+        if response.ok:
+            data = response.json()
+            today = datetime.utcnow().date()
+            latest_entry = None
+            latest_dt = None
+            max_g_today = None
+            max_g_scale = -1
+            predicted_g = None
+            predicted_g_scale = -1
+
+            # Find latest observed and 24-hour max for today
+            for entry in data.values():
+                date_str = entry.get("DateStamp")
+                time_str = entry.get("TimeStamp")
+                if date_str and time_str:
+                    try:
+                        dt = datetime.strptime(f"{date_str} {time_str}", "%Y-%m-%d %H:%M:%S")
+                        g = entry.get("G", {})
+                        g_scale = int(g.get("Scale", -1)) if g.get("Scale") else -1
+                        # Latest observed for today
+                        if dt.date() == today:
+                            if latest_dt is None or dt > latest_dt:
+                                latest_dt = dt
+                                latest_entry = entry
+                            # 24-hour max for today
+                            if g_scale > max_g_scale:
+                                max_g_scale = g_scale
+                                max_g_today = entry
+                        # Predicted (future)
+                        elif dt.date() > today:
+                            if g_scale > predicted_g_scale:
+                                predicted_g_scale = g_scale
+                                predicted_g = entry
+                    except Exception:
+                        continue
+
+            def format_entry(label, entry):
+                if not entry:
+                    return f"{label}: No data"
+                g = entry.get("G", {})
+                s = entry.get("S", {})
+                r = entry.get("R", {})
+                parts = [f"{label} {g.get('Text', 'N/A')} (G:{g.get('Scale', 'N/A')})"]
+            
+                # Only show storm if it's happening
+                if s.get("Text") and s.get("Text") != "none":
+                    parts.append(f"Currently:{s.get('Text')} (S:{s.get('Scale', 'N/A')})")
+            
+                # Only show blackout if it's not "none" or scale is not 0
+                if r.get("Text") and r.get("Text") != "none" and r.get("Scale") not in [None, "0", 0]:
+                    parts.append(f"RF Blackout:{r.get('Text')} (R:{r.get('Scale', 'N/A')})")
+            
+                return "\n".join(parts)
+
+            output = []
+            #output.append(format_entry("Latest Observed", latest_entry))
+            output.append(format_entry("24hrMax:", max_g_today))
+            output.append(format_entry("Predicted:", predicted_g))
+            return "\n".join(output)
+        else:
+            return NO_ALERTS
+    except Exception as e:
+        logger.warning(f"Error fetching services.swpc.noaa.gov: {e}")
+        return ERROR_FETCHING_DATA
+
 def get_sun(lat=0, lon=0):
     # get sunrise and sunset times using callers location or default
     obs = ephem.Observer()

@@ -109,7 +109,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "setsms": lambda: handle_sms( message_from_id, message),
     "sitrep": lambda: handle_lheard(message, message_from_id, deviceID, isDM),
     "sms:": lambda: handle_sms(message_from_id, message),
-    "solar": lambda: drap_xray_conditions() + "\n" + solar_conditions(),
+    "solar": lambda: drap_xray_conditions() + "\n" + solar_conditions() + "\n" + get_noaa_scales_summary(),
     "sun": lambda: handle_sun(message_from_id, deviceID, channel_number),
     "survey": lambda: surveyHandler(message, message_from_id, deviceID),
     "s:": lambda: surveyHandler(message, message_from_id, deviceID),
@@ -1917,15 +1917,31 @@ def onReceive(packet, interface):
                     channel_name, _ = res
                 except Exception:
                     channel_name = "unknown"
+            else:
+                # Search all interfaces for this channel
+                cache = build_channel_cache()
+                found_on_other = None
+                for device in cache:
+                    for chan_name, info in device.get("channels", {}).items():
+                        if str(info.get('number')) == str(channel_number) or str(info.get('hash')) == str(channel_number):
+                            found_on_other = device.get("interface_id")
+                            found_chan_name = chan_name
+                            break
+                    if found_on_other:
+                        break
+                if found_on_other and found_on_other != rxNode:
+                    logger.debug(
+                        f"System: Received Packet on Channel:{channel_number} ({found_chan_name}) on Interface:{rxNode}, but this channel is configured on Interface:{found_on_other}"
+                    )
         except Exception as e:
             logger.debug(f"System: channel resolution error: {e}")
-
+    
         #debug channel info
         # if "unknown" in str(channel_name):
         #     logger.debug(f"System: Received Packet on Channel:{channel_number} on Interface:{rxNode}")
         # else:
         #     logger.debug(f"System: Received Packet on Channel:{channel_number} Name:{channel_name} on Interface:{rxNode}")
-    
+
     # check if the packet has a simulator flag
     simulator_flag = packet.get('decoded', {}).get('simulator', False)
     if isinstance(simulator_flag, dict):

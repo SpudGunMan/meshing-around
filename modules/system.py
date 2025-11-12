@@ -4,7 +4,6 @@
 import meshtastic.serial_interface #pip install meshtastic or use launch.sh for venv
 import meshtastic.tcp_interface
 import meshtastic.ble_interface
-from meshtastic.util import generate_channel_hash
 import time
 import asyncio
 import random
@@ -407,7 +406,7 @@ def build_channel_cache(force_refresh: bool = False):
                 ch_hash_table_raw = node.get_channels_with_hash()
                 #print(f"System: Device{i} Channel Hash Table: {ch_hash_table_raw}")
             except Exception:
-                logger.warning(f"System: update meshtastic API 2.7.4 +")
+                logger.warning(f"System: API version error update API `pip3 install --upgrade meshtastic[cli]`")
                 ch_hash_table_raw = []
 
             channel_dict = {}
@@ -441,6 +440,7 @@ def refresh_channel_cache():
     return build_channel_cache(force_refresh=True)
 
 channel_list = build_channel_cache()
+#print(f"System: Channel Cache Built: {channel_list}")
 
 #### FUN-ctions ####
 def resolve_channel_name(channel_number, rxNode=1, interface_obj=None):
