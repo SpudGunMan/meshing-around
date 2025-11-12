@@ -405,7 +405,7 @@ def build_channel_cache(force_refresh: bool = False):
             # Try to use the node-provided channel/hash table if available
             try:
                 ch_hash_table_raw = node.get_channels_with_hash()
-                print(f"System: Device{i} Channel Hash Table: {ch_hash_table_raw}")
+                #print(f"System: Device{i} Channel Hash Table: {ch_hash_table_raw}")
             except Exception:
                 logger.warning(f"System: update meshtastic API 2.7.4 +")
                 ch_hash_table_raw = []
@@ -441,7 +441,6 @@ def refresh_channel_cache():
     return build_channel_cache(force_refresh=True)
 
 channel_list = build_channel_cache()
-print(f"System: Initial Channel List: {channel_list}")
 
 #### FUN-ctions ####
 def resolve_channel_name(channel_number, rxNode=1, interface_obj=None):
