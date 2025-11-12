@@ -441,6 +441,7 @@ def refresh_channel_cache():
     return build_channel_cache(force_refresh=True)
 
 channel_list = build_channel_cache()
+print(f"System: Channel Cache Built: {channel_list}")
 
 #### FUN-ctions ####
 def resolve_channel_name(channel_number, rxNode=1, interface_obj=None):
