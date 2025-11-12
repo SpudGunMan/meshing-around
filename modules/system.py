@@ -4,7 +4,6 @@
 import meshtastic.serial_interface #pip install meshtastic or use launch.sh for venv
 import meshtastic.tcp_interface
 import meshtastic.ble_interface
-from meshtastic.util import generate_channel_hash
 import time
 import asyncio
 import random
