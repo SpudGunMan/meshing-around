@@ -429,12 +429,11 @@ def build_channel_cache(force_refresh: bool = False):
 
             channel_dict = {}
             for channel in channels:
-                if getattr(channel, "role", False):
+                if getattr(channel, "role", "") in ("PRIMARY", "SECONDARY"):
                     channel_name = getattr(channel.settings, "name", "").strip()
                     channel_number = getattr(channel, "index", 0)
                     if not channel_name:
                         continue
-
                     ch_hash = None
                     # Lookup hash by name or index
                     if channel_name in ch_hash_table:
@@ -447,7 +446,7 @@ def build_channel_cache(force_refresh: bool = False):
                             ch_hash = generate_channel_hash(channel_name, "AQ==")
                         except Exception:
                             ch_hash = 0
-
+            
                     channel_dict[channel_name] = {"number": channel_number, "hash": ch_hash}
             if channel_dict:
                 cache.append({"interface_id": i, "channels": channel_dict})
