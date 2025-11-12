@@ -134,11 +134,10 @@ def get_noaa_scales_summary():
             output.append(format_entry("Predicted:", predicted_g))
             return "\n".join(output)
         else:
-            logger.error("Error fetching NOAA scales")
-            return None
+            return NO_ALERTS
     except Exception as e:
-        logger.error(f"Error fetching NOAA scales: {e}")
-        return None
+        logger.warning(f"Error fetching services.swpc.noaa.gov: {e}")
+        return ERROR_FETCHING_DATA
 
 def get_sun(lat=0, lon=0):
     # get sunrise and sunset times using callers location or default
