@@ -106,16 +106,20 @@ def main():
         try:
             response = requests.get(HTTP_STREAM_URL, stream=True, timeout=10)
             buffer = io.BytesIO()
-            for chunk in response.iter_content(chunk_size=4096):
-                buffer.write(chunk)
-                # Use STREAM_BUFFER for detection window
-                if buffer.tell() > STREAM_BUFFER:
-                    buffer.seek(0)
-                    audio = AudioSegment.from_file(buffer, format="mp3")
-                    if audio.channels > 1:
-                        audio = audio.set_channels(1)
-                    detect_and_alert(audio, audio.frame_rate)
-                    buffer = io.BytesIO()
+            try:
+                for chunk in response.iter_content(chunk_size=4096):
+                    buffer.write(chunk)
+                    # Use STREAM_BUFFER for detection window
+                    if buffer.tell() > STREAM_BUFFER:
+                        buffer.seek(0)
+                        audio = AudioSegment.from_file(buffer, format="mp3")
+                        if audio.channels > 1:
+                            audio = audio.set_channels(1)
+                        detect_and_alert(audio, audio.frame_rate)
+                        buffer = io.BytesIO()
+            except KeyboardInterrupt:
+                print("\nStopped by user.")
+                sys.exit(0)
         except requests.exceptions.RequestException as e:
             print(f"Connection error: {e}", file=sys.stderr)
             sys.exit(3)
