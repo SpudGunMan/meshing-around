@@ -172,6 +172,7 @@ For testing and feature ideas on Discord and GitHub, if its stable its thanks to
 - **mrpatrick1991**: For OG Docker configurations. 💻
 - **A-c0rN**: Assistance with iPAWS and 🚨
 - **Mike O'Connell/skrrt**: For [eas_alert_parser](etc/eas_alert_parser.py) enhanced by **sheer.cold**
+- **dadud**: For idea on [etc/icad_tone.py](etc/icad_tone.py)
 - **WH6GXZ nurse dude**: Volcano Alerts 🌋
 - **mikecarper**: hamtest, leading to quiz etc.. 📋
 - **c.merphy360**: high altitude alerts. 🚀
