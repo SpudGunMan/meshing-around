@@ -15,6 +15,7 @@ SAMPLE_RATE = 16000             # Audio sample rate (Hz)
 INPUT_CHANNELS = 1              # Number of input channels (1=mono)
 MIN_SAMPLES = 4096              # Minimum samples per detection window (increase for better accuracy)
 STREAM_BUFFER = 32000           # Number of bytes to buffer before detection (for MP3 streams)
+INPUT_DEVICE = 0             # Set to device index or name, or None for default
 # ---------------------------
 
 import sys
@@ -84,7 +85,11 @@ def main():
     print("                  iCAD Tone Decoder for Meshing-Around Booting Up!")
     if AUDIO_SOURCE == "soundcard":
         try:
-            device_info = sd.query_devices(kind='input')
+            if INPUT_DEVICE is not None:
+                sd.default.device = INPUT_DEVICE
+                device_info = sd.query_devices(INPUT_DEVICE, kind='input')
+            else:
+                device_info = sd.query_devices(sd.default.device, kind='input')
             device_name = device_info['name']
         except Exception:
             device_name = "Unknown"
@@ -132,7 +137,9 @@ def main():
                         if audio.channels > 1:
                             audio = audio.set_channels(1)
                         # --- Simple audio level detection ---
-                        samples = np.array(audio.get_array_of_samples()) / 32767.0
+                        samples = np.array(audio.get_array_of_samples())
+                        if samples.dtype != np.float32:
+                            samples = samples.astype(np.float32) / 32767.0  # Normalize to -1..1
                         rms = np.sqrt(np.mean(samples**2))
                         if rms > 0.01:
                             print(f"Audio detected! RMS: {rms:.3f}      ", end='\r')
@@ -196,4 +203,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
