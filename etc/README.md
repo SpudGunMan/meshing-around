@@ -97,3 +97,36 @@ Run this script to monitor the camera feed and generate alerts for detected and 
 
 ---
 
+## icad_tone.py
+
+**Purpose:**  
+`icad_tone.py` is a utility script for detecting fire and EMS radio tones using the [icad_tone_detection](https://github.com/thegreatcodeholio/icad_tone_detection) library. It analyzes audio from a live stream, soundcard, or WAV file, identifies various tone types (such as two-tone, long tone, hi/low, pulsed, MDC, and DTMF), and writes detected alerts to `alert.txt` for integration with Mesh Bot or Meshtastic.
+
+**Usage:**  
+Run the script from the command line, specifying a WAV file for offline analysis or configuring it to listen to a stream or soundcard for real-time monitoring.
+
+```sh
+python etc/icad_tone.py --wav path/to/file.wav
+```
+Or, for live monitoring (after setting `HTTP_STREAM_URL` in the script):
+```sh
+python etc/icad_tone.py
+```
+
+**What it does:**  
+- Loads audio from a stream, soundcard, or WAV file.
+- Uses `icad_tone_detection` to analyze audio for tone patterns.
+- Prints raw detection results and summaries to the console.
+- Writes a summary of detected tones to `alert.txt` (overwriting each time).
+- Handles errors and missing dependencies gracefully.
+
+**Configuration:**  
+- `ALERT_FILE_PATH`: Path to the alert output file (default: `alert.txt`).
+- `AUDIO_SOURCE`: Set to `"http"` for streaming or `"soundcard"` for local audio input.
+- `HTTP_STREAM_URL`: URL of the audio stream (required if using HTTP source).
+- `SAMPLE_RATE`, `INPUT_CHANNELS`, `CHUNK_DURATION`: Audio processing parameters.
+
+**Note:**  
+- Requires installation of dependencies (`icad_tone_detection`)
+- Set `HTTP_STREAM_URL` to a valid stream if using HTTP mode.
+- Intended for experimental or hobbyist use; may require customization for your workflow.
