@@ -80,10 +80,20 @@ def detect_and_alert(audio_data, sample_rate):
             write_alert("\n".join(summary))
 
 def main():
-    print("="*50)
-    print("        iCAD Tone Decoder for Meshing-Around")
-    print(f"  Mode: {AUDIO_SOURCE} ")
-    print("="*50)
+    print("="*80)
+    print("                  iCAD Tone Decoder for Meshing-Around Booting Up!")
+    if AUDIO_SOURCE == "soundcard":
+        try:
+            device_info = sd.query_devices(kind='input')
+            device_name = device_info['name']
+        except Exception:
+            device_name = "Unknown"
+        print(f"  Mode: Soundcard | Device: {device_name} | Sample Rate: {SAMPLE_RATE} Hz | Channels: {INPUT_CHANNELS}")
+    elif AUDIO_SOURCE == "http":
+        print(f"  Mode: HTTP Stream | URL: {HTTP_STREAM_URL} | Buffer: {STREAM_BUFFER} bytes")
+    else:
+        print(f"  Mode: {AUDIO_SOURCE}")
+    print("="*80)
     time.sleep(1)
 
     parser = argparse.ArgumentParser(description="ICAD Tone Detection")
@@ -121,6 +131,14 @@ def main():
                         audio = AudioSegment.from_file(buffer, format="mp3")
                         if audio.channels > 1:
                             audio = audio.set_channels(1)
+                        # --- Simple audio level detection ---
+                        samples = np.array(audio.get_array_of_samples()) / 32767.0
+                        rms = np.sqrt(np.mean(samples**2))
+                        if rms > 0.01:
+                            print(f"Audio detected! RMS: {rms:.3f}      ", end='\r')
+                        if rms > 0.5:
+                            print(f"WARNING: Audio too loud! RMS: {rms:.3f}      ", end='\r')
+                        # --- End audio level detection ---
                         detect_and_alert(audio, audio.frame_rate)
                         buffer = io.BytesIO()
             except KeyboardInterrupt:
@@ -142,6 +160,13 @@ def main():
             try:
                 samples = indata[:, 0]
                 buffer = np.concatenate((buffer, samples))
+                # --- Simple audio level detection ---
+                rms = np.sqrt(np.mean(samples**2))
+                if rms > 0.01:
+                    print(f"Audio detected! RMS: {rms:.3f}      ", end='\r')
+                if rms > 0.5:
+                    print(f"WARNING: Audio too loud! RMS: {rms:.3f}      ", end='\r')
+                # --- End audio level detection ---
                 # Only process when buffer is large enough
                 while buffer.size >= min_samples:
                     int_samples = np.int16(buffer[:min_samples] * 32767)
