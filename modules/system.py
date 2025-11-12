@@ -406,7 +406,7 @@ def build_channel_cache(force_refresh: bool = False):
                 ch_hash_table_raw = node.get_channels_with_hash()
                 #print(f"System: Device{i} Channel Hash Table: {ch_hash_table_raw}")
             except Exception:
-                logger.warning(f"System: API version error update API `pip install --upgrade meshtastic`")
+                logger.warning(f"System: API version error update API `pip3 install --upgrade "meshtastic[cli]"`")
                 ch_hash_table_raw = []
 
             channel_dict = {}
