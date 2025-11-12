@@ -14,6 +14,7 @@ HTTP_STREAM_URL = ""            # Set to your stream URL if using "http"
 SAMPLE_RATE = 16000             # Audio sample rate (Hz)
 INPUT_CHANNELS = 1              # Number of input channels (1=mono)
 MIN_SAMPLES = 4096              # Minimum samples per detection window (increase for better accuracy)
+STREAM_BUFFER = 32000           # Number of bytes to buffer before detection (for MP3 streams)
 # ---------------------------
 
 import sys
@@ -107,7 +108,8 @@ def main():
             buffer = io.BytesIO()
             for chunk in response.iter_content(chunk_size=4096):
                 buffer.write(chunk)
-                if buffer.tell() > SAMPLE_RATE * CHUNK_DURATION * 2:
+                # Use STREAM_BUFFER for detection window
+                if buffer.tell() > STREAM_BUFFER:
                     buffer.seek(0)
                     audio = AudioSegment.from_file(buffer, format="mp3")
                     if audio.channels > 1:
