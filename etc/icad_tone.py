@@ -80,6 +80,12 @@ def detect_and_alert(audio_data, sample_rate):
             write_alert("\n".join(summary))
 
 def main():
+    print("="*80)
+    print("  iCAD Tone Decoder for Meshing-Around")
+    print(f"  Mode: {AUDIO_SOURCE} ")
+    print("="*80)
+    time.sleep(1)
+
     parser = argparse.ArgumentParser(description="ICAD Tone Detection")
     parser.add_argument("--wav", type=str, help="Path to WAV file for detection")
     args = parser.parse_args()
