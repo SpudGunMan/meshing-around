@@ -117,10 +117,15 @@ def get_noaa_scales_summary():
                 s = entry.get("S", {})
                 r = entry.get("R", {})
                 parts = [f"{label} {g.get('Text', 'N/A')} (G:{g.get('Scale', 'N/A')})"]
-                if s.get("Text") or s.get("Scale"):
-                    parts.append(f"{s.get('Text', 'N/A')} (S:{s.get('Scale', 'N/A')})")
-                if r.get("Text") or r.get("Scale"):
-                    parts.append(f"{r.get('Text', 'N/A')} (R:{r.get('Scale', 'N/A')})")
+            
+                # Only show storm if it's happening
+                if s.get("Text") and s.get("Text") != "none":
+                    parts.append(f"Currently: {s.get('Text')} (S:{s.get('Scale', 'N/A')})")
+            
+                # Only show blackout if it's not "none" or scale is not 0
+                if r.get("Text") and r.get("Text") != "none" and r.get("Scale") not in [None, "0", 0]:
+                    parts.append(f"Blackout: {r.get('Text')} (R:{r.get('Scale', 'N/A')})")
+            
                 return " | ".join(parts)
 
             output = []
