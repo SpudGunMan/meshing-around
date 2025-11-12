@@ -391,7 +391,6 @@ _channel_cache = None
 def build_channel_cache(force_refresh: bool = False):
     """
     Build and cache channel_list from interfaces once (or when forced).
-    Returns cached list of dicts: [{"interface_id": i, "channels": {name: {number:, hash:}}}, ...]
     """
     global _channel_cache
     if _channel_cache is not None and not force_refresh:
@@ -403,51 +402,30 @@ def build_channel_cache(force_refresh: bool = False):
             continue
         try:
             node = globals()[f'interface{i}'].getNode('^local')
-            channels = getattr(node, "channels", []) or []
             # Try to use the node-provided channel/hash table if available
             try:
                 ch_hash_table_raw = node.get_channels_with_hash()
                 print(f"System: Device{i} Channel Hash Table: {ch_hash_table_raw}")
-                # Convert list of dicts to lookup dict by name and index
-                ch_hash_table = {}
-                if isinstance(ch_hash_table_raw, list):
-                    for entry in ch_hash_table_raw:
-                        name = entry.get("name", "").strip()
-                        idx = entry.get("index")
-                        hash_val = entry.get("hash")
-                        if name:
-                            ch_hash_table[name] = hash_val
-                        if idx is not None:
-                            ch_hash_table[idx] = hash_val
-                elif isinstance(ch_hash_table_raw, dict):
-                    ch_hash_table = ch_hash_table_raw
-                else:
-                    ch_hash_table = {}
             except Exception:
                 logger.warning(f"System: update meshtastic API 2.7.4 +")
-                ch_hash_table = {}
+                ch_hash_table_raw = []
 
             channel_dict = {}
-            for channel in channels:
-                if getattr(channel, "role", "") in ("PRIMARY", "SECONDARY"):
-                    channel_name = getattr(channel.settings, "name", "").strip()
-                    channel_number = getattr(channel, "index", 0)
-                    if not channel_name:
-                        continue
-                    ch_hash = None
-                    # Lookup hash by name or index
-                    if channel_name in ch_hash_table:
-                        ch_hash = ch_hash_table[channel_name]
-                    elif channel_number in ch_hash_table:
-                        ch_hash = ch_hash_table[channel_number]
-                    # Fallback to generate_channel_hash if not found
-                    if ch_hash is None:
-                        try:
-                            ch_hash = generate_channel_hash(channel_name, "AQ==")
-                        except Exception:
-                            ch_hash = 0
-            
-                    channel_dict[channel_name] = {"number": channel_number, "hash": ch_hash}
+            # Use the hash table as the source of truth for channels
+            if isinstance(ch_hash_table_raw, list):
+                for entry in ch_hash_table_raw:
+                    channel_name = entry.get("name", "").strip()
+                    channel_number = entry.get("index")
+                    ch_hash = entry.get("hash")
+                    role = entry.get("role", "")
+                    if channel_name and role in ("PRIMARY", "SECONDARY"):
+                        channel_dict[channel_name] = {"number": channel_number, "hash": ch_hash}
+            elif isinstance(ch_hash_table_raw, dict):
+                # If it's a dict, try to iterate over its items
+                for channel_name, ch_hash in ch_hash_table_raw.items():
+                    # You may need to adapt this if dict structure is different
+                    channel_dict[channel_name] = {"number": None, "hash": ch_hash}
+            # Only add if we found any channels
             if channel_dict:
                 cache.append({"interface_id": i, "channels": channel_dict})
             logger.debug(f"System: Fetched Channel List from Device{i} (cached)")
