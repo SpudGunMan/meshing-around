@@ -120,18 +120,18 @@ def get_noaa_scales_summary():
             
                 # Only show storm if it's happening
                 if s.get("Text") and s.get("Text") != "none":
-                    parts.append(f"Currently: {s.get('Text')} (S:{s.get('Scale', 'N/A')})")
+                    parts.append(f"Currently:{s.get('Text')} (S:{s.get('Scale', 'N/A')})")
             
                 # Only show blackout if it's not "none" or scale is not 0
                 if r.get("Text") and r.get("Text") != "none" and r.get("Scale") not in [None, "0", 0]:
-                    parts.append(f"Blackout: {r.get('Text')} (R:{r.get('Scale', 'N/A')})")
+                    parts.append(f"RF Blackout:{r.get('Text')} (R:{r.get('Scale', 'N/A')})")
             
-                return " | ".join(parts)
+                return "\n".join(parts)
 
             output = []
             #output.append(format_entry("Latest Observed", latest_entry))
-            output.append(format_entry("24hr Max", max_g_today))
-            output.append(format_entry("Predicted", predicted_g))
+            output.append(format_entry("24hrMax:", max_g_today))
+            output.append(format_entry("Predicted:", predicted_g))
             return "\n".join(output)
         else:
             logger.error("Error fetching NOAA scales")
