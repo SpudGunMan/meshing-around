@@ -418,16 +418,17 @@ def build_channel_cache(force_refresh: bool = False):
                     channel_number = entry.get("index")
                     ch_hash = entry.get("hash")
                     role = entry.get("role", "")
-                    if channel_name and role in ("PRIMARY", "SECONDARY"):
-                        channel_dict[channel_name] = {"number": channel_number, "hash": ch_hash}
+                    # Always add PRIMARY/SECONDARY channels, even if name is empty
+                    if role in ("PRIMARY", "SECONDARY"):
+                        channel_dict[channel_name if channel_name else f"Channel{channel_number}"] = {
+                            "number": channel_number,
+                            "hash": ch_hash
+                        }
             elif isinstance(ch_hash_table_raw, dict):
-                # If it's a dict, try to iterate over its items
                 for channel_name, ch_hash in ch_hash_table_raw.items():
-                    # You may need to adapt this if dict structure is different
                     channel_dict[channel_name] = {"number": None, "hash": ch_hash}
-            # Only add if we found any channels
-            if channel_dict:
-                cache.append({"interface_id": i, "channels": channel_dict})
+            # Always add the interface, even if no named channels
+            cache.append({"interface_id": i, "channels": channel_dict})
             logger.debug(f"System: Fetched Channel List from Device{i} (cached)")
         except Exception as e:
             logger.debug(f"System: Error fetching channel list from Device{i}: {e}")
