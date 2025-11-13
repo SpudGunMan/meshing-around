@@ -104,14 +104,12 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, chann
         #flood
         msg += " [F]"
     
-    if (float(snr) != 0 or float(rssi) != 0) and "Hops" not in hop:
+    if (float(snr) != 0 or float(rssi) != 0) and "Hop" not in hop:
         msg += f"\nSNR:{snr} RSSI:{rssi}"
-    elif "Hops" in hop:
+    elif "Hop" in hop:
         # janky, remove the words Gateway or MQTT if present
         hop = hop.replace("Gateway", "").replace("Direct", "").replace("MQTT", "").strip()
         msg += f"\n{hop} "
-    else:
-        msg += "\nflood route"
 
     if "@" in message:
         msg = msg + " @" + message.split("@")[1]
