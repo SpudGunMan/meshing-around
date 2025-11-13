@@ -398,7 +398,7 @@ def onReceive(packet, interface):
                 hop = "Gateway"
             
             if hop in ("MQTT", "Gateway") and hop_count > 0:
-                hop += f"{hop_count} Hops"
+                hop += f" {hop_count} Hops"
 
             if my_settings.enableHopLogs:
                 logger.debug(f"System: Packet HopDebugger: hop_away:{hop_away} hop_limit:{hop_limit} hop_start:{hop_start} calculated_hop_count:{hop_count} final_hop_value:{hop} via_mqtt:{via_mqtt} transport_mechanism:{transport_mechanism} Hostname:{rxNodeHostName}")
