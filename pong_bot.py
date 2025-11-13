@@ -107,6 +107,8 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, chann
     if (float(snr) != 0 or float(rssi) != 0) and "Hops" not in hop:
         msg += f"\nSNR:{snr} RSSI:{rssi}"
     elif "Hops" in hop:
+        # janky, remove the words Gateway or MQTT if present
+        hop = hop.replace("Gateway", "").replace("Direct", "").replace("MQTT", "").strip()
         msg += f"\n{hop}🐇 "
     else:
         msg += "\nflood route"
@@ -394,6 +396,7 @@ def onReceive(packet, interface):
 
             if via_mqtt or "mqtt" in str(transport_mechanism).lower():
                 hop = "MQTT"
+                via_mqtt = True
             elif "udp" in str(transport_mechanism).lower():
                 hop = "Gateway"
             
