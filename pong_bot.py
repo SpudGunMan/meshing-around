@@ -109,7 +109,7 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, chann
     elif "Hops" in hop:
         # janky, remove the words Gateway or MQTT if present
         hop = hop.replace("Gateway", "").replace("Direct", "").replace("MQTT", "").strip()
-        msg += f"\n{hop}🐇 "
+        msg += f"\n{hop} "
     else:
         msg += "\nflood route"
 
