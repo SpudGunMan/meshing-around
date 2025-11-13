@@ -27,7 +27,8 @@ import sounddevice as sd
 import numpy as np
 import argparse
 import io
-
+import warnings
+warnings.filterwarnings("ignore", message="nperseg = .* is greater than input length")
 def write_alert(message):
     if ALERT_FILE_PATH:
         try:
@@ -80,6 +81,16 @@ def detect_and_alert(audio_data, sample_rate):
         if summary:
             write_alert("\n".join(summary))
 
+def get_supported_sample_rate(device, channels=1):
+    # Try common sample rates
+    for rate in [44100, 48000, 16000, 8000]:
+        try:
+            sd.check_input_settings(device=device, channels=channels, samplerate=rate)
+            return rate
+        except Exception:
+            continue
+    return None
+
 def main():
     print("="*80)
     print("                  iCAD Tone Decoder for Meshing-Around Booting Up!")
@@ -91,6 +102,12 @@ def main():
             else:
                 device_info = sd.query_devices(sd.default.device, kind='input')
             device_name = device_info['name']
+            # Detect supported sample rate
+            detected_rate = get_supported_sample_rate(sd.default.device, INPUT_CHANNELS)
+            if detected_rate:
+                SAMPLE_RATE = detected_rate
+            else:
+                print("No supported sample rate found, using default.", file=sys.stderr)
         except Exception:
             device_name = "Unknown"
         print(f"  Mode: Soundcard | Device: {device_name} | Sample Rate: {SAMPLE_RATE} Hz | Channels: {INPUT_CHANNELS}")
