@@ -405,7 +405,13 @@ def onReceive(packet, interface):
 
             # Add relay node info if present
             if packet.get('relayNode') is not None:
-                hop += f" (Relay:{packet['relayNode']})"
+                relay_val = packet['relayNode']
+                last_byte = relay_val & 0xFF
+                if last_byte == 0x00:
+                    hex_val = 'FF'
+                else:
+                    hex_val = f"{last_byte:02X}"
+                hop += f" (Relay:{hex_val})"
 
             if my_settings.enableHopLogs:
                 logger.debug(f"System: Packet HopDebugger: hop_away:{hop_away} hop_limit:{hop_limit} hop_start:{hop_start} calculated_hop_count:{hop_count} final_hop_value:{hop} via_mqtt:{via_mqtt} transport_mechanism:{transport_mechanism} Hostname:{rxNodeHostName}")
