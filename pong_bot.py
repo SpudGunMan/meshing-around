@@ -107,6 +107,8 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, chann
     if (float(snr) != 0 or float(rssi) != 0) and "Hops" not in hop:
         msg += f"\nSNR:{snr} RSSI:{rssi}"
     elif "Hops" in hop:
+        # janky, remove the words Gateway or MQTT if present
+        hop = hop.replace("Gateway", "").replace("Direct", "").replace("MQTT", "").strip()
         msg += f"\n{hop}🐇 "
     else:
         msg += "\nflood route"
@@ -384,25 +386,26 @@ def onReceive(packet, interface):
             else:
                 hop_count = hop_away
 
-            if hop == "" and hop_count > 0:
+            if hop_count > 0:
                 # set hop string from calculated hop count
                 hop = f"{hop_count} Hop" if hop_count == 1 else f"{hop_count} Hops"
 
-            if hop_start == hop_limit and "lora" in str(transport_mechanism).lower() and (snr != 0 or rssi != 0):
+            if hop_start == hop_limit and "lora" in str(transport_mechanism).lower() and (snr != 0 or rssi != 0) and hop_count == 0:
                 # 2.7+ firmware direct hop over LoRa
                 hop = "Direct"
 
-            if ((hop_start == 0 and hop_limit >= 0) or via_mqtt or ("mqtt" in str(transport_mechanism).lower())):
+            if via_mqtt or "mqtt" in str(transport_mechanism).lower():
                 hop = "MQTT"
-            elif hop == "" and hop_count == 0 and (snr != 0 or rssi != 0):
-                # this came from a UDP but we had signal info so gateway is used
-                hop = "Gateway"
-            elif "unknown" in str(transport_mechanism).lower() and (snr == 0 and rssi == 0):
-                # we for sure detected this sourced from a UDP like host
+                via_mqtt = True
+            elif "udp" in str(transport_mechanism).lower():
                 hop = "Gateway"
             
             if hop in ("MQTT", "Gateway") and hop_count > 0:
-                hop = f"{hop_count} Hops"
+                hop = f" {hop_count} Hops"
+
+            # Add relay node info if present
+            if packet.get('relayNode') is not None:
+                hop += f" (Relay:{packet['relayNode']})"
 
             if my_settings.enableHopLogs:
                 logger.debug(f"System: Packet HopDebugger: hop_away:{hop_away} hop_limit:{hop_limit} hop_start:{hop_start} calculated_hop_count:{hop_count} final_hop_value:{hop} via_mqtt:{via_mqtt} transport_mechanism:{transport_mechanism} Hostname:{rxNodeHostName}")
