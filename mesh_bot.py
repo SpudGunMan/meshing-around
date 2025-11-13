@@ -2037,17 +2037,13 @@ def onReceive(packet, interface):
                 # 2.7+ firmware direct hop over LoRa
                 hop = "Direct"
 
-            if ((hop_start == 0 and hop_limit >= 0) or via_mqtt or ("mqtt" in str(transport_mechanism).lower())):
+            if via_mqtt or "mqtt" in str(transport_mechanism).lower():
                 hop = "MQTT"
-            elif hop == "" and hop_count == 0 and (snr != 0 or rssi != 0):
-                # this came from a UDP but we had signal info so gateway is used
-                hop = "Gateway"
-            elif "unknown" in str(transport_mechanism).lower() and (snr == 0 and rssi == 0):
-                # we for sure detected this sourced from a UDP like host
+            elif "udp" in str(transport_mechanism).lower():
                 hop = "Gateway"
             
             if hop in ("MQTT", "Gateway") and hop_count > 0:
-                hop = f"{hop_count} Hops"
+                hop += f"{hop_count} Hops"
 
             if enableHopLogs:
                 logger.debug(f"System: Packet HopDebugger: hop_away:{hop_away} hop_limit:{hop_limit} hop_start:{hop_start} calculated_hop_count:{hop_count} final_hop_value:{hop} via_mqtt:{via_mqtt} transport_mechanism:{transport_mechanism} Hostname:{rxNodeHostName}")
