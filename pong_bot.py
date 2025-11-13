@@ -384,11 +384,11 @@ def onReceive(packet, interface):
             else:
                 hop_count = hop_away
 
-            if hop == "" and hop_count > 0:
+            if hop_count > 0:
                 # set hop string from calculated hop count
                 hop = f"{hop_count} Hop" if hop_count == 1 else f"{hop_count} Hops"
 
-            if hop_start == hop_limit and "lora" in str(transport_mechanism).lower() and (snr != 0 or rssi != 0):
+            if hop_start == hop_limit and "lora" in str(transport_mechanism).lower() and (snr != 0 or rssi != 0) and hop_count == 0:
                 # 2.7+ firmware direct hop over LoRa
                 hop = "Direct"
 
