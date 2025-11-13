@@ -1004,7 +1004,7 @@ def stringSafeCheck(s, fromID=0):
     if len(s) > 1000:
         return False
     # Check for single-character injections
-    single_injection_chars = [';', '|', '}', '>', ')']
+    single_injection_chars = [';', '|', '}', '>']
     if any(c in s for c in single_injection_chars):
         return False # injection character found
     # Check for multi-character patterns
