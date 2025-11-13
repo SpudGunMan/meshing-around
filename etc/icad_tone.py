@@ -164,9 +164,9 @@ def main():
             print(f"Error processing HTTP stream: {e}", file=sys.stderr)
             sys.exit(4)
     elif AUDIO_SOURCE == "soundcard":
-        # print("Available audio devices:")
-        # for i, dev in enumerate(sd.query_devices()):
-        #     print(f"{i}: {dev['name']} ({dev['max_input_channels']} in, {dev['max_output_channels']} out)")
+        print("Available audio devices:")
+        for i, dev in enumerate(sd.query_devices()):
+            print(f"{i}: {dev['name']} ({dev['max_input_channels']} in, {dev['max_output_channels']} out)")
         print("Listening to audio device:")
         buffer = np.array([], dtype=np.float32)
         # Set a larger chunk size for detection, e.g. 8192
@@ -205,10 +205,11 @@ def main():
                 device=INPUT_DEVICE
             ):
                 print("Press Ctrl+C to stop.")
-                import signal
-                signal.pause()  # Wait for Ctrl+C, keeps CPU usage minimal
-        except KeyboardInterrupt:
-            print("Stopped by user.")
+                try:
+                    while True:
+                        time.sleep(0.5)  # Keeps CPU usage low
+                except KeyboardInterrupt:
+                    print("Stopped by user.")
         except Exception as e:
             print(f"Error accessing soundcard: {e}", file=sys.stderr)
             sys.exit(5)
