@@ -194,6 +194,9 @@ def main():
                     )
                     detect_and_alert(audio, SAMPLE_RATE)
                     buffer = buffer[DETECTION_CHUNK:]  # keep remainder for next window
+                # Prevent buffer from growing forever
+                if buffer.size > DETECTION_CHUNK * 10:
+                    buffer = buffer[-DETECTION_CHUNK*10:]
             except Exception as e:
                 print(f"Callback error: {e}", file=sys.stderr)
         try:
