@@ -37,19 +37,27 @@ def hf_band_conditions():
 def solar_conditions():
     # radio related solar conditions from hamsql.com
     solar_cond = ""
-    solar_cond = requests.get("https://www.hamqsl.com/solarxml.php", timeout=urlTimeoutSeconds)
-    if(solar_cond.ok):
-        solar_xml = xml.dom.minidom.parseString(solar_cond.text)
-        for i in solar_xml.getElementsByTagName("solardata"):
-            solar_a_index = i.getElementsByTagName("aindex")[0].childNodes[0].data
-            solar_k_index = i.getElementsByTagName("kindex")[0].childNodes[0].data
-            solar_xray = i.getElementsByTagName("xray")[0].childNodes[0].data
-            solar_flux = i.getElementsByTagName("solarflux")[0].childNodes[0].data
-            sunspots = i.getElementsByTagName("sunspots")[0].childNodes[0].data
-            signalnoise = i.getElementsByTagName("signalnoise")[0].childNodes[0].data
-        solar_cond = "A-Index: " + solar_a_index + "\nK-Index: " + solar_k_index + "\nSunspots: " + sunspots + "\nX-Ray Flux: " + solar_xray + "\nSolar Flux: " + solar_flux + "\nSignal Noise: " + signalnoise
-    else:
-        logger.error("Solar: Error fetching solar conditions")
+    try:
+        solar_cond = requests.get("https://www.hamqsl.com/solarxml.php", timeout=urlTimeoutSeconds)
+        if solar_cond.ok:
+            try:
+                solar_xml = xml.dom.minidom.parseString(solar_cond.text)
+            except Exception as e:
+                logger.error(f"Solar: XML parse error: {e}")
+                return ERROR_FETCHING_DATA
+            for i in solar_xml.getElementsByTagName("solardata"):
+                solar_a_index = i.getElementsByTagName("aindex")[0].childNodes[0].data
+                solar_k_index = i.getElementsByTagName("kindex")[0].childNodes[0].data
+                solar_xray = i.getElementsByTagName("xray")[0].childNodes[0].data
+                solar_flux = i.getElementsByTagName("solarflux")[0].childNodes[0].data
+                sunspots = i.getElementsByTagName("sunspots")[0].childNodes[0].data
+                signalnoise = i.getElementsByTagName("signalnoise")[0].childNodes[0].data
+            solar_cond = "A-Index: " + solar_a_index + "\nK-Index: " + solar_k_index + "\nSunspots: " + sunspots + "\nX-Ray Flux: " + solar_xray + "\nSolar Flux: " + solar_flux + "\nSignal Noise: " + signalnoise
+        else:
+            logger.error("Solar: Error fetching solar conditions")
+            solar_cond = ERROR_FETCHING_DATA
+    except Exception as e:
+        logger.error(f"Solar: Exception fetching or parsing: {e}")
         solar_cond = ERROR_FETCHING_DATA
     return solar_cond
 
