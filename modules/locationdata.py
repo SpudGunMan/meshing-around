@@ -412,7 +412,7 @@ def getWeatherAlertsNOAA(lat=0, lon=0, useDefaultLatLon=False):
             logger.warning("Location:Error fetching weather alerts from NOAA")
             return my_settings.ERROR_FETCHING_DATA
     except Exception:
-        logger.warning(f"Location:Error fetching weather data error: {Exception}")
+        logger.warning(f"Location:Error fetching weather alert request error: {Exception}")
         return my_settings.ERROR_FETCHING_DATA
     
     alerts = ""
@@ -509,10 +509,10 @@ def getActiveWeatherAlertsDetailNOAA(lat=0, lon=0):
     try:
         alert_data = requests.get(alert_url, timeout=my_settings.urlTimeoutSeconds)
         if not alert_data.ok:
-            logger.warning("Location:Error fetching weather alerts from NOAA")
+            logger.warning("Location:Error fetching weather alerts from NOAA bad data")
             return my_settings.ERROR_FETCHING_DATA
     except Exception:
-        logger.warning(f"Location:Error fetching weather data error: {Exception}")
+        logger.warning(f"Location:Error fetching weather alert request error: {Exception}")
         return my_settings.ERROR_FETCHING_DATA
     
     alerts = ""
