@@ -261,7 +261,7 @@ def get_NOAAweather(lat=0, lon=0, unit=0, report_days=None):
             logger.warning("Location:Error fetching weather data from NOAA for location")
             return my_settings.ERROR_FETCHING_DATA
     except Exception:
-        logger.warning(f"Location:Error fetching weather data error: {Exception}")
+        logger.warning(f"Location:Error fetching weather data malformed: {Exception}")
         return my_settings.ERROR_FETCHING_DATA
     # get the forecast URL from the JSON response
     weather_json = weather_data.json()
@@ -272,7 +272,7 @@ def get_NOAAweather(lat=0, lon=0, unit=0, report_days=None):
             logger.warning("Location:Error fetching weather forecast from NOAA")
             return my_settings.ERROR_FETCHING_DATA
     except Exception:
-        logger.warning(f"Location:Error fetching weather data error: {Exception}")
+        logger.warning(f"Location:Error fetching weather data missing: {Exception}")
         return my_settings.ERROR_FETCHING_DATA
     
     # from periods, get the detailedForecast from number of days in NOAAforecastDuration
