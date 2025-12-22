@@ -738,11 +738,6 @@ def handleDopeWars(message, nodeID, rxNode):
             if p.get('userID') == nodeID:
                 p['last_played'] = time.time()
         msg = playDopeWars(nodeID, message)
-
-    # if message starts wth 'e'xit remove player from tracker
-    if message.lower().startswith('e'):
-        dwPlayerTracker[:] = [p for p in dwPlayerTracker if p.get('userID') != nodeID]
-        msg = 'You have exited Dope Wars.'
     return msg
 
 def handle_gTnW(chess = False):
