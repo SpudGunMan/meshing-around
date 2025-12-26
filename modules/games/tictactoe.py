@@ -16,9 +16,14 @@ class TicTacToe:
         if getattr(my_settings, "disable_emojis_in_games", False):
             self.X = "X"
             self.O = "O"
+            self.digit_emojis = None
         else:
             self.X = "❌"
             self.O = "⭕️"
+            # Unicode emoji digits 1️⃣-9️⃣
+            self.digit_emojis = [
+                "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣"
+            ]
         self.display_module = display_module
         self.game = {}
         self.win_lines_3d = self.generate_3d_win_lines()
@@ -73,7 +78,13 @@ class TicTacToe:
                 row = []
                 for j in range(3):
                     cell = b[i*3+j]
-                    row.append(cell if cell != " " else str(i*3+j+1))
+                    if cell != " ":
+                        row.append(cell)
+                    else:
+                        if self.digit_emojis:
+                            row.append(self.digit_emojis[i*3+j])
+                        else:
+                            row.append(str(i*3+j+1))
                 s += " | ".join(row) + "\n"
             return s
         return ""
@@ -147,10 +158,24 @@ class TicTacToe:
                 msg = self.new_game(nodeID, new_mode, g["channel"], g["deviceID"])
                 return msg
 
-            try:
-                pos = int(input_msg)
-            except Exception:
-                return f"Enter a number between 1 and {max_pos}."
+            # Accept emoji digits as input
+            pos = None
+            # Try to match emoji digits if enabled
+            if self.digit_emojis:
+                try:
+                    # Remove variation selectors for matching
+                    normalized_input = input_msg.replace("\ufe0f", "")
+                    for idx, emoji in enumerate(self.digit_emojis[:max_pos]):
+                        if normalized_input == emoji.replace("\ufe0f", ""):
+                            pos = idx + 1
+                            break
+                except Exception:
+                    pass
+            if pos is None:
+                try:
+                    pos = int(input_msg)
+                except Exception:
+                    return f"Enter a number or emoji between 1 and {max_pos}."
 
             if not self.make_move(nodeID, pos):
                 return f"Invalid move! Pick 1-{max_pos}:"
