@@ -277,6 +277,7 @@ def start_mMind(nodeID, message):
             if mindTracker[i]['nodeID'] == nodeID:
                 mindTracker[i]['cmd'] = 'makeCode'
                 mindTracker[i]['diff'] = diff
+                mindTracker[i]['turns'] = 0
         # Return color message to player
         msg += chooseDifficultyMMind(message.lower()[0])
         return msg
