@@ -323,6 +323,9 @@ try:
     coastalForecastDays = config['location'].getint('coastalForecastDays', 3) # default 3 days
 
     # location alerts
+    alert_duration = config['location'].getint('alertDuration', 20) # default 20 minutes
+    if alert_duration < 10: # the API calls need throttle time
+        alert_duration = 10
     eAlertBroadcastEnabled = config['location'].getboolean('eAlertBroadcastEnabled', False) # old deprecated name
     ipawsAlertEnabled = config['location'].getboolean('ipawsAlertEnabled', False) # default False new ^
     # Keep both in sync for backward compatibility
