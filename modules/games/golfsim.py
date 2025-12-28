@@ -5,6 +5,7 @@ import random
 import time
 import pickle
 from modules.log import logger
+from modules.settings import golfTracker
 
 # Clubs setup
 driver_distances = list(range(230, 280, 5))
