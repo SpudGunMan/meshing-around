@@ -3,6 +3,7 @@ from modules.log import logger, getPrettyTime
 import os
 import json
 import random
+from modules.settings import hangmanTracker
 
 class Hangman:
     WORDS = [
