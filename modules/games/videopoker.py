@@ -260,6 +260,7 @@ class PlayerVP:
 
 
 def getLastCmdVp(nodeID):
+    global vpTracker
     last_cmd = ""
     for i in range(len(vpTracker)):
         if vpTracker[i]['nodeID'] == nodeID:
@@ -267,6 +268,7 @@ def getLastCmdVp(nodeID):
     return last_cmd
 
 def setLastCmdVp(nodeID, cmd):
+    global vpTracker
     for i in range(len(vpTracker)):
         if vpTracker[i]['nodeID'] == nodeID:
             vpTracker[i]['cmd'] = cmd
