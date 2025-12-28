@@ -4,6 +4,7 @@
 import random
 import time
 import modules.settings as my_settings
+from modules.settings import tictactoeTracker
 
 useSynchCompression = True  
 if useSynchCompression:
