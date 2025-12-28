@@ -211,7 +211,7 @@ def compareCodeMMind(secret_code, user_guess, nodeID):
 def playGameMMind(diff, secret_code, turn_count, nodeID, message):
     msg = ''
     won = False
-    if turn_count <= 10:
+    if turn_count < 11:
         user_guess = getGuessMMind(diff, message, nodeID)
         if user_guess == "XXXX":
             msg += f"⛔️Invalid guess. Please enter 4 valid colors letters.\n🔴🟢🔵🔴 is RGBR"
