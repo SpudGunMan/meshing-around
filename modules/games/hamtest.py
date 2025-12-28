@@ -10,6 +10,7 @@ import json
 import random
 import os
 from modules.log import logger
+from modules.settings import hamtestTracker
 
 class HamTest:
     def __init__(self):
