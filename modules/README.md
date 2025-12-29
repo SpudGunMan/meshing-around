@@ -368,7 +368,7 @@ The `map` command allows you to log your current GPS location with a custom desc
 
 - **Show Help**
   ```
-  map help
+  map ?
   ```
   Displays usage instructions for the map command.
 
