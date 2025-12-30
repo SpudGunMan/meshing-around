@@ -1184,6 +1184,43 @@ def get_delete_public_locations_admins_only():
     except Exception:
         return False
 
+def get_node_altitude(nodeID, deviceID=1):
+    """Get altitude for a node from position data or positionMetadata
+    
+    Returns altitude in meters, or None if not available
+    """
+    try:
+        import modules.system as system_module
+        
+        # Try to get altitude from node position dict first
+        # Access interface dynamically from system module
+        interface = getattr(system_module, f'interface{deviceID}', None)
+        if interface and hasattr(interface, 'nodes') and interface.nodes:
+            for node in interface.nodes.values():
+                if nodeID == node['num']:
+                    pos = node.get('position')
+                    if pos and isinstance(pos, dict) and pos.get('altitude') is not None:
+                        try:
+                            altitude = float(pos['altitude'])
+                            if altitude > 0:  # Valid altitude
+                                return altitude
+                        except (ValueError, TypeError):
+                            pass
+        
+        # Fall back to positionMetadata (from POSITION_APP packets)
+        positionMetadata = getattr(system_module, 'positionMetadata', None)
+        if positionMetadata and nodeID in positionMetadata:
+            metadata = positionMetadata[nodeID]
+            if 'altitude' in metadata:
+                altitude = metadata.get('altitude', 0)
+                if altitude and altitude > 0:
+                    return float(altitude)
+        
+        return None
+    except Exception as e:
+        logger.debug(f"Location: Error getting altitude for node {nodeID}: {e}")
+        return None
+
 def initialize_locations_database():
     """Initialize the SQLite database for storing saved locations"""
     try:
@@ -1224,6 +1261,7 @@ def initialize_locations_database():
                               location_name TEXT NOT NULL,
                               latitude REAL NOT NULL,
                               longitude REAL NOT NULL,
+                              altitude REAL,
                               description TEXT,
                               userID TEXT,
                               is_public INTEGER DEFAULT 0,
@@ -1259,6 +1297,15 @@ def initialize_locations_database():
                 except sqlite3.OperationalError:
                     # Column might already exist, ignore
                     pass
+            
+            # Add altitude column if it doesn't exist (migration)
+            if 'altitude' not in column_names:
+                try:
+                    c.execute('''ALTER TABLE locations ADD COLUMN altitude REAL''')
+                    logger.debug("Location: Added altitude column to locations table")
+                except sqlite3.OperationalError:
+                    # Column might already exist, ignore
+                    pass
         else:
             # Table doesn't exist, create it without UNIQUE constraint
             c.execute('''CREATE TABLE locations
@@ -1266,6 +1313,7 @@ def initialize_locations_database():
                           location_name TEXT NOT NULL,
                           latitude REAL NOT NULL,
                           longitude REAL NOT NULL,
+                          altitude REAL,
                           description TEXT,
                           userID TEXT,
                           is_public INTEGER DEFAULT 0,
@@ -1283,7 +1331,7 @@ def initialize_locations_database():
         logger.error(f"Location: Failed to initialize locations database: {e}")
         return False
 
-def save_location_to_db(location_name, lat, lon, description="", userID="", is_public=False):
+def save_location_to_db(location_name, lat, lon, description="", userID="", is_public=False, altitude=None):
     """Save a location to the SQLite database
     
     Returns:
@@ -1342,9 +1390,9 @@ def save_location_to_db(location_name, lat, lon, description="", userID="", is_p
         # Insert new location
         now = datetime.now()
         c.execute('''INSERT INTO locations 
-                     (location_name, latitude, longitude, description, userID, is_public, created_date, created_time)
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)''',
-                  (location_name_clean, lat, lon, description, userID, 1 if is_public else 0,
+                     (location_name, latitude, longitude, altitude, description, userID, is_public, created_date, created_time)
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+                  (location_name_clean, lat, lon, altitude, description, userID, 1 if is_public else 0,
                    now.strftime("%Y-%m-%d"), now.strftime("%H:%M:%S")))
         conn.commit()
         conn.close()
@@ -1371,7 +1419,7 @@ def get_location_from_db(location_name, userID=None):
         
         # First, try to get user's private location
         if userID:
-            c.execute('''SELECT location_name, latitude, longitude, description, userID, is_public, created_date, created_time
+            c.execute('''SELECT location_name, latitude, longitude, altitude, description, userID, is_public, created_date, created_time
                          FROM locations 
                          WHERE location_name = ? AND userID = ? AND is_public = 0''', 
                       (location_name_clean, userID))
@@ -1382,15 +1430,16 @@ def get_location_from_db(location_name, userID=None):
                     'name': result[0],
                     'lat': result[1],
                     'lon': result[2],
-                    'description': result[3],
-                    'userID': result[4],
-                    'is_public': bool(result[5]),
-                    'created_date': result[6],
-                    'created_time': result[7]
+                    'altitude': result[3],
+                    'description': result[4],
+                    'userID': result[5],
+                    'is_public': bool(result[6]),
+                    'created_date': result[7],
+                    'created_time': result[8]
                 }
         
         # Then try public location
-        c.execute('''SELECT location_name, latitude, longitude, description, userID, is_public, created_date, created_time
+        c.execute('''SELECT location_name, latitude, longitude, altitude, description, userID, is_public, created_date, created_time
                      FROM locations 
                      WHERE location_name = ? AND is_public = 1''', 
                   (location_name_clean,))
@@ -1402,11 +1451,12 @@ def get_location_from_db(location_name, userID=None):
                 'name': result[0],
                 'lat': result[1],
                 'lon': result[2],
-                'description': result[3],
-                'userID': result[4],
-                'is_public': bool(result[5]),
-                'created_date': result[6],
-                'created_time': result[7]
+                'altitude': result[3],
+                'description': result[4],
+                'userID': result[5],
+                'is_public': bool(result[6]),
+                'created_date': result[7],
+                'created_time': result[8]
             }
         return None
     except Exception as e:
@@ -1426,7 +1476,7 @@ def get_public_location_from_db(location_name):
         location_name_clean = location_name.strip()
         
         # Get only public location
-        c.execute('''SELECT location_name, latitude, longitude, description, userID, is_public, created_date, created_time
+        c.execute('''SELECT location_name, latitude, longitude, altitude, description, userID, is_public, created_date, created_time
                      FROM locations 
                      WHERE location_name = ? AND is_public = 1''', 
                   (location_name_clean,))
@@ -1438,11 +1488,12 @@ def get_public_location_from_db(location_name):
                 'name': result[0],
                 'lat': result[1],
                 'lon': result[2],
-                'description': result[3],
-                'userID': result[4],
-                'is_public': bool(result[5]),
-                'created_date': result[6],
-                'created_time': result[7]
+                'altitude': result[3],
+                'description': result[4],
+                'userID': result[5],
+                'is_public': bool(result[6]),
+                'created_date': result[7],
+                'created_time': result[8]
             }
         return None
     except Exception as e:
@@ -1462,13 +1513,13 @@ def list_locations_from_db(userID=None):
         
         if userID:
             # Get user's private locations and all public locations
-            c.execute('''SELECT location_name, latitude, longitude, description, is_public, created_date
+            c.execute('''SELECT location_name, latitude, longitude, altitude, description, is_public, created_date
                          FROM locations 
                          WHERE (userID = ? AND is_public = 0) OR is_public = 1
                          ORDER BY is_public ASC, location_name''', (userID,))
         else:
             # Get all public locations only
-            c.execute('''SELECT location_name, latitude, longitude, description, is_public, created_date
+            c.execute('''SELECT location_name, latitude, longitude, altitude, description, is_public, created_date
                          FROM locations 
                          WHERE is_public = 1
                          ORDER BY location_name''')
@@ -1482,11 +1533,14 @@ def list_locations_from_db(userID=None):
         locations_list = f"Saved Locations ({len(results)} total):\n"
         # Return ALL results, not limited
         for result in results:
-            is_public = bool(result[4])
+            is_public = bool(result[5])
             visibility = "🌐Public" if is_public else "🔒Private"
-            locations_list += f"  • {result[0]} ({result[1]:.5f}, {result[2]:.5f}) [{visibility}]"
-            if result[3]:
-                locations_list += f" - {result[3]}"
+            locations_list += f"  • {result[0]} ({result[1]:.5f}, {result[2]:.5f})"
+            if result[3] is not None:  # altitude
+                locations_list += f" @ {result[3]:.1f}m"
+            locations_list += f" [{visibility}]"
+            if result[4]:  # description
+                locations_list += f" - {result[4]}"
             locations_list += "\n"
         return locations_list.strip()
     except Exception as e:
@@ -1713,7 +1767,10 @@ def mapHandler(userID, deviceID, channel_number, message, snr, rssi, hop):
         if not location or len(location) != 2 or lat == 0 or lon == 0:
             return "🚫Location data is missing or invalid."
         
-        success, msg, _ = save_location_to_db(location_name, lat, lon, description, str(userID), is_public)
+        # Get altitude for the node
+        altitude = get_node_altitude(userID, deviceID)
+        
+        success, msg, _ = save_location_to_db(location_name, lat, lon, description, str(userID), is_public, altitude)
         
         if success:
             return f"📍{msg}"
@@ -1747,7 +1804,11 @@ def mapHandler(userID, deviceID, channel_number, message, snr, rssi, hop):
         if saved_location:
             # Calculate heading and distance from current location
             if not location or len(location) != 2 or lat == 0 or lon == 0:
-                return f"📍{saved_location['name']} (Public): {saved_location['lat']:.5f}, {saved_location['lon']:.5f}\n🚫Current location not available for heading"
+                result = f"📍{saved_location['name']} (Public): {saved_location['lat']:.5f}, {saved_location['lon']:.5f}"
+                if saved_location.get('altitude') is not None:
+                    result += f" @ {saved_location['altitude']:.1f}m"
+                result += "\n🚫Current location not available for heading"
+                return result
             
             bearing, distance_km, error = calculate_heading_and_distance(
                 lat, lon, saved_location['lat'], saved_location['lon']
@@ -1791,6 +1852,21 @@ def mapHandler(userID, deviceID, channel_number, message, snr, rssi, hop):
             result = f"📍{saved_location['name']} (Public)\n"
             result += f"🧭Heading: {bearing_rounded}° {cardinal}\n"
             result += f"📏Distance: {distance_str}"
+            
+            # Calculate altitude difference if both are available
+            current_altitude = get_node_altitude(userID, deviceID)
+            saved_altitude = saved_location.get('altitude')
+            if current_altitude is not None and saved_altitude is not None:
+                altitude_diff_m = saved_altitude - current_altitude # message altitude - DB altitude
+                altitude_diff_ft = altitude_diff_m * 3.28084  # Convert meters to feet
+                altitude_diff_ft_rounded = round(altitude_diff_ft)  # Round to nearest foot
+                if altitude_diff_ft_rounded > 0:
+                    result += f"\n⛰️Altitude: +{altitude_diff_ft_rounded}ft"  # Message is higher
+                elif altitude_diff_ft_rounded < 0:
+                    result += f"\n⛰️Altitude: {altitude_diff_ft_rounded}ft"  # Message is lower (negative already has -)
+                else:
+                    result += f"\n⛰️Altitude: ±0ft"
+            
             if saved_location['description']:
                 result += f"\n📝{saved_location['description']}"
             return result
@@ -1833,7 +1909,11 @@ def mapHandler(userID, deviceID, channel_number, message, snr, rssi, hop):
         if saved_location:
             # Calculate heading and distance from current location
             if not location or len(location) != 2 or lat == 0 or lon == 0:
-                return f"📍{saved_location['name']}: {saved_location['lat']:.5f}, {saved_location['lon']:.5f}\n🚫Current location not available for heading"
+                result = f"📍{saved_location['name']}: {saved_location['lat']:.5f}, {saved_location['lon']:.5f}"
+                if saved_location.get('altitude') is not None:
+                    result += f" @ {saved_location['altitude']:.1f}m"
+                result += "\n🚫Current location not available for heading"
+                return result
             
             bearing, distance_km, error = calculate_heading_and_distance(
                 lat, lon, saved_location['lat'], saved_location['lon']
@@ -1877,6 +1957,21 @@ def mapHandler(userID, deviceID, channel_number, message, snr, rssi, hop):
             result = f"📍{saved_location['name']}\n"
             result += f"🧭Heading: {bearing_rounded}° {cardinal}\n"
             result += f"📏Distance: {distance_str}"
+            
+            # Calculate altitude difference if both are available
+            current_altitude = get_node_altitude(userID, deviceID)
+            saved_altitude = saved_location.get('altitude')
+            if current_altitude is not None and saved_altitude is not None:
+                altitude_diff_m = saved_altitude - current_altitude # message altitude - DB altitude
+                altitude_diff_ft = altitude_diff_m * 3.28084  # Convert meters to feet
+                altitude_diff_ft_rounded = round(altitude_diff_ft)  # Round to nearest foot
+                if altitude_diff_ft_rounded > 0:
+                    result += f"\n⛰️Altitude: +{altitude_diff_ft_rounded}ft"  # Message is higher
+                elif altitude_diff_ft_rounded < 0:
+                    result += f"\n⛰️Altitude: {altitude_diff_ft_rounded}ft"  # Message is lower (negative already has -)
+                else:
+                    result += f"\n⛰️Altitude: ±0ft"
+            
             if saved_location['description']:
                 result += f"\n📝{saved_location['description']}"
             return result
