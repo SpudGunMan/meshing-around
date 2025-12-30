@@ -185,7 +185,7 @@ enabled = True
 # list of banned nodes numbers ex: 2813308004,4258675309
 bbs_ban_list = 
 # list of admin nodes numbers ex: 2813308004,4258675309
-bbs_admin_list =
+bbs_admin_list = 
 # enable bbs synchronization with other nodes
 bbslink_enabled = False
 # list of whitelisted nodes numbers ex: 2813308004,4258675309 empty list allows all
