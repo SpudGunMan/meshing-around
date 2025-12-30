@@ -1665,24 +1665,16 @@ def mapHandler(userID, deviceID, channel_number, message, snr, rssi, hop):
     """
     command = str(command)  # Ensure command is always a string
 
-    if command.strip().lower() == "?":
+    if command.strip().lower() == "help":
         return (
             "🗺️ Map Commands:\n"
-            "  map save <name> [description]     - Save private location\n"
-            "  map save public <name> [desc]     - Save public location (all can see)\n"
-            "  map <name>                        - Get heading to saved location\n"
-            "  map public <name>                 - Get heading to public location\n"
-            "  map delete <name>                 - Delete a location\n"
-            "  map list                          - List all saved locations\n"
-            "  map log <description>             - Log location to CSV (legacy)\n"
-            "Examples:\n"
-            "  map save BaseCamp Main base camp\n"
-            "  map save public BaseCamp Public location\n"
-            "  map BaseCamp                      - Gets your private or public\n"
-            "  map public BaseCamp               - Gets public (even if you have private)\n"
-            "  map delete BaseCamp               - Delete a location\n"
-            "  map list\n"
-            "  map log Found a new mesh node"
+            "  map save <name> [description] - Save private location\n"
+            "  map save public <name> [desc] - Save public location (all can see)\n"
+            "  map <name> - Get heading to saved location\n"
+            "  map public <name> - Get heading to public location\n"
+            "  map delete <name> - Delete a location\n"
+            "  map list - List all saved locations\n"
+            "  map log <description> - Log location to CSV (legacy)\n"
         )
 
     # Handle "save" command
@@ -1893,7 +1885,7 @@ def mapHandler(userID, deviceID, channel_number, message, snr, rssi, hop):
             return f"🚫Location '{location_name}' not found. Use 'map list' to see available locations."
     
     # Empty command - show help
-    return "🗺️Use 'map ?' for help"
+    return "🗺️Use 'map help' for help"
 
 # Initialize the locations database when module is imported
 initialize_locations_database()

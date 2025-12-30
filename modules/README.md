@@ -368,7 +368,7 @@ The `map` command provides a comprehensive location management system that allow
 
 - **Show Help**
   ```
-  map ?
+  map help
   ```
   Displays usage instructions for all map commands.
 
@@ -482,7 +482,7 @@ Configure in `[location]` section of `config.ini`:
 - `public_location_admin_manage` - If `True`, only administrators can save public locations (default: `False`)
 - `delete_public_locations_admins_only` - If `True`, only administrators can delete locations (default: `False`)
 
-**Tip:** Use `map ?` at any time to see these instructions in the bot.
+**Tip:** Use `map help` at any time to see these instructions in the bot.
 
 ---
 
