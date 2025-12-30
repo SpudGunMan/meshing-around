@@ -356,7 +356,6 @@ The system uses SQLite with four tables:
 | `map`        | Save/retrieve locations, get headings, manage location database |
 Configure in `[location]` section of `config.ini`.
 
-Certainly! Here’s a README help section for your `mapHandler` command, suitable for users of your meshbot:
 
 ---
 
