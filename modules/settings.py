@@ -135,6 +135,10 @@ if 'inventory' not in config:
     config['inventory'] = {'enabled': 'False', 'inventory_db': 'data/inventory.db', 'disable_penny': 'False'}
     config.write(open(config_file, 'w'))
 
+if 'location' not in config:
+    config['location'] = {'locations_db': 'data/locations.db', 'public_location_admin_manage': 'False', 'delete_public_locations_admins_only': 'False'}
+    config.write(open(config_file, 'w'))
+
 # interface1 settings
 interface1_type = config['interface'].get('type', 'serial')
 port1 = config['interface'].get('port', '')
@@ -392,6 +396,11 @@ try:
     inventory_enabled = config['inventory'].getboolean('enabled', False)
     inventory_db = config['inventory'].get('inventory_db', 'data/inventory.db')
     disable_penny = config['inventory'].getboolean('disable_penny', False)
+    
+    # location mapping
+    locations_db = config['location'].get('locations_db', 'data/locations.db')
+    public_location_admin_manage = config['location'].getboolean('public_location_admin_manage', False)
+    delete_public_locations_admins_only = config['location'].getboolean('delete_public_locations_admins_only', False)
     
     # E-Mail Settings
     sysopEmails = config['smtp'].get('sysopEmails', '').split(',')

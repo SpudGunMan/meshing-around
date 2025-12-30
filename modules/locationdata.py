@@ -14,6 +14,7 @@ import modules.settings as my_settings
 import math
 import csv
 import os
+import sqlite3
 
 trap_list_location = ("whereami", "wx", "wxa", "wxalert", "rlist", "ea", "ealert", "riverflow", "valert", "earthquake", "howfar", "map",)
 
@@ -1159,6 +1160,453 @@ def get_openskynetwork(lat=0, lon=0, altitude=0, node_altitude=0, altitude_windo
         logger.debug(f"SYSTEM: Location HighFly: Error processing OpenSky Network data: {e}")
         return False
 
+def get_public_location_admin_manage():
+    """Get the public_location_admin_manage setting directly from config file
+    This ensures the setting is reloaded fresh on first load of the program
+    """
+    import configparser
+    config = configparser.ConfigParser()
+    try:
+        config.read("config.ini", encoding='utf-8')
+        return config['location'].getboolean('public_location_admin_manage', False)
+    except Exception:
+        return False
+
+def get_delete_public_locations_admins_only():
+    """Get the delete_public_locations_admins_only setting directly from config file
+    This ensures the setting is reloaded fresh on first load of the program
+    """
+    import configparser
+    config = configparser.ConfigParser()
+    try:
+        config.read("config.ini", encoding='utf-8')
+        return config['location'].getboolean('delete_public_locations_admins_only', False)
+    except Exception:
+        return False
+
+def initialize_locations_database():
+    """Initialize the SQLite database for storing saved locations"""
+    try:
+        # Ensure data directory exists
+        db_dir = os.path.dirname(my_settings.locations_db)
+        if db_dir:
+            os.makedirs(db_dir, exist_ok=True)
+        
+        conn = sqlite3.connect(my_settings.locations_db)
+        c = conn.cursor()
+        logger.debug("Location: Initializing locations database...")
+        
+        # Check if table exists and get its structure
+        c.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='locations'")
+        table_exists = c.fetchone() is not None
+        
+        if table_exists:
+            # Check if is_public column exists
+            c.execute("PRAGMA table_info(locations)")
+            columns_info = c.fetchall()
+            column_names = [col[1] for col in columns_info]
+            
+            # Check for UNIQUE constraint on location_name by examining the table schema
+            c.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name='locations'")
+            table_sql = c.fetchone()
+            has_unique_constraint = False
+            if table_sql and table_sql[0]:
+                # Check if UNIQUE constraint exists in the table definition
+                if 'UNIQUE' in table_sql[0].upper() and 'location_name' in table_sql[0]:
+                    has_unique_constraint = True
+            
+            # If UNIQUE constraint exists, we need to recreate the table
+            if has_unique_constraint:
+                logger.debug("Location: Removing UNIQUE constraint from locations table")
+                # Create temporary table without UNIQUE constraint
+                c.execute('''CREATE TABLE locations_new
+                             (location_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                              location_name TEXT NOT NULL,
+                              latitude REAL NOT NULL,
+                              longitude REAL NOT NULL,
+                              description TEXT,
+                              userID TEXT,
+                              is_public INTEGER DEFAULT 0,
+                              created_date TEXT,
+                              created_time TEXT)''')
+                
+                # Copy data from old table to new table
+                c.execute('''INSERT INTO locations_new 
+                            (location_id, location_name, latitude, longitude, description, userID, 
+                             is_public, created_date, created_time)
+                            SELECT location_id, location_name, latitude, longitude, description, userID,
+                                   COALESCE(is_public, 0), created_date, created_time
+                            FROM locations''')
+                
+                # Drop old table
+                c.execute("DROP TABLE locations")
+                
+                # Rename new table
+                c.execute("ALTER TABLE locations_new RENAME TO locations")
+                
+                logger.debug("Location: Successfully removed UNIQUE constraint")
+                
+                # Refresh column list after table recreation
+                c.execute("PRAGMA table_info(locations)")
+                columns_info = c.fetchall()
+                column_names = [col[1] for col in columns_info]
+            
+            # Add is_public column if it doesn't exist (migration)
+            if 'is_public' not in column_names:
+                try:
+                    c.execute('''ALTER TABLE locations ADD COLUMN is_public INTEGER DEFAULT 0''')
+                    logger.debug("Location: Added is_public column to locations table")
+                except sqlite3.OperationalError:
+                    # Column might already exist, ignore
+                    pass
+        else:
+            # Table doesn't exist, create it without UNIQUE constraint
+            c.execute('''CREATE TABLE locations
+                         (location_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                          location_name TEXT NOT NULL,
+                          latitude REAL NOT NULL,
+                          longitude REAL NOT NULL,
+                          description TEXT,
+                          userID TEXT,
+                          is_public INTEGER DEFAULT 0,
+                          created_date TEXT,
+                          created_time TEXT)''')
+        
+        # Create index for faster lookups (non-unique)
+        c.execute('''CREATE INDEX IF NOT EXISTS idx_location_name_user 
+                     ON locations(location_name, userID, is_public)''')
+        
+        conn.commit()
+        conn.close()
+        return True
+    except Exception as e:
+        logger.error(f"Location: Failed to initialize locations database: {e}")
+        return False
+
+def save_location_to_db(location_name, lat, lon, description="", userID="", is_public=False):
+    """Save a location to the SQLite database
+    
+    Returns:
+        (success, message, conflict_info)
+        conflict_info is None if no conflict, or dict with conflict details if conflict exists
+    """
+    try:
+        if not location_name or not location_name.strip():
+            return False, "Location name cannot be empty", None
+        
+        # Check if public locations are admin-only and user is not admin
+        if is_public and get_public_location_admin_manage():
+            from modules.system import isNodeAdmin
+            if not isNodeAdmin(userID):
+                return False, "Only admins can save public locations.", None
+        
+        conn = sqlite3.connect(my_settings.locations_db)
+        c = conn.cursor()
+        
+        location_name_clean = location_name.strip()
+        
+        # Check for conflicts
+        # 1. Check if user already has a location with this name (private or public)
+        c.execute('''SELECT location_id, is_public FROM locations 
+                     WHERE location_name = ? AND userID = ?''', 
+                  (location_name_clean, userID))
+        user_existing = c.fetchone()
+        
+        if user_existing:
+            conn.close()
+            return False, f"Location '{location_name}' already exists for your node", None
+        
+        # 2. Check if there's a public location with this name
+        # Note: We allow public locations to overlap with other users' private locations
+        # Only check for existing public locations to prevent duplicate public locations
+        c.execute('''SELECT location_id, userID, description FROM locations 
+                     WHERE location_name = ? AND is_public = 1''', 
+                  (location_name_clean,))
+        public_existing = c.fetchone()
+        
+        if public_existing:
+            if not is_public:
+                # User is trying to create private location but public one exists
+                # They can use "map public <name>" to access the public location
+                conn.close()
+                return False, f"Public location '{location_name}' already exists. Use 'map public {location_name}' to access it.", None
+            else:
+                # User is trying to create public location but one already exists
+                # Only one public location per name globally
+                conn.close()
+                return False, f"Public location '{location_name}' already exists", None
+        
+        # 3. If saving as public, we don't check for other users' private locations
+        # This allows public locations to overlap with private location names
+        
+        # Insert new location
+        now = datetime.now()
+        c.execute('''INSERT INTO locations 
+                     (location_name, latitude, longitude, description, userID, is_public, created_date, created_time)
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)''',
+                  (location_name_clean, lat, lon, description, userID, 1 if is_public else 0,
+                   now.strftime("%Y-%m-%d"), now.strftime("%H:%M:%S")))
+        conn.commit()
+        conn.close()
+        
+        visibility = "public" if is_public else "private"
+        logger.debug(f"Location: Saved {visibility} location '{location_name}' to database")
+        return True, f"Location '{location_name}' saved as {visibility}", None
+    except Exception as e:
+        logger.error(f"Location: Failed to save location: {e}")
+        return False, f"Error saving location: {e}", None
+
+def get_location_from_db(location_name, userID=None):
+    """Retrieve a location from the database by name
+    
+    Returns:
+        - User's private location if exists
+        - Public location if exists
+        - None if not found
+    """
+    try:
+        conn = sqlite3.connect(my_settings.locations_db)
+        c = conn.cursor()
+        location_name_clean = location_name.strip()
+        
+        # First, try to get user's private location
+        if userID:
+            c.execute('''SELECT location_name, latitude, longitude, description, userID, is_public, created_date, created_time
+                         FROM locations 
+                         WHERE location_name = ? AND userID = ? AND is_public = 0''', 
+                      (location_name_clean, userID))
+            result = c.fetchone()
+            if result:
+                conn.close()
+                return {
+                    'name': result[0],
+                    'lat': result[1],
+                    'lon': result[2],
+                    'description': result[3],
+                    'userID': result[4],
+                    'is_public': bool(result[5]),
+                    'created_date': result[6],
+                    'created_time': result[7]
+                }
+        
+        # Then try public location
+        c.execute('''SELECT location_name, latitude, longitude, description, userID, is_public, created_date, created_time
+                     FROM locations 
+                     WHERE location_name = ? AND is_public = 1''', 
+                  (location_name_clean,))
+        result = c.fetchone()
+        conn.close()
+        
+        if result:
+            return {
+                'name': result[0],
+                'lat': result[1],
+                'lon': result[2],
+                'description': result[3],
+                'userID': result[4],
+                'is_public': bool(result[5]),
+                'created_date': result[6],
+                'created_time': result[7]
+            }
+        return None
+    except Exception as e:
+        logger.error(f"Location: Failed to retrieve location: {e}")
+        return None
+
+def get_public_location_from_db(location_name):
+    """Retrieve only a public location from the database by name (ignores private locations)
+    
+    Returns:
+        - Public location if exists
+        - None if not found
+    """
+    try:
+        conn = sqlite3.connect(my_settings.locations_db)
+        c = conn.cursor()
+        location_name_clean = location_name.strip()
+        
+        # Get only public location
+        c.execute('''SELECT location_name, latitude, longitude, description, userID, is_public, created_date, created_time
+                     FROM locations 
+                     WHERE location_name = ? AND is_public = 1''', 
+                  (location_name_clean,))
+        result = c.fetchone()
+        conn.close()
+        
+        if result:
+            return {
+                'name': result[0],
+                'lat': result[1],
+                'lon': result[2],
+                'description': result[3],
+                'userID': result[4],
+                'is_public': bool(result[5]),
+                'created_date': result[6],
+                'created_time': result[7]
+            }
+        return None
+    except Exception as e:
+        logger.error(f"Location: Failed to retrieve public location: {e}")
+        return None
+
+def list_locations_from_db(userID=None):
+    """List saved locations
+    
+    Shows:
+        - User's private locations
+        - All public locations
+    """
+    try:
+        conn = sqlite3.connect(my_settings.locations_db)
+        c = conn.cursor()
+        
+        if userID:
+            # Get user's private locations and all public locations
+            c.execute('''SELECT location_name, latitude, longitude, description, is_public, created_date
+                         FROM locations 
+                         WHERE (userID = ? AND is_public = 0) OR is_public = 1
+                         ORDER BY is_public ASC, location_name''', (userID,))
+        else:
+            # Get all public locations only
+            c.execute('''SELECT location_name, latitude, longitude, description, is_public, created_date
+                         FROM locations 
+                         WHERE is_public = 1
+                         ORDER BY location_name''')
+        
+        results = c.fetchall()  # Get ALL results, no limit
+        conn.close()
+        
+        if not results:
+            return "No saved locations found"
+        
+        locations_list = f"Saved Locations ({len(results)} total):\n"
+        # Return ALL results, not limited
+        for result in results:
+            is_public = bool(result[4])
+            visibility = "🌐Public" if is_public else "🔒Private"
+            locations_list += f"  • {result[0]} ({result[1]:.5f}, {result[2]:.5f}) [{visibility}]"
+            if result[3]:
+                locations_list += f" - {result[3]}"
+            locations_list += "\n"
+        return locations_list.strip()
+    except Exception as e:
+        logger.error(f"Location: Failed to list locations: {e}")
+        return f"Error listing locations: {e}"
+
+def delete_location_from_db(location_name, userID=""):
+    """Delete a location from the database
+    
+    Returns:
+        (success, message)
+    """
+    try:
+        if not location_name or not location_name.strip():
+            return False, "Location name cannot be empty"
+        
+        conn = sqlite3.connect(my_settings.locations_db)
+        c = conn.cursor()
+        location_name_clean = location_name.strip()
+        
+        # Check if location exists - prioritize user's private location, then public
+        # First try to get user's private location
+        c.execute('''SELECT location_id, userID, is_public FROM locations 
+                     WHERE location_name = ? AND userID = ? AND is_public = 0''', 
+                  (location_name_clean, userID))
+        location = c.fetchone()
+        
+        # If not found, try public location
+        if not location:
+            c.execute('''SELECT location_id, userID, is_public FROM locations 
+                         WHERE location_name = ? AND is_public = 1''', 
+                      (location_name_clean,))
+            location = c.fetchone()
+        
+        # If still not found, try any location (for admin delete)
+        if not location:
+            c.execute('''SELECT location_id, userID, is_public FROM locations 
+                         WHERE location_name = ? LIMIT 1''', 
+                      (location_name_clean,))
+            location = c.fetchone()
+        
+        if not location:
+            conn.close()
+            return False, f"Location '{location_name}' not found"
+        
+        location_id, location_userID, is_public = location
+        
+        # Check permissions
+        # Users can only delete their own private locations
+        # Admins can delete any location if delete_public_locations_admins_only is enabled
+        is_admin = False
+        if get_delete_public_locations_admins_only():
+            from modules.system import isNodeAdmin
+            is_admin = isNodeAdmin(userID)
+        
+        # Check if user owns this location
+        is_owner = (str(location_userID) == str(userID))
+        
+        # Determine if deletion is allowed
+        can_delete = False
+        if is_public:
+            # Public locations: only admins can delete if admin-only is enabled
+            if get_delete_public_locations_admins_only():
+                can_delete = is_admin
+            else:
+                # If not admin-only, then anyone can delete public locations
+                can_delete = True
+        else:
+            # Private locations: owner can always delete
+            can_delete = is_owner
+        
+        if not can_delete:
+            conn.close()
+            if is_public and get_delete_public_locations_admins_only():
+                return False, "Only admins can delete public locations."
+            else:
+                return False, f"You can only delete your own locations. This location belongs to another user."
+        
+        # Delete the location
+        c.execute('''DELETE FROM locations WHERE location_id = ?''', (location_id,))
+        conn.commit()
+        conn.close()
+        
+        visibility = "public" if is_public else "private"
+        logger.debug(f"Location: Deleted {visibility} location '{location_name}' from database")
+        return True, f"Location '{location_name}' deleted"
+    except Exception as e:
+        logger.error(f"Location: Failed to delete location: {e}")
+        return False, f"Error deleting location: {e}"
+
+def calculate_heading_and_distance(lat1, lon1, lat2, lon2):
+    """Calculate heading (bearing) and distance between two points"""
+    if lat1 == 0 and lon1 == 0:
+        return None, None, "Current location not available"
+    if lat2 == 0 and lon2 == 0:
+        return None, None, "Target location not available"
+    
+    # Calculate distance using Haversine formula
+    r = 6371  # Earth radius in kilometers
+    lat1_rad = math.radians(lat1)
+    lon1_rad = math.radians(lon1)
+    lat2_rad = math.radians(lat2)
+    lon2_rad = math.radians(lon2)
+    
+    dlon = lon2_rad - lon1_rad
+    dlat = lat2_rad - lat1_rad
+    
+    a = math.sin(dlat / 2)**2 + math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(dlon / 2)**2
+    c = 2 * math.asin(math.sqrt(a))
+    distance_km = c * r
+    
+    # Calculate bearing
+    x = math.sin(dlon) * math.cos(lat2_rad)
+    y = math.cos(lat1_rad) * math.sin(lat2_rad) - (math.sin(lat1_rad) * math.cos(lat2_rad) * math.cos(dlon))
+    initial_bearing = math.atan2(x, y)
+    initial_bearing = math.degrees(initial_bearing)
+    compass_bearing = (initial_bearing + 360) % 360
+    
+    return compass_bearing, distance_km, None
+
 def log_locationData_toMap(userID, location, message):
     """
     Logs location data to a CSV file for meshing purposes.
@@ -1207,40 +1655,245 @@ def mapHandler(userID, deviceID, channel_number, message, snr, rssi, hop):
     """
     Handles 'map' commands from meshbot.
     Usage:
-      map <description text>  - Log current location with description
+      map save <name> [description]  - Save current location with a name
+      map save public <name> [desc]   - Save public location (all can see)
+      map <name>                      - Get heading and distance to a saved location
+      map public <name>               - Get heading to public location (ignores private)
+      map delete <name>               - Delete a location
+      map list                        - List all saved locations
+      map log <description>          - Log current location with description (CSV, legacy)
     """
     command = str(command)  # Ensure command is always a string
 
     if command.strip().lower() == "?":
         return (
-            "Usage:\n"
-            "  🗺️map <description text>  - Log your current location with a description\n"
-            "Example:\n"
-            "  🗺️map Found a new mesh node near the park"
+            "🗺️ Map Commands:\n"
+            "  map save <name> [description]     - Save private location\n"
+            "  map save public <name> [desc]     - Save public location (all can see)\n"
+            "  map <name>                        - Get heading to saved location\n"
+            "  map public <name>                 - Get heading to public location\n"
+            "  map delete <name>                 - Delete a location\n"
+            "  map list                          - List all saved locations\n"
+            "  map log <description>             - Log location to CSV (legacy)\n"
+            "Examples:\n"
+            "  map save BaseCamp Main base camp\n"
+            "  map save public BaseCamp Public location\n"
+            "  map BaseCamp                      - Gets your private or public\n"
+            "  map public BaseCamp               - Gets public (even if you have private)\n"
+            "  map delete BaseCamp               - Delete a location\n"
+            "  map list\n"
+            "  map log Found a new mesh node"
         )
 
-    description = command.strip()
-    # if no description provided, set to default
-    if not description:
-        description = "Logged:"
-    # Sanitize description for CSV injection
-    if description and description[0] in ('=', '+', '-', '@'):
-        description = "'" + description
-
-    # if there is SNR and RSSI info, append to description
-    if snr is not None and rssi is not None:
-        description += f" SNR:{snr}dB RSSI:{rssi}dBm"
+    # Handle "save" command
+    if command.lower().startswith("save "):
+        save_cmd = command[5:].strip()
+        is_public = False
+        
+        # Check for "public" keyword
+        if save_cmd.lower().startswith("public "):
+            is_public = True
+            save_cmd = save_cmd[7:].strip()  # Remove "public " prefix
+        
+        parts = save_cmd.split(" ", 1)
+        if len(parts) < 1 or not parts[0]:
+            if is_public:
+                return "🚫Usage: map save public <name> [description]"
+            else:
+                return "🚫Usage: map save <name> [description]"
+        
+        location_name = parts[0]
+        description = parts[1] if len(parts) > 1 else ""
+        
+        # Add SNR/RSSI info to description if available
+        if snr is not None and rssi is not None:
+            if description:
+                description += f" SNR:{snr}dB RSSI:{rssi}dBm"
+            else:
+                description = f"SNR:{snr}dB RSSI:{rssi}dBm"
+        
+        if hop is not None:
+            if description:
+                description += f" Meta:{hop}"
+            else:
+                description = f"Meta:{hop}"
+        
+        if not location or len(location) != 2 or lat == 0 or lon == 0:
+            return "🚫Location data is missing or invalid."
+        
+        success, msg, _ = save_location_to_db(location_name, lat, lon, description, str(userID), is_public)
+        
+        if success:
+            return f"📍{msg}"
+        else:
+            return f"🚫{msg}"
     
-    # if there is hop info, append to description
-    if hop is not None:
-        description += f" Meta:{hop}"
+    # Handle "list" command
+    if command.strip().lower() == "list":
+        return list_locations_from_db(str(userID))
+    
+    # Handle "delete" command
+    if command.lower().startswith("delete "):
+        location_name = command[7:].strip()  # Remove "delete " prefix
+        if not location_name:
+            return "🚫Usage: map delete <name>"
+        
+        success, msg = delete_location_from_db(location_name, str(userID))
+        if success:
+            return f"🗑️{msg}"
+        else:
+            return f"🚫{msg}"
+    
+    # Handle "public" command to retrieve public locations (even if user has private with same name)
+    if command.lower().startswith("public "):
+        location_name = command[7:].strip()  # Remove "public " prefix
+        if not location_name:
+            return "🚫Usage: map public <name>"
+        
+        saved_location = get_public_location_from_db(location_name)
+        
+        if saved_location:
+            # Calculate heading and distance from current location
+            if not location or len(location) != 2 or lat == 0 or lon == 0:
+                return f"📍{saved_location['name']} (Public): {saved_location['lat']:.5f}, {saved_location['lon']:.5f}\n🚫Current location not available for heading"
+            
+            bearing, distance_km, error = calculate_heading_and_distance(
+                lat, lon, saved_location['lat'], saved_location['lon']
+            )
+            
+            if error:
+                return f"📍{saved_location['name']} (Public): {error}"
+            
+            # Format distance
+            if my_settings.use_metric:
+                distance_str = f"{distance_km:.2f} km"
+            else:
+                distance_miles = distance_km * 0.621371
+                if distance_miles < 0.25:
+                    # Convert to feet for short distances
+                    distance_feet = distance_miles * 5280
+                    distance_str = f"{distance_feet:.0f} ft"
+                else:
+                    distance_str = f"{distance_miles:.2f} miles"
+            
+            # Format bearing with cardinal direction
+            bearing_rounded = round(bearing)
+            cardinal = ""
+            if bearing_rounded == 0 or bearing_rounded == 360:
+                cardinal = "N"
+            elif bearing_rounded == 90:
+                cardinal = "E"
+            elif bearing_rounded == 180:
+                cardinal = "S"
+            elif bearing_rounded == 270:
+                cardinal = "W"
+            elif 0 < bearing_rounded < 90:
+                cardinal = "NE"
+            elif 90 < bearing_rounded < 180:
+                cardinal = "SE"
+            elif 180 < bearing_rounded < 270:
+                cardinal = "SW"
+            elif 270 < bearing_rounded < 360:
+                cardinal = "NW"
+            
+            result = f"📍{saved_location['name']} (Public)\n"
+            result += f"🧭Heading: {bearing_rounded}° {cardinal}\n"
+            result += f"📏Distance: {distance_str}"
+            if saved_location['description']:
+                result += f"\n📝{saved_location['description']}"
+            return result
+        else:
+            return f"🚫Public location '{location_name}' not found."
+    
+    # Handle "log" command for CSV logging
+    if command.lower().startswith("log "):
+        description = command[4:].strip()  # Remove "log " prefix
+        # if no description provided, set to default
+        if not description:
+            description = "Logged:"
+        # Sanitize description for CSV injection
+        if description and description[0] in ('=', '+', '-', '@'):
+            description = "'" + description
 
-    # location should be a tuple: (lat, lon)
-    if not location or len(location) != 2:
-        return "🚫Location data is missing or invalid."
+        # if there is SNR and RSSI info, append to description
+        if snr is not None and rssi is not None:
+            description += f" SNR:{snr}dB RSSI:{rssi}dBm"
+        
+        # if there is hop info, append to description
+        if hop is not None:
+            description += f" Meta:{hop}"
 
-    success = log_locationData_toMap(userID, location, description)
-    if success:
-        return f"📍Location logged "
-    else:
-        return "🚫Failed to log location. Please try again."
+        # location should be a tuple: (lat, lon)
+        if not location or len(location) != 2:
+            return "🚫Location data is missing or invalid."
+
+        success = log_locationData_toMap(userID, location, description)
+        if success:
+            return f"📍Location logged (CSV)"
+        else:
+            return "🚫Failed to log location. Please try again."
+    
+    # Handle location name lookup (get heading)
+    if command.strip():
+        location_name = command.strip()
+        saved_location = get_location_from_db(location_name, str(userID))
+        
+        if saved_location:
+            # Calculate heading and distance from current location
+            if not location or len(location) != 2 or lat == 0 or lon == 0:
+                return f"📍{saved_location['name']}: {saved_location['lat']:.5f}, {saved_location['lon']:.5f}\n🚫Current location not available for heading"
+            
+            bearing, distance_km, error = calculate_heading_and_distance(
+                lat, lon, saved_location['lat'], saved_location['lon']
+            )
+            
+            if error:
+                return f"📍{saved_location['name']}: {error}"
+            
+            # Format distance
+            if my_settings.use_metric:
+                distance_str = f"{distance_km:.2f} km"
+            else:
+                distance_miles = distance_km * 0.621371
+                if distance_miles < 0.25:
+                    # Convert to feet for short distances
+                    distance_feet = distance_miles * 5280
+                    distance_str = f"{distance_feet:.0f} ft"
+                else:
+                    distance_str = f"{distance_miles:.2f} miles"
+            
+            # Format bearing with cardinal direction
+            bearing_rounded = round(bearing)
+            cardinal = ""
+            if bearing_rounded == 0 or bearing_rounded == 360:
+                cardinal = "N"
+            elif bearing_rounded == 90:
+                cardinal = "E"
+            elif bearing_rounded == 180:
+                cardinal = "S"
+            elif bearing_rounded == 270:
+                cardinal = "W"
+            elif 0 < bearing_rounded < 90:
+                cardinal = "NE"
+            elif 90 < bearing_rounded < 180:
+                cardinal = "SE"
+            elif 180 < bearing_rounded < 270:
+                cardinal = "SW"
+            elif 270 < bearing_rounded < 360:
+                cardinal = "NW"
+            
+            result = f"📍{saved_location['name']}\n"
+            result += f"🧭Heading: {bearing_rounded}° {cardinal}\n"
+            result += f"📏Distance: {distance_str}"
+            if saved_location['description']:
+                result += f"\n📝{saved_location['description']}"
+            return result
+        else:
+            # Location not found
+            return f"🚫Location '{location_name}' not found. Use 'map list' to see available locations."
+    
+    # Empty command - show help
+    return "🗺️Use 'map ?' for help"
+
+# Initialize the locations database when module is imported
+initialize_locations_database()
