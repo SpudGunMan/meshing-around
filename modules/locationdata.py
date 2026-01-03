@@ -419,7 +419,11 @@ def getWeatherAlertsNOAA(lat=0, lon=0, useDefaultLatLon=False):
     alertxml = xml.dom.minidom.parseString(alert_data.text)
     for i in alertxml.getElementsByTagName("entry"):
         title = i.getElementsByTagName("title")[0].childNodes[0].nodeValue
-        area_desc = i.getElementsByTagName("cap:areaDesc")[0].childNodes[0].nodeValue
+        area_desc_nodes = i.getElementsByTagName("cap:areaDesc")
+        if area_desc_nodes and area_desc_nodes[0].childNodes:
+            area_desc = area_desc_nodes[0].childNodes[0].nodeValue
+        else:
+            area_desc = ""
 
         # Extract NWSheadline from cap:parameter if present
         nws_headline = ""
