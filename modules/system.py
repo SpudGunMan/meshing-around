@@ -2425,8 +2425,36 @@ async def watchdog():
             load_bbsdm()
             load_bbsdb()
 
+def saveAllData():
+    try:
+        # Save BBS data if enabled
+        if bbs_enabled:
+            save_bbsdb()
+            save_bbsdm()
+            logger.debug("Persistence: BBS data saved")
+
+        # Save leaderboard data if enabled
+        if logMetaStats:
+            saveLeaderboard()
+            logger.debug("Persistence: Leaderboard data saved")
+
+        # Save ban list
+        save_bbsBanList()
+        logger.debug("Persistence: Ban list saved")
+
+        logger.info("Persistence: Save completed")
+    except Exception as e:
+        logger.error(f"Persistence: Save error: {e}")
+
+async def dataPersistenceLoop():
+    """Data persistence service loop for periodic data saving"""
+    logger.debug("Persistence: Loop started")
+    while True:
+        await asyncio.sleep(dataPersistence_interval)
+        saveAllData()
+
 def exit_handler():
-    # Close the interface and save the BBS messages
+    # Close the interface and save all data
     logger.debug(f"System: Closing Autoresponder")
     try:
         logger.debug(f"System: Closing Interface1")
@@ -2438,12 +2466,9 @@ def exit_handler():
                     globals()[f'interface{i}'].close()
     except Exception as e:
         logger.error(f"System: closing: {e}")
-    if bbs_enabled:
-        save_bbsdb()
-        save_bbsdm()
-        logger.debug(f"System: BBS Messages Saved")
-    if logMetaStats:
-        saveLeaderboard()
+
+    saveAllData()
+
     logger.debug(f"System: Exiting")
     asyncLoop.stop()
     asyncLoop.close()

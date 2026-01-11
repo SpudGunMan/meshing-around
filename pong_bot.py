@@ -671,8 +671,11 @@ async def main():
         # Create core tasks
         tasks.append(asyncio.create_task(start_rx(), name="mesh_rx"))
         tasks.append(asyncio.create_task(watchdog(), name="watchdog"))
-        
+
         # Add optional tasks
+        if my_settings.dataPersistence_enabled:
+            tasks.append(asyncio.create_task(dataPersistenceLoop(), name="data_persistence"))
+
         if my_settings.file_monitor_enabled:
             tasks.append(asyncio.create_task(handleFileWatcher(), name="file_monitor"))
         

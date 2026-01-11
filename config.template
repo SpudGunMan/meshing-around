@@ -491,3 +491,9 @@ autoBanThreshold = 5
 apiThrottleValue = 20
 # Timeframe for offenses (in seconds)
 autoBanTimeframe = 3600
+
+[dataPersistence]
+# Enable or disable the data persistence loop service
+enabled = True
+# Interval in seconds for the persistence loop (how often to save data)
+interval = 300

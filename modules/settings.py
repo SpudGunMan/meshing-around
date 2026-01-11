@@ -507,6 +507,10 @@ try:
     autoBanThreshold = config['messagingSettings'].getint('autoBanThreshold', 5) # default 5 offenses
     autoBanTimeframe = config['messagingSettings'].getint('autoBanTimeframe', 3600) # default 1 hour in seconds
     apiThrottleValue = config['messagingSettings'].getint('apiThrottleValue', 20) # default 20 requests
+
+    # data persistence settings
+    dataPersistence_enabled = config.getboolean('dataPersistence', 'enabled', fallback=True) # default True
+    dataPersistence_interval = config.getint('dataPersistence', 'interval', fallback=300) # default 300 seconds (5 minutes)
 except Exception as e:
     print(f"System: Error reading config file: {e}")
     print("System: Check the config.ini against config.template file for missing sections or values.")
