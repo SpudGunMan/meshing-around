@@ -6,6 +6,7 @@ import random
 import copy
 import uuid
 import time
+from modules.settings import battleshipTracker
 
 OCEAN = "~"
 FIRE = "x"
