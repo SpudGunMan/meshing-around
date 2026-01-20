@@ -353,16 +353,15 @@ The system uses SQLite with four tables:
 | `howfar`     | Distance traveled since last check                      |
 | `howtall`    | Calculate height using sun angle                        |
 | `whereami`   | Show current location/address                           |
-| `map`        | Log/view location data to map.csv                       |
+| `map`        | Save/retrieve locations, get headings, manage location database |
 Configure in `[location]` section of `config.ini`.
 
-Certainly! Here’s a README help section for your `mapHandler` command, suitable for users of your meshbot:
 
 ---
 
 ## 📍 Map Command
 
-The `map` command allows you to log your current GPS location with a custom description. This is useful for mapping mesh nodes, events, or points of interest.
+The `map` command provides a comprehensive location management system that allows you to save, retrieve, and manage locations in a SQLite database. You can save private locations (visible only to you) or public locations (visible to all nodes), get headings and distances to saved locations, and manage your location data.
 
 ### Usage
 
@@ -370,23 +369,117 @@ The `map` command allows you to log your current GPS location with a custom desc
   ```
   map help
   ```
-  Displays usage instructions for the map command.
+  Displays usage instructions for all map commands.
 
-- **Log a Location**
+- **Save a Private Location**
   ```
-  map <description>
+  map save <name> [description]
   ```
+  Saves your current location as a private location (only visible to your node).
+  
+  Examples:
+  ```
+  map save BaseCamp
+  map save BaseCamp Main base camp location
+  ```
+
+- **Save a Public Location**
+  ```
+  map save public <name> [description]
+  ```
+  Saves your current location as a public location (visible to all nodes).
+  
+  Examples:
+  ```
+  map save public TrailHead
+  map save public TrailHead Starting point for hiking trail
+  ```
+  
+  **Note:** If `public_location_admin_manage = True` in config, only administrators can save public locations.
+
+- **Get Heading to a Location**
+  ```
+  map <name>
+  ```
+  Retrieves a saved location and provides heading (bearing) and distance from your current position.
+  
+  The system prioritizes your private location if both private and public locations exist with the same name.
+  
   Example:
   ```
-  map Found a new mesh node near the park
+  map BaseCamp
   ```
-  This will log your current location with the description "Found a new mesh node near the park".
+  Response includes:
+  - Location coordinates
+  - Compass heading (bearing)
+  - Distance
+  - Description (if provided)
+
+- **Get Heading to a Public Location**
+  ```
+  map public <name>
+  ```
+  Specifically retrieves a public location, even if you have a private location with the same name.
+  
+  Example:
+  ```
+  map public BaseCamp
+  ```
+
+- **List All Saved Locations**
+  ```
+  map list
+  ```
+  Lists all locations you can access:
+  - Your private locations (🔒Private)
+  - All public locations (🌐Public)
+  
+  Locations are sorted with private locations first, then public locations, both alphabetically by name.
+
+- **Delete a Location**
+  ```
+  map delete <name>
+  ```
+  Deletes a location from the database.
+  
+  **Permission Rules:**
+  - If `delete_public_locations_admins_only = False` (default):
+    - Users can delete their own private locations
+    - Users can delete public locations they created
+    - Anyone can delete any public location
+  - If `delete_public_locations_admins_only = True`:
+    - Only administrators can delete public locations
+  
+  The system prioritizes deleting your private location if both private and public locations exist with the same name.
+
+- **Legacy CSV Logging**
+  ```
+  map log <description>
+  ```
+  Logs your current location to the legacy CSV file (`data/map_data.csv`) with a description. This is the original map functionality preserved for backward compatibility.
+  
+  Example:
+  ```
+  map log Found a new mesh node near the park
+  ```
 
 ### How It Works
 
-- The bot records your user ID, latitude, longitude, and your description in a CSV file (`data/map_data.csv`).
-- If your location data is missing or invalid, you’ll receive an error message.
-- You can view or process the CSV file later for mapping or analysis.
+- **Database Storage:** All locations are stored in a SQLite database (`data/locations.db` by default, configurable via `locations_db` in config.ini).
+- **Location Types:**
+  - **Private Locations:** Only visible to the node that created them
+  - **Public Locations:** Visible to all nodes
+- **Conflict Resolution:** If you try to save a private location with the same name as an existing public location, you'll be prompted that there is a the public record with that name.
+- **Distance Calculation:** Uses the Haversine formula for accurate distance calculations. Distances less than 0.25 miles are displayed in feet; otherwise in miles (or kilometers if metric is enabled).
+- **Heading Calculation:** Provides compass bearing (0-360 degrees) from your current location to the target location.
+
+### Configuration
+
+Configure in `[location]` section of `config.ini`:
+
+- `locations_db` - Path to the SQLite database file (default: `data/locations.db`)
+- `public_location_admin_manage` - If `True`, only administrators can save public locations (default: `False`)
+- `delete_public_locations_admins_only` - If `True`, only administrators can delete locations (default: `False`)
 
 **Tip:** Use `map help` at any time to see these instructions in the bot.
 
