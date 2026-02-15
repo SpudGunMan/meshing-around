@@ -136,6 +136,9 @@ class HamTest:
         
         # remove the game[id] from the list
         del self.game[id]
+        # remove the id from the hamtestTracker list if it exists
+        if id in hamtestTracker:
+            hamtestTracker.remove(id)
         return msg
 
 hamtestTracker = []
