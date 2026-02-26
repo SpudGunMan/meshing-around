@@ -94,8 +94,28 @@ def getRepeaterBook(lat=0, lon=0):
         msg = ''
         user_agent = {'User-agent': 'Mozilla/5.0'}
         response = requests.get(repeater_url, headers=user_agent, timeout=my_settings.urlTimeoutSeconds)
-        if response.status_code!=200:
+        # Fail early on bad HTTP status
+        if response.status_code != 200:
             logger.error(f"Location:Error fetching repeater data from {repeater_url} with status code {response.status_code}")
+            return my_settings.ERROR_FETCHING_DATA
+
+        # Detect Cloudflare / bot-check pages or other anti-bot responses by looking
+        # for known phrases that indicate a challenge page instead of the expected HTML table.
+        try:
+            lowered = response.text.lower()
+        except Exception:
+            lowered = ''
+        cloudflare_signs = (
+            "checking your browser",
+            "please enable javascript",
+            "just a moment",
+            "cf-chl-bypass",
+            "attention required",
+        )
+        if any(sig in lowered for sig in cloudflare_signs):
+            logger.warning("Location: Cloudflare/bot-check detected when fetching repeater data")
+            return my_settings.ERROR_FETCHING_DATA
+
         soup = bs.BeautifulSoup(response.text, 'html.parser')
         table = soup.find('table', attrs={'class': 'table table-striped table-hover align-middle sortable'})
         if table is not None:
@@ -117,6 +137,8 @@ def getRepeaterBook(lat=0, lon=0):
                     }
                     data.append(repeater)
         else:
+            # No table found — could be legitimately no data or markup change.
+            logger.debug("Location: No repeater table found on RepeaterBook page")
             msg = "No Data for your Region"
     except Exception as e:
         msg = "No repeaters found 😔"
