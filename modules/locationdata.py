@@ -138,7 +138,7 @@ def getRepeaterBook(lat=0, lon=0):
                     data.append(repeater)
         else:
             # No table found — could be legitimately no data or markup change.
-            logger.debug("Location: No repeater table found on RepeaterBook page")
+            logger.debug("Location: No repeater table found on RepeaterBook page, scraping failed or no data for region.")
             msg = "No Data for your Region"
     except Exception as e:
         msg = "No repeaters found 😔"
