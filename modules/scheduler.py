@@ -29,7 +29,8 @@ def safe_int(val, default=0, type=''):
     try:
         return int(val)
     except (ValueError, TypeError):
-        logger.debug(f"System: Scheduler config {type} error '{val}' to int, using default {default}")
+        if val != '':
+            logger.debug(f"System: Scheduler config {type} error '{val}' to int, using default {default}")
         return default
 
 def extract_schedule_fields(jobs):
