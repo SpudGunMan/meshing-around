@@ -5,6 +5,7 @@ import schedule
 from datetime import datetime
 from modules.log import logger
 from modules.system import send_message
+from modules.settings import MOTD, schedulerMotd, schedulerMessage, schedulerChannel, schedulerInterface, schedulerValue, schedulerTime, schedulerInterval
 
 async def run_scheduler_loop(interval=1):
     logger.debug(f"System: Scheduler loop started Tasks: {len(schedule.jobs)}, Details:{extract_schedule_fields(schedule.get_jobs())}")
@@ -24,7 +25,7 @@ async def run_scheduler_loop(interval=1):
     except asyncio.CancelledError:
         logger.debug("System: Scheduler loop cancelled, shutting down.")
 
-def safe_int(val, default=0, type=""):
+def safe_int(val, default=0, type=''):
     try:
         return int(val)
     except (ValueError, TypeError):
