@@ -83,8 +83,10 @@ def getRepeaterBook(lat=0, lon=0):
     elsewhereapi = "https://www.repeaterbook.com/row_repeaters/prox2_result.php?"
     if grid[:2] in ['CN', 'DN', 'EN', 'FN', 'CM', 'DM', 'EM', 'FM', 'DL', 'EL', 'FL']:
         repeater_url = usapi
+        logger.debug("Location: Fetching repeater data from RepeaterBook US API for grid " + grid)
     else:
         repeater_url = elsewhereapi
+        logger.debug("Location: Fetching repeater data from RepeaterBook International API for grid " + grid)
     
     repeater_url += f"city={grid}&lat=&long=&distance=50&Dunit=m&band%5B%5D=4&band%5B%5D=16&freq=&call=&mode%5B%5D=1&mode%5B%5D=2&mode%5B%5D=4&mode%5B%5D=64&status_id=1&use=%25&use=OPEN&order=distance_calc%2C+state_id+ASC"
     
