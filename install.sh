@@ -107,6 +107,18 @@ if [[ ! -w ${program_path} ]]; then
     exit 1
 fi
 
+# check if we have git and curl installed
+if ! command -v git &> /dev/null
+then
+    printf "git not found, trying 'apt-get install git'\n"
+    sudo apt-get install git
+fi
+if ! command -v curl &> /dev/null
+then
+    printf "curl not found, trying 'apt-get install curl'\n"
+    sudo apt-get install curl
+fi
+
 # check if we are in /opt/meshing-around
 if [[ "$program_path" != "/opt/meshing-around" ]]; then
     echo "----------------------------------------------"
