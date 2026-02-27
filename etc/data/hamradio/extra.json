@@ -960,18 +960,6 @@
     ]
   },
   {
-    "id": "E2A13",
-    "correct": 1,
-    "refs": "",
-    "question": "Which of the following techniques is used by digital satellites to relay messages?",
-    "answers": [
-      "Digipeating",
-      "Store-and-forward",
-      "Multisatellite relaying",
-      "Node hopping"
-    ]
-  },
-  {
     "id": "E2B01",
     "correct": 0,
     "refs": "",
@@ -2496,18 +2484,6 @@
     ]
   },
   {
-    "id": "E4D05",
-    "correct": 0,
-    "refs": "",
-    "question": "What transmitter frequencies would create an intermodulation-product signal in a receiver tuned to 146.70 MHz when a nearby station transmits on 146.52 MHz?",
-    "answers": [
-      "146.34 MHz and 146.61 MHz",
-      "146.88 MHz and 146.34 MHz",
-      "146.10 MHz and 147.30 MHz",
-      "146.30 MHz and 146.90 MHz"
-    ]
-  },
-  {
     "id": "E4D06",
     "correct": 2,
     "refs": "",
@@ -3849,18 +3825,6 @@
       "Resistance",
       "Reactivity",
       "Permeability"
-    ]
-  },
-  {
-    "id": "E6D07",
-    "correct": 3,
-    "refs": "",
-    "question": "What is the current that flows in the primary winding of a transformer when there is no load on the secondary winding?",
-    "answers": [
-      "Stabilizing current",
-      "Direct current",
-      "Excitation current",
-      "Magnetizing current"
     ]
   },
   {

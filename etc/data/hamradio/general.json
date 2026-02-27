@@ -36,18 +36,6 @@
     ]
   },
   {
-    "id": "G1A04",
-    "correct": 3,
-    "refs": "[97.303(h)]",
-    "question": "Which of the following amateur bands is restricted to communication only on specific channels, rather than frequency ranges?",
-    "answers": [
-      "11 meters",
-      "12 meters",
-      "30 meters",
-      "60 meters"
-    ]
-  },
-  {
     "id": "G1A05",
     "correct": 0,
     "refs": "[97.301(d)]",
@@ -348,18 +336,6 @@
     ]
   },
   {
-    "id": "G1C09",
-    "correct": 2,
-    "refs": "[97.313(i)]",
-    "question": "What is the maximum power limit on the 60-meter band?",
-    "answers": [
-      "1500 watts PEP",
-      "10 watts RMS",
-      "ERP of 100 watts PEP with respect to a dipole",
-      "ERP of 100 watts PEP with respect to an isotropic antenna"
-    ]
-  },
-  {
     "id": "G1C11",
     "correct": 3,
     "refs": "[97.313]",
@@ -609,18 +585,6 @@
       "10 watts",
       "100 watts",
       "1500 watts"
-    ]
-  },
-  {
-    "id": "G1E09",
-    "correct": 0,
-    "refs": "[97.115]",
-    "question": "Under what circumstances are messages that are sent via digital modes exempt from Part 97 third-party rules that apply to other modes of communication?",
-    "answers": [
-      "Under no circumstances",
-      "When messages are encrypted",
-      "When messages are not encrypted",
-      "When under automatic control"
     ]
   },
   {
@@ -4077,18 +4041,6 @@
       "3F1-F2",
       "2F1-F2",
       "All these choices are correct"
-    ]
-  },
-  {
-    "id": "G8C01",
-    "correct": 2,
-    "refs": "",
-    "question": "On what band do amateurs share channels with the unlicensed Wi-Fi service?",
-    "answers": [
-      "432 MHz",
-      "902 MHz",
-      "2.4 GHz",
-      "10.7 GHz"
     ]
   },
   {
