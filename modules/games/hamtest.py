@@ -136,11 +136,16 @@ class HamTest:
         
         # remove the game[id] from the list
         del self.game[id]
-        # remove the id from the hamtestTracker list if it exists
-        if id in hamtestTracker:
-            hamtestTracker.remove(id)
+        # hamtestTracker stores dicts like {"nodeID": nodeID, ...}
+        for i in range(len(hamtestTracker)):
+            try:
+                if hamtestTracker[i].get('nodeID') == id:
+                    hamtestTracker.pop(i)
+                    break
+            except Exception:
+                continue
+
         return msg
 
-hamtestTracker = []
 hamtest = HamTest()
    
