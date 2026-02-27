@@ -1721,14 +1721,13 @@ def mapHandler(userID, deviceID, channel_number, message, snr, rssi, hop):
 
     if command.strip().lower() == "help":
         return (
-            "🗺️ Map Commands:\n"
-            "  map save <name> [description] - Save private location\n"
-            "  map save public <name> [desc] - Save public location (all can see)\n"
-            "  map <name> - Get heading to saved location\n"
-            "  map public <name> - Get heading to public location\n"
-            "  map delete <name> - Delete a location\n"
-            "  map list - List all saved locations\n"
-            "  map log <description> - Log location to CSV (legacy)\n"
+            f"'map save <name>' [description] - Save private location\n"
+            f"'map save public <name>' [desc] - Save public location\n"
+            f"'map <name>' - Get heading to saved location\n"
+            f"'map public <name>' - Get heading to public location\n"
+            f"'map delete <name>' \n"
+            f"'map list' - List locations\n"
+            f"'map log <description>' - Log location to CSV\n"
         )
 
     # Handle "save" command
