@@ -1340,7 +1340,7 @@ def initialize_locations_database():
         conn.close()
         return True
     except Exception as e:
-        logger.error(f"Location: Failed to initialize locations database: {e}")
+        logger.warning(f"Location: Failed to initialize locations database: {e}")
         return False
 
 def save_location_to_db(location_name, lat, lon, description="", userID="", is_public=False, altitude=None):
