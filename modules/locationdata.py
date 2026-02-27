@@ -99,25 +99,9 @@ def getRepeaterBook(lat=0, lon=0):
             logger.error(f"Location:Error fetching repeater data from {repeater_url} with status code {response.status_code}")
             return my_settings.ERROR_FETCHING_DATA
 
-        # Detect Cloudflare / bot-check pages or other anti-bot responses by looking
-        # for known phrases that indicate a challenge page instead of the expected HTML table.
-        try:
-            lowered = response.text.lower()
-        except Exception:
-            lowered = ''
-        cloudflare_signs = (
-            "checking your browser",
-            "please enable javascript",
-            "just a moment",
-            "cf-chl-bypass",
-            "attention required",
-        )
-        if any(sig in lowered for sig in cloudflare_signs):
-            logger.warning("Location: Cloudflare/bot-check detected when fetching repeater data")
-            return my_settings.ERROR_FETCHING_DATA
-
         soup = bs.BeautifulSoup(response.text, 'html.parser')
-        table = soup.find('table', attrs={'class': 'table table-striped table-hover align-middle sortable'})
+        # match the repeater table by presence of the "sortable" class (class order/extra classes may vary)
+        table = soup.select_one('table.sortable')
         if table is not None:
             cells = table.find_all('td')
             data = []
