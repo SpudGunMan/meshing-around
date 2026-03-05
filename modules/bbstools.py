@@ -2,6 +2,7 @@
 # K7MHI Kelly Keeton 2024
 
 import pickle # pip install pickle
+import re
 from modules.log import logger
 from modules.settings import bbs_admin_list, bbs_ban_list, MESSAGE_CHUNK_SIZE, bbs_link_enabled, bbs_link_whitelist, responseDelay
 import time
@@ -254,8 +255,13 @@ def bbs_sync_posts(input, peerNode, RxNode):
         if "$" in input and "#" in input:
             #store the message
             subject = input.split("$")[1].split("#")[0]
-            body = input.split("#")[1]
-            fromNodeHex = input.split("@")[1]
+            # Use the last @hex token as the sender (the one appended by
+            # the sending node). Everything between # and that last @ is
+            # the body.  We also strip any stale @hex suffixes that older
+            # instances may have baked into the body from previous hops.
+            fromNodeHex = input.rsplit("@", 1)[1].strip()
+            raw_body = input.split("#", 1)[1].rsplit(" @", 1)[0]
+            body = re.sub(r'(?:\s*@(?:0x)?[0-9a-fA-F]+)+$', '', raw_body)
             try:
                 bbs_post_message(subject, body, int(fromNodeHex, 16))
             except:
