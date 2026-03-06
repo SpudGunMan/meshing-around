@@ -255,7 +255,19 @@ def bbs_sync_posts(input, peerNode, RxNode):
             #store the message
             subject = input.split("$")[1].split("#")[0]
             body = input.split("#")[1]
-            fromNodeHex = input.split("@")[1]
+            fromNodeHex = body.split("@")[1]
+            #validate the fromNodeHex is a valid hex number
+            try:
+                int(fromNodeHex, 16)
+            except ValueError:
+                logger.error(f"System: Invalid fromNodeHex in bbslink from node {peerNode}: {input}")
+                fromNodeHex = hex(peerNode)
+            #validate the subject and body are not empty
+            if subject.strip() == "" or body.strip() == "":
+                logger.error(f"System: Empty subject or body in bbslink from node {peerNode}: {input}")
+                return "System: Invalid bbslink format."
+            
+            #store the message in the bbsdb
             try:
                 bbs_post_message(subject, body, int(fromNodeHex, 16))
             except:
