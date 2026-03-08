@@ -18,8 +18,7 @@ try:
     from pubsub import pub
     from meshtastic.protobuf import mesh_pb2, portnums_pb2
 except ImportError:
-    print("mUDP API not found.  pip install -U meshtastic")
-    print("If launching, venv run source venv/bin/activate and then  pip install -U mudp")
+    print("meshtastic API not found.  pip install -U meshtastic")
     exit(1)
 
 try:
@@ -27,6 +26,7 @@ try:
     from mudp.encryption import generate_hash
 except ImportError:
     print("mUDP module not found.   pip install -U mudp")
+    print("If launching, venv run source venv/bin/activate and then  pip install -U mudp")
     exit(1)
 try:
     sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
