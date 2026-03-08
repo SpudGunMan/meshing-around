@@ -18,7 +18,8 @@ try:
     from pubsub import pub
     from meshtastic.protobuf import mesh_pb2, portnums_pb2
 except ImportError:
-    print("meshtastic API not found.      pip install -U meshtastic")
+    print("mUDP API not found.  pip install -U meshtastic")
+    print("If launching, venv run source venv/bin/activate and then  pip install -U mudp")
     exit(1)
 
 try:
