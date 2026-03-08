@@ -46,7 +46,7 @@ def handledxcluster(message, nodeID, deviceID):
                 freq_hz = spot.get('freq', spot.get('frequency', None))
                 frequency = f"{float(freq_hz)/1e6:.3f} MHz" if freq_hz else "N/A"
                 mode_val = spot.get('mode', 'N/A')
-                comment = spot.get('comment', '')
+                comment = spot.get('comment') or ''
                 if len(comment) > 111: # Truncate comment to 111 chars
                     comment = comment[:111] + '...'
                 sig = spot.get('sig', '')
