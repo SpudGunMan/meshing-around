@@ -26,7 +26,7 @@ try:
     from mudp.encryption import generate_hash
 except ImportError:
     print("mUDP module not found.   pip install -U mudp")
-    print("If launching, venv run source venv/bin/activate and then  pip install -U mudp")
+    print("If launching, venv run source venv/bin/activate and then  pip install -U mudp pygame-ce")
     print("use deactivate to exit venv when done")
     exit(1)
 try:
