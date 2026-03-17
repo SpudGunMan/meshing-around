@@ -15,7 +15,7 @@ mkdir -p "$BASE_DIR/data"
 cp -Rn "$BASE_DIR/etc/data/." "$BASE_DIR/data/"
 
 if [[ ! -f "$BASE_DIR/config.ini" ]]; then
-	cp "$BASE_DIR/etc/config.template" "$BASE_DIR/config.ini"
+	cp "$BASE_DIR/config.template" "$BASE_DIR/config.ini"
 	replace="s|type = serial|type = tcp|g"
 	sed -i '' "$replace" "$BASE_DIR/config.ini"
 	replace="s|# hostname = meshtastic.local|hostname = localhost|g"
