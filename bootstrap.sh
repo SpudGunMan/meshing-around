@@ -18,9 +18,10 @@ if [[ ! -f "$BASE_DIR/config.ini" ]]; then
 	cp "$BASE_DIR/config.template" "$BASE_DIR/config.ini"
 	sleep 1
 	replace="s|type = serial|type = tcp|g"
-	sed -i '' "$replace" "$BASE_DIR/config.ini"
+	sed -i.bak "$replace" "$BASE_DIR/config.ini"
 	replace="s|# hostname = meshtastic.local|hostname = localhost|g"
-	sed -i '' "$replace" "$BASE_DIR/config.ini"
+	sed -i.bak "$replace" "$BASE_DIR/config.ini"
+	rm -f "$BASE_DIR/config.ini.bak"
 else
 	echo "config.ini already exists, leaving it unchanged."
 fi
