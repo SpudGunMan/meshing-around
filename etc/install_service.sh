@@ -106,7 +106,7 @@ else
 fi
 
 if [[ $NEED_MESHTASTICD -eq 1 ]]; then
-    if ! systemctl list-units --type=service --all | grep -q "meshtasticd.service"; then
+    if ! systemctl list-units --type=service --no-pager--all | grep -q "meshtasticd.service"; then
         die "meshtasticd.service dependency not found. to ignore this check, run with --no-meshtasticd flag."
     fi
     MESHTASTICD_DEPENDENCY_LINES=$'\nAfter=meshtasticd.service\nRequires=meshtasticd.service'
