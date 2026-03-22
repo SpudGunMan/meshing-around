@@ -102,6 +102,8 @@ fi
 SERVICE_FILE_CONTENT="[Unit]
 Description=MESH-BOT
 After=network.target
+After=meshtasticd.service
+Requires=meshtasticd.service
 
 [Service]
 Type=simple
