@@ -12,6 +12,7 @@ PROJECT_PATH="/opt/meshing-around"
 SERVICE_USER="${SUDO_USER:-${USER:-}}"
 SERVICE_GROUP=""
 USE_LAUNCH_SH=1
+NEED_MESHTASTICD=1
 DRY_RUN=0
 
 usage() {
@@ -24,6 +25,7 @@ Options:
   --user USER           Linux user to run the service as (default: invoking user)
   --group GROUP         Linux group to run the service as (default: user's primary group)
   --direct-python       Run python3 mesh_bot.py directly (skip launch.sh)
+  --no-meshtasticd      Do not require meshtasticd.service to be present
   --dry-run             Print actions without changing the system
   -h, --help            Show this help
 
@@ -63,6 +65,10 @@ while [[ $# -gt 0 ]]; do
             USE_LAUNCH_SH=0
             shift
             ;;
+        --no-meshtasticd)
+            NEED_MESHTASTICD=0
+            shift
+            ;;
         --dry-run)
             DRY_RUN=1
             shift
@@ -99,11 +105,18 @@ else
     EXEC_START="/usr/bin/python3 $PROJECT_PATH/mesh_bot.py"
 fi
 
+if [[ $NEED_MESHTASTICD -eq 1 ]]; then
+    if ! systemctl list-units --type=service --all | grep -q "meshtasticd.service"; then
+        die "meshtasticd.service dependency not found. to ignore this check, run with --no-meshtasticd flag."
+    fi
+    MESHTASTICD_DEPENDENCY_LINES=$'\nAfter=meshtasticd.service\nRequires=meshtasticd.service'
+else
+    MESHTASTICD_DEPENDENCY_LINES=""
+fi
+
 SERVICE_FILE_CONTENT="[Unit]
 Description=MESH-BOT
-After=network.target
-After=meshtasticd.service
-Requires=meshtasticd.service
+After=network.target${MESHTASTICD_DEPENDENCY_LINES}
 
 [Service]
 Type=simple
