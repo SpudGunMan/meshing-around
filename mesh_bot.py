@@ -715,6 +715,7 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
 def handleDopeWars(message, nodeID, rxNode):
     global dwPlayerTracker
     global dwHighScore
+    msg = ""
 
     # Find player in tracker
     player = next((p for p in dwPlayerTracker if p.get('userID') == nodeID), None)
@@ -725,7 +726,6 @@ def handleDopeWars(message, nodeID, rxNode):
             'userID': nodeID,
             'last_played': time.time(),
             'cmd': 'new',
-            # ... add other fields as needed ...
         }
         dwPlayerTracker.append(player)
         msg = 'Welcome to 💊Dope Wars💉 You have ' + str(total_days) + ' days to make as much 💰 as possible! '
