@@ -145,10 +145,9 @@ def tableOfContents():
         'file': '📁', 'folder': '📂', 'sports': '🏅', 'athlete': '🏃', 'competition': '🏆', 'race': '🏁', 'tournament': '🏆', 'champion': '🏆', 'medal': '🏅', 'victory': '🏆', 'win': '🏆', 'lose': '😞',
         'draw': '🤝', 'team': '👥', 'player': '👤', 'coach': '👨‍🏫', 'referee': '🧑‍⚖️', 'stadium': '🏟️', 'arena': '🏟️', 'field': '🏟️', 'court': '🏟️', 'track': '🏟️', 'gym': '🏋️', 'fitness': '🏋️', 'exercise': '🏋️', 
         'workout': '🏋️', 'training': '🏋️', 'practice': '🏋️', 'game': '🎮', 'match': '🎮', 'score': '🏅', 'goal': '🥅', 'point': '🏅', 'basket': '🏀', 'home run': '⚾️', 'strike': '🎳', 'spare': '🎳', 'frame': '🎳', 
-        'inning': '⚾️', 'quarter': '🏈', 'half': '🏈', 'overtime': '🏈', 'penalty': '⚽️', 'foul': '⚽️', 'timeout': '⏱️', 'substitute': '🔄', 'bench': '🪑', 'sideline': '🏟️', 'dugout': '⚾️', 'locker room': '🚪', 'shower': '🚿', 
-        'uniform': '👕', 'jersey': '👕', 'cleats': '👟', 'helmet': '⛑️', 'pads': '🛡️', 'gloves': '🧤', 'bat': '⚾️', 'ball': '⚽️', 'puck': '🏒', 'stick': '🏒', 'net': '🥅', 'hoop': '🏀', 'goalpost': '🥅', 'whistle': '🔔', 
-        'scoreboard': '📊', 'fans': '👥', 'crowd': '👥', 'cheer': '📣', 'boo': '😠', 'applause': '👏', 'celebration': '🎉', 'parade': '🎉', 'trophy': '🏆', 'medal': '🏅', 'ribbon': '🎀', 'cup': '🏆', 'championship': '🏆', 
-        'league': '🏆', 'season': '🏆', 'playoffs': '🏆', 'finals': '🏆', 'runner-up': '🥈', 'third place': '🥉', 'snowman': '☃️', 'snowmen': '⛄️'
+        'inning': '⚾️', 'shower': '🚿', 'uniform': '👕', 'jersey': '👕', 'cleats': '👟', 'helmet': '⛑️', 'pads': '🛡️', 'gloves': '🧤', 'bat': '⚾️', 'ball': '⚽️', 'puck': '🏒', 'stick': '🏒', 'net': '🥅', 'goalpost': '🥅',
+        'scoreboard': '📊', 'fans': '👥', 'crowd': '👥', 'cheer': '📣', 'boo': '😠', 'applause': '👏', 'celebration': '🎉', 'parade': '🎉', 'trophy': '🏆', 'medal': '🏅', 'ribbon': '🎀',
+        'third place': '🥉', 'snowman': '☃️', 'snowmen': '⛄️'
     }
 
     return wordToEmojiMap
