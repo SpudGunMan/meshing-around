@@ -1,7 +1,6 @@
 meshtastic
-pubsub
-datetime
-pyephem
+PyPubSub
+ephem
 requests
 maidenhead
 beautifulsoup4
