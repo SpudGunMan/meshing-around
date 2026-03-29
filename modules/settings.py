@@ -275,6 +275,8 @@ try:
     useOpenWebUI = config['general'].getboolean('useOpenWebUI', False) # default False
     openWebUIURL = config['general'].get('openWebUIURL', 'http://localhost:3000') # default localhost:3000
     openWebUIAPIKey = config['general'].get('openWebUIAPIKey', '') # default empty
+    useGemini = config['general'].getboolean('useGemini', False) # default False
+    geminiKeyFile = config['general'].get('geminiKeyFile', './service_account.json') # path to GCP service account JSON
     dont_retry_disconnect = config['general'].getboolean('dont_retry_disconnect', False) # default False, retry on disconnect
     favoriteNodeList = config['general'].get('favoriteNodeList', '').split(',')
     enableEcho = config['general'].getboolean('enableEcho', False) # default False

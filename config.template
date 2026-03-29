@@ -79,21 +79,41 @@ kiwixURL = http://127.0.0.1:8080
 # Kiwix library name (e.g., wikipedia_en_100_nopic_2025-09)
 kiwixLibraryName = wikipedia_en_100_nopic_2025-09
 
-# Enable LLM local Ollama integration, set true for any LLM support
+# ── LLM / AI Integration ────────────────────────────────────────────────────
+# Enable LLM support (required for any AI backend)
 ollama = False
-# Ollama server instance to use (defaults to local machine install)
-ollamaHostName = http://localhost:11434
-# Use OpenWebUI instead of direct Ollama API / still leave ollama = True
-useOpenWebUI = False
-openWebUIURL = http://localhost:3000
-# OpenWebUI API key/token (required when useOpenWebUI is True)
-openWebUIAPIKey = 
 
-# Ollama model to use (defaults to gemma3:270m) gemma2 is good for older SYSTEM prompt
-# ollamaModel is used for both Ollama and OpenWebUI when useOpenWebUI its just the model name
+# ── Option A: Local Ollama ───────────────────────────────────────────────────
+# Run Ollama locally: https://ollama.com  then  `ollama pull gemma3:latest`
+ollamaHostName = http://localhost:11434
 # ollamaModel = gemma3:latest
 # ollamaModel = gemma2:2b
-# if True, the query is sent raw to the LLM, if False uses internal SYSTEM prompt
+
+# ── Option B: OpenWebUI (Ollama proxy, LiteLLM, or any OpenAI-compat gateway)
+# Enables routing to cloud models (Gemini, Claude, GPT-4) via LiteLLM/OpenWebUI.
+# Leave ollama = True above, then set useOpenWebUI = True and fill in the URL + key.
+useOpenWebUI = False
+openWebUIURL = http://localhost:3000
+# openWebUIURL = https://your-openwebui-host.example.com
+openWebUIAPIKey =
+# ollamaModel = gemini/gemini-2.0-flash   # LiteLLM model string when routing to Gemini
+# ollamaModel = claude-3-5-haiku-20241022 # LiteLLM model string when routing to Claude
+
+# ── Option C: Google Gemini (Service Account / direct API) ──────────────────
+# Requirements: pip install google-auth
+# 1. Create a GCP project and enable the Generative Language API.
+# 2. Create a Service Account, grant it "Vertex AI User" role.
+# 3. Download the JSON key and place it on this machine.
+# 4. Set useGemini = True and point geminiKeyFile at the JSON key path.
+# Note: useGemini takes priority over useOpenWebUI if both are True.
+useGemini = False
+geminiKeyFile = ./service_account.json
+# ollamaModel = gemini-2.0-flash  (used only for logging; actual model is in the endpoint)
+
+# ── Shared LLM settings ──────────────────────────────────────────────────────
+# ollamaModel is the model name used for Ollama and OpenWebUI backends
+ollamaModel = gemma3:270m
+# if True, the query is sent raw to the LLM; if False uses internal SYSTEM prompt
 rawLLMQuery = True
 
 # If False, the LLM only replies to the "ask:" and "askai" commands. otherwise DM's automatically go to LLM
