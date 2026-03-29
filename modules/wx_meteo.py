@@ -4,10 +4,10 @@
 import requests
 import json
 from modules.log import logger
-from modules.settings import ERROR_FETCHING_DATA
+from modules.settings import ERROR_FETCHING_DATA, urlTimeoutSeconds
 
 def get_weather_data(api_url, params):
-    response = requests.get(api_url, params=params)
+    response = requests.get(api_url, params=params, timeout=urlTimeoutSeconds)
     response.raise_for_status()  # Raise an error for bad status codes
     return response.json()
 
@@ -19,11 +19,11 @@ def get_wx_meteo(lat=0, lon=0, unit=0):
 	# The order of variables in hourly or daily is important to assign them correctly below
 	url = "https://api.open-meteo.com/v1/forecast"
 	params = {
-		"latitude": {lat},
-		"longitude": {lon},
+		"latitude": lat,
+		"longitude": lon,
 		"daily": ["weather_code", "temperature_2m_max", "temperature_2m_min", "precipitation_hours", "precipitation_probability_max", "wind_speed_10m_max", "wind_gusts_10m_max", "wind_direction_10m_dominant"],
 		"timezone": "auto",
-		"forecast_days": {forecastDays}
+		"forecast_days": forecastDays
 	}
 
 	# Unit 0 is imperial, 1 is metric
@@ -63,26 +63,16 @@ def get_wx_meteo(lat=0, lon=0, unit=0):
 		logger.error(f"Error processing meteo weather data: {e}")
 		return ERROR_FETCHING_DATA
 
-	# convert wind value to cardinal directions
-	for value in daily_wind_direction_10m_dominant:
-		if value < 22.5:
-			wind_direction = "N"
-		elif value < 67.5:
-			wind_direction = "NE"
-		elif value < 112.5:
-			wind_direction = "E"
-		elif value < 157.5:
-			wind_direction = "SE"
-		elif value < 202.5:
-			wind_direction = "S"
-		elif value < 247.5:
-			wind_direction = "SW"
-		elif value < 292.5:
-			wind_direction = "W"
-		elif value < 337.5:
-			wind_direction = "NW"
-		else:
-			wind_direction = "N"
+	def wind_cardinal(degrees):
+		if degrees < 22.5:   return "N"
+		elif degrees < 67.5:  return "NE"
+		elif degrees < 112.5: return "E"
+		elif degrees < 157.5: return "SE"
+		elif degrees < 202.5: return "S"
+		elif degrees < 247.5: return "SW"
+		elif degrees < 292.5: return "W"
+		elif degrees < 337.5: return "NW"
+		else:                 return "N"
 
 	# create a weather report
 	weather_report = ""
@@ -181,6 +171,7 @@ def get_wx_meteo(lat=0, lon=0, unit=0):
 			weather_report += "No Precip. "
 
 		# check for wind
+		wind_direction = wind_cardinal(daily_wind_direction_10m_dominant[i])
 		if daily_wind_speed_10m_max[i] > 0:
 			if unit == 0:
 				weather_report += "Wind: " + str(int(round(daily_wind_speed_10m_max[i]))) + "mph, gusts up to " + str(int(round(daily_wind_gusts_10m_max[i]))) + "mph from:" + wind_direction + "."
@@ -202,8 +193,8 @@ def get_flood_openmeteo(lat=0, lon=0):
 	# Flood data
 	url = "https://flood-api.open-meteo.com/v1/flood"
 	params = {
-		"latitude": {lat},
-		"longitude": {lon},
+		"latitude": lat,
+		"longitude": lon,
 		"timezone": "auto",
 		"daily": "river_discharge",
 		"forecast_days": forecastDays

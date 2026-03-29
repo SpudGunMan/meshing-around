@@ -3,8 +3,9 @@
 # This module is used to interact with LLM API to generate responses to user input
 # K7MHI Kelly Keeton 2024
 from modules.log import logger
-from modules.settings import (llmModel, ollamaHostName, rawLLMQuery, 
-                              llmUseWikiContext, useOpenWebUI, openWebUIURL, openWebUIAPIKey, cmdBang, urlTimeoutSeconds, use_kiwix_server)
+from modules.settings import (llmModel, ollamaHostName, rawLLMQuery,
+                              llmUseWikiContext, useOpenWebUI, openWebUIURL, openWebUIAPIKey, cmdBang, urlTimeoutSeconds, use_kiwix_server,
+                              useGemini, geminiKeyFile)
 
 # Ollama Client
 # https://github.com/ollama/ollama/blob/main/docs/faq.md#how-do-i-configure-ollama-server
@@ -13,6 +14,9 @@ import json
 from datetime import datetime
 if llmUseWikiContext or use_kiwix_server:
     from modules.wiki import get_wikipedia_summary, get_kiwix_summary
+if useGemini:
+    import google.auth.transport.requests
+    import google.oauth2.service_account
 
 # LLM System Variables
 ollamaAPI = ollamaHostName + "/api/generate"
@@ -258,6 +262,60 @@ def send_openwebui_query(prompt, model=None, max_tokens=450, context=''):
         logger.warning(f"System: OpenWebUI API request failed: {e}")
         return f"⛔️ Request Error"
 
+def send_gemini_query(prompt, max_tokens=450):
+    """
+    Send a prompt to Google Gemini via Service Account authentication.
+
+    Setup:
+      1. Create a GCP project and enable the Generative Language API.
+      2. Create a Service Account and download the JSON key file.
+      3. Grant the SA the 'Vertex AI User' role, or use AI Studio with a Service Account.
+      4. Set geminiKeyFile in config.ini to the path of the JSON key file.
+      5. Set useGemini = True in config.ini.
+
+    Alternative (simpler): Use Gemini's OpenAI-compatible endpoint via OpenWebUI/LiteLLM:
+      - Set useOpenWebUI = True and point openWebUIURL at a LiteLLM/OpenWebUI instance
+        configured with your GOOGLE_API_KEY. No service account needed.
+
+    :param prompt: The user prompt string.
+    :param max_tokens: Max tokens for the response.
+    :return: Response text or error string.
+    """
+    GEMINI_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
+    SCOPES = ["https://www.googleapis.com/auth/generative-language"]
+
+    try:
+        credentials = google.oauth2.service_account.Credentials.from_service_account_file(
+            geminiKeyFile, scopes=SCOPES
+        )
+        auth_request = google.auth.transport.requests.Request()
+        credentials.refresh(auth_request)
+    except Exception as e:
+        logger.warning(f"System: Gemini auth failed: {e}")
+        return "⛔️ Gemini auth error"
+
+    headers = {
+        "Authorization": f"Bearer {credentials.token}",
+        "Content-Type": "application/json",
+    }
+    payload = {
+        "contents": [{"parts": [{"text": prompt}]}],
+        "generationConfig": {"maxOutputTokens": max_tokens},
+    }
+
+    try:
+        result = requests.post(GEMINI_ENDPOINT, headers=headers, json=payload, timeout=urlTimeoutSeconds * 5)
+        if result.status_code == 200:
+            data = result.json()
+            return data["candidates"][0]["content"]["parts"][0]["text"].strip()
+        else:
+            logger.warning(f"System: Gemini API returned status {result.status_code}: {result.text[:200]}")
+            return "⛔️ Gemini request error"
+    except requests.exceptions.RequestException as e:
+        logger.warning(f"System: Gemini request failed: {e}")
+        return "⛔️ Gemini request error"
+
+
 def send_ollama_query(llmQuery):
     # Send the query to the Ollama API and return the response
     try:
@@ -359,8 +417,22 @@ def llm_query(input, nodeID=0, location_name=None, init=False):
     location_name += f" at the current time of {datetime.now().strftime('%Y-%m-%d %H:%M:%S %Z')}"
 
     try:
+        # Use Gemini if enabled
+        if useGemini:
+            logger.debug(f"System: LLM Query: Using Gemini API for LLM query {input} From:{nodeID}")
+            if rawLLMQuery:
+                modelPrompt = f"Context:\n{wikiContext}\n\nQuestion: {input}" if wikiContext else input
+            else:
+                modelPrompt = meshBotAI.format(
+                    input=input,
+                    context=wikiContext if wikiContext else 'no other context provided',
+                    location_name=location_name,
+                    llmModel=llmModel,
+                    history=history
+                )
+            result = send_gemini_query(modelPrompt, max_tokens=tokens)
         # Use OpenWebUI if enabled
-        if useOpenWebUI and openWebUIAPIKey:
+        elif useOpenWebUI and openWebUIAPIKey:
             logger.debug(f"System: LLM Query: Using OpenWebUI API for LLM query {input} From:{nodeID}")
             
             # Combine all context sources
@@ -417,18 +489,21 @@ def llm_query(input, nodeID=0, location_name=None, init=False):
 
         #logger.debug(f"System: LLM Response: " + result.strip().replace('\n', ' '))
     except Exception as e:
-        antiFloodLLM.remove(nodeID)  # Ensure removal on error
         logger.warning(f"System: LLM failure: {e}")
+        if nodeID in antiFloodLLM:
+            antiFloodLLM.remove(nodeID)
         return "⛔️I am having trouble processing your request, please try again later."
-    
+
     # cleanup for message output
     response = result.strip().replace('\n', ' ')
-    
+
     if rawLLMQuery and requestTruncation and len(response) > 450:
         # retry loop to truncate the response
         logger.warning(f"System: LLM Query: Response exceeded {tokens} characters, requesting truncation")
         truncate_prompt_full = truncatePrompt + response
-        if useOpenWebUI and openWebUIAPIKey:
+        if useGemini:
+            truncateResult = send_gemini_query(truncate_prompt_full, max_tokens=tokens)
+        elif useOpenWebUI and openWebUIAPIKey:
             truncateResult = send_openwebui_query(truncate_prompt_full, max_tokens=tokens)
         else:
             truncateQuery = {"model": llmModel, "prompt": truncate_prompt_full, "stream": False, "max_tokens": tokens}
@@ -438,7 +513,8 @@ def llm_query(input, nodeID=0, location_name=None, init=False):
         response = truncateResult.strip().replace('\n', ' ')
 
     # done with the query, remove the user from the anti flood list
-    antiFloodLLM.remove(nodeID)
+    if nodeID in antiFloodLLM:
+        antiFloodLLM.remove(nodeID)
 
     if llmEnableHistory:
         llmChat_history[nodeID] = [input, response]
