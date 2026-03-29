@@ -12,7 +12,7 @@ Mesh Bot is a feature-rich Python bot designed to enhance your [Meshtastic](http
 * [Games Help](modules/games/README.md)
 
 ## Key Features
-![CodeQlBadge](https://github.com/SpudGunMan/meshing-around/actions/workflows/dynamic/github-code-scanning/codeql/badge.svg)
+![CodeQlBadge](https://github.com/jkeychan/meshing-around/actions/workflows/codeql.yml/badge.svg)
 
 ### Intelligent Keyword Responder
 - **Automated Responses**: Detects keywords like "ping" and replies with "pong" in direct messages (DMs) or group channels.
