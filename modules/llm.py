@@ -281,7 +281,7 @@ def send_gemini_query(prompt, max_tokens=450):
     :param max_tokens: Max tokens for the response.
     :return: Response text or error string.
     """
-    GEMINI_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
+    GEMINI_ENDPOINT = f"https://generativelanguage.googleapis.com/v1beta/models/{llmModel}:generateContent"
     SCOPES = ["https://www.googleapis.com/auth/generative-language"]
 
     try:
