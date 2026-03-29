@@ -1,0 +1,98 @@
+name: Workflow Security and Linting
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  actionlint:
+    name: Actionlint - Workflow Syntax Check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
+
+      - name: Install and run actionlint
+        run: |
+          bash <(curl -sSL https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
+          ./actionlint
+
+  zizmor:
+    name: Zizmor - Security Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
+
+      - name: Install zizmor
+        id: install-zizmor
+        uses: jaxxstorm/action-install-gh-release@c5ead9a448b4660cf1e7866ee22e4dc56538031a
+        with:
+          repo: zizmorcore/zizmor
+          tag: latest
+          rename-to: zizmor
+
+      - name: Run zizmor
+        run: |
+          echo "PATH: ${PATH}"
+          echo "Checking for zizmor..."
+          if command -v zizmor >/dev/null 2>&1; then
+            zizmor .github/workflows
+          elif [ -f "${HOME}/.local/bin/zizmor" ]; then
+            "${HOME}/.local/bin/zizmor" .github/workflows
+          elif [ -f "./zizmor" ]; then
+            ./zizmor .github/workflows
+          else
+            echo "Error: zizmor binary not found"
+            exit 1
+          fi
+
+  ratchet:
+    name: Ratchet - Version Pinning Check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
+
+      - name: Install ratchet
+        id: install-ratchet
+        uses: jaxxstorm/action-install-gh-release@c5ead9a448b4660cf1e7866ee22e4dc56538031a
+        with:
+          repo: sethvargo/ratchet
+          tag: latest
+
+      - name: Run ratchet
+        run: |
+          echo "PATH: ${PATH}"
+          echo "Checking for ratchet..."
+          if command -v ratchet >/dev/null 2>&1; then
+            RATCHET_CMD="ratchet"
+          elif [ -f "${HOME}/.local/bin/ratchet" ]; then
+            RATCHET_CMD="${HOME}/.local/bin/ratchet"
+          elif [ -f "./ratchet" ]; then
+            RATCHET_CMD="./ratchet"
+          else
+            echo "Error: ratchet binary not found"
+            exit 1
+          fi
+          echo "Running: ${RATCHET_CMD} lint on workflow files"
+          find .github/workflows -name "*.yml" -o -name "*.yaml" | while read -r file; do
+            echo "Checking: ${file}"
+            "${RATCHET_CMD}" lint "${file}"
+          done
+          echo "Ratchet lint completed successfully"
