@@ -19,7 +19,7 @@ fi
 
 export REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
 export SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
-#export HOME=$(pwd)
+export HOME=$(pwd)
 # launch the application
 if [[ "$1" == pong* ]]; then
     python3 pong_bot.py
