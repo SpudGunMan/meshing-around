@@ -591,6 +591,11 @@ llmRunCounter = 0
 llmTotalRuntime = []
 llmLocationTable = [{'nodeID': 1234567890, 'location': 'No Location'},]
 
+# Runtime safety caps to avoid unbounded growth on long-lived systems.
+MAX_SEEN_NODES = 5000
+MAX_LLM_LOCATION_ENTRIES = 50
+MAX_LLM_RUNTIME_SAMPLES = 50
+
 def handle_satpass(message_from_id, deviceID, message='', vox=False):
     if vox:
         location = (my_settings.latitudeValue, my_settings.longitudeValue)
@@ -656,6 +661,8 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
         # likely a DM
         user_input = message
         # consider this a command use for the cmdHistory list
+        if len(cmdHistory) > 50:
+            cmdHistory.pop(0)
         cmdHistory.append({'nodeID': message_from_id, 'cmd':  'llm-use', 'time': time.time()})
 
         # check for a welcome message (is this redundant?)
@@ -679,6 +686,8 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
     # if not in table add the location
     if not any(d['nodeID'] == message_from_id for d in llmLocationTable):
         llmLocationTable.append({'nodeID': message_from_id, 'location': location_name})
+        if len(llmLocationTable) > MAX_LLM_LOCATION_ENTRIES:
+            llmLocationTable = llmLocationTable[-MAX_LLM_LOCATION_ENTRIES:]
 
     user_input = user_input.strip()
         
@@ -709,6 +718,8 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
     end = time.time()
     llmRunCounter += 1
     llmTotalRuntime.append(end - start)
+    if len(llmTotalRuntime) > MAX_LLM_RUNTIME_SAMPLES:
+        llmTotalRuntime = llmTotalRuntime[-MAX_LLM_RUNTIME_SAMPLES:]
     
     return response
 
@@ -1854,6 +1865,14 @@ def onReceive(packet, interface):
     # Priocess the incoming packet, handles the responses to the packet with auto_response()
     # Sends the packet to the correct handler for processing
 
+    if not isinstance(packet, dict):
+        logger.warning(f"System: Ignoring malformed packet type: {type(packet).__name__}")
+        return
+
+    decoded = packet.get('decoded')
+    if not isinstance(decoded, dict):
+        decoded = {}
+
     # extract interface details from inbound packet
     rxType = type(interface).__name__
 
@@ -1899,8 +1918,8 @@ def onReceive(packet, interface):
         
     if rxNode is None:
         # default to interface 1 ## FIXME needs better like a default interface setting or hash lookup
-        if 'decoded' in packet and packet['decoded']['portnum'] in ['ADMIN_APP', 'SIMULATOR_APP']:
-            session_passkey = packet.get('decoded', {}).get('admin', {}).get('sessionPasskey', None)
+        if decoded.get('portnum') in ['ADMIN_APP', 'SIMULATOR_APP']:
+            session_passkey = decoded.get('admin', {}).get('sessionPasskey', None)
         rxNode = 1
 
     # check if the packet has a channel flag use it ## FIXME needs to be channel hash lookup
@@ -1940,17 +1959,22 @@ def onReceive(packet, interface):
         #     logger.debug(f"System: Received Packet on Channel:{channel_number} Name:{channel_name} on Interface:{rxNode}")
 
     # check if the packet has a simulator flag
-    simulator_flag = packet.get('decoded', {}).get('simulator', False)
+    simulator_flag = decoded.get('simulator', False)
     if isinstance(simulator_flag, dict):
         # assume Software Simulator
         simulator_flag = True
 
     # set the message_from_id
-    message_from_id = packet['from']
+    message_from_id = packet.get('from')
+    if message_from_id is None:
+        logger.warning(f"System: Ignoring packet missing 'from' field on Device:{rxNode}")
+        return
 
     # if message_from_id is not in the seenNodes list add it
     if not any(node.get('nodeID') == message_from_id for node in seenNodes):
         seenNodes.append({'nodeID': message_from_id, 'rxInterface': rxNode, 'channel': channel_number, 'welcome': False, 'first_seen': time.time(), 'lastSeen': time.time()})
+        if len(seenNodes) > MAX_SEEN_NODES:
+            seenNodes = seenNodes[-MAX_SEEN_NODES:]
     else:
         # update lastSeen time
         for node in seenNodes:
@@ -1958,7 +1982,7 @@ def onReceive(packet, interface):
                 node['lastSeen'] = time.time()
                 break
     # BBS DM MAIL CHECKER
-    if bbs_enabled and 'decoded' in packet:
+    if bbs_enabled and decoded:
         msg = bbs_check_dm(message_from_id)
         if msg:
             logger.info(f"System: BBS DM Delivery: {msg[1]} For: {get_name_from_number(message_from_id, 'long', rxNode)}")
@@ -1973,19 +1997,25 @@ def onReceive(packet, interface):
 
     # handle TEXT_MESSAGE_APP
     try:
-        if 'decoded' in packet and packet['decoded']['portnum'] == 'TEXT_MESSAGE_APP':
-            message_bytes = packet['decoded']['payload']
-            message_string = message_bytes.decode('utf-8')
+        if decoded.get('portnum') == 'TEXT_MESSAGE_APP':
+            message_bytes = decoded.get('payload', b'')
+            if isinstance(message_bytes, bytes):
+                message_string = message_bytes.decode('utf-8', errors='replace')
+            elif isinstance(message_bytes, str):
+                message_string = message_bytes
+            else:
+                logger.warning(f"System: Ignoring TEXT_MESSAGE_APP with invalid payload type: {type(message_bytes).__name__}")
+                return
             message_log_string = message_string.replace('\r', ' ').replace('\n', ' ')
-            via_mqtt = packet['decoded'].get('viaMqtt', False)
+            via_mqtt = decoded.get('viaMqtt', False)
             transport_mechanism = (
                 packet.get('transport_mechanism')
                 or packet.get('transportMechanism')
-                or (packet.get('decoded', {}).get('transport_mechanism'))
-                or (packet.get('decoded', {}).get('transportMechanism'))
+                or decoded.get('transport_mechanism')
+                or decoded.get('transportMechanism')
                 or 'unknown'
             )
-            rx_time = packet['decoded'].get('rxTime', time.time())
+            rx_time = decoded.get('rxTime', time.time())
 
             # check if the packet is from us
             if message_from_id in [myNodeNum1, myNodeNum2, myNodeNum3, myNodeNum4, myNodeNum5, myNodeNum6, myNodeNum7, myNodeNum8, myNodeNum9]:
@@ -2067,7 +2097,7 @@ def onReceive(packet, interface):
                 return
         
             # If the packet is a DM (Direct Message) respond to it, otherwise validate its a message for us on the channel
-            if packet['to'] in [myNodeNum1, myNodeNum2, myNodeNum3, myNodeNum4, myNodeNum5, myNodeNum6, myNodeNum7, myNodeNum8, myNodeNum9]:
+            if packet.get('to') in [myNodeNum1, myNodeNum2, myNodeNum3, myNodeNum4, myNodeNum5, myNodeNum6, myNodeNum7, myNodeNum8, myNodeNum9]:
                 # message is DM to us
                 isDM = True
                 # check if the message contains a trap word, DMs are always responded to
@@ -2233,8 +2263,8 @@ def onReceive(packet, interface):
         else:
             # Evaluate non TEXT_MESSAGE_APP packets
             consumeMetadata(packet, rxNode, channel_number)
-    except KeyError as e:
-        logger.critical(f"System: Error processing packet: {e} Device:{rxNode}")
+    except Exception as e:
+        logger.exception(f"System: Error processing packet: {e} Device:{rxNode}")
         logger.debug(f"System: Error Packet = {packet}")
 
 async def start_rx():
