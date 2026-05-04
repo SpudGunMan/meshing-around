@@ -1877,10 +1877,11 @@ def onReceive(packet, interface):
     rxType = type(interface).__name__
 
     # Values assinged to the packet
+    packet_id = None
     rxNode = message_from_id = snr = rssi = hop = hop_away = channel_number = hop_start = hop_count = hop_limit = 0
     pkiStatus = (False, 'ABC')
     rxNodeHostName = None
-    replyIDset = False
+    replyIDset = None
     emojiSeen = False
     simulator_flag = False
     isDM = False
@@ -2030,9 +2031,11 @@ def onReceive(packet, interface):
             if packet.get('publicKey'):
                 pkiStatus = packet.get('pkiEncrypted', False), packet.get('publicKey', 'ABC')
             
-            # check if the packet has replyId flag // currently unused in the code
-            if packet.get('replyId'):
-                replyIDset = packet.get('replyId', False)
+            # Use packet id for threaded replies;
+            packet_id = packet.get('id', None)
+
+            # existing reply - unused for tracking
+            replyIDSet = packet.get('replyIDSet', None)
             
             # check if the packet has emoji flag set it // currently unused in the code
             if packet.get('emoji'):
@@ -2172,7 +2175,7 @@ def onReceive(packet, interface):
                                     "From: " + CustomFormatter.white + f"{get_name_from_number(message_from_id, 'long', rxNode)}")
                         if my_settings.useDMForResponse:
                             # respond to channel message via direct message
-                            send_message(auto_response(message_string, snr, rssi, hop, pkiStatus, message_from_id, channel_number, rxNode, isDM), channel_number, message_from_id, rxNode)
+                            send_message(auto_response(message_string, snr, rssi, hop, pkiStatus, message_from_id, channel_number, rxNode, isDM), channel_number, message_from_id, rxNode, reply_id=packet_id)
                         else:
                             # or respond to channel message on the channel itself
                             if channel_number == my_settings.publicChannel and my_settings.antiSpam:
@@ -2180,10 +2183,10 @@ def onReceive(packet, interface):
                                 logger.warning(f"System: AntiSpam protection, sending DM to: {get_name_from_number(message_from_id, 'long', rxNode)}")
                             
                                 # respond to channel message via direct message
-                                send_message(auto_response(message_string, snr, rssi, hop, pkiStatus, message_from_id, channel_number, rxNode, isDM), channel_number, message_from_id, rxNode)
+                                send_message(auto_response(message_string, snr, rssi, hop, pkiStatus, message_from_id, channel_number, rxNode, isDM), channel_number, message_from_id, rxNode, reply_id=packet_id)
                             else:
                                 # respond to channel message on the channel itself
-                                send_message(auto_response(message_string, snr, rssi, hop, pkiStatus, message_from_id, channel_number, rxNode, isDM), channel_number, 0, rxNode)
+                                send_message(auto_response(message_string, snr, rssi, hop, pkiStatus, message_from_id, channel_number, rxNode, isDM), channel_number, 0, rxNode, reply_id=packet_id)
 
                 else:
                     # message is not for us to respond to
@@ -2235,7 +2238,7 @@ def onReceive(packet, interface):
                                 hello(message_from_id, name)
                                 # send a hello message as a DM
                                 if not my_settings.train_qrz:
-                                    send_message(f"Hello {name} {qrz_hello_string}", channel_number, message_from_id, rxNode)
+                                    send_message(f"Hello {name} {qrz_hello_string}", channel_number, message_from_id, rxNode, reply_id=packet_id)
 
                     # handle mini games 
                     if my_settings.wordOfTheDay:

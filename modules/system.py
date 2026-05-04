@@ -852,7 +852,7 @@ def messageChunker(message):
     except Exception as e:
         logger.warning(f"System: Exception during message chunking: {e} (message length: {len(message)})")
         
-def send_message(message, ch, nodeid=0, nodeInt=1, bypassChuncking=False):
+def send_message(message, ch, nodeid=0, nodeInt=1, bypassChuncking=False, reply_id=None):
     # Send a message to a channel or DM
     interface = globals()[f'interface{nodeInt}']
     # Check if the message is empty
@@ -860,6 +860,28 @@ def send_message(message, ch, nodeid=0, nodeInt=1, bypassChuncking=False):
         return False
 
     try:
+        def _send_with_reply(**kwargs):
+            # For threaded replies, send as DATA payload to match Meshtastic inline-reply behavior. no API call today.
+            if reply_id is not None:
+                text_payload = kwargs.pop('text', '')
+                if isinstance(text_payload, str):
+                    raw_payload = text_payload.encode('utf-8')
+                else:
+                    raw_payload = text_payload
+
+                data_kwargs = {
+                    # 1 == TEXT_MESSAGE_APP, required so clients render payload as chat text.
+                    'portNum': 1,
+                    'channelIndex': kwargs.get('channelIndex', ch),
+                    'wantAck': kwargs.get('wantAck', wantAck),
+                }
+                if kwargs.get('destinationId'):
+                    data_kwargs['destinationId'] = kwargs.get('destinationId')
+                # send the data payload with the replyId for threading
+                return interface.sendData(raw_payload, replyId=reply_id, **data_kwargs)
+            # Otherwise, send as normal text message
+            return interface.sendText(**kwargs)
+
         # Force chunking and log if message exceeds maxBuffer
         if len(message.encode('utf-8')) > maxBuffer:
             logger.debug(f"System: Message length {len(message.encode('utf-8'))} exceeds maxBuffer{maxBuffer}, forcing chunking.")
@@ -880,20 +902,20 @@ def send_message(message, ch, nodeid=0, nodeInt=1, bypassChuncking=False):
                     # Send to channel
                     if wantAck:
                         logger.info(f"Device:{nodeInt} Channel:{ch} " + CustomFormatter.red + f"req.ACK " + f"Chunker{chunkOf} SendingChannel: " + CustomFormatter.white + m.replace('\n', ' '))
-                        interface.sendText(text=m, channelIndex=ch, wantAck=True)
+                        _send_with_reply(text=m, channelIndex=ch, wantAck=True)
                     else:
                         logger.info(f"Device:{nodeInt} Channel:{ch} " + CustomFormatter.red + f"Chunker{chunkOf} SendingChannel: " + CustomFormatter.white + m.replace('\n', ' '))
-                        interface.sendText(text=m, channelIndex=ch)
+                        _send_with_reply(text=m, channelIndex=ch)
                 else:
                     # Send to DM
                     if wantAck:
                         logger.info(f"Device:{nodeInt} " + CustomFormatter.red + f"req.ACK " + f"Chunker{chunkOf} Sending DM: " + CustomFormatter.white + m.replace('\n', ' ') + CustomFormatter.purple +\
                                  " To: " + CustomFormatter.white + f"{get_name_from_number(nodeid, 'long', nodeInt)}")
-                        interface.sendText(text=m, channelIndex=ch, destinationId=nodeid, wantAck=True)
+                        _send_with_reply(text=m, channelIndex=ch, destinationId=nodeid, wantAck=True)
                     else:
                         logger.info(f"Device:{nodeInt} " + CustomFormatter.red + f"Chunker{chunkOf} Sending DM: " + CustomFormatter.white + m.replace('\n', ' ') + CustomFormatter.purple +\
                                     " To: " + CustomFormatter.white + f"{get_name_from_number(nodeid, 'long', nodeInt)}")
-                        interface.sendText(text=m, channelIndex=ch, destinationId=nodeid)
+                        _send_with_reply(text=m, channelIndex=ch, destinationId=nodeid)
 
                 # Throttle the message sending to prevent spamming the device
                 if (message_list.index(m)+1) % 4 == 0:
@@ -908,20 +930,20 @@ def send_message(message, ch, nodeid=0, nodeInt=1, bypassChuncking=False):
                 # Send to channel
                 if wantAck:
                     logger.info(f"Device:{nodeInt} Channel:{ch} " + CustomFormatter.red + "req.ACK " + "SendingChannel: " + CustomFormatter.white + message.replace('\n', ' '))
-                    interface.sendText(text=message, channelIndex=ch, wantAck=True)
+                    _send_with_reply(text=message, channelIndex=ch, wantAck=True)
                 else:
                     logger.info(f"Device:{nodeInt} Channel:{ch} " + CustomFormatter.red + "SendingChannel: " + CustomFormatter.white + message.replace('\n', ' '))
-                    interface.sendText(text=message, channelIndex=ch)
+                    _send_with_reply(text=message, channelIndex=ch)
             else:
                 # Send to DM
                 if wantAck:
                     logger.info(f"Device:{nodeInt} " + CustomFormatter.red + "req.ACK " + "Sending DM: " + CustomFormatter.white + message.replace('\n', ' ') + CustomFormatter.purple +\
                                  " To: " + CustomFormatter.white + f"{get_name_from_number(nodeid, 'long', nodeInt)}")
-                    interface.sendText(text=message, channelIndex=ch, destinationId=nodeid, wantAck=True)
+                    _send_with_reply(text=message, channelIndex=ch, destinationId=nodeid, wantAck=True)
                 else:
                     logger.info(f"Device:{nodeInt} " + CustomFormatter.red + "Sending DM: " + CustomFormatter.white + message.replace('\n', ' ') + CustomFormatter.purple +\
                                 " To: " + CustomFormatter.white + f"{get_name_from_number(nodeid, 'long', nodeInt)}")
-                    interface.sendText(text=message, channelIndex=ch, destinationId=nodeid)
+                    _send_with_reply(text=message, channelIndex=ch, destinationId=nodeid)
             # Throttle the message sending to prevent spamming the device
             time.sleep(responseDelay)
         return True
@@ -929,17 +951,24 @@ def send_message(message, ch, nodeid=0, nodeInt=1, bypassChuncking=False):
         logger.error(f"System: Exception during send_message: {e} (message length: {len(message)})")
         return False
 
-def send_raw_bytes(nodeid, raw_bytes, nodeInt=1, channel=0, portnum=256,  want_ack=True):
+def send_raw_bytes(nodeid, raw_bytes, nodeInt=1, channel=0, portnum=256, want_ack=True, reply_id=None):
     # Send raw bytes to a node using the Meshtastic interface.
     interface = globals()[f'interface{nodeInt}']
     try:
-        interface.sendData(
-            raw_bytes,
-            destinationId=nodeid,
-            portNum=portnum,
-            channelIndex=channel,
-            wantAck=want_ack
-        )
+        send_kwargs = {
+            'destinationId': nodeid,
+            'portNum': portnum,
+            'channelIndex': channel,
+            'wantAck': want_ack,
+        }
+        if reply_id is not None:
+            try:
+                interface.sendData(raw_bytes, replyId=reply_id, **send_kwargs)
+            except TypeError:
+                logger.debug("System: replyId/replyID unsupported for sendData; sending without threaded reply")
+                interface.sendData(raw_bytes, **send_kwargs)
+        else:
+            interface.sendData(raw_bytes, **send_kwargs)
         # Throttle the message sending to prevent spamming the device
         logger.debug(f"System: Sent raw bytes to {nodeid} on portnum {portnum} via Device{nodeInt}")
         time.sleep(responseDelay)
