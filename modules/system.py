@@ -2471,7 +2471,7 @@ def saveAllData():
         save_bbsBanList()
         logger.debug("Persistence: Ban list saved")
 
-        logger.info("Persistence: Save completed")
+        #logger.info("Persistence: Save completed")
     except Exception as e:
         logger.error(f"Persistence: Save error: {e}")
 
