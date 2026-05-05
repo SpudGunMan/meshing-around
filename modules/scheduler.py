@@ -104,14 +104,23 @@ def setup_scheduler(
 
         # Basic Scheduler Options
         basicOptions = ['day', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun', 'hour', 'min']
+        effective_interval = schedulerIntervalInt
         if any(option in schedulerValue for option in basicOptions):
             if schedulerValue == 'day':
+                day_interval = safe_int(schedulerInterval, 1, type="interval")
+                if day_interval < 1:
+                    logger.debug(f"System: Scheduler config interval '{schedulerInterval}' invalid for day schedule, using default 1")
+                    day_interval = 1
+                effective_interval = day_interval
                 if schedulerTime:
-                    # Specific time each day
-                    schedule.every().day.at(schedulerTime).do(send_sched_msg)
+                    # Specific time at a daily or multi-day interval
+                    if day_interval == 1:
+                        schedule.every().day.at(schedulerTime).do(send_sched_msg)
+                    else:
+                        schedule.every(day_interval).days.at(schedulerTime).do(send_sched_msg)
                 else:
                     # Every N days
-                    schedule.every(schedulerIntervalInt).days.do(send_sched_msg)
+                    schedule.every(day_interval).days.do(send_sched_msg)
             elif 'mon' in schedulerValue and schedulerTime:
                 schedule.every().monday.at(schedulerTime).do(send_sched_msg)
             elif 'tue' in schedulerValue and schedulerTime:
@@ -130,7 +139,7 @@ def setup_scheduler(
                 schedule.every(schedulerIntervalInt).hours.do(send_sched_msg)
             elif 'min' in schedulerValue:
                 schedule.every(schedulerIntervalInt).minutes.do(send_sched_msg)
-            logger.debug(f"System: Starting the basic scheduler to send '{scheduler_message}' on schedule '{schedulerValue}' every {schedulerIntervalInt} interval at time '{schedulerTime}' on Device:{schedulerInterface} Channel:{schedulerChannel}")
+            logger.debug(f"System: Starting the basic scheduler to send '{scheduler_message}' on schedule '{schedulerValue}' every {effective_interval} interval at time '{schedulerTime}' on Device:{schedulerInterface} Channel:{schedulerChannel}")
         elif 'joke' in schedulerValue:
             schedule.every(schedulerIntervalInt).minutes.do(
                 lambda: send_message(tell_joke(), schedulerChannel, 0, schedulerInterface)

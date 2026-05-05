@@ -326,9 +326,9 @@ schedulerMotd = False
 # 'tide' (time/day), 'solar' (time/day) for automated information broadcasts, matching module needs enabled!
 # 'custom' for module/scheduler.py custom schedule examples
 value =
-# interval to use when time is not set (e.g. every 2 days)
+# interval for recurring schedules (e.g. every 2 days, or every 2 days at a set time)
 interval = 
-# time of day in 24:00 hour format when value is 'day' and interval is not set
+# time of day in 24:00 hour format when value is 'day' (optional with interval)
 # Process run :00,:20,:40 try and vary the 20 minute offsets to avoid collision
 time =
 
