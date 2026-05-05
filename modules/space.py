@@ -52,7 +52,7 @@ def solar_conditions():
                 solar_flux = i.getElementsByTagName("solarflux")[0].childNodes[0].data
                 sunspots = i.getElementsByTagName("sunspots")[0].childNodes[0].data
                 signalnoise = i.getElementsByTagName("signalnoise")[0].childNodes[0].data
-            solar_cond = "A-Index: " + solar_a_index + "\nK-Index: " + solar_k_index + "\nSunspots: " + sunspots + "\nX-Ray Flux: " + solar_xray + "\nSolar Flux: " + solar_flux + "\nSignal Noise: " + signalnoise
+            solar_cond = "A: " + solar_a_index + "\nK: " + solar_k_index + "\nSunspots: " + sunspots + "\nX-Ray Flux: " + solar_xray + "\nSolar Flux: " + solar_flux + "\Noise: " + signalnoise
         else:
             logger.error("Solar: Error fetching solar conditions")
             solar_cond = ERROR_FETCHING_DATA
