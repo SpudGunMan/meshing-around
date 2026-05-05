@@ -37,6 +37,12 @@ def hf_band_conditions():
 def solar_conditions():
     # radio related solar conditions from hamsql.com
     solar_cond = ""
+    solar_a_index = ""
+    solar_k_index = ""
+    solar_xray = ""
+    solar_flux = ""
+    sunspots = ""
+    signalnoise = ""
     try:
         solar_cond = requests.get("https://www.hamqsl.com/solarxml.php", timeout=urlTimeoutSeconds)
         if solar_cond.ok:
@@ -52,7 +58,7 @@ def solar_conditions():
                 solar_flux = i.getElementsByTagName("solarflux")[0].childNodes[0].data
                 sunspots = i.getElementsByTagName("sunspots")[0].childNodes[0].data
                 signalnoise = i.getElementsByTagName("signalnoise")[0].childNodes[0].data
-            solar_cond = "A: " + solar_a_index + "\nK: " + solar_k_index + "\nSunspots: " + sunspots + "\nX-Ray Flux: " + solar_xray + "\nSolar Flux: " + solar_flux + "\Noise: " + signalnoise
+            solar_cond = "A: " + solar_a_index + "\nK: " + solar_k_index + "\nSunspots: " + sunspots + "\nX-Ray Flux: " + solar_xray + "\nSolar Flux: " + solar_flux + "\nNoise: " + signalnoise
         else:
             logger.error("Solar: Error fetching solar conditions")
             solar_cond = ERROR_FETCHING_DATA
