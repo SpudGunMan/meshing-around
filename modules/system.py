@@ -1547,6 +1547,14 @@ def initializeMeshLeaderboard():
     }
 
 initializeMeshLeaderboard()
+
+# Known Meshtastic firmware PKI routing errors and practical operator guidance.
+PKI_ROUTING_ERROR_HINTS = {
+    'PKI_SEND_FAIL_PUBLIC_KEY': 'bot does not have destination public key. or key is missing from the device. Add the destination nodeID to the favorite nodes list, then retry.',
+    'PKI_UNKNOWN_PUBKEY': 'Receiver could not decrypt PKI packet due to missing sender public key. Trigger a NodeInfo exchange both directions, then retry.',
+    'PKI_FAILED': 'PKI was explicitly requested but send prerequisites were not met. Verify PKI-capable firmware/config, key material, and direct-send destination.',
+}
+
 def consumeMetadata(packet, rxNode=0, channel=-1):
     global positionMetadata, localTelemetryData, meshLeaderboard
     uptime = battery = temp = iaq = nodeID = 0
@@ -1859,6 +1867,39 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
         except Exception as e:
             logger.debug(f"System: ADMIN_APP decode error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
 
+    # ROUTING_APP - meta for logs
+    if packet_type == 'ROUTING_APP':
+        try:
+            if debugMetadata and 'ROUTING_APP' not in metadataFilter:
+                print(f"DEBUG ROUTING_APP: {packet}\n\n")
+            routing_data = packet['decoded']['routing']
+
+            # Meshtastic Python/client can surface this field as errorReason or error_reason.
+            error_reason = routing_data.get('errorReason', routing_data.get('error_reason', ''))
+            if error_reason:
+                requester_node = packet.get('from', nodeID)
+                requester_id = packet.get('fromId', '')
+                target_node = packet.get('to', 0)
+                request_id = packet.get('decoded', {}).get('requestId', packet.get('decoded', {}).get('request_id', 0))
+                pki_hint = PKI_ROUTING_ERROR_HINTS.get(error_reason, 'No playbook entry yet. Check node public keys/NodeInfo sync and firmware versions on both peers.')
+
+                # Standardized PKI routing failure log with source/target context for triage.
+                if str(error_reason).startswith('PKI_'):
+                    logger.warning(
+                        f"System: PKI Routing Error Device:{rxNode} Channel:{channel} Reason:{error_reason} "
+                        f"RequesterNode:{requester_node} RequesterID:{requester_id} "
+                        f"RequesterShort:{get_name_from_number(requester_node, 'short', rxNode)} "
+                        f"TargetNode:{target_node} RequestId:{request_id} Guidance:{pki_hint}"
+                    )
+                elif logMetaStats:
+                    logger.info(
+                        f"System: ROUTING_APP Error Device:{rxNode} Channel:{channel} Reason:{error_reason} "
+                        f"RequesterNode:{requester_node} TargetNode:{target_node} RequestId:{request_id}"
+                    )
+        except Exception as e:
+            logger.debug(f"System: ROUTING_APP decode error: Device: {rxNode} Channel: {channel} {e} packet {packet}")
+    
+    
     # IP_TUNNEL_APP - Track tunneling packets 🚨
     if packet_type == 'IP_TUNNEL_APP':
         try:
