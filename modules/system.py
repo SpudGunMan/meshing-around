@@ -2327,8 +2327,18 @@ async def retry_interface(nodeID):
                 logger.debug(f"System: Retrying Interface{nodeID} Serial on port: {globals().get(f'port{nodeID}')}")
                 globals()[f'interface{nodeID}'] = meshtastic.serial_interface.SerialInterface(globals().get(f'port{nodeID}'))
             elif interface_type == 'tcp':
-                logger.debug(f"System: Retrying Interface{nodeID} TCP on hostname: {globals().get(f'hostname{nodeID}')}")
-                globals()[f'interface{nodeID}'] = meshtastic.tcp_interface.TCPInterface(globals().get(f'hostname{nodeID}'))
+                host = globals().get(f'hostname{nodeID}', '127.0.0.1')
+                port = 4403
+                if isinstance(host, str) and ':' in host:
+                    maybe_host, maybe_port = host.rsplit(':', 1)
+                    if maybe_port.isdigit():
+                        host = maybe_host
+                        try:
+                            port = int(maybe_port)
+                        except ValueError:
+                            port = 4403
+                logger.debug(f"System: Retrying Interface{nodeID} TCP on hostname: {host}:{port}")
+                globals()[f'interface{nodeID}'] = meshtastic.tcp_interface.TCPInterface(hostname=host, portNumber=port)
             elif interface_type == 'ble':
                 logger.debug(f"System: Retrying Interface{nodeID} BLE on mac: {globals().get(f'mac{nodeID}')}")
                 globals()[f'interface{nodeID}'] = meshtastic.ble_interface.BLEInterface(globals().get(f'mac{nodeID}'))
