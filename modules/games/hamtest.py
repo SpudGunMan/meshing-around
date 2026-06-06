@@ -65,7 +65,7 @@ class HamTest:
 
         self.game[id]['question'] = question['question']
         self.game[id]['answers'] = question['answers']
-        self.game[id]['correct'] = question['correct']
+        self.game[id]['correct'] = self.get_correct_index(question)
         self.game[id]['qId'] = question['id']
         self.game[id]['total'] -= 1
 
@@ -77,11 +77,38 @@ class HamTest:
         for i, answer in enumerate(self.game[id]['answers']):
             msg += f"{chr(65+i)}. {answer}\n"
         return msg
-    
+
+    def get_correct_index(self, question):
+        if question.get('correct_letter'):
+            letter = str(question['correct_letter']).strip().upper()
+            if len(letter) == 1 and 'A' <= letter <= 'D':
+                return ord(letter) - 65
+        if question.get('correct') is not None:
+            try:
+                return int(question['correct'])
+            except (ValueError, TypeError):
+                pass
+        return 0
+
+    def parse_answer(self, answer):
+        if not isinstance(answer, str):
+            return None
+        normalized = answer.strip().upper()
+        if normalized in ['A', 'B', 'C', 'D']:
+            return ord(normalized) - 65
+        if normalized.isdigit():
+            idx = int(normalized) - 1
+            if 0 <= idx < 4:
+                return idx
+        return None
+
     def answer(self, id, answer):
         if id not in self.game:
             return "No game in progress"
-        if self.game[id]['correct'] == ord(answer.upper()) - 65:
+        answer_index = self.parse_answer(answer)
+        if answer_index is None:
+            return "Please answer with A, B, C, or D."
+        if self.game[id]['correct'] == answer_index:
             self.game[id]['score'] += 1
             return f"Correct👍\n" + self.nextQuestion(id)
         else:
