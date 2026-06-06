@@ -1875,8 +1875,8 @@ def consumeMetadata(packet, rxNode=0, channel=-1):
             routing_data = packet['decoded']['routing']
 
             # Meshtastic Python/client can surface this field as errorReason or error_reason.
-            error_reason = routing_data.get('errorReason', routing_data.get('error_reason', ''))
-            if error_reason:
+            error_reason = str(routing_data.get('errorReason', routing_data.get('error_reason', ''))).strip()
+            if error_reason and error_reason.upper() != 'NONE':
                 requester_node = packet.get('from', nodeID)
                 requester_id = packet.get('fromId', '')
                 target_node = packet.get('to', 0)
