@@ -1041,15 +1041,17 @@ def handleHamtest(message, nodeID, deviceID):
     global hamtestTracker
     index = 0
     msg = ''
-    response = message.split(' ')
+    response = message.strip().split()
     for i in range(len(hamtestTracker)):
-        if hamtestTracker[i]['nodeID'] == nodeID:
+        if hamtestTracker[i].get('nodeID') == nodeID:
             hamtestTracker[i]["last_played"] = time.time()
-            index = i+1
+            if 'cmd' not in hamtestTracker[i]:
+                hamtestTracker[i]['cmd'] = 'playing'
+            index = i + 1
             break
 
     if not index:
-        hamtestTracker.append({"nodeID": nodeID,"last_played": time.time()})
+        hamtestTracker.append({"nodeID": nodeID, "cmd": "new", "last_played": time.time()})
 
     if "end" in response[0].lower():
         msg = hamtest.endGame(nodeID)
@@ -2190,6 +2192,10 @@ def onReceive(packet, interface):
 
                 else:
                     # message is not for us to respond to
+                    # but if the sender is already playing a game, continue it.
+                    if games_enabled and checkPlayingGame(message_from_id, message_string, rxNode, channel_number):
+                        return
+
                     # ignore the message but add it to the message history list
                     if my_settings.zuluTime:
                         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
