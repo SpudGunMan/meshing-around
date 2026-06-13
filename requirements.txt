@@ -1,5 +1,5 @@
-meshtastic
-PyPubSub
+meshcore
+pycryptodome
 ephem
 requests
 maidenhead

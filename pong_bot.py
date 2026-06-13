@@ -2,16 +2,11 @@
 # Meshtastic Autoresponder PONG Bot
 # K7MHI Kelly Keeton 2024
 
-try:
-    from pubsub import pub
-except ImportError:
-    print(f"Important dependencies are not met, try install.sh\n\n Did you mean to './launch.sh pong' using a virtual environment.")
-    exit(1)
-
 import asyncio
 import time # for sleep, get some when you can :)
 from datetime import datetime
 import random
+from meshcore import EventType
 from modules.log import logger, CustomFormatter, msgLogger
 import modules.settings as my_settings
 from modules.system import *
@@ -221,298 +216,126 @@ def handle_lheard(message, nodeid, deviceID, isDM):
     # bot_response += getNodeTelemetry(deviceID)
     return bot_response
 
-def onReceive(packet, interface):
+async def on_contact_msg(event):
+    """Handle incoming DMs via MeshCore CONTACT_MSG_RECV."""
     global seenNodes
-    # Priocess the incoming packet, handles the responses to the packet with auto_response()
-    # Sends the packet to the correct handler for processing
+    payload = event.payload
+    message_from_id = str(payload.pubkey_prefix)
+    message_string = getattr(payload, 'text', '') or ''
+    snr = float(getattr(payload, 'snr', 0) or 0)
+    rssi = float(getattr(payload, 'rssi', 0) or 0)
+    hop = "Direct"
+    pkiStatus = (True, message_from_id)
+    isDM = True
+    channel_number = 0
+    rxNode = 1
 
-    # extract interface details from inbound packet
-    rxType = type(interface).__name__
-
-    # Valies assinged to the packet
-    rxNode = message_from_id = snr = rssi = hop = hop_away = channel_number = hop_start = hop_count = hop_limit = 0
-    pkiStatus = (False, 'ABC')
-    replyIDset = False
-    rxNodeHostName = None
-    emojiSeen = False
-    simulator_flag = False
-    isDM = False
-    channel_name = "unknown"
-    session_passkey = None
-    playingGame = False
-
-    if DEBUGpacket:
-        # Debug print the interface object
-        for item in interface.__dict__.items():
-            intDebug = f"{item}\n"
-        logger.debug(f"System: Packet Received on {rxType} Interface\n {intDebug} \n END of interface \n")
-        # Debug print the packet for debugging
-        logger.debug(f"Packet Received\n {packet} \n END of packet \n")
-
-    # determine the rxNode based on the interface type
-    if rxType == 'TCPInterface':
-        rxHost = interface.__dict__.get('hostname', 'unknown')
-        rxNodeHostName = interface.__dict__.get('ip', None)
-        rxNode = next(
-            (i for i in range(1, 10)
-             if multiple_interface and rxHost and
-             globals().get(f'hostname{i}', '').split(':', 1)[0] in rxHost and
-             globals().get(f'interface{i}_type', '') == 'tcp'),None)
-
-    if rxType == 'SerialInterface':
-        rxInterface = interface.__dict__.get('devPath', 'unknown')
-        rxNode = next(
-            (i for i in range(1, 10)
-             if globals().get(f'port{i}', '') in rxInterface),None)
-    
-    if rxType == 'BLEInterface':
-        rxNode = next(
-            (i for i in range(1, 10)
-             if globals().get(f'interface{i}_type', '') == 'ble'),0)
-        
-    if rxNode is None:
-        # default to interface 1 ## FIXME needs better like a default interface setting or hash lookup
-        if 'decoded' in packet and packet['decoded']['portnum'] in ['ADMIN_APP', 'SIMULATOR_APP']:
-            session_passkey = packet.get('decoded', {}).get('admin', {}).get('sessionPasskey', None)
-        rxNode = 1
-    
-    # check if the packet has a channel flag use it ## FIXME needs to be channel hash lookup
-    if packet.get('channel'):
-        channel_number = packet.get('channel')
-        channel_name = "unknown"
-        try:
-            res = resolve_channel_name(channel_number, rxNode, interface)
-            if res:
-                try:
-                    channel_name, _ = res
-                except Exception:
-                    channel_name = "unknown"
-            else:
-                # Search all interfaces for this channel
-                cache = build_channel_cache()
-                found_on_other = None
-                for device in cache:
-                    for chan_name, info in device.get("channels", {}).items():
-                        if str(info.get('number')) == str(channel_number) or str(info.get('hash')) == str(channel_number):
-                            found_on_other = device.get("interface_id")
-                            found_chan_name = chan_name
-                            break
-                    if found_on_other:
-                        break
-                if found_on_other and found_on_other != rxNode:
-                    logger.debug(
-                        f"System: Received Packet on Channel:{channel_number} ({found_chan_name}) on Interface:{rxNode}, but this channel is configured on Interface:{found_on_other}"
-                    )
-        except Exception as e:
-            logger.debug(f"System: channel resolution error: {e}")
-
-        #debug channel info
-        # if "unknown" in str(channel_name):
-        #     logger.debug(f"System: Received Packet on Channel:{channel_number} on Interface:{rxNode}")
-        # else:
-        #     logger.debug(f"System: Received Packet on Channel:{channel_number} Name:{channel_name} on Interface:{rxNode}")
-
-    # check if the packet has a simulator flag
-    simulator_flag = packet.get('decoded', {}).get('simulator', False)
-    if isinstance(simulator_flag, dict):
-        # assume Software Simulator
-        simulator_flag = True
-
-    # set the message_from_id
-    message_from_id = packet['from']
-
-    # if message_from_id is not in the seenNodes list add it
+    # Track sender
     if not any(node.get('nodeID') == message_from_id for node in seenNodes):
-        seenNodes.append({'nodeID': message_from_id, 'rxInterface': rxNode, 'channel': channel_number, 'welcome': False, 'first_seen': time.time(), 'lastSeen': time.time()})
+        seenNodes.append({'nodeID': message_from_id, 'rxInterface': rxNode, 'channel': channel_number,
+                          'welcome': False, 'first_seen': time.time(), 'lastSeen': time.time()})
     else:
-        # update lastSeen time
         for node in seenNodes:
             if node.get('nodeID') == message_from_id:
                 node['lastSeen'] = time.time()
                 break
 
-    # CHECK with ban_hammer() if the node is banned
-    if str(message_from_id) in my_settings.bbs_ban_list or str(message_from_id) in my_settings.autoBanlist:
-        logger.warning(f"System: Banned Node {message_from_id} tried to send a message. Ignored. Try adding to node firmware-blocklist")
+    update_contact(message_from_id, snr=snr)
+
+    if message_from_id in my_settings.bbs_ban_list or message_from_id in my_settings.autoBanlist:
+        logger.warning(f"System: Banned contact {message_from_id} ignored")
         return
-    
-    # handle TEXT_MESSAGE_APP
-    try:
-        if 'decoded' in packet and packet['decoded']['portnum'] == 'TEXT_MESSAGE_APP':
-            message_bytes = packet['decoded']['payload']
-            message_string = message_bytes.decode('utf-8')
-            via_mqtt = packet['decoded'].get('viaMqtt', False)
-            transport_mechanism = packet['decoded'].get('transport_mechanism', 'unknown')
 
-            # check if the packet is from us
-            if message_from_id in [myNodeNum1, myNodeNum2, myNodeNum3, myNodeNum4, myNodeNum5, myNodeNum6, myNodeNum7, myNodeNum8, myNodeNum9]:
-                logger.warning(f"System: Packet from self {message_from_id} loop or traffic replay detected")
+    if not stringSafeCheck(message_string, message_from_id):
+        logger.warning(f"System: Unsafe message from {get_name_from_number(message_from_id, 'long', rxNode)}")
+        return
 
-            # get the signal strength and snr if available
-            if packet.get('rxSnr') or packet.get('rxRssi'):
-                snr = packet.get('rxSnr', 0)
-                rssi = packet.get('rxRssi', 0)
+    if help_message in message_string or welcome_message in message_string or "CMD?:" in message_string:
+        logger.warning(f"Got Own Welcome/Help header from: {get_name_from_number(message_from_id, 'long', rxNode)}")
+        return
 
-            # check if the packet has a publicKey flag use it
-            if packet.get('publicKey'):
-                pkiStatus = packet.get('pkiEncrypted', False), packet.get('publicKey', 'ABC')
-            
-            # check if the packet has replyId flag // currently unused in the code
-            if packet.get('replyId'):
-                replyIDset = packet.get('replyId', False)
-            
-            # check if the packet has emoji flag set it // currently unused in the code
-            if packet.get('emoji'):
-                emojiSeen = packet.get('emoji', False)
+    logger.info(f"Device:{rxNode} " + CustomFormatter.green + "Received DM: " + CustomFormatter.white +
+                f"{message_string} " + CustomFormatter.purple + "From: " + CustomFormatter.white +
+                f"{get_name_from_number(message_from_id, 'long', rxNode)}")
 
-            # check if the packet has a hop count flag use it
-            if packet.get('hopsAway'):
-                hop_away = packet.get('hopsAway', 0)
+    if log_messages_to_file:
+        msgLogger.info(f"Device:{rxNode} Channel:{channel_number} | {get_name_from_number(message_from_id, 'long', rxNode)} | DM | " + message_string.replace('\n', '-nl-'))
 
-            if packet.get('hopStart'):
-                hop_start = packet.get('hopStart', 0)
+    if (messageTrap(message_string) and not llm_enabled) or (message_string.split() and messageTrap(message_string.split()[0])):
+        await send_message(auto_response(message_string, snr, rssi, hop, pkiStatus, message_from_id, channel_number, rxNode, isDM),
+                           channel_number, message_from_id, rxNode)
+    else:
+        logger.warning(f"Device:{rxNode} Ignoring DM: {message_string} From: {get_name_from_number(message_from_id, 'long', rxNode)}")
+        await send_message(welcome_message, channel_number, message_from_id, rxNode)
 
-            if packet.get('hopLimit'):
-                hop_limit = packet.get('hopLimit', 0)
-            
-            # calculate hop count
-            hop = ""
-            if hop_limit > 0 and hop_start >= hop_limit:
-                hop_count = hop_away + (hop_start - hop_limit)
-            elif hop_limit > 0 and hop_start < hop_limit:
-                hop_count = hop_away + (hop_limit - hop_start)
-            else:
-                hop_count = hop_away
 
-            if hop_count > 0:
-                # set hop string from calculated hop count
-                hop = f"{hop_count} Hop" if hop_count == 1 else f"{hop_count} Hops"
+async def on_channel_msg(event):
+    """Handle incoming channel messages via MeshCore CHANNEL_MSG_RECV."""
+    global seenNodes
+    payload = event.payload
+    message_from_id = str(getattr(payload, 'pubkey_prefix', ''))
+    message_string = getattr(payload, 'text', '') or ''
+    channel_number = int(getattr(payload, 'channel_idx', 0))
+    snr = float(getattr(payload, 'snr', 0) or 0)
+    rssi = float(getattr(payload, 'rssi', 0) or 0)
+    hop = "Direct"
+    pkiStatus = (False, message_from_id)
+    isDM = False
+    rxNode = 1
 
-            if hop_start == hop_limit and "lora" in str(transport_mechanism).lower() and (snr != 0 or rssi != 0) and hop_count == 0:
-                # 2.7+ firmware direct hop over LoRa
-                hop = "Direct"
+    update_contact(message_from_id, snr=snr)
 
-            if via_mqtt or "mqtt" in str(transport_mechanism).lower():
-                hop = "MQTT"
-                via_mqtt = True
-            elif "udp" in str(transport_mechanism).lower():
-                hop = "Gateway"
-            
-            if hop in ("MQTT", "Gateway") and hop_count > 0:
-                hop = f" {hop_count} Hops"
+    if message_from_id in my_settings.bbs_ban_list or message_from_id in my_settings.autoBanlist:
+        return
 
-            # Add relay node info if present
-            if packet.get('relayNode') is not None:
-                relay_val = packet['relayNode']
-                last_byte = relay_val & 0xFF
-                if last_byte == 0x00:
-                    hex_val = 'FF'
-                else:
-                    hex_val = f"{last_byte:02X}"
-                hop += f" (Relay:{hex_val})"
+    if not stringSafeCheck(message_string, message_from_id):
+        return
 
-            if my_settings.enableHopLogs:
-                logger.debug(f"System: Packet HopDebugger: hop_away:{hop_away} hop_limit:{hop_limit} hop_start:{hop_start} calculated_hop_count:{hop_count} final_hop_value:{hop} via_mqtt:{via_mqtt} transport_mechanism:{transport_mechanism} Hostname:{rxNodeHostName}")
+    if help_message in message_string or welcome_message in message_string or "CMD?:" in message_string:
+        return
 
-            # check with stringSafeChecker if the message is safe
-            if stringSafeCheck(message_string, message_from_id) is False:
-                logger.warning(f"System: Possibly Unsafe Message from {get_name_from_number(message_from_id, 'long', rxNode)}")
-
-            if help_message in message_string or welcome_message in message_string or "CMD?:" in message_string:
-                # ignore help and welcome messages
-                logger.warning(f"Got Own Welcome/Help header. From: {get_name_from_number(message_from_id, 'long', rxNode)}")
-                return
-        
-            # If the packet is a DM (Direct Message) respond to it, otherwise validate its a message for us on the channel
-            if packet['to'] in [myNodeNum1, myNodeNum2, myNodeNum3, myNodeNum4, myNodeNum5, myNodeNum6, myNodeNum7, myNodeNum8, myNodeNum9]:
-                # message is DM to us
-                isDM = True
-                # check if the message contains a trap word, DMs are always responded to
-                if (messageTrap(message_string) and not llm_enabled) or messageTrap(message_string.split()[0]):
-                    # log the message to stdout
-                    logger.info(f"Device:{rxNode} Channel: {channel_number} " + CustomFormatter.green + f"Received DM: " + CustomFormatter.white + f"{message_string} " + CustomFormatter.purple +\
-                                "From: " + CustomFormatter.white + f"{get_name_from_number(message_from_id, 'long', rxNode)}")
-                    # respond with DM
-                    send_message(auto_response(message_string, snr, rssi, hop, pkiStatus, message_from_id, channel_number, rxNode, isDM), channel_number, message_from_id, rxNode)
-                else:
-                    logger.warning(f"Device:{rxNode} Ignoring DM: {message_string} From: {get_name_from_number(message_from_id, 'long', rxNode)}")
-                    send_message(welcome_message, channel_number, message_from_id, rxNode)
-                    
-                    # log the message to the message log
-                    if log_messages_to_file:
-                        msgLogger.info(f"Device:{rxNode} Channel:{channel_number} | {get_name_from_number(message_from_id, 'long', rxNode)} | DM | " + message_string.replace('\n', '-nl-'))
-            else:
-                # message is on a channel
-                if messageTrap(message_string):
-                    if ignoreDefaultChannel and channel_number == publicChannel:
-                        logger.debug(f"System: ignoreDefaultChannel CMD:{message_string} From: {get_name_from_number(message_from_id, 'short', rxNode)}")
-                    else:
-                        # message is for bot to respond to
-                        logger.info(f"Device:{rxNode} Channel:{channel_number} " + CustomFormatter.green + "ReceivedChannel: " + CustomFormatter.white + f"{message_string} " + CustomFormatter.purple +\
-                                    "From: " + CustomFormatter.white + f"{get_name_from_number(message_from_id, 'long', rxNode)}")
-                        if useDMForResponse:
-                            # respond to channel message via direct message
-                            send_message(auto_response(message_string, snr, rssi, hop, pkiStatus, message_from_id, channel_number, rxNode, isDM), channel_number, message_from_id, rxNode)
-                        else:
-                            # or respond to channel message on the channel itself
-                            if channel_number == my_settings.publicChannel and my_settings.antiSpam:
-                                # warning user spamming default channel
-                                logger.warning(f"System: AntiSpam protection, sending DM to: {get_name_from_number(message_from_id, 'long', rxNode)}")
-                            
-                                # respond to channel message via direct message
-                                send_message(auto_response(message_string, snr, rssi, hop, pkiStatus, message_from_id, channel_number, rxNode, isDM), channel_number, message_from_id, rxNode)
-                            else:
-                                # respond to channel message on the channel itself
-                                send_message(auto_response(message_string, snr, rssi, hop, pkiStatus, message_from_id, channel_number, rxNode, isDM), channel_number, 0, rxNode)
-
-                else:
-                    # message is not for bot to respond to
-                    # ignore the message but add it to the message history list
-                    if my_settings.zuluTime:
-                        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    else:
-                        timestamp = datetime.now().strftime("%Y-%m-%d %I:%M:%S%p")
-                    
-                    if len(msg_history) < storeFlimit:
-                        msg_history.append((get_name_from_number(message_from_id, 'long', rxNode), message_string, channel_number, timestamp, rxNode))
-                    else:
-                        msg_history.pop(0)
-                        msg_history.append((get_name_from_number(message_from_id, 'long', rxNode), message_string, channel_number, timestamp, rxNode))
-
-                    # print the message to the log and sdout
-                    logger.info(f"Device:{rxNode} Channel:{channel_number} " + CustomFormatter.green + "Ignoring Message:" + CustomFormatter.white +\
-                                f" {message_string} " + CustomFormatter.purple + "From:" + CustomFormatter.white + f" {get_name_from_number(message_from_id)}")
-                    if log_messages_to_file:
-                        msgLogger.info(f"Device:{rxNode} Channel:{channel_number} | {get_name_from_number(message_from_id, 'long', rxNode)} | " + message_string.replace('\n', '-nl-'))
-
-                     # repeat the message on the other device
-                    if my_settings.repeater_enabled and multiple_interface:
-                        # wait a responseDelay to avoid message collision from lora-ack.
-                        time.sleep(my_settings.responseDelay)
-                        rMsg = (f"{message_string} From:{get_name_from_number(message_from_id, 'short', rxNode)}")
-                        # if channel found in the repeater list repeat the message
-                        if str(channel_number) in my_settings.repeater_channels:
-                            for i in range(1, 10):
-                                if globals().get(f'interface{i}_enabled', False) and i != rxNode:
-                                    logger.debug(f"Repeating message on Device{i} Channel:{channel_number}")
-                                    send_message(rMsg, channel_number, 0, i)
-                                    time.sleep(my_settings.responseDelay)
+    if messageTrap(message_string):
+        if ignoreDefaultChannel and channel_number == publicChannel:
+            logger.debug(f"System: ignoreDefaultChannel CMD:{message_string} From: {get_name_from_number(message_from_id, 'short', rxNode)}")
         else:
-            # Evaluate non TEXT_MESSAGE_APP packets
-            consumeMetadata(packet, rxNode, channel_number)
-    except KeyError as e:
-        logger.critical(f"System: Error processing packet: {e} Device:{rxNode}")
-        logger.debug(f"System: Error Packet = {packet}")
+            logger.info(f"Device:{rxNode} Channel:{channel_number} " + CustomFormatter.green + "ReceivedChannel: " +
+                        CustomFormatter.white + f"{message_string} " + CustomFormatter.purple + "From: " +
+                        CustomFormatter.white + f"{get_name_from_number(message_from_id, 'long', rxNode)}")
+            if useDMForResponse:
+                await send_message(auto_response(message_string, snr, rssi, hop, pkiStatus, message_from_id, channel_number, rxNode, isDM),
+                                   channel_number, message_from_id, rxNode)
+            else:
+                await send_message(auto_response(message_string, snr, rssi, hop, pkiStatus, message_from_id, channel_number, rxNode, isDM),
+                                   channel_number, 0, rxNode)
+    else:
+        if my_settings.zuluTime:
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        else:
+            timestamp = datetime.now().strftime("%Y-%m-%d %I:%M:%S%p")
+        if len(msg_history) < storeFlimit:
+            msg_history.append((get_name_from_number(message_from_id, 'long', rxNode), message_string, channel_number, timestamp, rxNode))
+        else:
+            msg_history.pop(0)
+            msg_history.append((get_name_from_number(message_from_id, 'long', rxNode), message_string, channel_number, timestamp, rxNode))
+        logger.info(f"Device:{rxNode} Channel:{channel_number} " + CustomFormatter.green + "Ignoring Message:" +
+                    CustomFormatter.white + f" {message_string} " + CustomFormatter.purple + "From:" +
+                    CustomFormatter.white + f" {get_name_from_number(message_from_id, 'long', rxNode)}")
+        if log_messages_to_file:
+            msgLogger.info(f"Device:{rxNode} Channel:{channel_number} | {get_name_from_number(message_from_id, 'long', rxNode)} | " + message_string.replace('\n', '-nl-'))
+
 
 async def start_rx():
-    # Start the receive subscriber using pubsub via meshtastic library
-    pub.subscribe(onReceive, 'meshtastic.receive')
-    pub.subscribe(onDisconnect, 'meshtastic.connection.lost')
+    """Subscribe to MeshCore events on all connected interfaces."""
+    import modules.system as _sys
+    for i in range(1, 10):
+        mc = _sys.get_interface(i)
+        if mc:
+            mc.subscribe(EventType.CONTACT_MSG_RECV, on_contact_msg)
+            mc.subscribe(EventType.CHANNEL_MSG_RECV, on_channel_msg)
+            logger.debug(f"System: Subscribed to events on Interface{i}")
     logger.debug("System: RX Subscriber started")
-    # here we go loopty loo
     while True:
         await asyncio.sleep(0.5)
-        pass
 
 def handle_boot(mesh=True):
     try:
@@ -662,11 +485,12 @@ def handle_boot(mesh=True):
         logger.error(f"System: Error during boot: {e}")
 
 
-# Hello World 
+# Hello World
 async def main():
     tasks = []
-    
+
     try:
+        await init_interfaces()  # Connect to MeshCore radio(s) before anything else
         handle_boot(mesh=False) # pong bot
         # Create core tasks
         tasks.append(asyncio.create_task(start_rx(), name="mesh_rx"))
