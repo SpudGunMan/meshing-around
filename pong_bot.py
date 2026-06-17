@@ -90,21 +90,11 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, chann
     else:
         msg = "🔊 Can you hear me now?"
 
-    # append SNR/RSSI or hop info
-    if hop.startswith("Gateway") or hop.startswith("MQTT"):
-        msg += " [GW]"
-    elif hop.startswith("Direct"):
-        msg += " [RF]"
-    else:
-        #flood
-        msg += " [F]"
-    
-    if (float(snr) != 0 or float(rssi) != 0) and "Hop" not in hop:
+    # append SNR/RSSI or hop info (MeshCore: everything is RF, show hops or signal)
+    if "Hop" in hop:
+        msg += f"\n{hop}"
+    elif float(snr) != 0 or float(rssi) != 0:
         msg += f"\nSNR:{snr} RSSI:{rssi}"
-    elif "Hop" in hop:
-        # janky, remove the words Gateway or MQTT if present
-        hop = hop.replace("Gateway", "").replace("Direct", "").replace("MQTT", "").strip()
-        msg += f"\n{hop} "
 
     if "@" in message:
         msg = msg + " @" + message.split("@")[1]
@@ -219,12 +209,13 @@ def handle_lheard(message, nodeid, deviceID, isDM):
 async def on_contact_msg(event):
     """Handle incoming DMs via MeshCore CONTACT_MSG_RECV."""
     global seenNodes
-    payload = event.payload
-    message_from_id = str(payload.pubkey_prefix)
-    message_string = getattr(payload, 'text', '') or ''
-    snr = float(getattr(payload, 'snr', 0) or 0)
-    rssi = float(getattr(payload, 'rssi', 0) or 0)
-    hop = "Direct"
+    payload = event.payload  # dict: pubkey_prefix, text, SNR (V3 only), path_len, sender_timestamp
+    message_from_id = str(payload.get('pubkey_prefix', ''))
+    message_string = payload.get('text', '') or ''
+    snr = float(payload.get('SNR', 0) or 0)
+    rssi = 0.0
+    path_len = payload.get('path_len', 255)
+    hop = "Direct" if path_len == 255 else (f"{path_len} Hop" if path_len == 1 else f"{path_len} Hops")
     pkiStatus = (True, message_from_id)
     isDM = True
     channel_number = 0
@@ -272,13 +263,14 @@ async def on_contact_msg(event):
 async def on_channel_msg(event):
     """Handle incoming channel messages via MeshCore CHANNEL_MSG_RECV."""
     global seenNodes
-    payload = event.payload
-    message_from_id = str(getattr(payload, 'pubkey_prefix', ''))
-    message_string = getattr(payload, 'text', '') or ''
-    channel_number = int(getattr(payload, 'channel_idx', 0))
-    snr = float(getattr(payload, 'snr', 0) or 0)
-    rssi = float(getattr(payload, 'rssi', 0) or 0)
-    hop = "Direct"
+    payload = event.payload  # dict: channel_idx, text, SNR/RSSI (if logged), path_len
+    message_from_id = str(payload.get('pubkey_prefix', ''))
+    message_string = payload.get('text', '') or ''
+    channel_number = int(payload.get('channel_idx', 0))
+    snr = float(payload.get('SNR', 0) or 0)
+    rssi = float(payload.get('RSSI', 0) or 0)
+    path_len = payload.get('path_len', 0)
+    hop = "Direct" if path_len == 255 else (f"{path_len} Hop" if path_len == 1 else f"{path_len} Hops")
     pkiStatus = (False, message_from_id)
     isDM = False
     rxNode = 1
@@ -325,7 +317,8 @@ async def on_channel_msg(event):
 
 
 async def start_rx():
-    """Subscribe to MeshCore events on all connected interfaces."""
+    """Subscribe to MeshCore events on all connected interfaces, then drain buffered messages."""
+    from meshcore import EventType as ET
     import modules.system as _sys
     for i in range(1, 10):
         mc = _sys.get_interface(i)
@@ -333,6 +326,19 @@ async def start_rx():
             mc.subscribe(EventType.CONTACT_MSG_RECV, on_contact_msg)
             mc.subscribe(EventType.CHANNEL_MSG_RECV, on_channel_msg)
             logger.debug(f"System: Subscribed to events on Interface{i}")
+            # Drain messages buffered on the radio while we were offline
+            drained = 0
+            while True:
+                try:
+                    result = await mc.commands.get_msg(timeout=2.0)
+                except Exception:
+                    break
+                if result.type in (ET.NO_MORE_MSGS, ET.ERROR):
+                    break
+                drained += 1
+                await asyncio.sleep(0.05)
+            if drained:
+                logger.info(f"System: Interface{i} drained {drained} buffered message(s)")
     logger.debug("System: RX Subscriber started")
     while True:
         await asyncio.sleep(0.5)

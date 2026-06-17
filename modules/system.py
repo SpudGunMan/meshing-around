@@ -59,9 +59,9 @@ if emergency_responder_enabled:
     
 # whoami Configuration
 if whoami_enabled:
-    trap_list_whoami = ("whoami", "📍", "whois")
+    trap_list_whoami = ("whoami", "📍", "whois", "path")
     trap_list = trap_list + trap_list_whoami
-    help_message = help_message + ", whoami"
+    help_message = help_message + ", whoami, path"
 
 # Solar Conditions Configuration
 if solar_conditions_enabled:
@@ -331,6 +331,7 @@ if ble_count > 1:
 
 # Interface globals — actual connections created in async init_interfaces()
 logger.debug("System: Declaring interface globals (MeshCore async init deferred)")
+_bot_start_time = time.time()
 interface1 = interface2 = interface3 = interface4 = interface5 = interface6 = interface7 = interface8 = interface9 = None
 retry_int1 = retry_int2 = retry_int3 = retry_int4 = retry_int5 = retry_int6 = retry_int7 = retry_int8 = retry_int9 = False
 myNodeNum1 = myNodeNum2 = myNodeNum3 = myNodeNum4 = myNodeNum5 = myNodeNum6 = myNodeNum7 = myNodeNum8 = myNodeNum9 = "000000000000"
@@ -340,11 +341,19 @@ my_node_ids = []
 # Contact cache: pubkey_prefix (12-char hex) -> {name_long, name_short, pubkey, snr, last_seen}
 _contacts = {}
 
+# Bot's own crypto identity (populated at startup from mc.commands.export_private_key)
+_bot_private_key: bytes | None = None
+_bot_public_key:  bytes | None = None
+
+def get_bot_keys():
+    """Return (private_key_bytes, public_key_bytes) or (None, None) if not yet loaded."""
+    return _bot_private_key, _bot_public_key
+
 def get_interface(nodeInt=1):
     """Return the live MeshCore interface object for the given slot."""
     return globals().get(f'interface{nodeInt}')
 
-def update_contact(pubkey_prefix, name_long="", name_short="", pubkey="", snr=0):
+def update_contact(pubkey_prefix, name_long="", name_short="", pubkey="", snr=0, lat=None, lon=None):
     """Upsert a contact in the in-memory cache."""
     existing = _contacts.get(pubkey_prefix, {})
     _contacts[pubkey_prefix] = {
@@ -353,6 +362,8 @@ def update_contact(pubkey_prefix, name_long="", name_short="", pubkey="", snr=0)
         'pubkey': pubkey or existing.get('pubkey', ''),
         'snr': snr,
         'last_seen': time.time(),
+        'lat': lat if lat is not None else existing.get('lat'),
+        'lon': lon if lon is not None else existing.get('lon'),
     }
 
 async def _connect_interface(i):
@@ -360,7 +371,10 @@ async def _connect_interface(i):
     interface_type = globals().get(f'interface{i}_type', '').lower()
     if interface_type == 'serial':
         port = globals().get(f'port{i}')
-        return await MeshCore.create_serial(port) if port else await MeshCore.create_serial()
+        if not port:
+            logger.critical(f"System: Interface{i} serial type requires a port in config.ini")
+            return None
+        return await MeshCore.create_serial(port)
     elif interface_type == 'tcp':
         host = globals().get(f'hostname{i}', '127.0.0.1')
         port = 5000
@@ -385,8 +399,39 @@ async def init_interfaces():
             continue
         try:
             mc = await _connect_interface(i)
+            if mc is None:
+                logger.critical(f"System: Interface{i} returned None — no response from radio on {globals().get(f'port{i}', '?')}. Check connection and baud rate.")
+                exit()
             globals()[f'interface{i}'] = mc
-            logger.debug(f"System: Interface{i} connected via {interface_type}")
+            logger.info(f"System: Interface{i} connected via {interface_type}")
+            await mc.start_auto_message_fetching()
+            logger.debug(f"System: Interface{i} auto message fetching started")
+            # Populate bot's own pubkey prefix from radio self_info
+            self_info = mc.self_info or {}
+            own_pubkey = self_info.get('public_key', '')
+            own_name = self_info.get('name', '')
+            if own_pubkey:
+                own_prefix = own_pubkey[:12]
+                globals()[f'myNodeNum{i}'] = own_prefix
+                logger.info(f"System: Interface{i} self: {own_name} ({own_prefix})")
+            # Export private key for DM decryption from raw packets
+            try:
+                global _bot_private_key, _bot_public_key
+                from meshcore import EventType as _ET
+                key_result = await mc.commands.export_private_key()
+                if key_result and hasattr(key_result, 'payload') and isinstance(key_result.payload, dict):
+                    pk = key_result.payload.get('private_key')
+                    if pk:
+                        _bot_private_key = pk
+                        import nacl.bindings as _nacl
+                        _bot_public_key = _nacl.crypto_scalarmult_ed25519_base_noclamp(pk[:32])
+                        logger.info(f"System: Interface{i} private key loaded, pub:{_bot_public_key.hex()[:12]}")
+                    else:
+                        logger.warning(f"System: Interface{i} private key export returned no key")
+                else:
+                    logger.warning(f"System: Interface{i} private key export not available (enable ENABLE_PRIVATE_KEY_EXPORT=1 in firmware)")
+            except Exception as e:
+                logger.warning(f"System: Interface{i} private key export failed: {e}")
             try:
                 await mc.commands.get_contacts()
             except Exception:
@@ -522,6 +567,21 @@ def get_num_from_short_name(short_name, nodeInt=1):
         if info.get('name_short', '').lower() == short_lower:
             return prefix
     return str(short_name)
+
+def find_contacts_by_name(query):
+    """Search contacts by name_long (case-insensitive substring) or pubkey prefix (hex prefix match).
+    Returns list of (prefix, name_long) tuples — 0, 1, or many."""
+    q = str(query).lower().strip()
+    if not q:
+        return []
+    is_hex = all(c in '0123456789abcdef' for c in q)
+    results = []
+    for prefix, info in _contacts.items():
+        if is_hex and prefix.startswith(q):
+            results.append((prefix, info.get('name_long', prefix)))
+        elif not is_hex and q in info.get('name_long', prefix).lower():
+            results.append((prefix, info.get('name_long', prefix)))
+    return results
     
 def get_node_list(nodeInt=1):
     """Return a formatted string of recently-heard contacts from the cache."""
@@ -536,7 +596,13 @@ def get_node_list(nodeInt=1):
     return node_list
 
 def get_node_location(nodeID, nodeInt=1, channel=0, round_digits=2):
-    """Return [lat, lon]; MeshCore contact positions not yet tracked — returns config location."""
+    """Return [lat, lon] for a contact by pubkey prefix, or bot's config location if unknown."""
+    contact = _contacts.get(str(nodeID))
+    if contact:
+        lat = contact.get('lat')
+        lon = contact.get('lon')
+        if lat is not None and lon is not None and (lat != 0.0 or lon != 0.0):
+            return [round(lat, round_digits), round(lon, round_digits)]
     if fuzz_config_location:
         return [round(latitudeValue, round_digits), round(longitudeValue, round_digits)]
     return [latitudeValue, longitudeValue]
@@ -648,6 +714,39 @@ def messageChunker(message):
     except Exception as e:
         logger.warning(f"System: Exception during message chunking: {e} (message length: {len(message)})")
         
+# --- DM send mode ---
+# "simple"  : send_msg (fire-and-forget, no ACK wait) — fast, no retry
+# "reliable": send_msg_with_retry (waits for ACK, retries via known path, falls back to flood)
+DM_SEND_MODE = "reliable"
+
+async def _send_dm(interface, dst: str, text: str) -> bool:
+    """Send a single DM chunk via the configured send mode."""
+    # Prefer full pubkey from contact cache so send_msg_with_retry can reset path
+    contact = _contacts.get(dst, {})
+    full_key = contact.get('pubkey') or dst  # 64-char hex if available, else 12-char prefix
+
+    if DM_SEND_MODE == "reliable":
+        result = await interface.commands.send_msg_with_retry(full_key, text)
+        if result is None:
+            # No ACK — likely ERR_CODE_TABLE_FULL; wait for queue to drain then try simple send
+            logger.warning(f"System: send_msg_with_retry got no ACK for {dst[:12]}, retrying after delay")
+            await asyncio.sleep(3)
+            result = await interface.commands.send_msg(full_key, text)
+            if result is None or result.is_error():
+                logger.error(f"System: Fallback send_msg also failed for {dst[:12]}")
+                return False
+            logger.debug(f"System: Fallback send_msg succeeded for {dst[:12]}")
+        elif result.is_error():
+            logger.error(f"System: send_msg_with_retry failed: {result.payload}")
+            return False
+    else:
+        result = await interface.commands.send_msg(dst, text)
+        if result is None or result.is_error():
+            logger.error(f"System: send_msg failed for {dst[:12]}")
+            return False
+    return True
+
+
 async def send_message(message, ch, nodeid=0, nodeInt=1, bypassChuncking=False, reply_id=None):
     """Send a DM or channel message via MeshCore."""
     interface = globals().get(f'interface{nodeInt}')
@@ -671,12 +770,14 @@ async def send_message(message, ch, nodeid=0, nodeInt=1, bypassChuncking=False, 
             chunkOf = f"{idx+1}/{num_chunks}"
             if nodeid == 0 or nodeid == "0":
                 logger.info(f"Device:{nodeInt} Channel:{ch} " + CustomFormatter.red + f"Chunker{chunkOf} SendingChannel: " + CustomFormatter.white + m.replace('\n', ' '))
-                await interface.commands.send_chan_msg(ch, m)
+                result = await interface.commands.send_chan_msg(ch, m)
+                if result.is_error():
+                    logger.error(f"System: send_chan_msg failed: {result.payload}")
             else:
                 dst = str(nodeid)
                 logger.info(f"Device:{nodeInt} " + CustomFormatter.red + f"Chunker{chunkOf} Sending DM: " + CustomFormatter.white + m.replace('\n', ' ') + CustomFormatter.purple +
-                            " To: " + CustomFormatter.white + f"{get_name_from_number(dst, 'long', nodeInt)}")
-                await interface.commands.send_msg(dst, m)
+                            " To: " + CustomFormatter.white + f"{get_name_from_number(dst, 'long', nodeInt)} [{DM_SEND_MODE}]")
+                await _send_dm(interface, dst, m)
             await asyncio.sleep(splitDelay)
         return True
     except Exception as e:
@@ -1171,6 +1272,19 @@ def initializeMeshLeaderboard():
 
 initializeMeshLeaderboard()
 
+def update_leaderboard_from_rx(nodeID: str, rssi: float = 0):
+    """Update signal strength and message count leaderboard from a received DM."""
+    global meshLeaderboard
+    if rssi != 0:
+        if rssi > meshLeaderboard['highestDBm']['value']:
+            meshLeaderboard['highestDBm'] = {'nodeID': nodeID, 'value': rssi, 'timestamp': time.time()}
+        if rssi < meshLeaderboard['weakestDBm']['value']:
+            meshLeaderboard['weakestDBm'] = {'nodeID': nodeID, 'value': rssi, 'timestamp': time.time()}
+    counts = meshLeaderboard.setdefault('nodeMessageCounts', {})
+    counts[nodeID] = counts.get(nodeID, 0) + 1
+    if counts[nodeID] > meshLeaderboard['mostMessages']['value']:
+        meshLeaderboard['mostMessages'] = {'nodeID': nodeID, 'value': counts[nodeID], 'timestamp': time.time()}
+
 # Known Meshtastic firmware PKI routing errors and practical operator guidance.
 PKI_ROUTING_ERROR_HINTS = {
     'PKI_SEND_FAIL_PUBLIC_KEY': 'bot does not have destination public key. or key is missing from the device. Add the destination nodeID to the favorite nodes list, then retry.',
@@ -1602,7 +1716,7 @@ def noisyTelemetryCheck():
     top_three = list(sorted_positionMetadata.items())[:3]
     for nodeID, data in top_three:
         if data.get('packetCount', 0) > noisyTelemetryLimit:
-            logger.warning(f"System: Noisy Telemetry Detected from NodeID:{nodeID} ShortName:{get_name_from_number(nodeID, 'short', 1)} Packets:{data.get('packetCount', 0)}")
+            logger.warning(f"System: Noisy Telemetry Detected from NodeID:{nodeID} ShortName:{get_name_from_number(nodeID, 'long', 1)} Packets:{data.get('packetCount', 0)}")
             # reset the packet count for the node
             positionMetadata[nodeID]['packetCount'] = 0
 
@@ -1649,13 +1763,13 @@ def get_mesh_leaderboard(msg, fromID, deviceID):
     if meshLeaderboard['lowestBattery']['nodeID']:
         nodeID = meshLeaderboard['lowestBattery']['nodeID']
         value = round(meshLeaderboard['lowestBattery']['value'], 1)
-        result += f"🪫 Low Battery: {value}% {get_name_from_number(nodeID, 'short', 1)}\n"
+        result += f"🪫 Low Battery: {value}% {get_name_from_number(nodeID, 'long', 1)}\n"
     
     # Longest uptime
     if meshLeaderboard['longestUptime']['nodeID']:
         nodeID = meshLeaderboard['longestUptime']['nodeID']
         value = meshLeaderboard['longestUptime']['value']
-        result += f"🕰️ Uptime: {getPrettyTime(value)} {get_name_from_number(nodeID, 'short', 1)}\n"
+        result += f"🕰️ Uptime: {getPrettyTime(value)} {get_name_from_number(nodeID, 'long', 1)}\n"
     
     # Fastest speed
     if meshLeaderboard['fastestSpeed']['nodeID']:
@@ -1663,9 +1777,9 @@ def get_mesh_leaderboard(msg, fromID, deviceID):
         value_kmh = round(meshLeaderboard['fastestSpeed']['value'], 1)
         value_mph = round(value_kmh / 1.60934, 1)
         if use_metric:
-            result += f"🚓 Speed: {value_kmh} km/h {get_name_from_number(nodeID, 'short', 1)}\n"
+            result += f"🚓 Speed: {value_kmh} km/h {get_name_from_number(nodeID, 'long', 1)}\n"
         else:
-            result += f"🚓 Speed: {value_mph} mph {get_name_from_number(nodeID, 'short', 1)}\n"
+            result += f"🚓 Speed: {value_mph} mph {get_name_from_number(nodeID, 'long', 1)}\n"
 
     # Tallest node
     if meshLeaderboard['tallestNode']['nodeID']:
@@ -1673,9 +1787,9 @@ def get_mesh_leaderboard(msg, fromID, deviceID):
         value_m = meshLeaderboard['tallestNode']['value']
         value_ft = round(value_m * 3.28084, 0)
         if use_metric:
-            result += f"🪜 Tallest: {int(round(value_m, 0))}m {get_name_from_number(nodeID, 'short', 1)}\n"
+            result += f"🪜 Tallest: {int(round(value_m, 0))}m {get_name_from_number(nodeID, 'long', 1)}\n"
         else:
-            result += f"🪜 Tallest: {int(value_ft)}ft {get_name_from_number(nodeID, 'short', 1)}\n"
+            result += f"🪜 Tallest: {int(value_ft)}ft {get_name_from_number(nodeID, 'long', 1)}\n"
     
     # Highest altitude
     if meshLeaderboard['highestAltitude']['nodeID']:
@@ -1683,9 +1797,9 @@ def get_mesh_leaderboard(msg, fromID, deviceID):
         value_m = meshLeaderboard['highestAltitude']['value']
         value_ft = round(value_m * 3.28084, 0)
         if use_metric:
-            result += f"🚀 Altitude: {int(round(value_m, 0))}m {get_name_from_number(nodeID, 'short', 1)}\n"
+            result += f"🚀 Altitude: {int(round(value_m, 0))}m {get_name_from_number(nodeID, 'long', 1)}\n"
         else:
-            result += f"🚀 Altitude: {int(value_ft)}ft {get_name_from_number(nodeID, 'short', 1)}\n"
+            result += f"🚀 Altitude: {int(value_ft)}ft {get_name_from_number(nodeID, 'long', 1)}\n"
 
     # Fastest airspeed
     if meshLeaderboard['fastestAirSpeed']['nodeID']:
@@ -1693,9 +1807,9 @@ def get_mesh_leaderboard(msg, fromID, deviceID):
         value_kmh = round(meshLeaderboard['fastestAirSpeed']['value'], 1)
         value_mph = round(value_kmh / 1.60934, 1)
         if use_metric:
-            result += f"✈️ Airspeed: {value_kmh} km/h {get_name_from_number(nodeID, 'short', 1)}\n"
+            result += f"✈️ Airspeed: {value_kmh} km/h {get_name_from_number(nodeID, 'long', 1)}\n"
         else:
-            result += f"✈️ Airspeed: {value_mph} mph {get_name_from_number(nodeID, 'short', 1)}\n"
+            result += f"✈️ Airspeed: {value_mph} mph {get_name_from_number(nodeID, 'long', 1)}\n"
     
     # Coldest temperature
     if meshLeaderboard['coldestTemp']['nodeID']:
@@ -1703,9 +1817,9 @@ def get_mesh_leaderboard(msg, fromID, deviceID):
         value_c = round(meshLeaderboard['coldestTemp']['value'], 1)
         value_f = round((value_c * 9/5) + 32, 1)
         if use_metric:
-            result += f"🥶 Coldest: {value_c}°C {get_name_from_number(nodeID, 'short', 1)}\n"
+            result += f"🥶 Coldest: {value_c}°C {get_name_from_number(nodeID, 'long', 1)}\n"
         else:
-            result += f"🥶 Coldest: {value_f}°F {get_name_from_number(nodeID, 'short', 1)}\n"
+            result += f"🥶 Coldest: {value_f}°F {get_name_from_number(nodeID, 'long', 1)}\n"
     
     # Hottest temperature
     if meshLeaderboard['hottestTemp']['nodeID']:
@@ -1713,57 +1827,57 @@ def get_mesh_leaderboard(msg, fromID, deviceID):
         value_c = round(meshLeaderboard['hottestTemp']['value'], 1)
         value_f = round((value_c * 9/5) + 32, 1)
         if use_metric:
-            result += f"🥵 Hottest: {value_c}°C {get_name_from_number(nodeID, 'short', 1)}\n"
+            result += f"🥵 Hottest: {value_c}°C {get_name_from_number(nodeID, 'long', 1)}\n"
         else:
-            result += f"🥵 Hottest: {value_f}°F {get_name_from_number(nodeID, 'short', 1)}\n"
+            result += f"🥵 Hottest: {value_f}°F {get_name_from_number(nodeID, 'long', 1)}\n"
     
     # Worst air quality
     if meshLeaderboard['worstAirQuality']['nodeID']:
         nodeID = meshLeaderboard['worstAirQuality']['nodeID']
         value = round(meshLeaderboard['worstAirQuality']['value'], 1)
-        result += f"💨 Worst IAQ: {value} {get_name_from_number(nodeID, 'short', 1)}\n"
+        result += f"💨 Worst IAQ: {value} {get_name_from_number(nodeID, 'long', 1)}\n"
 
     # Weakest RF
     if meshLeaderboard['weakestDBm']['nodeID'] is not None:
         nodeID = meshLeaderboard['weakestDBm']['nodeID']
         value = meshLeaderboard['weakestDBm']['value']
-        result += f"📶 Weakest RF: {value} dBm {get_name_from_number(nodeID, 'short', 1)}\n"
+        result += f"📶 Weakest RF: {value} dBm {get_name_from_number(nodeID, 'long', 1)}\n"
 
     # Best RF
     if meshLeaderboard['highestDBm']['nodeID'] is not None:
         nodeID = meshLeaderboard['highestDBm']['nodeID']
         value = meshLeaderboard['highestDBm']['value']
-        result += f"📶 Best RF: {value} dBm {get_name_from_number(nodeID, 'short', 1)}\n"
+        result += f"📶 Best RF: {value} dBm {get_name_from_number(nodeID, 'long', 1)}\n"
 
     # Most Telemetry Messages
     if 'nodeTMessageCounts' in meshLeaderboard and meshLeaderboard['mostTMessages']['nodeID'] is not None:
         nodeID = meshLeaderboard['mostTMessages']['nodeID']
         value = meshLeaderboard['mostTMessages']['value']
-        result += f"📊 Most Telemetry: {value} {get_name_from_number(nodeID, 'short', 1)}\n"
+        result += f"📊 Most Telemetry: {value} {get_name_from_number(nodeID, 'long', 1)}\n"
 
     # Most Emojis
     if meshLeaderboard.get('mostEmojis', {}).get('nodeID') is not None:
         nodeID = meshLeaderboard['mostEmojis']['nodeID']
         value = meshLeaderboard['mostEmojis']['value']
-        result += f"🤪 Most Emojis: {value} {get_name_from_number(nodeID, 'short', 1)}\n"
+        result += f"🤪 Most Emojis: {value} {get_name_from_number(nodeID, 'long', 1)}\n"
     
     # Most Messages
     if 'nodeMessageCounts' in meshLeaderboard and meshLeaderboard['mostMessages']['nodeID'] is not None:
         nodeID = meshLeaderboard['mostMessages']['nodeID']
         value = meshLeaderboard['mostMessages']['value']
-        result += f"💬 Most Messages: {value} {get_name_from_number(nodeID, 'short', 1)}\n"
+        result += f"💬 Most Messages: {value} {get_name_from_number(nodeID, 'long', 1)}\n"
 
     # Most WiFi devices seen
     if meshLeaderboard.get('mostPaxWiFi', {}).get('nodeID'):
         nodeID = meshLeaderboard['mostPaxWiFi']['nodeID']
         value = meshLeaderboard['mostPaxWiFi']['value']
-        result += f"📶 PAX Wifi: {value} {get_name_from_number(nodeID, 'short', 1)}\n"
+        result += f"📶 PAX Wifi: {value} {get_name_from_number(nodeID, 'long', 1)}\n"
 
     # Most BLE devices seen
     if meshLeaderboard.get('mostPaxBLE', {}).get('nodeID'):
         nodeID = meshLeaderboard['mostPaxBLE']['nodeID']
         value = meshLeaderboard['mostPaxBLE']['value']
-        result += f"📲 PAX BLE: {value} {get_name_from_number(nodeID, 'short', 1)}\n"
+        result += f"📲 PAX BLE: {value} {get_name_from_number(nodeID, 'long', 1)}\n"
     
     # Special packet detections
     if len(meshLeaderboard['adminPackets']) > 0:
@@ -1786,15 +1900,15 @@ def get_mesh_leaderboard(msg, fromID, deviceID):
     return result
 
 def get_sysinfo(nodeID=0, deviceID=1):
-    # Get the system telemetry data for return on the sysinfo command
-    sysinfo = ''
-    stats = str(displayNodeTelemetry(nodeID, deviceID, userRequested=True)) + " 🤖👀" + str(len(seenNodes))
-    if "numPacketsTx:0" in stats or stats == -1:
-        return "Gathering Telemetry try again later⏳"
-    # replace Telemetry with Int in string
-    stats = stats.replace("Telemetry", "Int")
-    sysinfo += f"📊{stats}"
-    return sysinfo
+    uptime = getPrettyTime(time.time() - _bot_start_time)
+    contacts = len(_contacts)
+    sessions = len(seenNodes)
+    own_prefix = globals().get(f'myNodeNum{deviceID}', '????????????')
+    own_name = _contacts.get(own_prefix, {}).get('name_long', own_prefix[:6].upper()) if own_prefix != '????????????' else '?'
+    mc = get_interface(deviceID)
+    if mc and mc.self_info:
+        own_name = mc.self_info.get('name', own_name)
+    return f"📊 {own_name} up:{uptime} contacts:{contacts} session:{sessions}DMs"
 
 async def handleSignalWatcher():
     from modules.radio import signalWatcher

@@ -1,9 +1,9 @@
 
 ---
 
-# 📡 meshBBS: How-To & API Documentation
+# meshBBS: How-To & Documentation
 
-This document covers the Bulliten Board System or BBS componment of the meshing-around project.
+This document covers the Bulletin Board System (BBS) component of the meshing-around bot, including the **bbslink** feature for syncing posts between two bots over the air (OTA).
 
 ## Table of Contents
 
@@ -11,224 +11,284 @@ This document covers the Bulliten Board System or BBS componment of the meshing-
     - [Central Message Store](#11-central-message-store)
     - [Direct Mail (DM) Messages](#12-direct-mail-dm-messages)
     - [BBS Commands](#bbs-commands)
-2. [Synchronization bot2bot: Full Sync Workflow](#2-synchronization-bot2bot--full-sync-workflow)
-    - [BBS Database Sync: File-Based (Out-of-Band)](#21-bbs-database-sync-file-based-out-of-band)
-    - [BBS Over-the-Air (OTA) Sync: Linking](#22-bbs-over-the-air-ota-sync-linking)
-    - [Scheduling BBS Auto Sync](#23-scheduling-bbs-auto-sync)
-3. [Troubleshooting](#4-troubleshooting)
-4. [API Reference: BBS Sync](#5-api-reference-bbs-sync)
-5. [Best Practices](#5-best-practices)
+2. [BBSLink: OTA Sync Between Bots](#2-bbslink-ota-sync-between-bots)
+    - [Overview](#21-overview)
+    - [Prerequisites](#22-prerequisites)
+    - [Configuration](#23-configuration)
+    - [Finding a Peer's Pubkey Prefix](#24-finding-a-peers-pubkey-prefix)
+    - [Access Modes](#25-access-modes)
+    - [How the Sync Protocol Works](#26-how-the-sync-protocol-works)
+    - [What to Expect](#27-what-to-expect)
+3. [Automatic Sync with the Scheduler](#3-automatic-sync-with-the-scheduler)
+4. [Manual Sync Trigger](#4-manual-sync-trigger)
+5. [BBS Database Sync: File-Based (Out-of-Band)](#5-bbs-database-sync-file-based-out-of-band)
+6. [Troubleshooting](#6-troubleshooting)
+7. [API Reference](#7-api-reference)
 
-## 1. **BBS Core Functions**
-The mesh-bot provides a basic message mail system for Meshtastic
+---
 
-## 1.1 Central Message Store
+## 1. BBS Core Functions
 
-- **Shared public message space** for all nodes.
-- Classic BBS list with a simple, one-level message tree.
+### 1.1 Central Message Store
+
+- Shared public message board for all nodes on the mesh.
+- Simple one-level message list — no threading.
 - Messages are stored in `data/bbsdb.pkl`.
-- Each entry typically includes:  
-  `[id, subject, body, fromNode, timestamp, threadID, replytoID]`
+- Each entry: `[id, subject, body, fromNode, timestamp, threadID, replytoID]`
 
-### Posting to Public
-
-To post a public message:
-```sh
-bbspost $Subject #Message
+**Post a public message:**
+```
+bbspost $Subject #Message body here
 ```
 
----
+### 1.2 Direct Mail (DM) Messages
 
-## 1.2 Direct Mail (DM) Messages
-- **DMs are private messages** sent from one node to another.
-- Stored separately from public posts in `data/bbsdm.pkl`.
-- Each DM entry typically includes:  
-  `[id, toNode, message, fromNode, timestamp, threadID, replytoID]`
-- You can inject DMs directly for automation using the `script/injectDM.py` tool.
+- Private messages from one node to another, stored in `data/bbsdm.pkl`.
+- When the recipient node comes online, the bot delivers the DM and removes it from storage.
+- Each DM entry: `[toNode, message, fromNode]`
 
-### DM Delivery
-
-- To post a DM, use:  
-  ```sh
-  bbspost @USER #Message
-  ```
-- When a DM is posted, it is added to the DM database.
-- When the bot detects the recipient node on the network, it delivers the DM and then removes it from local storage.
-
----
+**Post a DM:**
+```
+bbspost @Username #Message body here
+```
 
 ### BBS Commands
 
-| Command      | Description                                   |
-|--------------|-----------------------------------------------|
-| `bbshelp`    | Show BBS help                                 |
-| `bbslist`    | List messages                                 |
-| `bbsread`    | Read a message by ID                          |
-| `bbspost`    | Post a message or DM                          |
-| `bbsdelete`  | Delete a message                              |
-| `bbsinfo`    | BBS stats (sysop)                             |
-| `bbslink`    | Link messages between BBS systems             |
+| Command      | Description                            |
+|--------------|----------------------------------------|
+| `bbshelp`    | Show BBS help                          |
+| `bbslist`    | List all public message subjects       |
+| `bbsread #N` | Read public message by ID              |
+| `bbspost`    | Post a public message or send a DM     |
+| `bbsdelete #N` | Delete a message (owner or admin)    |
+| `bbsinfo`    | Show message and DM counts             |
 
 ---
 
-## 2. **Synchronization bot2bot : Full Sync Workflow**
+## 2. BBSLink: OTA Sync Between Bots
 
-1. **Set up a dedicated sync channel** (e.g., channel bot-admin).
-2. **Configure both nodes** with `bbs_link_enabled = True` and add each other to `bbs_link_whitelist`.
-3. **Schedule sync** every hour:
-   - Node A sends `bbslink 0` to Node B on channel 99.
-   - Node B responds with messages and `bbsack`.
-4. **Optionally, use SSH/scp** to copy `bbsdb.pkl` for full out-of-band backup.
+### 2.1 Overview
 
+BBSLink lets two MeshBot instances exchange their public BBS posts over the air, one post at a time, using DM messages. A sync session pulls all posts from a peer bot into your local board. Duplicate posts are silently ignored, so you can run sync repeatedly without building up duplicates.
 
-## 2.1. **BBS Database Sync: File-Based (Out-of-Band)**
+Sync is **one-directional per session**: the initiating bot pulls from the peer. For bidirectional sync, configure both bots to pull from each other on a schedule.
 
-### **Manual/Automated File Sync (e.g., SSH/SCP)**
-- **Purpose:** Sync BBS data between nodes by copying `bbsdb.pkl` and `bbsdm.pkl` files.
+### 2.2 Prerequisites
+
+- Both bots must be running MeshCore (this feature does not work with Meshtastic).
+- Both bots must have `[bbs] enabled = True` in `config.ini`.
+- The **receiving** bot (the one being pulled from) must have `bbslink_enabled = True`.
+- Both bots must be reachable via DM on the mesh.
+
+### 2.3 Configuration
+
+Add the following to the `[bbs]` section of `config.ini` on each bot:
+
 ```ini
 [bbs]
-# The "api" needs enabled which enables file polling 
-bbsAPI_enabled = True 
+enabled = True
+bbslink_enabled = True
+
+# Peer BBS bots to sync with (comma-separated pubkey prefixes, 12-char hex).
+# Also acts as the inbound whitelist — only listed nodes may sync with this bot.
+# Leave empty to allow any node to sync (open mode).
+bbslink_peers = a1b2c3d4e5f6,b2c3d4e5f6a7
 ```
-- **How-To:**
-  1. **Locate Files:**  
-     - `data/bbsdb.pkl` (public posts)
-     - `data/bbsdm.pkl` (direct messages)
-  2. **Copy Files:**  
-     Use `scp` or `rsync` to copy files between nodes:
-     ```sh
-     scp user@remote:/path/to/meshing-around/data/bbsdb.pkl ./data/bbsdb.pkl
-     scp user@remote:/path/to/meshing-around/data/bbsdm.pkl ./data/bbsdm.pkl
-     ```
-  3. **Reload Database:**  
-     After copying, when the "API" is enabled the watchdog will look for changes and injest.
 
-- **Automating with Cron/Scheduler:**
-  - Set up a cron job or use the bot’s scheduler to periodically pull/push files.
+**Bot A config** — wants to pull from Bot B:
+```ini
+bbslink_enabled = True
+bbslink_peers = <Bot B's pubkey prefix>
+```
+
+**Bot B config** — the source of posts:
+```ini
+bbslink_enabled = True
+bbslink_peers = <Bot A's pubkey prefix>   # restricts inbound; omit to allow all
+```
+
+### 2.4 Finding a Peer's Pubkey Prefix
+
+MeshCore identifies nodes by a **12-character hex pubkey prefix** (e.g. `a1b2c3d4e5f6`). This is visible in:
+
+- The MeshCore web interface or Remote Terminal — shown in the contacts list next to a node's name.
+- Bot logs — when a node sends a message, its pubkey prefix is logged: `From: a1b2c3d4e5f6`
+- The `whoami` or `whois` bot command — returns identity info including the pubkey prefix.
+
+This is **not** the same as a Meshtastic numeric node ID.
+
+### 2.5 Access Modes
+
+| `bbslink_peers` value | Behavior |
+|-----------------------|----------|
+| Empty (default)       | **Open mode** — any node can initiate a sync with this bot |
+| One or more prefixes  | **Closed mode** — only listed nodes can sync; others get "BBS Link is disabled for your node" |
+
+`bbslink_peers` serves double duty: it's both the list of peers the scheduler actively contacts, and the inbound access control list.
+
+### 2.6 How the Sync Protocol Works
+
+Sync is driven by a DM ping-pong exchange:
+
+```
+Initiator (Bot A)          Peer (Bot B)
+─────────────────          ────────────
+bbslink 0          →       (receives request)
+                   ←       bbslink 0 $Subject #Body @originPrefix
+bbsack 0           →       (acknowledges, peer sends next)
+                   ←       bbslink 1 $Subject2 #Body2 @originPrefix2
+bbsack 1           →
+                   ←       bbslink 2 $...
+...
+bbsack N           →       (N+1 >= total messages — sync complete, no reply)
+```
+
+**Rate limiting** — the peer bot paces its replies to avoid mesh congestion:
+- 5 seconds (+ `responseDelay`) between each message
+- An additional 10 second pause every 5 messages
+
+So a board with 20 posts takes roughly **2–3 minutes** to fully sync.
+
+**Message format** (internal, not user-typed):
+```
+bbslink <N> $<subject> #<body> @<originPubkeyPrefix>
+```
+
+**ACK format:**
+```
+bbsack <N>
+```
+
+### 2.7 What to Expect
+
+- Sync pulls **all posts from the peer's board**, starting at index 0.
+- Posts already on your board with the same subject and body are silently skipped (dedup by content hash).
+- The origin author of a synced post is preserved — the `@originPrefix` field in the wire format stores who originally wrote it.
+- While a sync is in progress the bot remains responsive to other commands — the async delays do not block the event loop.
+- Channel bbslink messages also work (for broadcast-mode discovery). The bot always replies via DM, not on the channel, to avoid spamming it.
 
 ---
 
-## 2.2. **BBS Over-the-Air (OTA) Sync: Linking**
-### **How OTA Sync Works**
-- Nodes can exchange BBS messages using special commands over the mesh network.
-- Uses `bbslink` and `bbsack` commands for message exchange.
-- Future supports compression for bandwidth efficiency.
+## 3. Automatic Sync with the Scheduler
 
-### **Enabling BBS Linking**
-- Set `bbs_link_enabled = True` in your config.
-- Optionally, set `bbs_link_whitelist` to restrict which nodes can sync.
+Use the `link` scheduler value to have the bot initiate sync automatically on a recurring schedule.
 
-### **Manual Sync Command**
-- To troubleshoot request sync from another node, send:
-  ```
-  bbslink <messageID> $<subject> #<body>
-  ```
-- The receiving node will respond with `bbsack <messageID>`.
-
-### **Out-of-Band Channel**
-- For high-reliability sync, configure a dedicated channel (not used for chat).
----
-
-## 2.3. **Scheduling BBS Auto Sync**
-
-### **Using the Bot’s Scheduler**
-
-- You can schedule periodic sync requests to a peer node.
-- Example: Every hour, send a `bbslink` request to a peer.
-see more at [Module Readme](README.md#scheduler)
-
----
-
-#### BBS Link
-The scheduler also handles the BBS Link Broadcast message, this would be an example of a mesh-admin channel on 8 being used to pass BBS post traffic between two bots as the initiator, one direction pull. The message just needs to have bbslink
-
+**With `bbslink_peers` configured** — sends `bbslink 0` as a DM to each peer:
 ```ini
 [bbs]
 bbslink_enabled = True
-bbslink_whitelist = # list of whitelisted nodes numbers ex: 2813308004,4258675309 empty list allows all
+bbslink_peers = a1b2c3d4e5f6
 
 [scheduler]
 enabled = True
 interface = 1
-channel = 2
+channel = 0       # channel is unused for DM mode but required
 value = link
-interval = 12 # 12 hours
+interval = 6      # every 6 hours
 ```
 
-```python
-# Custom Schedule Example if using custom for [scheduler]
-# Send bbslink looking for peers every 2 days at 10 AM
-schedule.every(2).days.at("10:00").do(send_message("bbslink MeshBot looking for peers", schedulerChannel, 0, schedulerInterface))
-```
-
----
-
----
-
-## 4. **Troubleshooting**
-
-- **Messages not syncing?**
-  - Check `bbs_link_enabled` and whitelist settings.
-  - Ensure both nodes are on the same sync channel.
-  - Check logs for errors.
-
-- **File sync issues?**
-  - Verify file permissions and paths.
-  - Ensure the bot reloads the database after file copy.
-
-- **Custom file problems?**
-- remove the custom_scheduler.py and replace it with [etc/custom_scheduler.py](etc/custom_scheduler.py)
-
- The bbs link command should include `bbslink`
-`.do(send_message("bbslink MeshBot looking for peers", schedulerChannel, 0, schedulerInterface))`
-
+**Without `bbslink_peers`** (open/broadcast mode) — sends `bbslink MeshBot looking for peers` as a channel message. Any bot with `bbslink_enabled = True` that sees the message will respond and push its posts:
 ```ini
 [bbs]
-# The "api" needs enabled which enables file polling and use of `script/injectDM.py`
-bbsAPI_enabled = True 
+bbslink_enabled = True
+
+[scheduler]
+enabled = True
+interface = 1
+channel = 8       # dedicated mesh-admin channel recommended
+value = link
+interval = 12     # every 12 hours
 ```
 
-## 5. **API Reference: BBS Sync**
-
-### **Key Functions in Python**
-| Function                | Purpose                                   | Usage Example                                      |
-|-------------------------|-------------------------------------------|----------------------------------------------------|
-| `bbs_post_message()`    | Post a new public message                 | `bbs_post_message(subject, body, fromNode)`        |
-| `bbs_read_message()`    | Read a message by ID                      | `bbs_read_message(messageID)`                      |
-| `bbs_delete_message()`  | Delete a message (admin/owner only)       | `bbs_delete_message(messageID, fromNode)`          |
-| `bbs_list_messages()`   | List all message subjects                 | `bbs_list_messages()`                              |
-| `bbs_post_dm()`         | Post a direct message                     | `bbs_post_dm(toNode, message, fromNode)`           |
-| `bbs_check_dm()`        | Check for DMs for a node                  | `bbs_check_dm(toNode)`                             |
-| `bbs_delete_dm()`       | Delete a DM after reading                 | `bbs_delete_dm(toNode, message)`                   |
-| `get_bbs_stats()`       | Get stats on BBS and DMs                  | `get_bbs_stats()`                                  |
-
-
-| Function                  | Purpose                                   |
-|---------------------------|-------------------------------------------|
-| `bbs_sync_posts()`        | Handles incoming/outgoing sync requests   |
-| `bbs_receive_compressed()`| Handles compressed sync data              |
-| `compress_data()`         | Compresses data for OTA transfer          |
-| `decompress_data()`       | Decompresses received data                |
-
-
-### **Handle Incoming Sync**
-- The bot automatically processes incoming `bbslink` and `bbsack` commands via `bbs_sync_posts()`.
-
-### **Compressed Sync**
-Future Use
-- If `useSynchCompression` is enabled, use:
-  ```python
-  compressed = compress_data(msg)
-  send_raw_bytes(peerNode, compressed)
-  ```
-- Receiving node uses `bbs_receive_compressed()`.
+The `interval` is always in **hours**.
 
 ---
-### 5. **Best Practices**
 
-- **Backup:** Regularly back up `bbsdb.pkl` and `bbsdm.pkl`.
-- **Security:** Use SSH keys for file transfer; restrict OTA sync to trusted nodes.
-- **Reliability:** Use a dedicated channel for BBS sync to avoid chat congestion.
-- **Automation:** Use the scheduler for regular syncs, both file-based and OTA.
+## 4. Manual Sync Trigger
+
+To manually pull all posts from a peer bot, send it a DM:
+```
+bbslink 0
+```
+
+The peer will begin sending its posts back to you one at a time. You do not need to send anything else — the ACKs are handled automatically by your bot.
+
+To check if bbslink is working from the peer's side without triggering a full sync, you can also send:
+```
+bbslink MeshBot looking for peers
+```
+The peer will respond with its first post if `bbslink_enabled = True`.
+
+---
+
+## 5. BBS Database Sync: File-Based (Out-of-Band)
+
+For full bulk sync or backup, copy the database files directly between hosts.
+
+Enable the API watcher so the bot picks up externally modified files:
+```ini
+[bbs]
+bbsAPI_enabled = True
+```
+
+**Copy files manually:**
+```sh
+scp user@remote:/path/to/meshing-around-mc/data/bbsdb.pkl ./data/bbsdb.pkl
+scp user@remote:/path/to/meshing-around-mc/data/bbsdm.pkl ./data/bbsdm.pkl
+```
+
+When `bbsAPI_enabled = True`, the watchdog detects file changes and reloads the database automatically. Useful for a nightly cron job or rsync.
+
+You can also inject a DM directly using `script/injectDM.py` without going over the air.
+
+---
+
+## 6. Troubleshooting
+
+**Peer replies "BBS Link is disabled for your node."**
+- The peer has `bbslink_peers` set and your bot's pubkey prefix is not in the list.
+- Add your prefix to the peer's `bbslink_peers`, or clear the list for open mode.
+
+**No response at all to `bbslink 0`**
+- Check that the peer has `bbslink_enabled = True`.
+- Confirm you are sending it as a **DM** to the peer's pubkey prefix, not as a channel message to address `0`.
+- Check the peer's logs for `BBS Link is disabled` or connection errors.
+
+**Sync starts but stops partway through**
+- Normal — if the mesh drops a message, the session stalls. Restart by sending `bbslink 0` again.
+- The bot resumes from the beginning (message 0), but duplicates are skipped, so restarting is safe.
+
+**Posts appear with wrong author names**
+- Author identity is stored as the pubkey prefix at time of original posting. If the name hasn't been seen on your local mesh yet, it will display as the raw prefix until that node advertises itself.
+
+**File sync not reloading after scp**
+- Ensure `bbsAPI_enabled = True`.
+- Confirm the watchdog task is running (check logs for "data persistence" task).
+
+---
+
+## 7. API Reference
+
+### BBS Functions (`modules/bbstools.py`)
+
+| Function | Purpose |
+|---|---|
+| `bbs_post_message(subject, body, fromNode)` | Post a new public message |
+| `bbs_read_message(messageID)` | Read a message by ID |
+| `bbs_delete_message(messageID, fromNode)` | Delete (owner or admin only) |
+| `bbs_list_messages()` | Return formatted subject list |
+| `bbs_post_dm(toNode, message, fromNode)` | Queue a DM for delivery |
+| `bbs_check_dm(toNode)` | Check for pending DM for a node |
+| `bbs_delete_dm(toNode, message)` | Remove a delivered DM |
+| `get_bbs_stats()` | Return post and DM counts |
+| `bbs_sync_posts(input, peerNode, rxNode)` | Handle inbound bbslink/bbsack (async) |
+
+### Compression (future use)
+
+`useSynchCompression = False` in `bbstools.py`. When enabled:
+- `compress_data(msg)` → zlib bytes
+- `bbs_receive_compressed(data_bytes, fromNode, rxNode)` → decompress + sync
+
+Not active in current builds.
 
 ---

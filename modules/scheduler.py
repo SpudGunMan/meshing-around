@@ -100,7 +100,7 @@ def setup_scheduler(
         scheduler_message = MOTD if schedulerMotd else schedulerMessage
 
         def send_sched_msg():
-            send_message(scheduler_message, schedulerChannel, 0, schedulerInterface)
+            asyncio.ensure_future(send_message(scheduler_message, schedulerChannel, 0, schedulerInterface))
 
         # Basic Scheduler Options
         basicOptions = ['day', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun', 'hour', 'min']
@@ -142,53 +142,61 @@ def setup_scheduler(
             logger.debug(f"System: Starting the basic scheduler to send '{scheduler_message}' on schedule '{schedulerValue}' every {effective_interval} interval at time '{schedulerTime}' on Device:{schedulerInterface} Channel:{schedulerChannel}")
         elif 'joke' in schedulerValue:
             schedule.every(schedulerIntervalInt).minutes.do(
-                lambda: send_message(tell_joke(), schedulerChannel, 0, schedulerInterface)
+                lambda: asyncio.ensure_future(send_message(tell_joke(), schedulerChannel, 0, schedulerInterface))
             )
             logger.debug(f"System: Starting the joke scheduler to send a joke every {schedulerIntervalInt} minutes on Device:{schedulerInterface} Channel:{schedulerChannel}")
         elif 'link' in schedulerValue:
-            schedule.every(schedulerIntervalInt).hours.do(
-                lambda: send_message("bbslink MeshBot looking for peers", schedulerChannel, 0, schedulerInterface)
-            )
-            logger.debug(f"System: Starting the link scheduler to send link messages every {schedulerIntervalInt} hours on Device:{schedulerInterface} Channel:{schedulerChannel}")
+            from modules.settings import bbs_link_peers
+            if bbs_link_peers:
+                def send_link_to_peers():
+                    for peer in bbs_link_peers:
+                        asyncio.ensure_future(send_message("bbslink 0", schedulerChannel, peer, schedulerInterface))
+                schedule.every(schedulerIntervalInt).hours.do(send_link_to_peers)
+                logger.debug(f"System: Starting the link scheduler, syncing with peers: {bbs_link_peers} every {schedulerIntervalInt}h on Device:{schedulerInterface}")
+            else:
+                schedule.every(schedulerIntervalInt).hours.do(
+                    lambda: asyncio.ensure_future(send_message("bbslink MeshBot looking for peers", schedulerChannel, 0, schedulerInterface))
+                )
+                logger.debug(f"System: Starting the link scheduler (broadcast mode) every {schedulerIntervalInt}h on Device:{schedulerInterface} Channel:{schedulerChannel}")
         elif 'weather' in schedulerValue:
             schedule.every().day.at(schedulerTime).do(
-                lambda: send_message(handle_wxc(0, schedulerInterface, 'wx', days=1), schedulerChannel, 0, schedulerInterface)
+                lambda: asyncio.ensure_future(send_message(handle_wxc(0, schedulerInterface, 'wx', days=1), schedulerChannel, 0, schedulerInterface))
             )
             logger.debug(f"System: Starting the weather scheduler to send weather updates every {schedulerIntervalInt} hours on Device:{schedulerInterface} Channel:{schedulerChannel}")
         elif 'news' in schedulerValue:
             schedule.every(schedulerIntervalInt).hours.do(
-                lambda: send_message(handleNews(0, schedulerInterface, 'readnews', False), schedulerChannel, 0, schedulerInterface)
+                lambda: asyncio.ensure_future(send_message(handleNews(0, schedulerInterface, 'readnews', False), schedulerChannel, 0, schedulerInterface))
             )
             logger.debug(f"System: Starting the news scheduler to send news updates every {schedulerIntervalInt} hours on Device:{schedulerInterface} Channel:{schedulerChannel}")
         elif 'readrss' in schedulerValue:
             schedule.every(schedulerIntervalInt).hours.do(
-                lambda: send_message(get_rss_feed(''), schedulerChannel, 0, schedulerInterface)
+                lambda: asyncio.ensure_future(send_message(get_rss_feed(''), schedulerChannel, 0, schedulerInterface))
             )
             logger.debug(f"System: Starting the RSS scheduler to send RSS feeds every {schedulerIntervalInt} hours on Device:{schedulerInterface} Channel:{schedulerChannel}")
         elif 'mwx' in schedulerValue:
             schedule.every().day.at(schedulerTime).do(
-                lambda: send_message(handle_mwx(0, schedulerInterface, 'mwx'), schedulerChannel, 0, schedulerInterface)
+                lambda: asyncio.ensure_future(send_message(handle_mwx(0, schedulerInterface, 'mwx'), schedulerChannel, 0, schedulerInterface))
             )
             logger.debug(f"System: Starting the marine weather scheduler to send marine weather updates at {schedulerTime} on Device:{schedulerInterface} Channel:{schedulerChannel}")
         elif 'sysinfo' in schedulerValue:
             schedule.every(schedulerIntervalInt).hours.do(
-                lambda: send_message(sysinfo('', 0, schedulerInterface, False), schedulerChannel, 0, schedulerInterface)
+                lambda: asyncio.ensure_future(send_message(sysinfo('', 0, schedulerInterface, False), schedulerChannel, 0, schedulerInterface))
             )
             logger.debug(f"System: Starting the sysinfo scheduler to send system information every {schedulerIntervalInt} hours on Device:{schedulerInterface} Channel:{schedulerChannel}")
         elif 'tide' in schedulerValue:
             schedule.every().day.at(schedulerTime).do(
-                lambda: send_message(handle_tide(0, schedulerInterface, schedulerChannel), schedulerChannel, 0, schedulerInterface)
+                lambda: asyncio.ensure_future(send_message(handle_tide(0, schedulerInterface, schedulerChannel), schedulerChannel, 0, schedulerInterface))
             )
             logger.debug(f"System: Starting the tide scheduler to send tide information at {schedulerTime} on Device:{schedulerInterface} Channel:{schedulerChannel}")
         elif 'solar' in schedulerValue:
             schedule.every().day.at(schedulerTime).do(
-                lambda: send_message(handle_sun(0, schedulerInterface, schedulerChannel), schedulerChannel, 0, schedulerInterface)
+                lambda: asyncio.ensure_future(send_message(handle_sun(0, schedulerInterface, schedulerChannel), schedulerChannel, 0, schedulerInterface))
             )
             logger.debug(f"System: Starting the scheduler to send solar information at {schedulerTime} on Device:{schedulerInterface} Channel:{schedulerChannel}")
         elif 'verse' in schedulerValue:
             from modules.filemon import read_verse
             schedule.every().day.at(schedulerTime).do(
-                lambda: send_message(read_verse(), schedulerChannel, 0, schedulerInterface)
+                lambda: asyncio.ensure_future(send_message(read_verse(), schedulerChannel, 0, schedulerInterface))
             )
             logger.debug(f"System: Starting the verse scheduler to send a verse at {schedulerTime} on Device:{schedulerInterface} Channel:{schedulerChannel}")
         elif 'custom' in schedulerValue:

@@ -1,9 +1,10 @@
 # helper functions for various BBS messaging tasks
 # K7MHI Kelly Keeton 2024
 
+import asyncio
 import pickle # pip install pickle
 from modules.log import logger
-from modules.settings import bbs_admin_list, bbs_ban_list, MESSAGE_CHUNK_SIZE, bbs_link_enabled, bbs_link_whitelist, responseDelay
+from modules.settings import bbs_admin_list, bbs_ban_list, MESSAGE_CHUNK_SIZE, bbs_link_enabled, bbs_link_peers, responseDelay
 import time
 from datetime import datetime
 
@@ -134,10 +135,11 @@ def bbs_read_message(messageID = 0):
     if (messageID - 1) >= len(bbs_messages):
         return "Message not found."
     if messageID > 0:
+        from modules.system import get_name_from_number
         fromNode = bbs_messages[messageID - 1][3]
-        fromNodeHex = hex(fromNode)[-4:]
+        fromName = get_name_from_number(fromNode, 'long') if fromNode else '?'
         message = bbs_messages[messageID - 1]
-        return f"Msg #{message[0]}\nFrom:{fromNodeHex}\n{message[2]}"
+        return f"Msg #{message[0]}\nFrom:{fromName}\n{message[2]}"
     else:
         return "Please specify a message number to read."
    
@@ -159,7 +161,7 @@ def load_bbsdm():
                     if msg not in bbs_dm:
                         bbs_dm.append(msg)
     except:
-        bbs_dm = [[1234567890, "Message", 1234567890]]
+        bbs_dm = [['', 'Message', '']]
         logger.debug("System: Creating new data/bbsdm.pkl")
         with open('data/bbsdm.pkl', 'wb') as f:
             pickle.dump(bbs_dm, f)
@@ -176,11 +178,11 @@ def bbs_post_dm(toNode, message, fromNode):
         return "Message too long, max length is " + str(3 * MESSAGE_CHUNK_SIZE) + " characters."
     # validate not a duplicate message
     for msg in bbs_dm:
-        if msg[0] == int(toNode) and msg[1].strip().lower() == message.strip().lower():
+        if msg[0] == str(toNode) and msg[1].strip().lower() == message.strip().lower():
             return "DM Posted for node " + str(toNode)
 
     # append the message to the list
-    bbs_dm.append([int(toNode), message, int(fromNode)])
+    bbs_dm.append([str(toNode), message, str(fromNode)])
 
     # save the bbsdb
     save_bbsdm()
@@ -195,7 +197,7 @@ def bbs_check_dm(toNode):
     global bbs_dm
     # Check for any messages for toNode
     for msg in bbs_dm:
-        if msg[0] == toNode:
+        if msg[0] == str(toNode):
             return msg
     return False
 
@@ -203,7 +205,7 @@ def bbs_delete_dm(toNode, message):
     global bbs_dm
     # delete a message from the bbsdm
     for msg in bbs_dm:
-        if msg[0] == toNode:
+        if msg[0] == str(toNode):
             # check if the message matches
             if msg[1] == message:
                 bbs_dm.remove(msg)
@@ -238,16 +240,16 @@ def bbs_receive_compressed(data_bytes, fromNode, RxNode):
         logger.error(f"Error decompressing BBS message: {e}")
         return None
 
-def bbs_sync_posts(input, peerNode, RxNode):
+async def bbs_sync_posts(input, peerNode, RxNode):
     messageID =  0
 
     # check if the bbs link is enabled
-    if bbs_link_whitelist != ['']:
-        if str(peerNode) not in bbs_link_whitelist:
-            logger.warning(f"System: BBS Link is disabled for node {peerNode}.")
-            return "System: BBS Link is disabled for your node."
     if bbs_link_enabled == False:
         return "System: BBS Link is disabled."
+    if bbs_link_peers:
+        if str(peerNode) not in bbs_link_peers:
+            logger.warning(f"System: BBS Link is disabled for node {peerNode}.")
+            return "System: BBS Link is disabled for your node."
     
     # respond when another bot asks for the bbs posts to sync
     if "bbslink" in input.lower():
@@ -255,24 +257,21 @@ def bbs_sync_posts(input, peerNode, RxNode):
             #store the message
             subject = input.split("$")[1].split("#")[0]
             body = input.split("#")[1]
-            fromNodeHex = body.split("@")[1]
-            #validate the fromNodeHex is a valid hex number
-            try:
-                int(fromNodeHex, 16)
-            except ValueError:
-                logger.error(f"System: Invalid fromNodeHex in bbslink from node {peerNode}: {input}")
-                fromNodeHex = hex(peerNode)
+            fromNodeHex = body.split("@")[1].strip() if "@" in body else ""
+            if not fromNodeHex:
+                logger.error(f"System: Missing fromNodeHex in bbslink from node {peerNode}: {input}")
+                fromNodeHex = str(peerNode)
             #validate the subject and body are not empty
             if subject.strip() == "" or body.strip() == "":
                 logger.error(f"System: Empty subject or body in bbslink from node {peerNode}: {input}")
                 return "System: Invalid bbslink format."
-            
+
             #store the message in the bbsdb
             try:
-                bbs_post_message(subject, body, int(fromNodeHex, 16))
+                bbs_post_message(subject, body, fromNodeHex)
             except:
                 logger.error(f"System: Error parsing bbslink from node {peerNode}: {input}")
-                fromNodeHex = hex(peerNode)
+                fromNodeHex = str(peerNode)
             messageID = input.split(" ")[1]
             return f"bbsack {messageID}"
     elif "bbsack" in input.lower():
@@ -288,11 +287,11 @@ def bbs_sync_posts(input, peerNode, RxNode):
     # send message with delay to keep chutil happy
     if messageID < len(bbs_messages):
         logger.debug(f"System: wait to bbslink with peer " + str(peerNode))
-        fromNodeHex = hex(bbs_messages[messageID][3])
-        time.sleep(5 + responseDelay)
+        fromNodeHex = str(bbs_messages[messageID][3])
+        await asyncio.sleep(5 + responseDelay)
         # every 5 messages add extra delay
         if messageID % 5 == 0:
-            time.sleep(10 + responseDelay)
+            await asyncio.sleep(10 + responseDelay)
         logger.debug(f"System: Sending bbslink message {messageID} of {len(bbs_messages)} to peer " + str(peerNode))
         msg = f"bbslink {messageID} ${bbs_messages[messageID][1]} #{bbs_messages[messageID][2]} @{fromNodeHex}"
         if useSynchCompression:

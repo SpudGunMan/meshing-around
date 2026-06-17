@@ -188,8 +188,10 @@ bbs_ban_list =
 bbs_admin_list = 
 # enable bbs synchronization with other nodes
 bbslink_enabled = False
-# list of whitelisted nodes numbers ex: 2813308004,4258675309 empty list allows all
-bbslink_whitelist =
+# Peer BBS bots to sync with (comma-separated pubkey prefixes, 12-char hex from MeshCore).
+# Also acts as the inbound whitelist — only these nodes may initiate sync with this bot.
+# Leave empty to allow any node to sync (open mode).
+bbslink_peers =
 # enable API script access (increases disk i/o)
 bbsAPI_enabled = False 
 
