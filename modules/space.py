@@ -260,7 +260,7 @@ def get_moon(lat=0, lon=0):
         moon_table['next_full_moon'] = local_next_full_moon.strftime('%a %b %d %I:%M%p')
         moon_table['next_new_moon'] = local_next_new_moon.strftime('%a %b %d %I:%M%p')
 
-    moon_data = "Rise: " + moon_table['rise_time'] + "\nSet: " + moon_table['set_time'] + \
+    moon_data = "MoonRise: " + moon_table['rise_time'] + "\nSet: " + moon_table['set_time'] + \
         "\nPhase: " + moon_table['phase'] + " @: " + str('{0:.2f}'.format(moon_table['illumination'])) + "%" \
         + "\nFull: " + moon_table['next_full_moon'] + "\nNew: " + moon_table['next_new_moon']
     
