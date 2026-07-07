@@ -19,7 +19,6 @@ from modules.system import *
 restrictedCommands = ["blackjack", "videopoker", "dopewars", "lemonstand", "golfsim", "mastermind", "hangman", "hamtest", "tictactoe", "tic-tac-toe", "quiz", "q:", "survey", "s:", "battleship"]
 restrictedResponse = "🤖only available in a Direct Message📵" # "" for none
 blackhole_mode = False
-blackhole_message = "🤖Command lockdown active. Only BBS admins may issue commands."
 
 def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_number, deviceID, isDM):
     global cmdHistory
@@ -174,7 +173,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     
         if blackhole_mode and cmds[0]['cmd'] != "cmd" and str(message_from_id) not in my_settings.bbs_admin_list:
             logger.warning(f"System: Command lockdown active. Blocked Command:{cmds[0]['cmd']} From: {get_name_from_number(message_from_id)}")
-            bot_response = blackhole_message
+            # bot_response = "🤖Command lockdown active. Only BBS admins may issue commands."
         # Block restricted commands if not DM
         elif (cmds[0]['cmd'] in restrictedCommands and not isDM) or (cmds[0]['cmd'] in restrictedCommands and playing) or playing:
             logger.debug(f"System: Bot restricted Command:{cmds[0]['cmd']} From: {get_name_from_number(message_from_id)} isDM:{isDM} playing:{playing}")
