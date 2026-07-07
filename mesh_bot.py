@@ -481,7 +481,7 @@ def handle_wxalert(message_from_id, deviceID, message):
         else:
             weatherAlert = getWeatherAlertsNOAA(str(location[0]), str(location[1]))
         
-        if my_settings.NO_ALERTS not in weatherAlert:
+        if isinstance(weatherAlert, tuple):
             weatherAlert = weatherAlert[0]
         return weatherAlert
 
