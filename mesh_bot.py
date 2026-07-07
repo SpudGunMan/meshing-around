@@ -1377,7 +1377,7 @@ def handle_wxc(message_from_id, deviceID, cmd, days=None, vox=False):
 def handle_emergency_alerts(message, message_from_id, deviceID):
     location = get_node_location(message_from_id, deviceID)
     if my_settings.enableDEalerts:
-        # nina Alerts
+        # bund/nina Alerts
         return get_nina_alerts()
     if message.lower().startswith("ealert"):
         # Detailed alert FEMA
@@ -1783,14 +1783,12 @@ def handle_boot(mesh=True):
                 logger.debug("System: File Monitor Bible Verse Enabled for bible.txt")
             if my_settings.usAlerts:
                 logger.debug(f"System: Emergency Alert Broadcast Enabled on channel {my_settings.emergency_responder_alert_channel} for interface {my_settings.emergency_responder_alert_interface}")
-            if my_settings.enableDEalerts:
-                logger.debug(f"System: NINA Alerts Enabled with counties {my_settings.myRegionalKeysDE}")
             if my_settings.volcanoAlertBroadcastEnabled:
                 logger.debug(f"System: Volcano Alert Broadcast Enabled on channels {my_settings.emergency_responder_alert_channel} ignoreUSGSWords {my_settings.ignoreUSGSWords}")
             if my_settings.ipawsAlertEnabled:
                 logger.debug(f"System: iPAWS Alerts Enabled with FIPS codes {my_settings.myStateFIPSList} ignorelist {my_settings.ignoreFEMAwords}")
             if my_settings.enableDEalerts:
-                logger.debug(f"System: NINA Alerts Enabled with counties {my_settings.myRegionalKeysDE}")
+                logger.debug(f"System: DE-Bund Alerts Enabled with counties {my_settings.myRegionalKeysDE}")
             if my_settings.wxAlertBroadcastEnabled:
                 logger.debug(f"System: Weather Alert Broadcast Enabled on channels {my_settings.emergency_responder_alert_channel} ignoreEASwords {my_settings.ignoreEASwords}")
             if my_settings.emergency_responder_enabled:

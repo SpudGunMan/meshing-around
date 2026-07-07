@@ -35,7 +35,7 @@ def get_nina_alerts():
         # get api.bund.dev alerts
         alerts = []
         for regionalKey in myRegionalKeysDE:
-            url = ("https://nina.api.proxy.bund.dev/api31/dashboard/" + regionalKey + ".json")
+            url = ("https://warnung.bund.de/api31/dashboard/071380000000.json" + regionalKey + ".json")
             response = requests.get(url, timeout=urlTimeoutSeconds)
             data = response.json()
 
@@ -44,7 +44,7 @@ def get_nina_alerts():
                 alerts.append(f"🚨 {title}")
         return "\n".join(alerts) if alerts else NO_ALERTS
     except Exception as e:
-        logger.warning("Error getting NINA DE alerts: " + str(e))
+        logger.warning("Error getting DE-Bund alerts: " + str(e))
         return NO_ALERTS
 
 def get_wxUKgov():

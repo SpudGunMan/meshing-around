@@ -58,7 +58,7 @@ Mesh Bot is a feature-rich Python bot designed to enhance your [Meshtastic](http
 - **FEMA iPAWS/EAS Alerts**: Receive Emergency Alerts from FEMA via API on internet-connected nodes.
 - **NOAA EAS Alerts**: Get Emergency Alerts from NOAA via API.
 - **USGS Volcano Alerts**: Receive volcano alerts from USGS via API.
-- **NINA Alerts (Germany)**: Receive emergency alerts from the xrepository.de feed for Germany.
+- **Bund-Warnmeldung (Deutschland)**: Receive emergency alerts from warnung.bund.de feed for Germany.
 - **Offline EAS Alerts**: Report EAS alerts over the mesh using external tools, even without internet.
 
 ### File Monitor Alerts
