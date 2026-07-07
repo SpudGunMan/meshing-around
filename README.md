@@ -101,6 +101,8 @@ Advanced check-in/check-out and asset tracking for people and equipment—ideal 
 ### Robust Message Handling
 - **Automatic Message Chunking**: Messages over 160 characters are automatically split to ensure reliable delivery across multiple hops.
 
+- **Command Lockdown**: Admins can use `cmd stop` to lock out non-admin commands, and `cmd start` to restore normal command access. Non-admins may still use `cmd` to view help.
+
 ## Getting Started
 This project is developed on Linux (specifically a Raspberry Pi) but should work on any platform where the [Meshtastic protobuf API](https://meshtastic.org/docs/software/python/cli/) modules are supported, and with any compatible [Meshtastic](https://meshtastic.org/docs/getting-started/) hardware, however it is **recomended to use the latest firmware code**. For low-powered devices [mPWRD-OS](https://github.com/SpudGunMan/mPWRD-OS) for running on luckfox hardware. If you need a local console consider the [firefly](https://github.com/pdxlocations/firefly) project. 
 

@@ -18,6 +18,8 @@ from modules.system import *
 # list of commands to remove from the default list for DM only
 restrictedCommands = ["blackjack", "videopoker", "dopewars", "lemonstand", "golfsim", "mastermind", "hangman", "hamtest", "tictactoe", "tic-tac-toe", "quiz", "q:", "survey", "s:", "battleship"]
 restrictedResponse = "🤖only available in a Direct Message📵" # "" for none
+blackhole_mode = False
+blackhole_message = "🤖Command lockdown active. Only BBS admins may issue commands."
 
 def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_number, deviceID, isDM):
     global cmdHistory
@@ -170,8 +172,11 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
         # Check if user is already playing a game
         playing, game = isPlayingGame(message_from_id)[0], isPlayingGame(message_from_id)[1]
     
+        if blackhole_mode and cmds[0]['cmd'] != "cmd" and str(message_from_id) not in my_settings.bbs_admin_list:
+            logger.warning(f"System: Command lockdown active. Blocked Command:{cmds[0]['cmd']} From: {get_name_from_number(message_from_id)}")
+            bot_response = blackhole_message
         # Block restricted commands if not DM
-        if (cmds[0]['cmd'] in restrictedCommands and not isDM) or (cmds[0]['cmd'] in restrictedCommands and playing) or playing:
+        elif (cmds[0]['cmd'] in restrictedCommands and not isDM) or (cmds[0]['cmd'] in restrictedCommands and playing) or playing:
             logger.debug(f"System: Bot restricted Command:{cmds[0]['cmd']} From: {get_name_from_number(message_from_id)} isDM:{isDM} playing:{playing}")
             if playing:
                 bot_response = f"🤖You are already playing {game}, finish that first."
@@ -188,8 +193,27 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     return bot_response
 
 def handle_cmd(message, message_from_id, deviceID):
+    global blackhole_mode
     # why CMD? its just a command list. a terminal would normally use "Help"
     # I didnt want to invoke the word "help" in Meshtastic due to its possible emergency use
+    msg = message.strip().lower()
+    parts = msg.split()
+
+    if len(parts) > 1:
+        if parts[1] == "stop":
+            if str(message_from_id) in my_settings.bbs_admin_list:
+                blackhole_mode = True
+                return "🤖Command lockdown enabled. Only BBS admins may issue commands."
+            return "🤖Only BBS admins may use cmd stop"
+        if parts[1] == "start":
+            if str(message_from_id) in my_settings.bbs_admin_list:
+                blackhole_mode = False
+                return "🤖Command lockdown disabled. Commands available normally."
+            return "🤖Only BBS admins may use cmd start"
+        if parts[1] == "status":
+            status = "enabled" if blackhole_mode else "disabled"
+            return f"🤖Command lockdown is {status}."
+
     if " " in message and message.split(" ")[1] in trap_list:
         return "🤖 just use the commands directly in chat"
     return help_message
