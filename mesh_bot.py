@@ -311,7 +311,10 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, chann
         msg += " [F]"
     
     if (float(snr) != 0 or float(rssi) != 0) and "Hop" not in hop:
+        noiseFloor = localTelemetryData[deviceID].get('noiseFloor', 0)
         msg += f"\nSNR:{snr} RSSI:{rssi}"
+        if noiseFloor != 0:
+            msg += f" NF:{round(noiseFloor, 2)}"
     elif "Hop" in hop:
         # janky, remove the words Gateway or MQTT if present
         hop = hop.replace("Gateway", "").replace("Direct", "").replace("MQTT", "").strip()
