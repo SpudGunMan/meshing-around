@@ -1454,10 +1454,13 @@ def displayNodeTelemetry(nodeID=0, rxNode=0, userRequested=False):
     numPacketsRx = localTelemetryData[rxNode].get('numPacketsRx', 0)
     numPacketsTxErr = localTelemetryData[rxNode].get('numPacketsTxErr', 0)
     numPacketsRxErr = localTelemetryData[rxNode].get('numPacketsRxErr', 0)
+    numPacketsRxBad = localTelemetryData[rxNode].get('numPacketsRxBad', 0)
+    numTxDropped = localTelemetryData[rxNode].get('numTxDropped', 0)
     numTotalNodes = localTelemetryData[rxNode].get('numTotalNodes', 0)
     totalOnlineNodes = localTelemetryData[rxNode].get('numOnlineNodes', 0)
     numRXDupes = localTelemetryData[rxNode].get('numRXDupes', 0)
     numTxRelays = localTelemetryData[rxNode].get('numTxRelays', 0)
+    numTxRelayCanceled = localTelemetryData[rxNode].get('numTxRelayCanceled', 0)
     heapFreeBytes = localTelemetryData[rxNode].get('heapFreeBytes', 0)
     heapTotalBytes = localTelemetryData[rxNode].get('heapTotalBytes', 0)
     # get the telemetry data for a node
@@ -1469,15 +1472,23 @@ def displayNodeTelemetry(nodeID=0, rxNode=0, userRequested=False):
     #numPacketsRx = interface.nodes.get(decimal_to_hex(myNodeNum), {}).get("localStats", {}).get("numPacketsRx", 0)
     #numPacketsTx = interface.nodes.get(decimal_to_hex(myNodeNum), {}).get("localStats", {}).get("numPacketsTx", 0)
     noiseFloor = localTelemetryData[rxNode].get('noiseFloor', 0)
+
     numTotalNodes = len(interface.nodes) 
     
     dataResponse = f"Telemetry:{rxNode}"
 
     # packet info telemetry
-    dataResponse += f" numPacketsRx:{numPacketsRx} numPacketsRxErr:{numPacketsRxErr} numPacketsTx:{numPacketsTx} numPacketsTxErr:{numPacketsTxErr}"
+    dataResponse += f" numPacketsRx:{numPacketsRx} numPacketsRxBad:{numPacketsRxBad} numPacketsTx:{numPacketsTx}"
+    dataResponse += f" numTxDropped:{numTxDropped} numTxRelays:{numTxRelays} numTxRelayCanceled:{numTxRelayCanceled}"
+    dataResponse += f" numRXDupes:{numRXDupes}"
 
     # Channel utilization and airUtilTx
     dataResponse += " ChUtil%:" + str(round(chutil, 2)) + " AirTx%:" + str(round(airUtilTx, 2)) + " NoiseFloor:" + str(round(noiseFloor, 2))
+
+    # Heap memory (if available)
+    if heapFreeBytes > 0 or heapTotalBytes > 0:
+        heapUsedBytes = max(0, heapTotalBytes - heapFreeBytes)
+        dataResponse += f" Heap: {heapUsedBytes}/{heapTotalBytes}B"
 
     if chutil > 40:
         logger.warning(f"System: High Channel Utilization {chutil}% on Device: {rxNode}")
