@@ -1468,6 +1468,7 @@ def displayNodeTelemetry(nodeID=0, rxNode=0, userRequested=False):
     voltage = interface.nodes.get(decimal_to_hex(myNodeNum), {}).get("deviceMetrics", {}).get("voltage", 0)
     #numPacketsRx = interface.nodes.get(decimal_to_hex(myNodeNum), {}).get("localStats", {}).get("numPacketsRx", 0)
     #numPacketsTx = interface.nodes.get(decimal_to_hex(myNodeNum), {}).get("localStats", {}).get("numPacketsTx", 0)
+    noiseFloor = localTelemetryData[rxNode].get('noiseFloor', 0)
     numTotalNodes = len(interface.nodes) 
     
     dataResponse = f"Telemetry:{rxNode}"
@@ -1476,7 +1477,7 @@ def displayNodeTelemetry(nodeID=0, rxNode=0, userRequested=False):
     dataResponse += f" numPacketsRx:{numPacketsRx} numPacketsRxErr:{numPacketsRxErr} numPacketsTx:{numPacketsTx} numPacketsTxErr:{numPacketsTxErr}"
 
     # Channel utilization and airUtilTx
-    dataResponse += " ChUtil%:" + str(round(chutil, 2)) + " AirTx%:" + str(round(airUtilTx, 2))
+    dataResponse += " ChUtil%:" + str(round(chutil, 2)) + " AirTx%:" + str(round(airUtilTx, 2)) + " NoiseFloor:" + str(round(noiseFloor, 2))
 
     if chutil > 40:
         logger.warning(f"System: High Channel Utilization {chutil}% on Device: {rxNode}")
