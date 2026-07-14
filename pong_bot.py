@@ -64,6 +64,7 @@ def handle_cmd(message, message_from_id, deviceID):
 
 def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, channel_number):
     global multiPing
+    myNodeNum = globals().get(f'myNodeNum{deviceID}', 777)
     if  "?" in message and isDM:
         pingHelp = "🤖Ping Command Help:\n" \
         "🏓 Send 'ping' or 'ack' or 'test' to get a response.\n" \
@@ -87,10 +88,7 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, chann
         msg = random.choice(["✋ACK-ACK!\n", "✋Ack to you!\n"])
         type = "✋ACK"
     elif "cqcq" in message.lower() or "cq" in message.lower() or "cqcqcq" in message.lower():
-        if deviceID == 1:
-            myname = get_name_from_number(deviceID, 'short', 1)
-        elif deviceID == 2:
-            myname = get_name_from_number(deviceID, 'short', 2)
+        myname = get_name_from_number(myNodeNum, 'short', deviceID)
         msg = f"QSP QSL OM DE  {myname}   K\n"
     else:
         msg = "🔊 Can you hear me now?"
@@ -105,7 +103,10 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, chann
         msg += " [F]"
     
     if (float(snr) != 0 or float(rssi) != 0) and "Hop" not in hop:
+        noiseFloor = localTelemetryData[deviceID].get('noiseFloor', 0)
         msg += f"\nSNR:{snr} RSSI:{rssi}"
+        if noiseFloor != 0:
+            msg += f" NF:{round(noiseFloor, 2)}"
     elif "Hop" in hop:
         # janky, remove the words Gateway or MQTT if present
         hop = hop.replace("Gateway", "").replace("Direct", "").replace("MQTT", "").strip()
@@ -114,10 +115,23 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, chann
     if "@" in message:
         msg = msg + " @" + message.split("@")[1]
         type = type + " @" + message.split("@")[1]
+
+        # check for ping to @nodeID and allow BBS DM
+        toNode = message.split("@")[1].strip().split(" ")[0]
+        # validate toNode is shortname
+        if len(toNode) <= 4:
+            toNode = get_num_from_short_name(toNode, deviceID)
+            if toNode and isinstance(toNode, int) and toNode != 0:
+                if my_settings.bbs_enabled:
+                    msg_result = None
+                    logger.debug(f"System: Sending ping as BBS DM to @{toNode} from {get_name_from_number(message_from_id, 'short', deviceID)}")
+                    msg_result = bbs_post_dm(toNode, f"Joke for you! {tell_joke()}", message_from_id)
+                    # exit the function
+                    return msg_result if msg_result else logger.warning(f"System: ping @nodeID detected but no BBS to send with, enable BBS in settings.ini")
+
     elif "#" in message:
         msg = msg + " #" + message.split("#")[1]
         type = type + " #" + message.split("#")[1]
-
 
     # check for multi ping request
     if " " in message:
@@ -127,7 +141,6 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, chann
                 if multiPingList[i].get('message_from_id') == message_from_id:
                     multiPingList.pop(i)
                     msg = "🛑 auto-ping"
-
 
         # if 3 or more entries (2 or more active), throttle the multi-ping for congestion
         if len(multiPingList) > 2:
@@ -143,13 +156,17 @@ def handle_ping(message_from_id, deviceID,  message, hop, snr, rssi, isDM, chann
                     # no autoping in channels
                     pingCount = 1
 
-                if pingCount > 51:
+                if pingCount > 51 and pingCount <= 101:
                     pingCount = 50
+                if pingCount > 800:
+                    ban_hammer(message_from_id, deviceID, reason="Excessive auto-ping request")
+                    return "🚫⛔️auto-ping request denied."
             except ValueError:
                 pingCount = -1
     
         if pingCount > 1:
             multiPingList.append({'message_from_id': message_from_id, 'count': pingCount + 1, 'type': type, 'deviceID': deviceID, 'channel_number': channel_number, 'startCount': pingCount})
+            logger.info(f"System: Starting auto-ping of type {type} for {pingCount} pings to {get_name_from_number(message_from_id, 'short', deviceID)}")
             if type == "🎙TEST":
                 msg = f"🛜Initalizing BufferTest, using chunks of about {int(maxBuffer // pingCount)}, max length {maxBuffer} in {pingCount} messages"
             else:
@@ -342,7 +359,13 @@ def onReceive(packet, interface):
             message_bytes = packet['decoded']['payload']
             message_string = message_bytes.decode('utf-8')
             via_mqtt = packet['decoded'].get('viaMqtt', False)
-            transport_mechanism = packet['decoded'].get('transport_mechanism', 'unknown')
+            transport_mechanism = (
+                packet.get('transport_mechanism')
+                or packet.get('transportMechanism')
+                or packet['decoded'].get('transport_mechanism')
+                or packet['decoded'].get('transportMechanism')
+                or 'unknown'
+            )
 
             # check if the packet is from us
             if message_from_id in [myNodeNum1, myNodeNum2, myNodeNum3, myNodeNum4, myNodeNum5, myNodeNum6, myNodeNum7, myNodeNum8, myNodeNum9]:
