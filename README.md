@@ -51,7 +51,7 @@ Mesh Bot is a feature-rich Python bot designed to enhance your [Meshtastic](http
 - **Location-Based Alerts**: Get notified when members arrive at a configured latitude/longitude—ideal for campsites, geo-fences, or remote locations. Optionally, trigger scripts, send emails, or automate actions (e.g., change node config, turn on lights, or drop an `alert.txt` file to start a survey or game).
 - **Customizable Triggers**: Use proximity events for creative applications like "king of the hill" or 🧭 geocache games by adjusting the alert cycle.
 - **High Flying Alerts**: Receive notifications when nodes with high altitude are detected on the mesh.
-- **Voice/Command Triggers**: Activate bot functions using keywords or voice commands (see [Voice Commands](#voice-commands-vox) for "Hey Chirpy!" support).
+- **Voice/Command Triggers**: Activate bot functions using keywords or voice commands (see [Voice Commands](modules/README.md#voice-commands-vox) for "Hey Chirpy!" support).
 - **YOLOv5 alerts**: Use camera modules to detect objects or OCR
 
 ### EAS Alerts
