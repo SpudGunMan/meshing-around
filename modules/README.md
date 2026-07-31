@@ -596,7 +596,7 @@ Just say "Hey Chirpy..." followed by one of the supported commands:
 | `satellite`   | Returns satellite pass info                 |
 
 Enable and configure VOX features in the `[vox]` section of `config.ini`.
-
+To use VOX detection please install vosk [radio.md](modules/radio.md) for more
 ---
 
 ## Ollama LLM/AI
