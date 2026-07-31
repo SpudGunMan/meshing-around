@@ -12,7 +12,7 @@ The radio module supports audible mesh messages using the [KittenTTS](https://gi
 
    - `kittentts` is the TTS engine.
 
-`pip install https://github.com/KittenML/KittenTTS/releases/download/0.1/kittentts-0.1.0-py3-none-any.whl`
+`pip install https://github.com/KittenML/KittenTTS/releases/download/0.8.1/kittentts-0.8.1-py3-none-any.whl`
 
 2. **Install PortAudio (required for sounddevice):**
 
@@ -53,3 +53,13 @@ No additional user action is required.
 - [sounddevice documentation](https://python-sounddevice.readthedocs.io/)
 
 ---
+
+# AI Speech with Vosk, Speech to Text
+To use VOX detection please install the vosk and sounddevice python modules. Models are around 40MB vs wisper
+
+- `pip install vosk sounddevice`
+- `pt-get install portaudio19-dev`
+
+## References
+
+- [Vox Models](https://alphacephei.com/vosk/models)
