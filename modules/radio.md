@@ -55,6 +55,9 @@ No additional user action is required.
 ---
 
 # AI Speech with Vosk, Speech to Text
+
+"Hey Chirpy"
+
 To use VOX detection please install the vosk and sounddevice python modules. Models are around 40MB or less vs wisper
 
 - `apt-get install portaudio19-dev`
@@ -62,5 +65,4 @@ To use VOX detection please install the vosk and sounddevice python modules. Mod
 
 ## References
 
-- [KittenTTS](https://github.com/KittenML/KittenTTS)
 - [Vox Models](https://alphacephei.com/vosk/models)
