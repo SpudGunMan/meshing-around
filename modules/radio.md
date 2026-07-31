@@ -55,7 +55,7 @@ No additional user action is required.
 ---
 
 # AI Speech with Vosk, Speech to Text
-To use VOX detection please install the vosk and sounddevice python modules. Models are around 40MB vs wisper
+To use VOX detection please install the vosk and sounddevice python modules. Models are around 40MB or less vs wisper
 
 - `apt-get install portaudio19-dev`
 - `pip install vosk sounddevice`
