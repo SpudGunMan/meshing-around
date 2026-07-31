@@ -390,7 +390,7 @@ js8callWatchedCallsigns =
 [fileMon]
 filemon_enabled = False
 # text file to monitor for changes
-file_path = alert.txt
+file_path = ../data/alert.txt
 # channel to send the message to can be 2,3 multiple channels comma separated
 broadcastCh = 2
 
