@@ -62,4 +62,5 @@ To use VOX detection please install the vosk and sounddevice python modules. Mod
 
 ## References
 
+- [KittenTTS](https://github.com/KittenML/KittenTTS)
 - [Vox Models](https://alphacephei.com/vosk/models)

@@ -190,7 +190,7 @@ if meshagesTTS:
         logger.debug("System: RadioMon: Initializing TTS model for audible meshages")
         import sounddevice as sd
         from kittentts import KittenTTS
-        ttsModel = KittenTTS("KittenML/kitten-tts-nano-0.2")
+        ttsModel = KittenTTS("KittenML/kitten-tts-nano-0.8")
         available_voices = [
             'expr-voice-2-m', 'expr-voice-2-f', 'expr-voice-3-m', 'expr-voice-3-f',
             'expr-voice-4-m', 'expr-voice-4-f', 'expr-voice-5-m', 'expr-voice-5-f'
