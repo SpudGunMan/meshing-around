@@ -390,13 +390,13 @@ js8callWatchedCallsigns =
 [fileMon]
 filemon_enabled = False
 # text file to monitor for changes
-file_path = alert.txt
+file_path = data/alert.txt
 # channel to send the message to can be 2,3 multiple channels comma separated
 broadcastCh = 2
 
 # news  command will return the contents of a text file
 enable_read_news = False
-news_file_path = ../data/news.txt
+news_file_path = data/news.txt
 # only return a single random (head)line from the news file
 news_random_line = False
 # only return random news 'block' (seprated by two newlines) randomly (precidence over news_random_line)

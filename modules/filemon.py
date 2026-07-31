@@ -142,6 +142,7 @@ def write_news(content, append=False):
 async def watch_file():
     # Watch the file for changes and return the new content when it changes
     if not os.path.exists(file_monitor_file_path):
+        logger.warning(f"FileMon: File not found: {file_monitor_file_path}")
         return None
     else:
         last_modified_time = os.path.getmtime(file_monitor_file_path)
