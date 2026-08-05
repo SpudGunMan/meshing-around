@@ -896,8 +896,10 @@ def send_message(message, ch, nodeid=0, nodeInt=1, bypassChuncking=False, reply_
             # Send the message to the channel or DM
             total_length = sum(len(chunk) for chunk in message_list)
             num_chunks = len(message_list)
-            for m in message_list:
-                chunkOf = f"{message_list.index(m)+1}/{num_chunks}"
+            for i, m in enumerate(message_list):
+                chunkOf = f"{i+1}/{num_chunks}"
+                if num_chunks > 1:
+                    m = f"{m} ({chunkOf})"
                 if nodeid == 0:
                     # Send to channel
                     if wantAck:
@@ -918,9 +920,9 @@ def send_message(message, ch, nodeid=0, nodeInt=1, bypassChuncking=False, reply_
                         _send_with_reply(text=m, channelIndex=ch, destinationId=nodeid)
 
                 # Throttle the message sending to prevent spamming the device
-                if (message_list.index(m)+1) % 4 == 0:
+                if (i+1) % 4 == 0:
                     time.sleep(responseDelay + 1)
-                    if (message_list.index(m)+1) % 5 == 0:
+                    if (i+1) % 5 == 0:
                         logger.warning(f"System: throttling rate Interface{nodeInt} on {chunkOf}")
 
                 # wait an amount of time between sending each split message
