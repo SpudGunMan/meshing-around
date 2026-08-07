@@ -82,7 +82,7 @@ def get_wikipedia_summary(search_term, location=None, force=False, truncate=True
 
     api_url = f"https://en.wikipedia.org/api/rest_v1/page/summary/{requests.utils.quote(search_term)}"
     headers = {
-        "User-Agent": "MeshBot/1.0 (https://github.com/kkeeton/meshing-around; contact: youremail@example.com)"
+        "User-Agent": "MeshBot/1.0 (https://github.com/spudgunman/meshing-around; contact: youremail@example.com)"
     }
     try:
         response = requests.get(api_url, timeout=5, headers=headers)
