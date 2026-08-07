@@ -898,24 +898,16 @@ def send_message(message, ch, nodeid=0, nodeInt=1, bypassChuncking=False, reply_
             num_chunks = len(message_list)
             for m in message_list:
                 chunkOf = f"{message_list.index(m)+1}/{num_chunks}"
+                ack_text = "req.ACK " if wantAck else ""
                 if nodeid == 0:
                     # Send to channel
-                    if wantAck:
-                        logger.info(f"Device:{nodeInt} Channel:{ch} " + CustomFormatter.red + f"req.ACK " + f"Chunker{chunkOf} SendingChannel: " + CustomFormatter.white + m.replace('\n', ' '))
-                        _send_with_reply(text=m, channelIndex=ch, wantAck=True)
-                    else:
-                        logger.info(f"Device:{nodeInt} Channel:{ch} " + CustomFormatter.red + f"Chunker{chunkOf} SendingChannel: " + CustomFormatter.white + m.replace('\n', ' '))
-                        _send_with_reply(text=m, channelIndex=ch)
+                    logger.info(f"Device:{nodeInt} Channel:{ch} " + CustomFormatter.red + f"{ack_text}Chunker{chunkOf} SendingChannel: " + CustomFormatter.white + m.replace('\n', ' '))
+                    _send_with_reply(text=m, channelIndex=ch, wantAck=wantAck)
                 else:
                     # Send to DM
-                    if wantAck:
-                        logger.info(f"Device:{nodeInt} " + CustomFormatter.red + f"req.ACK " + f"Chunker{chunkOf} Sending DM: " + CustomFormatter.white + m.replace('\n', ' ') + CustomFormatter.purple +\
+                    logger.info(f"Device:{nodeInt} " + CustomFormatter.red + f"{ack_text}Chunker{chunkOf} Sending DM: " + CustomFormatter.white + m.replace('\n', ' ') + CustomFormatter.purple +\
                                  " To: " + CustomFormatter.white + f"{get_name_from_number(nodeid, 'long', nodeInt)}")
-                        _send_with_reply(text=m, channelIndex=ch, destinationId=nodeid, wantAck=True)
-                    else:
-                        logger.info(f"Device:{nodeInt} " + CustomFormatter.red + f"Chunker{chunkOf} Sending DM: " + CustomFormatter.white + m.replace('\n', ' ') + CustomFormatter.purple +\
-                                    " To: " + CustomFormatter.white + f"{get_name_from_number(nodeid, 'long', nodeInt)}")
-                        _send_with_reply(text=m, channelIndex=ch, destinationId=nodeid)
+                    _send_with_reply(text=m, channelIndex=ch, destinationId=nodeid, wantAck=wantAck)
 
                 # Throttle the message sending to prevent spamming the device
                 if (message_list.index(m)+1) % 4 == 0:
@@ -926,24 +918,16 @@ def send_message(message, ch, nodeid=0, nodeInt=1, bypassChuncking=False, reply_
                 # wait an amount of time between sending each split message
                 time.sleep(splitDelay)
         else: # message is less than MESSAGE_CHUNK_SIZE characters
+            ack_text = "req.ACK " if wantAck else ""
             if nodeid == 0:
                 # Send to channel
-                if wantAck:
-                    logger.info(f"Device:{nodeInt} Channel:{ch} " + CustomFormatter.red + "req.ACK " + "SendingChannel: " + CustomFormatter.white + message.replace('\n', ' '))
-                    _send_with_reply(text=message, channelIndex=ch, wantAck=True)
-                else:
-                    logger.info(f"Device:{nodeInt} Channel:{ch} " + CustomFormatter.red + "SendingChannel: " + CustomFormatter.white + message.replace('\n', ' '))
-                    _send_with_reply(text=message, channelIndex=ch)
+                logger.info(f"Device:{nodeInt} Channel:{ch} " + CustomFormatter.red + f"{ack_text}SendingChannel: " + CustomFormatter.white + message.replace('\n', ' '))
+                _send_with_reply(text=message, channelIndex=ch, wantAck=wantAck)
             else:
                 # Send to DM
-                if wantAck:
-                    logger.info(f"Device:{nodeInt} " + CustomFormatter.red + "req.ACK " + "Sending DM: " + CustomFormatter.white + message.replace('\n', ' ') + CustomFormatter.purple +\
-                                 " To: " + CustomFormatter.white + f"{get_name_from_number(nodeid, 'long', nodeInt)}")
-                    _send_with_reply(text=message, channelIndex=ch, destinationId=nodeid, wantAck=True)
-                else:
-                    logger.info(f"Device:{nodeInt} " + CustomFormatter.red + "Sending DM: " + CustomFormatter.white + message.replace('\n', ' ') + CustomFormatter.purple +\
-                                " To: " + CustomFormatter.white + f"{get_name_from_number(nodeid, 'long', nodeInt)}")
-                    _send_with_reply(text=message, channelIndex=ch, destinationId=nodeid)
+                logger.info(f"Device:{nodeInt} " + CustomFormatter.red + f"{ack_text}Sending DM: " + CustomFormatter.white + message.replace('\n', ' ') + CustomFormatter.purple +\
+                             " To: " + CustomFormatter.white + f"{get_name_from_number(nodeid, 'long', nodeInt)}")
+                _send_with_reply(text=message, channelIndex=ch, destinationId=nodeid, wantAck=wantAck)
             # Throttle the message sending to prevent spamming the device
             time.sleep(responseDelay)
         return True
