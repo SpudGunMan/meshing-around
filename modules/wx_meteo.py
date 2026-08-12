@@ -174,9 +174,9 @@ def get_wx_meteo(lat=0, lon=0, unit=0):
 		# check for precipitation
 		if daily_precipitation_hours[i] > 0:
 			if unit == 0:
-				weather_report += "Precip: " + str(round(daily_precipitation_probability_max[i],2)) + "in, in " + str(round(daily_precipitation_hours[i],2)) + " hours. "
+				weather_report += "Precip: " + str(round(daily_precipitation_probability_max[i],2)) + "% chance, in " + str(round(daily_precipitation_hours[i],2)) + " hours. "
 			else:
-				weather_report += "Precip: " + str(round(daily_precipitation_probability_max[i],2)) + "mm, in " + str(round(daily_precipitation_hours[i],2)) + " hours. "
+				weather_report += "Precip: " + str(round(daily_precipitation_probability_max[i],2)) + "% chance, in " + str(round(daily_precipitation_hours[i],2)) + " hours. "
 		else:
 			weather_report += "No Precip. "
 
