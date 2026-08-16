@@ -106,31 +106,82 @@ def getRepeaterBook(lat=0, lon=0):
         if table is not None:
             cells = table.find_all('td')
             data = []
-            for i in range(0, len(cells), 11):
-                if i + 10 < len(cells):  #avoid IndexError
-                    repeater = {
-                        'frequency': cells[i].text.strip() if i < len(cells) else 'N/A',
-                        'offset': cells[i + 1].text.strip() if i + 1 < len(cells) else 'N/A',
-                        'tone': cells[i + 2].text.strip() if i + 2 < len(cells) else 'N/A',
-                        'call_sign': cells[i + 3].text.strip() if i + 3 < len(cells) else 'N/A',
-                        'location': cells[i + 4].text.strip() if i + 4 < len(cells) else 'N/A',
-                        'state': cells[i + 5].text.strip() if i + 5 < len(cells) else 'N/A',
-                        'use': cells[i + 6].text.strip() if i + 6 < len(cells) else 'N/A',
-                        'mode': cells[i + 7].text.strip() if i + 7 < len(cells) else 'N/A',
-                        'distance': cells[i + 8].text.strip() if i + 8 < len(cells) else 'N/A',
-                        'direction': cells[i + 9].text.strip() if i + 9 < len(cells) else 'N/A'
-                    }
+            
+            # Expected header sequence: ['', 'Freq', 'Offset', 'Access', 'Call', 'Location', 'ST/PR', 'Use', 'Mode', 'Mi', 'Status']
+            col_indices = {}
+            thead = table.find('thead')
+            if thead:
+                try:
+                    headers = thead.find_all('th')
+                    if headers:
+                        for idx, th in enumerate(headers):
+                            header_text = th.text.strip().lower()
+                            # Map header columns to field names
+                            if 'freq' in header_text:
+                                col_indices['frequency'] = idx
+                            elif 'offset' in header_text:
+                                col_indices['offset'] = idx
+                            elif 'access' in header_text:
+                                col_indices['tone'] = idx
+                            elif 'call' in header_text:
+                                col_indices['call_sign'] = idx
+                            elif 'location' in header_text:
+                                col_indices['location'] = idx
+                            elif 'st' in header_text or 'state' in header_text or 'pr' in header_text:
+                                col_indices['state'] = idx
+                            elif header_text == 'use':
+                                col_indices['use'] = idx
+                            elif 'mode' in header_text:
+                                col_indices['mode'] = idx
+                            elif 'mi' in header_text or 'distance' in header_text:
+                                col_indices['distance'] = idx
+                            elif 'status' in header_text:
+                                col_indices['direction'] = idx
+                        
+                        if col_indices:
+                            logger.debug(f"Location: RepeaterBook dynamic column mapping detected: {col_indices}")
+                except Exception as header_parse_error:
+                    logger.debug(f"Location: Header parsing failed, using fallback indices: {header_parse_error}")
+            
+            # Fallback: Hardcoded indices with stride=12 and +1 offset fix from issue #332
+            if not col_indices:
+                col_indices = {
+                    'frequency': 1,
+                    'offset': 2,
+                    'tone': 3,
+                    'call_sign': 4,
+                    'location': 5,
+                    'state': 6,
+                    'use': 7,
+                    'mode': 8,
+                    'distance': 9,
+                    'direction': 10
+                }
+                logger.debug("Location: Using Phase 1 fallback indices (stride=12, issue #332 fix applied)")
+            
+            # Determine cells per row from max column index
+            cells_per_row = max(col_indices.values()) + 1 if col_indices else 12
+            
+            # Parse repeater rows using detected/fallback column indices
+            for i in range(0, len(cells), cells_per_row):
+                if i + cells_per_row - 1 < len(cells):  # Avoid IndexError
+                    repeater = {}
+                    for key, col_idx in col_indices.items():
+                        cell_idx = i + col_idx
+                        repeater[key] = cells[cell_idx].text.strip() if cell_idx < len(cells) else 'N/A'
                     data.append(repeater)
         else:
             # No table found — could be legitimately no data or markup change.
             logger.debug("Location: No repeater table found on RepeaterBook page, scraping failed or no data for region.")
             msg = "No Data for your Region"
     except Exception as e:
+        logger.debug(f"Location: Error processing RepeaterBook response: {e}")
         msg = "No repeaters found 😔"
+    
     # Limit the output to the first 4 repeaters
     for repeater in data[:4]:
-        tmpTone = repeater['tone'].replace(" /", "")
-        msg += f"{repeater['call_sign']}📶{repeater['frequency']}{repeater['offset']},{tmpTone}.{repeater['mode']}"
+        tmpTone = repeater.get('tone', '').replace(" /", "")
+        msg += f"{repeater.get('call_sign', 'N/A')}📶{repeater.get('frequency', 'N/A')}{repeater.get('offset', '')},{tmpTone}.{repeater.get('mode', '')}"
         if repeater != data[:4][-1]: msg += '\n'
     return msg
 
