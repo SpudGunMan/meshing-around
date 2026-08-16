@@ -222,6 +222,12 @@ satList = 25544,7530
 # use Open-Meteo API for weather data not NOAA useful for non US locations
 UseMeteoWxAPI = False
 
+# Optional: specify an Open-Meteo model for more locally-accurate forecasts.
+# Leave blank for Open-Meteo's automatic best_match selection.
+# Examples: gem_seamless (Canada), icon_seamless (Europe), jma_seamless (Japan)
+# Full list at https://open-meteo.com/en/docs (see "Weather models" dropdown)
+meteoWxModel = 
+
 # NOAA weather forecast days
 NOAAforecastDuration = 3
 # number of weather alerts to display

@@ -317,6 +317,7 @@ try:
     fuzz_config_location = config['location'].getboolean('fuzzConfigLocation', True) # default True
     fuzzItAll = config['location'].getboolean('fuzzAllLocations', False) # default False, only fuzz config location
     use_meteo_wxApi = config['location'].getboolean('UseMeteoWxAPI', False) # default False use NOAA
+    meteo_wx_model = config['location'].get('meteoWxModel', '') # default empty string for best_match
     use_metric = config['location'].getboolean('useMetric', False) # default Imperial units
     repeater_lookup = config['location'].get('repeaterLookup', 'rbook') # default repeater lookup source
     n2yoAPIKey = config['location'].get('n2yoAPIKey', '') # default empty

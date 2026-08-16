@@ -4,7 +4,7 @@
 import requests
 import json
 from modules.log import logger
-from modules.settings import ERROR_FETCHING_DATA
+from modules.settings import ERROR_FETCHING_DATA, meteo_wx_model
 
 def get_weather_data(api_url, params):
     response = requests.get(api_url, params=params)
@@ -33,6 +33,10 @@ def get_wx_meteo(lat=0, lon=0, unit=0):
 		params["precipitation_unit"] = "inch"
 		params["distance_unit"] = "mile"
 		params["pressure_unit"] = "inHg"
+
+	# Add optional weather model if configured
+	if meteo_wx_model:
+		params["models"] = meteo_wx_model
 
 	try:
 		# Fetch the weather data
