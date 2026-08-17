@@ -159,8 +159,11 @@ def getRepeaterBook(lat=0, lon=0):
                 }
                 logger.debug("Location: Using Phase 1 fallback indices (stride=12, issue #332 fix applied)")
             
-            # Determine cells per row from max column index
-            cells_per_row = max(col_indices.values()) + 1 if col_indices else 12
+            # Determine cells per row from the actual first data row's <td> count
+            # This handles cases where tbody rows have more cells than thead headers
+            tbody = table.find('tbody')
+            first_row = tbody.find('tr') if tbody else None
+            cells_per_row = len(first_row.find_all('td')) if first_row else (max(col_indices.values()) + 1 if col_indices else 12)
             
             # Parse repeater rows using detected/fallback column indices
             for i in range(0, len(cells), cells_per_row):
