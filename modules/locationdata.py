@@ -181,11 +181,11 @@ def getRepeaterBook(lat=0, lon=0):
         logger.debug(f"Location: Error processing RepeaterBook response: {e}")
         msg = "No repeaters found 😔"
     
-    # Limit the output to the first 4 repeaters
-    for repeater in data[:4]:
+    # Limit the output to the configured number of repeaters
+    for repeater in data[:my_settings.repeater_list_max]:
         tmpTone = repeater.get('tone', '').replace(" /", "")
         msg += f"{repeater.get('call_sign', 'N/A')}📶{repeater.get('frequency', 'N/A')}{repeater.get('offset', '')},{tmpTone}.{repeater.get('mode', '')}"
-        if repeater != data[:4][-1]: msg += '\n'
+        if repeater != data[:my_settings.repeater_list_max][-1]: msg += '\n'
     return msg
 
 def getArtSciRepeaters(lat=0, lon=0):

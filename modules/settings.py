@@ -320,6 +320,7 @@ try:
     meteo_wx_model = config['location'].get('meteoWxModel', '') # default empty string for best_match
     use_metric = config['location'].getboolean('useMetric', False) # default Imperial units
     repeater_lookup = config['location'].get('repeaterLookup', 'rbook') # default repeater lookup source
+    repeater_list_max = config['location'].getint('repeaterListMax', 4) # default 4 repeaters
     n2yoAPIKey = config['location'].get('n2yoAPIKey', '') # default empty
     satListConfig = config['location'].get('satList', '25544').split(',') # default 25544 ISS
     riverListDefault = config['location'].get('riverList', '').split(',') # default None

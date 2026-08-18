@@ -212,6 +212,8 @@ useMetric = False
 
 # repeaterList lookup location (rbook / artsci / False)
 repeaterLookup = rbook
+# Number of repeaters to include in rlist output (default 4)
+repeaterListMax = 4
 
 # Satalite Pass Prediction
 # Register for free API https://www.n2yo.com/login/ personal data page at bottom 'Are you developer?'
