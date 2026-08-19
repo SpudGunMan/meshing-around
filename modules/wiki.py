@@ -26,6 +26,21 @@ def text_from_html(body):
         main = soup.body
     if not main:
         return ""
+    
+    # Remove non-prose elements that pollute the summary: infoboxes,
+    # hatnotes/redirect notices, navigation boxes, citation markers, edit links.
+    for unwanted in main.select('table.infobox, table.sidebar, div.hatnote, div.navbox, div.metadata, sup.reference, .mw-editsection'):
+        unwanted.decompose()
+    
+    # Prefer extracting from <p> tags (actual lead paragraphs)
+    paragraphs = main.find_all('p')
+    if paragraphs:
+        texts = [p.get_text(" ", strip=True) for p in paragraphs]
+        texts = [t for t in texts if t]
+        if texts:
+            return " ".join(texts)
+    
+    # Fallback to existing full-text behavior if no <p> tags found
     texts = main.find_all(string=True)
     visible_texts = filter(tag_visible, texts)
     return " ".join(t.strip() for t in visible_texts if t.strip())
@@ -49,6 +64,8 @@ def get_kiwix_summary(search_term, truncate=True):
                     continue
                 article_url = f"{kiwix_url}{a['href']}"
                 article_response = requests.get(article_url, timeout=urlTimeoutSeconds)
+                # Force UTF-8 encoding to avoid mojibake on multi-byte characters
+                article_response.encoding = 'utf-8'
                 if article_response.status_code == 200:
                     text = text_from_html(article_response.text)
                     # Remove navigation and search jump text
