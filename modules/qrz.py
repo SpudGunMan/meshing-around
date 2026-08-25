@@ -6,7 +6,7 @@ import sqlite3
 from modules.log import logger
 from modules.settings import qrz_db
 
-def initalize_qrz_database():
+def initialize_qrz_database():
     try:
         # If the database file doesn't exist, it will be created by sqlite3.connect
         if not os.path.exists(qrz_db):
@@ -41,7 +41,7 @@ def never_seen_before(nodeID):
             return False
     except sqlite3.OperationalError as e:
         if "no such table" in str(e):
-            initalize_qrz_database()
+            initialize_qrz_database()
             logger.warning("QRZ database table not found, created new table")
             # we have not seen this node before
             return True
@@ -56,7 +56,7 @@ def hello(nodeID, name):
         c.execute("INSERT INTO qrz (qrz_call, qrz_name) VALUES (?, ?)", (nodeID, str(name)))
     except sqlite3.OperationalError as e:
         if "no such table" in str(e):
-            initalize_qrz_database()
+            initialize_qrz_database()
             c.execute("INSERT INTO qrz (qrz_call, qrz_name) VALUES (?, ?)", (nodeID, str(name)))
         else:
             raise
