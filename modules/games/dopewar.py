@@ -506,7 +506,7 @@ def playDopeWars(nodeID, cmd):
         return endGameDw(nodeID)
 
     if not inGame:
-        # initalize player in the database
+        # initialize player in the database
         loc = generatelocations()
         dwInventoryDb.append({'userID': nodeID, 'inventory': 0, 'priceList': []})
         dwCashDb.append({'userID': nodeID, 'cash': starting_cash})
