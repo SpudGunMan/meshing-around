@@ -212,8 +212,10 @@ class MeshTrekker:
 # Initialize the game
 game = MeshTrekker()
 
-def handle_meshtrekker(user_id, deviceID, channel_number, location_info=(0,0)):
+def handle_meshtrekker(user_id, deviceID, channel_number, location_info=None):
     # Process GPS data from Meshtastic devices
+    if location_info is None:
+        location_info = "0: 0, 0"  # Default location string
     latitude, longitude = location_info.split(": ")[1].split(", ")
     
     current_time = datetime.now()
