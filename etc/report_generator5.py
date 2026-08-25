@@ -270,8 +270,8 @@ def get_system_info():
     try:
         if "importlib.metadata" in sys.modules:
             cli_local = version("meshtastic")
-    except:
-        pass # Python 3.7 and below, meh.. 
+    except Exception as e:
+        logger.debug("System: Failed to get meshtastic version (likely Python 3.7)") 
 
 
     if platform.system() == "Linux":
