@@ -288,12 +288,14 @@ def onReceive(packet, interface):
              if globals().get(f'interface{i}_type', '') == 'ble'),0)
         
     if rxNode is None:
-        # default to interface 1 ## FIXME needs better like a default interface setting or hash lookup
+        # FIXME: Needs better default interface handling (consider config-based setting or interface hash lookup)
+        # Currently defaults to interface 1 - may need enhancement for multi-interface deployments
         if 'decoded' in packet and packet['decoded']['portnum'] in ['ADMIN_APP', 'SIMULATOR_APP']:
             session_passkey = packet.get('decoded', {}).get('admin', {}).get('sessionPasskey', None)
         rxNode = 1
     
-    # check if the packet has a channel flag use it ## FIXME needs to be channel hash lookup
+    # FIXME: Channel extraction could use hash-based lookup for improved performance/clarity
+    # Currently uses direct packet channel field when available
     if packet.get('channel'):
         channel_number = packet.get('channel')
         channel_name = "unknown"

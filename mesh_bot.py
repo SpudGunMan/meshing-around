@@ -503,9 +503,9 @@ def handle_wxalert(message_from_id, deviceID, message):
         location = get_node_location(message_from_id, deviceID)
         if "wxalert" in message:
             # Detailed weather alert
-            weatherAlert = getActiveWeatherAlertsDetailNOAA(str(location[0]), str(location[1]))
+            weatherAlert = getActiveWeatherAlertsDetailNOAA(location[0], location[1])
         else:
-            weatherAlert = getWeatherAlertsNOAA(str(location[0]), str(location[1]))
+            weatherAlert = getWeatherAlertsNOAA(location[0], location[1])
         
         if isinstance(weatherAlert, tuple):
             weatherAlert = weatherAlert[0]
@@ -649,7 +649,7 @@ def handle_satpass(message_from_id, deviceID, message='', vox=False):
 
     # Detailed satellite pass
     for bird in satList:
-        satPass = getNextSatellitePass(bird, str(location[0]), str(location[1]))
+        satPass = getNextSatellitePass(bird, location[0], location[1])
         if satPass:
             # append to passes
             passes = passes + satPass + "\n"
@@ -674,7 +674,7 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
                 break
         else:
             location = get_node_location(message_from_id, deviceID)
-            location_name = where_am_i(str(location[0]), str(location[1]), short = True)
+            location_name = where_am_i(location[0], location[1], short = True)
 
     if my_settings.NO_DATA_NOGPS in location_name:
         location_name = "no location provided"
@@ -881,6 +881,7 @@ def handleBlackJack(message, nodeID, deviceID):
         highScore = loadHSJack()
         if highScore and highScore.get('nodeID', 0) != 0:
             nodeName = get_name_from_number(highScore['nodeID'])
+            # NOTE: Multiple interface support limitation - numeric node names may not display correctly
             if nodeName.isnumeric() and multiple_interface:
                 logger.debug(f"System: TODO is multiple interface fix mention this please nodeName: {nodeName}")
             msg += f" HighScore🥇{nodeName} with {highScore['highScore']} chips. "
@@ -932,6 +933,7 @@ def handleVideoPoker(message, nodeID, deviceID):
         highScore = loadHSVp()
         if highScore and highScore.get('nodeID', 0) != 0:
             nodeName = get_name_from_number(highScore['nodeID'])
+            # NOTE: Multiple interface support limitation - numeric node names may not display correctly
             if nodeName.isnumeric() and multiple_interface:
                 logger.debug(f"System: TODO is multiple interface fix mention this please nodeName: {nodeName}")
             msg += f" HighScore🥇{nodeName} with {highScore['highScore']} coins. "
@@ -1286,7 +1288,7 @@ def quizHandler(message, nodeID, deviceID):
             msg = quizGamePlayer.answer(user_id, user_answer)
 
         # set username on top 3
-        if "🏆 Top" in msg:
+        if isinstance(msg, str) and "🏆 Top" in msg:
             #replace all the 10 digit numbers with the short name
             for part in msg.split():
                 part = part.rstrip(":")
@@ -1388,16 +1390,16 @@ def handle_wxc(message_from_id, deviceID, cmd, days=None, vox=False):
     location = get_node_location(message_from_id, deviceID)
     if my_settings.use_meteo_wxApi and not "wxc" in cmd and not use_metric:
         #logger.debug("System: Bot Returning Open-Meteo API for weather imperial")
-        weather = get_wx_meteo(str(location[0]), str(location[1]))
+        weather = get_wx_meteo(location[0], location[1])
     elif my_settings.use_meteo_wxApi:
         #logger.debug("System: Bot Returning Open-Meteo API for weather metric")
-        weather = get_wx_meteo(str(location[0]), str(location[1]), 1)
+        weather = get_wx_meteo(location[0], location[1], 1)
     elif not my_settings.use_meteo_wxApi and "wxc" in cmd or my_settings.use_metric:
         #logger.debug("System: Bot Returning NOAA API for weather metric")
-        weather = get_NOAAweather(str(location[0]), str(location[1]), 1, report_days=days)
+        weather = get_NOAAweather(location[0], location[1], 1, report_days=days)
     else:
         #logger.debug("System: Bot Returning NOAA API for weather imperial")
-        weather = get_NOAAweather(str(location[0]), str(location[1]), report_days=days)
+        weather = get_NOAAweather(location[0], location[1], report_days=days)
     return weather
 
 def handle_emergency_alerts(message, message_from_id, deviceID):
@@ -1407,15 +1409,15 @@ def handle_emergency_alerts(message, message_from_id, deviceID):
         return get_nina_alerts()
     if message.lower().startswith("ealert"):
         # Detailed alert FEMA
-        return getIpawsAlert(str(location[0]), str(location[1]))
+        return getIpawsAlert(location[0], location[1])
     else:
         # Headlines only FEMA
-        return getIpawsAlert(str(location[0]), str(location[1]), shortAlerts=True)
+        return getIpawsAlert(location[0], location[1], shortAlerts=True)
 
 def handleEarthquake(message, message_from_id, deviceID):
     location = get_node_location(message_from_id, deviceID)
     if "earthquake" in message.lower():
-        return checkUSGSEarthQuake(str(location[0]), str(location[1]))
+        return checkUSGSEarthQuake(location[0], location[1])
     
 def handle_checklist(message, message_from_id, deviceID):
     name = get_name_from_number(message_from_id, 'short', deviceID)
@@ -1524,9 +1526,9 @@ def handle_messages(message, deviceID, channel_number, msg_history, publicChanne
 def handle_sun(message_from_id, deviceID, channel_number, vox=False):
     if vox:
         # return a default message if vox is enabled
-        return get_sun(str(my_settings.latitudeValue), str(my_settings.longitudeValue))
+        return get_sun(my_settings.latitudeValue, my_settings.longitudeValue)
     location = get_node_location(message_from_id, deviceID, channel_number)
-    return get_sun(str(location[0]), str(location[1]))
+    return get_sun(location[0], location[1])
 
 def sysinfo(message, message_from_id, deviceID, isDM):
     if "?" in message:
@@ -1633,7 +1635,7 @@ def handle_whereami(message_from_id, deviceID, channel_number):
     check_throttle = api_throttle(message_from_id, deviceID, apiName='whereami')
     if check_throttle:
         return check_throttle
-    return where_am_i(str(location[0]), str(location[1]))
+    return where_am_i(location[0], location[1])
 
 def handle_repeaterQuery(message_from_id, deviceID, channel_number):
     location = get_node_location(message_from_id, deviceID, channel_number)
@@ -1642,23 +1644,23 @@ def handle_repeaterQuery(message_from_id, deviceID, channel_number):
     if check_throttle:
         return check_throttle
     if repeater_lookup == "rbook":
-        return getRepeaterBook(str(location[0]), str(location[1]))
+        return getRepeaterBook(location[0], location[1])
     elif repeater_lookup == "artsci":
-        return getArtSciRepeaters(str(location[0]), str(location[1]))
+        return getArtSciRepeaters(location[0], location[1])
     else:
         return "Repeater lookup not enabled"
 
 def handle_tide(message_from_id, deviceID, channel_number, vox=False):
     if vox:
-        return get_NOAAtide(str(my_settings.latitudeValue), str(my_settings.longitudeValue))
+        return get_NOAAtide(my_settings.latitudeValue, my_settings.longitudeValue)
     location = get_node_location(message_from_id, deviceID, channel_number)
-    return get_NOAAtide(str(location[0]), str(location[1]))
+    return get_NOAAtide(location[0], location[1])
 
 def handle_moon(message_from_id, deviceID, channel_number, vox=False):
     if vox:
-        return get_moon(str(my_settings.latitudeValue), str(my_settings.longitudeValue))
+        return get_moon(my_settings.latitudeValue, my_settings.longitudeValue)
     location = get_node_location(message_from_id, deviceID, channel_number)
-    return get_moon(str(location[0]), str(location[1]))
+    return get_moon(location[0], location[1])
 
 def handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus):
     try:
@@ -1721,7 +1723,7 @@ def handle_whois(message, deviceID, channel_number, message_from_id):
                 msg += f"Ch: {seenNodes[i]['channel']}, Int: {seenNodes[i]['rxInterface']}"
                 msg += f"Lat: {location[0]}, Lon: {location[1]}\n"
                 if location != [my_settings.latitudeValue, my_settings.longitudeValue]:
-                    msg += f"Loc: {where_am_i(str(location[0]), str(location[1]))}"
+                    msg += f"Loc: {where_am_i(location[0], location[1])}"
         return msg
 
 def handle_boot(mesh=True):
