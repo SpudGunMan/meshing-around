@@ -152,15 +152,8 @@ if radio_detection_enabled:
 
 if voxDetectionEnabled:
     # methods available for trap word processing, these can be called by VOX detection when trap words are detected
-    from mesh_bot import tell_joke, handle_wxc, handle_moon, handle_sun, handle_riverFlow, handle_tide, handle_satpass
-    botMethods = {
-        "joke": tell_joke,
-        "weather": handle_wxc,
-        "moon": handle_moon,
-        "daylight": handle_sun,
-        "river": handle_riverFlow,
-        "tide": handle_tide,
-        "satellite": handle_satpass}
+    # Import moved inside checkVoxTrapWords() to avoid circular import from mesh_bot
+    botMethods = None  # Will be initialized in checkVoxTrapWords()
     # module global variables
     previousVoxState = False
     voxHoldTime = signalHoldTime
@@ -257,6 +250,20 @@ def get_sig_strength():
 
 def checkVoxTrapWords(text):
     try:
+        # Initialize botMethods on first call to avoid circular import from mesh_bot
+        global botMethods
+        if botMethods is None and voxDetectionEnabled:
+            from mesh_bot import tell_joke, handle_wxc, handle_moon, handle_sun, handle_riverFlow, handle_tide, handle_satpass
+            botMethods = {
+                "joke": tell_joke,
+                "weather": handle_wxc,
+                "moon": handle_moon,
+                "daylight": handle_sun,
+                "river": handle_riverFlow,
+                "tide": handle_tide,
+                "satellite": handle_satpass
+            }
+        
         if not voxOnTrapList:
             logger.debug(f"System: RadioMon: VOX detected: {text}")
             return text
