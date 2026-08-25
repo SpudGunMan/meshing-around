@@ -31,7 +31,7 @@ class ZeroconfListner:
         # This method is required by zeroconf, but you can leave it empty if you don't need updates.
         pass
 
-def initalize_mudp():
+def initialize_mudp():
     global mudpInterface
     if mudpEnabled and mudpInterface is None:
         mudpInterface = UDPPacketStream(MCAST_GRP, MCAST_PORT, key=KEY)
@@ -93,7 +93,7 @@ listener = ZeroconfListner()
 browser = ServiceBrowser(zeroconf, "_meshtastic._tcp.local.", listener)
 
 def main():
-    initalize_mudp()
+    initialize_mudp()
     mudpInterface.start()
     try:
         while True: time.sleep(0.05)
