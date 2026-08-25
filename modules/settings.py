@@ -259,6 +259,7 @@ try:
     whoami_enabled = config['general'].getboolean('whoami', True)
     dad_jokes_enabled = config['general'].getboolean('DadJokes', False)
     dad_jokes_emojiJokes = config['general'].getboolean('DadJokesEmoji', False)
+    weekday_enabled = config['general'].getboolean('weekday', True)
     bee_enabled = config['general'].getboolean('bee', False) # 🐝 off by default undocumented
     bible_enabled = config['general'].getboolean('verse', False) # verse command
     solar_conditions_enabled = config['general'].getboolean('spaceWeather', True)

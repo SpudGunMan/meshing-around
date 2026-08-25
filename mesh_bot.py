@@ -123,6 +123,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "valert": lambda: get_volcano_usgs(),
     "verse": lambda: read_verse(),
     "videopoker": lambda: handleVideoPoker(message, message_from_id, deviceID),
+    "weekday": lambda: weekdayHandler(message, message_from_id, deviceID),
     "whereami": lambda: handle_whereami(message_from_id, deviceID, channel_number),
     "whoami": lambda: handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus),
     "whois": lambda: handle_whois(message, deviceID, channel_number, message_from_id),
