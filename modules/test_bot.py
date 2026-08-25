@@ -118,17 +118,17 @@ class TestBot(unittest.TestCase):
         # Context might be empty if wiki is disabled or fails, that's ok
 
     def test_get_moon_phase(self):
-        from space import get_moon
+        from modules.space import get_moon
         phase = get_moon(lat, lon)
         self.assertIsInstance(phase, str)
 
     def test_get_sun_times(self):
-        from space import get_sun
+        from modules.space import get_sun
         sun_times = get_sun(lat, lon)
         self.assertIsInstance(sun_times, str)
     
     def test_hf_band_conditions(self):
-        from space import hf_band_conditions
+        from modules.space import hf_band_conditions
         conditions = hf_band_conditions()
         self.assertIsInstance(conditions, str)
 
@@ -143,13 +143,13 @@ class TestBot(unittest.TestCase):
         self.assertIsInstance(summary, str)
 
     def get_openskynetwork(self):
-        from locationdata import get_openskynetwork
+        from modules.locationdata import get_openskynetwork
         flights = get_openskynetwork(lat, lon)
         self.assertIsInstance(flights, str)
 
     def test_initalize_qrz_database(self):
-        from qrz import initalize_qrz_database
-        result = initalize_qrz_database()
+        from qrz import initialize_qrz_database
+        result = initialize_qrz_database()
         self.assertTrue(result)
 
     def test_import_radio_module(self):
@@ -351,32 +351,32 @@ class TestBot(unittest.TestCase):
         self.assertIsInstance(response, str)
 
         def test_getRepeaterBook(self):
-            from locationdata import getRepeaterBook
+            from modules.locationdata import getRepeaterBook
             repeaters = getRepeaterBook(lat, lon)
             self.assertIsInstance(repeaters, str)
 
         def test_getArtSciRepeaters(self):
-            from locationdata import getArtSciRepeaters
+            from modules.locationdata import getArtSciRepeaters
             repeaters = getArtSciRepeaters(lat, lon)
             self.assertIsInstance(repeaters, str)
 
         def test_get_NOAAtides(self):
-            from locationdata import get_NOAAtide
+            from modules.locationdata import get_NOAAtide
             tides = get_NOAAtide(lat, lon)
             self.assertIsInstance(tides, str)
 
         def test_get_NOAAweather(self):
-            from locationdata import get_NOAAweather
+            from modules.locationdata import get_NOAAweather
             weather = get_NOAAweather(lat, lon)
             self.assertIsInstance(weather, str)
 
         def test_where_am_i(self):
-            from locationdata import where_am_i
+            from modules.locationdata import where_am_i
             location = where_am_i(lat, lon)
             self.assertIsInstance(location, str)
 
         def test_getWeatherAlertsNOAA(self):
-            from locationdata import getWeatherAlertsNOAA
+            from modules.locationdata import getWeatherAlertsNOAA
             alerts = getWeatherAlertsNOAA(lat, lon)
             if isinstance(alerts, tuple):
                 self.assertIsInstance(alerts[0], str)
@@ -384,37 +384,37 @@ class TestBot(unittest.TestCase):
                 self.assertIsInstance(alerts, str)
         
         def test_getActiveWeatherAlertsDetailNOAA(self):
-            from locationdata import getActiveWeatherAlertsDetailNOAA
+            from modules.locationdata import getActiveWeatherAlertsDetailNOAA
             alerts_detail = getActiveWeatherAlertsDetailNOAA(lat, lon)
             self.assertIsInstance(alerts_detail, str)
         
         def test_getIpawsAlerts(self):
-            from locationdata import getIpawsAlert
+            from modules.locationdata import getIpawsAlert
             alerts = getIpawsAlert(lat, lon)
             self.assertIsInstance(alerts, str)
         
         def test_get_flood_noaa(self):
-            from locationdata import get_flood_noaa
+            from modules.locationdata import get_flood_noaa
             flood_info = get_flood_noaa(lat, lon, 12484500)  # Example gauge UID
             self.assertIsInstance(flood_info, str)
         
         def test_get_volcano_usgs(self):
-            from locationdata import get_volcano_usgs
+            from modules.locationdata import get_volcano_usgs
             volcano_info = get_volcano_usgs(lat, lon)
             self.assertIsInstance(volcano_info, str)
 
         def test_get_nws_marine_alerts(self):
-            from locationdata import get_nws_marine
+            from modules.locationdata import get_nws_marine
             marine_alerts = get_nws_marine('https://tgftp.nws.noaa.gov/data/forecasts/marine/coastal/pz/pzz135.txt',1) # Example zone
             self.assertIsInstance(marine_alerts, str)
 
         def test_checkUSGSEarthQuakes(self):
-            from locationdata import checkUSGSEarthQuake
+            from modules.locationdata import checkUSGSEarthQuake
             earthquakes = checkUSGSEarthQuake(lat, lon)
             self.assertIsInstance(earthquakes, str)
 
         def test_getNextSatellitePass(self):
-            from space import getNextSatellitePass
+            from modules.space import getNextSatellitePass
             pass_info = getNextSatellitePass('25544', lat, lon)
             self.assertIsInstance(pass_info, str)  
 
