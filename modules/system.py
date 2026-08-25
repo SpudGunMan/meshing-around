@@ -378,7 +378,7 @@ for i in range(1, 10):
     if globals().get(f'interface{i}') and globals().get(f'interface{i}_enabled'):
         try:
             globals()[f'myNodeNum{i}'] = globals()[f'interface{i}'].getMyNodeInfo()['num']
-            logger.debug(f"System: Initalized Radio Device{i} Node Number: {globals()[f'myNodeNum{i}']}")
+            logger.debug(f"System: Initialized Radio Device{i} Node Number: {globals()[f'myNodeNum{i}']})")
         except Exception as e:
             logger.critical(f"System: critical error initializing interface{i} {e}")
     else:
