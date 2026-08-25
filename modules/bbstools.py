@@ -158,9 +158,9 @@ def load_bbsdm():
                 for msg in new_bbs_dm:
                     if msg not in bbs_dm:
                         bbs_dm.append(msg)
-    except:
+    except Exception as e:
+        logger.debug(f"System: Creating new data/bbsdm.pkl: {e}")
         bbs_dm = [[1234567890, "Message", 1234567890]]
-        logger.debug("System: Creating new data/bbsdm.pkl")
         with open('data/bbsdm.pkl', 'wb') as f:
             pickle.dump(bbs_dm, f)
 
@@ -270,8 +270,8 @@ def bbs_sync_posts(input, peerNode, RxNode):
             #store the message in the bbsdb
             try:
                 bbs_post_message(subject, body, int(fromNodeHex, 16))
-            except:
-                logger.error(f"System: Error parsing bbslink from node {peerNode}: {input}")
+            except Exception as e:
+                logger.error(f"System: Error posting BBS message from node {peerNode}: {e}")
                 fromNodeHex = hex(peerNode)
             messageID = input.split(" ")[1]
             return f"bbsack {messageID}"
@@ -280,7 +280,8 @@ def bbs_sync_posts(input, peerNode, RxNode):
         if len(input.split(" ")) > 1:
             try:
                 messageID = int(input.split(" ")[1]) + 1
-            except:
+            except Exception as e:
+                logger.debug(f"System: Error parsing messageID: {e}")
                 return "link error"
         else:
             return "link error"
