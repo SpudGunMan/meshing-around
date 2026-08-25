@@ -105,8 +105,8 @@ def getHighScoreGolf(nodeID, strokes, par):
     try:
         with open('data/golfsim_hs.pkl', 'rb') as f:
             golfHighScore = pickle.load(f)
-    except:
-        logger.debug("System: GolfSim: High Score file not found.")
+    except Exception as e:
+        logger.debug(f"System: GolfSim: High Score file not found, creating new one: {e}")
         golfHighScore = [{'nodeID': nodeID, 'strokes': strokes, 'par': par}]
         with open('data/golfsim_hs.pkl', 'wb') as f:
             pickle.dump(golfHighScore, f)
