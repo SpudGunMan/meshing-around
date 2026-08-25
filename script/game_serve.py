@@ -78,7 +78,7 @@ mudpEnabled, mudpInterface = True, None
 seen_messages = OrderedDict()  # Track seen (from, to, payload) tuples
 is_running = False
 
-def initalize_mudp():
+def initialize_mudp():
     global mudpInterface
     if mudpEnabled and mudpInterface is None:
         mudpInterface = UDPPacketStream(MCAST_GRP, MCAST_PORT, key=KEY)
@@ -185,7 +185,7 @@ def main():
 
     """)
     print("Press escape (ESC) key to exit")
-    initalize_mudp()  # initialize MUDP interface
+    initialize_mudp()  # initialize MUDP interface
     mudpInterface.start()
     is_running = True
     try:
