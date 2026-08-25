@@ -242,7 +242,7 @@ def loadHSJack():
         return 0
 
 def playBlackJack(nodeID, message, last_cmd=None):
-    # Initalize the Game
+    # Initialize the Game
     msg, last_cmd = '', None
     blackJack = False
     p_win, d_win, draw = 0, 0, 0
@@ -251,7 +251,7 @@ def playBlackJack(nodeID, message, last_cmd=None):
     d_hand = jackHand()
     p_cards, d_cards = [], []
     bet_money = 0
-    # Initalize the Cards
+    # Initialize the Cards
     cards_deck = jackDeck()
     cards_deck.shuffle()
     p_cards, d_cards = cards_deck.deal_cards()
