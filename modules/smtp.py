@@ -119,13 +119,13 @@ def check_email(nodeID, sysop=False):
         logger.warning("System: Failed to check email: " + str(e))
         return False
 
-# initalize email db
+# initialize email db
 email_db = {}
 try:
     with open('data/email_db.pickle', 'rb') as f:
         email_db = pickle.load(f)
-except:
-    logger.warning("System: Email db not found, creating a new one")
+except Exception as e:
+    logger.warning(f"System: Email db not found, creating a new one: {e}")
     with open('data/email_db.pickle', 'wb') as f:
         pickle.dump(email_db, f)
 
@@ -143,13 +143,13 @@ def store_email(nodeID, email):
     return True
 
 
-# initalize SMS db
+# initialize SMS db
 sms_db = [{'nodeID': 0, 'sms':[]}]
 try:
     with open('data/sms_db.pickle', 'rb') as f:
         sms_db = pickle.load(f)
-except:
-    logger.warning("System: SMS db not found, creating a new one")
+except Exception as e:
+    logger.warning(f"System: SMS db not found, creating a new one: {e}")
     with open('data/sms_db.pickle', 'wb') as f:
         pickle.dump(sms_db, f)
 
