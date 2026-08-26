@@ -119,6 +119,8 @@ class Football:
         
         if initial_possession == 1:  # Bot receives
             msg += self._handle_bot_kickoff(nodeID)
+            msg += "\n" + self._get_field_display(nodeID)
+            msg += "\n\n📍 Your Play?"
         
         return msg
     
