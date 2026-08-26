@@ -10,6 +10,7 @@
 - [Tic-Tac-Toe (2D/3D)](#tic-tac-toe-game-module)
 - [MasterMind](#mastermind-game-module)
 - [Battleship](#battleship-game-module)
+- [Potato Gunner](#potato-gunner-game-module)
 - [Video Poker](#video-poker-game-module)
 - [Hangman](#hangman-game-module)
 - [Quiz](#quiz-game-module)
@@ -557,6 +558,121 @@ Would you like to play again? (N)ormal, (H)ard, or e(X)pert?
 
 - Ported from [pwdkramer/pythonMastermind](https://github.com/pwdkramer/pythonMastermind)
 - Adapted for Meshtastic mesh-bot by K7MHI Kelly Keeton 2024
+
+# Potato Gunner Game Module
+
+A silly, potato-themed artillery game for the Meshtastic mesh-bot. Fire spuds at moving targets, navigate wind and chaos events, and earn powerups to become the ultimate potato sharpshooter!
+
+## How to Play
+
+- **Start the Game:**  
+  Send the command `spudgun`, or `spudgunner` via DM to the bot to start a new tournament.
+
+- **Gameplay:**
+  Each round, you'll see the target distance and wind conditions. Enter an elevation angle (0-90°) AND hairspray PSI pressure (0-100) to control your shot's velocity.
+  - **Input format:** `angle,power` (e.g., `45,60` for 45° at 60 PSI)
+  - **Quick hints:** `low,50` | `mid,50` | `high,50` (uses default 50 PSI)
+  - **Backward compatible:** Just enter angle (e.g., `45`) for default 50 PSI
+  - **Power mechanics:**
+    - 10 PSI: Short range, easy to control
+    - 50 PSI: Medium range, balanced (default)
+    - 100 PSI: Maximum range, harder to control
+  - **Accuracy radius:** Shots within the accuracy range hit the target (base 150 yards)
+  - **Wind effects:** Wind can increase or decrease your effective distance
+  - **Chaos events:** Random silly events like earthquakes, meteor showers, alien invasions, and more make aiming tricky!
+
+- **Commands:**
+  - `<angle>,<power>` — Fire spud at that angle with that PSI power (e.g., `45,60`)
+  - `<angle>` — Fire at default 50 PSI (backward compatible, e.g., `45`)
+  - `low`, `mid`, `high` — Use quick elevation hints at 50 PSI
+  - `stats` — Display session statistics
+  - `new` — Advance to next round
+  - `e` — End tournament
+
+- **Scoring:**
+  - Base score: 100 points per hit
+  - Accuracy bonus: Up to +100 points (closer hits = more points)
+  - Streak bonus: +15 points for each consecutive hit
+  - Chaos survival bonus: +60 points for hitting during chaos events
+  - Round multiplier: Score multiplies by round number
+
+- **Powerups (Earned on Good Shots):**
+  - 🎯 **Accuracy ≥75%**: Homing Spud (auto-corrects aim by 15%)
+  - ⚡ **Accuracy ≥50%**: Super Spud (+60 yard accuracy radius)
+  - 🔥 **3+ hit streak**: Potato Shield (free miss, one-time use)
+  - 🍀 **Chaos survival**: Lucky Potato (auto-negates next chaos event)
+
+- **Difficulty Levels:**
+  - Target distance expands each round
+  - Wind intensity increases progressively
+  - Chaos events become more frequent and intense
+  - Round multiplier increases with score
+
+- **High Scores:**
+  The module tracks your best tournament score. Beat it to earn a "NEW HIGH SCORE!" message and lock in your achievement!
+
+- **Example Game Flow:**
+
+```
+🥔 **Welcome to POTATO GUNNER!** 🥔
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🏆 **High Score: 1250 pts** 🏆
+
+🥔 **ROUND 1 - POTATO ARTILLERY RANGE** 🥔
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🎯 **Target Distance:** ~28425yd
+💨 **Wind:** +3yd (slight breeze)
+🌪️ **Difficulty:** GENTLE
+
+> 45
+
+🎯 **Target Distance:** ~28425yd
+💨 **Wind:** +3yd (slight breeze)
+🌪️ **Difficulty:** GENTLE
+
+> 45,60
+
+💣 SPUD FIRED AT 45.0° with 60 PSI
+Velocity: 120m/s | Wind effect: +2yd
+**Actual distance: 28510yd** | Target: 28425yd
+Spread: 85yd (hit zone: ±150yd)
+
+✅ **HIT!** 🎯
+Excellent accuracy! +165 pts earned!
+
+📊 Session: 165 pts | Accuracy: 1/1 (100%)
+Type 'new' for next round or 'e' to end:
+```
+
+## Notes
+
+- Single session per player (new game cancels previous session)
+- Game sessions can span multiple rounds (10+ recommended for full experience)
+- Each round becomes progressively harder with increased distance and wind
+- Power affects velocity: higher PSI = longer range, more damage potential
+- Chaos events add fun disruption - sometimes hitting during chaos is worth more!
+- Play via DM for best experience and to avoid interference with other players
+- High scores are stored persistently in `data/potatogunner_hs.pkl`
+
+## Tips for Success
+
+- Start with medium power (50 PSI) for balanced range, adjust based on target distance
+- Use low power (10-30 PSI) for close targets or high precision needs
+- Use high power (70-100 PSI) for distant targets or when you need maximum range
+- Watch the wind direction and adjust your aim accordingly
+- Land consecutive hits to build streaks and earn powerups
+- Use Lucky Potato to negate difficult chaos events
+- Push for high accuracy (75%+) to earn the "SHARPSHOOTER" rating
+- Experiment with power/angle combinations to find what works best!
+
+## Chaos Events (12 types)
+
+Wind Gust, Earthquake, Rain Storm, Meteor Shower, Alien Invasion, Mischievous Squirrel, Bird Swarm, Angry Farmer, Gravity Flip, Inverse Wind, Ricochet Zone, Slow Motion — each with escalating intensity as you progress!
+
+## Credits
+
+- Based on the classic [Gunner Artillery Game](https://github.com/coding-horror/basic-computer-games/blob/main/42_Gunner/python/gunner.py)
+- Adapted and enhanced with chaos system, powerups, and potato theming for Meshtastic mesh-bot by K7MHI Kelly Keeton 2025
 
 # Video Poker Game Module
 

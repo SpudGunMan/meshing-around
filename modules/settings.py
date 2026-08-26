@@ -52,6 +52,7 @@ jackTracker = []             # Jack game tracker
 mindTracker = []             # Mastermind (mmind) game tracker
 battleshipTracker = []       # Battleship game tracker
 lunarlanderTracker = []      # Lunar Lander game tracker
+potatogunnerTracker = []     # Potato Gunner game tracker
 
 # Memory Management Constants
 MAX_MSG_HISTORY = 250
@@ -260,6 +261,7 @@ try:
     whoami_enabled = config['general'].getboolean('whoami', True)
     dad_jokes_enabled = config['general'].getboolean('DadJokes', False)
     dad_jokes_emojiJokes = config['general'].getboolean('DadJokesEmoji', False)
+    weekday_enabled = config['general'].getboolean('weekday', True)
     bee_enabled = config['general'].getboolean('bee', False) # 🐝 off by default undocumented
     bible_enabled = config['general'].getboolean('verse', False) # verse command
     solar_conditions_enabled = config['general'].getboolean('spaceWeather', True)
@@ -502,6 +504,7 @@ try:
     surveyRecordLocation = config['games'].getboolean('surveyRecordLocation', True)
     wordOfTheDay = config['games'].getboolean('wordOfTheDay', True)
     battleship_enabled = config['games'].getboolean('battleShip', True)
+    potatogunner_enabled = config['games'].getboolean('potatogunner', True)
 
     # messaging settings
     responseDelay = config['messagingSettings'].getfloat('responseDelay', 0.7) # default 0.7

@@ -16,7 +16,8 @@ import modules.settings as my_settings
 from modules.system import *
 
 # list of commands to remove from the default list for DM only
-restrictedCommands = ["blackjack", "videopoker", "dopewars", "lemonstand", "golfsim", "mastermind", "hangman", "hamtest", "tictactoe", "tic-tac-toe", "quiz", "q:", "survey", "s:", "battleship", "lunarlander"]
+restrictedCommands = ["blackjack", "videopoker", "dopewars", "lemonstand", "golfsim", "mastermind", "hangman", "hamtest", "tictactoe", "tic-tac-toe", "quiz", "q:", "survey", "s:", "battleship", "spudgun", "spudgunner", "lunarlander"]
+
 restrictedResponse = "🤖only available in a Direct Message📵" # "" for none
 blackhole_mode = False
 
@@ -112,6 +113,8 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "sitrep": lambda: handle_lheard(message, message_from_id, deviceID, isDM),
     "sms:": lambda: handle_sms(message_from_id, message),
     "solar": lambda: drap_xray_conditions() + "\n" + solar_conditions() + "\n" + get_noaa_scales_summary(),
+    "spudgun": lambda: handlePotatoGunner(message, message_from_id, deviceID),
+    "spudgunner": lambda: handlePotatoGunner(message, message_from_id, deviceID),
     "sun": lambda: handle_sun(message_from_id, deviceID, channel_number),
     "survey": lambda: surveyHandler(message, message_from_id, deviceID),
     "s:": lambda: surveyHandler(message, message_from_id, deviceID),
@@ -124,6 +127,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "valert": lambda: get_volcano_usgs(),
     "verse": lambda: read_verse(),
     "videopoker": lambda: handleVideoPoker(message, message_from_id, deviceID),
+    "weekday": lambda: weekdayHandler(message, message_from_id, deviceID),
     "whereami": lambda: handle_whereami(message_from_id, deviceID, channel_number),
     "whoami": lambda: handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus),
     "whois": lambda: handle_whois(message, deviceID, channel_number, message_from_id),
@@ -1183,6 +1187,32 @@ def handleLunarLander(message, nodeID, deviceID):
         lunarlanderTracker.remove(tracker_entry)
     
     return response
+def handlePotatoGunner(message, nodeID, deviceID):
+    global potatogunnerTracker
+
+    tracker_entry = next((entry for entry in potatogunnerTracker if entry['nodeID'] == nodeID), None)
+
+    # Handle end/exit command
+    if message.lower().startswith('e'):
+        if tracker_entry:
+            potatogunner.end(nodeID)
+            potatogunnerTracker.remove(tracker_entry)
+        return "🥔 Thanks for playing! 🥔"
+
+    # If not found, create new tracker entry
+    if not tracker_entry:
+        potatogunnerTracker.append({
+            "nodeID": nodeID,
+            "last_played": time.time()
+        })
+        msg = "🥔 POTATO GUNNER 🥔 Let's plant some spuds!\n"
+        msg += potatogunner.new_game(nodeID)
+        return msg
+    else:
+        tracker_entry["last_played"] = time.time()
+
+    msg = potatogunner.play(nodeID, message)
+    return msg
 
 
 def handleBattleship(message, nodeID, deviceID):
@@ -2378,6 +2408,7 @@ gameTrackers = [
     (lunarlanderTracker, "LunarLander", handleLunarLander),
     (surveyTracker, "Survey", surveyHandler),
     (battleshipTracker, "Battleship", handleBattleship),
+    (potatogunnerTracker, "PotatoGunner", handlePotatoGunner),
     # quiz does not use a tracker (quizGamePlayer) always active
 ]
 
