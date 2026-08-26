@@ -16,7 +16,7 @@ import modules.settings as my_settings
 from modules.system import *
 
 # list of commands to remove from the default list for DM only
-restrictedCommands = ["blackjack", "videopoker", "dopewars", "lemonstand", "golfsim", "mastermind", "hangman", "hamtest", "tictactoe", "tic-tac-toe", "quiz", "q:", "survey", "s:", "battleship"]
+restrictedCommands = ["blackjack", "videopoker", "dopewars", "lemonstand", "golfsim", "mastermind", "hangman", "hamtest", "tictactoe", "tic-tac-toe", "quiz", "q:", "survey", "s:", "battleship", "spudgun", "spudgunner"]
 restrictedResponse = "🤖only available in a Direct Message📵" # "" for none
 blackhole_mode = False
 
@@ -111,6 +111,8 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "sitrep": lambda: handle_lheard(message, message_from_id, deviceID, isDM),
     "sms:": lambda: handle_sms(message_from_id, message),
     "solar": lambda: drap_xray_conditions() + "\n" + solar_conditions() + "\n" + get_noaa_scales_summary(),
+    "spudgun": lambda: handlePotatoGunner(message, message_from_id, deviceID),
+    "spudgunner": lambda: handlePotatoGunner(message, message_from_id, deviceID),
     "sun": lambda: handle_sun(message_from_id, deviceID, channel_number),
     "survey": lambda: surveyHandler(message, message_from_id, deviceID),
     "s:": lambda: surveyHandler(message, message_from_id, deviceID),
@@ -1131,6 +1133,34 @@ def handleTicTacToe(message, nodeID, deviceID):
         tracker_entry["last_played"] = time.time()
 
     msg = tictactoe.play(nodeID, message)
+    return msg
+
+
+def handlePotatoGunner(message, nodeID, deviceID):
+    global potatogunnerTracker
+
+    tracker_entry = next((entry for entry in potatogunnerTracker if entry['nodeID'] == nodeID), None)
+
+    # Handle end/exit command
+    if message.lower().startswith('e'):
+        if tracker_entry:
+            potatogunner.end(nodeID)
+            potatogunnerTracker.remove(tracker_entry)
+        return "🥔 Thanks for playing! 🥔"
+
+    # If not found, create new tracker entry
+    if not tracker_entry:
+        potatogunnerTracker.append({
+            "nodeID": nodeID,
+            "last_played": time.time()
+        })
+        msg = "🥔 POTATO GUNNER 🥔 Let's plant some spuds!\n"
+        msg += potatogunner.new_game(nodeID)
+        return msg
+    else:
+        tracker_entry["last_played"] = time.time()
+
+    msg = potatogunner.play(nodeID, message)
     return msg
 
 
@@ -2326,6 +2356,7 @@ gameTrackers = [
     (tictactoeTracker, "TicTacToe", handleTicTacToe),
     (surveyTracker, "Survey", surveyHandler),
     (battleshipTracker, "Battleship", handleBattleship),
+    (potatogunnerTracker, "PotatoGunner", handlePotatoGunner),
     # quiz does not use a tracker (quizGamePlayer) always active
 ]
 
