@@ -16,7 +16,7 @@ import modules.settings as my_settings
 from modules.system import *
 
 # list of commands to remove from the default list for DM only
-restrictedCommands = ["blackjack", "videopoker", "dopewars", "lemonstand", "golfsim", "mastermind", "hangman", "hamtest", "tictactoe", "tic-tac-toe", "quiz", "q:", "survey", "s:", "battleship"]
+restrictedCommands = ["blackjack", "videopoker", "dopewars", "lemonstand", "golfsim", "mastermind", "hangman", "hamtest", "tictactoe", "tic-tac-toe", "quiz", "q:", "survey", "s:", "battleship", "football"]
 restrictedResponse = "🤖only available in a Direct Message📵" # "" for none
 blackhole_mode = False
 
@@ -60,6 +60,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "ealert": lambda: handle_emergency_alerts(message, message_from_id, deviceID),
     "earthquake": lambda: handleEarthquake(message, message_from_id, deviceID),
     "email:": lambda: handle_email(message_from_id, message),
+    "football": lambda: handleFootball(message, message_from_id, deviceID),
     "games": lambda: gamesCmdList,
     "globalthermonuclearwar": lambda: handle_gTnW(),
     "golfsim": lambda: handleGolf(message, message_from_id, deviceID),
@@ -1131,6 +1132,41 @@ def handleTicTacToe(message, nodeID, deviceID):
         tracker_entry["last_played"] = time.time()
 
     msg = tictactoe.play(nodeID, message)
+    return msg
+
+
+def handleFootball(message, nodeID, deviceID):
+    """Handle Football game commands.
+    
+    User vs Bot football game with natural language commands.
+    """
+    global footballTracker
+    
+    msg_lower = message.lower().strip()
+    tracker_entry = next((entry for entry in footballTracker if entry['nodeID'] == nodeID), None)
+    
+    # End/exit command
+    if msg_lower.startswith('end') or msg_lower.startswith('exit') or msg_lower.startswith('quit'):
+        if tracker_entry:
+            footballTracker.remove(tracker_entry)
+        return "Thanks for playing Football! 🏈"
+    
+    # New game command
+    if msg_lower.startswith('new') or not tracker_entry:
+        if not tracker_entry:
+            footballTracker.append({
+                "nodeID": nodeID,
+                "last_played": time.time(),
+            })
+        msg = football.new_game(nodeID, winning_score=20)
+        return msg
+    
+    # Update last played time
+    if tracker_entry:
+        tracker_entry["last_played"] = time.time()
+    
+    # Play command
+    msg = football.play(nodeID, message)
     return msg
 
 
@@ -2326,6 +2362,7 @@ gameTrackers = [
     (tictactoeTracker, "TicTacToe", handleTicTacToe),
     (surveyTracker, "Survey", surveyHandler),
     (battleshipTracker, "Battleship", handleBattleship),
+    (footballTracker, "Football", handleFootball),
     # quiz does not use a tracker (quizGamePlayer) always active
 ]
 

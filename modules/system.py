@@ -240,6 +240,12 @@ if battleship_enabled:
     trap_list = trap_list + ("battleship",)
     games_enabled = True
 
+if football_enabled:
+    from modules.games.football import Football # from the spudgunman/meshing-around repo
+    football = Football(display_module=None)
+    trap_list = trap_list + ("football",)
+    games_enabled = True
+
 # Games Configuration
 if games_enabled is True:
     help_message = help_message + ", games"
@@ -269,6 +275,8 @@ if games_enabled is True:
         gamesCmdList += "ticTacToe, "
     if battleship_enabled:
         gamesCmdList += "battleship, "
+    if football_enabled:
+        gamesCmdList += "football, "
     gamesCmdList = gamesCmdList[:-2] # remove the last comma
 else:
     gamesCmdList = ""
@@ -518,7 +526,7 @@ def cleanup_game_trackers(current_time):
         tracker_names = [
             'dwPlayerTracker', 'lemonadeTracker', 'jackTracker', 
             'vpTracker', 'mindTracker', 'golfTracker', 
-            'hangmanTracker', 'hamtestTracker', 'tictactoeTracker', 'surveyTracker', 'battleshipTracker'
+            'hangmanTracker', 'hamtestTracker', 'tictactoeTracker', 'surveyTracker', 'battleshipTracker', 'footballTracker'
         ]
         
         for tracker_name in tracker_names:

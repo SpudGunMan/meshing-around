@@ -9,6 +9,7 @@
 - [Tic-Tac-Toe (2D/3D)](#tic-tac-toe-game-module)
 - [MasterMind](#mastermind-game-module)
 - [Battleship](#battleship-game-module)
+- [Football](#football-game-module)
 - [Video Poker](#video-poker-game-module)
 - [Hangman](#hangman-game-module)
 - [Quiz](#quiz-game-module)
@@ -591,6 +592,167 @@ Your ships: 5/5 afloat
 ## Credits
 
 - Written for Meshtastic mesh-bot by K7MHI Kelly Keeton 2025
+
+# Football Game Module
+
+A classic N.F.U. Football game adapted for Meshtastic mesh-bot. Play against the bot (or another human in the future) using natural language commands!
+
+## How to Play
+
+- **Start a New Game:**  
+  Send `football` or `fb` via DM to the bot to start a new game.
+
+- **Gameplay:**  
+  You always play Team 1 (offense), starting on your own 20-yard line.  
+  The bot plays Team 2 (defense).
+  
+  **Offensive Plays (Natural Language):**
+  - `run` — Running plays (gains 0-20 yards)
+  - `pass` — Passing plays (gains 5-30 yards, high variance)
+  - `bomb` — Bomb pass (high risk, high reward)
+  - `sweep` — Sweep around the edge
+  - `option` — Option play (run or pass)
+  - `screen` — Screen pass (short, safe)
+
+  **Special Plays (4th Down Only):**
+  - `punt` — Punt the ball away
+  - `field goal` or `fg` — Attempt a field goal
+
+  **Game Commands:**
+  - `score` or `s` — Show current score and field
+  - `help` or `?` — Show available plays and tips
+  - `new` or `n` — Start a new game
+  - `end` or `exit` — End the current game
+
+- **Game Objective:**  
+  Score points by moving the ball toward the opponent's endzone and reach the winning score (default: 20 points).
+
+- **Scoring:**  
+  - **Touchdown:** 6 points (ball reaches opponent's endzone)
+  - **Extra Point:** 1 point (automatic conversion, 90% success rate)
+  - **Field Goal:** 3 points (attempt on any down)
+  - **Safety:** 2 points (awarded to defending team)
+
+- **Game Flow:**  
+  - Each drive consists of 4 downs to gain 10 yards (1st down).
+  - Turnover on downs if you don't gain 10 yards in 4 plays.
+  - Possession changes after touchdowns, safeties, turnovers, or punts.
+  - Game ends when either team reaches the winning score.
+
+## Bot Strategy
+
+The bot uses a **biased random strategy**:
+- 70% random play selection
+- 20% counter-play (if you run repeatedly, bot defends against passes)
+- 10% aggressive defensive plays
+
+This makes the bot both unpredictable and challenging!
+
+## Example Session
+
+```
+🏈 **FOOTBALL** 🏈
+User vs Bot · Win at 20 pts
+
+**Coin Flip**: Team 2 receives kickoff
+
+🏟️  **FIELD**
+[0   10   20   30   40   50   60   70   80   90   100]
+●
+Down: 1/4 | Yard Line: 20
+
+**Commands**: run, pass, sweep, bomb, punt, field goal
+Or type: score, help, end
+
+**🤖 Bot's Turn (Team 2)** 🤖
+
+**Bot Play**: LEFT SWEEP
+**Yards Gained**: 8
+
+📍 **Bot First Down!**
+
+🏟️  **FIELD**
+[0   10   20   30   40   50   60   70   80   90   100]
+    ●
+Down: 1/4 | Yard Line: 28
+
+Your play: run, pass, sweep, bomb, punt, field goal?
+> pass
+
+**User (Team 1)**: SCREEN PASS
+**Bot Defense**: QB SNEAK
+**Yards Gained**: 12
+
+🏈 **TOUCHDOWN!** 🏈
+Extra point **GOOD**. 7 points!
+
+📊 **SCORE**
+User (Team 1): 7
+Bot  (Team 2): 8
+
+🏟️  **FIELD**
+[0   10   20   30   40   50   60   70   80   90   100]
+                  ●
+Down: 1/4 | Yard Line: 80
+
+Your play: run, pass, sweep, bomb, punt, field goal?
+> help
+
+🏈 **FOOTBALL HELP** 🏈
+
+**Offensive Plays:**
+  run       - Running plays (gains 0-20 yards)
+  pass      - Passing plays (gains 5-30 yards, high variance)
+  bomb      - Bomb pass (high risk/high reward)
+  sweep     - Sweep around the edge
+  option    - Option play (run or pass)
+  screen    - Screen pass (short, safe)
+
+**Special Plays (4th Down Only):**
+  punt      - Punt the ball away
+  fg / field goal - Attempt a field goal
+
+**Commands:**
+  score   - Show current score
+  help    - This help text
+  new     - Start a new game
+  end     - End the current game
+```
+
+## Rules & Features
+
+- 100-yard field (0–100 yard line)
+- Classic football rules: 4 downs to gain 10 yards
+- Touchdown endzone at opponent's 100-yard line
+- Turnover on downs if 10 yards not gained
+- 2.5% chance of fumble per play (loses possession)
+- Safeties occur if ball pushed back past own endzone
+- Game state stored per player (nodeID)
+- Supports concurrent games from multiple users
+
+## Notes
+
+- Each player starts at their own 20-yard line after scoring
+- Initial possession determined by coin flip
+- Only one game session per player at a time
+- Play via DM to avoid interfering with other users
+- Natural language input allows flexible phrasing (e.g., "run", "rushing", "carry" all work)
+- Game data is stored in-memory; restarting the bot resets all games
+
+## Future Enhancements
+
+- Two-player mode (user vs. user) similar to Battleship
+- Play statistics and leaderboards
+- Playbook customization
+- Multi-message game display for visual improvements
+- Field position tracking across possessions
+
+## Credits
+
+- Ported from the classic BASIC N.F.U. Football game
+- Original Python port by Martin Thoma (2022)
+- Original JavaScript version by Oscar Toledo G. (nanochess)
+- Refactored for Meshtastic mesh-bot by K7MHI Kelly Keeton 2025
 
 # Word of the Day Game — Rules & Features
 
