@@ -51,6 +51,7 @@ dwPlayerTracker = []         # DopeWars player tracker
 jackTracker = []             # Jack game tracker
 mindTracker = []             # Mastermind (mmind) game tracker
 battleshipTracker = []       # Battleship game tracker
+lunarlanderTracker = []      # Lunar Lander game tracker
 potatogunnerTracker = []     # Potato Gunner game tracker
 
 # Memory Management Constants
@@ -495,6 +496,7 @@ try:
     hangman_enabled = config['games'].getboolean('hangman', True)
     hamtest_enabled = config['games'].getboolean('hamtest', True)
     tictactoe_enabled = config['games'].getboolean('tictactoe', True)
+    lunarlander_enabled = config['games'].getboolean('lunarlander', True)
     quiz_enabled = config['games'].getboolean('quiz', False)
     survey_enabled = config['games'].getboolean('survey', False)
     default_survey = config['games'].get('defaultSurvey', 'example') # default example

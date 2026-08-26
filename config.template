@@ -463,6 +463,7 @@ golfsim = True
 hangman = True
 hamtest = True
 tictactoe = True
+lunarlander = True
 wordOfTheDay = True
 battleShip = True
 potatogunner = True

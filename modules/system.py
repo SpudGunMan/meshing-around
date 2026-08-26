@@ -230,6 +230,12 @@ if potatogunner_enabled:
     trap_list = trap_list + ("spudgunner","spudgun",)
     games_enabled = True
 
+if lunarlander_enabled:
+    from modules.games.lunarlander import LunarLander # Lunar Lander simulation
+    lunarlander = LunarLander()
+    trap_list = trap_list + ("lunarlander",)
+    games_enabled = True
+
 if quiz_enabled:
     from modules.games.quiz import * # from the spudgunman/meshing-around repo
     trap_list = trap_list + trap_list_quiz # items quiz, q:
@@ -281,6 +287,8 @@ if games_enabled is True:
         gamesCmdList += "ticTacToe, "
     if battleship_enabled:
         gamesCmdList += "battleship, "
+    if lunarlander_enabled:
+        gamesCmdList += "lunarLander, "
     if potatogunner_enabled:
         gamesCmdList += "spudgunner, "
     gamesCmdList = gamesCmdList[:-2] # remove the last comma
@@ -532,7 +540,7 @@ def cleanup_game_trackers(current_time):
         tracker_names = [
             'dwPlayerTracker', 'lemonadeTracker', 'jackTracker', 
             'vpTracker', 'mindTracker', 'golfTracker', 
-            'hangmanTracker', 'hamtestTracker', 'tictactoeTracker', 'surveyTracker', 'battleshipTracker', 'potatogunnerTracker'
+            'hangmanTracker', 'hamtestTracker', 'tictactoeTracker', 'surveyTracker', 'battleshipTracker', 'potatogunnerTracker', 'lunarlanderTracker'
         ]
         
         for tracker_name in tracker_names:

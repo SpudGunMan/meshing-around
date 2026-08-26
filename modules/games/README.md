@@ -2,6 +2,7 @@
 
 ## Game Index
 
+- [Lunar Lander](#lunar-lander-game-module)
 - [Blackjack](#blackjack-game-module)
 - [DopeWars](#dopewars-game-module)
 - [GolfSim](#golfsim-game-module)
@@ -17,6 +18,119 @@
 - [Word of the Day Game](#word-of-the-day-game--rules--features)
 - [Game Server](#game-server-configuration-gameini)
 - [PyGame Help](#pygame-help)
+---
+
+
+# Lunar Lander Game Module
+
+A classic Apollo-style lunar landing simulation adapted for the Meshtastic mesh-bot. Land your capsule safely on the moon by managing fuel and engine temperature!
+
+## How to Play
+
+- **Start the Game:**  
+  Send the command `lunarlander` via DM to the bot to start a new mission.
+
+- **Landing Strategy:**  
+  You must carefully control your descent rate and manage fuel to achieve a safe landing.
+  - **Target landing velocity:** Less than 0.5 mph for a perfect landing
+  - **Safe landing:** Below 2 mph
+  - **Rough landing:** Below 30 mph (crew survives)
+  - **Crash:** 30-100 mph (crew likely injured)
+  - **Catastrophic failure:** 100+ mph (new crater! 💀)
+
+- **Controls:**  
+  Enter burn rate and optional duration on each turn.
+  - Format: `burn_rate [duration]`
+  - Burn rate: 0-200 lbs/sec (safe), higher = risky
+  - Duration: 1-30 seconds (default 10)
+  - Examples: `100`, `150 5`, `0`
+
+- **Fuel Management:**  
+  - Starting fuel varies (keeps games fresh!)
+  - Watch your remaining fuel time
+  - Free fall (0 lbs/sec burn) conserves fuel but increases impact risk
+  - High burn rate uses fuel fast but gives descent control
+
+
+## Commands
+
+| Command | Effect |
+|---------|--------|
+| `lunarlander` | Start a new game |
+| `help` or `?` or `h` | Show controls |
+| `quit` or `exit` or `end` | Abort mission |
+| `y` | Confirm risky high burn (>200 lbs/sec) |
+| `n` | Cancel risky burn |
+
+## Status Display
+
+During each turn you'll see:
+```
+⏱️ T+  120s | 🌍 45mi 2640ft | 📉  1200mph
+⛽ Fuel:  8500lbs | 🔥 120 lbs/s (70s left) | 🌡️ 65%
+🟠 WARNING: Engine temp rising - watch it!
+```
+
+## Tips for Winning
+
+1. **Early descents:** High initial velocity = more burn needed early
+2. **Fuel efficiency:** Lower burn rates = longer mission, but slow descent control
+3. **Engine management:** Stay below 70% temp; if warned, reduce burn rate next turn
+4. **Final approach:** Use a gentle burn (10-30 lbs/sec) for precision landing
+5. **Overheat risk:** Burning 200+ lbs/sec heats engine fast; only use when desperate!
+6. **Free fall:** Use 0 lbs/sec strategically to drop quickly then burn hard for landing
+
+## Game State
+
+- Game state persists per player (tracked by node ID)
+- Game automatically expires after 8 hours of inactivity
+- Only one active mission per player
+- For best results, play via DM to avoid channel spam
+
+## Example Session
+
+```
+🚀 LUNAR LANDER 🚀
+Your onboard computer crashed (Boeing made it 😬)
+YOU must land this capsule manually!
+
+💡 Enter: burn_rate [duration_sec]
+📊 Examples: '100' (10s default) or '150 5'
+⏱️ Watch descent & fuel! Type 'help' for more
+
+⏱️ T+  10s | 🌍 125mi 4800ft | 📉  450mph
+⛽ Fuel: 16000lbs | 🎯 Descent rate: excellent
+
+→ Enter burn rate:
+```
+```
+100
+
+⏱️ T+  20s | 🌍 110mi 1200ft | 📉  850mph
+⛽ Fuel: 14000lbs | 🔥 100 lbs/s (140s left) | 🌡️ 25%
+✅ Descent rate: controlled
+
+→ Next burn rate:
+```
+```
+150 5
+
+👽 ALIENS! They gave us 800 lbs fuel! 💚
+
+⏱️ T+  25s | 🌍 85mi 3400ft | 📉  1200mph
+⛽ Fuel: 14800lbs | 🔥 150 lbs/s (98s left) | 🌡️ 47%
+⚡ Descent rate: steady, watch it
+
+→ Next burn rate:
+```
+
+## Credits
+
+- Classic Lunar Lander by Dave LeCompte (1979)
+- Ported to Meshtastic mesh-bot by K7MHI Kelly Keeton 2026
+- Physics engine: Euler method numerical integration
+- Original inspiration: NASA Apollo Lunar Module simulations
+
 ---
 
 

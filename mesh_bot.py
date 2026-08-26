@@ -16,7 +16,8 @@ import modules.settings as my_settings
 from modules.system import *
 
 # list of commands to remove from the default list for DM only
-restrictedCommands = ["blackjack", "videopoker", "dopewars", "lemonstand", "golfsim", "mastermind", "hangman", "hamtest", "tictactoe", "tic-tac-toe", "quiz", "q:", "survey", "s:", "battleship", "spudgun", "spudgunner"]
+restrictedCommands = ["blackjack", "videopoker", "dopewars", "lemonstand", "golfsim", "mastermind", "hangman", "hamtest", "tictactoe", "tic-tac-toe", "quiz", "q:", "survey", "s:", "battleship", "spudgun", "spudgunner", "lunarlander"]
+
 restrictedResponse = "🤖only available in a Direct Message📵" # "" for none
 blackhole_mode = False
 
@@ -90,6 +91,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "leaderboard": lambda: get_mesh_leaderboard(message, message_from_id, deviceID),
     "lemonstand": lambda: handleLemonade(message, message_from_id, deviceID),
     "lheard": lambda: handle_lheard(message, message_from_id, deviceID, isDM),
+    "lunarlander": lambda: handleLunarLander(message, message_from_id, deviceID),
     "map": lambda: mapHandler(message_from_id, deviceID, channel_number, message, snr, rssi, hop),
     "mastermind": lambda: handleMmind(message, message_from_id, deviceID),
     "messages": lambda: handle_messages(message, deviceID, channel_number, msg_history, publicChannel, isDM),
@@ -1137,6 +1139,54 @@ def handleTicTacToe(message, nodeID, deviceID):
     return msg
 
 
+def handleLunarLander(message, nodeID, deviceID):
+    global lunarlanderTracker
+    from modules.settings import use_metric
+    
+    # Strip command prefix from message
+    user_input = message.replace("lunarlander", "").strip()
+    
+    tracker_entry = next((entry for entry in lunarlanderTracker if entry['nodeID'] == nodeID), None)
+    
+    # Create new game if not found
+    if not tracker_entry:
+        game_state, welcome_msg = lunarlander.new_game()
+        lunarlanderTracker.append({
+            "nodeID": nodeID,
+            "last_played": time.time(),
+            "game_state": game_state,
+            "result": None
+        })
+        # If user sent something besides just the command, process it as first burn rate
+        if user_input:
+            updated_state, response, game_ended = lunarlander.play(game_state, user_input, use_metric)
+            lunarlanderTracker[-1]["game_state"] = updated_state
+            if game_ended:
+                lunarlanderTracker.pop()
+            return response
+        return welcome_msg
+    
+    # Update last played
+    tracker_entry["last_played"] = time.time()
+    
+    # Handle end/exit command for active game
+    if user_input.lower() in ('e', 'end', 'exit', 'quit'):
+        lunarlanderTracker.remove(tracker_entry)
+        return "🚀 Thanks for landing! Type 'lunarlander' to play again."
+    
+    # Process player input
+    game_state = tracker_entry.get("game_state", {})
+    updated_state, response, game_ended = lunarlander.play(game_state, user_input, use_metric)
+    
+    # Save updated state
+    tracker_entry["game_state"] = updated_state
+    tracker_entry["result"] = response if game_ended else None
+    
+    # Remove from tracker if game ended
+    if game_ended:
+        lunarlanderTracker.remove(tracker_entry)
+    
+    return response
 def handlePotatoGunner(message, nodeID, deviceID):
     global potatogunnerTracker
 
@@ -2355,6 +2405,7 @@ gameTrackers = [
     (hangmanTracker, "Hangman", handleHangman),
     (hamtestTracker, "HamTest", handleHamtest),
     (tictactoeTracker, "TicTacToe", handleTicTacToe),
+    (lunarlanderTracker, "LunarLander", handleLunarLander),
     (surveyTracker, "Survey", surveyHandler),
     (battleshipTracker, "Battleship", handleBattleship),
     (potatogunnerTracker, "PotatoGunner", handlePotatoGunner),
