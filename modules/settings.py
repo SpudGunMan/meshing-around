@@ -51,6 +51,7 @@ dwPlayerTracker = []         # DopeWars player tracker
 jackTracker = []             # Jack game tracker
 mindTracker = []             # Mastermind (mmind) game tracker
 battleshipTracker = []       # Battleship game tracker
+footballTracker = []         # Football game tracker
 lunarlanderTracker = []      # Lunar Lander game tracker
 potatogunnerTracker = []     # Potato Gunner game tracker
 
@@ -504,6 +505,7 @@ try:
     surveyRecordLocation = config['games'].getboolean('surveyRecordLocation', True)
     wordOfTheDay = config['games'].getboolean('wordOfTheDay', True)
     battleship_enabled = config['games'].getboolean('battleShip', True)
+    football_enabled = config['games'].getboolean('football', True)
     potatogunner_enabled = config['games'].getboolean('potatogunner', True)
 
     # messaging settings

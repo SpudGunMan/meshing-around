@@ -337,6 +337,88 @@ class TestBot(unittest.TestCase):
         self.assertIsInstance(initial, str)
         self.assertIsInstance(answer_msg, str)
 
+    def test_football_new_game(self):
+        from games.football import Football
+        football = Football(display_module=None)
+        user_id = 12345
+        # Start a new game
+        initial = football.new_game(user_id, winning_score=20)
+        print("Initial game:", initial[:100])  # Print first 100 chars
+        self.assertIsInstance(initial, str)
+        self.assertIn("FOOTBALL", initial)
+        self.assertIn("Coin Flip", initial)
+        # Verify game state was created
+        self.assertIn(user_id, football.game)
+        self.assertIn("score", football.game[user_id])
+        self.assertEqual(football.game[user_id]["score"], [0, 0])
+
+    def test_football_user_play(self):
+        from games.football import Football
+        football = Football(display_module=None)
+        user_id = 12346
+        # Start a new game
+        football.new_game(user_id, winning_score=20)
+        # Make sure user has possession (or get one)
+        if football.game[user_id]["possession"] == 1:  # Bot has possession
+            football.game[user_id]["possession"] = 0  # Give to user
+            football.game[user_id]["position"] = 20
+        # User executes a running play
+        result = football.play(user_id, "run")
+        print("User play result:", result[:100])
+        self.assertIsInstance(result, str)
+        self.assertIn("Yards Gained", result)
+
+    def test_football_scoring(self):
+        from games.football import Football
+        football = Football(display_module=None)
+        user_id = 12347
+        # Start a new game
+        football.new_game(user_id, winning_score=20)
+        # Set user at near opponent endzone (for easy TD)
+        football.game[user_id]["possession"] = 0
+        football.game[user_id]["position"] = 98
+        football.game[user_id]["down"] = 1
+        # Execute play that should result in TD
+        result = football._score_touchdown(user_id, "")
+        print("Touchdown result:", result[:100])
+        self.assertIsInstance(result, str)
+        self.assertIn("TOUCHDOWN", result)
+        # Verify score increased
+        self.assertGreater(football.game[user_id]["score"][0], 0)
+
+    def test_football_bot_strategy(self):
+        from games.football import Football
+        football = Football(display_module=None)
+        user_id = 12348
+        # Test bot move selection with biased random
+        user_play_type = [0, 1, 2, 3, 4]  # Running plays
+        # Get multiple bot plays to verify strategy works
+        bot_plays = []
+        for _ in range(10):
+            bot_play = football._get_bot_play(user_id, user_play_type)
+            bot_plays.append(bot_play)
+            self.assertIsInstance(bot_play, int)
+            self.assertGreaterEqual(bot_play, 0)
+            self.assertLess(bot_play, 20)
+        # Verify we got some variety (not always the same play)
+        self.assertGreater(len(set(bot_plays)), 1)
+
+    def test_football_end_game(self):
+        from games.football import Football
+        football = Football(display_module=None)
+        user_id = 12349
+        # Start a new game
+        football.new_game(user_id, winning_score=3)  # Low winning score
+        # Manually set score to trigger game over
+        football.game[user_id]["score"] = [3, 1]
+        # End the game
+        result = football._end_game(user_id)
+        print("End game result:", result[:100])
+        self.assertIsInstance(result, str)
+        self.assertIn("GAME OVER", result)
+        self.assertIn("YOU WIN", result)
+        self.assertTrue(football.game[user_id]["game_over"])
+
 
     ##### API Tests - Extended tests run only if CHECKALL is True #####
 
