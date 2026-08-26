@@ -372,6 +372,10 @@ def process_final_tick(
         delta_t = capsule.altitude / average_vel
         new_state = capsule.predict_motion(delta_t)
         capsule.update_state(sim_clock, delta_t, new_state)
+        
+        # Prevent infinite loop - if we're still above surface, landing result
+        if new_state.altitude <= 0:
+            return show_landing(sim_clock, capsule)
 
 
 def handle_flyaway(sim_clock: SimulationClock, capsule: Capsule) -> bool:

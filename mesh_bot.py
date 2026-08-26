@@ -1178,8 +1178,12 @@ def handleLunarLander(message, nodeID, deviceID):
     global lunarlanderTracker
     from modules.settings import use_metric
     
-    # Strip command prefix from message
-    user_input = message.replace("lunarlander", "").strip()
+    # Strip command prefix from message (case-insensitive, start-only)
+    msg = message.strip()
+    if msg.lower().startswith("lunarlander"):
+        user_input = msg[len("lunarlander"):].strip()
+    else:
+        user_input = msg
     
     tracker_entry = next((entry for entry in lunarlanderTracker if entry['nodeID'] == nodeID), None)
     
