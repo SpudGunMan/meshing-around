@@ -248,7 +248,7 @@ class Football:
         Returns play result message and updates game state.
         """
         game = self.game[nodeID]
-        msg = f"\n({game['user_team']})\n\n"
+        msg = f"({game['user_team']})"
         
         # Handle special 4th down scenarios
         if game["down"] == 4:
@@ -285,7 +285,7 @@ class Football:
         bot_defense = self.PLAY_DATA["actions"][bot_play_num]
         
         msg += f"Offense: {play_name}\n"
-        msg += f"Defense (🤖 {game['bot_team']}): {bot_defense}\n"
+        msg += f"Defense(🤖 {game['bot_team']}): {bot_defense}\n"
         
         # Check for penalties before play
         penalty_result = self._check_penalties(nodeID, is_pass_play=any(p in [10, 11, 12, 13, 14, 15, 16, 17, 18, 19] for p in play_type))
