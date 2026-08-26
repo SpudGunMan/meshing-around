@@ -225,7 +225,7 @@ class Capsule:
         
         # Build engaging status display
         alt_str = f"{alt_value} {alt_label}"
-        msg = f"⏱️ T+{seconds:>6.0f}s | 🌍 {alt_str:>10} | 📉 {speed:>5}{speed_label}\n"
+        msg = f"⏱️ T+{seconds:>6.0f}s \n 🌍 {alt_str:>10} \n 📉 {speed:>5}{speed_label}\n"
         msg += f"⛽ Fuel: {fuel:>6}lbs "
         
         if self.fuel_per_second > 0:
