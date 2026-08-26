@@ -75,6 +75,12 @@ if solar_conditions_enabled:
 else:
     hf_band_conditions = False
 
+# Weekday Configuration
+if weekday_enabled:
+    from modules.weekday import * # from the spudgunman/meshing-around repo
+    trap_list = trap_list + trap_list_weekday # items weekday, w:
+    help_message = help_message + ", weekday"
+
 # Command History Configuration
 if enableCmdHistory:
     trap_list = trap_list + ("history",)
