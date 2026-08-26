@@ -1172,6 +1172,8 @@ def handleFootball(message, nodeID, deviceID):
     
     # Play command
     msg = football.play(nodeID, message)
+    return msg
+
 def handleLunarLander(message, nodeID, deviceID):
     global lunarlanderTracker
     from modules.settings import use_metric
