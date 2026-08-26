@@ -225,16 +225,15 @@ class Capsule:
         
         # Build engaging status display
         alt_str = f"{alt_value} {alt_label}"
-        msg = f"⏱️ T+{seconds:>6.0f}s \n 🌍 {alt_str:>10} \n 📉 {speed:>5}{speed_label}\n"
-        msg += f"⛽ Fuel: {fuel:>6}lbs "
+        msg = f"⏱️ T+{seconds:>6.0f}s \n 🌍 {alt_str:>10} \n 📉 {speed:>5}{speed_label}\n ⛽ Fuel: {fuel:>6}lbs\n"
         
         if self.fuel_per_second > 0:
             fuel_seconds = self.fuel_time_remaining()
-            msg += f"| 🔥 {self.fuel_per_second:>5.0f}lbs/s ({fuel_seconds:>4.0f}s left)"
+            msg += f"🔥 {self.fuel_per_second:>5.0f}lbs/s ({fuel_seconds:>4.0f}s left)\n"
         
         # Add engine temp indicator if burning
         if self.engine_temp > 0:
-            msg += f" | 🌡️ {self.engine_temp:.0f}%"
+            msg += f"🌡️ {self.engine_temp:.0f}%\n"
         
         # Add status indicator
         msg += "\n"
