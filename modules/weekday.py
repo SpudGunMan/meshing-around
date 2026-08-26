@@ -174,10 +174,10 @@ def get_days_till_next_holiday(date_obj: datetime.date) -> str:
     """
     # holidays is a list of tuples: (holiday_name, month, day)
     holidays = [
-        ("New Year's Day", 1, 1),
-        ("St. Patrick's Day", 3, 17),
-        ("Independence Day", 7, 4),
-        ("Christmas", 12, 25),
+        ("🥳New Year's Day", 1, 1),
+        ("🍀St. Patrick's Day", 3, 17),
+        ("🇺🇸Independence Day", 7, 4),
+        ("🎄Christmas", 12, 25),
     ]
     
     today = datetime.date.today()
