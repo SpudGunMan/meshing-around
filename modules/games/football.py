@@ -46,6 +46,29 @@ class Football:
         "curl": [13, 14],  # Curl plays
     }
     
+    # Direct play name → index mapping
+    PLAY_NAMES = {
+        "pitchout": 0,
+        "triple reverse": 1,
+        "draw": 2,
+        "qb sneak": 3,
+        "end around": 4,
+        "double reverse": 5,
+        "left sweep": 6,
+        "right sweep": 7,
+        "off tackle": 8,
+        "wishbone option": 9,
+        "flare pass": 10,
+        "screen pass": 11,
+        "roll out option": 12,
+        "right curl": 13,
+        "left curl": 14,
+        "sideline pass": 16,
+        "half-back option": 17,
+        "razzle-dazzle": 18,
+        "bomb": 19,
+    }
+    
     def __init__(self, display_module=None):
         """Initialize Football game.
         
@@ -727,12 +750,36 @@ class Football:
     def _parse_play_command(self, command: str) -> Optional[list]:
         """Parse natural language play command to play indices.
         
+        Supports:
+        - Category commands: "run", "pass", "bomb", "sweep", etc.
+        - Direct play numbers: "6" or "play 6"
+        - Play names: "left sweep", "right sweep", etc.
+        
         Args:
-            command: Natural language (e.g., "run", "pass")
+            command: Natural language (e.g., "run", "play 6", "left sweep")
             
         Returns:
             List of valid play indices, or None if unrecognized
         """
+        import re
+        
+        command = command.strip().lower()
+        
+        # Try direct play number: "6" or "play 6"
+        match = re.search(r'play\s+(\d+)|^(\d+)$', command)
+        if match:
+            play_num = int(match.group(1) or match.group(2))
+            if 0 <= play_num <= 19:
+                return [play_num]
+            else:
+                return None
+        
+        # Try specific play name
+        for play_name, play_idx in self.PLAY_NAMES.items():
+            if play_name in command:
+                return [play_idx]
+        
+        # Try category command
         for key, plays in self.PLAY_COMMANDS.items():
             if key in command:
                 return plays
