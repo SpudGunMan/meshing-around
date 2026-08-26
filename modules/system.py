@@ -75,6 +75,12 @@ if solar_conditions_enabled:
 else:
     hf_band_conditions = False
 
+# Weekday Configuration
+if weekday_enabled:
+    from modules.weekday import * # from the spudgunman/meshing-around repo
+    trap_list = trap_list + trap_list_weekday # items weekday, w:
+    help_message = help_message + ", weekday"
+
 # Command History Configuration
 if enableCmdHistory:
     trap_list = trap_list + ("history",)
@@ -217,6 +223,18 @@ if tictactoe_enabled:
     from modules.games.tictactoe import TicTacToe # from the spudgunman/meshing-around repo
     tictactoe = TicTacToe(display_module=None)
     trap_list = trap_list + ("tictactoe","tic-tac-toe",)
+    games_enabled = True
+
+if potatogunner_enabled:
+    from modules.games.potatogunner import potatogunner  # from the spudgunman/meshing-around repo
+    trap_list = trap_list + ("spudgunner","spudgun",)
+    games_enabled = True
+
+if lunarlander_enabled:
+    from modules.games.lunarlander import LunarLander # Lunar Lander simulation
+    lunarlander = LunarLander()
+    trap_list = trap_list + ("lunarlander",)
+    games_enabled = True
 
 if quiz_enabled:
     from modules.games.quiz import * # from the spudgunman/meshing-around repo
@@ -277,6 +295,10 @@ if games_enabled is True:
         gamesCmdList += "battleship, "
     if football_enabled:
         gamesCmdList += "football, "
+    if lunarlander_enabled:
+        gamesCmdList += "lunarLander, "
+    if potatogunner_enabled:
+        gamesCmdList += "spudgunner, "
     gamesCmdList = gamesCmdList[:-2] # remove the last comma
 else:
     gamesCmdList = ""
@@ -526,7 +548,7 @@ def cleanup_game_trackers(current_time):
         tracker_names = [
             'dwPlayerTracker', 'lemonadeTracker', 'jackTracker', 
             'vpTracker', 'mindTracker', 'golfTracker', 
-            'hangmanTracker', 'hamtestTracker', 'tictactoeTracker', 'surveyTracker', 'battleshipTracker', 'footballTracker'
+            'hangmanTracker', 'hamtestTracker', 'tictactoeTracker', 'surveyTracker', 'battleshipTracker', 'potatogunnerTracker', 'lunarlanderTracker', 'footballTracker'
         ]
         
         for tracker_name in tracker_names:

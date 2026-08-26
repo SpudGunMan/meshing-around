@@ -52,6 +52,9 @@ whoami = True
 DadJokes = True
 DadJokesEmoji = False
 
+# weekday command shows day of week, day of year, days left in year, week number, days till Christmas, and past date info
+weekday = True
+
 # enable or disable the Solar module
 spaceWeather = True
 
@@ -460,8 +463,10 @@ golfsim = True
 hangman = True
 hamtest = True
 tictactoe = True
+lunarlander = True
 wordOfTheDay = True
 battleShip = True
+potatogunner = True
 
 # enable or disable the quiz game module questions are in data/quiz.json
 quiz = False

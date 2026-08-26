@@ -16,7 +16,8 @@ import modules.settings as my_settings
 from modules.system import *
 
 # list of commands to remove from the default list for DM only
-restrictedCommands = ["blackjack", "videopoker", "dopewars", "lemonstand", "golfsim", "mastermind", "hangman", "hamtest", "tictactoe", "tic-tac-toe", "quiz", "q:", "survey", "s:", "battleship", "football"]
+restrictedCommands = ["blackjack", "videopoker", "dopewars", "lemonstand", "golfsim", "mastermind", "hangman", "hamtest", "tictactoe", "tic-tac-toe", "quiz", "q:", "survey", "s:", "battleship", "spudgun", "spudgunner", "lunarlander", "football"]
+
 restrictedResponse = "🤖only available in a Direct Message📵" # "" for none
 blackhole_mode = False
 
@@ -91,6 +92,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "leaderboard": lambda: get_mesh_leaderboard(message, message_from_id, deviceID),
     "lemonstand": lambda: handleLemonade(message, message_from_id, deviceID),
     "lheard": lambda: handle_lheard(message, message_from_id, deviceID, isDM),
+    "lunarlander": lambda: handleLunarLander(message, message_from_id, deviceID),
     "map": lambda: mapHandler(message_from_id, deviceID, channel_number, message, snr, rssi, hop),
     "mastermind": lambda: handleMmind(message, message_from_id, deviceID),
     "messages": lambda: handle_messages(message, deviceID, channel_number, msg_history, publicChannel, isDM),
@@ -112,6 +114,8 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "sitrep": lambda: handle_lheard(message, message_from_id, deviceID, isDM),
     "sms:": lambda: handle_sms(message_from_id, message),
     "solar": lambda: drap_xray_conditions() + "\n" + solar_conditions() + "\n" + get_noaa_scales_summary(),
+    "spudgun": lambda: handlePotatoGunner(message, message_from_id, deviceID),
+    "spudgunner": lambda: handlePotatoGunner(message, message_from_id, deviceID),
     "sun": lambda: handle_sun(message_from_id, deviceID, channel_number),
     "survey": lambda: surveyHandler(message, message_from_id, deviceID),
     "s:": lambda: surveyHandler(message, message_from_id, deviceID),
@@ -124,6 +128,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "valert": lambda: get_volcano_usgs(),
     "verse": lambda: read_verse(),
     "videopoker": lambda: handleVideoPoker(message, message_from_id, deviceID),
+    "weekday": lambda: weekdayHandler(message, message_from_id, deviceID),
     "whereami": lambda: handle_whereami(message_from_id, deviceID, channel_number),
     "whoami": lambda: handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus),
     "whois": lambda: handle_whois(message, deviceID, channel_number, message_from_id),
@@ -1167,6 +1172,79 @@ def handleFootball(message, nodeID, deviceID):
     
     # Play command
     msg = football.play(nodeID, message)
+def handleLunarLander(message, nodeID, deviceID):
+    global lunarlanderTracker
+    from modules.settings import use_metric
+    
+    # Strip command prefix from message
+    user_input = message.replace("lunarlander", "").strip()
+    
+    tracker_entry = next((entry for entry in lunarlanderTracker if entry['nodeID'] == nodeID), None)
+    
+    # Create new game if not found
+    if not tracker_entry:
+        game_state, welcome_msg = lunarlander.new_game()
+        lunarlanderTracker.append({
+            "nodeID": nodeID,
+            "last_played": time.time(),
+            "game_state": game_state,
+            "result": None
+        })
+        # If user sent something besides just the command, process it as first burn rate
+        if user_input:
+            updated_state, response, game_ended = lunarlander.play(game_state, user_input, use_metric)
+            lunarlanderTracker[-1]["game_state"] = updated_state
+            if game_ended:
+                lunarlanderTracker.pop()
+            return response
+        return welcome_msg
+    
+    # Update last played
+    tracker_entry["last_played"] = time.time()
+    
+    # Handle end/exit command for active game
+    if user_input.lower() in ('e', 'end', 'exit', 'quit'):
+        lunarlanderTracker.remove(tracker_entry)
+        return "🚀 Thanks for landing! Type 'lunarlander' to play again."
+    
+    # Process player input
+    game_state = tracker_entry.get("game_state", {})
+    updated_state, response, game_ended = lunarlander.play(game_state, user_input, use_metric)
+    
+    # Save updated state
+    tracker_entry["game_state"] = updated_state
+    tracker_entry["result"] = response if game_ended else None
+    
+    # Remove from tracker if game ended
+    if game_ended:
+        lunarlanderTracker.remove(tracker_entry)
+    
+    return response
+def handlePotatoGunner(message, nodeID, deviceID):
+    global potatogunnerTracker
+
+    tracker_entry = next((entry for entry in potatogunnerTracker if entry['nodeID'] == nodeID), None)
+
+    # Handle end/exit command
+    if message.lower().startswith('e'):
+        if tracker_entry:
+            potatogunner.end(nodeID)
+            potatogunnerTracker.remove(tracker_entry)
+        return "🥔 Thanks for playing! 🥔"
+
+    # If not found, create new tracker entry
+    if not tracker_entry:
+        potatogunnerTracker.append({
+            "nodeID": nodeID,
+            "last_played": time.time()
+        })
+        msg = "🥔 POTATO GUNNER 🥔 Let's plant some spuds!\n"
+        msg += potatogunner.new_game(nodeID)
+        return msg
+    else:
+        tracker_entry["last_played"] = time.time()
+
+    msg = potatogunner.play(nodeID, message)
     return msg
 
 
@@ -2360,9 +2438,11 @@ gameTrackers = [
     (hangmanTracker, "Hangman", handleHangman),
     (hamtestTracker, "HamTest", handleHamtest),
     (tictactoeTracker, "TicTacToe", handleTicTacToe),
+    (lunarlanderTracker, "LunarLander", handleLunarLander),
     (surveyTracker, "Survey", surveyHandler),
     (battleshipTracker, "Battleship", handleBattleship),
     (footballTracker, "Football", handleFootball),
+    (potatogunnerTracker, "PotatoGunner", handlePotatoGunner),
     # quiz does not use a tracker (quizGamePlayer) always active
 ]
 

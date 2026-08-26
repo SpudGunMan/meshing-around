@@ -2,6 +2,7 @@
 
 ## Game Index
 
+- [Lunar Lander](#lunar-lander-game-module)
 - [Blackjack](#blackjack-game-module)
 - [DopeWars](#dopewars-game-module)
 - [GolfSim](#golfsim-game-module)
@@ -10,6 +11,7 @@
 - [MasterMind](#mastermind-game-module)
 - [Battleship](#battleship-game-module)
 - [Football](#football-game-module)
+- [Potato Gunner](#potato-gunner-game-module)
 - [Video Poker](#video-poker-game-module)
 - [Hangman](#hangman-game-module)
 - [Quiz](#quiz-game-module)
@@ -17,6 +19,119 @@
 - [Word of the Day Game](#word-of-the-day-game--rules--features)
 - [Game Server](#game-server-configuration-gameini)
 - [PyGame Help](#pygame-help)
+---
+
+
+# Lunar Lander Game Module
+
+A classic Apollo-style lunar landing simulation adapted for the Meshtastic mesh-bot. Land your capsule safely on the moon by managing fuel and engine temperature!
+
+## How to Play
+
+- **Start the Game:**  
+  Send the command `lunarlander` via DM to the bot to start a new mission.
+
+- **Landing Strategy:**  
+  You must carefully control your descent rate and manage fuel to achieve a safe landing.
+  - **Target landing velocity:** Less than 0.5 mph for a perfect landing
+  - **Safe landing:** Below 2 mph
+  - **Rough landing:** Below 30 mph (crew survives)
+  - **Crash:** 30-100 mph (crew likely injured)
+  - **Catastrophic failure:** 100+ mph (new crater! 💀)
+
+- **Controls:**  
+  Enter burn rate and optional duration on each turn.
+  - Format: `burn_rate [duration]`
+  - Burn rate: 0-200 lbs/sec (safe), higher = risky
+  - Duration: 1-30 seconds (default 10)
+  - Examples: `100`, `150 5`, `0`
+
+- **Fuel Management:**  
+  - Starting fuel varies (keeps games fresh!)
+  - Watch your remaining fuel time
+  - Free fall (0 lbs/sec burn) conserves fuel but increases impact risk
+  - High burn rate uses fuel fast but gives descent control
+
+
+## Commands
+
+| Command | Effect |
+|---------|--------|
+| `lunarlander` | Start a new game |
+| `help` or `?` or `h` | Show controls |
+| `quit` or `exit` or `end` | Abort mission |
+| `y` | Confirm risky high burn (>200 lbs/sec) |
+| `n` | Cancel risky burn |
+
+## Status Display
+
+During each turn you'll see:
+```
+⏱️ T+  120s | 🌍 45mi 2640ft | 📉  1200mph
+⛽ Fuel:  8500lbs | 🔥 120 lbs/s (70s left) | 🌡️ 65%
+🟠 WARNING: Engine temp rising - watch it!
+```
+
+## Tips for Winning
+
+1. **Early descents:** High initial velocity = more burn needed early
+2. **Fuel efficiency:** Lower burn rates = longer mission, but slow descent control
+3. **Engine management:** Stay below 70% temp; if warned, reduce burn rate next turn
+4. **Final approach:** Use a gentle burn (10-30 lbs/sec) for precision landing
+5. **Overheat risk:** Burning 200+ lbs/sec heats engine fast; only use when desperate!
+6. **Free fall:** Use 0 lbs/sec strategically to drop quickly then burn hard for landing
+
+## Game State
+
+- Game state persists per player (tracked by node ID)
+- Game automatically expires after 8 hours of inactivity
+- Only one active mission per player
+- For best results, play via DM to avoid channel spam
+
+## Example Session
+
+```
+🚀 LUNAR LANDER 🚀
+Your onboard computer crashed (Boeing made it 😬)
+YOU must land this capsule manually!
+
+💡 Enter: burn_rate [duration_sec]
+📊 Examples: '100' (10s default) or '150 5'
+⏱️ Watch descent & fuel! Type 'help' for more
+
+⏱️ T+  10s | 🌍 125mi 4800ft | 📉  450mph
+⛽ Fuel: 16000lbs | 🎯 Descent rate: excellent
+
+→ Enter burn rate:
+```
+```
+100
+
+⏱️ T+  20s | 🌍 110mi 1200ft | 📉  850mph
+⛽ Fuel: 14000lbs | 🔥 100 lbs/s (140s left) | 🌡️ 25%
+✅ Descent rate: controlled
+
+→ Next burn rate:
+```
+```
+150 5
+
+👽 ALIENS! They gave us 800 lbs fuel! 💚
+
+⏱️ T+  25s | 🌍 85mi 3400ft | 📉  1200mph
+⛽ Fuel: 14800lbs | 🔥 150 lbs/s (98s left) | 🌡️ 47%
+⚡ Descent rate: steady, watch it
+
+→ Next burn rate:
+```
+
+## Credits
+
+- Classic Lunar Lander by Dave LeCompte (1979)
+- Ported to Meshtastic mesh-bot by K7MHI Kelly Keeton 2026
+- Physics engine: Euler method numerical integration
+- Original inspiration: NASA Apollo Lunar Module simulations
+
 ---
 
 
@@ -444,6 +559,121 @@ Would you like to play again? (N)ormal, (H)ard, or e(X)pert?
 
 - Ported from [pwdkramer/pythonMastermind](https://github.com/pwdkramer/pythonMastermind)
 - Adapted for Meshtastic mesh-bot by K7MHI Kelly Keeton 2024
+
+# Potato Gunner Game Module
+
+A silly, potato-themed artillery game for the Meshtastic mesh-bot. Fire spuds at moving targets, navigate wind and chaos events, and earn powerups to become the ultimate potato sharpshooter!
+
+## How to Play
+
+- **Start the Game:**  
+  Send the command `spudgun`, or `spudgunner` via DM to the bot to start a new tournament.
+
+- **Gameplay:**
+  Each round, you'll see the target distance and wind conditions. Enter an elevation angle (0-90°) AND hairspray PSI pressure (0-100) to control your shot's velocity.
+  - **Input format:** `angle,power` (e.g., `45,60` for 45° at 60 PSI)
+  - **Quick hints:** `low,50` | `mid,50` | `high,50` (uses default 50 PSI)
+  - **Backward compatible:** Just enter angle (e.g., `45`) for default 50 PSI
+  - **Power mechanics:**
+    - 10 PSI: Short range, easy to control
+    - 50 PSI: Medium range, balanced (default)
+    - 100 PSI: Maximum range, harder to control
+  - **Accuracy radius:** Shots within the accuracy range hit the target (base 150 yards)
+  - **Wind effects:** Wind can increase or decrease your effective distance
+  - **Chaos events:** Random silly events like earthquakes, meteor showers, alien invasions, and more make aiming tricky!
+
+- **Commands:**
+  - `<angle>,<power>` — Fire spud at that angle with that PSI power (e.g., `45,60`)
+  - `<angle>` — Fire at default 50 PSI (backward compatible, e.g., `45`)
+  - `low`, `mid`, `high` — Use quick elevation hints at 50 PSI
+  - `stats` — Display session statistics
+  - `new` — Advance to next round
+  - `e` — End tournament
+
+- **Scoring:**
+  - Base score: 100 points per hit
+  - Accuracy bonus: Up to +100 points (closer hits = more points)
+  - Streak bonus: +15 points for each consecutive hit
+  - Chaos survival bonus: +60 points for hitting during chaos events
+  - Round multiplier: Score multiplies by round number
+
+- **Powerups (Earned on Good Shots):**
+  - 🎯 **Accuracy ≥75%**: Homing Spud (auto-corrects aim by 15%)
+  - ⚡ **Accuracy ≥50%**: Super Spud (+60 yard accuracy radius)
+  - 🔥 **3+ hit streak**: Potato Shield (free miss, one-time use)
+  - 🍀 **Chaos survival**: Lucky Potato (auto-negates next chaos event)
+
+- **Difficulty Levels:**
+  - Target distance expands each round
+  - Wind intensity increases progressively
+  - Chaos events become more frequent and intense
+  - Round multiplier increases with score
+
+- **High Scores:**
+  The module tracks your best tournament score. Beat it to earn a "NEW HIGH SCORE!" message and lock in your achievement!
+
+- **Example Game Flow:**
+
+```
+🥔 **Welcome to POTATO GUNNER!** 🥔
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🏆 **High Score: 1250 pts** 🏆
+
+🥔 **ROUND 1 - POTATO ARTILLERY RANGE** 🥔
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🎯 **Target Distance:** ~28425yd
+💨 **Wind:** +3yd (slight breeze)
+🌪️ **Difficulty:** GENTLE
+
+> 45
+
+🎯 **Target Distance:** ~28425yd
+💨 **Wind:** +3yd (slight breeze)
+🌪️ **Difficulty:** GENTLE
+
+> 45,60
+
+💣 SPUD FIRED AT 45.0° with 60 PSI
+Velocity: 120m/s | Wind effect: +2yd
+**Actual distance: 28510yd** | Target: 28425yd
+Spread: 85yd (hit zone: ±150yd)
+
+✅ **HIT!** 🎯
+Excellent accuracy! +165 pts earned!
+
+📊 Session: 165 pts | Accuracy: 1/1 (100%)
+Type 'new' for next round or 'e' to end:
+```
+
+## Notes
+
+- Single session per player (new game cancels previous session)
+- Game sessions can span multiple rounds (10+ recommended for full experience)
+- Each round becomes progressively harder with increased distance and wind
+- Power affects velocity: higher PSI = longer range, more damage potential
+- Chaos events add fun disruption - sometimes hitting during chaos is worth more!
+- Play via DM for best experience and to avoid interference with other players
+- High scores are stored persistently in `data/potatogunner_hs.pkl`
+
+## Tips for Success
+
+- Start with medium power (50 PSI) for balanced range, adjust based on target distance
+- Use low power (10-30 PSI) for close targets or high precision needs
+- Use high power (70-100 PSI) for distant targets or when you need maximum range
+- Watch the wind direction and adjust your aim accordingly
+- Land consecutive hits to build streaks and earn powerups
+- Use Lucky Potato to negate difficult chaos events
+- Push for high accuracy (75%+) to earn the "SHARPSHOOTER" rating
+- Experiment with power/angle combinations to find what works best!
+
+## Chaos Events (12 types)
+
+Wind Gust, Earthquake, Rain Storm, Meteor Shower, Alien Invasion, Mischievous Squirrel, Bird Swarm, Angry Farmer, Gravity Flip, Inverse Wind, Ricochet Zone, Slow Motion — each with escalating intensity as you progress!
+
+## Credits
+
+- Based on the classic [Gunner Artillery Game](https://github.com/coding-horror/basic-computer-games/blob/main/42_Gunner/python/gunner.py)
+- Adapted and enhanced with chaos system, powerups, and potato theming for Meshtastic mesh-bot by K7MHI Kelly Keeton 2025
 
 # Video Poker Game Module
 
