@@ -163,6 +163,9 @@ class Football:
         game = self.game[nodeID]
         command = command.strip().lower()
         
+        # DEBUG: Log incoming command
+        logger.debug(f"Football.play() - NodeID {nodeID}, Command: '{command}'")
+        
         # Check if waiting for conversion type choice after TD
         if game.get("waiting_for_conversion", False):
             if command in ("kick", "1"):
@@ -262,7 +265,9 @@ class Football:
         # Parse natural language to play type
         play_type = self._parse_play_command(command)
         if play_type is None:
-            return f"❓ Unknown command: '{command}'\nTry: run, pass, bomb, sweep, option, screen, or punt/field goal"
+            msg = f"❓ Command not recognized: '{command}'\n\n"
+            msg += f"Try: run, pass, bomb, sweep, option, screen, or punt/field goal"
+            return msg
         
         # Get user's play number
         user_play_num = random.choice(play_type)
@@ -784,6 +789,7 @@ class Football:
             if key in command:
                 return plays
         
+        logger.debug(f"_parse_play_command() - No match found for '{command}'")
         return None
     
     def _check_penalties(self, nodeID: int, is_pass_play: bool = False) -> Optional[str]:
