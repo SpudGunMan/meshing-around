@@ -102,20 +102,38 @@ def get_season(date_obj: datetime.date) -> str:
     """
     month = date_obj.month
     day = date_obj.day
-    
+    southern_hemisphere = False  # Change to True if you want Southern Hemisphere seasons
+
+    # Northern Hemisphere Seasons
     # Spring: March 20 - June 20
     # Summer: June 21 - September 22
     # Fall: September 23 - December 21
     # Winter: December 22 - March 19
-    
-    if (month == 3 and day >= 20) or (month in [4, 5]) or (month == 6 and day <= 20):
-        return "🌸 Spring"
-    elif (month == 6 and day >= 21) or (month in [7, 8]) or (month == 9 and day <= 22):
-        return "☀️ Summer"
-    elif (month == 9 and day >= 23) or (month in [10, 11]) or (month == 12 and day <= 21):
-        return "🍂 Fall"
+
+    # Southern Hemisphere Seasons
+    # Spring: September 23 - December 21
+    # Summer: December 22 - March 19
+    # Fall: March 20 - June 20
+    # Winter: June 21 - September 22
+
+    if southern_hemisphere:
+        if (month == 9 and day >= 23) or (month in [10, 11]) or (month == 12 and day <= 21):
+            return "🌸 Spring"
+        elif (month == 12 and day >= 22) or (month in [1, 2]) or (month == 3 and day <= 19):
+            return "☀️ Summer"
+        elif (month == 3 and day >= 20) or (month in [4, 5]) or (month == 6 and day <= 20):
+            return "🍂 Fall"
+        else:
+            return "❄️ Winter"    
     else:
-        return "❄️ Winter"
+        if (month == 3 and day >= 20) or (month in [4, 5]) or (month == 6 and day <= 20):
+            return "🌸 Spring"
+        elif (month == 6 and day >= 21) or (month in [7, 8]) or (month == 9 and day <= 22):
+            return "☀️ Summer"
+        elif (month == 9 and day >= 23) or (month in [10, 11]) or (month == 12 and day <= 21):
+            return "🍂 Fall"
+        else:
+            return "❄️ Winter"
 
 
 def get_business_days_left(date_obj: datetime.date) -> int:
@@ -265,7 +283,7 @@ def get_weekday_info(date_obj: datetime.date = None) -> str:
     msg += "\n"
     
     msg += f"🧮 Day {day_of_year}, of {date_obj.year}\n"
-    msg += f"📊 Week #{week_number} ({week_type} week). Week {week_of_month} of month, in {season}\n"
+    msg += f"📊 Week #{week_number} ({week_type} week). Week {week_of_month} of {calendar.month_name[date_obj.month]}, in {season}\n"
     msg += f"⏳ {days_left} days remain in {date_obj.year} and {business_days} week days\n"
     msg += f"🗓️ {days_left_month} days left this month\n"
     
