@@ -75,11 +75,12 @@ During each turn you'll see:
 ## Tips for Winning
 
 1. **Early descents:** High initial velocity = more burn needed early
-2. **Fuel efficiency:** Lower burn rates = longer mission, but slow descent control
-3. **Engine management:** Stay below 70% temp; if warned, reduce burn rate next turn
-4. **Final approach:** Use a gentle burn (10-30 lbs/sec) for precision landing
-5. **Overheat risk:** Burning 200+ lbs/sec heats engine fast; only use when desperate!
-6. **Free fall:** Use 0 lbs/sec strategically to drop quickly then burn hard for landing
+2. **Fuel efficiency:** Low burns (≤100 lbs/sec) cool faster than they heat—sustainable for long periods
+3. **Engine management:** Higher burns (>300 lbs/sec) produce net heating; use sparingly and cool down between pulses
+4. **Thermal sweet spot:** Medium burns (100-200 lbs/sec) offer good balance of control and cooling
+5. **Aggressive burns:** 300+ lbs/sec causes rapid heating; only use in emergencies and monitor temp closely
+6. **Continuous cooling:** Engine cools even while burning, just slower at high burn rates—no need for full coasting
+7. **Final approach:** Use steady, moderate burn (50-100 lbs/sec) for precision landing with engine safety margin
 
 ## Game State
 
