@@ -32,7 +32,28 @@ class Football:
             "FLARE PASS", "SCREEN PASS", "ROLL OUT OPTION", "RIGHT CURL", "LEFT CURL",
             "WISHBONE OPTION", "SIDELINE PASS", "HALF-BACK OPTION", "RAZZLE-DAZZLE", "BOMB!!!!"
         ],
-        "teams": ["Chirps", "Burps", "Quacks", "Barks", "Meows", "Hisses", "Roars", "Growls"]
+        "teams": ["Chirps", "Burps", "Quacks", "Barks", "Meows", "Hisses", "Roars", "Growls"],
+        "star_players": [
+            "Gronk the Destroyer", "Captain Clumsy", "Lightning McLegs", "The Refrigerator",
+            "Dizzy McFumble", "Super Sack", "Turbo Legs", "The Magician", "Crash Bandicoot",
+            "Speedy Gonzales", "The Tackler", "Brick Wall", "The Interceptor", "Boom Boom",
+            "Ninja Turtle", "Laser Arm", "The Breaker", "Rocket Man", "Flash Gordon", "King Kong", "The Hammer"
+        ],
+        "chaos_events": [
+            "🌪️ TORNADO on field! Ball blown 20 yards!",
+            "🔥 FIRE on sideline! Fire truck blocking view!",
+            "🍔 BURGER fell from sky onto field!",
+            "🚁 HELICOPTER flies overhead - crowd distracted!",
+            "🐓 WILD CHICKEN runs across field!",
+            "⚡️ LIGHTNING strikes goal post!",
+            "🎺 MARCHING BAND invades field accidentally!",
+            "🎪 STREAKER on field! Security chasing!",
+            "🤡 CLOWN car drives onto field somehow!",
+            "😴 Coach fell asleep on sideline! Time out!",
+            "📢 Ref's microphone stuck - everyone hears his lunch order!",
+            "🎉 Confetti cannon goes off for wrong team!",
+            "🐘 An actual elephant walked onto field!"
+        ]
     }
     
     # Natural language → play type mapping
@@ -132,10 +153,14 @@ class Football:
             "game_over": False,
             "last_play_result": "",
             "waiting_for_conversion": False,  # Flag to wait for conversion type choice
+            "star_player_user": random.choice(self.PLAY_DATA["star_players"]),  # User's star player
+            "star_player_bot": random.choice(self.PLAY_DATA["star_players"]),  # Bot's star player
         }
         
         msg = "🏈 LET'S PLAY 🏈\n"
         msg += f"{user_team} vs 🤖 {bot_team} winner at {self.winning_score} pts\n\n"
+        msg += f"⭐ {user_team}'s Star: {self.game[nodeID]['star_player_user']}\n"
+        msg += f"⭐ {bot_team}'s Star: {self.game[nodeID]['star_player_bot']}\n\n"
         msg += f"🪙 {user_team if initial_possession == 0 else bot_team} receives kickoff\n"
         msg += self._get_field_display(nodeID)
         msg += "\nPlay Commands: run, pass, sweep, bomb, punt, or field goal, or help.\n\n"
@@ -287,12 +312,44 @@ class Football:
         msg += f"Offense: {play_name}\n"
         msg += f"Defense(🤖 {game['bot_team']}): {bot_defense}\n"
         
+        # Check for chaos event (5% chance)
+        chaos = self._get_chaos_event()
+        if chaos:
+            msg += f"\n{chaos}\n"
+        
         # Check for penalties before play
-        penalty_result = self._check_penalties(nodeID, is_pass_play=any(p in [10, 11, 12, 13, 14, 15, 16, 17, 18, 19] for p in play_type))
+        is_pass_play = any(p in [10, 11, 12, 13, 14, 15, 16, 17, 18, 19] for p in play_type)
+        penalty_result, penalty_yards = self._check_penalties(nodeID, is_pass_play=is_pass_play)
         if penalty_result:
             msg += penalty_result + "\n\n"
-            # Replay the down
-            msg += "🔄 Same down, replay\n"
+            
+            # Apply penalty yards to position (move backward)
+            if penalty_yards > 0:
+                game["position"] = max(0, game["position"] - penalty_yards)
+                msg += f"Ball moved back {penalty_yards} to the {game['position']}.\n"
+            
+            # Check for pass interference - automatic first down
+            if "PASS INTERFERENCE" in penalty_result:
+                msg += "📍 AUTOMATIC FIRST DOWN!\n"
+                game["down"] = 1
+                game["yards_to_go"] = 10
+                game["position_at_drive_start"] = game["position"]
+            else:
+                # Regular penalty - replay the down on new down
+                game["down"] += 1
+                # Recalculate yards to go
+                yards_gained_since_drive_start = game["position"] - game["position_at_drive_start"]
+                game["yards_to_go"] = max(0, 10 - yards_gained_since_drive_start)
+                
+                if game["down"] <= 4:
+                    msg += "🔄 Same down, replay\n"
+                else:
+                    msg += "🔴 TURNOVER ON DOWNS!\n"
+                    game["possession"] = 1
+                    game["down"] = 1
+                    game["yards_to_go"] = 10
+                    game["position_at_drive_start"] = game["position"]
+            
             return msg
         
         # Check for interception on pass plays (8% chance)
@@ -309,19 +366,33 @@ class Football:
         if is_pass_play and yards < 0:
             # Check for intentional grounding (QB throws away under pressure)
             if random.random() < 0.15:  # 15% chance of grounding call
-                msg += f"Result: 🚫 SACK! {-yards} yard loss\n"
+                msg += f"Loss: 🚫 SACK {-yards}yd\n"
                 msg += f"🚩 INTENTIONAL GROUNDING - 5 yard penalty from line of scrimmage\n\n"
                 # Reset position and add penalty
                 game["position"] = max(0, game["position"] - 5)
                 game["down"] += 1
                 return msg
             else:
-                msg += f"Result: 🚫 SACK! {-yards} yard loss\n\n"
+                msg += f"Loss: 🚫 SACK {-yards}yd\n\n"
         else:
-            msg += f"Result: +{yards}yd\n\n"
+            msg += f"Gain: +{yards}yd\n\n"
         
-        # Update position
+        # Check for star player moments
+        boost = self._star_player_boost(nodeID, is_user=True)
+        if boost:
+            msg += f"{boost}\n"
+            yards += 5  # Boost adds 5 yards
+        
+        fail = self._star_player_fail(nodeID, is_user=True)
+        if fail and not boost:  # Don't penalize if already boosted
+            msg += f"{fail}\n"
+            yards -= 3  # Fail costs 3 yards
+        
+        msg += "\n"
+        
+        # Update position (clamp to valid field range 0-100)
         game["position"] += yards
+        game["position"] = max(0, min(100, game["position"]))
         
         # Check for fumble/turnover (2.5% chance)
         if random.random() < 0.025:
@@ -360,6 +431,7 @@ class Football:
             game["position_at_drive_start"] = game["position"]
         else:
             game["down"] += 1
+            # yards_to_go should be positive: how many more yards needed for first down
             game["yards_to_go"] = 10 - yards_gained_since_drive_start
         
         # Check for turnover on downs
@@ -388,12 +460,12 @@ class Football:
             punt_dist = random.randint(25, 60)
             msg += f"Punt: {punt_dist} yards.\n"
         
-        # Move ball
-        game["position"] += punt_dist
+        # Move ball toward opponent's endzone (position decreases for user punting)
+        game["position"] -= punt_dist
         
-        # Check for out of bounds past endzone
-        if game["position"] > 100:
-            game["position"] = 100
+        # Check for out of bounds past endzone (touchback)
+        if game["position"] < 0:
+            game["position"] = 20  # Receiving team gets ball at 20-yard line
             msg += "Punt went into endzone. Touchback.\n"
         
         # Possession change
@@ -470,15 +542,43 @@ class Football:
         
         # Bot selects a play
         bot_play_num = random.randint(0, 19)
-        user_defensive_play = random.randint(0, 19)
+        # Get user's intelligent defensive play (reads bot's play tendency)
+        user_defensive_play = self._get_user_defense_play(nodeID, bot_offensive_play=bot_play_num)
         
         # Check for bot penalties
         is_bot_pass = bot_play_num in [10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
-        penalty_result = self._check_penalties(nodeID, is_pass_play=is_bot_pass)
+        penalty_result, penalty_yards = self._check_penalties(nodeID, is_pass_play=is_bot_pass)
         if penalty_result:
             msg += f"{game['bot_team']} Play: {self.PLAY_DATA['actions'][bot_play_num]}\n"
             msg += penalty_result + "\n\n"
-            msg += "🔄 Same down, replay\n"
+            
+            # Apply penalty yards (move forward for bot)
+            if penalty_yards > 0:
+                game["position"] = min(100, game["position"] + penalty_yards)
+                msg += f"Ball moved forward {penalty_yards} to the {game['position']}.\n"
+            
+            # Check for pass interference - automatic first down
+            if "PASS INTERFERENCE" in penalty_result:
+                msg += "📍 AUTOMATIC FIRST DOWN!\n"
+                game["down"] = 1
+                game["yards_to_go"] = 10
+                game["position_at_drive_start"] = game["position"]
+            else:
+                # Regular penalty - replay the down
+                game["down"] += 1
+                # Recalculate yards to go
+                yards_gained_since_drive_start = game["position_at_drive_start"] - game["position"]
+                game["yards_to_go"] = max(0, 10 - yards_gained_since_drive_start)
+                
+                if game["down"] <= 4:
+                    msg += "🔄 Same down, replay\n"
+                else:
+                    msg += "🔴 TURNOVER ON DOWNS!\n"
+                    game["possession"] = 0
+                    game["down"] = 1
+                    game["yards_to_go"] = 10
+                    game["position_at_drive_start"] = game["position"]
+            
             return msg
         
         # Calculate yards
@@ -486,10 +586,34 @@ class Football:
         
         play_name = self.PLAY_DATA["actions"][bot_play_num]
         msg += f"{game['bot_team']} Play: {play_name}\n"
-        msg += f"Yards Gained: {yards}\n\n"
         
-        # Update position (bot moving toward 0 yardline)
+        # Format yard gain/loss clearly
+        if yards >= 0:
+            msg += f"Gain: +{yards}yd\n\n"
+        else:
+            msg += f"Loss: {yards}yd\n\n"
+        
+        # Check for chaos event (5% chance)
+        chaos = self._get_chaos_event()
+        if chaos:
+            msg += f"{chaos}\n"
+        
+        # Check for star player moments
+        boost = self._star_player_boost(nodeID, is_user=False)
+        if boost:
+            msg += f"{boost}\n"
+            yards += 5  # Boost adds 5 yards
+        
+        fail = self._star_player_fail(nodeID, is_user=False)
+        if fail and not boost:  # Don't penalize if already boosted
+            msg += f"{fail}\n"
+            yards -= 3  # Fail costs 3 yards
+        
+        msg += "\n"
+        
+        # Update position (clamp to valid field range 0-100)
         game["position"] -= yards
+        game["position"] = max(0, min(100, game["position"]))
         
         # Check for fumble
         if random.random() < 0.025:
@@ -525,6 +649,7 @@ class Football:
             game["position_at_drive_start"] = game["position"]
         else:
             game["down"] += 1
+            # yards_to_go should be positive: how many more yards needed for first down
             game["yards_to_go"] = 10 - yards_gained_since_drive_start
         
         # Check for turnover on downs
@@ -552,10 +677,10 @@ class Football:
             punt_dist = random.randint(25, 60)
             msg += f"Punt: {punt_dist} yards.\n"
         
-        game["position"] -= punt_dist
+        game["position"] += punt_dist
         
-        if game["position"] < 0:
-            game["position"] = 0
+        if game["position"] > 100:
+            game["position"] = 80  # Receiving team gets ball at 20-yard line (100 - 20 = 80)
             msg += "Punt rolled into endzone. Touchback.\n"
         
         game["possession"] = 0
@@ -563,8 +688,6 @@ class Football:
         game["yards_to_go"] = 10
         game["position_at_drive_start"] = game["position"]
         
-        msg += f"\n{self._get_field_display(nodeID)}\n"
-        msg += "Your play?"
         return msg
     
     def _execute_bot_field_goal(self, nodeID: int) -> str:
@@ -731,23 +854,37 @@ class Football:
     def _calculate_yards(self, nodeID: int, offensive_play: int, defensive_play: int) -> int:
         """Calculate yards gained based on play matchup.
         
-        Yards depend on how different the plays are (classic football game logic).
-        Can be negative (sack) or positive depending on matchup.
+        How it works:
+        1. Compare offensive vs defensive play effectiveness (0-19 scale)
+        2. Better matchup = larger yard gain/loss
+        3. Randomness + field position affect the outcome
+        
+        Returns yards (negative = loss/sack, positive = gain)
         """
         game = self.game[nodeID]
         aa = game["aa"]
         ba = game["ba"]
         
-        # Get play effectiveness values
-        off_val = aa[offensive_play]
-        def_val = ba[defensive_play]
+        # Step 1: Get play effectiveness (0-19)
+        off_effectiveness = aa[offensive_play]
+        def_effectiveness = ba[defensive_play]
         
-        # Calculate yards: difference in play values affects outcome
-        diff = abs(off_val - def_val)
-        base_yards = floor(diff / 19 * ((100 - game["position"] + 25) * random.random() - 15))
+        # Step 2: How much of a mismatch? (0-19 scale)
+        play_difference = abs(off_effectiveness - def_effectiveness)
         
-        # Randomize with small variance
-        # Allow negative yards (sacks) now - don't cap at 0
+        # Step 3: Base calculation
+        # - Normalize play difference (0-1)
+        # - Distance to endzone affects potential yards
+        # - Random factor (0-1) adds variance
+        # - Offset (-15) allows negative results (sacks)
+        yards_to_endzone = 100 - game["position"] + 25  # Extra buffer beyond endzone
+        randomness = random.random()  # 0.0 to 1.0
+        base_yards = floor(
+            (play_difference / 19) *           # Play matchup factor (0-1)
+            (yards_to_endzone * randomness - 15)  # Distance & randomness - variance
+        )
+        
+        # Step 4: Add random variance (±2 yards)
         yards = base_yards + random.randint(-2, 2)
         
         return yards
@@ -792,56 +929,148 @@ class Football:
         logger.debug(f"_parse_play_command() - No match found for '{command}'")
         return None
     
-    def _check_penalties(self, nodeID: int, is_pass_play: bool = False) -> Optional[str]:
+    def _check_penalties(self, nodeID: int, is_pass_play: bool = False) -> Tuple[Optional[str], int]:
         """Check for penalties on offense (pre-play).
         
-        Returns penalty description if penalty occurred, None otherwise.
+        Returns tuple of (penalty description if occurred, yards penalty applied).
         
         Penalties:
-        - False start (2% base)
-        - Holding on offense (3% base, +2% if pass play)
-        - Pass interference (0% on run plays, 4% on pass plays)
+        - False start (2% base, 5 yard penalty)
+        - Holding on offense (3% base, +2% if pass play, 10 yard penalty)
+        - Pass interference (0% on run plays, 4% on pass plays, auto first down)
         """
         # False start
         if random.random() < 0.02:
-            return "🚩 FALSE START on offense - 5 yard penalty"
+            return ("🚩 FALSE START on offense - 5 yard penalty", 5)
         
         # Holding on offense
         if random.random() < 0.03 + (0.02 if is_pass_play else 0):
-            return "🚩 HOLDING on offense - 10 yard penalty"
+            return ("🚩 HOLDING on offense - 10 yard penalty", 10)
         
         # Pass interference (defense, but we'll check it here)
         if is_pass_play and random.random() < 0.04:
-            return "🚩 PASS INTERFERENCE on defense - Automatic first down"
+            return ("🚩 PASS INTERFERENCE on defense - Automatic first down", 0)
         
-        return None
+        return (None, 0)
     
     def _get_bot_play(self, nodeID: int, user_play_type: list) -> int:
-        """Get bot's defensive play number using biased random strategy.
+        """Get bot's defensive play number using intelligent strategy.
         
-        Strategy:
-        - 70% random from all plays
-        - 20% counter-play (if user ran, play pass defense)
-        - 10% aggressive shutdown
+        Strategy (Medium-High Intelligence, scales up when behind):
+        - Base: 50% intelligent counter-play, 25% aggressive, 25% random
+        - If bot is behind in score: increase aggressive play to 50%, reduce random to 10%
         
         Returns play number (0-19)
         """
+        game = self.game[nodeID]
+        
+        # Check if bot is behind
+        is_behind = game["score"][1] < game["score"][0]
+        
+        if is_behind:
+            # Bot is behind - increase aggression (40% counter, 50% aggressive, 10% random)
+            rand = random.random()
+            if rand < 0.40:
+                # Intelligent counter-play: read the offense
+                if any(play in [0, 1, 2, 3, 4, 5, 6, 7, 8] for play in user_play_type):
+                    return random.choice([1, 3, 5, 7, 8])
+                else:
+                    return random.choice([10, 12, 13, 14, 16])
+            elif rand < 0.90:
+                # Aggressive play - blitz/shutdown
+                return random.choice([19, 18, 17, 9, 15])
+            else:
+                # Random variation
+                return random.randint(0, 19)
+        else:
+            # Bot is tied or ahead - normal strategy (50% counter, 25% aggressive, 25% random)
+            rand = random.random()
+            if rand < 0.50:
+                # Intelligent counter-play: read the offense
+                if any(play in [0, 1, 2, 3, 4, 5, 6, 7, 8] for play in user_play_type):
+                    return random.choice([1, 3, 5, 7, 8])
+                else:
+                    return random.choice([10, 12, 13, 14, 16])
+            elif rand < 0.75:
+                # Aggressive play - blitz/shutdown
+                return random.choice([19, 18, 17, 9, 15])
+            else:
+                # Random variation
+                return random.randint(0, 19)
+    
+    def _get_user_defense_play(self, nodeID: int, bot_offensive_play: int) -> int:
+        """Get user's defensive play number using intelligent strategy.
+        
+        Strategy (Medium-High Intelligence):
+        - 50% intelligent counter-play (reads bot's play type)
+        - 25% aggressive shutdown (blitz/stack the box)
+        - 25% random variation (to keep unpredictable)
+        
+        Returns play number (0-19)
+        """
+        # Determine if bot's play is run or pass
+        is_bot_pass = bot_offensive_play in [10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+        
         rand = random.random()
         
-        if rand < 0.70:
-            # Random play
-            return random.randint(0, 19)
-        elif rand < 0.90:
-            # Counter-play: if user played running plays, bot plays pass defense
-            if any(play in [0, 1, 2, 3, 4, 5, 6, 7, 8] for play in user_play_type):
-                # Play pass defense
-                return random.choice([10, 12, 14, 16])
+        if rand < 0.50:
+            # Intelligent counter-play: read the offense
+            if is_bot_pass:
+                # Bot passing - play pass defense (secondary coverage)
+                return random.choice([10, 12, 13, 14, 16])
             else:
-                # Play run defense
-                return random.choice([1, 3, 5, 7])
+                # Bot running - play run defense (stack the box)
+                return random.choice([1, 3, 5, 7, 8])
+        elif rand < 0.75:
+            # Aggressive play - blitz/shutdown
+            return random.choice([19, 18, 17, 9, 15])
         else:
-            # Aggressive play
-            return random.choice([19, 18, 17])  # Aggressive plays
+            # Random variation
+            return random.randint(0, 19)
+    
+    def _get_chaos_event(self) -> Optional[str]:
+        """Get a random chaos event (5% chance).
+        
+        Returns chaos event message or None if no event.
+        """
+        if random.random() < 0.05:  # 5% chance
+            return random.choice(self.PLAY_DATA["chaos_events"])
+        return None
+    
+    def _star_player_boost(self, nodeID: int, is_user: bool) -> Optional[str]:
+        """Star player makes a clutch play (8% chance during big moments).
+        
+        Returns boost message or None if no boost.
+        """
+        if random.random() < 0.08:
+            game = self.game[nodeID]
+            star = game["star_player_user"] if is_user else game["star_player_bot"]
+            messages = [
+                f"⭐ {star} makes an INCREDIBLE play!",
+                f"🔥 {star} is ON FIRE right now!",
+                f"💪 {star} muscles through for extra yards!",
+                f"✨ {star} shows why they're a STAR!"
+            ]
+            return random.choice(messages)
+        return None
+    
+    def _star_player_fail(self, nodeID: int, is_user: bool) -> Optional[str]:
+        """Star player has an embarrassing moment (5% chance).
+        
+        Returns fail message or None if no fail.
+        """
+        if random.random() < 0.05:
+            game = self.game[nodeID]
+            star = game["star_player_user"] if is_user else game["star_player_bot"]
+            messages = [
+                f"😬 {star} tripped over their own feet!",
+                f"🤦 {star} dropped it like it's hot... literally!",
+                f"💀 {star} ran the WRONG direction!",
+                f"🙈 {star} forgot which team they're on!"
+            ]
+            return random.choice(messages)
+        return None
+    
     
     def _get_field_display(self, nodeID: int) -> str:
         """Get status tracker with down, yards to score, and field position.
