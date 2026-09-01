@@ -273,7 +273,7 @@ class PotatoGunner:
             # Calculate points with multiple modifiers
             accuracy_bonus = max(0, int((accuracy_radius - proximity) / accuracy_radius * 100))
             combo_bonus = min(75, g['accuracy_streak'] * 15)  # +15 per streak, max 75
-            round_multiplier = 1.0 + (g['round'] - 1) * 0.15  # 15% per round
+            round_multiplier = 1.0 + (g['round'] - 1) * 0.05  # 5% per round
             
             powerup_bonus = 0
             if g['powerups']['super_spud'] > 0:
@@ -325,9 +325,9 @@ class PotatoGunner:
             msg += f"\n📊 Session: {g['score']} pts | Accuracy: {g['total_hits']}/{g['total_shots']} "
             msg += f"({100*g['total_hits']//max(1, g['total_shots'])}%)"
         
-        # Clear round state and auto-advance to next round display
+        # Clear round state and auto-advance to next round
         del g['current_round_state']
-        msg += "\n" + self._display_round_intro(nodeID)
+        msg += "\n" + self._start_round(nodeID)
         
         return msg
     
