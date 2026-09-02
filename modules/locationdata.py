@@ -2047,5 +2047,113 @@ def mapHandler(userID, deviceID, channel_number, message, snr, rssi, hop):
     # Empty command - show help
     return "🗺️Use 'map help' for help"
 
+def getEcAlert(region_code=''):
+    """
+    Get the latest Environment Canada weather alert for a given region.
+    Region codes available at: https://www.canada.ca/en/environment-climate-change/services/weather-general-tools-resources/weatheroffice-online-services/atom-feeds.html
+    
+    Args:
+        region_code: EC region code (e.g., 'onrm22' for Saugeen Shores)
+    
+    Returns:
+        Formatted alert string or NO_ALERTS constant
+    """
+    if not region_code or not region_code.strip():
+        logger.warning("System: EC Alert region code not configured")
+        return my_settings.NO_ALERTS
+    
+    try:
+        # Fetch the Atom feed from Environment Canada
+        url = f"https://weather.gc.ca/rss/battleboard/{region_code}_e.xml"
+        alert_data = requests.get(url, timeout=my_settings.urlTimeoutSeconds)
+        
+        if not alert_data.ok:
+            logger.warning(f"System: EC Alert fetching from {url} (HTTP {alert_data.status_code})")
+            return my_settings.ERROR_FETCHING_DATA
+        
+        if not alert_data.text.strip():
+            logger.warning(f"System: EC Alert received empty response from {url}")
+            return my_settings.ERROR_FETCHING_DATA
+            
+    except requests.exceptions.RequestException as e:
+        logger.warning(f"System: EC Alert network error fetching from {url}: {e}")
+        return my_settings.ERROR_FETCHING_DATA
+    except Exception as e:
+        logger.warning(f"System: EC Alert error: {e}")
+        return my_settings.ERROR_FETCHING_DATA
+    
+    try:
+        # Parse Atom XML (note: different structure from RSS - uses <feed><entry> instead of <rss><channel><item>)
+        alertxml = xml.dom.minidom.parseString(alert_data.text)
+    except xml.parsers.expat.ExpatError as e:
+        logger.warning(f"System: EC Alert XML parsing error: {e}")
+        return my_settings.NO_ALERTS
+    except Exception as e:
+        logger.warning(f"System: EC Alert error parsing XML: {e}")
+        return my_settings.NO_ALERTS
+    
+    alerts = []
+    
+    try:
+        # Extract alerts from Atom feed (entry elements)
+        for entry in alertxml.getElementsByTagName("entry"):
+            # Extract title
+            title_nodes = entry.getElementsByTagName("title")
+            if not title_nodes or not title_nodes[0].firstChild:
+                continue
+            title = title_nodes[0].firstChild.nodeValue.strip()
+            
+            # Check for "no alerts in effect" - if present, return NO_ALERTS
+            if "no alerts in effect" in title.lower():
+                return my_settings.NO_ALERTS
+            
+            # Extract summary (description)
+            summary = ""
+            summary_nodes = entry.getElementsByTagName("summary")
+            if summary_nodes and summary_nodes[0].firstChild:
+                summary = summary_nodes[0].firstChild.nodeValue.strip()
+            
+            # Extract link
+            link = ""
+            link_nodes = entry.getElementsByTagName("link")
+            for link_node in link_nodes:
+                if link_node.getAttribute("type") == "text/html" and link_node.getAttribute("href"):
+                    link = link_node.getAttribute("href")
+                    break
+            
+            # Apply word filters
+            if my_settings.ignoreECenable:
+                ignore_alert = any(
+                    word.lower() in title.lower()
+                    for word in my_settings.ignoreECwords)
+                if ignore_alert:
+                    logger.debug(f"System: EC Alert filtered by WORD: {title} containing one of {my_settings.ignoreECwords}")
+                    continue
+            
+            # Add to alerts list
+            alerts.append({
+                'title': title,
+                'summary': summary,
+                'link': link
+            })
+    
+    except Exception as e:
+        logger.debug(f"System: EC Alert error processing entries: {e}")
+        return my_settings.NO_ALERTS
+    
+    # Format and return alerts
+    if len(alerts) > 0:
+        alert_text = ""
+        for alert_item in alerts[:my_settings.numWxAlerts]:
+            alert_text += f"🚨EC Alert: {alert_item['title']}\n{alert_item['summary']}"
+            if alert_item['link']:
+                alert_text += f"\n{alert_item['link']}"
+            # add a newline if not the last alert
+            if alert_item != alerts[:my_settings.numWxAlerts][-1]:
+                alert_text += "\n"
+        return alert_text
+    else:
+        return my_settings.NO_ALERTS
+
 # Initialize the locations database when module is imported
 initialize_locations_database()

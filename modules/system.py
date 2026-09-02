@@ -120,7 +120,7 @@ if location_enabled:
         help_message = help_message + ", howtall"
 
 # NOAA alerts needs location module
-if wxAlertBroadcastEnabled or ipawsAlertEnabled or volcanoAlertBroadcastEnabled or eAlertBroadcastEnabled: #eAlertBroadcastEnabled depricated
+if wxAlertBroadcastEnabled or ipawsAlertEnabled or volcanoAlertBroadcastEnabled or eAlertBroadcastEnabled or ecAlertEnabled: #eAlertBroadcastEnabled depricated
     from modules.locationdata import * # from the spudgunman/meshing-around repo
     # limited subset, this should be done better but eh..
     trap_list = trap_list + ("wx", "wxa", "wxalert", "ea", "ealert", "valert")
@@ -1336,7 +1336,7 @@ def should_send_alert(alert_type, new_message, min_interval=1):
 
 def handleAlertBroadcast(deviceID=1):
     try:
-        alertUk = alertDe = alertFema = wxAlert = volcanoAlert = overdueAlerts = NO_ALERTS
+        alertUk = alertDe = alertFema = alertEc = wxAlert = volcanoAlert = overdueAlerts = NO_ALERTS
         alertWx = False
         clock = datetime.now()
 
@@ -1358,6 +1358,8 @@ def handleAlertBroadcast(deviceID=1):
                 wxAlert = f"🚨 {alertWx[1]} EAS-WX ALERT: {alertWx[0]}"
         if eAlertBroadcastEnabled or ipawsAlertEnabled:
             alertFema = getIpawsAlert(latitudeValue, longitudeValue, shortAlerts=True)
+        if ecAlertEnabled:
+            alertEc = getEcAlert(my_settings.ecAlertRegionCode)
         if volcanoAlertBroadcastEnabled:
             volcanoAlert = get_volcano_usgs(latitudeValue, longitudeValue)
 
@@ -1368,7 +1370,8 @@ def handleAlertBroadcast(deviceID=1):
             alert_types = [
                 ("fema", alertFema, ipawsAlertEnabled),
                 ("wx", wxAlert, wxAlertBroadcastEnabled),
-                ("volcano", volcanoAlert, volcanoAlertBroadcastEnabled),]
+                ("volcano", volcanoAlert, volcanoAlertBroadcastEnabled),
+                ("ec", alertEc, ecAlertEnabled),]
 
         if enableDEalerts:
             alert_types = [("de", deAlerts, enableDEalerts)]

@@ -351,6 +351,10 @@ try:
     ignoreEASwords = config['location'].get('ignoreEASwords', 'test,advisory').split(',') # default test,advisory
     ignoreFEMAenable = config['location'].getboolean('ignoreFEMAenable', True) # default True
     ignoreFEMAwords = config['location'].get('ignoreFEMAwords', 'test,exercise').split(',') # default test,exercise
+    ecAlertEnabled = config['location'].getboolean('ecAlertEnabled', False) # default False
+    ecAlertRegionCode = config['location'].get('ecAlertRegionCode', '') # default empty
+    ignoreECenable = config['location'].getboolean('ignoreECenable', True) # default True
+    ignoreECwords = config['location'].get('ignoreECwords', 'test,exercise').split(',') # default test,exercise
     ignoreUSGSEnable = config['location'].getboolean('ignoreVolcanoEnable', False) # default False
     ignoreUSGSWords = config['location'].get('ignoreVolcanoWords', 'test,advisory').split(',') # default test,advisory
     
@@ -362,12 +366,13 @@ try:
     myRegionalKeysDE = config['location'].get('myRegionalKeysDE', '110000000000').split(',') # default city Berlin
     eAlertBroadcastChannel = config['location'].get('eAlertBroadcastCh', '').split(',') # default empty
 
-    # any US alerts enabled
+    # any US/Canada alerts enabled
     usAlerts = (
         ipawsAlertEnabled or
         wxAlertBroadcastEnabled or
         volcanoAlertBroadcastEnabled or
-        eAlertBroadcastEnabled
+        eAlertBroadcastEnabled or
+        ecAlertEnabled
         )
     
     # emergency response

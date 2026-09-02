@@ -475,6 +475,52 @@ class TestBot(unittest.TestCase):
             alerts = getIpawsAlert(lat, lon)
             self.assertIsInstance(alerts, str)
         
+        def test_getEcAlerts_no_alerts(self):
+            """Test EC alert parsing with 'no alerts in effect' response"""
+            from modules.locationdata import getEcAlert
+            from unittest.mock import patch
+            
+            # Sample XML from Environment Canada for "no alerts in effect"
+            no_alerts_xml = '''<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en-ca">
+    <title>Test Region - Weather Alert - Environment Canada</title>
+    <entry>
+        <title>No alerts in effect, Test Region</title>
+        <summary type="html">No alerts currently active</summary>
+        <link type="text/html" href="https://weather.gc.ca/warnings/report_e.html?test"/>
+    </entry>
+</feed>'''
+            
+            with patch('modules.locationdata.requests.get') as mock_get:
+                mock_get.return_value.ok = True
+                mock_get.return_value.text = no_alerts_xml
+                result = getEcAlert('test')
+                self.assertEqual(result, 'No alerts in effect')  # Should return NO_ALERTS constant
+        
+        def test_getEcAlerts_with_alert(self):
+            """Test EC alert parsing with actual alert"""
+            from modules.locationdata import getEcAlert
+            from unittest.mock import patch
+            
+            # Sample XML from Environment Canada with real alert (from issue #342)
+            alert_xml = '''<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en-ca">
+    <title>Test Region - Weather Alert - Environment Canada</title>
+    <entry>
+        <title>SPECIAL WEATHER STATEMENT, Test Region</title>
+        <summary type="html">Issued: 4:48 AM EDT Saturday 22 August 2026</summary>
+        <link type="text/html" href="https://weather.gc.ca/warnings/report_e.html?test"/>
+    </entry>
+</feed>'''
+            
+            with patch('modules.locationdata.requests.get') as mock_get:
+                mock_get.return_value.ok = True
+                mock_get.return_value.text = alert_xml
+                result = getEcAlert('test')
+                self.assertIn('SPECIAL WEATHER STATEMENT', result)
+                self.assertIn('Test Region', result)
+                self.assertIn('weather.gc.ca', result)
+        
         def test_get_flood_noaa(self):
             from modules.locationdata import get_flood_noaa
             flood_info = get_flood_noaa(lat, lon, 12484500)  # Example gauge UID
