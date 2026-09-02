@@ -1323,6 +1323,7 @@ last_alerts = {
     "de": {"time": 0, "message": ""},
     "wx": {"time": 0, "message": ""},
     "volcano": {"time": 0, "message": ""},
+    "ec": {"time": 0, "message": ""},
 }
 def should_send_alert(alert_type, new_message, min_interval=1):
     now = time.time()
