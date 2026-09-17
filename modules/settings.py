@@ -348,15 +348,15 @@ try:
     enableDEalerts = config['location'].getboolean('enableDEalerts', False) # default False
 
     ignoreEASenable = config['location'].getboolean('ignoreEASenable', False) # default False
-    ignoreEASwords = config['location'].get('ignoreEASwords', 'test,advisory').split(',') # default test,advisory
+    ignoreEASwords = [w.strip() for w in config['location'].get('ignoreEASwords', 'test,advisory').split(',') if w.strip()] # default test,advisory
     ignoreFEMAenable = config['location'].getboolean('ignoreFEMAenable', True) # default True
-    ignoreFEMAwords = config['location'].get('ignoreFEMAwords', 'test,exercise').split(',') # default test,exercise
+    ignoreFEMAwords = [w.strip() for w in config['location'].get('ignoreFEMAwords', 'test,exercise').split(',') if w.strip()] # default test,exercise
     ecAlertEnabled = config['location'].getboolean('ecAlertEnabled', False) # default False
     ecAlertRegionCode = config['location'].get('ecAlertRegionCode', '') # default empty
     ignoreECenable = config['location'].getboolean('ignoreECenable', True) # default True
-    ignoreECwords = config['location'].get('ignoreECwords', 'test,exercise').split(',') # default test,exercise
+    ignoreECwords = [w.strip() for w in config['location'].get('ignoreECwords', 'test,exercise').split(',') if w.strip()] # default test,exercise
     ignoreUSGSEnable = config['location'].getboolean('ignoreVolcanoEnable', False) # default False
-    ignoreUSGSWords = config['location'].get('ignoreVolcanoWords', 'test,advisory').split(',') # default test,advisory
+    ignoreUSGSWords = [w.strip() for w in config['location'].get('ignoreVolcanoWords', 'test,advisory').split(',') if w.strip()] # default test,advisory
     
     forecastDuration = config['location'].getint('NOAAforecastDuration', 4) # NOAA forcast days
     numWxAlerts = config['location'].getint('NOAAalertCount', 2) # default 2 alerts
