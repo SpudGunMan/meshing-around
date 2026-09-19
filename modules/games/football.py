@@ -1086,8 +1086,9 @@ class Football:
         else:  # Bot offensive
             yards_to_score = pos
         
-        status = f"📊Down {game['down']}/4 | To Score: {yards_to_score}yd | To 1st: {yards_to_go}yd | Pos: {pos}"
-        
+        score_text = f"{game['score'][0]}:{game['score'][1]}"
+        status = f"📊 {score_text} | Down {game['down']}/4 | Goal: {yards_to_score}yd | 1st: {yards_to_go}yd | Pos: {pos}"
+
         return status
     
     def _get_scores(self, nodeID: int) -> str:
