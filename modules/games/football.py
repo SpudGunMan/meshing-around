@@ -335,12 +335,12 @@ class Football:
                 game["yards_to_go"] = 10
                 game["position_at_drive_start"] = game["position"]
             else:
-                # Regular penalty - replay the down on new down
-                game["down"] += 1
-                # Recalculate yards to go
+                # Regular penalty - replay the same down, not the next one.
+                # Example: 3rd & 5 becomes 3rd & 5 again after the penalty.
+                # Recalculate yards to go using the current drive position.
                 yards_gained_since_drive_start = game["position"] - game["position_at_drive_start"]
                 game["yards_to_go"] = max(0, 10 - yards_gained_since_drive_start)
-                
+
                 if game["down"] <= 4:
                     msg += "🔄 Same down, replay\n"
                 else:
@@ -564,12 +564,11 @@ class Football:
                 game["yards_to_go"] = 10
                 game["position_at_drive_start"] = game["position"]
             else:
-                # Regular penalty - replay the down
-                game["down"] += 1
-                # Recalculate yards to go
+                # Regular penalty - replay the same down for the bot as well.
+                # Example: 3rd & 5 remains 3rd & 5 after the penalty.
                 yards_gained_since_drive_start = game["position_at_drive_start"] - game["position"]
                 game["yards_to_go"] = max(0, 10 - yards_gained_since_drive_start)
-                
+
                 if game["down"] <= 4:
                     msg += "🔄 Same down, replay\n"
                 else:
