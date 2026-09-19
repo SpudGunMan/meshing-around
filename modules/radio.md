@@ -54,7 +54,7 @@ No additional user action is required.
 
 ---
 
-# AI Speech with Vosk, Speech to Text
+# AI Speech with Vosk, Speech to Text ASR
 
 "Hey Chirpy"
 
