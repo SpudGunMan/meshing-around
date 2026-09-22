@@ -1126,8 +1126,8 @@ def ban_hammer(node_id, rxInterface=None, channel=None, reason=""):
     if reason == "":
         return False
 
-    # Find or create the seenNodes entry (patched for missing 'node_id')
-    node_entry = next((entry for entry in seenNodes if entry.get('node_id') == node_id_str), None)
+    # Find or create the seenNodes entry using the canonical nodeID key.
+    node_entry = next((entry for entry in seenNodes if entry.get('nodeID') == node_id_str), None)
     if node_entry:
         # Update interface and channel if provided
         if rxInterface is not None:
@@ -1144,7 +1144,7 @@ def ban_hammer(node_id, rxInterface=None, channel=None, reason=""):
     else:
         # node not found, create a new entry
         entry = {
-            'node_id': node_id_str,
+            'nodeID': node_id_str,
             'first_seen': current_time,
             'lastSeen': current_time,
             'auto_ban_count': 3,  # start at 3 to trigger ban faster

@@ -698,7 +698,7 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
         cmdHistory.append({'nodeID': message_from_id, 'cmd':  'llm-use', 'time': time.time()})
 
         # check for a welcome message (is this redundant?)
-        if not any(node['nodeID'] == message_from_id and node['welcome'] == True for node in seenNodes):
+        if not any(node.get('nodeID') == message_from_id and node.get('welcome') == True for node in seenNodes):
             if (channel_number == publicChannel and my_settings.antiSpam) or my_settings.useDMForResponse:
                 # send via DM
                 send_message(my_settings.welcome_message, 0, message_from_id, deviceID)
@@ -707,7 +707,7 @@ def handle_llm(message_from_id, channel_number, deviceID, message, publicChannel
                 send_message(my_settings.welcome_message, channel_number, 0, deviceID)
             # mark the node as welcomed
             for node in seenNodes:
-                if node['nodeID'] == message_from_id:
+                if node.get('nodeID') == message_from_id:
                     node['welcome'] = True
     
     # update the llmLocationTable for future use
@@ -1829,8 +1829,9 @@ def handle_whois(message, deviceID, channel_number, message_from_id):
 
         # get details on the node
         for i in range(len(seenNodes)):
-            if seenNodes[i]['nodeID'] == int(node):
-                msg = f"Node: {seenNodes[i]['nodeID']} is {get_name_from_number(seenNodes[i]['nodeID'], 'long', deviceID)}\n"
+            node_id_value = seenNodes[i].get('nodeID')
+            if node_id_value == int(node):
+                msg = f"Node: {node_id_value} is {get_name_from_number(node_id_value, 'long', deviceID)}\n"
                 msg += f"Last 👀: {time.ctime(seenNodes[i]['lastSeen'])} "
                 break
 
@@ -1839,7 +1840,7 @@ def handle_whois(message, deviceID, channel_number, message_from_id):
         else:
             # if the user is an admin show the channel and interface and location
             if str(message_from_id) in bbs_admin_list:
-                location = get_node_location(seenNodes[i]['nodeID'], deviceID, channel_number)
+                location = get_node_location(node_id_value, deviceID, channel_number)
                 msg += f"Ch: {seenNodes[i]['channel']}, Int: {seenNodes[i]['rxInterface']}"
                 msg += f"Lat: {location[0]}, Lon: {location[1]}\n"
                 if location != [my_settings.latitudeValue, my_settings.longitudeValue]:
@@ -2281,12 +2282,12 @@ def onReceive(packet, interface):
                             logger.warning(f"Device:{rxNode} Ignoring DM: {message_log_string} From: {get_name_from_number(message_from_id, 'long', rxNode)}")
                             
                             # if seenNodes list is not marked as welcomed send welcome message
-                            if not any(node['nodeID'] == message_from_id and node['welcome'] == True for node in seenNodes):
+                            if not any(node.get('nodeID') == message_from_id and node.get('welcome') == True for node in seenNodes):
                                 # send welcome message
                                 send_message(welcome_message, channel_number, message_from_id, rxNode)
                                 # mark the node as welcomed
                                 for node in seenNodes:
-                                    if node['nodeID'] == message_from_id:
+                                    if node.get('nodeID') == message_from_id:
                                         node['welcome'] = True
                             else:
                                 if my_settings.dad_jokes_enabled:
