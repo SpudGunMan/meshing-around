@@ -13,6 +13,7 @@
 - [Football](#football-game-module)
 - [Potato Gunner](#potato-gunner-game-module)
 - [Video Poker](#video-poker-game-module)
+- [Yatz](#yatz-game-module)
 - [Hangman](#hangman-game-module)
 - [Quiz](#quiz-game-module)
 - [Survey](#survey--module-game)
@@ -204,6 +205,59 @@ Bet or Leave?
 
 - Ported from [Himan10/BlackJack](https://github.com/Himan10/BlackJack)
 - Adapted for Meshtastic mesh-bot by K7MHI Kelly Keeton 2024
+
+# Yatz Game Module
+
+Yatz is a text-only dice game based on classic Yahtzee-style rules, adapted for mesh node messaging.
+
+Like the rest of the mesh games, this is a tracker-locked DM game: once you start it, the bot keeps you in game mode until you end it. After that, you normally send only the action words, not the `yatz` prefix on every turn.
+
+## How to Play
+
+- **Start Solo:**
+  Send `yatz` in DM to start a solo game against AI.
+
+- **Start Multiplayer (2-4 players):**
+  Send `yatz new` to open a table.
+  Other players send `yatz join` to auto-join an open table.
+  Use `yatz lobby` to list open tables.
+
+- **Turn Flow Inside a Started Game:**
+  1. `roll` to take your first or next roll (up to 3 rolls per turn)
+  2. `hold A,C,E` or `keep A,C,E` to keep selected dice
+  3. `roll` again, or `score full_house` / `score chance` / `score yatz` to lock a category
+  4. `card` to see your scorecard at any time
+  5. `end` to leave the game
+
+> Important: after the game starts, do not keep typing `yatz` before each move. The bot is already tracking your active game. The command prefix is mainly for start, join, lobby, and exit actions.
+
+## Commands
+
+| Command | Effect |
+|---------|--------|
+| `yatz` | Start solo game or show status |
+| `yatz new` | Create multiplayer table |
+| `yatz join [table]` | Join open table (or specific table id) |
+| `yatz lobby` | Show open tables |
+| `roll` | Roll dice during your active turn |
+| `hold A,C,E` | Hold selected dice slots |
+| `keep A,C,E` | Alias for hold |
+| `score <category>` | Score current hand in a category |
+| `card` | Show your scorecard |
+| `end` | Leave/end your game |
+
+## Categories
+
+Upper: `ones`, `twos`, `threes`, `fours`, `fives`, `sixes`  
+Lower: `three_kind`, `four_kind`, `full_house`, `small_straight`, `large_straight`, `chance`, `yatz`
+
+Aliases are supported: `3k`, `4k`, `fh`, `ss`, `ls`, `yz`.
+
+## Notes
+
+- Supports solo (vs AI) and multiplayer (2-4 players).
+- Uses per-player tracking by node ID.
+- Multiplayer enforces turn order.
 
 # DopeWars Game Module
 

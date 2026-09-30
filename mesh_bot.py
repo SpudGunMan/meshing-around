@@ -16,7 +16,7 @@ import modules.settings as my_settings
 from modules.system import *
 
 # list of commands to remove from the default list for DM only
-restrictedCommands = ["blackjack", "videopoker", "dopewars", "lemonstand", "golfsim", "mastermind", "hangman", "hamtest", "tictactoe", "tic-tac-toe", "quiz", "q:", "survey", "s:", "battleship", "spudgun", "spudgunner", "lunarlander", "football"]
+restrictedCommands = ["blackjack", "videopoker", "dopewars", "lemonstand", "golfsim", "mastermind", "hangman", "hamtest", "tictactoe", "tic-tac-toe", "quiz", "q:", "survey", "s:", "battleship", "spudgun", "spudgunner", "lunarlander", "football", "yatz"]
 
 restrictedResponse = "🤖only available in a Direct Message📵" # "" for none
 blackhole_mode = False
@@ -138,6 +138,7 @@ def auto_response(message, snr, rssi, hop, pkiStatus, message_from_id, channel_n
     "wxalert": lambda: handle_wxalert(message_from_id, deviceID, message),
     "x:": lambda: handleShellCmd(message, message_from_id, channel_number, isDM, deviceID),
     "wxc": lambda: handle_wxc(message_from_id, deviceID, 'wxc'),
+    "yatz": lambda: handleYatz(message, message_from_id, deviceID),
     "📍": lambda: handle_whoami(message_from_id, deviceID, hop, snr, rssi, pkiStatus),
     "🔔": lambda: handle_alertBell(message_from_id, deviceID, message),
     "🐝": lambda: read_file("bee.txt", True),
@@ -1365,6 +1366,128 @@ def handleBattleship(message, nodeID, deviceID):
 
     return response
 
+def handleYatz(message, nodeID, deviceID):
+    global yatzTracker
+    from modules.games.yatz import yatz
+
+    msg = message.strip()
+    cmd = msg.lower()
+    if cmd.startswith("yatz"):
+        cmd = cmd[len("yatz"):].strip()
+    if cmd.startswith("y:"):
+        cmd = cmd[2:].strip()
+
+    tracker_entry = next((entry for entry in yatzTracker if entry['nodeID'] == nodeID), None)
+
+    def upsert_tracker(session_id=None):
+        nonlocal tracker_entry
+        if not tracker_entry:
+            tracker_entry = {
+                "nodeID": nodeID,
+                "last_played": time.time(),
+                "session_id": session_id,
+            }
+            yatzTracker.append(tracker_entry)
+        else:
+            tracker_entry["last_played"] = time.time()
+            if session_id:
+                tracker_entry["session_id"] = session_id
+
+    if cmd.startswith("end") or cmd.startswith("exit") or cmd.startswith("quit"):
+        response = yatz.end_player_game(nodeID)
+        if tracker_entry:
+            yatzTracker.remove(tracker_entry)
+        return response
+
+    if cmd.startswith("help") or cmd.startswith("?"):
+        return yatz.help_text()
+
+    if cmd.startswith("lobby"):
+        return yatz.lobby()
+
+    if cmd.startswith("new"):
+        response, session_id = yatz.new_table(nodeID)
+        if session_id:
+            upsert_tracker(session_id)
+        return response
+
+    if cmd.startswith("join"):
+        parts = cmd.split(maxsplit=1)
+        table_id = ""
+        if len(parts) > 1:
+            table_id = parts[1].strip().lstrip("#")
+        response, session_id = yatz.join_table(nodeID, table_id if table_id else None)
+        if session_id:
+            upsert_tracker(session_id)
+        return response
+
+    if not tracker_entry:
+        response, session_id = yatz.new_solo(nodeID)
+        if session_id:
+            upsert_tracker(session_id)
+        return response
+
+    tracker_entry["last_played"] = time.time()
+    session_id = tracker_entry.get("session_id")
+    session = yatz.get_session_for_player(nodeID)
+    if not session:
+        yatzTracker.remove(tracker_entry)
+        return "No active Yatz game. Use 'yatz' for solo or 'yatz new' for multiplayer."
+    if session_id != session.get("id"):
+        tracker_entry["session_id"] = session.get("id")
+        session_id = session.get("id")
+
+    if not session.get("player_names"):
+        session["player_names"] = {}
+    for pid in session["players"]:
+        if isinstance(pid, int):
+            session["player_names"].setdefault(pid, get_name_from_number(pid, 'short', deviceID))
+        else:
+            session["player_names"].setdefault(pid, str(pid))
+
+    prev_turn_player = yatz.current_turn_player(session_id)
+
+    bare_hold = False
+    if cmd:
+        pieces = [p for p in cmd.replace(",", " ").replace(".", " ").split() if p]
+        if pieces and all(p in {"a", "b", "c", "d", "e"} for p in pieces):
+            bare_hold = True
+
+    if cmd == "" or cmd == "status":
+        response = yatz.status(nodeID)
+    elif cmd == "r" or cmd.startswith("roll"):
+        response = yatz.roll(nodeID)
+    elif cmd.startswith("hold") or cmd.startswith("keep"):
+        parts = cmd.split(maxsplit=1)
+        hold_arg = parts[1] if len(parts) > 1 else "none"
+        response = yatz.hold(nodeID, hold_arg)
+    elif bare_hold:
+        response = yatz.hold(nodeID, cmd)
+    elif cmd.startswith("score"):
+        parts = cmd.split(maxsplit=1)
+        if len(parts) < 2:
+            response = "Usage: yatz score <category>"
+        else:
+            response = yatz.score(nodeID, parts[1])
+    elif cmd.startswith("card") or cmd.startswith("scorecard"):
+        response = yatz.show_card(nodeID)
+    else:
+        response = yatz.status(nodeID)
+
+    if yatz.is_multiplayer_started(session_id):
+        next_player = yatz.current_turn_player(session_id)
+        if next_player and next_player != prev_turn_player and next_player != nodeID and isinstance(next_player, int):
+            next_player_name = get_name_from_number(next_player, 'short', deviceID)
+            send_message(
+                f"{next_player_name}, your turn in Yatz. Use 'yatz roll'.",
+                0,
+                next_player,
+                deviceID
+            )
+            time.sleep(splitDelay)
+
+    return response
+
 def quizHandler(message, nodeID, deviceID):
     global quizGamePlayer
     user_name = get_name_from_number(nodeID)
@@ -2449,6 +2572,7 @@ gameTrackers = [
     (surveyTracker, "Survey", surveyHandler),
     (battleshipTracker, "Battleship", handleBattleship),
     (footballTracker, "Football", handleFootball),
+    (yatzTracker, "Yatz", handleYatz),
     (potatogunnerTracker, "PotatoGunner", handlePotatoGunner),
     # quiz does not use a tracker (quizGamePlayer) always active
 ]

@@ -478,6 +478,7 @@ wordOfTheDay = True
 battleShip = True
 potatogunner = True
 football = True
+yatz = True
 
 # enable or disable the quiz game module questions are in data/quiz.json
 quiz = False
