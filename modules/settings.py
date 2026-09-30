@@ -54,6 +54,7 @@ battleshipTracker = []       # Battleship game tracker
 footballTracker = []         # Football game tracker
 lunarlanderTracker = []      # Lunar Lander game tracker
 potatogunnerTracker = []     # Potato Gunner game tracker
+yatzTracker = []             # Yatz game tracker
 
 # Memory Management Constants
 MAX_MSG_HISTORY = 250
@@ -103,7 +104,7 @@ if 'radioMon' not in config:
     config.write(open(config_file, 'w'))
 
 if 'games' not in config:
-    config['games'] = {'dopeWars': 'True', 'lemonade': 'True', 'blackjack': 'True', 'videoPoker': 'True'}
+    config['games'] = {'dopeWars': 'True', 'lemonade': 'True', 'blackjack': 'True', 'videoPoker': 'True', 'yatz': 'True'}
     config.write(open(config_file, 'w'))
 
 if 'messagingSettings' not in config:
@@ -512,6 +513,7 @@ try:
     battleship_enabled = config['games'].getboolean('battleShip', True)
     football_enabled = config['games'].getboolean('football', True)
     potatogunner_enabled = config['games'].getboolean('potatogunner', True)
+    yatz_enabled = config['games'].getboolean('yatz', True)
 
     # messaging settings
     responseDelay = config['messagingSettings'].getfloat('responseDelay', 0.7) # default 0.7

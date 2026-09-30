@@ -264,6 +264,11 @@ if football_enabled:
     trap_list = trap_list + ("football",)
     games_enabled = True
 
+if yatz_enabled:
+    from modules.games.yatz import yatz # text-only Yahtzee-style game
+    trap_list = trap_list + ("yatz",)
+    games_enabled = True
+
 # Games Configuration
 if games_enabled is True:
     help_message = help_message + ", games"
@@ -295,6 +300,8 @@ if games_enabled is True:
         gamesCmdList += "battleship, "
     if football_enabled:
         gamesCmdList += "football, "
+    if yatz_enabled:
+        gamesCmdList += "yatz, "
     if lunarlander_enabled:
         gamesCmdList += "lunarLander, "
     if potatogunner_enabled:
