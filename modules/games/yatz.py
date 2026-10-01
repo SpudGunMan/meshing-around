@@ -312,7 +312,7 @@ class YatzGame:
 			return "Invalid hold list. Example: hold A,C,E"
 
 		current = session["turn"]["held"][:]
-		if not idx:
+		if hold_str.strip().lower() in ("none", "n", "clear"):
 			current = [False for _ in range(5)]
 		else:
 			for i in idx:

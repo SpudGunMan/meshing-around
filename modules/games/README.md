@@ -240,8 +240,9 @@ Like the rest of the mesh games, this is a tracker-locked DM game: once you star
 | `yatz join [table]` | Join open table (or specific table id) |
 | `yatz lobby` | Show open tables |
 | `roll` | Roll dice during your active turn |
-| `hold A,C,E` | Hold selected dice slots |
+| `hold A,C,E` | Hold selected dice slots; keeps persist across the turn |
 | `keep A,C,E` | Alias for hold |
+| `clear` or `none` | Release all held dice for the current turn |
 | `score <category>` | Score current hand in a category |
 | `card` | Show your scorecard |
 | `end` | Leave/end your game |
