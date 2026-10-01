@@ -238,7 +238,7 @@ class YatzGame:
 				items = [x for x in raw.split(sep) if x]
 				break
 		else:
-			items = [raw]
+			items = list(raw)
 
 		idx = []
 		for item in items:
@@ -311,7 +311,13 @@ class YatzGame:
 		except Exception:
 			return "Invalid hold list. Example: hold A,C,E"
 
-		session["turn"]["held"] = [i in idx for i in range(5)]
+		current = session["turn"]["held"][:]
+		if not idx:
+			current = [False for _ in range(5)]
+		else:
+			for i in idx:
+				current[i] = True
+		session["turn"]["held"] = current
 		session["last_played"] = time.time()
 		return cls._fmt_dice(session["turn"]) + "\nHolds updated. Use 'roll' or 'score <cat>'."
 

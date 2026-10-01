@@ -1449,8 +1449,8 @@ def handleYatz(message, nodeID, deviceID):
 
     bare_hold = False
     if cmd:
-        pieces = [p for p in cmd.replace(",", " ").replace(".", " ").split() if p]
-        if pieces and all(p in {"a", "b", "c", "d", "e"} for p in pieces):
+        cleaned = cmd.replace(",", " ").replace(".", " ").replace(" ", "")
+        if cleaned and all(ch in {"a", "b", "c", "d", "e"} for ch in cleaned):
             bare_hold = True
 
     if cmd == "" or cmd == "status":
