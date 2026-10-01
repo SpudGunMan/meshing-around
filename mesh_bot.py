@@ -1461,6 +1461,8 @@ def handleYatz(message, nodeID, deviceID):
         parts = cmd.split(maxsplit=1)
         hold_arg = parts[1] if len(parts) > 1 else "none"
         response = yatz.hold(nodeID, hold_arg)
+    elif cmd in ("clear", "none", "n"):
+        response = yatz.hold(nodeID, cmd)
     elif bare_hold:
         response = yatz.hold(nodeID, cmd)
     elif cmd.startswith("score"):
