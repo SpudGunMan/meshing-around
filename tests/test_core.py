@@ -122,6 +122,21 @@ class CoreTests(unittest.IsolatedAsyncioTestCase):
         finally:
             await other.close()
 
+    async def test_delayed_reply_preserves_recipient_and_rechecks_policy(self):
+        await self.runtime.activate("diagnostics", Registration())
+        services = PluginServices(self.runtime, "diagnostics")
+        origin = Message("ping 2", 123, 2, "primary", direct=True)
+        await services.reply(Response("Reply."), origin)
+        self.assertEqual(self.transport.sent, [("Reply.", 123, 2, "primary")])
+        self.runtime.policy = Policy(blocked=frozenset({123}))
+        with self.assertRaises(PermissionError):
+            await services.reply(Response("Reply."), origin)
+        with self.assertRaises(PermissionError):
+            await services.reply(Response("Reply.", "channel", 3), Message("ping", 456, direct=True))
+        self.runtime.plugins["diagnostics"].status = "failed"
+        with self.assertRaises(RuntimeError):
+            await services.reply(Response("Reply."), origin)
+
     async def test_events_jobs_and_shutdown(self):
         fired, stopped = asyncio.Event(), []
 
@@ -172,7 +187,7 @@ class CoreTests(unittest.IsolatedAsyncioTestCase):
         report = await load_plugins(self.runtime, Path(__file__).resolve().parents[1] / "plugins.d")
         self.assertEqual(report["ping"]["status"], "active")
         await self.runtime.dispatch(Message("ping", 123, direct=True))
-        self.assertEqual("".join(item[0] for item in self.transport.sent), "🏓PONG")
+        self.assertEqual("".join(item[0] for item in self.transport.sent), "🏓 Pong.")
         self.assertEqual(PluginServices(self.runtime, "ping").get("requests"), 1)
 
     async def test_radio_adapter_normalizes_packets_and_delivery(self):
@@ -188,12 +203,12 @@ class CoreTests(unittest.IsolatedAsyncioTestCase):
         await load_plugins(self.runtime, Path(__file__).resolve().parents[1] / "plugins.d")
         await radio._handle({"from": 123, "to": 42, "channel": 2,
                              "decoded": {"portnum": "TEXT_MESSAGE_APP", "payload": b"ping"}})
-        self.assertEqual("".join(text for text, _ in calls), "🏓PONG")
+        self.assertEqual("".join(text for text, _ in calls), "🏓 Pong.")
         self.assertTrue(all(kwargs == {"channelIndex": 2, "destinationId": 123} for _, kwargs in calls))
         calls.clear()
         await radio._handle({"from": 123, "to": 0xffffffff, "channel": 2,
                              "decoded": {"portnum": "TEXT_MESSAGE_APP", "payload": b"ping"}})
-        self.assertTrue(all(kwargs == {"channelIndex": 2} for _, kwargs in calls))
+        self.assertTrue(all(kwargs == {"channelIndex": 2, "destinationId": 123} for _, kwargs in calls))
         await radio._handle({"decoded": {"portnum": "POSITION_APP"}})
         event = self.runtime.events.get_nowait()
         self.assertEqual(event.name, "radio.packet")
@@ -207,6 +222,14 @@ class CoreTests(unittest.IsolatedAsyncioTestCase):
 
 
 class FormattingTests(unittest.TestCase):
+    def test_word_boundaries_keep_punctuation_with_words(self):
+        text = "Please stop the sequence. Try again later."
+        parts = chunks(text, 16)
+        self.assertEqual("".join(parts), text)
+        self.assertTrue(all(len(part.encode()) <= 16 for part in parts))
+        self.assertTrue(any("sequence." in part for part in parts))
+        self.assertEqual(chunks("supercalifragilistic", 8), ["supercal", "ifragili", "stic"])
+
     def test_utf8_and_empty_text(self):
         text = "a🌍é\n" * 50
         parts = chunks(text, 7)
@@ -227,5 +250,5 @@ class ControllerTests(unittest.TestCase):
                 input="ping\nPING\nunknown\n", text=True, capture_output=True, timeout=5,
                 cwd=plugins.parent)
             self.assertEqual(result.returncode, 0, result.stderr)
-            self.assertEqual(result.stdout.count("🏓PONG"), 2)
+            self.assertEqual(result.stdout.count("🏓 Pong."), 2)
             self.assertIn('"status": "active"', result.stdout)

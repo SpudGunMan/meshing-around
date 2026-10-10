@@ -1,8 +1,14 @@
 [plugin]
 id = "ping"
-version = "1.0.0"
+version = "1.1.0"
 api_version = 1
 enabled = true
 
 [settings]
-reply = "🏓PONG"
+reply = "🏓 Pong."
+reply_privately = true
+interval_seconds = 20
+max_count = 50
+max_sessions = 2
+allow_channel_sequences = false
+buffer_bytes = 160

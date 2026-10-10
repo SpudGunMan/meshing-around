@@ -11,6 +11,13 @@ class Message:
     channel: int = 0
     interface: str = "primary"
     direct: bool = False
+    snr: float | None = None
+    rssi: float | None = None
+    hops: int | None = None
+    via_mqtt: bool = False
+    node_name: str | None = None
+    noise_floor: float | None = None
+    transport: str | None = None
 
 
 @dataclass(frozen=True)
@@ -28,10 +35,13 @@ class Event:
 
 
 class Services(Protocol):
+    @property
+    def message_bytes(self) -> int: ...
     def get(self, key: str, default: Any = None) -> Any: ...
     def set(self, key: str, value: Any) -> None: ...
     async def emit(self, event: Event) -> None: ...
     async def send(self, response: Response) -> None: ...
+    async def reply(self, response: Response, message: Message) -> None: ...
 
 
 @dataclass(frozen=True)

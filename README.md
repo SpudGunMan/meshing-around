@@ -14,7 +14,7 @@ venv/bin/python mesh_bot.py --check
 printf 'ping\n' | venv/bin/python mesh_bot.py
 ```
 
-The default transport is a local console: type `ping` to receive `🏓PONG`.
+The default transport is a local console: type `ping` to receive `🏓 Pong.`.
 Run `bash launch.sh` for an interactive session. EOF, Ctrl+C, or SIGTERM shuts
 down the controller. Edit `bot.toml` to use a Meshtastic TCP or serial node.
 Use `--config /path/to/local.toml` for a separate configuration file.

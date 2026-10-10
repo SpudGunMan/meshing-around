@@ -90,6 +90,8 @@ Handlers and lifecycle hooks are asynchronous; blocking I/O belongs in
 
 - Commands receive `Context`: normalized command name, arguments, original
   `Message` (sender, channel, interface, DM status), and plugin services.
+  Messages also provide optional normalized SNR, RSSI, noise floor, hop count,
+  MQTT status, and local node name for diagnostics.
   Return a `Response`, a list of responses, or `None`.
 - `Response(text)` replies to the incoming audience. `destination="private"`
   replies to the sender. `destination="channel"` targets a channel.
@@ -107,9 +109,14 @@ Handlers and lifecycle hooks are asynchronous; blocking I/O belongs in
 
 Services provide `get(key, default)` and `set(key, JSON_serializable_value)` in
 plugin-scoped persistent SQLite state, `emit(Event(...))`, and `send(Response(...))`.
+For scheduled replies to a received request, use `reply(Response(...), original_message)`;
+the core retains its audience and applies delivery policy again, including
+blocked-sender checks. `services.message_bytes` exposes the core's UTF-8 byte limit.
 Emission and sending require an active plugin, so startup/shutdown hooks should
 focus on resource management. Jobs and event handlers have no implicit reply
 recipient: sending requires `destination="channel"` and an explicit channel.
+Alternatively, retain the originating message and use `reply` for solicited
+delayed responses. See [ping.md](ping.md) for the first feature migration.
 
 Core policy applies blocked node IDs and command `admin_only`/`direct_only`
 flags. Unsolicited broadcasts, DM-to-channel responses, channel changes on
@@ -117,8 +124,9 @@ public replies, and interface changes require the plugin ID in
 `policy.broadcast_plugins`. Direct replies to received public channel commands
 are allowed. Channel indices must be 0–7.
 
-Delivery splits text without dropping or reordering characters, respecting
-`core.message_bytes` as a UTF-8 byte limit. A delivery lock prevents chunks
+Delivery prefers word boundaries without dropping or reordering characters, respecting
+`core.message_bytes` as a UTF-8 byte limit. Oversized single words are split
+only when necessary to fit the byte limit. A delivery lock prevents chunks
 from different responses interleaving; `core.send_delay` paces transmissions.
 Transport failures are reported, without automatic retries or durable outbox
 semantics in this version.

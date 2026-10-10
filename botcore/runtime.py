@@ -14,15 +14,18 @@ log = logging.getLogger(__name__)
 
 
 def chunks(text: str, limit: int) -> list[str]:
-    """Split by UTF-8 bytes, retaining every character and its order."""
+    """Prefer word boundaries; retain every character within a UTF-8 byte limit."""
     if type(limit) is not int or limit < 4:
         raise ValueError("message byte limit must be at least 4")
     result, current, size = [], [], 0
     for char in text:
         width = len(char.encode("utf-8"))
-        if size + width > limit:
-            result.append("".join(current))
-            current, size = [], 0
+        while size + width > limit:
+            boundary = next((i + 1 for i in range(len(current) - 1, -1, -1)
+                             if current[i].isspace()), len(current))
+            result.append("".join(current[:boundary]))
+            current = current[boundary:]
+            size = sum(len(item.encode("utf-8")) for item in current)
         current.append(char)
         size += width
     if current:
@@ -54,6 +57,18 @@ class PluginState:
 class PluginServices:
     def __init__(self, runtime, plugin):
         self._runtime, self._plugin = runtime, plugin
+
+    @property
+    def message_bytes(self):
+        return self._runtime.byte_limit
+
+    async def reply(self, response, message):
+        """Delayed replies retain their original audience and delivery policy."""
+        if self._runtime.plugins[self._plugin].status != "active":
+            raise RuntimeError("plugin is not active")
+        if message.sender in self._runtime.policy.blocked:
+            raise PermissionError("sender is blocked")
+        await self._runtime.deliver(self._plugin, response, message)
 
     def get(self, key, default=None):
         row = self._runtime.db.execute(

@@ -2,11 +2,35 @@
 
 import asyncio
 import logging
+import math
 import sys
 
 from .api import Event, Message
 
 log = logging.getLogger(__name__)
+
+
+def number(value):
+    """Accept genuine finite radio measurements, including zero."""
+    return value if type(value) in (int, float) and math.isfinite(value) else None
+
+
+def radio_message(packet, local_node, node_name=None, noise_floor=None):
+    decoded = packet.get("decoded", {})
+    payload = decoded.get("payload", b"")
+    text = payload.decode("utf-8") if isinstance(payload, bytes) else str(payload)
+    start, remaining = packet.get("hopStart"), packet.get("hopLimit")
+    hops = start - remaining if (type(start) is int and type(remaining) is int
+                                and 0 <= remaining <= start <= 7) else None
+    mechanism = str(packet.get("transport_mechanism") or packet.get("transportMechanism")
+                    or decoded.get("transport_mechanism") or decoded.get("transportMechanism") or "").lower()
+    mqtt = packet.get("viaMqtt") is True or decoded.get("viaMqtt") is True or "mqtt" in mechanism
+    transport = "mqtt" if mqtt else "gateway" if "udp" in mechanism else "rf" if "lora" in mechanism else None
+    return Message(text, packet["from"], packet.get("channel", 0),
+        direct=packet.get("to") == local_node, snr=number(packet.get("rxSnr")),
+        rssi=number(packet.get("rxRssi")), hops=hops,
+        via_mqtt=mqtt, transport=transport,
+        node_name=node_name if isinstance(node_name, str) else None, noise_floor=number(noise_floor))
 
 
 class ConsoleTransport:
@@ -74,10 +98,12 @@ class MeshtasticTransport:
         try:
             decoded = packet.get("decoded", {})
             if decoded.get("portnum") == "TEXT_MESSAGE_APP":
-                payload = decoded.get("payload", b"")
-                text = payload.decode("utf-8") if isinstance(payload, bytes) else str(payload)
-                await self.runtime.dispatch(Message(text, packet["from"], packet.get("channel", 0),
-                    direct=packet.get("to") == self.interface.myInfo.my_node_num))
+                nodes = getattr(self.interface, "nodes", {}) or {}
+                local_node = self.interface.myInfo.my_node_num
+                local_info = nodes.get(f"!{local_node:08x}", {})
+                name = local_info.get("user", {}).get("shortName")
+                noise = local_info.get("localStats", {}).get("noiseFloor")
+                await self.runtime.dispatch(radio_message(packet, local_node, name, noise))
             else:
                 await self.runtime.events.put(Event("radio.packet", packet))
         except Exception:
