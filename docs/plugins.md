@@ -128,6 +128,14 @@ Delivery prefers word boundaries without dropping or reordering characters, resp
 `core.message_bytes` as a UTF-8 byte limit. Oversized single words are split
 only when necessary to fit the byte limit. A delivery lock prevents chunks
 from different responses interleaving; `core.send_delay` paces transmissions.
+Every multipart response starts each packet with `[n/x] ` (one-based packet
+number and final packet count). Prefix bytes count toward the same byte limit,
+including when counts gain digits. Responses that fit in one packet are unchanged
+and have no prefix. Prefixes do not replace or truncate any original content.
+If the byte limit cannot accommodate a prefix and payload character, delivery
+fails explicitly rather than sending an oversized packet. Plugins return plain
+responses; the core owns numbering and split locations. Plugin-provided split
+hints are reserved for future work.
 Transport failures are reported, without automatic retries or durable outbox
 semantics in this version.
 

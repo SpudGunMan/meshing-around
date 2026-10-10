@@ -13,13 +13,13 @@ from .api import Command, Context, Event, Message, Registration, Response
 log = logging.getLogger(__name__)
 
 
-def chunks(text: str, limit: int) -> list[str]:
-    """Prefer word boundaries; retain every character within a UTF-8 byte limit."""
-    if type(limit) is not int or limit < 4:
-        raise ValueError("message byte limit must be at least 4")
+def _payload_chunks(text: str, limit: int) -> list[str]:
+    """Prefer word boundaries while preserving the original payload."""
     result, current, size = [], [], 0
     for char in text:
         width = len(char.encode("utf-8"))
+        if width > limit:
+            raise ValueError("message byte limit is too small for split tags and payload")
         while size + width > limit:
             boundary = next((i + 1 for i in range(len(current) - 1, -1, -1)
                              if current[i].isspace()), len(current))
@@ -31,6 +31,27 @@ def chunks(text: str, limit: int) -> list[str]:
     if current:
         result.append("".join(current))
     return result
+
+
+def chunks(text: str, limit: int) -> list[str]:
+    """Number multipart messages; include prefix bytes in every packet's budget."""
+    if type(limit) is not int or limit < 4:
+        raise ValueError("message byte limit must be at least 4")
+    if not text:
+        return []
+    if len(text.encode("utf-8")) <= limit:
+        return [text]
+    total = 2
+    while True:
+        # Reserve the widest prefix, then recalculate if the count grows.
+        budget = limit - len(f"[{total}/{total}] ")
+        if budget < 1:
+            raise ValueError("message byte limit is too small for split tags and payload")
+        parts = _payload_chunks(text, budget)
+        if len(parts) <= total:
+            total = len(parts)
+            return [f"[{index}/{total}] {part}" for index, part in enumerate(parts, 1)]
+        total = len(parts)
 
 
 @dataclass

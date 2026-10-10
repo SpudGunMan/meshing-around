@@ -12,6 +12,10 @@ from botcore.runtime import PluginServices, Policy, Runtime, chunks
 from botcore.transport import MeshtasticTransport
 
 
+def payloads(parts):
+    return "".join(part.split("] ", 1)[1] for part in parts) if len(parts) > 1 else "".join(parts)
+
+
 class RecordingTransport:
     def __init__(self):
         self.sent = []
@@ -25,7 +29,7 @@ class CoreTests(unittest.IsolatedAsyncioTestCase):
         self.tmp = tempfile.TemporaryDirectory()
         self.directory = Path(self.tmp.name)
         self.transport = RecordingTransport()
-        self.runtime = Runtime(self.transport, self.directory / "state.db", send_delay=0, byte_limit=8)
+        self.runtime = Runtime(self.transport, self.directory / "state.db", send_delay=0, byte_limit=14)
 
     async def asyncTearDown(self):
         await self.runtime.close()
@@ -42,8 +46,8 @@ class CoreTests(unittest.IsolatedAsyncioTestCase):
             Command("bbs", handler), Command("bbs read", handler, aliases=("read",)))))
         self.assertTrue(await self.runtime.dispatch(Message("BBS READ 42", 99, 2, direct=True)))
         self.assertEqual(seen, [("bbs read", "42")])
-        self.assertEqual("".join(item[0] for item in self.transport.sent), "Hello 🌍 world")
-        self.assertTrue(all(len(item[0].encode()) <= 8 and item[1:] == (99, 2, "primary")
+        self.assertEqual(payloads([item[0] for item in self.transport.sent]), "Hello 🌍 world")
+        self.assertTrue(all(len(item[0].encode()) <= 14 and item[1:] == (99, 2, "primary")
                             for item in self.transport.sent))
         self.assertFalse(await self.runtime.dispatch(Message("bbsread", 99)))
 
@@ -222,19 +226,37 @@ class CoreTests(unittest.IsolatedAsyncioTestCase):
 
 
 class FormattingTests(unittest.TestCase):
+    def test_unsplit_messages_are_unchanged_even_at_exact_byte_limit(self):
+        self.assertEqual(chunks("🏓 Pong.", 10), ["🏓 Pong."])
+        self.assertEqual(chunks("[1/2] literal", 20), ["[1/2] literal"])
+
+    def test_tags_include_final_count_and_fit_multidigit_packet_budgets(self):
+        for text in ("x" * 200, "x" * 1500, "🌍 " * 100):
+            with self.subTest(text_length=len(text)):
+                parts = chunks(text, 20)
+                self.assertGreater(len(parts), 9)
+                for index, part in enumerate(parts, 1):
+                    self.assertTrue(part.startswith(f"[{index}/{len(parts)}] "))
+                    self.assertLessEqual(len(part.encode("utf-8")), 20)
+                self.assertEqual(payloads(parts), text)
+
+    def test_impossible_tag_budget_fails_instead_of_oversized_packets(self):
+        with self.assertRaisesRegex(ValueError, "split tags"):
+            chunks("🌍🌍", 7)
+
     def test_word_boundaries_keep_punctuation_with_words(self):
         text = "Please stop the sequence. Try again later."
-        parts = chunks(text, 16)
-        self.assertEqual("".join(parts), text)
-        self.assertTrue(all(len(part.encode()) <= 16 for part in parts))
+        parts = chunks(text, 20)
+        self.assertEqual(payloads(parts), text)
+        self.assertTrue(all(len(part.encode()) <= 20 for part in parts))
         self.assertTrue(any("sequence." in part for part in parts))
-        self.assertEqual(chunks("supercalifragilistic", 8), ["supercal", "ifragili", "stic"])
+        self.assertEqual(payloads(chunks("supercalifragilistic", 20)), "supercalifragilistic")
 
     def test_utf8_and_empty_text(self):
         text = "a🌍é\n" * 50
-        parts = chunks(text, 7)
-        self.assertEqual("".join(parts), text)
-        self.assertTrue(all(len(part.encode("utf-8")) <= 7 for part in parts))
+        parts = chunks(text, 20)
+        self.assertEqual(payloads(parts), text)
+        self.assertTrue(all(len(part.encode("utf-8")) <= 20 for part in parts))
         self.assertEqual(chunks("", 7), [])
         with self.assertRaises(ValueError):
             chunks(text, 3)
