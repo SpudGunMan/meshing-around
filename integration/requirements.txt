@@ -1,0 +1,9 @@
+meshtastic
+PyPubSub
+ephem
+requests
+maidenhead
+beautifulsoup4
+dadjokes
+geopy
+schedule

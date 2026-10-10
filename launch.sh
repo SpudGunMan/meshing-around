@@ -1,46 +1,8 @@
-#!/bin/bash
-# This script launches the meshing-around bot or the report generator in python virtual environment
-
-# launch.sh
-cd "$(dirname "$0")"
-
-
-if [[ ! -f "config.ini" ]]; then
-    cp config.template config.ini
-fi
-
-# activate the virtual environment if it exists
-if [[ -d "venv" ]]; then
-    source venv/bin/activate
-else
-    echo "Virtual environment not found, this tool just launches the .py in venv"
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(dirname "${BASH_SOURCE[0]}")"
+if [[ ! -x venv/bin/python ]]; then
+    echo "Virtual environment missing. Run: bash bootstrap.sh" >&2
     exit 1
 fi
-
-export REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
-export SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
-export HOME=$(pwd)
-# launch the application
-if [[ "$1" == "bot" ]]; then
-    shift
-    python3 bot.py "$@"
-elif [[ "$1" == pong* ]]; then
-    python3 pong_bot.py
-elif [[ "$1" == mesh* ]]; then
-    python3 mesh_bot.py
-elif [[ "$1" == "html" ]]; then
-    python3 etc/report_generator.py
-elif [[ "$1" == "html5" ]]; then
-    python3 etc/report_generator5.py
-elif [[ "$1" == add* ]]; then
-    python3 script/addFav.py
-elif [[ "$1" == "game" ]]; then
-    python3 script/game_serve.py
-elif [[ "$1" == "display" ]]; then
-    python3 script/game_serve.py
-else
-    echo "Please provide bot (new plugin runtime), pong/mesh (legacy), display, html/html5, or addFav"
-    exit 1
-fi
-
-deactivate
+exec venv/bin/python mesh_bot.py "$@"

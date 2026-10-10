@@ -1,23 +1,23 @@
 # Plugin runtime
 
-The new runtime has one entry point, `bot.py`. Its features come entirely from
+The new runtime has one entry point, `mesh_bot.py`. Its features come entirely from
 paired files in `plugins.d`; a ping-only installation enables only `ping.toml`.
-The original `mesh_bot.py` and `pong_bot.py` remain available while features are
-ported. They are not dependencies of the new runtime.
+The original implementation is preserved under `integration/` for future plugin
+ports. It is not a supported runnable bot or a dependency of the new runtime.
 
 Requires Python 3.11+ (`tomllib`). From the repository root:
 
 ```sh
 python3 -m venv venv
 venv/bin/python -m pip install -r requirements.txt
-venv/bin/python bot.py --check
-printf 'ping\n' | venv/bin/python bot.py
+venv/bin/python mesh_bot.py --check
+printf 'ping\n' | venv/bin/python mesh_bot.py
 venv/bin/python -m unittest discover -s tests -v
 ```
 
 `bot.toml` defaults to console transport: each input line is treated as a DM
 from node 1, and responses print to stdout. EOF shuts down the controller.
-`bash launch.sh bot` also starts the new runtime. Use `--config /path/to/bot.toml`
+`bash launch.sh` also starts the new runtime. Use `--config /path/to/bot.toml`
 for local settings; relative plugin and database paths resolve against that
 configuration file, not the shell working directory.
 
@@ -131,5 +131,5 @@ Infinite synchronous code, process termination, or malicious code cannot be
 contained by these exception handlers. Plugin-owned tasks must be cancelled in
 their shutdown hook; prefer registered jobs for core-managed background work.
 
-Configuration is read at startup; restart to adopt changes. Do not run the new
-and legacy runtimes against the same physical radio simultaneously.
+Configuration is read at startup; restart to adopt changes. Original feature
+code is migration reference under `integration/`; plugins must not import it.

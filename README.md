@@ -1,195 +1,64 @@
-# Mesh Bot for Network Testing and BBS Activities
+# Mesh Bot
 
-The new plugin architecture starts with a single runtime and a ping plugin.
-See [plugin runtime and development guide](docs/plugins.md) for configuration,
-startup, and adding `.py` / `.toml` pairs under `plugins.d`. Existing bots remain
-available during migration; other features have not yet been ported.
+A plugin-driven Meshtastic bot, rebuilding the architecture of meshing-around.
+One controller starts the core services and adopts enabled plugins from
+`plugins.d/`. A ping-only bot enables only the ping plugin.
 
-Mesh Bot is a feature-rich Python bot designed to enhance your [Meshtastic](https://meshtastic.org/docs/introduction/) network experience. It provides powerful tools for network testing, messaging, games, and more! All via text-based message delivery. Whether you want to test your mesh, send messages, or play games, [mesh_bot.py](mesh_bot.py) has you covered.
+## Quick start
 
-* [Getting Started](#getting-started)
+Requires Python 3.11 or newer.
 
-![Example Use](etc/pong-bot.jpg "Example Use")
-
-#### TLDR
-* [install.sh](INSTALL.md)
-* [Configuration Guide](modules/README.md)
-* [Games Help](modules/games/README.md)
-
-## Key Features
-![CodeQlBadge](https://github.com/SpudGunMan/meshing-around/actions/workflows/dynamic/github-code-scanning/codeql/badge.svg)
-
-### Intelligent Keyword Responder
-- **Automated Responses**: Detects keywords like "ping" and replies with "pong" in direct messages (DMs) or group channels.
-- **Customizable Triggers**: Monitors group channels for specific keywords and sends custom responses.
-- **Emergency Detection**: Watches for emergency-related keywords and alerts a wider audience.
-- **New Node Greetings**: Automatically welcomes new nodes joining the mesh.
-
-### Network Tools
-- **Mesh Testing**: Use `ping` to test message delivery with realistic packets.
-- **Hardware Testing**: The `test` command sends incrementally sized data to test radio buffer limits.
-- **Network Monitoring**: Alerts for noisy nodes, tracks node locations, and suggests optimal relay placement.
-
-- **Site Survey & Location Logging**: Use the `map` command to log your current GPS location with a custom description—ideal for site surveys, asset tracking, or mapping nodes locations. Entries are saved to a CSV file for later analysis or visualization.
-
-### Multi-Radio/Node Support
-- **Simultaneous Monitoring**: Observe up to nine networks at once.
-- **Flexible Messaging**: Send mail and messages between networks.
-
-### Advanced Messaging Capabilities
-- **Mail Messaging**: Leave messages for other devices; delivered as DMs when the device is next seen. Use `bbspost @nodeNumber #message` or `bbspost @nodeShortName #message`.
-- **Message Scheduler**: Automate messages such as weather updates or net reminders.
-- **Store and Forward**: Retrieve missed messages with the `messages` command; optionally log messages to disk.
-- **BBS Linking**: Connect multiple bots to expand BBS coverage.
-- **E-Mail/SMS Integration**: Send mesh messages to email or SMS for broader reach.
-- **New Node Greetings**: Automatically greet new nodes via text.
-
-### Interactive AI and Data Lookup
-- **Weather, Earthquake, River, and Tide Data**: Get local alerts and info from NOAA/USGS; uses Open-Meteo for areas outside NOAA coverage.
-- **Wikipedia Search**: Retrieve summaries from Wikipedia and Kiwix
-- **OpenWebUI, Ollama LLM Integration**: Query the [Ollama](https://github.com/ollama/ollama/tree/main/docs) AI for advanced responses. Supports RAG (Retrieval Augmented Generation) with Wikipedia/Kiwix context and [OpenWebUI](https://github.com/open-webui/open-webui) integration for enhanced AI capabilities. [LLM Readme](modules/llm.md)
-- **Satellite Passes**: Find upcoming satellite passes for your location.
-- **GeoMeasuring Tools**: Calculate distances and midpoints using collected GPS data; supports Fox & Hound direction finding.
-- **RSS & News Feeds**: Receive news and data from multiple sources directly on the mesh.
-
-### Proximity Alerts
-- **Location-Based Alerts**: Get notified when members arrive at a configured latitude/longitude—ideal for campsites, geo-fences, or remote locations. Optionally, trigger scripts, send emails, or automate actions (e.g., change node config, turn on lights, or drop an `alert.txt` file to start a survey or game).
-- **Customizable Triggers**: Use proximity events for creative applications like "king of the hill" or 🧭 geocache games by adjusting the alert cycle.
-- **High Flying Alerts**: Receive notifications when nodes with high altitude are detected on the mesh.
-- **Voice/Command Triggers**: Activate bot functions using keywords or voice commands (see [Voice Commands](modules/README.md#voice-commands-vox) for "Hey Chirpy!" support).
-- **YOLOv5 alerts**: Use camera modules to detect objects or OCR
-
-### EAS Alerts
-- **FEMA iPAWS/EAS Alerts**: Receive Emergency Alerts from FEMA via API on internet-connected nodes.
-- **NOAA EAS Alerts**: Get Emergency Alerts from NOAA via API.
-- **USGS Volcano Alerts**: Receive volcano alerts from USGS via API.
-- **Bund-Warnmeldung (Deutschland)**: Receive emergency alerts from warnung.bund.de feed for Germany.
-- **Offline EAS Alerts**: Report EAS alerts over the mesh using external tools, even without internet.
-
-### File Monitor Alerts
-- **File Monitoring**: Watch a text file for changes and broadcast updates to the mesh channel.
-- **News File Access**: Retrieve the contents of a news file on request; supports multiple news sources or files.
-- **Shell Command Access**: Execute shell commands via DM with replay protection (admin only).
-
-#### Radio Frequency Monitoring
-- **SNR RF Activity Alerts**: Monitor radio frequencies and receive alerts when high SNR (Signal-to-Noise Ratio) activity is detected.
-- **Hamlib Integration**: Use Hamlib (rigctld) to monitor the S meter on a connected radio.
-- **Speech-to-Text Broadcasting**: Convert received audio to text using [Vosk](https://alphacephei.com/vosk/models) and broadcast it to the mesh.
-- **WSJT-X Integration**: Monitor WSJT-X (FT8, FT4, WSPR, etc.) decode messages and forward them to the mesh network with optional callsign filtering.
-- **JS8Call Integration**: Monitor JS8Call messages and forward them to the mesh network with optional callsign filtering.
-- **Meshages TTS**: The bot can speak mesh messages aloud using [KittenTTS](https://github.com/KittenML/KittenTTS). Enable this feature to have important alerts and messages read out loud on your device—ideal for hands-free operation or accessibility. See [radio.md](modules/radio.md) for setup instructions.
-- **Offline Tone out Decoder**: Decode fire Tone out and DTMF and action with alerts to mesh
-
-### Asset Tracking, Check-In/Check-Out, and Inventory Management
-Advanced check-in/check-out and asset tracking for people and equipment—ideal for accountability, safety monitoring, and logistics (e.g., Radio-Net, FEMA, trailhead groups). Admin approval workflows, GPS location capture, and overdue alerts. The integrated inventory and point-of-sale (POS) system enables item management, sales tracking, cart-based transactions, and daily reporting, for swaps, emergency supply management, and field operations, maker-places.
-
-### Fun and Games
-- **Built-in Games**: Play classic games like DopeWars, Lemonade Stand, BlackJack, and Video Poker directly via DM.
-- **FCC ARRL QuizBot**: Practice for the ham radio exam with the integrated quiz bot.
-- **Command-Based Gameplay**: Use the `games` command to view available games and start playing.
-- **Telemetry Leaderboard**: Compete for fun stats like lowest battery or coldest temperature.
-
-#### QuizMaster
-- **Group Quizzes**: Admins can start and stop quiz games for groups.
-- **Player Participation**: Players join with `q: join`, leave with `q: leave`, and answer questions by prefixing their answer with `q:`, e.g., `q: 42`.
-- **Scoring & Leaderboards**: Check your score with `q: score` and see the top performers with `q: top`.
-- **Admin Controls**: QuizMasters (from `bbs_admin_list`) can use `q: start`, `q: stop`, and `q: broadcast <message>` to manage games.
-
-#### Survey Module
-- **Custom Surveys**: Create and manage surveys by editing JSON files in `data/survey`. Multiple surveys are supported (e.g., `survey snow`).
-- **User Feedback**: Users participate via DM; responses are logged for review.
-- **Reporting**: Retrieve survey results with `survey report` or `survey report <surveyname>`.
-
-### Data Reporting
-- **HTML Reports**: Visualize bot traffic and data flows with a built-in HTML generator. See [data reporting](logs/README.md) for details.
-
-### Robust Message Handling
-- **Automatic Message Chunking**: Messages over 160 characters are automatically split to ensure reliable delivery across multiple hops.
-
-- **Command Lockdown**: Admins can use `cmd stop` to lock out non-admin commands, and `cmd start` to restore normal command access. Non-admins may still use `cmd` to view help.
-
-## Getting Started
-This project is developed on Linux (specifically a Raspberry Pi) but should work on any platform where the [Meshtastic protobuf API](https://meshtastic.org/docs/software/python/cli/) modules are supported, and with any compatible [Meshtastic](https://meshtastic.org/docs/getting-started/) hardware, however it is **recomended to use the latest firmware code**. For low-powered devices [mPWRD-OS](https://github.com/SpudGunMan/mPWRD-OS-dev-kit) for running on luckfox hardware. If you need a local console consider the [firefly](https://github.com/pdxlocations/firefly) project. 
-
-🥔 Please use responsibly and follow local rulings for such equipment. This project captures packets, logs them, and handles over the air communications which can include PII such as GPS locations.
-
-### Quick Setup 
-#### Clone the Repository
-If you dont have git you will need it `sudo apt-get install git`
 ```sh
-git clone https://github.com/spudgunman/meshing-around
-```
-- **Automated Installation**: [install.sh](INSTALL.md) will automate optional venv and requirements installation.
-- **Launch Script**: [laynch.sh](INSTALL.md) only used in a venv install, to launch the bot and the report generator.
-
-### Docker Installation
-Good for windows or OpenWebUI enabled bots
-
-[docker.md](script/docker/README.md)
-
-## Module Help
-Configuration Guide
-[modules/README.md](modules/README.md)
-
-### Game Help
-Games are DM only by default
-
-[modules/games/README.md](modules/games/README.md)
-
-### Firmware 2.6 DM Key, and 2.7 CLIENT_BASE Favorite Nodes
-Firmware 2.6 introduced [PKC](https://meshtastic.org/blog/introducing-new-public-key-cryptography-in-v2_5/), enabling secure private messaging by adding necessary keys to each node. To fully utilize this feature, you should add favorite nodes—such as BBS admins—to your node’s favorites list to ensure their keys are retained. A helper script is provided to simplify this process:
-- Run the helper script from the main program directory: `python3 script/addFav.py`
-- By default, this script adds nodes from `bbs_admin_list` and `bbslink_whitelist`
-- If using a virtual environment, run: `launch.sh addfav`
-- The API will not work-fully today to set nodes this is a WIP
-
-Additionally, you can just DM a bot to "auto favorite." If your node is set to not be messageable, DMs won't work—be advised.
-
-To configure favorite nodes, add their numbers to your config file:
-```conf
-[general]
-favoriteNodeList = # list of favorite nodes numbers ex: 2813308004,4258675309 used by script/addFav.py
+bash bootstrap.sh
+venv/bin/python mesh_bot.py --check
+printf 'ping\n' | venv/bin/python mesh_bot.py
 ```
 
-### MQTT Notes
-There is no direct support for MQTT in the code, however, reports from Discord are that using [meshtasticd](https://meshtastic.org/docs/hardware/devices/linux-native-hardware/) with no radio and attaching the bot to the software node, which is MQTT-linked, allows routing. Tested working fully Firmware:2.6.11 with [mosquitto](https://meshtastic.org/docs/software/integrations/mqtt/mosquitto/).
+The default transport is a local console: type `ping` to receive `🏓PONG`.
+Run `bash launch.sh` for an interactive session. EOF, Ctrl+C, or SIGTERM shuts
+down the controller. Edit `bot.toml` to use a Meshtastic TCP or serial node.
+Use `--config /path/to/local.toml` for a separate configuration file.
 
-~~There also seems to be a quicker way to enable MQTT by having your bot node with the enabled [serial](https://meshtastic.org/docs/configuration/module/serial/) module with echo enabled and MQTT uplink and downlink. These two~~ 
+## Architecture
 
-# Recognition
+```text
+mesh_bot.py       Primary entry point
+botcore/          Controller, plugin API, and core services
+plugins.d/        Paired feature logic (.py) and configuration (.toml)
+bot.toml          Core, transport, and policy configuration
+tests/            Tests of the new runtime
+docs/             Plugin development documentation
+integration/      Original implementation awaiting integration
+data/             New runtime state (generated locally)
+```
 
-I used ideas and snippets from other responder bots and want to call them out!
+Core services handle command routing, policy, events, interval scheduling,
+message formatting and delivery, and plugin-scoped storage. Plugins register
+their own commands, event subscriptions, jobs, and lifecycle hooks without
+changes to core code. See the [plugin development guide](docs/plugins.md).
 
-### Inspiration and Code Snippets
-- [MeshLink](https://github.com/Murturtle/MeshLink)
-- [Meshtastic Python Examples](https://github.com/pdxlocations/meshtastic-Python-Examples)
-- [Meshtastic Matrix Relay](https://github.com/geoffwhittington/meshtastic-matrix-relay)
+## Validation
 
-### Games Ported From
-- [Lemonade Stand](https://github.com/tigerpointe/Lemonade-Stand/)
-- [Drug Wars](https://github.com/Reconfirefly/drugwars)
-- [BlackJack](https://github.com/Himan10/BlackJack)
-- [Video Poker Terminal Game](https://github.com/devtronvarma/Video-Poker-Terminal-Game)
-- [Python Mastermind](https://github.com/pwdkramer/pythonMastermind/)
-- [Golf](https://github.com/danfriedman30/pythongame)
-- ARRL Question Pool Data from https://github.com/russolsen/ham_radio_question_pool
+```sh
+venv/bin/python -m unittest discover -s tests -v
+```
 
-### Special Thanks
-For testing and feature ideas on Discord and GitHub, if its stable its thanks to you all.
-- **PiDiBi, Cisien, bitflip, nagu, Nestpebble, NomDeTom, Iris, Josh, GlockTuber, FJRPiolt, dj505, Woof, propstg, snydermesh, trs2982, F0X, Malice, mesb1, Hailo1999**
-- **xdep**: For the reporting html. 📊
-- **mrpatrick1991**: For OG Docker configurations. 💻
-- **A-c0rN**: Assistance with iPAWS and 🚨
-- **Mike O'Connell/skrrt**: For [eas_alert_parser](etc/eas_alert_parser.py) enhanced by **sheer.cold**
-- **dadud**: For idea on [etc/icad_tone.py](etc/icad_tone.py)
-- **WH6GXZ nurse dude**: Volcano Alerts 🌋
-- **mikecarper**: hamtest, leading to quiz etc.. 📋
-- **c.merphy360**: high altitude alerts. 🚀
-- **G7KSE**: DX Spotting idea. 📻
-- **Growing List of GitHub Contributers**
-- **Meshtastic Discord Community**: For putting up with 🥔
+Only ping has been ported. Physical radio operation has not yet been validated.
+The original modules, assets, documentation, and deployment scripts are preserved
+in [integration/](integration/README.md) as migration reference; they are not part
+of the supported runtime. Use the original meshing-around project if you need
+the original bot's feature set today.
 
-### Tools
-- **Node Backup Management**: [Node Slurper](https://github.com/SpudGunMan/node-slurper)
+## Containers
 
-Meshtastic® is a registered trademark of Meshtastic LLC. Meshtastic software components are released under various licenses, see GitHub for details. No warranty is provided - use at your own risk.
+```sh
+docker compose build
+docker compose run --rm mesh-bot
+```
+
+The container uses the same `mesh_bot.py` entry point and console default.
+Configuration and plugin files are built into the image; rebuild after editing
+them. Compose persists only the new runtime's `data/` directory.
+
+This project retains the original GPL license and acknowledges meshing-around's
+authors and contributors. The `mesh_bot.py` name pays tribute to those roots.

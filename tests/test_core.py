@@ -223,7 +223,7 @@ class ControllerTests(unittest.TestCase):
             config = Path(directory) / "bot.toml"
             plugins = Path(__file__).resolve().parents[1] / "plugins.d"
             config.write_text(f'[core]\nplugins="{plugins}"\nsend_delay=0\n[radio]\ntype="console"\n')
-            result = subprocess.run([sys.executable, "bot.py", "--config", str(config)],
+            result = subprocess.run([sys.executable, "mesh_bot.py", "--config", str(config)],
                 input="ping\nPING\nunknown\n", text=True, capture_output=True, timeout=5,
                 cwd=plugins.parent)
             self.assertEqual(result.returncode, 0, result.stderr)

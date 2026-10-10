@@ -29,3 +29,9 @@ venv/
 
 # Python cache
 __pycache__/
+# Archived local runtime state
+integration/data/*
+!integration/data/README.md
+integration/logs/*.log
+# New runtime SQLite sidecars
+data/*.db-*
