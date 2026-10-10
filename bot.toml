@@ -1,0 +1,16 @@
+[core]
+plugins = "plugins.d"
+database = "data/core.db"
+message_bytes = 160
+send_delay = 0.7
+
+[radio]
+# Use console for local development. For a radio, use type="tcp" with
+# hostname="your-node" and port=4403, or type="serial" with device="/dev/ttyACM0".
+type = "console"
+
+[policy]
+admins = []
+blocked = []
+# Plugins allowed to send unsolicited channel messages or change reply audience.
+broadcast_plugins = []

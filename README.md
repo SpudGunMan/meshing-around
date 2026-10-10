@@ -1,5 +1,10 @@
 # Mesh Bot for Network Testing and BBS Activities
 
+The new plugin architecture starts with a single runtime and a ping plugin.
+See [plugin runtime and development guide](docs/plugins.md) for configuration,
+startup, and adding `.py` / `.toml` pairs under `plugins.d`. Existing bots remain
+available during migration; other features have not yet been ported.
+
 Mesh Bot is a feature-rich Python bot designed to enhance your [Meshtastic](https://meshtastic.org/docs/introduction/) network experience. It provides powerful tools for network testing, messaging, games, and more! All via text-based message delivery. Whether you want to test your mesh, send messages, or play games, [mesh_bot.py](mesh_bot.py) has you covered.
 
 * [Getting Started](#getting-started)

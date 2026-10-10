@@ -21,7 +21,10 @@ export REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
 export SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
 export HOME=$(pwd)
 # launch the application
-if [[ "$1" == pong* ]]; then
+if [[ "$1" == "bot" ]]; then
+    shift
+    python3 bot.py "$@"
+elif [[ "$1" == pong* ]]; then
     python3 pong_bot.py
 elif [[ "$1" == mesh* ]]; then
     python3 mesh_bot.py
@@ -36,7 +39,7 @@ elif [[ "$1" == "game" ]]; then
 elif [[ "$1" == "display" ]]; then
     python3 script/game_serve.py
 else
-    echo "Please provide a bot to launch (pong/mesh/display) or a report to generate (html/html5) or addFav"
+    echo "Please provide bot (new plugin runtime), pong/mesh (legacy), display, html/html5, or addFav"
     exit 1
 fi
 
