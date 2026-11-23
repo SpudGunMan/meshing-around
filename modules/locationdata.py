@@ -35,7 +35,6 @@ def where_am_i(lat=0, lon=0, short=False, zip=False):
         if short:
             location = geolocator.reverse(lat + ", " + lon)
             address = location.raw['address']
-            address_components = ['city', 'state', 'county', 'country']
             region = 'Province' if address.get('country_code', '').lower() == 'ca' else 'State'
             whereIam = f"City: {address.get('city', '')}. {region}: {address.get('state', '')}. County: {address.get('county', '')}. Country: {address.get('country', '')}."
             return whereIam
